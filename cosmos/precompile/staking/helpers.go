@@ -27,6 +27,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -134,7 +136,7 @@ func (c *Contract) delegateHelper(
 	_, err = c.msgServer.Delegate(ctx, stakingtypes.NewMsgDelegate(
 		cosmlib.AddressToAccAddress(caller),
 		validatorAddress,
-		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
+		sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(amount)),
 	))
 	return []any{err == nil}, err
 }
@@ -154,7 +156,7 @@ func (c *Contract) undelegateHelper(
 	_, err = c.msgServer.Undelegate(ctx, stakingtypes.NewMsgUndelegate(
 		cosmlib.AddressToAccAddress(caller),
 		val,
-		sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
+		sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(amount)),
 	))
 	return []any{err == nil}, err
 }
@@ -177,7 +179,7 @@ func (c *Contract) beginRedelegateHelper(
 			cosmlib.AddressToAccAddress(caller),
 			srcVal,
 			dstVal,
-			sdk.NewCoin(bondDenom, sdk.NewIntFromBigInt(amount)),
+			sdk.NewCoin(bondDenom, sdkmath.NewIntFromBigInt(amount)),
 		),
 	)
 	return []any{err == nil}, err
@@ -202,7 +204,7 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 			cosmlib.AddressToAccAddress(caller),
 			val,
 			creationHeight,
-			sdk.NewCoin(bondDenom, sdk.NewIntFromBigInt(amount)),
+			sdk.NewCoin(bondDenom, sdkmath.NewIntFromBigInt(amount)),
 		),
 	)
 	return []any{err != nil}, err

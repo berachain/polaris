@@ -72,7 +72,7 @@ func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipt
 
 // StoreTransactions implements `core.HistoricalPlugin`.
 func (p *plugin) StoreTransactions(
-	blockNum int64, blockHash common.Hash, txs coretypes.Transactions,
+	blockNum uint64, blockHash common.Hash, txs coretypes.Transactions,
 ) error {
 	// store all txns in the block.
 	txStore := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
@@ -81,7 +81,7 @@ func (p *plugin) StoreTransactions(
 			Tx:        tx,
 			TxIndex:   uint64(txIndex),
 			BlockHash: blockHash,
-			BlockNum:  uint64(blockNum),
+			BlockNum:  blockNum,
 		}
 		var tleBz []byte
 		tleBz, err := txLookupEntry.MarshalBinary()
@@ -99,7 +99,7 @@ func (p *plugin) StoreTransactions(
 }
 
 // GetBlockByNumber returns the block at the given height.
-func (p *plugin) GetBlockByNumber(number int64) (*coretypes.Block, error) {
+func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
 	// get header from on chain.
 	header, err := p.bp.GetHeaderByNumber(number)
 	if err != nil {
@@ -146,12 +146,12 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	if numBz == nil {
 		return nil, fmt.Errorf("failed to find block number for block hash %s", blockHash.Hex())
 	}
-	number := int64(sdk.BigEndianToUint64(numBz))
+	number := sdk.BigEndianToUint64(numBz)
 	header, err := p.bp.GetHeaderByNumber(number)
 	if err != nil {
 		return nil, err
 	}
-	if int64(header.Number.Uint64()) != number || header.Hash() != blockHash {
+	if header.Number.Uint64() != number || header.Hash() != blockHash {
 		panic("header number or hash is not equal to the given number or hash")
 	}
 

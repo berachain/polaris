@@ -25,7 +25,6 @@ import (
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
 
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -37,7 +36,9 @@ import (
 
 //nolint:gochecknoinits // GRRRR fix later.
 func init() {
-	appmodule.Register(&modulev1alpha1.Module{}, appmodule.Provide(ProvideModule))
+	appmodule.Register(&modulev1alpha1.Module{},
+		appmodule.Provide(ProvideModule),
+	)
 }
 
 // DepInjectInput is the input for the dep inject framework.
@@ -47,7 +48,6 @@ type DepInjectInput struct {
 	ModuleKey depinject.OwnModuleKey
 	Config    *modulev1alpha1.Module
 	Key       *store.KVStoreKey
-	AppOpts   servertypes.AppOptions
 
 	Mempool           sdkmempool.Mempool
 	CustomPrecompiles func() *ethprecompile.Injector `optional:"true"`
@@ -84,7 +84,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.BankKeeper,
 		in.StakingKeeper,
 		authority.String(),
-		in.AppOpts,
 		in.Mempool,
 		in.CustomPrecompiles,
 	)

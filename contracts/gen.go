@@ -27,7 +27,7 @@ package contracts
 
 //go:generate abigen --pkg staking --abi ./out/Mint.sol/IMintModule.abi.json --bin ./out/Mint.sol/IMintModule.bin --out ./bindings/cosmos/precompile/mint/i_mint_module.abigen.go --type MintModule
 //go:generate abigen --pkg staking --abi ./out/Staking.sol/IStakingModule.abi.json --bin ./out/Staking.sol/IStakingModule.bin --out ./bindings/cosmos/precompile/staking/i_staking_module.abigen.go --type StakingModule
-//go:generate abigen --pkg bank --abi ./out/Bank.sol/IBankModule.abi.json --bin ./out/Bank.sol/IbankModule.bin --out ./bindings/cosmos/precompile/bank/i_bank_module.abigen.go --type BankModule
+//go:generate abigen --pkg bank --abi ./out/Bank.sol/IBankModule.abi.json --bin ./out/Bank.sol/IBankModule.bin --out ./bindings/cosmos/precompile/bank/i_bank_module.abigen.go --type BankModule
 //go:generate abigen --pkg auth --abi ./out/Auth.sol/IAuthModule.abi.json --bin ./out/Auth.sol/IAuthModule.bin --out ./bindings/cosmos/precompile/auth/i_auth_module.abigen.go --type AuthModule
 //go:generate abigen --pkg distribution --abi ./out/Distribution.sol/IDistributionModule.abi.json --bin ./out/Distribution.sol/IDistributionModule.bin --out ./bindings/cosmos/precompile/distribution/i_distribution_module.abigen.go --type DistributionModule --exc "IBankModuleCoin"
 //go:generate abigen --pkg governance --abi ./out/Governance.sol/IGovernanceModule.abi.json --bin ./out/Governance.sol/IGovernanceModule.bin --out ./bindings/cosmos/precompile/governance/i_governance_module.abigen.go --type GovernanceModule

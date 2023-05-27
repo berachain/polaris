@@ -70,13 +70,9 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		evmtypes.ModuleName,
-		erc20types.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		group.ModuleName,
-	},
-	Precommiters: []string{
-		evmtypes.ModuleName,
 	},
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.

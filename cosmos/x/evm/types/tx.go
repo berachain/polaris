@@ -33,23 +33,23 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// EthTransactionRequest defines a Cosmos SDK message for Ethereum transactions.
-var _ sdk.Msg = (*EthTransactionRequest)(nil)
+// WrappedEthereumTransaction defines a Cosmos SDK message for Ethereum transactions.
+var _ sdk.Msg = (*WrappedEthereumTransaction)(nil)
 
 // NewFromTransaction sets the transaction data from an `coretypes.Transaction`.
-func NewFromTransaction(tx *coretypes.Transaction) *EthTransactionRequest {
+func NewFromTransaction(tx *coretypes.Transaction) *WrappedEthereumTransaction {
 	bz, err := tx.MarshalBinary()
 	if err != nil {
 		panic(err)
 	}
 
-	return &EthTransactionRequest{
+	return &WrappedEthereumTransaction{
 		Data: bz,
 	}
 }
 
 // GetSigners returns the address(es) that must sign over the transaction.
-func (etr *EthTransactionRequest) GetSigners() []sdk.AccAddress {
+func (etr *WrappedEthereumTransaction) GetSigners() []sdk.AccAddress {
 	sender, err := etr.GetSender()
 	if err != nil {
 		return nil
@@ -58,7 +58,7 @@ func (etr *EthTransactionRequest) GetSigners() []sdk.AccAddress {
 }
 
 // AsTransaction extracts the transaction as an `coretypes.Transaction`.
-func (etr *EthTransactionRequest) AsTransaction() *coretypes.Transaction {
+func (etr *WrappedEthereumTransaction) AsTransaction() *coretypes.Transaction {
 	tx := new(coretypes.Transaction)
 	if err := tx.UnmarshalBinary(etr.Data); err != nil {
 		return nil
@@ -67,35 +67,35 @@ func (etr *EthTransactionRequest) AsTransaction() *coretypes.Transaction {
 }
 
 // GetSignBytes returns the bytes to sign over for the transaction.
-func (etr *EthTransactionRequest) GetSignBytes() ([]byte, error) {
+func (etr *WrappedEthereumTransaction) GetSignBytes() ([]byte, error) {
 	tx := etr.AsTransaction()
 	return coretypes.LatestSignerForChainID(tx.ChainId()).
 		Hash(tx).Bytes(), nil
 }
 
 // GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
-func (etr *EthTransactionRequest) GetSender() (common.Address, error) {
+func (etr *WrappedEthereumTransaction) GetSender() (common.Address, error) {
 	tx := etr.AsTransaction()
 	signer := coretypes.LatestSignerForChainID(tx.ChainId())
 	return signer.Sender(tx)
 }
 
 // GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
-func (etr *EthTransactionRequest) GetPubKey() ([]byte, error) {
+func (etr *WrappedEthereumTransaction) GetPubKey() ([]byte, error) {
 	tx := etr.AsTransaction()
 	signer := coretypes.LatestSignerForChainID(tx.ChainId())
 	return signer.PubKey(tx)
 }
 
 // GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
-func (etr *EthTransactionRequest) GetSignature() ([]byte, error) {
+func (etr *WrappedEthereumTransaction) GetSignature() ([]byte, error) {
 	tx := etr.AsTransaction()
 	signer := coretypes.LatestSignerForChainID(tx.ChainId())
 	return signer.Signature(tx)
 }
 
 // GetGas returns the gas limit of the transaction.
-func (etr *EthTransactionRequest) GetGas() uint64 {
+func (etr *WrappedEthereumTransaction) GetGas() uint64 {
 	var tx *coretypes.Transaction
 	if tx = etr.AsTransaction(); tx == nil {
 		return 0
@@ -104,7 +104,7 @@ func (etr *EthTransactionRequest) GetGas() uint64 {
 }
 
 // GetGasPrice returns the gas price of the transaction.
-func (etr *EthTransactionRequest) ValidateBasic() error {
+func (etr *WrappedEthereumTransaction) ValidateBasic() error {
 	// Ensure the transaction is signed properly
 	tx := etr.AsTransaction()
 	if tx == nil {
@@ -136,7 +136,7 @@ func (etr *EthTransactionRequest) ValidateBasic() error {
 
 // GetAsEthTx is a helper function to get an EthTx from a sdk.Tx.
 func GetAsEthTx(tx sdk.Tx) *coretypes.Transaction {
-	etr, ok := utils.GetAs[*EthTransactionRequest](tx.GetMsgs()[0])
+	etr, ok := utils.GetAs[*WrappedEthereumTransaction](tx.GetMsgs()[0])
 	if !ok {
 		return nil
 	}

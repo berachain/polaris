@@ -51,7 +51,7 @@ func NewGenesisState(params Params, atc map[string]*Contract, htc map[string]str
 }
 
 // NewContract creates a new `Contract` object.
-func NewContract(codeHash common.Hash, code []byte, slotToValue map[string]string) *Contract {
+func NewContract(codeHash common.Hash, slotToValue map[string]string) *Contract {
 	return &Contract{
 		CodeHash:    codeHash.Hex(),
 		SlotToValue: slotToValue,
