@@ -33,7 +33,7 @@ import (
 // transactions that are added to the mempool by ethereum transaction hash.
 type EthTxPool struct {
 	// The underlying mempool implementation.
-	*PriorityNonceMempool[int64]
+	*mempool.PriorityNonceMempool[int64]
 
 	// ethTxCache caches transactions that are added to the mempool so that they can be retrieved
 	// later
@@ -60,8 +60,13 @@ func NewPolarisEthereumTxPool() *EthTxPool {
 		PriceBump: 10, //nolint:gomnd // 10% to match geth.
 	}.Func
 	return &EthTxPool{
-		PriorityNonceMempool: NewPriorityMempool(config),
+		PriorityNonceMempool: mempool.NewPriorityMempool(config),
 		nonceToHash:          make(map[common.Address]map[uint64]common.Hash),
 		ethTxCache:           make(map[common.Hash]*coretypes.Transaction),
 	}
+}
+
+// SetNonceRetriever sets the nonce retriever db for the mempool.
+func (etp *EthTxPool) SetNonceRetriever(nr NonceRetriever) {
+	etp.nr = nr
 }

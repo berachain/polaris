@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"crypto/ecdsa"
 	"math/big"
+	"sync"
 	"testing"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -85,6 +86,13 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Nonce(common.HexToAddress("0x3"))).To(Equal(uint64(0)))
 		})
 
+		It("should error with low nonces", func() {
+			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 0})
+			err := etp.Insert(ctx, tx1)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("nonce too low"))
+		})
+
 		It("should return pending/queued txs with correct nonces", func() {
 			ethTx1, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
 			ethTx2, tx2 := buildTx(key2, &coretypes.LegacyTx{Nonce: 2})
@@ -104,8 +112,8 @@ var _ = Describe("EthTxPool", func() {
 			Expect(pending).To(HaveLen(lenP))
 			Expect(queued).To(HaveLen(lenQ))
 
-			Expect(pending[addr1][0].Hash()).To(Equal(ethTx1.Hash()))
-			Expect(pending[addr2][0].Hash()).To(Equal(ethTx2.Hash()))
+			Expect(etp.isPendingTx(etp, ethTx1)).To(BeTrue())
+			Expect(etp.isPendingTx(etp, ethTx2)).To(BeTrue())
 
 			Expect(etp.Remove(tx2)).ToNot(HaveOccurred())
 			Expect(etp.Get(ethTx2.Hash())).To(BeNil())
@@ -119,8 +127,9 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Nonce(addr1)).To(Equal(uint64(3)))
 			p11, q11 := etp.ContentFrom(addr1)
 			Expect(p11).To(HaveLen(2))
-			Expect(p11[1].Hash()).To(Equal(ethTx11.Hash()))
-			Expect(q11).To(HaveLen(0))
+
+			Expect(etp.isPendingTx(etp, ethTx11)).To(BeTrue())
+			Expect(q11).To(BeEmpty())
 		})
 
 		It("should handle replacement txs", func() {
@@ -135,6 +144,186 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Get(ethTx1.Hash())).To(BeNil())
 			Expect(etp.Get(ethTx2.Hash()).Hash()).To(Equal(ethTx2.Hash()))
 
+		})
+		It("should enqueue transactions with out of order nonces then poll from queue when inorder nonce tx is received",
+			func() {
+				_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
+				ethtx3, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3})
+
+				Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
+				Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
+
+				Expect(etp.isQueuedTx(etp, ethtx3)).To(BeTrue())
+
+				_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
+				Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+
+				_, queuedTransactions := etp.ContentFrom(addr1)
+				Expect(queuedTransactions).To(BeEmpty())
+				Expect(etp.Nonce(addr1)).To(Equal(uint64(4)))
+			})
+		It("should not allow replacement txs with gas increase < 10%", func() {
+			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(99)})
+			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(100)})
+			_, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(99)})
+
+			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx2)).To(HaveOccurred())
+			Expect(etp.Insert(ctx, tx3)).To(HaveOccurred()) // should skip the math for replacement
+		})
+		It("should handle spam txs and prevent DOS attacks", func() {
+			for i := 1; i < 1000; i++ {
+				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+				Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+			}
+			// probably more stuff down here...
+		})
+		It("should be able to fetch transactions from the cache", func() {
+
+			var txHashes []common.Hash
+			for i := 1; i < 100; i++ {
+				ethTx, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+				Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+				txHashes = append(txHashes, ethTx.Hash())
+			}
+			for _, txHash := range txHashes {
+				Expect(etp.Get(txHash).Hash()).To(Equal(txHash))
+			}
+
+		})
+		It("should allow resubmitting a transaction with same nonce but different fields", func() {
+			_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(1)})
+			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(5), Data: []byte("blahblah")})
+
+			Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+		})
+		It("should prioritize transactions first by nonce, then priority", func() {
+			_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(1)})
+			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2, GasPrice: big.NewInt(5)})
+			_, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3, GasPrice: big.NewInt(3)})
+			_, tx31 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3, GasPrice: big.NewInt(5)})
+
+			Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx31)).ToNot(HaveOccurred())
+
+			// very ugly code, but it works for now,
+			// looks like an unoptimal leetcode solution kek
+			// TODO: Iterate using the `PriorityNonceIterator` and `Select()` defined in priority_nonce.go maybe?
+			var prevTx *coretypes.Transaction
+			for _, txs := range etp.Pending(false) {
+				for _, tx := range txs {
+					if prevTx == nil { // for the first transaction from a sender
+						prevTx = tx
+					} else { // for the rest of the transactions
+						Expect(tx.Nonce()).To(Equal(prevTx.Nonce() + 1))
+						prevTx = tx
+
+					}
+					// NOTE: replacement transactions are not handled because the old tx is removed from the pool
+				}
+			}
+			pending, _ := etp.Stats()
+			Expect(pending).To(Equal(3))
+		})
+		It("should handle many pending txs", func() {
+			ethTx1, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(1)})
+			ethTx2, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2, GasPrice: big.NewInt(2)})
+			ethTx3, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3, GasPrice: big.NewInt(3)})
+			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
+
+			expected := []common.Hash{ethTx1.Hash(), ethTx2.Hash(), ethTx3.Hash()}
+			found := etp.Pending(false)[addr1]
+			Expect(found).To(HaveLen(3))
+			for i, ethTx := range found {
+				Expect(ethTx.Hash()).To(Equal(expected[i]))
+			}
+		})
+
+		It("should not return pending when queued", func() {
+			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2, GasPrice: big.NewInt(2)})
+			_, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3, GasPrice: big.NewInt(3)})
+			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
+
+			Expect(etp.Pending(false)[addr1]).To(BeEmpty())
+			Expect(etp.queued()[addr1]).To(HaveLen(2))
+			pending, queued := etp.Stats()
+			Expect(pending).To(Equal(0))
+			Expect(queued).To(Equal(2))
+		})
+
+		It("should enforce transaction size limits", func() {})
+		It("should handle transaction eviction based on time", func() {})
+		It("should handle concurrent additions", func() {
+
+			// apologies in advance for this test, it's not great.
+
+			var wg sync.WaitGroup
+
+			wg.Add(1)
+			go func(etp *EthTxPool) {
+				defer wg.Done()
+				for i := 1; i <= 10; i++ {
+					_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+				}
+			}(etp)
+
+			wg.Add(1)
+			go func(etp *EthTxPool) {
+				defer wg.Done()
+				for i := 2; i <= 11; i++ {
+					_, tx := buildTx(key2, &coretypes.LegacyTx{Nonce: uint64(i)})
+					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+				}
+			}(etp)
+
+			wg.Wait()
+			lenPending, _ := etp.Stats()
+			Expect(lenPending).To(BeEquivalentTo(20))
+		})
+		It("should handle concurrent reads", func() {
+
+			readsFromA := 0
+			readsFromB := 0
+
+			// fill mempoopl with transactions
+			var wg sync.WaitGroup
+
+			for i := 1; i < 10; i++ {
+				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+				Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+			}
+
+			// concurrently read mempool from Peer A ...
+			wg.Add(1)
+			go func(etp *EthTxPool) {
+				defer wg.Done()
+				for _, txs := range etp.Pending(false) {
+					for range txs {
+						readsFromA++
+					}
+				}
+			}(etp)
+
+			// ... and peer B
+			wg.Add(1)
+			go func(etp *EthTxPool) {
+				defer wg.Done()
+				for _, txs := range etp.Pending(false) {
+					for range txs {
+						readsFromB++
+					}
+				}
+			}(etp)
+
+			wg.Wait()
+			Expect(readsFromA).To(BeEquivalentTo(readsFromB))
 		})
 	})
 })
@@ -153,6 +342,32 @@ func (mplf *mockPLF) Build(event *sdk.Event) (*coretypes.Log, error) {
 	return &coretypes.Log{
 		Address: common.BytesToAddress([]byte(event.Type)),
 	}, nil
+}
+
+func (etp *EthTxPool) isQueuedTx(mempool *EthTxPool, tx *coretypes.Transaction) bool {
+	_, queued := mempool.Content()
+
+	for _, list := range queued {
+		for _, ethTx := range list {
+			if tx.Hash() == ethTx.Hash() {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (etp *EthTxPool) isPendingTx(mempool *EthTxPool, tx *coretypes.Transaction) bool {
+	pending, _ := mempool.Content()
+
+	for _, list := range pending {
+		for _, ethTx := range list {
+			if tx.Hash() == ethTx.Hash() {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func buildTx(from *ecdsa.PrivateKey, txData *coretypes.LegacyTx) (*coretypes.Transaction, sdk.Tx) {

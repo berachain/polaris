@@ -152,7 +152,7 @@ func (c *Contract) CoinDenomForERC20AddressAddrInput(
 	resp, err := c.em.CoinDenomForERC20Address(
 		ctx,
 		&erc20types.CoinDenomForERC20AddressRequest{
-			Token: cosmlib.AddressToAccAddress(addr).String(),
+			Token: cosmlib.Bech32FromEthAddress(addr),
 		},
 	)
 	if err != nil {

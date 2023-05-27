@@ -68,3 +68,9 @@ func PubkeyFromTx(signedTx *Transaction, signer Signer) ([]byte, error) {
 	// Then we can compress it to adhere to the required format.
 	return crypto.CompressPubkey(pubKey), nil
 }
+
+// GetSender returns the sender of the transaction.
+func GetSender(tx *Transaction) common.Address {
+	sender, _ := LatestSignerForChainID(tx.ChainId()).Sender(tx)
+	return sender
+}

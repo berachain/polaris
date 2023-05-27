@@ -40,7 +40,7 @@ type EthereumTxReplacePolicy[C comparable] struct {
 // Source: https://github.com/ethereum/go-ethereum/blob/9231770811cda0473a7fa4e2bccc95bf62aae634/core/txpool/list.go#L284
 //
 //nolint:lll // url.
-func (etpc EthereumTxReplacePolicy[C]) Func(op, np C, oldTx, newTx sdk.Tx) bool {
+func (etpc EthereumTxReplacePolicy[C]) Func(_, _ C, oldTx, newTx sdk.Tx) bool {
 	// Convert the transactions to Ethereum transactions.
 	oldEthTx := evmtypes.GetAsEthTx(oldTx)
 	newEthTx := evmtypes.GetAsEthTx(newTx)
