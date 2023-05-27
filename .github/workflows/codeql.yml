@@ -22,7 +22,7 @@ on:
 
 jobs:
   analyze:
-    runs-on: "self-hosted"
+    runs-on: "ubuntu-latest"
     permissions:
       actions: read
       contents: read
@@ -65,9 +65,20 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.versions }}
+      - name: Cache Golang Deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go
+          # We use a different restore key for the codeql version just in case the autobuilder decides
+          # to compile with a different go version or do anything funky.
+          key: ${{ runner.os }}-golang-codeql-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-codeql-
       - name: Install Go Tools
         run: |
-          go run magefiles/mage/setup.go
+          go run magefiles/setup/setup.go
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
