@@ -52,15 +52,15 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 			switch {
 			case pendingNonce == 0:
 				// If its the first tx, set the pending nonce to the nonce of the tx.
-				pendingNonces[addr] = ethTx.Nonce()
+				txNonce := ethTx.Nonce()
 				// If on the first lookup the nonce delta is more than 0, then there is a gap
 				// and thus no pending transactions, but there are queued transactions. We
 				// continue.
-				if sdbNonce := etp.nr.GetNonce(addr); pendingNonces[addr]-sdbNonce >= 1 {
-					delete(pendingNonces, addr)
+				if sdbNonce := etp.nr.GetNonce(addr); txNonce-sdbNonce >= 1 {
 					continue
 				}
 				// this is a pending tx, add it to the pending map.
+				pendingNonces[addr] = txNonce
 				pending[addr] = append(pending[addr], ethTx)
 			case ethTx.Nonce() == pendingNonce+1:
 				// If its not the first tx, but the nonce is the same as the pending nonce, add
