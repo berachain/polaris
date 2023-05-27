@@ -22,7 +22,7 @@ on:
 
 jobs:
   analyze:
-    runs-on: "self-hosted"
+    runs-on: "ubuntu-latest"
     permissions:
       actions: read
       contents: read
@@ -71,9 +71,11 @@ jobs:
           path: |
             ~/.cache/go-build
             ~/go
-          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+          # We use a different restore key for the codeql version just in case the autobuilder decides
+          # to compile with a different go version or do anything funky.
+          key: ${{ runner.os }}-golang-codeql-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-golang-
+            ${{ runner.os }}-golang-codeql-
       - name: Install Go Tools
         run: |
           go run magefiles/setup/setup.go

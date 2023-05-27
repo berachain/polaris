@@ -30,13 +30,12 @@ on:
 # https://github.com/github/codeql/issues/6321
 env:
   CODEQL_EXTRACTOR_GO_BUILD_TRACING: "on"
-
 jobs:
   ci:
     strategy:
       matrix:
         args: ["build", "lint", "testunitcover", "testintegrationcover"]
-        os: [self-hosted]
+        os: [ubuntu-latest]
         go-version: [1.20.4]
     runs-on: ${{ matrix.os }}
     steps:
