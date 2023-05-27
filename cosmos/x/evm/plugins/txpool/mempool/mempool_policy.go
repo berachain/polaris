@@ -21,12 +21,36 @@
 package mempool
 
 import (
+	"context"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
+
+// =============================================================================
+// Priority Policy
+// =============================================================================
+
+type EthereumTxPriorityPolicy struct {
+	baseFee *big.Int
+}
+
+// GetTxPriorityFn returns a function that can be used to calculate the priority of a transaction.
+func (tpp *EthereumTxPriorityPolicy) GetTxPriority(ctx context.Context, tx sdk.Tx) *big.Int {
+	ethTx := evmtypes.GetAsEthTx(tx)
+	if ethTx == nil {
+		// If not an ethereum transaction fallback to the default cosmos-sdk priority.
+		return big.NewInt(sdk.UnwrapSDKContext(ctx).Priority())
+	}
+
+	return ethTx.EffectiveGasTipValue(tpp.baseFee)
+}
+
+// =============================================================================
+// Replacement Policy
+// =============================================================================
 
 // EthereumTxReplacePolicy implements the Ethereum protocol's transaction replacement policy for a Cosmos-SDK mempool.
 type EthereumTxReplacePolicy[C comparable] struct {
