@@ -101,7 +101,7 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 					// this is a pending tx, add it to the pending map.
 					pendingNonces[addr] = pendingNonce
 				}
-			case ethTx.Nonce() == pendingNonces[addr]+1:
+			case ethTx.Nonce() == pendingNonce+1:
 				// If we are still contiguous and the nonce is the same as the pending nonce,
 				// increment the pending nonce.
 				pendingNonce++
@@ -131,7 +131,7 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 			if addr != txAddr {
 				continue
 			}
-			_, ok := pendingNonces[addr]
+			pendingNonce, ok := pendingNonces[addr]
 			txNonce := ethTx.Nonce()
 			switch {
 			case !ok:
@@ -142,11 +142,11 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 				}
 				// this is a pending tx, add it to the pending map.
 				pendingNonces[addr] = txNonce
-			case txNonce == pendingNonces[addr]+1:
+			case txNonce == pendingNonce+1:
 				// If we are still contiguous and the nonce is the same as the pending nonce,
 				// increment the pending nonce.
 				pendingNonces[addr]++
-			case txNonce > pendingNonces[addr]+1:
+			case txNonce > pendingNonce+1:
 				// As soon as we see a non contiguous nonce we break.
 				break
 			}
