@@ -113,19 +113,6 @@ func (bc *blockchain) CurrentSafeBlock() *types.Header {
 	return bc.CurrentFinalBlock()
 }
 
-// HasHeader checks if a block header is present in the database or not, caching
-// it if present.
-// func (bc *blockchain) HasHeader(hash common.Hash, number uint64) bool {
-// 	// return bc.hc.HasHeader(hash, number)
-
-// }
-
-// // GetHeader retrieves a block header from the database by hash and number,
-// // caching it if found.
-// func (bc *blockchain) GetHeader(hash common.Hash, number uint64) *types.Header {
-// 	// return bc.hc.GetHeader(hash, number)
-// }
-
 // GetHeaderByHash retrieves a block header from the database by hash, caching it if
 // found.
 func (bc *blockchain) GetHeaderByHash(hash common.Hash) *types.Header {
@@ -135,58 +122,6 @@ func (bc *blockchain) GetHeaderByHash(hash common.Hash) *types.Header {
 	}
 	return block.Header()
 }
-
-// // GetHeaderByNumber retrieves a block header from the database by number,
-// // caching it (associated with its hash) if found.
-// func (bc *BlockChain) GetHeaderByNumber(number uint64) *types.Header {
-// 	return bc.hc.GetHeaderByNumber(number)
-// }
-
-// // GetHeadersFrom returns a contiguous segment of headers, in rlp-form, going
-// // backwards from the given number.
-// func (bc *BlockChain) GetHeadersFrom(number, count uint64) []rlp.RawValue {
-// 	return bc.hc.GetHeadersFrom(number, count)
-// }
-
-// // GetBody retrieves a block body (transactions and uncles) from the database by
-// // hash, caching it if found.
-// func (bc *BlockChain) GetBody(hash common.Hash) *types.Body {
-// 	// Short circuit if the body's already in the cache, retrieve otherwise
-// 	if cached, ok := bc.bodyCache.Get(hash); ok {
-// 		return cached
-// 	}
-// 	number := bc.hc.GetBlockNumber(hash)
-// 	if number == nil {
-// 		return nil
-// 	}
-// 	body := rawdb.ReadBody(bc.db, hash, *number)
-// 	if body == nil {
-// 		return nil
-// 	}
-// 	// Cache the found body for next time and return
-// 	bc.bodyCache.Add(hash, body)
-// 	return body
-// }
-
-// // GetBodyRLP retrieves a block body in RLP encoding from the database by hash,
-// // caching it if found.
-// func (bc *BlockChain) GetBodyRLP(hash common.Hash) rlp.RawValue {
-// 	// Short circuit if the body's already in the cache, retrieve otherwise
-// 	if cached, ok := bc.bodyRLPCache.Get(hash); ok {
-// 		return cached
-// 	}
-// 	number := bc.hc.GetBlockNumber(hash)
-// 	if number == nil {
-// 		return nil
-// 	}
-// 	body := rawdb.ReadBodyRLP(bc.db, hash, *number)
-// 	if len(body) == 0 {
-// 		return nil
-// 	}
-// 	// Cache the found body for next time and return
-// 	bc.bodyRLPCache.Add(hash, body)
-// 	return body
-// }
 
 // CurrentReceipts returns the current receipts of the blockchain.
 func (bc *blockchain) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
