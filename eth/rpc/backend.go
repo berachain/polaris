@@ -18,7 +18,6 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-//nolint:gomnd // TODO: fix
 package rpc
 
 import (
@@ -127,8 +126,6 @@ func (b *backend) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
 // FeeHistory returns the base fee and gas used history of the last N blocks.
 func (b *backend) FeeHistory(ctx context.Context, blockCount int, lastBlock BlockNumber,
 	rewardPercentiles []float64) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
-	b.logger.Info("called eth.rpc.backend.FeeHistory", "blockCount", blockCount,
-		"lastBlock", lastBlock, "rewardPercentiles", rewardPercentiles)
 	return b.gpo.FeeHistory(ctx, blockCount, lastBlock, rewardPercentiles)
 }
 
@@ -404,16 +401,10 @@ func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethSt
 ) (*vm.GethEVM, func() error, error) {
 	if vmConfig == nil {
 		b.logger.Info("eth.rpc.backend.GetEVM", "vmConfig", "nil")
-		vmConfig = new(vm.Config)
-	}
-	if msg == nil {
-		b.logger.Error("eth.rpc.backend.GetEVM", "msg", "nil")
-		return nil, nil, errors.New("msg is nil")
+		vmConfig = new(vm.Config) // todo: read from blockchain obj.
 	}
 	txContext := core.NewEVMTxContext(msg)
-	b.logger.Info("called eth.rpc.backend.GetEVM", "header", header, "txContext", txContext, "vmConfig", vmConfig)
-	gethEVM := b.chain.GetEVM(ctx, txContext, utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig)
-	return gethEVM, state.Error, nil
+	return b.chain.GetEVM(ctx, txContext, utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig), state.Error, nil
 }
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {
