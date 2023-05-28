@@ -37,7 +37,10 @@ var defaultEthConfig = ethconfig.Config{
 }
 
 type NetworkingStack interface {
+	// RegisterAPIs registers JSON-RPC handlers for the networking stack.
 	RegisterAPIs([]rpc.API)
+
+	// Start starts the networking stack.
 	Start() error
 }
 
@@ -46,7 +49,8 @@ type Polaris struct {
 	// config *ethconfig.Config
 
 	// Handlers
-	ns NetworkingStack
+	stack NetworkingStack
+
 	// txPool     *txpool.TxPool
 	blockchain core.Blockchain
 	backend    rpc.PolarisBackend
@@ -112,7 +116,7 @@ func NewWithConfig(
 	pl.backend = rpc.NewPolarisBackend(pl.blockchain, &cfg.RPCConfig, &cfg.NodeConfig)
 
 	var err error
-	pl.ns, err = node.New(&cfg.NodeConfig)
+	pl.stack, err = node.New(&cfg.NodeConfig)
 	if err != nil {
 		panic(err)
 	}
@@ -148,14 +152,14 @@ func (pl *Polaris) APIs() []rpc.API {
 // StartServices starts the standard go-ethereum node-services (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
 	// Register the JSON-RPCs with the node
-	pl.ns.RegisterAPIs(pl.APIs())
+	pl.stack.RegisterAPIs(pl.APIs())
 
 	// Register the filter API separately in order to get access to the filterSystem
 	// TODO: this should be made cleaner.
-	filterSystem := utils.RegisterFilterAPI(pl.ns.(*node.Node), pl.backend, &defaultEthConfig)
+	filterSystem := utils.RegisterFilterAPI(pl.stack.(*node.Node), pl.backend, &defaultEthConfig)
 	// this should be a flag rather than make every node default to using it
-	utils.RegisterGraphQLService(pl.ns.(*node.Node), pl.backend, filterSystem, pl.ns.(*node.Node).Config())
+	utils.RegisterGraphQLService(pl.stack.(*node.Node), pl.backend, filterSystem, pl.stack.(*node.Node).Config())
 
 	// Start the services (json-rpc, graphql, etc)
-	return pl.ns.Start()
+	return pl.stack.Start()
 }
