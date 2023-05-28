@@ -21,22 +21,14 @@
 package polar
 
 import (
-	"math/big"
-	"sync"
-
-	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/cmd/utils"
-	"github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
-	"github.com/ethereum/go-ethereum/ethapi"
-	"github.com/ethereum/go-ethereum/ethdb"
-	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/node"
 
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/rpc"
+	rpcapi "pkg.berachain.dev/polaris/eth/rpc/api"
 )
 
 var defaultEthConfig = ethconfig.Config{
@@ -46,31 +38,31 @@ var defaultEthConfig = ethconfig.Config{
 
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
-	config *ethconfig.Config
+	// config *ethconfig.Config
 
 	// Handlers
-	node       *node.Node
-	txPool     *txpool.TxPool
+	node *node.Node
+	// txPool     *txpool.TxPool
 	blockchain core.Blockchain
 	backend    rpc.PolarisBackend
 
-	// DB interfaces
-	chainDb ethdb.Database // Block chain database
+	// // DB interfaces
+	// chainDb ethdb.Database // Block chain database
 
-	eventMux *event.TypeMux
-	// engine         consensus.Engine
-	accountManager *accounts.Manager
+	// eventMux *event.TypeMux
+	// // engine         consensus.Engine
+	// accountManager *accounts.Manager
 
-	APIBackend *EthAPIBackend
+	// APIBackend *EthAPIBackend
 
 	// miner     *miner.Miner
-	gasPrice  *big.Int
-	etherbase common.Address
+	// gasPrice  *big.Int
+	// etherbase common.Address
 
-	networkID     uint64
-	netRPCService *ethapi.NetAPI
+	// networkID     uint64
+	// netRPCService *ethapi.NetAPI
 
-	lock sync.RWMutex // Protects the variadic fields (e.g. gas price and etherbase)
+	// lock sync.RWMutex // Protects the variadic fields (e.g. gas price and etherbase)
 }
 
 // New creates a new `PolarisEVM` instance for use on an underlying blockchain.
@@ -99,7 +91,7 @@ func NewWithConfig(
 	host core.PolarisHostChain,
 	logHandler log.Handler,
 ) *Polaris {
-	sp := &Polaris{}
+	pl := &Polaris{}
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
 	// we use the default geth log handler.
@@ -109,25 +101,26 @@ func NewWithConfig(
 	}
 
 	// Build the chain from the host.
-	sp.blockchain = core.NewChain(host)
+	pl.blockchain = core.NewChain(host)
 
 	// Build and set the RPC Backend.
-	sp.backend = rpc.NewPolarisBackend(sp.blockchain, &cfg.RPCConfig, &cfg.NodeConfig)
+	pl.backend = rpc.NewPolarisBackend(pl.blockchain, &cfg.RPCConfig, &cfg.NodeConfig)
 
 	var err error
-	sp.node, err = node.New(&cfg.NodeConfig)
+	pl.node, err = node.New(&cfg.NodeConfig)
 	if err != nil {
 		panic(err)
 	}
 
-	return sp
+	return pl
 }
 
 // APIs return the collection of RPC services the ethereum package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
-func (s *Polaris) APIs() []rpc.API {
-	apis := ethapi.GetAPIs(s.APIBackend, s.blockchain)
-	apis = append(apis, rpc.GetAPIs(s.backend)...)
+func (pl *Polaris) APIs() []rpc.API {
+	// apis := ethapi.GetAPIs(s.APIBackend, s.blockchain)
+	apis := rpc.GetAPIs(pl.backend)
+	apis = append(apis, rpc.GetAPIs(pl.backend)...)
 	// Append any APIs exposed explicitly by the consensus engine
 	// apis = append(apis, s.engine.APIs(s.BlockChain())...)
 
@@ -142,22 +135,22 @@ func (s *Polaris) APIs() []rpc.API {
 		// }, {
 		{
 			Namespace: "net",
-			Service:   s.netRPCService,
+			Service:   rpcapi.NewNetAPI(pl.backend),
 		},
 	}...)
 }
 
 // StartServices starts the standard go-ethereum node-services (i.e json-rpc).
-func (sp *Polaris) StartServices() error {
+func (pl *Polaris) StartServices() error {
 	// Register the JSON-RPCs with the node
-	sp.node.RegisterAPIs(sp.APIs())
+	pl.node.RegisterAPIs(pl.APIs())
 
 	// Register the filter API separately in order to get access to the filterSystem
 	// TODO: this should be made cleaner.
-	filterSystem := utils.RegisterFilterAPI(sp.node, sp.backend, &defaultEthConfig)
+	filterSystem := utils.RegisterFilterAPI(pl.node, pl.backend, &defaultEthConfig)
 	// this should be a flag rather than make every node default to using it
-	utils.RegisterGraphQLService(sp.node, sp.backend, filterSystem, sp.node.Config())
+	utils.RegisterGraphQLService(pl.node, pl.backend, filterSystem, pl.node.Config())
 
 	// Start the services (json-rpc, graphql, etc)
-	return sp.node.Start()
+	return pl.node.Start()
 }
