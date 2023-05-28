@@ -464,7 +464,8 @@ func (b *backend) TxPoolContentFrom(addr common.Address) (
 	types.Transactions, types.Transactions,
 ) {
 	pending, queued := b.chain.GetPoolContentFrom(addr)
-	b.logger.Debug("called eth.rpc.backend.TxPoolContentFrom", "addr", addr, "pending", len(pending), "queued", len(queued))
+	b.logger.Debug("called eth.rpc.backend.TxPoolContentFrom",
+		"addr", addr, "pending", len(pending), "queued", len(queued))
 	return pending, queued
 }
 
