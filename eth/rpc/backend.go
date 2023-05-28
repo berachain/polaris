@@ -392,8 +392,10 @@ func (b *backend) GetLogs(
 // GetTd returns the total difficulty of a block in the canonical chain.
 // This is hardcoded to 69, as it is only applicable in a PoW chain.
 func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
-	b.logger.Info("called eth.rpc.backend.GetTd", "hash", hash)
-	return new(big.Int).SetInt64(69)
+	if header := b.chain.GetHeaderByHash(hash); header != nil {
+		return b.chain.GetTd(hash, header.Number.Uint64())
+	}
+	return nil
 }
 
 // GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.

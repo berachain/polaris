@@ -21,6 +21,8 @@
 package core
 
 import (
+	"math/big"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -46,6 +48,7 @@ type ChainBlockReader interface {
 	GetHeaderByHash(common.Hash) *types.Header
 	GetBlockByNumber(uint64) *types.Block
 	GetTransactionLookup(common.Hash) *types.TxLookupEntry
+	GetTd(common.Hash, uint64) *big.Int
 
 	// THIS SHOULD BE MOVED TO A "MINER" TYPE THING
 	PendingBlockAndReceipts() (*types.Block, types.Receipts)
@@ -376,6 +379,16 @@ func (bc *blockchain) GetHeaderByNumber(number uint64) *types.Header {
 		return nil
 	}
 	return block.Header()
+}
+
+// GetTd retrieves a block's total difficulty in the canonical chain from the
+// database by hash and number, caching it if found.
+func (bc *blockchain) GetTd(hash common.Hash, number uint64) *big.Int {
+	block := bc.GetBlock(hash, number)
+	if block == nil {
+		return nil
+	}
+	return block.Difficulty()
 }
 
 // =========================================================================
