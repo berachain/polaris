@@ -84,8 +84,9 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: code-coverage-report
+          path: ~/
       - name: Upload to Codecov
         uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage-testunitcover.txt ./coverage-testintegrationcover.txt
+          files: ~/coverage-testunitcover.txt ~/coverage-testintegrationcover.txt
