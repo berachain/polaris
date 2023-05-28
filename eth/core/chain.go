@@ -51,6 +51,7 @@ type Blockchain interface {
 	ChainWriter
 	ChainSubscriber
 	ChainResources
+	ChainContext
 }
 
 // blockchain is the canonical, persistent object that operates the Polaris EVM.

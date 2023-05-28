@@ -126,7 +126,7 @@ func NewWithConfig(
 // APIs return the collection of RPC services the ethereum package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (s *Polaris) APIs() []rpc.API {
-	apis := ethapi.GetAPIs(s.APIBackend, core.NewChainContext(s.blockchain))
+	apis := ethapi.GetAPIs(s.APIBackend, s.blockchain)
 	apis = append(apis, rpc.GetAPIs(s.backend)...)
 	// Append any APIs exposed explicitly by the consensus engine
 	// apis = append(apis, s.engine.APIs(s.BlockChain())...)
