@@ -243,7 +243,7 @@ func (bc *blockchain) GetBlock(hash common.Hash, number uint64) *types.Block {
 	if block == nil || err != nil {
 		block, err = bc.hp.GetBlockByNumber(number)
 		if block == nil || err != nil {
-			bc.logger.Error("failed to get block from historical plugin", "err", err)
+			bc.logger.Debug("failed to get block from historical plugin", "err", err)
 			return nil
 		}
 	}
@@ -329,7 +329,7 @@ func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 	// check the historical plugin
 	receipts, err := bc.hp.GetReceiptsByHash(blockHash)
 	if err != nil {
-		bc.logger.Error("failed to get receipts from historical plugin", "err", err)
+		bc.logger.Warn("failed to get receipts from historical plugin", "err", err)
 		return nil
 	}
 
@@ -340,6 +340,7 @@ func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 		bc.logger.Error("failed to derive receipts", "err", err)
 		return nil
 	}
+
 	return derived
 }
 
