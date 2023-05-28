@@ -47,7 +47,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/params"
 	rpcapi "pkg.berachain.dev/polaris/eth/rpc/api"
 	"pkg.berachain.dev/polaris/eth/version"
-	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -92,6 +91,22 @@ func NewPolarisBackend(
 // ==============================================================================
 // General Ethereum API
 // ==============================================================================
+
+// ChainConfig returns the chain configuration.
+func (b *backend) ChainConfig() *params.ChainConfig {
+	b.logger.Info("called eth.rpc.backend.ChainConfig")
+	return b.chain.Config()
+}
+
+// CurrentHeader returns the current header from the local chains.
+func (b *backend) CurrentHeader() *types.Header {
+	return b.chain.CurrentHeader()
+}
+
+// CurrentBlock returns the current block from the local chain.
+func (b *backend) CurrentBlock() *types.Header {
+	return b.chain.CurrentBlock()
+}
 
 // SyncProgress returns the current progress of the sync algorithm.
 func (b *backend) SyncProgress() ethereum.SyncProgress {
@@ -176,11 +191,7 @@ func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*ty
 	}
 	// Otherwise resolve and return the block
 	if number == rpc.LatestBlockNumber {
-		header := b.chain.CurrentHeader()
-		if header != nil {
-			return header, nil
-		}
-		return nil, nil //nolint:nilnil // to match geth.
+		return b.chain.CurrentBlock(), nil
 	}
 	if number == rpc.FinalizedBlockNumber {
 		block := b.chain.CurrentFinalBlock()
@@ -199,61 +210,29 @@ func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*ty
 	return b.chain.GetHeaderByNumber(uint64(number)), nil
 }
 
-// HeaderByHash returns the block header with the given hash.
-func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Header, error) {
-	block := b.chain.GetBlockByHash(hash)
-	if block == nil {
-		b.logger.Error("eth.rpc.backend.HeaderByHash", "hash", hash, "nil", true)
-		return nil, errorslib.Wrapf(ErrBlockNotFound, "HeaderByHash [%s]", hash.String())
-	}
-	b.logger.Info("eth.rpc.backend.HeaderByHash", "header", block.Header())
-	return block.Header(), nil
-}
-
 // HeaderByNumberOrHash returns the header identified by `number` or `hash`.
 func (b *backend) HeaderByNumberOrHash(ctx context.Context,
 	blockNrOrHash BlockNumberOrHash,
 ) (*types.Header, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
-		block, err := b.BlockByNumber(ctx, blockNr)
-		if block == nil || err != nil {
-			return nil, errorslib.Wrapf(ErrBlockNotFound,
-				"polarisBlockByNumberOrHash: number [%d]", blockNr)
-		}
-		return block.Header(), nil
+		return b.HeaderByNumber(ctx, blockNr)
 	}
 	if hash, ok := blockNrOrHash.Hash(); ok {
-		block := b.chain.GetBlockByHash(hash)
-		if block == nil {
+		header := b.chain.GetHeaderByHash(hash)
+		if header == nil {
 			return nil, errors.New("header for hash not found")
 		}
-		// TODO: Implement canonical stuff correctly.
 		// if blockNrOrHash.RequireCanonical && b.eth.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
 		// 	return nil, errors.New("hash is not currently canonical")
 		// }
-		// block := b.chain.GetBlock(hash, header.Number.Uint64())
-		// if block == nil {
-		// 	return nil, errors.New("header found, but block body is missing")
-		// }
-		return block.Header(), nil
+		return header, nil
 	}
 	return nil, errors.New("invalid arguments; neither block nor hash specified")
 }
 
-// CurrentHeader returns the current header from the local chains.
-func (b *backend) CurrentHeader() *types.Header {
-	return b.chain.CurrentHeader()
-}
-
-// CurrentBlock returns the current block from the local chain.
-func (b *backend) CurrentBlock() *types.Header {
-	block := b.chain.CurrentBlock()
-	if block == nil {
-		b.logger.Error("eth.rpc.backend.CurrentBlock is nil")
-		return nil
-	}
-	b.logger.Info("called eth.rpc.backend.CurrentBlock", "block", block)
-	return block
+// HeaderByHash returns the block header with the given hash.
+func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Header, error) {
+	return b.chain.GetHeaderByHash(hash), nil
 }
 
 // BlockByNumber returns the block with the given `number`.
@@ -372,7 +351,7 @@ func (b *backend) GetTransaction(
 	b.logger.Info("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
 	txLookup := b.chain.GetTransactionLookup(txHash)
 	if txLookup == nil {
-		return nil, common.Hash{}, 0, 0, nil //nolint:nilerr // required to match geth.
+		return nil, common.Hash{}, 0, 0, nil
 	}
 	return txLookup.Tx, txLookup.BlockHash, txLookup.BlockNum, txLookup.TxIndex, nil
 }
@@ -394,7 +373,6 @@ func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 
 // GetReceipts returns the receipts for the given block hash.
 func (b *backend) GetReceipts(_ context.Context, hash common.Hash) (types.Receipts, error) {
-	b.logger.Info("called eth.rpc.backend.GetReceipts", "hash", hash)
 	return b.chain.GetReceiptsByHash(hash), nil
 }
 
@@ -499,12 +477,6 @@ func (b *backend) TxPoolContentFrom(addr common.Address) (
 
 func (b *backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {
 	return b.chain.SubscribeNewTxsEvent(ch)
-}
-
-// ChainConfig returns the chain configuration.
-func (b *backend) ChainConfig() *params.ChainConfig {
-	b.logger.Info("called eth.rpc.backend.ChainConfig")
-	return b.chain.Config()
 }
 
 func (b *backend) Engine() consensus.Engine {

@@ -43,6 +43,7 @@ type ChainBlockReader interface {
 	GetReceiptsByHash(common.Hash) types.Receipts
 	GetBlockByHash(common.Hash) *types.Block
 	GetHeaderByNumber(uint64) *types.Header
+	GetHeaderByHash(common.Hash) *types.Header
 	GetBlockByNumber(uint64) *types.Block
 	GetTransactionLookup(common.Hash) *types.TxLookupEntry
 
@@ -109,23 +110,28 @@ func (bc *blockchain) CurrentSafeBlock() *types.Header {
 	return bc.CurrentFinalBlock()
 }
 
-// // HasHeader checks if a block header is present in the database or not, caching
-// // it if present.
-// func (bc *BlockChain) HasHeader(hash common.Hash, number uint64) bool {
-// 	return bc.hc.HasHeader(hash, number)
+// HasHeader checks if a block header is present in the database or not, caching
+// it if present.
+// func (bc *blockchain) HasHeader(hash common.Hash, number uint64) bool {
+// 	// return bc.hc.HasHeader(hash, number)
+
 // }
 
 // // GetHeader retrieves a block header from the database by hash and number,
 // // caching it if found.
-// func (bc *BlockChain) GetHeader(hash common.Hash, number uint64) *types.Header {
-// 	return bc.hc.GetHeader(hash, number)
+// func (bc *blockchain) GetHeader(hash common.Hash, number uint64) *types.Header {
+// 	// return bc.hc.GetHeader(hash, number)
 // }
 
-// // GetHeaderByHash retrieves a block header from the database by hash, caching it if
-// // found.
-// func (bc *BlockChain) GetHeaderByHash(hash common.Hash) *types.Header {
-// 	return bc.hc.GetHeaderByHash(hash)
-// }
+// GetHeaderByHash retrieves a block header from the database by hash, caching it if
+// found.
+func (bc *blockchain) GetHeaderByHash(hash common.Hash) *types.Header {
+	block := bc.GetBlockByHash(hash)
+	if block == nil {
+		return nil
+	}
+	return block.Header()
+}
 
 // // GetHeaderByNumber retrieves a block header from the database by number,
 // // caching it (associated with its hash) if found.
