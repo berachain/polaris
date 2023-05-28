@@ -171,28 +171,28 @@ func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*ty
 	if number == rpc.PendingBlockNumber {
 		// TODO: handle "miner" stuff
 		// block := b.eth.miner.PendingBlock()
-		block := b.chain.CurrentBlock()
-		return block.Header(), nil
+		header := b.chain.CurrentHeader()
+		return header, nil
 	}
 	// Otherwise resolve and return the block
 	if number == rpc.LatestBlockNumber {
-		block := b.chain.CurrentBlock()
-		if block != nil {
-			return block.Header(), nil
+		header := b.chain.CurrentHeader()
+		if header != nil {
+			return header, nil
 		}
 		return nil, nil //nolint:nilnil // to match geth.
 	}
 	if number == rpc.FinalizedBlockNumber {
 		block := b.chain.CurrentFinalBlock()
 		if block != nil {
-			return block.Header(), nil
+			return block, nil
 		}
 		return nil, errors.New("finalized block not found")
 	}
 	if number == rpc.SafeBlockNumber {
 		block := b.chain.CurrentSafeBlock()
 		if block != nil {
-			return block.Header(), nil
+			return block, nil
 		}
 		return nil, errors.New("safe block not found")
 	}
@@ -253,7 +253,7 @@ func (b *backend) CurrentBlock() *types.Header {
 		return nil
 	}
 	b.logger.Info("called eth.rpc.backend.CurrentBlock", "block", block)
-	return block.Header()
+	return block
 }
 
 // BlockByNumber returns the block with the given `number`.
@@ -263,17 +263,21 @@ func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*typ
 		// 	block := b.eth.miner.PendingBlock()
 		// 	return block, nil
 		// todo: handling pending better.
-		return b.chain.CurrentBlock(), nil
+		header := b.chain.CurrentBlock()
+		return b.chain.GetBlock(header.Hash(), header.Number.Uint64()), nil
 	}
-	// // Otherwise resolve and return the block
+	// Otherwise resolve and return the block
 	if number == rpc.LatestBlockNumber {
-		return b.chain.CurrentBlock(), nil
+		header := b.chain.CurrentBlock()
+		return b.chain.GetBlock(header.Hash(), header.Number.Uint64()), nil
 	}
 	if number == rpc.FinalizedBlockNumber {
-		return b.chain.CurrentFinalBlock(), nil
+		header := b.chain.CurrentFinalBlock()
+		return b.chain.GetBlock(header.Hash(), header.Number.Uint64()), nil
 	}
 	if number == rpc.SafeBlockNumber {
-		return b.chain.CurrentSafeBlock(), nil
+		header := b.chain.CurrentSafeBlock()
+		return b.chain.GetBlock(header.Hash(), header.Number.Uint64()), nil
 	}
 	// safe to assume number >= 0
 	return b.chain.GetBlockByNumber(uint64(number)), nil
@@ -366,17 +370,17 @@ func (b *backend) GetTransaction(
 	_ context.Context, txHash common.Hash,
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
 	b.logger.Info("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
-	tx, blockHash, blockNumber, index, err := b.chain.GetTransaction(txHash)
-	if err != nil {
+	txLookup := b.chain.GetTransactionLookup(txHash)
+	if txLookup == nil {
 		return nil, common.Hash{}, 0, 0, nil //nolint:nilerr // required to match geth.
 	}
-	return tx, blockHash, blockNumber, index, nil
+	return txLookup.Tx, txLookup.BlockHash, txLookup.BlockNum, txLookup.TxIndex, nil
 }
 
 // PendingBlockAndReceipts returns the pending block (equivalent to current block in Polaris)
 // and associated receipts.
 func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
-	block, receipts := b.chain.CurrentBlockAndReceipts()
+	block, receipts := b.chain.PendingBlockAndReceipts()
 	// If the block is non-existent, return nil.
 	// This is to maintain parity with the behavior of the geth backend.
 	if block == nil {

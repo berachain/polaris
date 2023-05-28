@@ -23,13 +23,11 @@ package core
 import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // ChainReader defines methods that are used to read the state and blocks of the chain.
 type ChainReader interface {
-	Config() *params.ChainConfig
 	ChainBlockReader
 	ChainTxPoolReader
 	ChainSubscriber
@@ -38,15 +36,18 @@ type ChainReader interface {
 // ChainBlockReader defines methods that are used to read information about blocks in the chain.
 type ChainBlockReader interface {
 	CurrentHeader() *types.Header
-	CurrentBlock() *types.Block
-	CurrentBlockAndReceipts() (*types.Block, types.Receipts)
-	CurrentFinalBlock() *types.Block
-	CurrentSafeBlock() *types.Block
+	CurrentBlock() *types.Header
+	CurrentFinalBlock() *types.Header
+	CurrentSafeBlock() *types.Header
+	GetBlock(common.Hash, uint64) *types.Block
 	GetReceiptsByHash(common.Hash) types.Receipts
 	GetBlockByHash(common.Hash) *types.Block
 	GetHeaderByNumber(uint64) *types.Header
 	GetBlockByNumber(uint64) *types.Block
-	GetTransaction(common.Hash) (*types.Transaction, common.Hash, uint64, uint64, error)
+	GetTransactionLookup(common.Hash) *types.TxLookupEntry
+
+	// THIS SHOULD BE MOVED TO A "MINER" TYPE THING
+	PendingBlockAndReceipts() (*types.Block, types.Receipts)
 }
 
 // ChainTxPoolReader defines methods that are used to read information about the state
@@ -58,15 +59,6 @@ type ChainTxPoolReader interface {
 	GetPoolStats() (int, int)
 	GetPoolContent() (map[common.Address]types.Transactions, map[common.Address]types.Transactions)
 	GetPoolContentFrom(addr common.Address) (types.Transactions, types.Transactions)
-}
-
-// =========================================================================
-// Configuration
-// =========================================================================
-
-// ChainConfig returns the Ethereum chain config of the  chain.
-func (bc *blockchain) Config() *params.ChainConfig {
-	return bc.cp.ChainConfig()
 }
 
 // =========================================================================
@@ -83,24 +75,118 @@ func (bc *blockchain) CurrentHeader() *types.Header {
 }
 
 // CurrentHeader returns the current header of the blockchain.
-func (bc *blockchain) CurrentBlock() *types.Block {
+func (bc *blockchain) CurrentBlock() *types.Header {
 	block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
 	if block == nil || !ok {
 		return nil
 	}
 	bc.blockNumCache.Add(block.Number().Uint64(), block)
 	bc.blockHashCache.Add(block.Hash(), block)
-	return block
+	return block.Header()
 }
 
+// CurrentSnapBlock is UNUSED in Polaris.
+func (bc *blockchain) CurrentSnapBlock() *types.Header {
+	return nil
+}
+
+// GetHeadersFrom returns a contiguous segment of headers, in rlp-form, going
+// backwards from the given number.
+func (bc *blockchain) CurrentFinalBlock() *types.Header {
+	fb, ok := utils.GetAs[*types.Block](bc.finalizedBlock.Load())
+	if fb == nil || !ok {
+		return nil
+	}
+	bc.blockNumCache.Add(fb.Number().Uint64(), fb)
+	bc.blockHashCache.Add(fb.Hash(), fb)
+	return fb.Header()
+}
+
+// CurrentSafeBlock retrieves the current safe block of the canonical
+// chain. The block is retrieved from the blockchain's internal cache.
+func (bc *blockchain) CurrentSafeBlock() *types.Header {
+	// TODO: determine the difference between safe and final in polaris.
+	return bc.CurrentFinalBlock()
+}
+
+// // HasHeader checks if a block header is present in the database or not, caching
+// // it if present.
+// func (bc *BlockChain) HasHeader(hash common.Hash, number uint64) bool {
+// 	return bc.hc.HasHeader(hash, number)
+// }
+
+// // GetHeader retrieves a block header from the database by hash and number,
+// // caching it if found.
+// func (bc *BlockChain) GetHeader(hash common.Hash, number uint64) *types.Header {
+// 	return bc.hc.GetHeader(hash, number)
+// }
+
+// // GetHeaderByHash retrieves a block header from the database by hash, caching it if
+// // found.
+// func (bc *BlockChain) GetHeaderByHash(hash common.Hash) *types.Header {
+// 	return bc.hc.GetHeaderByHash(hash)
+// }
+
+// // GetHeaderByNumber retrieves a block header from the database by number,
+// // caching it (associated with its hash) if found.
+// func (bc *BlockChain) GetHeaderByNumber(number uint64) *types.Header {
+// 	return bc.hc.GetHeaderByNumber(number)
+// }
+
+// // GetHeadersFrom returns a contiguous segment of headers, in rlp-form, going
+// // backwards from the given number.
+// func (bc *BlockChain) GetHeadersFrom(number, count uint64) []rlp.RawValue {
+// 	return bc.hc.GetHeadersFrom(number, count)
+// }
+
+// // GetBody retrieves a block body (transactions and uncles) from the database by
+// // hash, caching it if found.
+// func (bc *BlockChain) GetBody(hash common.Hash) *types.Body {
+// 	// Short circuit if the body's already in the cache, retrieve otherwise
+// 	if cached, ok := bc.bodyCache.Get(hash); ok {
+// 		return cached
+// 	}
+// 	number := bc.hc.GetBlockNumber(hash)
+// 	if number == nil {
+// 		return nil
+// 	}
+// 	body := rawdb.ReadBody(bc.db, hash, *number)
+// 	if body == nil {
+// 		return nil
+// 	}
+// 	// Cache the found body for next time and return
+// 	bc.bodyCache.Add(hash, body)
+// 	return body
+// }
+
+// // GetBodyRLP retrieves a block body in RLP encoding from the database by hash,
+// // caching it if found.
+// func (bc *BlockChain) GetBodyRLP(hash common.Hash) rlp.RawValue {
+// 	// Short circuit if the body's already in the cache, retrieve otherwise
+// 	if cached, ok := bc.bodyRLPCache.Get(hash); ok {
+// 		return cached
+// 	}
+// 	number := bc.hc.GetBlockNumber(hash)
+// 	if number == nil {
+// 		return nil
+// 	}
+// 	body := rawdb.ReadBodyRLP(bc.db, hash, *number)
+// 	if len(body) == 0 {
+// 		return nil
+// 	}
+// 	// Cache the found body for next time and return
+// 	bc.bodyRLPCache.Add(hash, body)
+// 	return body
+// }
+
 // CurrentReceipts returns the current receipts of the blockchain.
-func (bc *blockchain) CurrentBlockAndReceipts() (*types.Block, types.Receipts) {
+func (bc *blockchain) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 	var err error
 
 	// Get current block.
-	block := bc.CurrentBlock()
-	if block == nil {
-		bc.logger.Error("current block is nil")
+	header := bc.CurrentHeader()
+	if header == nil {
+		bc.logger.Error("current header is nil")
 		return nil, nil
 	}
 
@@ -112,9 +198,16 @@ func (bc *blockchain) CurrentBlockAndReceipts() (*types.Block, types.Receipts) {
 	}
 
 	// Derive receipts from block.
-	receipts, err = bc.deriveReceipts(receipts, block.Hash())
+	receipts, err = bc.deriveReceipts(receipts, header.Hash())
 	if err != nil {
 		bc.logger.Error("failed to derive receipts", "err", err)
+		return nil, nil
+	}
+
+	// Get block
+	block := bc.GetBlock(header.Hash(), header.Number.Uint64())
+	if block == nil {
+		bc.logger.Error("failed to get block", "hash", header.Hash(), "number", header.Number.Uint64())
 		return nil, nil
 	}
 
@@ -123,21 +216,86 @@ func (bc *blockchain) CurrentBlockAndReceipts() (*types.Block, types.Receipts) {
 	return block, receipts
 }
 
-// CurrentFinalBlock returns the last finalized block of the blockchain.
-func (bc *blockchain) CurrentFinalBlock() *types.Block {
-	fb, ok := utils.GetAs[*types.Block](bc.finalizedBlock.Load())
-	if fb == nil || !ok {
+// GetBlock returns a block by its hash or number.
+func (bc *blockchain) GetBlock(hash common.Hash, number uint64) *types.Block {
+	// check the cache
+	if block, ok := bc.blockHashCache.Get(hash); ok {
+		return block
+	}
+
+	// check if historical plugin is supported by host chain
+	if bc.hp == nil {
+		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil
 	}
-	bc.blockNumCache.Add(fb.Number().Uint64(), fb)
-	bc.blockHashCache.Add(fb.Hash(), fb)
-	return fb
+
+	// Try by Hash
+	block, err := bc.hp.GetBlockByHash(hash)
+	if block == nil || err != nil {
+		block, err = bc.hp.GetBlockByNumber(number)
+		if block == nil || err != nil {
+			bc.logger.Error("failed to get block from historical plugin", "err", err)
+			return nil
+		}
+	}
+
+	// Cache the found block for next time and return
+	bc.blockHashCache.Add(hash, block)
+	bc.blockNumCache.Add(block.Number().Uint64(), block)
+	return block
 }
 
-// CurrentSafeBlock returns the last safe block of the blockchain.
-func (bc *blockchain) CurrentSafeBlock() *types.Block {
-	// TODO: determine the difference between safe and final in polaris.
-	return bc.CurrentFinalBlock()
+// GetBlockByHash retrieves a block from the database by hash, caching it if found.
+func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
+	// check the block hash cache
+	if block, ok := bc.blockHashCache.Get(hash); ok {
+		bc.blockNumCache.Add(block.Number().Uint64(), block)
+		return block
+	}
+
+	// check if historical plugin is supported by host chain
+	if bc.hp == nil {
+		bc.logger.Debug("historical plugin not supported by host chain")
+		return nil
+	}
+
+	// check the historical plugin
+	block, err := bc.hp.GetBlockByHash(hash)
+	if err != nil {
+		bc.logger.Error("failed to get block by hash", "err", err)
+		return nil
+	}
+
+	// Cache the found block for next time and return
+	bc.blockNumCache.Add(block.Number().Uint64(), block)
+	bc.blockHashCache.Add(hash, block)
+	return block
+}
+
+// GetBlock retrieves a block from the database by hash and number, caching it if found.
+func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
+	// check the block number cache
+	if block, ok := bc.blockNumCache.Get(number); ok {
+		bc.blockHashCache.Add(block.Hash(), block)
+		return block
+	}
+
+	// check if historical plugin is supported by host chain
+	if bc.hp == nil {
+		bc.logger.Debug("historical plugin not supported by host chain")
+		return nil
+	}
+
+	// check the historical plugin
+	block, err := bc.hp.GetBlockByNumber(number)
+	if err != nil {
+		return nil
+	}
+
+	// Cache the found block for next time and return
+	bc.blockNumCache.Add(number, block)
+	bc.blockHashCache.Add(block.Hash(), block)
+	return block
 }
 
 // GetReceipts gathers the receipts that were created in the block defined by
@@ -180,31 +338,29 @@ func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 // block that the transaction was included in, the block number, and the index of the
 // transaction in the block. It only retrieves transactions that are included in the chain
 // and does not acquire transactions that are in the mempool.
-func (bc *blockchain) GetTransaction(
-	txHash common.Hash,
-) (*types.Transaction, common.Hash, uint64, uint64, error) {
+func (bc *blockchain) GetTransactionLookup(
+	hash common.Hash,
+) *types.TxLookupEntry {
 	// check the cache
-	if txLookupEntry, ok := bc.txLookupCache.Get(txHash); ok {
-		return txLookupEntry.Tx, txLookupEntry.BlockHash,
-			txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
+	if txLookupEntry, ok := bc.txLookupCache.Get(hash); ok {
+		return txLookupEntry
 	}
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
 		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil, common.Hash{}, 0, 0, ErrTxNotFound
+		return nil
 	}
 
 	// check the historical plugin
-	txLookupEntry, err := bc.hp.GetTransactionByHash(txHash)
+	txLookupEntry, err := bc.hp.GetTransactionByHash(hash)
 	if err != nil {
-		return nil, common.Hash{}, 0, 0, err
+		return nil
 	}
 
 	// cache the found transaction for next time and return
-	bc.txLookupCache.Add(txHash, txLookupEntry)
-	return txLookupEntry.Tx, txLookupEntry.BlockHash,
-		txLookupEntry.BlockNum, txLookupEntry.TxIndex, nil
+	bc.txLookupCache.Add(hash, txLookupEntry)
+	return txLookupEntry
 }
 
 // GetHeaderByNumber retrieves a header from the blockchain.
@@ -214,59 +370,6 @@ func (bc *blockchain) GetHeaderByNumber(number uint64) *types.Header {
 		return nil
 	}
 	return block.Header()
-}
-
-// GetBlock retrieves a block from the database by hash and number, caching it if found.
-func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
-	// check the block number cache
-	if block, ok := bc.blockNumCache.Get(number); ok {
-		bc.blockHashCache.Add(block.Hash(), block)
-		return block
-	}
-
-	// check if historical plugin is supported by host chain
-	if bc.hp == nil {
-		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil
-	}
-
-	// check the historical plugin
-	block, err := bc.hp.GetBlockByNumber(number)
-	if err != nil {
-		return nil
-	}
-
-	// Cache the found block for next time and return
-	bc.blockNumCache.Add(number, block)
-	bc.blockHashCache.Add(block.Hash(), block)
-	return block
-}
-
-// GetBlockByHash retrieves a block from the database by hash, caching it if found.
-func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
-	// check the block hash cache
-	if block, ok := bc.blockHashCache.Get(hash); ok {
-		bc.blockNumCache.Add(block.Number().Uint64(), block)
-		return block
-	}
-
-	// check if historical plugin is supported by host chain
-	if bc.hp == nil {
-		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil
-	}
-
-	// check the historical plugin
-	block, err := bc.hp.GetBlockByHash(hash)
-	if err != nil {
-		bc.logger.Error("failed to get block by hash", "err", err)
-		return nil
-	}
-
-	// Cache the found block for next time and return
-	bc.blockNumCache.Add(block.Number().Uint64(), block)
-	bc.blockHashCache.Add(hash, block)
-	return block
 }
 
 // =========================================================================
