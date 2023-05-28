@@ -23,12 +23,9 @@ package mempool
 import (
 	"context"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Get is called when a transaction is retrieved from the mempool.
@@ -46,7 +43,7 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
 		tx := iter.Tx()
-		if ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](tx)); ethTx != nil {
+		if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
 			addr := coretypes.GetSender(ethTx)
 			pendingNonce := pendingNonces[addr]
 			switch {
@@ -89,7 +86,7 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 
 	// After the lock is released we can iterate over the mempool.
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
-		if ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](iter.Tx())); ethTx != nil {
+		if ethTx := evmtypes.GetAsEthTx(iter.Tx()); ethTx != nil {
 			addr := coretypes.GetSender(ethTx)
 			pendingNonce, seenTransaction := pendingNonces[addr]
 			switch {
@@ -129,7 +126,7 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 
 	// search for the first pending ethTx
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
-		if ethTx := evmtypes.GetAsEthTx(utils.MustGetAs[sdk.Tx](iter.Tx())); ethTx != nil {
+		if ethTx := evmtypes.GetAsEthTx(iter.Tx()); ethTx != nil {
 			txAddr := coretypes.GetSender(ethTx)
 			if addr != txAddr {
 				continue
