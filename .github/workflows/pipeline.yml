@@ -85,6 +85,8 @@ jobs:
         with:
           name: code-coverage-report
           path: ~/
+      - name: ls
+        run: ls -la ~/
       - name: Upload to Codecov
         uses: codecov/codecov-action@v2
         with:
