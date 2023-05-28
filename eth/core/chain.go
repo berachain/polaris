@@ -38,12 +38,7 @@ import (
 const defaultCacheSizeBytes = 1024 * 1024 * 64
 
 // Compile-time check to ensure that `blockchain` implements the `Chain` api.
-var (
-	_ ChainWriter     = (*blockchain)(nil)
-	_ ChainReader     = (*blockchain)(nil)
-	_ ChainSubscriber = (*blockchain)(nil)
-	_ ChainResources  = (*blockchain)(nil)
-)
+var _ Blockchain = (*blockchain)(nil)
 
 type Blockchain interface {
 	Config() *params.ChainConfig

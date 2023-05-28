@@ -27,9 +27,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// Compile-time interface assertion.
-var _ ChainContext = (*blockchain)(nil)
-
 // GetHeader returns the header for the given hash and height. This is used by the `GetHashFn`.
 func (bc *blockchain) GetHeader(hash common.Hash, height uint64) *types.Header {
 	header := bc.GetHeaderByNumber(height)
