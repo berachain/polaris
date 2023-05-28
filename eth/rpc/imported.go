@@ -21,7 +21,6 @@
 package rpc
 
 import (
-	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/ethapi"
 	"github.com/ethereum/go-ethereum/rpc"
 )
@@ -40,7 +39,6 @@ var (
 	NewBlockChainAPI     = ethapi.NewBlockChainAPI
 	NewTransactionAPI    = ethapi.NewTransactionAPI
 	NewTxPoolAPI         = ethapi.NewTxPoolAPI
-	NewFilterAPI         = filters.NewFilterAPI
 	NewDebugAPI          = ethapi.NewDebugAPI
 	NewServer            = rpc.NewServer
 	SafeBlockNumber      = rpc.SafeBlockNumber

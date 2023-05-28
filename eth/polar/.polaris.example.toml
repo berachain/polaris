@@ -1,0 +1,39 @@
+[NodeConfig]
+Name = "my-node"
+UserIdent = "my-identity"
+Version = "1.0.0"
+DataDir = "/var/data/my-node"
+HTTPHost = "0.0.0.0"
+HTTPPort = 8545
+HTTPCors = ["*"]
+HTTPVirtualHosts = ["*"]
+HTTPModules = ["eth", "net"]
+AuthAddr = "0.0.0.0"
+AuthPort = 8546
+AuthVirtualHosts = ["0.0.0.0"]
+WSHost = "0.0.0.0"
+WSPort = 8546
+WSOrigins = ["*"]
+WSModules = ["eth", "net"]
+GraphQLCors = ["*"]
+GraphQLVirtualHosts = ["0.0.0.0"]
+
+[NodeConfig.HTTPTimeouts]
+ReadTimeout = "30s"
+ReadHeaderTimeout = "30s"
+WriteTimeout = "30s"
+IdleTimeout = "1m"
+
+[RPCConfig]
+RPCGasCap = 10000000
+RPCEVMTimeout = "10s"
+RPCTxFeeCap = 1
+
+[RPCConfig.GPO]
+Blocks = 10
+Percentile = 50
+MaxHeaderHistory = 192
+MaxBlockHistory = 5000
+Default = 1000000000
+MaxPrice = 100000000000
+IgnorePrice = 0
