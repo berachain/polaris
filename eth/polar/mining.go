@@ -27,9 +27,9 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// TODO: replace this file with a proper mining object
+// TODO: replace this file with a proper mining object and use message passing instead of direct calls.
 
-// Prepare prepares the Polaris for processing a new block at the given height.
+// Prepare prepares the Polaris chain for processing a new block at the given height.
 func (pl *Polaris) Prepare(ctx context.Context, height uint64) {
 	pl.blockchain.Prepare(ctx, height)
 }
@@ -42,8 +42,4 @@ func (pl *Polaris) ProcessTransaction(ctx context.Context, tx *types.Transaction
 // Finalize finalizes the current block.
 func (pl *Polaris) Finalize(ctx context.Context) error {
 	return pl.blockchain.Finalize(ctx)
-}
-
-func (pl *Polaris) SendTx(ctx context.Context, signedTx *types.Transaction) error {
-	return pl.blockchain.SendTx(ctx, signedTx)
 }
