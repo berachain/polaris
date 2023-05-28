@@ -149,10 +149,15 @@ func (s *Polaris) APIs() []rpc.API {
 
 // StartServices starts the standard go-ethereum node-services (i.e json-rpc).
 func (sp *Polaris) StartServices() error {
+	// Register the JSON-RPCs with the node
+	sp.node.RegisterAPIs(sp.APIs())
+
 	// Register the filter API separately in order to get access to the filterSystem
 	// TODO: this should be made cleaner.
 	filterSystem := utils.RegisterFilterAPI(sp.node, sp.backend, &defaultEthConfig)
 	// this should be a flag rather than make every node default to using it
 	utils.RegisterGraphQLService(sp.node, sp.backend, filterSystem, sp.node.Config())
+
+	// Start the services (json-rpc, graphql, etc)
 	return sp.node.Start()
 }
