@@ -37,7 +37,7 @@ import (
 // By default we are storing up to 64mb of historical data for each cache.
 const defaultCacheSizeBytes = 1024 * 1024 * 64
 
-// Compile-time check to ensure that `blockchain` implements the `Chain` api.
+// Compile-time check to ensure that `blockchain` implements the `Blockchain` api.
 var _ Blockchain = (*blockchain)(nil)
 
 type Blockchain interface {
