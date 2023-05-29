@@ -93,7 +93,7 @@ func (k *Keeper) Setup(
 	// Build the Polaris EVM Provider
 	cfg, err := polar.LoadConfigFromFilePath(polarisConfigPath)
 	if err != nil {
-		ethlog.Root().Error("failed to load config", "falling back to defaults")
+		logger.Error("failed to load config", "falling back to defaults")
 		cfg = polar.DefaultConfig()
 	}
 
