@@ -75,12 +75,6 @@ var _ = Describe("EthTxPool", func() {
 		etp.SetNonceRetriever(sp)
 	})
 
-	DescribeTable("All cases", func(tx coretypes.TxData) {
-		It("should handle empty txs", func() {
-
-		})
-	})
-
 	Describe("All Cases", func() {
 		It("should handle empty txs", func() {
 			Expect(etp.Get(common.Hash{})).To(BeNil())
@@ -327,7 +321,7 @@ var _ = Describe("EthTxPool", func() {
 		})
 		It("should be able to return the transaction priority for a Cosmos tx and effective gas tip value", func() {
 			ethTx1, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(1)})
-			ethTx2, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(2)})
+			ethTx2, tx2 := buildTx(key1, &coretypes.DynamicFeeTx{Nonce: 1, GasTipCap: big.NewInt(1), GasFeeCap: big.NewInt(1)})
 			tpp := EthereumTxPriorityPolicy{baseFee: big.NewInt(69)}
 			Expect(tpp.GetTxPriority(ctx, tx1)).To(Equal(ethTx1.EffectiveGasTipValue(tpp.baseFee)))
 			Expect(tpp.GetTxPriority(ctx, tx2)).To(Equal(ethTx2.EffectiveGasTipValue(tpp.baseFee)))
@@ -360,7 +354,7 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Nonce(addr1)).To(BeEquivalentTo(sdbNonce))
 
 		})
-		It("should break on noncontigious transactions", func() {
+		It("should break out of func Nonce(addr) when seeing a noncontigious nonce gap", func() {
 			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
 			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
 			_, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3})
