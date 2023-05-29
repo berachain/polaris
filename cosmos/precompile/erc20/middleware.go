@@ -25,6 +25,8 @@ import (
 	"errors"
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	abi "github.com/ethereum/go-ethereum/accounts/abi"
@@ -72,7 +74,7 @@ func (c *Contract) transferCoinToERC20(
 			sdkCtx,
 			cosmlib.AddressToAccAddress(owner),
 			cosmlib.AddressToAccAddress(recipient),
-			sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount))),
+			sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(amount))),
 		); err != nil {
 			return err
 		}
@@ -152,7 +154,7 @@ func (c *Contract) transferCoinToERC20(
 // transferERC20ToCoin transfers ERC20 tokens to SDK/Polaris coins for an owner.
 func (c *Contract) transferERC20ToCoin(
 	ctx context.Context,
-	caller common.Address,
+	_ common.Address,
 	evm ethprecompile.EVM,
 	token common.Address,
 	owner common.Address,
@@ -164,7 +166,7 @@ func (c *Contract) transferERC20ToCoin(
 	// get SDK/Polaris coin denomination pairing with ERC20 token
 	resp, err := c.em.CoinDenomForERC20Address(
 		ctx, &erc20types.CoinDenomForERC20AddressRequest{
-			Token: cosmlib.AddressToAccAddress(token).String(),
+			Token: cosmlib.Bech32FromEthAddress(token),
 		},
 	)
 	if err != nil {
@@ -188,29 +190,30 @@ func (c *Contract) transferERC20ToCoin(
 			balanceBefore *big.Int
 			balanceAfter  *big.Int
 			plugin        = c.GetPlugin()
+			erc20Module   = c.RegistryKey()
 		)
 
 		// check the ERC20 module's balance of the ERC20-originated token
 		if balanceBefore, err = getBalanceOf(
-			sdkCtx, plugin, evm, c.RegistryKey(), token, c.polarisERC20ABI, c.RegistryKey(),
+			sdkCtx, plugin, evm, erc20Module, token, c.polarisERC20ABI, erc20Module,
 		); err != nil {
 			return err
 		}
 
 		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
 		// escrow
-		// NOTE: owner must have previously approved msg.sender to spend amount ERC20 tokens
+		// NOTE: owner must have previously approved the ERC20 Module to spend amount ERC20 tokens
 		if _, err = cosmlib.CallEVMFromPrecompile(
 			sdkCtx, plugin, evm,
-			caller, token, c.polarisERC20ABI, big.NewInt(0),
-			transferFrom, owner, c.RegistryKey(), amount,
+			erc20Module, token, c.polarisERC20ABI, big.NewInt(0),
+			transferFrom, owner, erc20Module, amount,
 		); err != nil {
 			return err
 		}
 
 		// check the ERC20 module's balance of the ERC20-originated token
 		if balanceAfter, err = getBalanceOf(
-			sdkCtx, plugin, evm, c.RegistryKey(), token, c.polarisERC20ABI, c.RegistryKey(),
+			sdkCtx, plugin, evm, erc20Module, token, c.polarisERC20ABI, erc20Module,
 		); err != nil {
 			return err
 		}
@@ -226,7 +229,7 @@ func (c *Contract) transferERC20ToCoin(
 			sdkCtx,
 			cosmlib.AddressToAccAddress(owner),
 			cosmlib.AddressToAccAddress(recipient),
-			sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount))),
+			sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(amount))),
 		); err != nil {
 			return err
 		}

@@ -23,7 +23,6 @@ package config
 import (
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	evidencetypes "cosmossdk.io/x/evidence/types"
-	"cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -70,13 +69,8 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		evmtypes.ModuleName,
-		erc20types.ModuleName,
 		genutiltypes.ModuleName,
-		feegrant.ModuleName,
 		group.ModuleName,
-	},
-	Precommiters: []string{
-		evmtypes.ModuleName,
 	},
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
@@ -98,7 +92,6 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		authz.ModuleName,
-		feegrant.ModuleName,
 		group.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,

@@ -83,10 +83,7 @@ func (Contracts) Clean() error {
 
 // Run `forge test` in all smart contract directories.
 func (c Contracts) Test() error {
-	if err := c.TestUnit(); err != nil {
-		return err
-	}
-	return nil
+	return c.TestUnit()
 }
 
 // Run `forge test` in all smart contract directories.
@@ -112,8 +109,5 @@ func (Contracts) TestIntegration() error {
 
 // Wraps forge commands with the proper directory change.
 func forgeWrapper(forgeFunc func(args ...string) error) error {
-	if err := ExecuteInDirectory("./contracts", forgeFunc, false); err != nil {
-		return err
-	}
-	return nil
+	return ExecuteInDirectory("./contracts", forgeFunc, false)
 }

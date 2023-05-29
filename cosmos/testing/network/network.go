@@ -27,6 +27,7 @@ import (
 
 	cdb "github.com/cosmos/cosmos-db"
 
+	sdkmath "cosmossdk.io/math"
 	pruningtypes "cosmossdk.io/store/pruning/types"
 
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
@@ -254,24 +255,24 @@ func getCoinsForAccount(name string) sdk.Coins {
 	switch name {
 	case "alice":
 		return sdk.NewCoins(
-			sdk.NewCoin("abera", sdk.NewInt(examoney)),
-			sdk.NewCoin("bATOM", sdk.NewInt(examoney)),
-			sdk.NewCoin("bAKT", sdk.NewInt(12345)), //nolint:gomnd // its okay.
-			sdk.NewCoin("stake", sdk.NewInt(examoney)),
-			sdk.NewCoin("bOSMO", sdk.NewInt(12345*2)), //nolint:gomnd // its okay.
-			sdk.NewCoin("atoken", sdk.NewInt(examoney)),
+			sdk.NewCoin("abera", sdkmath.NewInt(examoney)),
+			sdk.NewCoin("bATOM", sdkmath.NewInt(examoney)),
+			sdk.NewCoin("bAKT", sdkmath.NewInt(12345)), //nolint:gomnd // its okay.
+			sdk.NewCoin("stake", sdkmath.NewInt(examoney)),
+			sdk.NewCoin("bOSMO", sdkmath.NewInt(12345*2)), //nolint:gomnd // its okay.
+			sdk.NewCoin("atoken", sdkmath.NewInt(examoney)),
 			// do not change the supply of this coin
-			sdk.NewCoin("asupply", sdk.NewInt(examoney)),
+			sdk.NewCoin("asupply", sdkmath.NewInt(examoney)),
 		)
 	case "bob":
 		return sdk.NewCoins(
-			sdk.NewCoin("abera", sdk.NewInt(onehundred)),
-			sdk.NewCoin("atoken", sdk.NewInt(onehundred)),
-			sdk.NewCoin("stake", sdk.NewInt(examoney)),
+			sdk.NewCoin("abera", sdkmath.NewInt(onehundred)),
+			sdk.NewCoin("atoken", sdkmath.NewInt(onehundred)),
+			sdk.NewCoin("stake", sdkmath.NewInt(examoney)),
 		)
 	case "charlie":
-		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
+		return sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(examoney)))
 	default:
-		return sdk.NewCoins(sdk.NewCoin("abera", sdk.NewInt(examoney)))
+		return sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(examoney)))
 	}
 }

@@ -34,7 +34,7 @@ import (
 type ChainWriter interface {
 	// Prepare prepares the chain for a new block. This method is called before the first tx in
 	// the block.
-	Prepare(context.Context, int64)
+	Prepare(context.Context, uint64)
 	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
 	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
@@ -49,23 +49,24 @@ type ChainWriter interface {
 // =========================================================================
 
 // Prepare prepares the blockchain for processing a new block at the given height.
-func (bc *blockchain) Prepare(ctx context.Context, height int64) {
+func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
 	bc.sp.Prepare(ctx)
 	bc.bp.Prepare(ctx)
 	bc.cp.Prepare(ctx)
 	bc.gp.Prepare(ctx)
+
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
 	}
 
-	coinbase, timestamp := bc.bp.GetNewBlockMetadata(height)
-	bc.logger.Info("Preparing block", "height", height, "coinbase", coinbase.Hex(), "timestamp", timestamp)
+	coinbase, timestamp := bc.bp.GetNewBlockMetadata(number)
+	bc.logger.Info("Preparing block", "number", number, "coinbase", coinbase.Hex(), "timestamp", timestamp)
 
 	// Build the new block header.
 	var parentHash common.Hash
-	if height > 1 {
-		parent, err := bc.bp.GetHeaderByNumber(height - 1)
+	if number > 1 {
+		parent, err := bc.bp.GetHeaderByNumber(number - 1)
 		if err != nil {
 			panic(err)
 		}
@@ -78,7 +79,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		Coinbase:   coinbase,
 		Root:       common.Hash{}, // Polaris does not use the Ethereum state root.
 		Difficulty: big.NewInt(0),
-		Number:     big.NewInt(height),
+		Number:     big.NewInt(0).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
 		Extra:      []byte{}, // Polaris does not set the Extra field.
@@ -86,6 +87,9 @@ func (bc *blockchain) Prepare(ctx context.Context, height int64) {
 		Nonce:      types.BlockNonce{},
 		BaseFee:    bc.CalculateNextBaseFee(),
 	}
+
+	// We update the base fee in the txpool to the next base fee.
+	bc.tp.SetBaseFee(header.BaseFee)
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	bc.processor.Prepare(
@@ -112,11 +116,11 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		return err
 	}
 
-	blockHash, blockNum := block.Hash(), block.Number().Int64()
+	blockHash, blockNum := block.Hash(), block.Number().Uint64()
 	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
 
 	// store the block header on the host chain
-	err = bc.bp.SetHeaderByNumber(blockNum, block.Header())
+	err = bc.bp.StoreHeader(block.Header())
 	if err != nil {
 		return err
 	}
@@ -153,7 +157,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 				&types.TxLookupEntry{
 					Tx:        tx,
 					TxIndex:   uint64(txIndex),
-					BlockNum:  uint64(blockNum),
+					BlockNum:  blockNum,
 					BlockHash: blockHash,
 				},
 			)

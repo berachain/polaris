@@ -227,7 +227,7 @@ var _ = Describe("ERC20", func() {
 				// approve caller to spend tokens
 				tx, err = contract.Approve(
 					tf.GenerateTransactOpts("alice"),
-					tf.Address("alice"),
+					erc20ModuleAddress,
 					big.NewInt(6789),
 				)
 				Expect(err).ToNot(HaveOccurred())

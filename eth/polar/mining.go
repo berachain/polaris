@@ -18,14 +18,28 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package plugins
+package polar
 
-import "pkg.berachain.dev/polaris/eth/core"
+import (
+	"context"
 
-type blockPlugin struct {
-	core.BlockPlugin
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/types"
+)
+
+// TODO: replace this file with a proper mining object and use message passing instead of direct calls.
+
+// Prepare prepares the Polaris chain for processing a new block at the given height.
+func (pl *Polaris) Prepare(ctx context.Context, number uint64) {
+	pl.blockchain.Prepare(ctx, number)
 }
 
-func NewBlockPlugin() core.BlockPlugin {
-	return &blockPlugin{}
+// ProcessTransaction processes the given transaction and returns the receipt.
+func (pl *Polaris) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*core.ExecutionResult, error) {
+	return pl.blockchain.ProcessTransaction(ctx, tx)
+}
+
+// Finalize finalizes the current block.
+func (pl *Polaris) Finalize(ctx context.Context) error {
+	return pl.blockchain.Finalize(ctx)
 }

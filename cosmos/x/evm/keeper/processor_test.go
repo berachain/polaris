@@ -24,6 +24,7 @@ import (
 	"math/big"
 	"os"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -88,11 +89,10 @@ var _ = Describe("Processor", func() {
 		// before chain, init genesis state
 		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
 		k = keeper.NewKeeper(
-			storetypes.NewKVStoreKey("evm"),
 			ak, bk, sk,
+			storetypes.NewKVStoreKey("evm"),
 			"authority",
-			simtestutil.NewAppOptionsWithFlagHome("tmp/berachain"),
-			evmmempool.NewEthTxPoolFrom(evmmempool.DefaultPriorityMempool()),
+			evmmempool.NewPolarisEthereumTxPool(),
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
@@ -102,8 +102,7 @@ var _ = Describe("Processor", func() {
 		validator.Status = stakingtypes.Bonded
 		sk.SetValidator(ctx, validator)
 		sc = staking.NewPrecompileContract(&sk)
-		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir())
-		k.ConfigureGethLogger(ctx)
+		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger())
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetHost().GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
@@ -126,7 +125,8 @@ var _ = Describe("Processor", func() {
 		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000000000)).
 			WithKVGasConfig(storetypes.GasConfig{}).
 			WithBlockHeight(1)
-		k.BeginBlocker(ctx)
+		err = k.BeginBlocker(ctx)
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	Context("New Block", func() {
@@ -136,8 +136,9 @@ var _ = Describe("Processor", func() {
 		})
 
 		AfterEach(func() {
-			k.Precommit(ctx)
-			err := os.RemoveAll("tmp/berachain")
+			err := k.EndBlock(ctx)
+			Expect(err).ToNot(HaveOccurred())
+			err = os.RemoveAll("tmp/berachain")
 			Expect(err).ToNot(HaveOccurred())
 		})
 

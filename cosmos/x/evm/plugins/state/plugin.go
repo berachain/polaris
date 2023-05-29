@@ -114,6 +114,10 @@ type plugin struct {
 	// we load the evm denom in the constructor, to prevent going to
 	// the params to get it mid interpolation.
 	cp ConfigurationPlugin
+
+	// savedErr stores any error that is returned from state modifications on the underlying
+	// keepers.
+	savedErr error
 }
 
 // NewPlugin returns a plugin with the given context and keepers.
@@ -170,19 +174,18 @@ func (p *plugin) Reset(ctx context.Context) {
 	// in the EVM are not being charged additional gas unknowingly.
 	p.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
 
-	// We setup a snapshot controller in order to properly handle reverts.
-	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
+	// We setup a snapshot controller to properly revert the Controllable MultiStore and EventManager.
+	p.Controller = snapshot.NewController[string, libtypes.Controllable[string]]()
+	_ = p.Controller.Register(p.cms)
+	_ = p.Controller.Register(cem)
 
-	// We register the Controllable MultiStore with the snapshot controller.
-	if err := ctrl.Register(p.cms); err != nil {
-		panic(err)
-	}
+	// We reset the saved error, so that we can check for errors in the next state transition.
+	p.savedErr = nil
+}
 
-	// We also register the Controllable EventManager with the snapshot controller.
-	if err := ctrl.Register(cem); err != nil {
-		panic(err)
-	}
-	p.Controller = ctrl
+// RegistryKey implements `libtypes.Registrable`.
+func (p *plugin) RegistryKey() string {
+	return pluginRegistryKey
 }
 
 // GetContext implements `core.StatePlugin`.
@@ -190,9 +193,9 @@ func (p *plugin) GetContext() context.Context {
 	return p.ctx
 }
 
-// RegistryKey implements `libtypes.Registrable`.
-func (p *plugin) RegistryKey() string {
-	return pluginRegistryKey
+// Error implements `core.StatePlugin`.
+func (p *plugin) Error() error {
+	return p.savedErr
 }
 
 // ===========================================================================
@@ -279,7 +282,7 @@ func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
 // created.
 func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 	if err := lib.MintCoinsToAddress(p.ctx, p.bk, types.ModuleName, addr, p.cp.GetEvmDenom(), amount); err != nil {
-		panic(err)
+		p.savedErr = err
 	}
 }
 
@@ -287,7 +290,7 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 // from the account associated with addr.
 func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
 	if err := lib.BurnCoinsFromAddress(p.ctx, p.bk, types.ModuleName, addr, p.cp.GetEvmDenom(), amount); err != nil {
-		panic(err)
+		p.savedErr = err
 	}
 }
 
@@ -315,7 +318,7 @@ func (p *plugin) SetNonce(addr common.Address, nonce uint64) {
 	}
 
 	if err := acc.SetSequence(nonce); err != nil {
-		panic(err)
+		p.savedErr = err
 	}
 
 	p.ak.SetAccount(p.ctx, acc)

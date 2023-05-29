@@ -18,14 +18,6 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package plugins
+package miner
 
-import "pkg.berachain.dev/polaris/eth/core"
-
-type gasPlugin struct {
-	core.GasPlugin
-}
-
-func NewGasPlugin() core.GasPlugin {
-	return &gasPlugin{}
-}
+// coming soon tm

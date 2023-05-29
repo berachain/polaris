@@ -25,8 +25,10 @@ import (
 	"math/big"
 	"testing"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 
+	"github.com/cosmos/cosmos-sdk/runtime"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmostestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -85,7 +87,7 @@ func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeep
 
 	dk := distrkeeper.NewKeeper(
 		encCfg.Codec,
-		testutil.EvmKey,
+		runtime.NewKVStoreService(storetypes.NewKVStoreKey(distributiontypes.StoreKey)),
 		ak,
 		bk,
 		sk,
@@ -95,11 +97,11 @@ func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeep
 
 	params := distributiontypes.DefaultParams()
 	params.WithdrawAddrEnabled = true
-	err := dk.SetParams(ctx, params)
+	err := dk.Params.Set(ctx, params)
 	Expect(err).ToNot(HaveOccurred())
 
-	dk.SetFeePool(ctx, distributiontypes.InitialFeePool())
-
+	err = dk.SetFeePool(ctx, distributiontypes.InitialFeePool())
+	Expect(err).ToNot(HaveOccurred())
 	return ctx, &dk, &sk, &bk
 }
 
@@ -118,7 +120,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 	BeforeEach(func() {
 		valAddr = sdk.ValAddress([]byte("val"))
-		amt = sdk.NewCoin("abera", sdk.NewInt(100))
+		amt = sdk.NewCoin("abera", sdkmath.NewInt(100))
 
 		// Set up the contracts and keepers.
 		ctx, dk, sk, bk = setup()
@@ -234,7 +236,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			valConsAddr0 := sdk.ConsAddress(valConsPk0.Address())
 			valAddr = sdk.ValAddress(valConsAddr0)
 			addr = sdk.AccAddress(valAddr)
-			val, err := distrtestutil.CreateValidator(valConsPk0, math.NewInt(100))
+			val, err := distrtestutil.CreateValidator(valConsPk0, sdkmath.NewInt(100))
 			Expect(err).ToNot(HaveOccurred())
 
 			// Set the validator.
@@ -263,8 +265,8 @@ var _ = Describe("Distribution Precompile Test", func() {
 			tokens = sdk.DecCoins{sdk.NewDecCoin(sdk.DefaultBondDenom, initial)}
 
 			// Allocate the rewards.
-			dk.AllocateTokensToValidator(ctx, val, tokens)
-
+			err = dk.AllocateTokensToValidator(ctx, val, tokens)
+			Expect(err).ToNot(HaveOccurred())
 			// Historical Count should be 2.
 			Expect(dk.GetValidatorHistoricalReferenceCount(ctx)).To(Equal(uint64(2)))
 

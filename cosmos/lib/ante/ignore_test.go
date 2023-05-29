@@ -38,7 +38,7 @@ type TestAnteDecorator struct{}
 
 // AnteHandle returns a custom error if called.
 func (f TestAnteDecorator) AnteHandle(
-	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
+	ctx sdk.Context, _ sdk.Tx, _ bool, _ sdk.AnteHandler,
 ) (sdk.Context, error) {
 	return ctx, errors.New("ante_handle_called")
 }

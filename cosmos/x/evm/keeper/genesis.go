@@ -30,9 +30,6 @@ import (
 
 // InitGenesis is called during the InitGenesis.
 func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error {
-	// We configure the logger here because we want to get the logger off the context opposed to allocating a new one.
-	k.ConfigureGethLogger(ctx)
-
 	// Initialize all the plugins.
 	for _, plugin := range k.host.GetAllPlugins() {
 		// checks whether plugin implements methods of HasGenesis and executes them if it does
@@ -42,10 +39,7 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) error
 	}
 
 	// Start the polaris "Node" in order to spin up things like the JSON-RPC server.
-	if err := k.polaris.StartServices(); err != nil {
-		return err
-	}
-	return nil
+	return k.polaris.StartServices()
 }
 
 // ExportGenesis returns the exported genesis state.

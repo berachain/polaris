@@ -205,6 +205,7 @@ contracts/out/
 
 # cosmos
 .testnets/
+*.dot
 
 # xml
 *.xml

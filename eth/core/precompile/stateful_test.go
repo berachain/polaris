@@ -169,11 +169,11 @@ type mockObject struct {
 }
 
 func getOutput(
-	ctx context.Context,
-	evm precompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ context.Context,
+	_ precompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	str, ok := utils.GetAs[string](args[0])
@@ -191,22 +191,22 @@ func getOutput(
 }
 
 func getOutputPartial(
-	ctx context.Context,
-	evm precompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
-	args ...any,
+	_ context.Context,
+	_ precompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	_ ...any,
 ) ([]any, error) {
 	return nil, errors.New("err during precompile execution")
 }
 
 func contractFuncAddrInput(
-	ctx context.Context,
-	evm precompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ context.Context,
+	_ precompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	_, ok := utils.GetAs[common.Address](args[0])
@@ -217,11 +217,11 @@ func contractFuncAddrInput(
 }
 
 func contractFuncStrInput(
-	ctx context.Context,
-	evm precompile.EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
+	_ context.Context,
+	_ precompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
 	args ...any,
 ) ([]any, error) {
 	addr, ok := utils.GetAs[string](args[0])
