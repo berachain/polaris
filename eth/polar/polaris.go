@@ -130,6 +130,7 @@ func (pl *Polaris) StartServices() error {
 	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
 
 	// Register the GraphQL API (todo update cors stuff)
+	// TODO: gate this behind a flag
 	if err := graphql.New(pl.stack, pl.backend, pl.filterSystem, []string{"*"}, []string{"*"}); err != nil {
 		return err
 	}
