@@ -42,7 +42,7 @@ func (k *Keeper) ERC20AddressForCoinDenom(
 	if (tokenAddr == common.Address{}) {
 		token = ""
 	} else {
-		token = cosmlib.AddressToAccAddress(tokenAddr).String()
+		token = cosmlib.Bech32FromEthAddress(tokenAddr)
 	}
 
 	return &types.ERC20AddressForCoinDenomResponse{Token: token}, nil

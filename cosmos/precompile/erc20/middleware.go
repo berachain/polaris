@@ -166,7 +166,7 @@ func (c *Contract) transferERC20ToCoin(
 	// get SDK/Polaris coin denomination pairing with ERC20 token
 	resp, err := c.em.CoinDenomForERC20Address(
 		ctx, &erc20types.CoinDenomForERC20AddressRequest{
-			Token: cosmlib.AddressToAccAddress(token).String(),
+			Token: cosmlib.Bech32FromEthAddress(token),
 		},
 	)
 	if err != nil {

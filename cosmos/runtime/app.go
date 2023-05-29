@@ -38,7 +38,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -106,10 +105,8 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	var (
 		app          = &PolarisApp{}
 		appBuilder   *runtime.AppBuilder
-		ethTxMempool mempool.Mempool = evmmempool.NewEthTxPoolFrom(
-			evmmempool.DefaultPriorityMempool(),
-		)
-		appConfig = depinject.Configs(
+		ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
+		appConfig    = depinject.Configs(
 			AppConfig,
 			depinject.Supply(
 				app.App,

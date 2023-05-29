@@ -116,7 +116,7 @@ func (c *Contract) GetBalance(
 	}
 
 	res, err := c.querier.Balance(ctx, &banktypes.QueryBalanceRequest{
-		Address: cosmlib.AddressToAccAddress(addr).String(),
+		Address: cosmlib.Bech32FromEthAddress(addr),
 		Denom:   denom,
 	})
 	if err != nil {
@@ -143,7 +143,7 @@ func (c *Contract) GetAllBalances(
 
 	// todo: add pagination here
 	res, err := c.querier.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
-		Address: cosmlib.AddressToAccAddress(addr).String(),
+		Address: cosmlib.Bech32FromEthAddress(addr),
 	})
 	if err != nil {
 		return nil, err
@@ -171,7 +171,7 @@ func (c *Contract) GetSpendableBalanceByDenom(
 	}
 
 	res, err := c.querier.SpendableBalanceByDenom(ctx, &banktypes.QuerySpendableBalanceByDenomRequest{
-		Address: cosmlib.AddressToAccAddress(addr).String(),
+		Address: cosmlib.Bech32FromEthAddress(addr),
 		Denom:   denom,
 	})
 	if err != nil {
@@ -197,7 +197,7 @@ func (c *Contract) GetSpendableBalances(
 	}
 
 	res, err := c.querier.SpendableBalances(ctx, &banktypes.QuerySpendableBalancesRequest{
-		Address: cosmlib.AddressToAccAddress(addr).String(),
+		Address: cosmlib.Bech32FromEthAddress(addr),
 	})
 	if err != nil {
 		return nil, err
@@ -341,8 +341,8 @@ func (c *Contract) Send(
 	}
 
 	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
-		FromAddress: cosmlib.AddressToAccAddress(fromAddr).String(),
-		ToAddress:   cosmlib.AddressToAccAddress(toAddr).String(),
+		FromAddress: cosmlib.Bech32FromEthAddress(fromAddr),
+		ToAddress:   cosmlib.Bech32FromEthAddress(toAddr),
 		Amount:      coins,
 	})
 	return []any{err == nil}, err

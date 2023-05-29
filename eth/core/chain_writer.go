@@ -55,6 +55,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	bc.bp.Prepare(ctx)
 	bc.cp.Prepare(ctx)
 	bc.gp.Prepare(ctx)
+
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
 	}
@@ -86,6 +87,9 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		Nonce:      types.BlockNonce{},
 		BaseFee:    bc.CalculateNextBaseFee(),
 	}
+
+	// We update the base fee in the txpool to the next base fee.
+	bc.tp.SetBaseFee(header.BaseFee)
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	bc.processor.Prepare(
