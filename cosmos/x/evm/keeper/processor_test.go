@@ -24,6 +24,7 @@ import (
 	"math/big"
 	"os"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -101,8 +102,7 @@ var _ = Describe("Processor", func() {
 		validator.Status = stakingtypes.Bonded
 		sk.SetValidator(ctx, validator)
 		sc = staking.NewPrecompileContract(&sk)
-		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir())
-		k.ConfigureGethLogger(ctx)
+		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger())
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		for _, plugin := range k.GetHost().GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)

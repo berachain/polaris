@@ -85,7 +85,7 @@ func (k *Keeper) Setup(
 	qc func(height int64, prove bool) (sdk.Context, error),
 	polarisConfigPath string,
 	polarisDataDir string,
-
+	logger log.Logger,
 ) {
 	// Setup plugins in the Host
 	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc)
@@ -106,23 +106,20 @@ func (k *Keeper) Setup(
 		panic(err)
 	}
 
-	k.polaris = polar.NewWithNetworkingStack(cfg, k.host, node, nil)
-}
-
-// ConfigureGethLogger configures the Geth logger to use the Cosmos logger.
-func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
-	ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error {
-		logger := ctx.Logger().With("module", "polaris-geth")
-		switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
-		case ethlog.LvlTrace, ethlog.LvlDebug:
-			logger.Debug(r.Msg, r.Ctx...)
-		case ethlog.LvlInfo, ethlog.LvlWarn:
-			logger.Info(r.Msg, r.Ctx...)
-		case ethlog.LvlError, ethlog.LvlCrit:
-			logger.Error(r.Msg, r.Ctx...)
-		}
-		return nil
-	}))
+	k.polaris = polar.NewWithNetworkingStack(cfg, k.host, node, ethlog.FuncHandler(
+		func(r *ethlog.Record) error {
+			polarisGethLogger := logger.With("module", "polaris-geth")
+			switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
+			case ethlog.LvlTrace, ethlog.LvlDebug:
+				polarisGethLogger.Debug(r.Msg, r.Ctx...)
+			case ethlog.LvlInfo, ethlog.LvlWarn:
+				polarisGethLogger.Info(r.Msg, r.Ctx...)
+			case ethlog.LvlError, ethlog.LvlCrit:
+				polarisGethLogger.Error(r.Msg, r.Ctx...)
+			}
+			return nil
+		}),
+	)
 }
 
 // Logger returns a module-specific logger.

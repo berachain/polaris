@@ -172,6 +172,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		// TODO: clean this up.
 		homePath+"/config/polaris.toml",
 		homePath+"/data/polaris",
+		logger,
 	)
 
 	opt := ante.HandlerOptions{
