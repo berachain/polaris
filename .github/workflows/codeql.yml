@@ -78,7 +78,7 @@ jobs:
             ${{ runner.os }}-golang-codeql-
       - name: Install Go Tools
         run: |
-          go run magefiles/setup/setup.go
+          go run magefiles/setup/setup.go ci
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
