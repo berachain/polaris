@@ -355,21 +355,17 @@ var _ = Describe("EthTxPool", func() {
 
 		})
 		It("should return StateDB's nonce when seeing nonce gap on second lookup", func() {
-			var seenNonces []uint64
-			ethTx1, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
-			ethTx2, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
-			ethTx3, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3})
-			ethTx1, tx10 := buildTx(key1, &coretypes.LegacyTx{Nonce: 10})
+			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
+			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
+			_, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3})
+			_, tx10 := buildTx(key1, &coretypes.LegacyTx{Nonce: 10})
 
 			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
-			seenNonces = append(seenNonces, ethTx1.Nonce())
 			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
-			seenNonces = append(seenNonces, ethTx2.Nonce())
 			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
-			seenNonces = append(seenNonces, ethTx3.Nonce())
 			Expect(etp.Insert(ctx, tx10)).ToNot(HaveOccurred())
 			Expect(etp.Nonce(addr1)).To(BeEquivalentTo(4))
-			Expect(seenNonces).ToNot(ContainElement(10))
+			Expect(etp.Nonce(addr1)).ToNot(BeEquivalentTo(10))
 
 		})
 
