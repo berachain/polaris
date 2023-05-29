@@ -121,10 +121,6 @@ func (pl *Polaris) APIs() []rpc.API {
 	}...)
 }
 
-func (pl *Polaris) GetFilterSystem() *filters.FilterSystem {
-	return pl.filterSystem
-}
-
 // StartServices notifies the NetworkStack to spin up (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
 	// Register the JSON-RPCs with the networking stack.
