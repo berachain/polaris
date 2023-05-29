@@ -209,9 +209,6 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
 			Expect(etp.Insert(ctx, tx31)).ToNot(HaveOccurred())
 
-			// very ugly code, but it works for now,
-			// looks like an unoptimal leetcode solution kek
-			// TODO: Iterate using the `PriorityNonceIterator` and `Select()` defined in priority_nonce.go maybe?
 			var prevTx *coretypes.Transaction
 			for _, txs := range etp.Pending(false) {
 				for _, tx := range txs {
@@ -256,9 +253,6 @@ var _ = Describe("EthTxPool", func() {
 			Expect(pending).To(Equal(0))
 			Expect(queued).To(Equal(2))
 		})
-
-		It("should enforce transaction size limits", func() {})
-		It("should handle transaction eviction based on time", func() {})
 		It("should handle concurrent additions", func() {
 
 			// apologies in advance for this test, it's not great.
@@ -325,6 +319,56 @@ var _ = Describe("EthTxPool", func() {
 			wg.Wait()
 			Expect(readsFromA).To(BeEquivalentTo(readsFromB))
 		})
+		It("should be able to return the transaction priority for a Cosmos tx and effective gas tip value", func() {
+			ethTx1, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(1)})
+			ethTx2, tx2 := buildTx(key1, &coretypes.DynamicFeeTx{Nonce: 1, GasTipCap: big.NewInt(1), GasFeeCap: big.NewInt(1)})
+			tpp := EthereumTxPriorityPolicy{baseFee: big.NewInt(69)}
+			Expect(tpp.GetTxPriority(ctx, tx1)).To(Equal(ethTx1.EffectiveGasTipValue(tpp.baseFee)))
+			Expect(tpp.GetTxPriority(ctx, tx2)).To(Equal(ethTx2.EffectiveGasTipValue(tpp.baseFee)))
+
+		})
+		It("should allow you to set the base fee of the EthTxPool", func() {
+			before := etp.priorityPolicy.baseFee
+			etp.SetBaseFee(big.NewInt(69))
+			after := etp.priorityPolicy.baseFee
+			Expect(before).ToNot(BeEquivalentTo(after))
+			Expect(after).To(BeEquivalentTo(big.NewInt(69)))
+		})
+		It("should throw when attempting to remove a transaction that doesn't exist", func() {
+			_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(1)})
+			Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+			Expect(etp.Remove(tx)).ToNot(HaveOccurred())
+			Expect(etp.Remove(tx)).To(HaveOccurred())
+		})
+
+		It("should return StateDB's nonce when seeing nonce gap on first lookup", func() {
+			ethTx, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: 3})
+
+			Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+
+			sdbNonce := etp.nr.GetNonce(addr1)
+			txNonce := ethTx.Nonce()
+			Expect(sdbNonce).ToNot(BeEquivalentTo(txNonce))
+			Expect(sdbNonce).To(BeEquivalentTo(1))
+			Expect(txNonce).To(BeEquivalentTo(3))
+			Expect(etp.Nonce(addr1)).To(BeEquivalentTo(sdbNonce))
+
+		})
+		It("should break out of func Nonce(addr) when seeing a noncontigious nonce gap", func() {
+			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
+			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
+			_, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3})
+			_, tx10 := buildTx(key1, &coretypes.LegacyTx{Nonce: 10})
+
+			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
+			Expect(etp.Insert(ctx, tx10)).ToNot(HaveOccurred())
+			Expect(etp.Nonce(addr1)).To(BeEquivalentTo(4))
+			Expect(etp.Nonce(addr1)).ToNot(BeEquivalentTo(10))
+
+		})
+
 	})
 })
 
@@ -370,7 +414,7 @@ func isPendingTx(mempool *EthTxPool, tx *coretypes.Transaction) bool {
 	return false
 }
 
-func buildTx(from *ecdsa.PrivateKey, txData *coretypes.LegacyTx) (*coretypes.Transaction, sdk.Tx) {
+func buildTx(from *ecdsa.PrivateKey, txData coretypes.TxData) (*coretypes.Transaction, sdk.Tx) {
 	signer := coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 	signedEthTx := coretypes.MustSignNewTx(from, signer, txData)
 	addr, _ := signer.Sender(signedEthTx)
@@ -386,7 +430,7 @@ func buildTx(from *ecdsa.PrivateKey, txData *coretypes.LegacyTx) (*coretypes.Tra
 			{
 				PubKey: pubKey,
 				// NOTE: not including the signature data for the mock
-				Sequence: txData.Nonce,
+				Sequence: signedEthTx.Nonce(),
 			},
 		},
 	}
