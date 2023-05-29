@@ -114,7 +114,7 @@ func (pl *Polaris) APIs() []rpc.API {
 	}...)
 }
 
-// SetupGraphQL creates and registers a graphql hanlder with the networking stack, it also
+// SetupGraphQL creates and registers a graphql handler with the networking stack, it also
 // registers the filterSystem with the networking stack.
 func (pl *Polaris) RegisterGraphQLHandler() error {
 	// Register the filter API separately in order to get access to the filterSystem
