@@ -22,6 +22,7 @@ package mempool
 
 import (
 	"bytes"
+	"context"
 	"crypto/ecdsa"
 	"math/big"
 	"sync"
@@ -320,12 +321,26 @@ var _ = Describe("EthTxPool", func() {
 			Expect(readsFromA).To(BeEquivalentTo(readsFromB))
 		})
 		It("should be able to return the transaction priority for a Cosmos tx and effective gas tip value", func() {
-			ethTx1, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(1)})
-			ethTx2, tx2 := buildTx(key1, &coretypes.DynamicFeeTx{Nonce: 1, GasTipCap: big.NewInt(1), GasFeeCap: big.NewInt(1)})
+			ethTx1, tx1 := buildTx(key1, &coretypes.DynamicFeeTx{Nonce: 1, GasTipCap: big.NewInt(1), GasFeeCap: big.NewInt(10000)})
+			ethTx2, tx2 := buildTx(key2, &coretypes.DynamicFeeTx{Nonce: 2, GasTipCap: big.NewInt(2), GasFeeCap: big.NewInt(200)})
+
+			// Test that the priority policy is working as expected.
 			tpp := EthereumTxPriorityPolicy{baseFee: big.NewInt(69)}
 			Expect(tpp.GetTxPriority(ctx, tx1)).To(Equal(ethTx1.EffectiveGasTipValue(tpp.baseFee)))
 			Expect(tpp.GetTxPriority(ctx, tx2)).To(Equal(ethTx2.EffectiveGasTipValue(tpp.baseFee)))
 
+			// Test live mempool
+			err := etp.Insert(ctx, tx1)
+			Expect(err).ToNot(HaveOccurred())
+			err = etp.Insert(ctx, tx2)
+			Expect(err).ToNot(HaveOccurred())
+
+			// Test that the priority policy is working as expected.
+			iter := etp.Select(context.TODO(), nil)
+			higherPriorityTx := evmtypes.GetAsEthTx(iter.Tx())
+			lowerPriorityTx := evmtypes.GetAsEthTx(iter.Next().Tx())
+			Expect(higherPriorityTx.Hash()).To(Equal(ethTx2.Hash()))
+			Expect(lowerPriorityTx.Hash()).To(Equal(ethTx1.Hash()))
 		})
 		It("should allow you to set the base fee of the EthTxPool", func() {
 			before := etp.priorityPolicy.baseFee

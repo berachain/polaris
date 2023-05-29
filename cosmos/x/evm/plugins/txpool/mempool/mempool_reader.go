@@ -75,12 +75,11 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 }
 
 // queued retrieves the content of the mempool.
-//
-
 func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 	pendingNonces := make(map[common.Address]uint64)
 	queued := make(map[common.Address]coretypes.Transactions)
 
+	
 	etp.mu.Lock()
 	defer etp.mu.Unlock()
 
