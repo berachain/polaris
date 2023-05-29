@@ -79,10 +79,10 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 	}
 
 	k := keeper.NewKeeper(
-		in.Key,
 		in.AccountKeeper,
 		in.BankKeeper,
 		in.StakingKeeper,
+		in.Key,
 		authority.String(),
 		in.Mempool,
 		in.CustomPrecompiles,

@@ -37,13 +37,8 @@ import (
 // By default we are storing up to 64mb of historical data for each cache.
 const defaultCacheSizeBytes = 1024 * 1024 * 64
 
-// Compile-time check to ensure that `blockchain` implements the `Chain` api.
-var (
-	_ ChainWriter     = (*blockchain)(nil)
-	_ ChainReader     = (*blockchain)(nil)
-	_ ChainSubscriber = (*blockchain)(nil)
-	_ ChainResources  = (*blockchain)(nil)
-)
+// Compile-time check to ensure that `blockchain` implements the `Blockchain` api.
+var _ Blockchain = (*blockchain)(nil)
 
 type Blockchain interface {
 	Config() *params.ChainConfig
@@ -51,6 +46,7 @@ type Blockchain interface {
 	ChainWriter
 	ChainSubscriber
 	ChainResources
+	ChainContext
 }
 
 // blockchain is the canonical, persistent object that operates the Polaris EVM.

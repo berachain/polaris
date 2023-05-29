@@ -140,7 +140,6 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		&app.ParamsKeeper,
 		&app.AuthzKeeper,
 		&app.EvidenceKeeper,
-		&app.FeeGrantKeeper,
 		&app.GroupKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.EVMKeeper,
@@ -172,13 +171,14 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		// TODO: clean this up.
 		homePath+"/config/polaris.toml",
 		homePath+"/data/polaris",
+		logger,
 	)
 
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,
 		SignModeHandler: app.TxConfig().SignModeHandler(),
-		FeegrantKeeper:  app.FeeGrantKeeper,
+		FeegrantKeeper:  nil,
 		SigGasConsumer:  evmante.SigVerificationGasConsumer,
 	}
 	ch, _ := evmante.NewAnteHandler(

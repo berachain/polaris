@@ -49,7 +49,7 @@ type ChainWriter interface {
 // =========================================================================
 
 // Prepare prepares the blockchain for processing a new block at the given height.
-func (bc *blockchain) Prepare(ctx context.Context, height uint64) {
+func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
 	bc.sp.Prepare(ctx)
 	bc.bp.Prepare(ctx)
@@ -59,13 +59,13 @@ func (bc *blockchain) Prepare(ctx context.Context, height uint64) {
 		bc.hp.Prepare(ctx)
 	}
 
-	coinbase, timestamp := bc.bp.GetNewBlockMetadata(height)
-	bc.logger.Info("Preparing block", "height", height, "coinbase", coinbase.Hex(), "timestamp", timestamp)
+	coinbase, timestamp := bc.bp.GetNewBlockMetadata(number)
+	bc.logger.Info("Preparing block", "number", number, "coinbase", coinbase.Hex(), "timestamp", timestamp)
 
 	// Build the new block header.
 	var parentHash common.Hash
-	if height > 1 {
-		parent, err := bc.bp.GetHeaderByNumber(height - 1)
+	if number > 1 {
+		parent, err := bc.bp.GetHeaderByNumber(number - 1)
 		if err != nil {
 			panic(err)
 		}
@@ -78,7 +78,7 @@ func (bc *blockchain) Prepare(ctx context.Context, height uint64) {
 		Coinbase:   coinbase,
 		Root:       common.Hash{}, // Polaris does not use the Ethereum state root.
 		Difficulty: big.NewInt(0),
-		Number:     big.NewInt(0).SetUint64(height),
+		Number:     big.NewInt(0).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
 		Extra:      []byte{}, // Polaris does not set the Extra field.
