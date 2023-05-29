@@ -54,10 +54,10 @@ type Keeper struct {
 
 // NewKeeper creates new instances of the polaris Keeper.
 func NewKeeper(
-	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
 	sk block.StakingKeeper,
+	storeKey storetypes.StoreKey,
 	authority string,
 	ethTxMempool sdkmempool.Mempool,
 	pcs func() *ethprecompile.Injector,

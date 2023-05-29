@@ -89,8 +89,8 @@ var _ = Describe("Processor", func() {
 		// before chain, init genesis state
 		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
 		k = keeper.NewKeeper(
-			storetypes.NewKVStoreKey("evm"),
 			ak, bk, sk,
+			storetypes.NewKVStoreKey("evm"),
 			"authority",
 			evmmempool.NewEthTxPoolFrom(evmmempool.DefaultPriorityMempool()),
 			func() *ethprecompile.Injector {

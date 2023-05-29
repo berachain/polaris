@@ -179,7 +179,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,
 		SignModeHandler: app.TxConfig().SignModeHandler(),
-		FeegrantKeeper:  nil, // We don't use feegrant atm.
+		FeegrantKeeper:  nil,
 		SigGasConsumer:  evmante.SigVerificationGasConsumer,
 	}
 	ch, _ := evmante.NewAnteHandler(
