@@ -401,7 +401,8 @@ func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethSt
 		vmConfig = new(vm.Config) // todo: read from blockchain obj.
 	}
 	txContext := core.NewEVMTxContext(msg)
-	return b.chain.GetEVM(ctx, txContext, utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig), state.Error, nil
+	return b.chain.GetEVM(ctx, txContext,
+		utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig), state.Error, nil
 }
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {

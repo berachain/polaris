@@ -21,9 +21,7 @@
 package polar
 
 import (
-	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
-	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -50,14 +48,16 @@ type NetworkingStack interface {
 
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
-	// Handlers
 	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC APIs.
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
 
 	// txPool     *txpool.TxPool
+	// blockchain represents the canonical chain.
 	blockchain core.Blockchain
-	backend    polarapi.Backend
+
+	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the blockchain.
+	backend polarapi.Backend
 }
 
 // New creates a new `PolarisEVM` instance for use on an underlying blockchain.
@@ -101,13 +101,19 @@ func NewWithConfig(
 	// Build and set the RPC Backend.
 	pl.backend = polarapi.NewBackend(pl.blockchain, &cfg.RPCConfig, &cfg.NodeConfig)
 
+	// TODO: decouple the networking stack from node.Node hardtype to allow for
+	// alternative networking stacks, using node.Node is kinda ghetto ngl.
 	var err error
-	pl.stack, err = node.New(&cfg.NodeConfig)
+	pl.stack, err = NewGethNetworkingStack(&cfg.NodeConfig, pl.backend)
 	if err != nil {
 		panic(err)
 	}
-
 	return pl
+}
+
+// SetNetworkingStack sets the networking stack for the polaris node.
+func (pl *Polaris) SetNetworkingStack(stack NetworkingStack) {
+	pl.stack = stack
 }
 
 // APIs return the collection of RPC services the polar package offers.
@@ -129,16 +135,10 @@ func (pl *Polaris) APIs() []rpc.API {
 	}...)
 }
 
-// StartServices starts the standard go-ethereum node-services (i.e json-rpc).
+// StartServices notifies the NetworkStack to spin up (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
-	// Register the JSON-RPCs with the node
+	// Register the JSON-RPCs with the networking stack.
 	pl.stack.RegisterAPIs(pl.APIs())
-
-	// Register the filter API separately in order to get access to the filterSystem
-	// TODO: this should be made cleaner.
-	filterSystem := utils.RegisterFilterAPI(pl.stack.(*node.Node), pl.backend, &defaultEthConfig)
-	// this should be a flag rather than make every node default to using it
-	utils.RegisterGraphQLService(pl.stack.(*node.Node), pl.backend, filterSystem, pl.stack.(*node.Node).Config())
 
 	// Start the services (json-rpc, graphql, etc)
 	return pl.stack.Start()
