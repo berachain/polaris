@@ -31,6 +31,10 @@ import (
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
+// TODO: break out the node into a seperate package and then fully use the
+// abstracted away networking stack, by extension we will need to improve the registration
+// architecture.
+
 var defaultEthConfig = ethconfig.Config{
 	SyncMode:           0,
 	FilterLogCacheSize: 0,
@@ -46,8 +50,6 @@ type NetworkingStack interface {
 
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
-	// config *ethconfig.Config
-
 	// Handlers
 	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC APIs.
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
@@ -56,24 +58,6 @@ type Polaris struct {
 	// txPool     *txpool.TxPool
 	blockchain core.Blockchain
 	backend    polarapi.Backend
-
-	// // DB interfaces
-	// chainDb ethdb.Database // Block chain database
-
-	// eventMux *event.TypeMux
-	// // engine         consensus.Engine
-	// accountManager *accounts.Manager
-
-	// APIBackend *EthAPIBackend
-
-	// miner     *miner.Miner
-	// gasPrice  *big.Int
-	// etherbase common.Address
-
-	// networkID     uint64
-	// netRPCService *ethapi.NetAPI
-
-	// lock sync.RWMutex // Protects the variadic fields (e.g. gas price and etherbase)
 }
 
 // New creates a new `PolarisEVM` instance for use on an underlying blockchain.
@@ -126,23 +110,14 @@ func NewWithConfig(
 	return pl
 }
 
-// APIs return the collection of RPC services the ethereum package offers.
+// APIs return the collection of RPC services the polar package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (pl *Polaris) APIs() []rpc.API {
+	// Grab a bunch of the apis from go-ethereum (thx bae)
 	apis := polarapi.GethAPIs(pl.backend, pl.blockchain)
-	// apis := ethapi.GetAPIs(s.APIBackend, s.blockchain)
-	// Append any APIs exposed explicitly by the consensus engine
-	// apis = append(apis, s.engine.APIs(s.BlockChain())...)
 
 	// Append all the local APIs and return
 	return append(apis, []rpc.API{
-		// {
-		// 	Namespace: "eth",
-		// 	Service:   eth.NewEthereumAPI(s),
-		// }, {
-		// 	Namespace: "debug",
-		// 	Service:   eth.NewDebugAPI(s),
-		// }, {
 		{
 			Namespace: "net",
 			Service:   polarapi.NewNetAPI(pl.backend),
