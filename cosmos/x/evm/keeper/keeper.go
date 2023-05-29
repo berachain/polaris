@@ -90,7 +90,6 @@ func (k *Keeper) Setup(
 	// Setup plugins in the Host
 	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc)
 
-
 	// Build the Polaris EVM Provider
 	cfg, err := polar.LoadConfigFromFilePath(polarisConfigPath)
 	if err != nil {
@@ -98,10 +97,11 @@ func (k *Keeper) Setup(
 		cfg = polar.DefaultConfig()
 	}
 
-	// set the data dir
-	cfg.NodeConfig.DataDir = polarisDataDir
+	// TODO: PARSE POLARIS.TOML CORRECT AGAIN
+	nodeCfg := polar.DefaultGethNodeConfig()
+	nodeCfg.DataDir = polarisDataDir
 
-	node, err := polar.NewGethNetworkingStack(&cfg.NodeConfig)
+	node, err := polar.NewGethNetworkingStack(nodeCfg)
 	if err != nil {
 		panic(err)
 	}

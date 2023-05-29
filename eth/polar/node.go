@@ -43,8 +43,32 @@ func NewGethNetworkingStack(config *node.Config) (NetworkingStack, error) {
 	}, nil
 }
 
+// ExtRPCEnabled returns whether or not the external RPC service is enabled.
+func (n *Node) ExtRPCEnabled() bool {
+	return n.Node.Config().ExtRPCEnabled()
+}
+
 // Start starts the networking stack.
 func (n *Node) Start() error {
 	// We then start the underlying node.
 	return n.Node.Start()
+}
+
+// DefaultConfig returns the default configuration for the provider.
+// TODO: DEPRECATE THIS
+func DefaultGethNodeConfig() *node.Config {
+	nodeCfg := node.DefaultConfig
+	nodeCfg.P2P.NoDiscovery = true
+	nodeCfg.P2P.MaxPeers = 0
+	nodeCfg.Name = clientIdentifier
+	nodeCfg.HTTPModules = append(nodeCfg.HTTPModules, "eth", "web3", "net")
+	nodeCfg.WSModules = append(nodeCfg.WSModules, "eth")
+	nodeCfg.HTTPHost = "0.0.0.0"
+	nodeCfg.WSHost = "0.0.0.0"
+	nodeCfg.WSOrigins = []string{"*"}
+	nodeCfg.HTTPCors = []string{"*"}
+	nodeCfg.HTTPVirtualHosts = []string{"*"}
+	nodeCfg.GraphQLCors = []string{"*"}
+	nodeCfg.GraphQLVirtualHosts = []string{"*"}
+	return &nodeCfg
 }

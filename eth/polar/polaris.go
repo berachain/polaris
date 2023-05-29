@@ -25,6 +25,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
+	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/graphql"
 
 	"pkg.berachain.dev/polaris/eth/core"
@@ -42,7 +43,11 @@ var defaultEthConfig = ethconfig.Config{
 	FilterLogCacheSize: 0,
 }
 
+// NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC apis.
 type NetworkingStack interface {
+	// IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC APIs.
+	ExtRPCEnabled() bool
+
 	// RegisterHandler manually registers a new handler into the networking stack.
 	RegisterHandler(string, string, http.Handler)
 
@@ -65,7 +70,9 @@ type Polaris struct {
 	blockchain core.Blockchain
 
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the blockchain.
-	backend polarapi.Backend
+	backend Backend
+
+	filterSystem *filters.FilterSystem
 }
 
 func NewWithNetworkingStack(
@@ -91,7 +98,7 @@ func NewWithNetworkingStack(
 	}
 
 	// Build and set the RPC Backend.
-	pl.backend = polarapi.NewBackend(pl.blockchain, &cfg.RPCConfig, &cfg.NodeConfig)
+	pl.backend = NewBackend(pl.blockchain, stack.ExtRPCEnabled(), cfg)
 	return pl
 }
 
@@ -114,12 +121,8 @@ func (pl *Polaris) APIs() []rpc.API {
 	}...)
 }
 
-// SetupGraphQL creates and registers a graphql handler with the networking stack, it also
-// registers the filterSystem with the networking stack.
-func (pl *Polaris) RegisterGraphQLHandler() error {
-	// Register the filter API separately in order to get access to the filterSystem
-	filterSystem := utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
-	return graphql.New(pl.stack, pl.backend, filterSystem, pl.cfg.NodeConfig.GraphQLCors, pl.cfg.NodeConfig.GraphQLVirtualHosts)
+func (pl *Polaris) GetFilterSystem() *filters.FilterSystem {
+	return pl.filterSystem
 }
 
 // StartServices notifies the NetworkStack to spin up (i.e json-rpc).
@@ -127,8 +130,11 @@ func (pl *Polaris) StartServices() error {
 	// Register the JSON-RPCs with the networking stack.
 	pl.stack.RegisterAPIs(pl.APIs())
 
-	// Setup the graphql handler separately
-	if err := pl.RegisterGraphQLHandler(); err != nil {
+	// Register the filter API separately in order to get access to the filterSystem
+	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
+
+	// Register the GraphQL API (todo update cors stuff)
+	if err := graphql.New(pl.stack, pl.backend, pl.filterSystem, []string{"*"}, []string{"*"}); err != nil {
 		return err
 	}
 

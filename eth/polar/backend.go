@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package polarapi
+package polar
 
 import (
 	"context"
@@ -33,7 +33,6 @@ import (
 	"github.com/ethereum/go-ethereum/eth/gasprice"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/rpc"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -43,6 +42,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/params"
+	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/version"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -50,18 +50,18 @@ import (
 // Backend represents the backend object for a Polaris chain. It extends the standard
 // go-ethereum backend object.
 type Backend interface {
-	EthBackend
-	NetBackend
-	Web3Backend
+	polarapi.EthBackend
+	polarapi.NetBackend
+	polarapi.Web3Backend
 }
 
 // backend represents the backend for the JSON-RPC service.
 type backend struct {
-	chain      core.Blockchain
-	rpcConfig  *Config
-	nodeConfig *node.Config
-	gpo        *gasprice.Oracle
-	logger     log.Logger
+	extRPCEnabled bool
+	chain         core.Blockchain
+	cfg           *Config
+	gpo           *gasprice.Oracle
+	logger        log.Logger
 }
 
 // ==============================================================================
@@ -71,16 +71,16 @@ type backend struct {
 // NewBackend returns a new `Backend` object.
 func NewBackend(
 	chain core.Blockchain,
-	rpcConfig *Config,
-	nodeConfig *node.Config,
+	extRPCEnabled bool,
+	cfg *Config,
 ) Backend {
 	b := &backend{
-		chain:      chain,
-		rpcConfig:  rpcConfig,
-		logger:     log.Root(),
-		nodeConfig: nodeConfig,
+		extRPCEnabled: extRPCEnabled,
+		chain:         chain,
+		cfg:           cfg,
+		logger:        log.Root(),
 	}
-	b.gpo = gasprice.NewOracle(b, rpcConfig.GPO)
+	b.gpo = gasprice.NewOracle(b, cfg.GPO)
 	return b
 }
 
@@ -139,23 +139,23 @@ func (b *backend) AccountManager() *accounts.Manager {
 // ExtRPCEnabled returns whether the RPC endpoints are exposed over external
 // interfaces.
 func (b *backend) ExtRPCEnabled() bool {
-	return b.nodeConfig.ExtRPCEnabled()
+	return b.extRPCEnabled
 }
 
 // RPCGasCap returns the global gas cap for eth_call over rpc: this is
 // if the user doesn't specify a cap.
 func (b *backend) RPCGasCap() uint64 {
-	return b.rpcConfig.RPCGasCap
+	return b.cfg.RPCGasCap
 }
 
 // RPCEVMTimeout returns the global timeout for eth_call over rpc.
 func (b *backend) RPCEVMTimeout() time.Duration {
-	return b.rpcConfig.RPCEVMTimeout
+	return b.cfg.RPCEVMTimeout
 }
 
 // RPCTxFeeCap returns the global gas price cap for transactions over rpc.
 func (b *backend) RPCTxFeeCap() float64 {
-	return b.rpcConfig.RPCTxFeeCap
+	return b.cfg.RPCTxFeeCap
 }
 
 // UnprotectedAllowed returns whether unprotected transactions are alloweds.
