@@ -75,6 +75,12 @@ var _ = Describe("EthTxPool", func() {
 		etp.SetNonceRetriever(sp)
 	})
 
+	DescribeTable("All cases", func(tx coretypes.TxData) {
+		It("should handle empty txs", func() {
+
+		})
+	})
+
 	Describe("All Cases", func() {
 		It("should handle empty txs", func() {
 			Expect(etp.Get(common.Hash{})).To(BeNil())
@@ -354,7 +360,7 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Nonce(addr1)).To(BeEquivalentTo(sdbNonce))
 
 		})
-		It("should return StateDB's nonce when seeing nonce gap on second lookup", func() {
+		It("should break on noncontigious transactions", func() {
 			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
 			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
 			_, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3})
