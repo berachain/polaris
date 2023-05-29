@@ -18,10 +18,21 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package polar
+package polarapi
 
-import "github.com/ethereum/go-ethereum/eth"
+import (
+	"github.com/ethereum/go-ethereum/ethapi"
+)
 
 type (
-	EthAPIBackend = eth.EthAPIBackend
+	EthBackend = ethapi.Backend
+)
+
+var (
+	GethAPIs          = ethapi.GetAPIs
+	NewEthereumAPI    = ethapi.NewEthereumAPI
+	NewBlockChainAPI  = ethapi.NewBlockChainAPI
+	NewTransactionAPI = ethapi.NewTransactionAPI
+	NewTxPoolAPI      = ethapi.NewTxPoolAPI
+	NewDebugAPI       = ethapi.NewDebugAPI
 )

@@ -18,26 +18,46 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package polarapi
 
 import (
-	"pkg.berachain.dev/polaris/eth/rpc/api"
+	"pkg.berachain.dev/polaris/eth/common/hexutil"
 )
 
-// GetAPIs returns a list of all available APIs.
-func GetAPIs(apiBackend PolarisBackend) []API {
-	return append(GetGethAPIs(apiBackend, nil), // todo: required chain for flashbots.
-		API{
-			Namespace: "eth",
-			Service:   api.NewEthashAPI(apiBackend),
-		},
-		API{
-			Namespace: "net",
-			Service:   api.NewNetAPI(apiBackend),
-		},
-		API{
-			Namespace: "web3",
-			Service:   api.NewWeb3API(apiBackend),
-		},
-	)
+// NetBackend is the collection of methods required to satisfy the net
+// RPC API.
+type NetBackend interface {
+	NetAPI
+}
+
+// NetAPI is the collection of net RPC API methods.
+type NetAPI interface {
+	PeerCount() hexutil.Uint
+	Listening() bool
+	Version() string
+}
+
+// netAPI offers network related RPC methods.
+type netAPI struct {
+	b NetBackend
+}
+
+// NewNetAPI creates a new net API instance.
+func NewNetAPI(b NetBackend) NetAPI {
+	return &netAPI{b}
+}
+
+// Listening returns an indication if the node is listening for network connections.
+func (api *netAPI) Listening() bool {
+	return api.b.Listening()
+}
+
+// PeerCount returns the number of connected peers.
+func (api *netAPI) PeerCount() hexutil.Uint {
+	return api.b.PeerCount()
+}
+
+// Version returns the current ethereum protocol version.
+func (api *netAPI) Version() string {
+	return api.b.Version()
 }

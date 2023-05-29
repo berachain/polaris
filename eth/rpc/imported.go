@@ -21,25 +21,17 @@
 package rpc
 
 import (
-	"github.com/ethereum/go-ethereum/ethapi"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
 type (
 	API               = rpc.API
-	Backend           = ethapi.Backend
 	BlockNumber       = rpc.BlockNumber
 	BlockNumberOrHash = rpc.BlockNumberOrHash
 	Server            = rpc.Server
 )
 
 var (
-	GetGethAPIs          = ethapi.GetAPIs
-	NewEthereumAPI       = ethapi.NewEthereumAPI
-	NewBlockChainAPI     = ethapi.NewBlockChainAPI
-	NewTransactionAPI    = ethapi.NewTransactionAPI
-	NewTxPoolAPI         = ethapi.NewTxPoolAPI
-	NewDebugAPI          = ethapi.NewDebugAPI
 	NewServer            = rpc.NewServer
 	SafeBlockNumber      = rpc.SafeBlockNumber
 	FinalizedBlockNumber = rpc.FinalizedBlockNumber

@@ -27,8 +27,8 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/log"
+	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
-	rpcapi "pkg.berachain.dev/polaris/eth/rpc/api"
 )
 
 var defaultEthConfig = ethconfig.Config{
@@ -49,11 +49,13 @@ type Polaris struct {
 	// config *ethconfig.Config
 
 	// Handlers
+	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC APIs.
+	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
 
 	// txPool     *txpool.TxPool
 	blockchain core.Blockchain
-	backend    rpc.PolarisBackend
+	backend    polarapi.Backend
 
 	// // DB interfaces
 	// chainDb ethdb.Database // Block chain database
@@ -113,7 +115,7 @@ func NewWithConfig(
 	pl.blockchain = core.NewChain(host)
 
 	// Build and set the RPC Backend.
-	pl.backend = rpc.NewPolarisBackend(pl.blockchain, &cfg.RPCConfig, &cfg.NodeConfig)
+	pl.backend = polarapi.NewBackend(pl.blockchain, &cfg.RPCConfig, &cfg.NodeConfig)
 
 	var err error
 	pl.stack, err = node.New(&cfg.NodeConfig)
@@ -127,9 +129,8 @@ func NewWithConfig(
 // APIs return the collection of RPC services the ethereum package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (pl *Polaris) APIs() []rpc.API {
+	apis := polarapi.GethAPIs(pl.backend, pl.blockchain)
 	// apis := ethapi.GetAPIs(s.APIBackend, s.blockchain)
-	apis := rpc.GetAPIs(pl.backend)
-	apis = append(apis, rpc.GetAPIs(pl.backend)...)
 	// Append any APIs exposed explicitly by the consensus engine
 	// apis = append(apis, s.engine.APIs(s.BlockChain())...)
 
@@ -144,7 +145,11 @@ func (pl *Polaris) APIs() []rpc.API {
 		// }, {
 		{
 			Namespace: "net",
-			Service:   rpcapi.NewNetAPI(pl.backend),
+			Service:   polarapi.NewNetAPI(pl.backend),
+		},
+		{
+			Namespace: "web3",
+			Service:   polarapi.NewWeb3API(pl.backend),
 		},
 	}...)
 }

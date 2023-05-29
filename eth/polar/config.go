@@ -29,7 +29,7 @@ import (
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/p2p"
 
-	"pkg.berachain.dev/polaris/eth/rpc"
+	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 )
 
 // clientIdentifier is the identifier string for the client.
@@ -53,14 +53,14 @@ func DefaultConfig() *Config {
 	nodeCfg.GraphQLCors = []string{"*"}
 	nodeCfg.GraphQLVirtualHosts = []string{"*"}
 	c.NodeConfig = nodeCfg
-	c.RPCConfig = *rpc.DefaultConfig()
+	c.RPCConfig = *polarapi.DefaultConfig()
 	return &c
 }
 
 // Config represents the configurable parameters for Polaris.
 type Config struct {
 	NodeConfig node.Config
-	RPCConfig  rpc.Config
+	RPCConfig  polarapi.Config
 }
 
 // LoadConfigFromFilePath reads in a Polaris config file from the fileystem.
