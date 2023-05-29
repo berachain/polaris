@@ -77,7 +77,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	// and block nonce (Nonce) on the new header.
 	header := &types.Header{
 		ParentHash: parentHash,
-		Number:     new(big.Int).SetUint64(height),
+		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
 		Coinbase:   coinbase,
