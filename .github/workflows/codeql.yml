@@ -67,7 +67,7 @@ jobs:
           go-version: ${{ matrix.versions }}
       - name: Install Go Tools
         run: |
-          go run magefiles/mage/setup.go
+          go run magefiles/setup/setup.go ci
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2

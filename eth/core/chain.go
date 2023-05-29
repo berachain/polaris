@@ -31,18 +31,23 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
 // By default we are storing up to 64mb of historical data for each cache.
 const defaultCacheSizeBytes = 1024 * 1024 * 64
 
-// Compile-time check to ensure that `blockchain` implements the `Chain` api.
-var (
-	_ ChainWriter     = (*blockchain)(nil)
-	_ ChainReader     = (*blockchain)(nil)
-	_ ChainSubscriber = (*blockchain)(nil)
-	_ ChainResources  = (*blockchain)(nil)
-)
+// Compile-time check to ensure that `blockchain` implements the `Blockchain` api.
+var _ Blockchain = (*blockchain)(nil)
+
+type Blockchain interface {
+	Config() *params.ChainConfig
+	ChainReader
+	ChainWriter
+	ChainSubscriber
+	ChainResources
+	ChainContext
+}
 
 // blockchain is the canonical, persistent object that operates the Polaris EVM.
 type blockchain struct {
@@ -124,4 +129,9 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 	bc.finalizedBlock.Store(nil)
 
 	return bc
+}
+
+// ChainConfig returns the Ethereum chain config of the  chain.
+func (bc *blockchain) Config() *params.ChainConfig {
+	return bc.cp.ChainConfig()
 }

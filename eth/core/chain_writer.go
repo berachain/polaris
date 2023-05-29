@@ -49,23 +49,24 @@ type ChainWriter interface {
 // =========================================================================
 
 // Prepare prepares the blockchain for processing a new block at the given height.
-func (bc *blockchain) Prepare(ctx context.Context, height uint64) {
+func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
 	bc.sp.Prepare(ctx)
 	bc.bp.Prepare(ctx)
 	bc.cp.Prepare(ctx)
 	bc.gp.Prepare(ctx)
+
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
 	}
 
-	coinbase, timestamp := bc.bp.GetNewBlockMetadata(height)
-	bc.logger.Info("Preparing block", "height", height, "coinbase", coinbase.Hex(), "timestamp", timestamp)
+	coinbase, timestamp := bc.bp.GetNewBlockMetadata(number)
+	bc.logger.Info("Preparing block", "number", number, "coinbase", coinbase.Hex(), "timestamp", timestamp)
 
 	// Build the new block header.
 	var parentHash common.Hash
-	if height > 1 {
-		parent, err := bc.bp.GetHeaderByNumber(height - 1)
+	if number > 1 {
+		parent, err := bc.bp.GetHeaderByNumber(number - 1)
 		if err != nil {
 			panic(err)
 		}
@@ -83,6 +84,9 @@ func (bc *blockchain) Prepare(ctx context.Context, height uint64) {
 		BaseFee:    bc.CalculateNextBaseFee(),
 		Difficulty: big.NewInt(0),
 	}
+
+	// We update the base fee in the txpool to the next base fee.
+	bc.tp.SetBaseFee(header.BaseFee)
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	bc.processor.Prepare(

@@ -33,7 +33,6 @@ import (
 	crisismodulev1 "cosmossdk.io/api/cosmos/crisis/module/v1"
 	distrmodulev1 "cosmossdk.io/api/cosmos/distribution/module/v1"
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
-	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
 	genutilmodulev1 "cosmossdk.io/api/cosmos/genutil/module/v1"
 	govmodulev1 "cosmossdk.io/api/cosmos/gov/module/v1"
 	groupmodulev1 "cosmossdk.io/api/cosmos/group/module/v1"
@@ -46,7 +45,6 @@ import (
 	vestingmodulev1 "cosmossdk.io/api/cosmos/vesting/module/v1"
 	"cosmossdk.io/core/appconfig"
 	evidencetypes "cosmossdk.io/x/evidence/types"
-	"cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -168,10 +166,6 @@ var (
 				//nolint:gomnd // its okay.
 				MaxMetadataLen: 255,
 			}),
-		},
-		{
-			Name:   feegrant.ModuleName,
-			Config: appconfig.WrapAny(&feegrantmodulev1.Module{}),
 		},
 		{
 			Name:   govtypes.ModuleName,

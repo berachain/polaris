@@ -18,11 +18,6 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package miner
 
-import "errors"
-
-var (
-	ErrBlockNotFound    = errors.New("block not found, is your node pruned?")
-	ErrHashNotCanonical = errors.New("hash not canonical")
-)
+// coming soon tm

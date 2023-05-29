@@ -7,11 +7,10 @@ replace (
 	cosmossdk.io/errors => cosmossdk.io/errors v1.0.0-beta.7.0.20230525153548-b6613f9163f8
 	cosmossdk.io/x/circuit => github.com/cosmos/cosmos-sdk/x/circuit v0.0.0-20230525153548-b6613f9163f8
 	cosmossdk.io/x/evidence => github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230525153548-b6613f9163f8
-	cosmossdk.io/x/feegrant => github.com/cosmos/cosmos-sdk/x/feegrant v0.0.0-20230525153548-b6613f9163f8
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230525153548-b6613f9163f8
 
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230524075343-fee9e00aedf1
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230529162530-37091fdc7542
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 
@@ -26,7 +25,6 @@ require (
 	cosmossdk.io/store v0.1.0-alpha.1.0.20230524212735-6cabb6aa5741
 	cosmossdk.io/tools/confix v0.0.0-20230120150717-4f6f6c00021f
 	cosmossdk.io/x/evidence v0.1.0
-	cosmossdk.io/x/feegrant v0.0.0-20230117113717-50e7c4a4ceff
 	cosmossdk.io/x/upgrade v0.0.0-20230525153548-b6613f9163f8
 	github.com/btcsuite/btcd v0.23.4
 	github.com/btcsuite/btcd/btcutil v1.1.3
@@ -42,7 +40,7 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/holiman/uint256 v1.2.2
-	github.com/huandu/skiplist v1.2.0
+	github.com/huandu/skiplist v1.2.0 // indirect
 	github.com/onsi/ginkgo/v2 v2.9.5
 	github.com/onsi/gomega v1.27.6
 	github.com/spf13/cobra v1.7.0
@@ -53,7 +51,7 @@ require (
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230522054826-1e34ff529c3e
-	pkg.berachain.dev/polaris/eth v0.0.0-20230522054826-1e34ff529c3e
+	pkg.berachain.dev/polaris/eth v0.0.0-20230529182942-8a54f2bce6b2
 	pkg.berachain.dev/polaris/lib v0.0.0-20230522054826-1e34ff529c3e
 )
 

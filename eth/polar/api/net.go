@@ -18,42 +18,46 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package api
+package polarapi
 
 import (
 	"pkg.berachain.dev/polaris/eth/common/hexutil"
-	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
-// Web3Backend is the collection of methods required to satisfy the net
+// NetBackend is the collection of methods required to satisfy the net
 // RPC API.
-type Web3Backend interface {
-	ClientVersion() string
+type NetBackend interface {
+	NetAPI
 }
 
-// Web3API is the collection of net RPC API methods.
-type Web3API interface {
-	ClientVersion() string
-	Sha3(input hexutil.Bytes) hexutil.Bytes
+// NetAPI is the collection of net RPC API methods.
+type NetAPI interface {
+	PeerCount() hexutil.Uint
+	Listening() bool
+	Version() string
 }
 
-// web3Api offers network related RPC methods.
-type web3API struct {
-	b Web3Backend
+// netAPI offers network related RPC methods.
+type netAPI struct {
+	b NetBackend
 }
 
-// NewWeb3API creates a new web3 API instance.
-func NewWeb3API(b Web3Backend) Web3Backend {
-	return &web3API{b}
+// NewNetAPI creates a new net API instance.
+func NewNetAPI(b NetBackend) NetAPI {
+	return &netAPI{b}
 }
 
-// ClientVersion returns the node name.
-func (api *web3API) ClientVersion() string {
-	return api.b.ClientVersion()
+// Listening returns an indication if the node is listening for network connections.
+func (api *netAPI) Listening() bool {
+	return api.b.Listening()
 }
 
-// Sha3 applies the ethereum sha3 implementation on the input.
-// It assumes the input is hex encoded.
-func (*web3API) Sha3(input hexutil.Bytes) hexutil.Bytes {
-	return crypto.Keccak256(input)
+// PeerCount returns the number of connected peers.
+func (api *netAPI) PeerCount() hexutil.Uint {
+	return api.b.PeerCount()
+}
+
+// Version returns the current ethereum protocol version.
+func (api *netAPI) Version() string {
+	return api.b.Version()
 }

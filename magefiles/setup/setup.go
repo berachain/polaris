@@ -28,6 +28,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/carolynvs/magex/pkg"
 	"github.com/magefile/mage/sh"
@@ -44,10 +45,9 @@ var (
 	golines      = "github.com/segmentio/golines"
 	rlpgen       = "github.com/ethereum/go-ethereum/rlp/rlpgen"
 	abigen       = "github.com/ethereum/go-ethereum/cmd/abigen"
-	gci          = "github.com/daixiang0/gci"
 
-	allTools = []string{buf, gosec, golangcilint, addlicense,
-		moq, ginkgo, golines, rlpgen, abigen, gci}
+	ciTools  = []string{buf, gosec, golangcilint, addlicense, ginkgo, golines}
+	allTools = append(ciTools, []string{moq, rlpgen, abigen}...)
 )
 
 // Setup runs the setup script for the current OS.
@@ -59,17 +59,30 @@ func main() {
 		panic(err)
 	}
 
-	if err = setupFoundry(); err != nil {
-		fmt.Println("Skipping foundryup, please install manually.")
+	if !isCi() {
+		if err = setupFoundry(); err != nil {
+			fmt.Println("Skipping foundryup, please install manually.")
+		}
 	}
 
-	if err = setupGoDeps(); err != nil {
+	var toInstall []string
+	if isCi() {
+		toInstall = ciTools
+	} else {
+		toInstall = allTools
+	}
+
+	if err = setupGoDeps(toInstall); err != nil {
 		panic(err)
 	}
 }
 
-func setupGoDeps() error {
-	for _, tool := range allTools {
+func isCi() bool {
+	return len(os.Args) > 1 && os.Args[1] == "ci"
+}
+
+func setupGoDeps(toInstall []string) error {
+	for _, tool := range toInstall {
 		fmt.Println("Installing", fmt.Sprintf("`%s`", tool))
 		if err := sh.RunCmd("go", "install", "-mod=readonly", tool); err() != nil {
 			return errors.New("failed to install " + tool + ": " + err().Error())
