@@ -47,6 +47,7 @@ import (
 )
 
 func TestEthPool(t *testing.T) {
+	//t.Parallel()
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "cosmos/x/evm/plugins/txpool/mempool")
 }
@@ -324,6 +325,16 @@ var _ = Describe("EthTxPool", func() {
 
 			wg.Wait()
 			Expect(readsFromA).To(BeEquivalentTo(readsFromB))
+		})
+		It("should be able to return the transaction priority for both eth and cosmos txs", func() {
+			ethTx, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(1), EffectiveGasTipValue: big.NewInt(69)})
+			tpp := EthereumTxPriorityPolicy{baseFee: big.NewInt(69)}
+			Expect(tpp.GetTxPriority(ctx, tx)).To(Equal(ethTx.EffectiveGasTipValue(tpp.baseFee)))
+			Expect(tpp.GetTxPriority(ctx, tx)).To(Equal(ethTx.EffectiveGasTipValue(tpp.baseFee)))
+
+		})
+		It("should be able to return the transaction priority", func() {
+
 		})
 	})
 })
