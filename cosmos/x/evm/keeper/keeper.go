@@ -100,7 +100,6 @@ func (k *Keeper) Setup(
 	// TODO: PARSE POLARIS.TOML CORRECT AGAIN
 	nodeCfg := polar.DefaultGethNodeConfig()
 	nodeCfg.DataDir = polarisDataDir
-
 	node, err := polar.NewGethNetworkingStack(nodeCfg)
 	if err != nil {
 		panic(err)

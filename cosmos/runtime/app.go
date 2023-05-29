@@ -51,6 +51,7 @@ import (
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -140,7 +141,6 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		&app.ParamsKeeper,
 		&app.AuthzKeeper,
 		&app.EvidenceKeeper,
-		&app.FeeGrantKeeper,
 		&app.GroupKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.EVMKeeper,
@@ -179,7 +179,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,
 		SignModeHandler: app.TxConfig().SignModeHandler(),
-		FeegrantKeeper:  app.FeeGrantKeeper,
+		FeegrantKeeper:  nil, // We don't use feegrant atm.
 		SigGasConsumer:  evmante.SigVerificationGasConsumer,
 	}
 	ch, _ := evmante.NewAnteHandler(

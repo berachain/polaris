@@ -293,6 +293,7 @@ cosmossdk.io/tools/rosetta v0.2.0 h1:Ae499UiZ9yPNCXvjOBO/R9I1pksCJfxoqWauEZgA/gs
 cosmossdk.io/tools/rosetta v0.2.0/go.mod h1:3mn8QuE2wLUdTi77/gbDXdFqXZdBdiBJhgAWUTSXPv8=
 cosmossdk.io/tools/rosetta v0.2.1 h1:ddOMatOH+pbxWbrGJKRAawdBkPYLfKXutK9IETnjYxw=
 cosmossdk.io/tools/rosetta v0.2.1/go.mod h1:Pqdc1FdvkNV3LcNIkYWt2RQY6IP1ge6YWZk8MhhO9Hw=
+cosmossdk.io/x/feegrant v0.0.0-20230117113717-50e7c4a4ceff h1:ASeogeTLcf487ykEMTN2z1p/vykpo2HdPkKC7JpE8pE=
 cosmossdk.io/x/nft v0.0.0-20230113085233-fae3332d62fc h1:uk4+YTFhtG71jpmv5ZJQhb/V7h9j9rO1HacJc7O4dz8=
 cosmossdk.io/x/tx v0.5.5/go.mod h1:Oh3Kh+IPOfMEILNxVd2e8SLqRrIjYHpdGBfDg4ghU/k=
 cosmossdk.io/x/tx v0.6.3 h1:B9uRBUYrjEuq972T0ma0BCDu5QDElqsQkJuM+UZlDhA=
