@@ -414,7 +414,7 @@ func isPendingTx(mempool *EthTxPool, tx *coretypes.Transaction) bool {
 	return false
 }
 
-func buildTx(from *ecdsa.PrivateKey, txData *coretypes.LegacyTx) (*coretypes.Transaction, sdk.Tx) {
+func buildTx(from *ecdsa.PrivateKey, txData coretypes.TxData) (*coretypes.Transaction, sdk.Tx) {
 	signer := coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
 	signedEthTx := coretypes.MustSignNewTx(from, signer, txData)
 	addr, _ := signer.Sender(signedEthTx)
@@ -430,7 +430,7 @@ func buildTx(from *ecdsa.PrivateKey, txData *coretypes.LegacyTx) (*coretypes.Tra
 			{
 				PubKey: pubKey,
 				// NOTE: not including the signature data for the mock
-				Sequence: txData.Nonce,
+				Sequence: signedEthTx.Nonce(),
 			},
 		},
 	}
