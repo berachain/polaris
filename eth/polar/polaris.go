@@ -31,7 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
-// TODO: break out the node into a seperate package and then fully use the
+// TODO: break out the node into a separate package and then fully use the
 // abstracted away networking stack, by extension we will need to improve the registration
 // architecture.
 
