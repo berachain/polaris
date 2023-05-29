@@ -21,7 +21,11 @@
 package polar
 
 import (
+	"net/http"
+
+	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
+	"github.com/ethereum/go-ethereum/graphql"
 
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -39,6 +43,9 @@ var defaultEthConfig = ethconfig.Config{
 }
 
 type NetworkingStack interface {
+	// RegisterHandler manually registers a new handler into the networking stack.
+	RegisterHandler(string, string, http.Handler)
+
 	// RegisterAPIs registers JSON-RPC handlers for the networking stack.
 	RegisterAPIs([]rpc.API)
 
@@ -48,6 +55,7 @@ type NetworkingStack interface {
 
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
+	cfg *Config
 	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC APIs.
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
@@ -60,33 +68,20 @@ type Polaris struct {
 	backend polarapi.Backend
 }
 
-// New creates a new `PolarisEVM` instance for use on an underlying blockchain.
-func New(
-	configPath string,
-	dataDir string,
-	host core.PolarisHostChain,
-	logHandler log.Handler,
-) *Polaris {
-	// Load the config file.
-	cfg, err := LoadConfigFromFilePath(configPath)
-	if err != nil {
-		cfg = DefaultConfig()
-	}
-
-	// set the data dir
-	cfg.NodeConfig.DataDir = dataDir
-
-	// Create the Polaris Provider.
-	return NewWithConfig(cfg, host, logHandler)
-}
-
-// New creates a new `PolarisEVM` instance for use on an underlying blockchain.
-func NewWithConfig(
+func NewWithNetworkingStack(
 	cfg *Config,
 	host core.PolarisHostChain,
+	stack NetworkingStack,
 	logHandler log.Handler,
 ) *Polaris {
-	pl := &Polaris{}
+	pl := &Polaris{
+		cfg:        cfg,
+		blockchain: core.NewChain(host),
+		stack:      stack,
+	}
+	// When creating a Polaris EVM, we allow the implementing chain
+	// to specify their own log handler. If logHandler is nil then we
+	// we use the default geth log handler.
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
 	// we use the default geth log handler.
@@ -95,25 +90,9 @@ func NewWithConfig(
 		log.Root().SetHandler(logHandler)
 	}
 
-	// Build the chain from the host.
-	pl.blockchain = core.NewChain(host)
-
 	// Build and set the RPC Backend.
 	pl.backend = polarapi.NewBackend(pl.blockchain, &cfg.RPCConfig, &cfg.NodeConfig)
-
-	// TODO: decouple the networking stack from node.Node hardtype to allow for
-	// alternative networking stacks, using node.Node is kinda ghetto ngl.
-	var err error
-	pl.stack, err = NewGethNetworkingStack(&cfg.NodeConfig, pl.backend)
-	if err != nil {
-		panic(err)
-	}
 	return pl
-}
-
-// SetNetworkingStack sets the networking stack for the polaris node.
-func (pl *Polaris) SetNetworkingStack(stack NetworkingStack) {
-	pl.stack = stack
 }
 
 // APIs return the collection of RPC services the polar package offers.
@@ -135,10 +114,23 @@ func (pl *Polaris) APIs() []rpc.API {
 	}...)
 }
 
+// SetupGraphQL creates and registers a graphql hanlder with the networking stack, it also
+// registers the filterSystem with the networking stack.
+func (pl *Polaris) RegisterGraphQLHandler() error {
+	// Register the filter API separately in order to get access to the filterSystem
+	filterSystem := utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
+	return graphql.New(pl.stack, pl.backend, filterSystem, pl.cfg.NodeConfig.GraphQLCors, pl.cfg.NodeConfig.GraphQLVirtualHosts)
+}
+
 // StartServices notifies the NetworkStack to spin up (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
 	// Register the JSON-RPCs with the networking stack.
 	pl.stack.RegisterAPIs(pl.APIs())
+
+	// Setup the graphql handler separately
+	if err := pl.RegisterGraphQLHandler(); err != nil {
+		return err
+	}
 
 	// Start the services (json-rpc, graphql, etc)
 	return pl.stack.Start()

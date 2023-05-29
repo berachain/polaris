@@ -90,8 +90,23 @@ func (k *Keeper) Setup(
 	// Setup plugins in the Host
 	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc)
 
+
 	// Build the Polaris EVM Provider
-	k.polaris = polar.New(polarisConfigPath, polarisDataDir, k.host, nil)
+	cfg, err := polar.LoadConfigFromFilePath(polarisConfigPath)
+	if err != nil {
+		ethlog.Root().Error("failed to load config", "falling back to defaults")
+		cfg = polar.DefaultConfig()
+	}
+
+	// set the data dir
+	cfg.NodeConfig.DataDir = polarisDataDir
+
+	node, err := polar.NewGethNetworkingStack(&cfg.NodeConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	k.polaris = polar.NewWithNetworkingStack(cfg, k.host, node, nil)
 }
 
 // ConfigureGethLogger configures the Geth logger to use the Cosmos logger.
