@@ -68,7 +68,7 @@ func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
 	if feeCollector == nil {
 		feeCollector = &header.Coinbase
 	}
-	return NewEVMBlockContext(header, &chainContext{bc}, feeCollector)
+	return NewEVMBlockContext(header, bc, feeCollector)
 }
 
 // CalculateBaseFee calculates the base fee for the next block based on the finalized block or the

@@ -44,12 +44,12 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 // GetHeaderByNumber returns the header at the given height, using the plugin's query context.
 //
 // GetHeaderByNumber implements core.BlockPlugin.
-func (p *plugin) GetHeaderByNumber(height uint64) (*coretypes.Header, error) {
+func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 	if p.getQueryContext == nil {
 		return nil, errors.New("GetHeader: getQueryContext is nil")
 	}
 
-	iavlHeight, err := p.getIAVLHeight(int64(height))
+	iavlHeight, err := p.getIAVLHeight(int64(number))
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "GetHeader: invalid IAVL height")
 	}

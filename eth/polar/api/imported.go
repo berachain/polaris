@@ -18,11 +18,21 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package polarapi
 
-import "errors"
+import (
+	"github.com/ethereum/go-ethereum/ethapi"
+)
+
+type (
+	EthBackend = ethapi.Backend
+)
 
 var (
-	ErrBlockNotFound    = errors.New("block not found, is your node pruned?")
-	ErrHashNotCanonical = errors.New("hash not canonical")
+	GethAPIs          = ethapi.GetAPIs
+	NewEthereumAPI    = ethapi.NewEthereumAPI
+	NewBlockChainAPI  = ethapi.NewBlockChainAPI
+	NewTransactionAPI = ethapi.NewTransactionAPI
+	NewTxPoolAPI      = ethapi.NewTxPoolAPI
+	NewDebugAPI       = ethapi.NewDebugAPI
 )
