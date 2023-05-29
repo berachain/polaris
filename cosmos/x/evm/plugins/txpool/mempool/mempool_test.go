@@ -321,8 +321,10 @@ var _ = Describe("EthTxPool", func() {
 			Expect(readsFromA).To(BeEquivalentTo(readsFromB))
 		})
 		It("should be able to return the transaction priority for a Cosmos tx and effective gas tip value", func() {
-			ethTx1, tx1 := buildTx(key1, &coretypes.DynamicFeeTx{Nonce: 1, GasTipCap: big.NewInt(1), GasFeeCap: big.NewInt(10000)})
-			ethTx2, tx2 := buildTx(key2, &coretypes.DynamicFeeTx{Nonce: 2, GasTipCap: big.NewInt(2), GasFeeCap: big.NewInt(200)})
+			ethTx1, tx1 := buildTx(key1, &coretypes.DynamicFeeTx{
+				Nonce: 1, GasTipCap: big.NewInt(1), GasFeeCap: big.NewInt(10000)})
+			ethTx2, tx2 := buildTx(key2, &coretypes.DynamicFeeTx{
+				Nonce: 2, GasTipCap: big.NewInt(2), GasFeeCap: big.NewInt(200)})
 
 			// Test that the priority policy is working as expected.
 			tpp := EthereumTxPriorityPolicy{baseFee: big.NewInt(69)}
