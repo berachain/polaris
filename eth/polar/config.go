@@ -18,49 +18,54 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package provider
+package polar
 
 import (
 	"fmt"
+	"math/big"
 	"os"
+	"time"
 
 	"github.com/BurntSushi/toml"
 
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/p2p"
-
-	"pkg.berachain.dev/polaris/eth/rpc"
+	"github.com/ethereum/go-ethereum/eth/ethconfig"
+	"github.com/ethereum/go-ethereum/eth/gasprice"
 )
 
-// clientIdentifier is the identifier string for the client.
-const clientIdentifier = "polaris-geth"
+const (
+	// clientIdentifier is the identifier string for the client.
+	clientIdentifier = "polaris-geth"
 
-// DefaultConfig returns the default configuration for the provider.
+	// gpoDefault is the default gpo starting point.
+	gpoDefault = 1000000000
+)
+
+// DefaultConfig returns the default JSON-RPC config.
 func DefaultConfig() *Config {
-	c := Config{}
-	nodeCfg := node.DefaultConfig
-	nodeCfg.P2P.NoDiscovery = true
-	nodeCfg.P2P = p2p.Config{}
-	nodeCfg.P2P.MaxPeers = 0
-	nodeCfg.Name = clientIdentifier
-	nodeCfg.HTTPModules = append(nodeCfg.HTTPModules, "eth", "web3", "net")
-	nodeCfg.WSModules = append(nodeCfg.WSModules, "eth")
-	nodeCfg.HTTPHost = "0.0.0.0"
-	nodeCfg.WSHost = "0.0.0.0"
-	nodeCfg.WSOrigins = []string{"*"}
-	nodeCfg.HTTPCors = []string{"*"}
-	nodeCfg.HTTPVirtualHosts = []string{"*"}
-	nodeCfg.GraphQLCors = []string{"*"}
-	nodeCfg.GraphQLVirtualHosts = []string{"*"}
-	c.NodeConfig = nodeCfg
-	c.RPCConfig = *rpc.DefaultConfig()
-	return &c
+	gpoConfig := ethconfig.FullNodeGPO
+	gpoConfig.Default = big.NewInt(gpoDefault)
+	return &Config{
+		GPO:           gpoConfig,
+		RPCGasCap:     ethconfig.Defaults.RPCGasCap,
+		RPCTxFeeCap:   ethconfig.Defaults.RPCTxFeeCap,
+		RPCEVMTimeout: ethconfig.Defaults.RPCEVMTimeout,
+	}
 }
 
 // Config represents the configurable parameters for Polaris.
 type Config struct {
-	NodeConfig node.Config
-	RPCConfig  rpc.Config
+	// Gas Price Oracle config.
+	GPO gasprice.Config
+
+	// RPCGasCap is the global gas cap for eth-call variants.
+	RPCGasCap uint64 `toml:""`
+
+	// RPCEVMTimeout is the global timeout for eth-call.
+	RPCEVMTimeout time.Duration `toml:""`
+
+	// RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for
+	// send-transaction variants. The unit is ether.
+	RPCTxFeeCap float64 `toml:""`
 }
 
 // LoadConfigFromFilePath reads in a Polaris config file from the fileystem.

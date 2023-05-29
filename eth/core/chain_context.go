@@ -27,21 +27,16 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// Compile-time interface assertion.
-var _ ChainContext = (*chainContext)(nil)
-
-// chainContext is a wrapper around `StateProcessor` that implements the `ChainContext` interface.
-type chainContext struct {
-	*blockchain
-}
-
-// GetHeader returns the header for the given hash and height. This is used by the `GetHashFn`.
-func (cc *chainContext) GetHeader(_ common.Hash, height uint64) *types.Header {
-	header, _ := cc.blockchain.bp.GetHeaderByNumber(height)
+// GetHeader returns the header for the given hash or number. This is used by the `GetHashFn`.
+func (bc *blockchain) GetHeader(hash common.Hash, number uint64) *types.Header {
+	header := bc.GetHeaderByNumber(number)
+	if header == nil {
+		header = bc.GetHeaderByHash(hash)
+	}
 	return header
 }
 
 // Engine returns the consensus engine. For our use case, this never gets called.
-func (cc *chainContext) Engine() consensus.Engine {
+func (bc *blockchain) Engine() consensus.Engine {
 	return nil
 }

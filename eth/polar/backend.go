@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package polar
 
 import (
 	"context"
@@ -33,10 +33,8 @@ import (
 	"github.com/ethereum/go-ethereum/eth/gasprice"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/rpc"
 
-	"pkg.berachain.dev/polaris/eth/api"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/common/hexutil"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -44,46 +42,45 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/params"
-	rpcapi "pkg.berachain.dev/polaris/eth/rpc/api"
+	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/version"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// PolarisBackend represents the backend object for a Polaris chain. It extends the standard
+// Backend represents the backend object for a Polaris chain. It extends the standard
 // go-ethereum backend object.
-type PolarisBackend interface {
-	Backend
-	rpcapi.NetBackend
-	rpcapi.Web3Backend
-	rpcapi.EthashBackend
+type Backend interface {
+	polarapi.EthBackend
+	polarapi.NetBackend
+	polarapi.Web3Backend
 }
 
 // backend represents the backend for the JSON-RPC service.
 type backend struct {
-	chain      api.Chain
-	rpcConfig  *Config
-	nodeConfig *node.Config
-	gpo        *gasprice.Oracle
-	logger     log.Logger
+	extRPCEnabled bool
+	chain         core.Blockchain
+	cfg           *Config
+	gpo           *gasprice.Oracle
+	logger        log.Logger
 }
 
 // ==============================================================================
 // Constructor
 // ==============================================================================
 
-// NewPolarisBackend returns a new `Backend` object.
-func NewPolarisBackend(
-	chain api.Chain,
-	rpcConfig *Config,
-	nodeConfig *node.Config,
-) PolarisBackend {
+// NewBackend returns a new `Backend` object.
+func NewBackend(
+	chain core.Blockchain,
+	extRPCEnabled bool,
+	cfg *Config,
+) Backend {
 	b := &backend{
-		chain:      chain,
-		rpcConfig:  rpcConfig,
-		logger:     log.Root(),
-		nodeConfig: nodeConfig,
+		extRPCEnabled: extRPCEnabled,
+		chain:         chain,
+		cfg:           cfg,
+		logger:        log.Root(),
 	}
-	b.gpo = gasprice.NewOracle(b, rpcConfig.GPO)
+	b.gpo = gasprice.NewOracle(b, cfg.GPO)
 	return b
 }
 
@@ -124,7 +121,7 @@ func (b *backend) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
 }
 
 // FeeHistory returns the base fee and gas used history of the last N blocks.
-func (b *backend) FeeHistory(ctx context.Context, blockCount int, lastBlock BlockNumber,
+func (b *backend) FeeHistory(ctx context.Context, blockCount int, lastBlock rpc.BlockNumber,
 	rewardPercentiles []float64) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
 	return b.gpo.FeeHistory(ctx, blockCount, lastBlock, rewardPercentiles)
 }
@@ -142,23 +139,23 @@ func (b *backend) AccountManager() *accounts.Manager {
 // ExtRPCEnabled returns whether the RPC endpoints are exposed over external
 // interfaces.
 func (b *backend) ExtRPCEnabled() bool {
-	return b.nodeConfig.ExtRPCEnabled()
+	return b.extRPCEnabled
 }
 
 // RPCGasCap returns the global gas cap for eth_call over rpc: this is
 // if the user doesn't specify a cap.
 func (b *backend) RPCGasCap() uint64 {
-	return b.rpcConfig.RPCGasCap
+	return b.cfg.RPCGasCap
 }
 
 // RPCEVMTimeout returns the global timeout for eth_call over rpc.
 func (b *backend) RPCEVMTimeout() time.Duration {
-	return b.rpcConfig.RPCEVMTimeout
+	return b.cfg.RPCEVMTimeout
 }
 
 // RPCTxFeeCap returns the global gas price cap for transactions over rpc.
 func (b *backend) RPCTxFeeCap() float64 {
-	return b.rpcConfig.RPCTxFeeCap
+	return b.cfg.RPCTxFeeCap
 }
 
 // UnprotectedAllowed returns whether unprotected transactions are alloweds.
@@ -209,7 +206,7 @@ func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*ty
 
 // HeaderByNumberOrHash returns the header identified by `number` or `hash`.
 func (b *backend) HeaderByNumberOrHash(ctx context.Context,
-	blockNrOrHash BlockNumberOrHash,
+	blockNrOrHash rpc.BlockNumberOrHash,
 ) (*types.Header, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.HeaderByNumber(ctx, blockNr)
@@ -272,7 +269,7 @@ func (b *backend) BlockByHash(_ context.Context, hash common.Hash) (*types.Block
 	return block, nil
 }
 
-func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash BlockNumberOrHash) (*types.Block, error) {
+func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash) (*types.Block, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.BlockByNumber(ctx, blockNr)
 	}
@@ -294,7 +291,7 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash BlockNu
 }
 
 func (b *backend) StateAndHeaderByNumber(
-	ctx context.Context, number BlockNumber,
+	ctx context.Context, number rpc.BlockNumber,
 ) (vm.GethStateDB, *types.Header, error) {
 	// TODO: handling pending better
 	// // Pending state is only known by the miner
@@ -318,7 +315,7 @@ func (b *backend) StateAndHeaderByNumber(
 }
 
 func (b *backend) StateAndHeaderByNumberOrHash(
-	ctx context.Context, blockNrOrHash BlockNumberOrHash,
+	ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash,
 ) (vm.GethStateDB, *types.Header, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.StateAndHeaderByNumber(ctx, blockNr)
@@ -404,7 +401,8 @@ func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethSt
 		vmConfig = new(vm.Config) // todo: read from blockchain obj.
 	}
 	txContext := core.NewEVMTxContext(msg)
-	return b.chain.GetEVM(ctx, txContext, utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig), state.Error, nil
+	return b.chain.GetEVM(ctx, txContext,
+		utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig), state.Error, nil
 }
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {
@@ -479,13 +477,13 @@ func (b *backend) Engine() consensus.Engine {
 
 // GetBody retrieves the block body corresponding to block by has or number..
 func (b *backend) GetBody(ctx context.Context, hash common.Hash,
-	number BlockNumber,
+	number rpc.BlockNumber,
 ) (*types.Body, error) {
 	if number < 0 || hash == (common.Hash{}) {
 		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash)
 		return nil, errors.New("invalid arguments; expect hash and no special block numbers")
 	}
-	block, err := b.BlockByNumberOrHash(ctx, BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
+	block, err := b.BlockByNumberOrHash(ctx, rpc.BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
 	if block == nil || err != nil {
 		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash, "err", err)
 		return nil, nil //nolint:nilnil // to match geth.

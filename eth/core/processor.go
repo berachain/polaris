@@ -152,7 +152,8 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Inshallah we will be able to apply the transaction.
 	receipt, result, err := ApplyTransactionWithEVMWithResult(
-		sp.evm, sp.cp.ChainConfig(), nil, &gasPool, sp.statedb, sp.header, tx, &gasUsed,
+		sp.evm, sp.cp.ChainConfig(), &gasPool, sp.statedb, sp.header.BaseFee,
+		sp.header.Number, sp.header.Hash(), tx, &gasUsed,
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())

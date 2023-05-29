@@ -34,7 +34,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
-	"pkg.berachain.dev/polaris/eth/provider"
+	"pkg.berachain.dev/polaris/eth/polar"
 )
 
 type Keeper struct {
@@ -43,7 +43,7 @@ type Keeper struct {
 	// bk is the reference to the BankKeeper.
 	bk state.BankKeeper
 	// provider is the struct that houses the Polaris EVM.
-	polaris *provider.PolarisProvider
+	polaris *polar.Polaris
 	// The (unexposed) key used to access the store from the Context.
 	storeKey storetypes.StoreKey
 	// authority is the bech32 address that is allowed to execute governance proposals.
@@ -54,10 +54,10 @@ type Keeper struct {
 
 // NewKeeper creates new instances of the polaris Keeper.
 func NewKeeper(
-	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
 	sk block.StakingKeeper,
+	storeKey storetypes.StoreKey,
 	authority string,
 	ethTxMempool sdkmempool.Mempool,
 	pcs func() *ethprecompile.Injector,
@@ -85,29 +85,40 @@ func (k *Keeper) Setup(
 	qc func(height int64, prove bool) (sdk.Context, error),
 	polarisConfigPath string,
 	polarisDataDir string,
-
+	logger log.Logger,
 ) {
 	// Setup plugins in the Host
 	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc)
 
 	// Build the Polaris EVM Provider
-	k.polaris = provider.NewPolarisProvider(polarisConfigPath, polarisDataDir, k.host, nil)
-}
+	cfg, err := polar.LoadConfigFromFilePath(polarisConfigPath)
+	if err != nil {
+		logger.Error("failed to load config", "falling back to defaults")
+		cfg = polar.DefaultConfig()
+	}
 
-// ConfigureGethLogger configures the Geth logger to use the Cosmos logger.
-func (k *Keeper) ConfigureGethLogger(ctx sdk.Context) {
-	ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error {
-		logger := ctx.Logger().With("module", "polaris-geth")
-		switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
-		case ethlog.LvlTrace, ethlog.LvlDebug:
-			logger.Debug(r.Msg, r.Ctx...)
-		case ethlog.LvlInfo, ethlog.LvlWarn:
-			logger.Info(r.Msg, r.Ctx...)
-		case ethlog.LvlError, ethlog.LvlCrit:
-			logger.Error(r.Msg, r.Ctx...)
-		}
-		return nil
-	}))
+	// TODO: PARSE POLARIS.TOML CORRECT AGAIN
+	nodeCfg := polar.DefaultGethNodeConfig()
+	nodeCfg.DataDir = polarisDataDir
+	node, err := polar.NewGethNetworkingStack(nodeCfg)
+	if err != nil {
+		panic(err)
+	}
+
+	k.polaris = polar.NewWithNetworkingStack(cfg, k.host, node, ethlog.FuncHandler(
+		func(r *ethlog.Record) error {
+			polarisGethLogger := logger.With("module", "polaris-geth")
+			switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
+			case ethlog.LvlTrace, ethlog.LvlDebug:
+				polarisGethLogger.Debug(r.Msg, r.Ctx...)
+			case ethlog.LvlInfo, ethlog.LvlWarn:
+				polarisGethLogger.Info(r.Msg, r.Ctx...)
+			case ethlog.LvlError, ethlog.LvlCrit:
+				polarisGethLogger.Error(r.Msg, r.Ctx...)
+			}
+			return nil
+		}),
+	)
 }
 
 // Logger returns a module-specific logger.

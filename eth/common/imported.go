@@ -30,9 +30,8 @@ type (
 )
 
 var (
-	AddressLength = common.AddressLength
-	HashLength    = common.HashLength
-
+	AddressLength  = common.AddressLength
+	HashLength     = common.HashLength
 	BytesToAddress = common.BytesToAddress
 	BigToHash      = common.BigToHash
 	BytesToHash    = common.BytesToHash
@@ -41,6 +40,5 @@ var (
 	HexToAddress   = common.HexToAddress
 	Hex2Bytes      = common.Hex2Bytes
 	HexToHash      = common.HexToHash
-
-	LeftPadBytes = common.LeftPadBytes
+	LeftPadBytes   = common.LeftPadBytes
 )
