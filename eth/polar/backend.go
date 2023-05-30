@@ -405,6 +405,7 @@ func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethSt
 		utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig), state.Error
 }
 
+// GetBlockContext returns a new block context to be used by a EVM.
 func (b *backend) GetBlockContext(
 	_ context.Context, header *types.Header,
 ) *vm.BlockContext {
