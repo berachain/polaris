@@ -36,6 +36,7 @@ import (
 // resources to use in execution such as StateDBss and EVMss.
 type ChainResources interface {
 	GetStateByNumber(int64) (vm.GethStateDB, error)
+	GetVMConfig() *vm.Config
 	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
 	NewEVMBlockContext(header *types.Header) *vm.BlockContext
 }
@@ -71,6 +72,11 @@ func (bc *blockchain) NewEVMBlockContext(header *types.Header) *vm.BlockContext 
 	}
 	blockContext := NewEVMBlockContext(header, bc, feeCollector)
 	return &blockContext
+}
+
+// GetVMConfig returns the vm.Config for the current chain.
+func (bc *blockchain) GetVMConfig() *vm.Config {
+	return bc.vmConfig
 }
 
 // CalculateBaseFee calculates the base fee for the next block based on the finalized block or the

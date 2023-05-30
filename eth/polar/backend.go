@@ -398,7 +398,7 @@ func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethSt
 ) (*vm.GethEVM, func() error) {
 	if vmConfig == nil {
 		b.logger.Debug("eth.rpc.backend.GetEVM", "vmConfig", "nil")
-		vmConfig = new(vm.Config) // todo: read from blockchain obj.
+		vmConfig = b.chain.GetVMConfig()
 	}
 	txContext := core.NewEVMTxContext(msg)
 	return b.chain.GetEVM(ctx, txContext,
