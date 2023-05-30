@@ -97,6 +97,12 @@ var _ = Describe("Processor", func() {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
+		for _, plugin := range k.GetHost().GetAllPlugins() {
+			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
+			if hasInitGenesis {
+				plugin.InitGenesis(ctx, types.DefaultGenesis())
+			}
+		}
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
@@ -104,12 +110,6 @@ var _ = Describe("Processor", func() {
 		sc = staking.NewPrecompileContract(&sk)
 		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger())
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
-		for _, plugin := range k.GetHost().GetAllPlugins() {
-			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
-			if hasInitGenesis {
-				plugin.InitGenesis(ctx, types.DefaultGenesis())
-			}
-		}
 
 		// Set validator with consensus address.
 		consAddr, err := validator.GetConsAddr()
@@ -159,6 +159,7 @@ var _ = Describe("Processor", func() {
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
+			k.GetHost().GetStatePlugin().Reset(ctx)
 			k.GetHost().GetStatePlugin().CreateAccount(addr)
 			k.GetHost().GetStatePlugin().AddBalance(addr, (&big.Int{}).Mul(big.NewInt(9000000000000000000), big.NewInt(999)))
 			k.GetHost().GetStatePlugin().Finalize()

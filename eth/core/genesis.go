@@ -18,8 +18,38 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package storage
+package core
 
-import "errors"
+import (
+	"math/big"
 
-var ErrInvalidState = errors.New("invalid state")
+	"github.com/ethereum/go-ethereum/core"
+
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/common/hexutil"
+	"pkg.berachain.dev/polaris/eth/params"
+)
+
+type Genesis = core.Genesis
+
+// DefaultGenesis is the default genesis block used by Polaris.
+var DefaultGenesis = &core.Genesis{
+	// Genesis Config
+	Config: params.DefaultChainConfig,
+
+	// Genesis Block
+	Nonce:      0,
+	Timestamp:  0,
+	ExtraData:  hexutil.MustDecode("0x11bbe8db4e347b4e8c937c1c8370e4b5ed33adb3db69cbdb7a38e1e50b1b82fa"),
+	GasLimit:   30_000_000, //nolint:gomnd // its okay.
+	Difficulty: big.NewInt(0),
+	Mixhash:    common.Hash{},
+	Coinbase:   common.Address{},
+
+	// Genesis Accounts
+	Alloc: core.GenesisAlloc{
+		common.HexToAddress("0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4"): {
+			Balance: big.NewInt(5e18), //nolint:gomnd // its okay.
+		},
+	},
+}

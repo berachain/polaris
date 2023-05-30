@@ -27,7 +27,6 @@ import (
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/storage"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -277,34 +276,41 @@ var _ = Describe("State Plugin", func() {
 				sp.CreateAccount(bob)
 			})
 
+			type Slot struct {
+				Key   common.Hash
+				Value common.Hash
+			}
+
+			type Storage []Slot
+
 			It("should iterate through storage correctly", func() {
 				Expect(sp.GetCode(alice)).To(BeNil())
-				var aliceStorage storage.Storage
+				var aliceStorage Storage
 				err := sp.ForEachStorage(alice,
 					func(key, value common.Hash) bool {
 						aliceStorage = append(aliceStorage,
-							storage.NewSlot(key, value))
+							Slot{key, value})
 						return true
 					})
 				Expect(err).ToNot(HaveOccurred())
 				Expect(aliceStorage).To(BeEmpty())
 
 				sp.SetState(bob, common.BytesToHash([]byte{1}), common.BytesToHash([]byte{2}))
-				var bobStorage storage.Storage
+				var bobStorage Storage
 				err = sp.ForEachStorage(bob,
 					func(key, value common.Hash) bool {
-						bobStorage = append(bobStorage, storage.NewSlot(key, value))
+						bobStorage = append(bobStorage, Slot{key, value})
 						return true
 					})
 				Expect(err).ToNot(HaveOccurred())
 				Expect(bobStorage).To(HaveLen(1))
 				Expect(bobStorage[0].Key).
-					To(Equal("0x0000000000000000000000000000000000000000000000000000000000000001"))
+					To(Equal(common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000001")))
 				Expect(bobStorage[0].Value).
-					To(Equal("0x0000000000000000000000000000000000000000000000000000000000000002"))
+					To(Equal(common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000002")))
 
 				sp.SetState(bob, common.BytesToHash([]byte{3}), common.BytesToHash([]byte{4}))
-				var bobStorage2 storage.Storage
+				var bobStorage2 Storage
 				i := 0
 				err = sp.ForEachStorage(bob,
 					func(key, value common.Hash) bool {
@@ -312,7 +318,7 @@ var _ = Describe("State Plugin", func() {
 							return false
 						}
 
-						bobStorage2 = append(bobStorage2, storage.NewSlot(key, value))
+						bobStorage2 = append(bobStorage2, Slot{key, value})
 						i++
 						return true
 					},

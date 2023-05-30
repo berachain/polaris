@@ -21,18 +21,19 @@
 package types
 
 import (
-	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 // DefaultGenesis is the default genesis state.
 func DefaultGenesis() *GenesisState {
-	atc := make(map[string]*Contract)
-	htc := make(map[string]string)
+	ethGen, err := core.DefaultGenesis.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
 
 	return &GenesisState{
-		Params:            *DefaultParams(),
-		AddressToContract: atc,
-		HashToCode:        htc,
+		Params:     *DefaultParams(),
+		EthGenesis: string(ethGen),
 	}
 }
 
@@ -42,28 +43,13 @@ func ValidateGenesis(data GenesisState) error {
 }
 
 // NewGenesisState creates a new `GenesisState` object.
-func NewGenesisState(params Params, atc map[string]*Contract, htc map[string]string) *GenesisState {
+func NewGenesisState(params Params, ethGenesis *core.Genesis) *GenesisState {
+	ethGen, err := ethGenesis.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
 	return &GenesisState{
-		Params:            params,
-		AddressToContract: atc,
-		HashToCode:        htc,
+		Params:     params,
+		EthGenesis: string(ethGen),
 	}
-}
-
-// NewContract creates a new `Contract` object.
-func NewContract(codeHash common.Hash, slotToValue map[string]string) *Contract {
-	return &Contract{
-		CodeHash:    codeHash.Hex(),
-		SlotToValue: slotToValue,
-	}
-}
-
-// WriteToSlot takes in a slot, value and pointer to a contract and writes the value to the slot.
-func WriteToSlot(slot common.Hash, value common.Hash, contract *Contract) {
-	contract.SlotToValue[slot.Hex()] = value.Hex()
-}
-
-// WriteCodeToHash takes in a code hash, code and map of code hashes to code and writes the code to the code hash.
-func WriteCodeToHash(codeHash common.Hash, code []byte, htc map[string]string) {
-	htc[codeHash.Hex()] = string(code)
 }

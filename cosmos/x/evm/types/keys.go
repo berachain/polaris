@@ -30,4 +30,6 @@ const (
 	VersionKey
 	HeaderKey
 	ParamsKey
+	ChainConfigPrefix
+	GenesisBlockPrefix
 )

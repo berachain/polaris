@@ -20,13 +20,6 @@
 
 package types
 
-import (
-	"encoding/json"
-
-	"pkg.berachain.dev/polaris/eth/params"
-	enclib "pkg.berachain.dev/polaris/lib/encoding"
-)
-
 const (
 	// DefaultEvmDenom is the default EVM denom.
 	DefaultEvmDenom = "abera"
@@ -40,20 +33,12 @@ var (
 // DefaultParams contains the default values for all parameters.
 func DefaultParams() *Params {
 	return &Params{
-		EvmDenom:    DefaultEvmDenom,
-		ExtraEIPs:   DefaultExtraEIPs,
-		ChainConfig: string(enclib.MustMarshalJSON(params.DefaultChainConfig)),
+		EvmDenom:  DefaultEvmDenom,
+		ExtraEIPs: DefaultExtraEIPs,
 	}
 }
 
 // EthereumChainConfig returns the chain config as a struct.
-func (p Params) EthereumChainConfig() *params.ChainConfig {
-	if p.ChainConfig == "" {
-		return nil
-	}
-	return enclib.MustUnmarshalJSON[params.ChainConfig]([]byte(p.ChainConfig))
-}
-
 // ValidateBasic is used to validate the parameters.
 func (p *Params) ValidateBasic() error {
 	if p.EvmDenom == "" {
@@ -62,6 +47,5 @@ func (p *Params) ValidateBasic() error {
 	if p.ExtraEIPs == nil {
 		return ErrNoExtraEIPs
 	}
-	_, err := json.Marshal(p.ChainConfig)
-	return err
+	return nil
 }

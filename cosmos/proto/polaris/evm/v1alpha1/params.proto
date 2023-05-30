@@ -36,8 +36,4 @@ message Params {
     (gogoproto.customname) = "ExtraEIPs",
     (gogoproto.moretags) = "yaml:\"extra_eips\""
   ];
-
-  // `chain_config` represents the ethereum chain config for the polaris
-  // EVM
-  string chain_config = 3 [(gogoproto.moretags) = "yaml:\"chain_config\""];
 }

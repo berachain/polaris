@@ -64,6 +64,7 @@ func (bc *blockchain) GetEVM(
 
 // NewEVMBlockContext creates a new block context for use in the EVM.
 func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
+	// TODO: deprecate feecollector? manually handle on the cosmos side?
 	feeCollector := bc.cp.FeeCollector()
 	if feeCollector == nil {
 		feeCollector = &header.Coinbase

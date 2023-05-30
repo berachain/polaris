@@ -24,18 +24,29 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 // InitGenesis performs genesis initialization for the evm module. It returns
 // no validator updates.
 func (p *plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {
 	p.Prepare(ctx)
+
+	// Set cosmos params
 	p.SetParams(&genesisState.Params)
+
+	// Set ethereum initial config
+	var ethGenesis core.Genesis
+	if err := ethGenesis.UnmarshalJSON([]byte(genesisState.EthGenesis)); err != nil {
+		panic(err)
+	}
+
+	p.SetChainConfig(ethGenesis.Config)
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the evm
 // module.
 func (p *plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {
 	p.Prepare(ctx)
-	genesisState.Params = *p.GetParams()
+	genesisState.Params = *p.Params()
 }

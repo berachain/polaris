@@ -1,25 +1,28 @@
-import { Callout } from 'nextra-theme-docs'
+import { Callout } from "nextra-theme-docs";
 
 # Using Metamask With Polaris Ethereum
 
-In this section, we will guide you through the process of 
-downloading Metamask and connecting it to a local Polaris Ethereum node. 
-Before proceeding, please ensure that you have a local node up and running. 
+In this section, we will guide you through the process of
+downloading Metamask and connecting it to a local Polaris Ethereum node.
+Before proceeding, please ensure that you have a local node up and running.
 If you need help with this, you can refer to the [Local Machine](./running-a-node/running-locally) section for instructions.
 
-To begin, you will need to download and install the Metamask browser extension. 
-Once installed, you can then connect your Injected Metamask to your local Polaris Ethereum 
+To begin, you will need to download and install the Metamask browser extension.
+Once installed, you can then connect your Injected Metamask to your local Polaris Ethereum
 node by following the steps provided in this section.
 
- 
 <Callout type="warning" emoji="⚠️">
-  Take note of your private key and keep it somewhere safe. click [here](https://learn.metamask.io/lessons/what-is-a-self-custody-wallet) to learn about self custody.
+  Take note of your private key and keep it somewhere safe. click
+  [here](https://learn.metamask.io/lessons/what-is-a-self-custody-wallet) to
+  learn about self custody.
 </Callout>
 
 ## Downloading And Installing Metamask
+
 You can download and install the Metamask browser extension [here](https://metamask.io/download/).
 
 ## Adding Polaris Ethereum Local Network
+
 Click to MetaMask icon on the browser and select the network drop-down menu. Here we should connect to C-Chain. Click to "Custom RPC".
 
 ![](/metamask-add-network.png)
@@ -28,7 +31,7 @@ Now, we need to input the following values/
 
 - Network Name: `Polaris Ethereum`
 - New RPC URL: `http://localhost:8545`
-- Chain ID: `69420`
+- Chain ID: `2061`
 - Symbol(optional): `BERA`
 - Block Explorer URL (optional): ``
 

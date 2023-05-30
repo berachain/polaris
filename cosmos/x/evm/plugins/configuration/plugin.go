@@ -41,7 +41,7 @@ type Plugin interface {
 	plugins.HasGenesis
 	core.ConfigurationPlugin
 	SetParams(params *types.Params)
-	GetParams() *types.Params
+	SetChainConfig(*params.ChainConfig)
 	GetEvmDenom() string
 }
 
@@ -67,20 +67,15 @@ func (p *plugin) Prepare(ctx context.Context) {
 
 func (p *plugin) GetEvmDenom() string {
 	if p.evmDenom == "" {
-		p.evmDenom = p.GetParams().EvmDenom
+		p.evmDenom = p.Params().EvmDenom
 	}
 	return p.evmDenom
-}
-
-// ChainConfig implements the core.ConfigurationPlugin interface.
-func (p *plugin) ChainConfig() *params.ChainConfig {
-	return p.GetParams().EthereumChainConfig()
 }
 
 // ExtraEips implements the core.ConfigurationPlugin interface.
 func (p *plugin) ExtraEips() []int {
 	eips := make([]int, 0)
-	for _, e := range p.GetParams().ExtraEIPs {
+	for _, e := range p.Params().ExtraEIPs {
 		eips = append(eips, int(e))
 	}
 	return eips

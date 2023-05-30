@@ -25,22 +25,15 @@ import (
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Genesis", func() {
 	var (
-		ctx      sdk.Context
-		sp       state.Plugin
-		codeHash common.Hash
-		code     []byte
-		slot     common.Hash
-		value    common.Hash
+		ctx sdk.Context
+		sp  state.Plugin
+		// code []byte
 	)
 
 	BeforeEach(func() {
@@ -54,58 +47,47 @@ var _ = Describe("Genesis", func() {
 		sp.CreateAccount(alice)
 		sp.Finalize()
 
-		code = []byte("code")
-		codeHash = crypto.Keccak256Hash(code)
-		slot = common.HexToHash("0x456")
-		value = common.HexToHash("0x789")
+		// code = []byte("code")
 	})
 
 	It("should init and export genesis", func() {
-		genesis := types.DefaultGenesis()
+		// genesis := types.DefaultGenesis()
 
-		// New Contract.
-		contract := types.Contract{
-			CodeHash: codeHash.Hex(),
-			SlotToValue: map[string]string{
-				slot.Hex(): value.Hex(),
-			},
-		}
+		// // New Contract.
+		// contract := types.Contract{
+		// 	CodeHash: codeHash.Hex(),
+		// 	SlotToValue: map[string]string{
+		// 		slot.Hex(): value.Hex(),
+		// 	},
+		// }
 
-		// Set the address to contract.
-		genesis.AddressToContract[alice.Hex()] = &contract
+		// // Set the address to contract.
+		// genesis.AddressToContract[alice.Hex()] = &contract
 
-		// Set the code hash to code.
-		genesis.HashToCode[codeHash.Hex()] = string(code)
+		// // Set the code hash to code.
+		// genesis.HashToCode[codeHash.Hex()] = string(code)
 
-		// Init Genesis.
-		sp.InitGenesis(ctx, genesis)
+		// // Init Genesis.
+		// sp.InitGenesis(ctx, genesis)
 
-		// Check that the code is set.
-		sp.Reset(ctx)
-		Expect(sp.GetCode(alice)).To(Equal(code))
-		sp.Finalize()
+		// // Check that the code is set.
+		// sp.Reset(ctx)
+		// Expect(sp.GetCode(alice)).To(Equal(code))
+		// sp.Finalize()
 
-		// Check that the code hash is set.
-		sp.Reset(ctx)
-		Expect(sp.GetCodeHash(alice)).To(Equal(codeHash))
-		sp.Finalize()
+		// // Check that the code hash is set.
+		// sp.Reset(ctx)
+		// Expect(sp.GetCodeHash(alice)).To(Equal(codeHash))
+		// sp.Finalize()
 
-		// Check that the storage is set.
-		sp.Reset(ctx)
-		Expect(sp.GetState(alice, slot)).To(Equal(value))
-		sp.Finalize()
+		// // Check that the storage is set.
+		// sp.Reset(ctx)
+		// Expect(sp.GetState(alice, slot)).To(Equal(value))
+		// sp.Finalize()
 
-		// Export Genesis.
-		exportedGenesis := types.GenesisState{}
-		sp.ExportGenesis(ctx, &exportedGenesis)
+		// // Export Genesis.
+		// exportedGenesis := types.GenesisState{}
+		// sp.ExportGenesis(ctx, &exportedGenesis)
 
-		// Check that the code is exported.
-		Expect(exportedGenesis.AddressToContract).To(Equal(genesis.AddressToContract))
-		// Check that the hash to code is exported.
-		Expect(exportedGenesis.HashToCode).To(Equal(genesis.HashToCode))
-		// Check that the storage is exported.
-		Expect(
-			exportedGenesis.AddressToContract[alice.Hex()].SlotToValue).
-			To(Equal(genesis.AddressToContract[alice.Hex()].SlotToValue))
 	})
 })

@@ -23,6 +23,8 @@ package state
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ethereum/go-ethereum/core"
+
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 )
@@ -31,60 +33,47 @@ import (
 func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 	p.Reset(ctx)
 
-	for addr, contract := range data.AddressToContract {
-		// Set the contract code.
-		address := common.HexToAddress(addr)
-		code := []byte(data.HashToCode[contract.CodeHash])
-		p.SetCode(address, code)
-
-		// Set the contract state.
-		for k, v := range contract.SlotToValue {
-			slot := common.HexToHash(k)
-			value := common.HexToHash(v)
-			p.SetState(address, slot, value)
-		}
+	var ethGenesis core.Genesis
+	if err := ethGenesis.UnmarshalJSON([]byte(data.EthGenesis)); err != nil {
+		panic(err)
 	}
 
+	// Iterate over the genesis accounts and set the balances.
+	for address, account := range ethGenesis.Alloc {
+		// TODO: technically wrong until we kill bank keeper
+		// right now this will override whatever the bank keeper genesis said.
+		p.CreateAccount(address)
+		p.SetBalance(address, account.Balance)
+		if account.Code != nil {
+			p.SetCode(address, account.Code)
+			for k, v := range account.Storage {
+				p.SetState(address, k, v)
+			}
+		}
+	}
 	p.Finalize()
 }
 
 // Export genesis modifies a pointer to a genesis state object and populates it.
 func (p *plugin) ExportGenesis(ctx sdk.Context, data *types.GenesisState) {
 	p.Reset(ctx)
-
-	// Allocate memory for the address to contract map if it is nil.
-	if data.AddressToContract == nil {
-		data.AddressToContract = make(map[string]*types.Contract)
-	}
-	// Allocate memory for the hash to code map if it is nil.
-	if data.HashToCode == nil {
-		data.HashToCode = make(map[string]string)
-	}
-
-	p.IterateCode(func(address common.Address, code []byte) bool {
-		// Get the contract code hash.
-		codeHash := p.GetCodeHash(address)
-		// If the contract is nil, allocate memory for it.
-		if data.AddressToContract[address.Hex()] == nil {
-			data.AddressToContract[address.Hex()] = &types.Contract{}
+	var ethGen core.Genesis
+	for address, account := range ethGen.Alloc {
+		account.Code = p.GetCode(address)
+		account.Balance = p.GetBalance(address)
+		account.Storage = make(map[common.Hash]common.Hash)
+		err := p.ForEachStorage(address, func(key, value common.Hash) bool {
+			account.Storage[key] = value
+			return false
+		})
+		if err != nil {
+			panic(err)
 		}
-		data.AddressToContract[address.Hex()].CodeHash = codeHash.Hex()
-		// Add the code hash and code to the code hash to code map.
-		data.HashToCode[codeHash.Hex()] = string(code)
-		return false // keep iterating
-	})
-
-	p.IterateState(func(addr common.Address, key, value common.Hash) bool {
-		// if the slot to value map is nil on the contract, allocate memory for it.
-		if data.AddressToContract[addr.Hex()].SlotToValue == nil {
-			data.AddressToContract[addr.Hex()].SlotToValue = make(map[string]string)
-		}
-
-		// Set the slots to value map.
-		data.AddressToContract[addr.Hex()].SlotToValue[key.Hex()] = value.Hex()
-
-		return false // keep iterating
-	})
-
+	}
+	bz, err := ethGen.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
+	data.EthGenesis = string(bz)
 	p.Finalize()
 }

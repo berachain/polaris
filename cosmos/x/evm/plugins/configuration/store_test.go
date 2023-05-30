@@ -27,8 +27,6 @@ import (
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/params"
-	enclib "pkg.berachain.dev/polaris/lib/encoding"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -49,10 +47,10 @@ var _ = Describe("Plugin", func() {
 		}
 	})
 
-	Describe("GetParams", func() {
+	Describe("Params", func() {
 		Context("when the params store is empty", func() {
 			It("should return the default params", func() {
-				params := p.GetParams()
+				params := p.Params()
 				Expect(params).To(Equal(&types.Params{}))
 			})
 		})
@@ -60,15 +58,14 @@ var _ = Describe("Plugin", func() {
 		Context("when the params store contains valid params", func() {
 			It("should return the stored params", func() {
 				storedParams := types.Params{
-					EvmDenom:    "eth",
-					ExtraEIPs:   []int64{123},
-					ChainConfig: string(enclib.MustMarshalJSON(params.DefaultChainConfig)),
+					EvmDenom:  "eth",
+					ExtraEIPs: []int64{123},
 				}
 				bz, err := storedParams.Marshal()
 				Expect(err).ToNot(HaveOccurred())
 				p.paramsStore.Set([]byte{types.ParamsKey}, bz)
 
-				params := p.GetParams()
+				params := p.Params()
 				Expect(params).To(Equal(&storedParams))
 			})
 		})
@@ -76,7 +73,7 @@ var _ = Describe("Plugin", func() {
 		Context("when the params store contains invalid params", func() {
 			It("should panic", func() {
 				p.paramsStore.Set([]byte{types.ParamsKey}, []byte("invalid params"))
-				Expect(func() { p.GetParams() }).To(Panic())
+				Expect(func() { p.Params() }).To(Panic())
 			})
 		})
 	})
@@ -84,9 +81,8 @@ var _ = Describe("Plugin", func() {
 	Describe("SetParams", func() {
 		It("should store the params in the params store", func() {
 			params := types.Params{
-				EvmDenom:    "eth",
-				ExtraEIPs:   []int64{123},
-				ChainConfig: string(enclib.MustMarshalJSON(params.DefaultChainConfig)),
+				EvmDenom:  "eth",
+				ExtraEIPs: []int64{123},
 			}
 			p.SetParams(&params)
 

@@ -1,11 +1,13 @@
-import { Callout, FileTree } from 'nextra-theme-docs'
+import { Callout, FileTree } from "nextra-theme-docs";
 
 # Building a Staking dApp
-We will create a straightforward staking decentralized application (dApp) 
-in this section, which will be linked to a [Local Node](../running-a-node/running-locally). This dApp will 
-use the [staking precompile](../precompile-overview) feature to obtain information about validators 
-and delegators from the EVM, as well as to create delegate transactions 
+
+We will create a straightforward staking decentralized application (dApp)
+in this section, which will be linked to a [Local Node](../running-a-node/running-locally). This dApp will
+use the [staking precompile](../precompile-overview) feature to obtain information about validators
+and delegators from the EVM, as well as to create delegate transactions
 on the EVM natively.
+
 <div className="steps-container">
 
 ### Requirements
@@ -19,6 +21,7 @@ on the EVM natively.
 - Basic knowledge of [Rainbow Kit](https://www.rainbowkit.com/)
 - [Metamask configured](../using-metamask)
 - A running [Local Node](../running-a-node/running-locally)
+
 ### Setup Wagmi Project
 
 Run the following command to create a folder
@@ -28,14 +31,15 @@ Run the following command:
 
 `yarn create wagmi`
 
-After running the above command, input the following values: 
+After running the above command, input the following values:
+
 ```sh
 ✔ What is your project named? … staking-precompile-example
 ✔ What framework would you like to use? › Next.js
 ✔ What template would you like to use? › RainbowKit
 ```
 
-This command will create a folder named `staking-precompile-example`. Inside this folder 
+This command will create a folder named `staking-precompile-example`. Inside this folder
 there will be a Next.js project with RainbowKit and Wagmi installed and configured.
 
 the folder called `staking-precompile-example` will look like this:
@@ -43,16 +47,16 @@ the folder called `staking-precompile-example` will look like this:
 <FileTree>
   <FileTree.Folder name="staking-precompile-example" defaultOpen>
     <FileTree.Folder name="node_modules" />
-    <FileTree.Folder name="src" >
-        <FileTree.Folder name="components">
-            <FileTree.File name="Account.tsx" />
-            <FileTree.File name="index.ts" />
-        </FileTree.Folder>
-        <FileTree.Folder name="pages">
-            <FileTree.File name="_app.tsx" />
-            <FileTree.File name="index.tsx" />
-        </FileTree.Folder>
-        <FileTree.File name="wagmi.ts" />
+    <FileTree.Folder name="src">
+      <FileTree.Folder name="components">
+        <FileTree.File name="Account.tsx" />
+        <FileTree.File name="index.ts" />
+      </FileTree.Folder>
+      <FileTree.Folder name="pages">
+        <FileTree.File name="_app.tsx" />
+        <FileTree.File name="index.tsx" />
+      </FileTree.Folder>
+      <FileTree.File name="wagmi.ts" />
     </FileTree.Folder>
     <FileTree.File name=".env.example" />
     <FileTree.File name=".eslintrc.jsom" />
@@ -83,24 +87,24 @@ Under the `src` folder, create a new file called `theme.ts`. This will hold our 
 Populate `theme.ts` with the following code:
 
 ```tsx
-import { extendTheme } from '@chakra-ui/react'
+import { extendTheme } from "@chakra-ui/react";
 
 // Configure Chakra theme
 const theme = extendTheme({
-    fonts: {
-        heading: `'Open Sans', sans-serif`,
-        body: `'Raleway', sans-serif`,
+  fonts: {
+    heading: `'Open Sans', sans-serif`,
+    body: `'Raleway', sans-serif`,
+  },
+  styles: {
+    global: {
+      "html, body": {
+        height: "100vh",
+        width: "100vw",
+        backgroundColor: "#000000",
+        color: "#ffffff",
+      },
     },
-    styles: {
-        global: {
-            "html, body": {
-                height: "100vh",
-                width: "100vw",
-                backgroundColor: "#000000",
-                color: "#ffffff",
-            },
-        },
-    },
+  },
 });
 
 export default theme;
@@ -111,17 +115,17 @@ After adding the `theme.ts` file your file structure should look like this:
 <FileTree>
   <FileTree.Folder name="staking-precompile-example" defaultOpen>
     <FileTree.Folder name="node_modules" />
-    <FileTree.Folder name="src" >
-        <FileTree.Folder name="components">
-            <FileTree.File name="Account.tsx" />
-            <FileTree.File name="index.ts" />
-        </FileTree.Folder>
-        <FileTree.Folder name="pages">
-            <FileTree.File name="_app.tsx" />
-            <FileTree.File name="index.tsx" />
-        </FileTree.Folder>
-        <FileTree.File name="theme.ts" />
-        <FileTree.File name="wagmi.ts" />
+    <FileTree.Folder name="src">
+      <FileTree.Folder name="components">
+        <FileTree.File name="Account.tsx" />
+        <FileTree.File name="index.ts" />
+      </FileTree.Folder>
+      <FileTree.Folder name="pages">
+        <FileTree.File name="_app.tsx" />
+        <FileTree.File name="index.tsx" />
+      </FileTree.Folder>
+      <FileTree.File name="theme.ts" />
+      <FileTree.File name="wagmi.ts" />
     </FileTree.Folder>
     <FileTree.File name=".env.example" />
     <FileTree.File name=".eslintrc.jsom" />
@@ -140,20 +144,20 @@ After adding the `theme.ts` file your file structure should look like this:
 Now we need to add `ChakraProvider` to the `_app.tsx` file. Navigate to `src/pages/_app.tsx` file and add the following code:
 
 ```tsx
-import '@rainbow-me/rainbowkit/styles.css'
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
-import type { AppProps } from 'next/app'
-import NextHead from 'next/head'
-import * as React from 'react'
-import { WagmiConfig } from 'wagmi'
-import { chains, client } from '../wagmi'
-import { ChakraProvider } from '@chakra-ui/react'
-import theme from '../theme';
+import "@rainbow-me/rainbowkit/styles.css";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import type { AppProps } from "next/app";
+import NextHead from "next/head";
+import * as React from "react";
+import { WagmiConfig } from "wagmi";
+import { chains, client } from "../wagmi";
+import { ChakraProvider } from "@chakra-ui/react";
+import theme from "../theme";
 
 function App({ Component, pageProps }: AppProps) {
-  const [mounted, setMounted] = React.useState(false)
-  React.useEffect(() => setMounted(true), [])
-  
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
   return (
     <WagmiConfig client={client}>
       <RainbowKitProvider chains={chains}>
@@ -165,17 +169,17 @@ function App({ Component, pageProps }: AppProps) {
         </ChakraProvider>
       </RainbowKitProvider>
     </WagmiConfig>
-  )
+  );
 }
 
-export default App
+export default App;
 ```
 
 We now have a basic themed Chakra UI setup.
 
 ### Configuring `wagmi.ts`
 
-In order to point this dapp towards a Polaris Ethereum local node, 
+In order to point this dapp towards a Polaris Ethereum local node,
 we need to modify `wagmi.ts`.
 
 Make `wagmi.ts` look like this:
@@ -188,7 +192,7 @@ import { metaMaskWallet } from '@rainbow-me/rainbowkit/wallets';
 
 // Configure chain information for local Polaris Ethereum chain
 const polarisChain: Chain = {
-  id: 69420,
+  id: 2061,
   name: 'Polaris Ethereum's,
   network: 'polaris',
   nativeCurrency: {
@@ -235,12 +239,12 @@ export const client = createClient({
 export { chains }
 ```
 
-
 ### Adding Utility Functions
 
 We will need to add some utility functions to our dApp. These functions will help us interact with the Polaris Ethereum precompile.
 
 ### Creating a `utils` Folder
+
 Under the `src` folder, create a new folder called `utils`. This will hold our utility functions.
 
 ### Creating a `utils/formatFromBaseUnit.ts` File
@@ -251,12 +255,13 @@ This will be responsible for parsing information as it is returned to us from th
 Populate `formatFromBaseUnit.ts` with the following code:
 
 ```tsx
-import BigNumber from 'bignumber.js';
+import BigNumber from "bignumber.js";
 
 export const BIG_TEN = new BigNumber(10);
 
 // Formats numbers from base unit to normal unit
-const formatFromBaseUnit = (amount: any, decimals: any) => new BigNumber(amount).div(BIG_TEN.pow(decimals)).toString();
+const formatFromBaseUnit = (amount: any, decimals: any) =>
+  new BigNumber(amount).div(BIG_TEN.pow(decimals)).toString();
 
 export default formatFromBaseUnit;
 ```
@@ -269,18 +274,19 @@ This will be responsible for formatting information as it is sent to the chain.
 Populate `formatToBaseUnit.ts` with the following code:
 
 ```tsx
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 
 // Format normal units to base units for use on the EVM
 const formatToBaseUnit = (amount: string, decimals: any) => {
-    if (!amount) return ethers.BigNumber.from(0);
-    try {
-        return ethers.BigNumber.from(ethers.utils.parseUnits(amount?.toString(), decimals));
-    }
-    catch (e) {
-        return ethers.BigNumber.from(0);
-    }
-}
+  if (!amount) return ethers.BigNumber.from(0);
+  try {
+    return ethers.BigNumber.from(
+      ethers.utils.parseUnits(amount?.toString(), decimals)
+    );
+  } catch (e) {
+    return ethers.BigNumber.from(0);
+  }
+};
 
 export default formatToBaseUnit;
 ```
@@ -297,8 +303,8 @@ Populate `getEvmEllipsis.ts` with the following code:
 export const getHexEllipsis = (hexAddress: string) => {
   const accountEllipsis = hexAddress
     ? `${hexAddress.substring(0, 4)}...${hexAddress.substring(
-      hexAddress.length - 4
-    )}`
+        hexAddress.length - 4
+      )}`
     : null;
   return accountEllipsis;
 };
@@ -310,21 +316,21 @@ export const getHexEllipsis = (hexAddress: string) => {
   <FileTree.Folder name="staking-precompile-example" defaultOpen>
     <FileTree.Folder name="node_modules" />
     <FileTree.Folder name="src" defaultOpen>
-        <FileTree.Folder name="components">
-            <FileTree.File name="Account.tsx" />
-            <FileTree.File name="index.ts" />
-        </FileTree.Folder>
-        <FileTree.Folder name="pages">
-            <FileTree.File name="_app.tsx" />
-            <FileTree.File name="index.tsx" />
-        </FileTree.Folder>
-        <FileTree.Folder name="utils" defaultOpen>
-            <FileTree.File name="formatFromBaseUnit.ts" />
-            <FileTree.File name="formatToBaseUnit.ts" />
-            <FileTree.File name="getEvmEllipsis.ts" />
-        </FileTree.Folder>
-        <FileTree.File name="theme.ts" />
-        <FileTree.File name="wagmi.ts" />
+      <FileTree.Folder name="components">
+        <FileTree.File name="Account.tsx" />
+        <FileTree.File name="index.ts" />
+      </FileTree.Folder>
+      <FileTree.Folder name="pages">
+        <FileTree.File name="_app.tsx" />
+        <FileTree.File name="index.tsx" />
+      </FileTree.Folder>
+      <FileTree.Folder name="utils" defaultOpen>
+        <FileTree.File name="formatFromBaseUnit.ts" />
+        <FileTree.File name="formatToBaseUnit.ts" />
+        <FileTree.File name="getEvmEllipsis.ts" />
+      </FileTree.Folder>
+      <FileTree.File name="theme.ts" />
+      <FileTree.File name="wagmi.ts" />
     </FileTree.Folder>
     <FileTree.File name=".env.example" />
     <FileTree.File name=".eslintrc.jsom" />
@@ -338,10 +344,9 @@ export const getHexEllipsis = (hexAddress: string) => {
   </FileTree.Folder>
 </FileTree>
 
-
 ### Adding ABIs
 
-We will need to add a way to handle ABIs in the application. ABI handling is a common issue across 
+We will need to add a way to handle ABIs in the application. ABI handling is a common issue across
 dApps. This is the way I prefer to do it.
 
 ### Creating an `abi` Folder & Adding Staking Precompile ABI
@@ -351,545 +356,546 @@ Under the `src` folder, create a new folder called `abis`. This will hold our AB
 Under the `abis` folder, create a new file called `IStakingModule.abi.js`. This will hold the ABI for the Staking Precompile.
 
 <Callout>
-    You can generate the Staking Precompile ABI [here](../precompile-overview#stateful-precompile-abi-generation)
+  You can generate the Staking Precompile ABI
+  [here](../precompile-overview#stateful-precompile-abi-generation)
 </Callout>
 Populate `IStakingModule.abi.js` with the following code:
 
 ```tsx
 const STAKING_ABI = [
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "validator",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "delegator",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "int64",
-          "name": "creationHeight",
-          "type": "int64"
-        }
-      ],
-      "name": "CancelUnbondingDelegation",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "validator",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "CreateValidator",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "validator",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "Delegate",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sourceValidator",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "destinationValidator",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "Redelegate",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "validator",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "Unbond",
-      "type": "event"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "srcValidator",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "dstValidator",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "beginRedelegate",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "srcValidator",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "dstValidator",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "beginRedelegate",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "validatorAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "int64",
-          "name": "creationHeight",
-          "type": "int64"
-        }
-      ],
-      "name": "cancelUnbondingDelegation",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "validatorAddress",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "int64",
-          "name": "creationHeight",
-          "type": "int64"
-        }
-      ],
-      "name": "cancelUnbondingDelegation",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "validatorAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "delegate",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "validatorAddress",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "delegate",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getActiveValidators",
-      "outputs": [
-        {
-          "internalType": "address[]",
-          "name": "",
-          "type": "address[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "delegatorAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "validatorAddress",
-          "type": "address"
-        }
-      ],
-      "name": "getDelegation",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "delegatorAddress",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "validatorAddress",
-          "type": "string"
-        }
-      ],
-      "name": "getDelegation",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "srcValidator",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "dstValidator",
-          "type": "address"
-        }
-      ],
-      "name": "getRedelegations",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "int64",
-              "name": "creationHeight",
-              "type": "int64"
-            },
-            {
-              "internalType": "string",
-              "name": "completionTime",
-              "type": "string"
-            },
-            {
-              "internalType": "uint256",
-              "name": "initialBalance",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "sharesDst",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint64",
-              "name": "unbondingId",
-              "type": "uint64"
-            }
-          ],
-          "internalType": "struct IStakingModule.RedelegationEntry[]",
-          "name": "",
-          "type": "tuple[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "srcValidator",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "dstValidator",
-          "type": "string"
-        }
-      ],
-      "name": "getRedelegations",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "int64",
-              "name": "creationHeight",
-              "type": "int64"
-            },
-            {
-              "internalType": "string",
-              "name": "completionTime",
-              "type": "string"
-            },
-            {
-              "internalType": "uint256",
-              "name": "initialBalance",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "sharesDst",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint64",
-              "name": "unbondingId",
-              "type": "uint64"
-            }
-          ],
-          "internalType": "struct IStakingModule.RedelegationEntry[]",
-          "name": "",
-          "type": "tuple[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "validatorAddress",
-          "type": "string"
-        }
-      ],
-      "name": "getUnbondingDelegation",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "int64",
-              "name": "creationHeight",
-              "type": "int64"
-            },
-            {
-              "internalType": "string",
-              "name": "completionTime",
-              "type": "string"
-            },
-            {
-              "internalType": "uint256",
-              "name": "initialBalance",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "balance",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint64",
-              "name": "unbondingId",
-              "type": "uint64"
-            }
-          ],
-          "internalType": "struct IStakingModule.UnbondingDelegationEntry[]",
-          "name": "",
-          "type": "tuple[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "validatorAddress",
-          "type": "address"
-        }
-      ],
-      "name": "getUnbondingDelegation",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "int64",
-              "name": "creationHeight",
-              "type": "int64"
-            },
-            {
-              "internalType": "string",
-              "name": "completionTime",
-              "type": "string"
-            },
-            {
-              "internalType": "uint256",
-              "name": "initialBalance",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "balance",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint64",
-              "name": "unbondingId",
-              "type": "uint64"
-            }
-          ],
-          "internalType": "struct IStakingModule.UnbondingDelegationEntry[]",
-          "name": "",
-          "type": "tuple[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "validatorAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "undelegate",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "validatorAddress",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "undelegate",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    }
-  ]
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "validator",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "delegator",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "int64",
+        name: "creationHeight",
+        type: "int64",
+      },
+    ],
+    name: "CancelUnbondingDelegation",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "validator",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "CreateValidator",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "validator",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "Delegate",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sourceValidator",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "destinationValidator",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "Redelegate",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "validator",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "Unbond",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "srcValidator",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "dstValidator",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "beginRedelegate",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "srcValidator",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "dstValidator",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "beginRedelegate",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "validatorAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "int64",
+        name: "creationHeight",
+        type: "int64",
+      },
+    ],
+    name: "cancelUnbondingDelegation",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "validatorAddress",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "int64",
+        name: "creationHeight",
+        type: "int64",
+      },
+    ],
+    name: "cancelUnbondingDelegation",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "validatorAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "delegate",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "validatorAddress",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "delegate",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getActiveValidators",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "delegatorAddress",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "validatorAddress",
+        type: "address",
+      },
+    ],
+    name: "getDelegation",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "delegatorAddress",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "validatorAddress",
+        type: "string",
+      },
+    ],
+    name: "getDelegation",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "srcValidator",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "dstValidator",
+        type: "address",
+      },
+    ],
+    name: "getRedelegations",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "int64",
+            name: "creationHeight",
+            type: "int64",
+          },
+          {
+            internalType: "string",
+            name: "completionTime",
+            type: "string",
+          },
+          {
+            internalType: "uint256",
+            name: "initialBalance",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "sharesDst",
+            type: "uint256",
+          },
+          {
+            internalType: "uint64",
+            name: "unbondingId",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct IStakingModule.RedelegationEntry[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "srcValidator",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "dstValidator",
+        type: "string",
+      },
+    ],
+    name: "getRedelegations",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "int64",
+            name: "creationHeight",
+            type: "int64",
+          },
+          {
+            internalType: "string",
+            name: "completionTime",
+            type: "string",
+          },
+          {
+            internalType: "uint256",
+            name: "initialBalance",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "sharesDst",
+            type: "uint256",
+          },
+          {
+            internalType: "uint64",
+            name: "unbondingId",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct IStakingModule.RedelegationEntry[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "validatorAddress",
+        type: "string",
+      },
+    ],
+    name: "getUnbondingDelegation",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "int64",
+            name: "creationHeight",
+            type: "int64",
+          },
+          {
+            internalType: "string",
+            name: "completionTime",
+            type: "string",
+          },
+          {
+            internalType: "uint256",
+            name: "initialBalance",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "balance",
+            type: "uint256",
+          },
+          {
+            internalType: "uint64",
+            name: "unbondingId",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct IStakingModule.UnbondingDelegationEntry[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "validatorAddress",
+        type: "address",
+      },
+    ],
+    name: "getUnbondingDelegation",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "int64",
+            name: "creationHeight",
+            type: "int64",
+          },
+          {
+            internalType: "string",
+            name: "completionTime",
+            type: "string",
+          },
+          {
+            internalType: "uint256",
+            name: "initialBalance",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "balance",
+            type: "uint256",
+          },
+          {
+            internalType: "uint64",
+            name: "unbondingId",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct IStakingModule.UnbondingDelegationEntry[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "validatorAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "undelegate",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "validatorAddress",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "undelegate",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+];
 
 export default STAKING_ABI;
 ```
@@ -900,24 +906,24 @@ after creating `src/abi/IStakingModule.abi.js` your file tree should look like t
   <FileTree.Folder name="staking-precompile-example" defaultOpen>
     <FileTree.Folder name="node_modules" />
     <FileTree.Folder name="src" defaultOpen>
-        <FileTree.Folder name="abi" defaultOpen>
-            <FileTree.File name="IStakingModule.abi.js" />
-        </FileTree.Folder>
-        <FileTree.Folder name="components">
-            <FileTree.File name="Account.tsx" />
-            <FileTree.File name="index.ts" />
-        </FileTree.Folder>
-        <FileTree.Folder name="pages">
-            <FileTree.File name="_app.tsx" />
-            <FileTree.File name="index.tsx" />
-        </FileTree.Folder>
-        <FileTree.Folder name="utils">
-            <FileTree.File name="formatFromBaseUnit.ts" />
-            <FileTree.File name="formatToBaseUnit.ts" />
-            <FileTree.File name="getEvmEllipsis.ts" />
-        </FileTree.Folder>
-        <FileTree.File name="theme.ts" />
-        <FileTree.File name="wagmi.ts" />
+      <FileTree.Folder name="abi" defaultOpen>
+        <FileTree.File name="IStakingModule.abi.js" />
+      </FileTree.Folder>
+      <FileTree.Folder name="components">
+        <FileTree.File name="Account.tsx" />
+        <FileTree.File name="index.ts" />
+      </FileTree.Folder>
+      <FileTree.Folder name="pages">
+        <FileTree.File name="_app.tsx" />
+        <FileTree.File name="index.tsx" />
+      </FileTree.Folder>
+      <FileTree.Folder name="utils">
+        <FileTree.File name="formatFromBaseUnit.ts" />
+        <FileTree.File name="formatToBaseUnit.ts" />
+        <FileTree.File name="getEvmEllipsis.ts" />
+      </FileTree.Folder>
+      <FileTree.File name="theme.ts" />
+      <FileTree.File name="wagmi.ts" />
     </FileTree.Folder>
     <FileTree.File name=".env.example" />
     <FileTree.File name=".eslintrc.jsom" />
@@ -930,7 +936,6 @@ after creating `src/abi/IStakingModule.abi.js` your file tree should look like t
     <FileTree.File name="tsconfig.json" />
   </FileTree.Folder>
 </FileTree>
-
 
 ### Styling & Populating The Homepage
 
@@ -942,32 +947,48 @@ In our `src/pages/index.tsx` file, we still have the default template content.
 Lets replace this with the following:
 
 ```tsx
-import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { Flex, Box, Text, Link } from '@chakra-ui/react'
-import React from 'react'
-import Staking from '../components/Staking'
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Flex, Box, Text, Link } from "@chakra-ui/react";
+import React from "react";
+import Staking from "../components/Staking";
 
 function Page() {
   return (
-    <Flex justifyContent={'center'} alignItems={'center'} height={'100vh'} direction={'column'}>
+    <Flex
+      justifyContent={"center"}
+      alignItems={"center"}
+      height={"100vh"}
+      direction={"column"}
+    >
       <Box
-        position={'absolute'}
-        top={'0'}
-        right={'0'}
-        marginTop={'16px'}
-        marginRight={'16px'}>
+        position={"absolute"}
+        top={"0"}
+        right={"0"}
+        marginTop={"16px"}
+        marginRight={"16px"}
+      >
         {/* Rainbow Kit Connect Button floating top right of the screen */}
         <ConnectButton />
       </Box>
-      <Text fontSize={'4xl'}>Polaris Ethereum Staking Precompile Example</Text>
-      <Text fontSize={'xl'}>Ensure you have a Local <Link color={'#1da1f1'} href='TODO ADD LINK'>Polaris Ethereum Node running.</Link></Text>
+      <Text fontSize={"4xl"}>Polaris Ethereum Staking Precompile Example</Text>
+      <Text fontSize={"xl"}>
+        Ensure you have a Local{" "}
+        <Link color={"#1da1f1"} href="TODO ADD LINK">
+          Polaris Ethereum Node running.
+        </Link>
+      </Text>
       <Staking />
-      <Text fontSize={'xs'}>To learn more about Polaris Ethereum please reference our <Link color={'#1da1f1'} href='TODO ADD LINK'>docs</Link></Text>
+      <Text fontSize={"xs"}>
+        To learn more about Polaris Ethereum please reference our{" "}
+        <Link color={"#1da1f1"} href="TODO ADD LINK">
+          docs
+        </Link>
+      </Text>
     </Flex>
-  )
+  );
 }
 
-export default Page
+export default Page;
 ```
 
 Note how we are missing a `components/Staking` component. We will add this in the next step.
@@ -983,7 +1004,6 @@ Under the `src/components` folder, delete the following files:
 - `Account.tsx`
 - `index.ts`
 
-
 Under the `src/components` folder, create a new file called `Staking.tsx`. This will be our main component for staking.
 
 Your folder structure should look like this:
@@ -992,20 +1012,20 @@ Your folder structure should look like this:
   <FileTree.Folder name="staking-precompile-example" defaultOpen>
     <FileTree.Folder name="node_modules" />
     <FileTree.Folder name="src" defaultOpen>
-        <FileTree.Folder name="components" defaultOpen>
-            <FileTree.File name="Staking.tsx" />
-        </FileTree.Folder>
-        <FileTree.Folder name="pages">
-            <FileTree.File name="_app.tsx" />
-            <FileTree.File name="index.tsx" />
-        </FileTree.Folder>
-        <FileTree.Folder name="utils">
-            <FileTree.File name="formatFromBaseUnit.ts" />
-            <FileTree.File name="formatToBaseUnit.ts" />
-            <FileTree.File name="getEvmEllipsis.ts" />
-        </FileTree.Folder>
-        <FileTree.File name="theme.ts" />
-        <FileTree.File name="wagmi.ts" />
+      <FileTree.Folder name="components" defaultOpen>
+        <FileTree.File name="Staking.tsx" />
+      </FileTree.Folder>
+      <FileTree.Folder name="pages">
+        <FileTree.File name="_app.tsx" />
+        <FileTree.File name="index.tsx" />
+      </FileTree.Folder>
+      <FileTree.Folder name="utils">
+        <FileTree.File name="formatFromBaseUnit.ts" />
+        <FileTree.File name="formatToBaseUnit.ts" />
+        <FileTree.File name="getEvmEllipsis.ts" />
+      </FileTree.Folder>
+      <FileTree.File name="theme.ts" />
+      <FileTree.File name="wagmi.ts" />
     </FileTree.Folder>
     <FileTree.File name=".env.example" />
     <FileTree.File name=".eslintrc.jsom" />
@@ -1021,7 +1041,7 @@ Your folder structure should look like this:
 
 ### Adding the Functionality to the Staking Component
 
-Now we can finally add functionality to `Staking.tsx`. The following 
+Now we can finally add functionality to `Staking.tsx`. The following
 is a component that will do the following:
 
 - Query the Staking precompile for a list of active validators and select the first Open
@@ -1033,131 +1053,139 @@ For more information, please refer to the comments in the code below.
 Below is the code for the `Staking.tsx` component:
 
 ```tsx
-import React from 'react';
-import { useMemo, useState, } from 'react'
+import React from "react";
+import { useMemo, useState } from "react";
+import { Flex, Box, Text, Input, Button } from "@chakra-ui/react";
 import {
-    Flex,
-    Box,
-    Text,
-    Input,
-    Button
-} from '@chakra-ui/react'
-import {
-    useContractWrite,
-    usePrepareContractWrite,
-    useContractRead,
-    useAccount,
-    Address
-} from 'wagmi'
-import STAKING_ABI from '../abi/IStakingModule.abi';
-import formatToBaseUnit from '../utils/formatToBaseUnit';
-import { getHexEllipsis } from '../utils/getEvmEllipsis';
-import formatFromBaseUnit from '../utils/formatFromBaseUnit';
-import BigNumber from 'bignumber.js';
+  useContractWrite,
+  usePrepareContractWrite,
+  useContractRead,
+  useAccount,
+  Address,
+} from "wagmi";
+import STAKING_ABI from "../abi/IStakingModule.abi";
+import formatToBaseUnit from "../utils/formatToBaseUnit";
+import { getHexEllipsis } from "../utils/getEvmEllipsis";
+import formatFromBaseUnit from "../utils/formatFromBaseUnit";
+import BigNumber from "bignumber.js";
 
 // Default Address of the Staking Precompile Contract on Polaris.
 // More information here: TODO: Add link to docs
-const STAKING_PRECOMPILE_ADDRESS = '0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF'
+const STAKING_PRECOMPILE_ADDRESS = "0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF";
 
 const Staking = () => {
+  // State that holds the selected cosmos Hex Validator Address
+  const [validator_address, setValidatorAddress] = useState<
+    Address | undefined
+  >(undefined);
 
-    // State that holds the selected cosmos Hex Validator Address
-    const [validator_address, setValidatorAddress] = useState<Address | undefined>(undefined)
+  // State that holds the amount of tBera the connected account has delegated to the selected validator
+  const [delegated_amount, setDelegatedAmount] = useState<string | undefined>(
+    undefined
+  );
 
-    // State that holds the amount of tBera the connected account has delegated to the selected validator
-    const [delegated_amount, setDelegatedAmount] = useState<string | undefined>(undefined)
+  // State that tracks values of the input field
+  const [input_amount, setInputAmount] = useState<string>("");
 
-    // State that tracks values of the input field
-    const [input_amount, setInputAmount] = useState<string>('')
+  // Returns the address of the connected wallet.
+  const { address } = useAccount();
 
-    // Returns the address of the connected wallet.
-    const { address } = useAccount()
+  // Query the Staking Precompile for the active validators, returns an array of addresses.
+  const { data: rawValidators } = useContractRead({
+    address: STAKING_PRECOMPILE_ADDRESS,
+    abi: STAKING_ABI,
+    functionName: "getActiveValidators",
+  });
 
-    // Query the Staking Precompile for the active validators, returns an array of addresses.
-    const { data: rawValidators } = useContractRead({
-        address: STAKING_PRECOMPILE_ADDRESS,
-        abi: STAKING_ABI,
-        functionName: 'getActiveValidators',
-    })
+  // UseMemo will trigger this function when the value of rawValidators changes. It will set the state variable
+  // validator_address to the first raw validator address in the array. This is a lazy way to "select" a validator.
+  useMemo(() => {
+    if (rawValidators) {
+      const validator: Address = (rawValidators as any)[0] as Address;
+      setValidatorAddress(validator);
+    }
+  }, [rawValidators]);
 
-    // UseMemo will trigger this function when the value of rawValidators changes. It will set the state variable
-    // validator_address to the first raw validator address in the array. This is a lazy way to "select" a validator.
-    useMemo(() => {
-        if (rawValidators) {
-            const validator: Address = ((rawValidators as any)[0] as Address)
-            setValidatorAddress(validator)
-        }
-    }, [rawValidators])
+  // Query the Staking Precompile for the amount of tBera delegated to the selected validator from the
+  // connected wallet address. Returns a string or undefined.
+  const { data: rawDelegation } = useContractRead({
+    address: STAKING_PRECOMPILE_ADDRESS,
+    abi: STAKING_ABI,
+    functionName: "getDelegation(address,address)",
+    args: [address, validator_address],
+    watch: true,
+  });
 
-    // Query the Staking Precompile for the amount of tBera delegated to the selected validator from the 
-    // connected wallet address. Returns a string or undefined.
-    const { data: rawDelegation } = useContractRead({
-        address: STAKING_PRECOMPILE_ADDRESS,
-        abi: STAKING_ABI,
-        functionName: 'getDelegation(address,address)',
-        args: [address, validator_address],
-        watch: true,
-    })
+  // UseMemo will trigger this function when the value of rawDelegation changes. It will set the state variable
+  // delegated_amount to the amount of tBera delegated to the selected validator.
+  useMemo(() => {
+    if (rawDelegation) {
+      const castedDelegation = rawDelegation as BigNumber;
+      const parsedDelegation = formatFromBaseUnit(
+        castedDelegation.toString(),
+        18
+      ).toString();
+      setDelegatedAmount(parsedDelegation);
+    }
+  }, [rawDelegation]);
 
-    // UseMemo will trigger this function when the value of rawDelegation changes. It will set the state variable
-    // delegated_amount to the amount of tBera delegated to the selected validator.
-    useMemo(() => {
-        if (rawDelegation) {
-            const castedDelegation = rawDelegation as BigNumber
-            const parsedDelegation = formatFromBaseUnit(castedDelegation.toString(), 18).toString()
-            setDelegatedAmount(parsedDelegation)
-        }
-    }, [rawDelegation])
+  // Prepares a payload for writing a delegate transaction to the Staking Precompile contract.
+  // passed in arguments:
+  // validator_address: Address of the validator to delegate to
+  // formatToBaseUnit(input_amount, 18) a formatted value of the amount to delegate to the selected validator
+  // this payload will be used later to call the Staking Precompile contract's delegate function when the button is clicked.
+  const { config } = usePrepareContractWrite({
+    address: STAKING_PRECOMPILE_ADDRESS,
+    abi: STAKING_ABI,
+    functionName: "delegate",
+    args: [validator_address as Address, formatToBaseUnit(input_amount, 18)],
+  });
 
-    // Prepares a payload for writing a delegate transaction to the Staking Precompile contract.
-    // passed in arguments:
-    // validator_address: Address of the validator to delegate to
-    // formatToBaseUnit(input_amount, 18) a formatted value of the amount to delegate to the selected validator
-    // this payload will be used later to call the Staking Precompile contract's delegate function when the button is clicked.
-    const { config } = usePrepareContractWrite({
-        address: STAKING_PRECOMPILE_ADDRESS,
-        abi: STAKING_ABI,
-        functionName: 'delegate',
-        args: [validator_address as Address, formatToBaseUnit(input_amount, 18)],
-    })
+  // When the button is clicked, it will call the Staking Precompile contract's delegate function.
+  // on Error, will log the error to the console.
+  const { write } = useContractWrite({
+    ...config,
+    onError(error) {
+      console.log("Error", error);
+    },
+  });
 
-    // When the button is clicked, it will call the Staking Precompile contract's delegate function.
-    // on Error, will log the error to the console.
-    const { write } = useContractWrite({
-        ...config,
-        onError(error) {
-            console.log('Error', error)
-        },
-    })
-
-    return (
-        <Box
-            mt={4}
-            borderRadius={'12px'}
-            padding={4}
-            backgroundColor={'#ffff'}
-            color={'#000000'}>
-            <Flex justifyContent={'space-between'}>
-                <Text>Validator Address:</Text>
-                <Text>{validator_address ? getHexEllipsis(validator_address) : ''}</Text>
-            </Flex>
-            <Flex justifyContent={'space-between'}>
-                <Text>Delegated Amount: </Text>
-                <Text>{delegated_amount ? delegated_amount : '0'} tBera</Text>
-            </Flex>
-            <Flex mt={4}>
-                <Input
-                    focusBorderColor='#1da1f1'
-                    variant='filled'
-                    placeholder='Enter Amount'
-                    value={input_amount}
-                    onChange={(e: any) => { setInputAmount(e.target.value) }} />
-                <Button colorScheme={'twitter'} marginLeft={4} onClick={write}>Delegate</Button>
-            </Flex>
-        </Box>
-    )
-}
-export default Staking
+  return (
+    <Box
+      mt={4}
+      borderRadius={"12px"}
+      padding={4}
+      backgroundColor={"#ffff"}
+      color={"#000000"}
+    >
+      <Flex justifyContent={"space-between"}>
+        <Text>Validator Address:</Text>
+        <Text>
+          {validator_address ? getHexEllipsis(validator_address) : ""}
+        </Text>
+      </Flex>
+      <Flex justifyContent={"space-between"}>
+        <Text>Delegated Amount: </Text>
+        <Text>{delegated_amount ? delegated_amount : "0"} tBera</Text>
+      </Flex>
+      <Flex mt={4}>
+        <Input
+          focusBorderColor="#1da1f1"
+          variant="filled"
+          placeholder="Enter Amount"
+          value={input_amount}
+          onChange={(e: any) => {
+            setInputAmount(e.target.value);
+          }}
+        />
+        <Button colorScheme={"twitter"} marginLeft={4} onClick={write}>
+          Delegate
+        </Button>
+      </Flex>
+    </Box>
+  );
+};
+export default Staking;
 ```
 
 ### Run the Application
@@ -1176,8 +1204,9 @@ This will open a browser window at `http://localhost:3000/` and you should see t
 
 Congratulations! You have now created a staking application using the EVM! You can now delegate your tBera to a validator and earn rewards!
 Prior to Polaris Ethereum's precompiled contracts, the UX of this task would be more complicated and foreign as it involves
-many moving parts and having to use Cosmos through Metamask. Now, with the Staking precompile, we can enjoy interacting with 
+many moving parts and having to use Cosmos through Metamask. Now, with the Staking precompile, we can enjoy interacting with
 Cosmos through an EVM native experience!
 
 You can view this example and others like it on our examples repository on Github [here](https://github.com/berachain/polaris-examples)
+
 </div>
