@@ -49,4 +49,3 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	wsclient = tf.EthWsClient
 	return nil
 }, func(data []byte) {})
- 
