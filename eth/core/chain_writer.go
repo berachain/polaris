@@ -137,17 +137,14 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 
 	// mark the current block, receipts, and logs
 	if block != nil {
-		// Todo: nuke these caches anyways.
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
 
-		// Add to block caches.
-		// Todo: nuke these caches anyways.
+		// Todo: nuke these caches.
 		bc.blockNumCache.Add(blockNum, block)
 		bc.blockHashCache.Add(blockHash, block)
 
-		// Cache transaction data.
-		// Todo: nuke these caches anyways.
+		// Todo: nuke these caches.
 		for txIndex, tx := range block.Transactions() {
 			bc.txLookupCache.Add(
 				tx.Hash(),
@@ -160,12 +157,11 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 			)
 		}
 	}
-	// Todo: nuke these caches anyways.
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
+		// Todo: nuke this cache.
 		bc.receiptsCache.Add(blockHash, receipts)
 	}
-	// Todo: nuke these caches anyways.
 	if logs != nil {
 		bc.pendingLogsFeed.Send(logs)
 		bc.currentLogs.Store(logs)
