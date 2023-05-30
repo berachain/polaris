@@ -34,8 +34,8 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 
 	// Iterate over the genesis accounts and set the balances.
 	for address, account := range ethGen.Alloc {
-		// TODO: technically wrong until we kill bank keeper
-		// right now this will override whatever the bank keeper genesis said.
+		// TODO: technically wrong since its overriding / hacking the auth keeper and
+		// we are using the nonce from the account keeper as well.
 		p.CreateAccount(address)
 		p.SetBalance(address, account.Balance)
 		if account.Code != nil {
