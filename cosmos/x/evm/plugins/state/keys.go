@@ -27,6 +27,13 @@ import (
 
 // NOTE: we use copy to build keys for max performance: https://github.com/golang/go/issues/55905
 
+func BalanceKeyFor(address common.Address) []byte {
+	bz := make([]byte, 1+common.AddressLength)
+	copy(bz, []byte{types.BalanceKeyPrefix})
+	copy(bz[1:], address[:])
+	return bz
+}
+
 // StorageKeyFor returns a prefix to iterate over a given account storage (multiple slots).
 func StorageKeyFor(address common.Address) []byte {
 	bz := make([]byte, 1+common.AddressLength)
@@ -73,11 +80,6 @@ func CodeKeyFor(codeHash common.Hash) []byte {
 	copy(bz, []byte{types.CodeKeyPrefix})
 	copy(bz[1:], codeHash[:])
 	return bz
-}
-
-// CodeHashFromKey returns the code hash from a code hash key.
-func CodeHashFromKey(key []byte) common.Hash {
-	return common.BytesToHash(key[1:])
 }
 
 // AddressFromCodeHashKey returns the address from a code hash key.

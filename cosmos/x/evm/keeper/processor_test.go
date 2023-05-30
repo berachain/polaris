@@ -65,7 +65,6 @@ var _ = Describe("Processor", func() {
 	var (
 		k            *keeper.Keeper
 		ak           state.AccountKeeper
-		bk           state.BankKeeper
 		sk           stakingkeeper.Keeper
 		ctx          sdk.Context
 		sc           ethprecompile.StatefulImpl
@@ -87,9 +86,9 @@ var _ = Describe("Processor", func() {
 		}
 
 		// before chain, init genesis state
-		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
+		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
 		k = keeper.NewKeeper(
-			ak, bk, sk,
+			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
 			"authority",
 			evmmempool.NewPolarisEthereumTxPool(),

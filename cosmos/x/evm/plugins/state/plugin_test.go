@@ -44,13 +44,12 @@ var (
 
 var _ = Describe("State Plugin", func() {
 	var ak state.AccountKeeper
-	var bk state.BankKeeper
 	var ctx sdk.Context
 	var sp core.StatePlugin
 
 	BeforeEach(func() {
-		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPLF{})
+		ctx, ak, _, _ = testutil.SetupMinimalKeepers()
+		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
 		sp.Reset(ctx)
 	})
 
@@ -104,25 +103,6 @@ var _ = Describe("State Plugin", func() {
 				sp.AddBalance(alice, big.NewInt(100))
 				Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(100)))
 			})
-			It("should panic if using negative value", func() {
-				Expect(func() {
-					sp.AddBalance(alice, big.NewInt(-100))
-				}).To(Panic())
-			})
-		})
-
-		Context("TestSubBalance", func() {
-			It("should not panic when setting balance to negative value", func() {
-				Expect(func() {
-					sp.SubBalance(alice, big.NewInt(100))
-				}).ToNot(Panic())
-				Expect(sp.Error()).To(HaveOccurred())
-			})
-			It("should not panic if using negative value", func() {
-				Expect(func() {
-					sp.SubBalance(alice, big.NewInt(-100))
-				}).To(Panic())
-			})
 		})
 
 		It("should handle complex balance updates", func() {
@@ -140,12 +120,6 @@ var _ = Describe("State Plugin", func() {
 			// Add some balance to alice
 			sp.AddBalance(alice, big.NewInt(100))
 			Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(150)))
-
-			// Subtract some balance from alice
-			Expect(func() {
-				sp.SubBalance(alice, big.NewInt(200))
-			}).ToNot(Panic())
-			Expect(sp.Error()).To(HaveOccurred())
 		})
 	})
 

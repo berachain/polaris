@@ -40,8 +40,6 @@ import (
 type Keeper struct {
 	// ak is the reference to the AccountKeeper.
 	ak state.AccountKeeper
-	// bk is the reference to the BankKeeper.
-	bk state.BankKeeper
 	// provider is the struct that houses the Polaris EVM.
 	polaris *polar.Polaris
 	// The (unexposed) key used to access the store from the Context.
@@ -55,7 +53,6 @@ type Keeper struct {
 // NewKeeper creates new instances of the polaris Keeper.
 func NewKeeper(
 	ak state.AccountKeeper,
-	bk state.BankKeeper,
 	sk block.StakingKeeper,
 	storeKey storetypes.StoreKey,
 	authority string,
@@ -65,7 +62,6 @@ func NewKeeper(
 	// We setup the keeper with some Cosmos standard sauce.
 	k := &Keeper{
 		ak:        ak,
-		bk:        bk,
 		authority: authority,
 		storeKey:  storeKey,
 	}
@@ -88,7 +84,7 @@ func (k *Keeper) Setup(
 	logger log.Logger,
 ) {
 	// Setup plugins in the Host
-	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc)
+	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, qc)
 
 	// Build the Polaris EVM Provider
 	cfg, err := polar.LoadConfigFromFilePath(polarisConfigPath)

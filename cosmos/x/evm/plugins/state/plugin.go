@@ -29,7 +29,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/store/snapmulti"
@@ -106,14 +105,9 @@ type plugin struct {
 
 	// keepers used for balance and account information.
 	ak AccountKeeper
-	bk BankKeeper
 
 	// getQueryContext allows for querying state a historical height.
 	getQueryContext func(height int64, prove bool) (sdk.Context, error)
-
-	// we load the evm denom in the constructor, to prevent going to
-	// the params to get it mid interpolation.
-	cp ConfigurationPlugin
 
 	// savedErr stores any error that is returned from state modifications on the underlying
 	// keepers.
@@ -123,16 +117,12 @@ type plugin struct {
 // NewPlugin returns a plugin with the given context and keepers.
 func NewPlugin(
 	ak AccountKeeper,
-	bk BankKeeper,
 	storeKey storetypes.StoreKey,
-	cp ConfigurationPlugin,
 	plf events.PrecompileLogFactory,
 ) Plugin {
 	return &plugin{
 		storeKey: storeKey,
 		ak:       ak,
-		bk:       bk,
-		cp:       cp,
 		plf:      plf,
 	}
 }
@@ -262,36 +252,31 @@ func (p *plugin) DeleteAccounts(accounts []common.Address) {
 
 // GetBalance implements `StatePlugin` interface.
 func (p *plugin) GetBalance(addr common.Address) *big.Int {
-	// Note: bank keeper will return 0 if account/state_object is not found
-	return p.bk.GetBalance(p.ctx, addr[:], p.cp.GetEvmDenom()).Amount.BigInt()
+	return big.NewInt(0).SetBytes(p.ctx.KVStore(p.storeKey).Get(BalanceKeyFor(addr)))
 }
 
 // SetBalance implements `StatePlugin` interface.
 func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
-	currBalance := p.GetBalance(addr)
-	delta := new(big.Int).Sub(currBalance, amount)
-	if delta.Sign() < 0 {
-		p.AddBalance(addr, new(big.Int).Neg(delta))
-	} else if delta.Sign() > 0 {
-		p.SubBalance(addr, delta)
-	}
+	p.ctx.KVStore(p.storeKey).Set(BalanceKeyFor(addr), amount.Bytes())
 }
 
 // AddBalance implements the `StatePlugin` interface by adding the given amount
 // from thew account associated with addr. If the account does not exist, it will be
 // created.
 func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
-	if err := lib.MintCoinsToAddress(p.ctx, p.bk, types.ModuleName, addr, p.cp.GetEvmDenom(), amount); err != nil {
-		p.savedErr = err
+	if amount.Sign() == 0 {
+		return
 	}
+	p.ctx.KVStore(p.storeKey).Set(BalanceKeyFor(addr), big.NewInt(0).Add(p.GetBalance(addr), amount).Bytes())
 }
 
 // SubBalance implements the `StatePlugin` interface by subtracting the given amount
 // from the account associated with addr.
 func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
-	if err := lib.BurnCoinsFromAddress(p.ctx, p.bk, types.ModuleName, addr, p.cp.GetEvmDenom(), amount); err != nil {
-		p.savedErr = err
+	if amount.Sign() == 0 {
+		return
 	}
+	p.ctx.KVStore(p.storeKey).Set(BalanceKeyFor(addr), big.NewInt(0).Sub(p.GetBalance(addr), amount).Bytes())
 }
 
 // =============================================================================
@@ -529,7 +514,7 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	}
 
 	// Create a State Plugin with the requested chain height.
-	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.plf)
+	sp := NewPlugin(p.ak, p.storeKey, p.plf)
 	sp.Reset(ctx)
 	return sp, nil
 }
@@ -540,7 +525,7 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 
 // Clone implements libtypes.Cloneable.
 func (p *plugin) Clone() ethstate.Plugin {
-	sp := NewPlugin(p.ak, p.bk, p.storeKey, p.cp, p.plf)
+	sp := NewPlugin(p.ak, p.storeKey, p.plf)
 	cacheCtx, _ := p.ctx.CacheContext()
 	sp.Reset(cacheCtx)
 	return sp

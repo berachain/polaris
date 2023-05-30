@@ -123,7 +123,7 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 		ChainID:         "polaris-2061",
 		NumValidators:   1,
 		BondDenom:       "abera",
-		MinGasPrices:    fmt.Sprintf("0.00006%s", "abera"),
+		MinGasPrices:    fmt.Sprintf("0.00000%s", "abera"),
 		AccountTokens:   sdk.TokensFromConsensusPower(thousand, sdk.DefaultPowerReduction),
 		StakingTokens:   sdk.TokensFromConsensusPower(fivehundred, sdk.DefaultPowerReduction),
 		BondedTokens:    sdk.TokensFromConsensusPower(onehundred, sdk.DefaultPowerReduction),

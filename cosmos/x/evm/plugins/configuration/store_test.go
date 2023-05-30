@@ -58,7 +58,7 @@ var _ = Describe("Plugin", func() {
 		Context("when the params store contains valid params", func() {
 			It("should return the stored params", func() {
 				storedParams := types.Params{
-					EvmDenom:  "eth",
+
 					ExtraEIPs: []int64{123},
 				}
 				bz, err := storedParams.Marshal()
@@ -81,7 +81,6 @@ var _ = Describe("Plugin", func() {
 	Describe("SetParams", func() {
 		It("should store the params in the params store", func() {
 			params := types.Params{
-				EvmDenom:  "eth",
 				ExtraEIPs: []int64{123},
 			}
 			p.SetParams(&params)

@@ -42,14 +42,12 @@ type Plugin interface {
 	core.ConfigurationPlugin
 	SetParams(params *types.Params)
 	SetChainConfig(*params.ChainConfig)
-	GetEvmDenom() string
 }
 
 // plugin implements the core.ConfigurationPlugin interface.
 type plugin struct {
 	storeKey    storetypes.StoreKey
 	paramsStore storetypes.KVStore
-	evmDenom    string
 }
 
 // NewPlugin returns a new plugin instance.
@@ -63,13 +61,6 @@ func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 func (p *plugin) Prepare(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	p.paramsStore = sCtx.KVStore(p.storeKey)
-}
-
-func (p *plugin) GetEvmDenom() string {
-	if p.evmDenom == "" {
-		p.evmDenom = p.Params().EvmDenom
-	}
-	return p.evmDenom
 }
 
 // ExtraEips implements the core.ConfigurationPlugin interface.
