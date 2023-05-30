@@ -22,9 +22,6 @@ syntax = "proto3";
 package polaris.evm.v1alpha1;
 
 import "cosmos/msg/v1/msg.proto";
-import "cosmos_proto/cosmos.proto";
-import "gogoproto/gogo.proto";
-import "polaris/evm/v1alpha1/params.proto";
 
 option go_package = "pkg.berachain.dev/polaris/cosmos/x/evm/types";
 
@@ -34,18 +31,11 @@ service MsgService {
 
   // EthTransaction defines a method submitting Ethereum transactions.
   rpc EthTransaction(WrappedEthereumTransaction) returns (WrappedEthereumTransactionResult);
-
-  // `UpdateParams` defines a governance operation for updating the x/evm module
-  // parameters. The authority is defaults to the x/gov module account.
-  //
-  // Since: cosmos-sdk 0.47
-  rpc UpdateParams(UpdateParamsRequest) returns (UpdateParamsResponse);
 }
 
 // WrappedEthereumTransaction encapsulates an Ethereum transaction as an SDK message.
 message WrappedEthereumTransaction {
   option (cosmos.msg.v1.signer) = "hacky_fix_cause_cosmos";
-  option (gogoproto.goproto_getters) = false;
   // data is inner transaction data of the Ethereum transaction
   bytes data = 1;
 
@@ -55,7 +45,6 @@ message WrappedEthereumTransaction {
 
 // WrappedEthereumTransactionResult defines the Msg/EthereumTx response type.
 message WrappedEthereumTransactionResult {
-  option (gogoproto.goproto_getters) = false;
   // `gas_used` represents the gas used by the virtual machine execution.
   uint64 gas_used = 1;
 
@@ -65,24 +54,3 @@ message WrappedEthereumTransactionResult {
   // `return_data` contains the return data of the virtual machine execution.
   bytes return_data = 3;
 }
-
-// `UpdateParamsRequest` is the Msg/UpdateParams request type.
-//
-// Since: cosmos-sdk 0.47
-message UpdateParamsRequest {
-  option (cosmos.msg.v1.signer) = "authority";
-
-  // authority is the address that controls the module (defaults to x/gov unless overwritten).
-  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-
-  // params defines the x/evm parameters to update.
-  //
-  // NOTE: All parameters must be supplied.
-  Params params = 2 [(gogoproto.nullable) = false];
-}
-
-// `UpdateParamsResponse` defines the response structure for executing a
-// UpdateParamsResponse message.
-//
-// Since: cosmos-sdk 0.47
-message UpdateParamsResponse {}

@@ -23,7 +23,7 @@ package plugins
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 // Base is the base interface which all x/evm Polaris plugins must implement
@@ -36,6 +36,6 @@ type Base interface {
 // InitGenesis or ExportGenesis methods must implement
 
 type HasGenesis interface {
-	InitGenesis(sdk.Context, *types.GenesisState)
-	ExportGenesis(sdk.Context, *types.GenesisState)
+	InitGenesis(sdk.Context, *core.Genesis)
+	ExportGenesis(sdk.Context, *core.Genesis)
 }

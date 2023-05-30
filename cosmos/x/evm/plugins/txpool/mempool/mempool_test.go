@@ -391,12 +391,6 @@ var _ = Describe("EthTxPool", func() {
 
 // MOCKS BELOW.
 
-type mockConfigurationPlugin struct{}
-
-func (mcp *mockConfigurationPlugin) GetEvmDenom() string {
-	return "abera"
-}
-
 type mockPLF struct{}
 
 func (mplf *mockPLF) Build(event *sdk.Event) (*coretypes.Log, error) {

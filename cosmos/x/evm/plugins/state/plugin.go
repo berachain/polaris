@@ -252,7 +252,7 @@ func (p *plugin) DeleteAccounts(accounts []common.Address) {
 
 // GetBalance implements `StatePlugin` interface.
 func (p *plugin) GetBalance(addr common.Address) *big.Int {
-	return big.NewInt(0).SetBytes(p.ctx.KVStore(p.storeKey).Get(BalanceKeyFor(addr)))
+	return new(big.Int).SetBytes(p.ctx.KVStore(p.storeKey).Get(BalanceKeyFor(addr)))
 }
 
 // SetBalance implements `StatePlugin` interface.
@@ -267,7 +267,7 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 	if amount.Sign() == 0 {
 		return
 	}
-	p.ctx.KVStore(p.storeKey).Set(BalanceKeyFor(addr), big.NewInt(0).Add(p.GetBalance(addr), amount).Bytes())
+	p.ctx.KVStore(p.storeKey).Set(BalanceKeyFor(addr), new(big.Int).Add(p.GetBalance(addr), amount).Bytes())
 }
 
 // SubBalance implements the `StatePlugin` interface by subtracting the given amount
@@ -276,7 +276,7 @@ func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
 	if amount.Sign() == 0 {
 		return
 	}
-	p.ctx.KVStore(p.storeKey).Set(BalanceKeyFor(addr), big.NewInt(0).Sub(p.GetBalance(addr), amount).Bytes())
+	p.ctx.KVStore(p.storeKey).Set(BalanceKeyFor(addr), new(big.Int).Sub(p.GetBalance(addr), amount).Bytes())
 }
 
 // =============================================================================

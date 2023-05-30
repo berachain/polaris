@@ -57,7 +57,7 @@ var _ = Describe("State Plugin", func() {
 		Expect(sp.RegistryKey()).To(Equal("statePlugin"))
 	})
 
-	Describe("TestReset", func() {
+	Describe("TestevmReset", func() {
 		It("should reset", func() {
 			sp.CreateAccount(alice)
 			sp.AddBalance(alice, big.NewInt(50))
@@ -464,12 +464,6 @@ var _ = Describe("State Plugin", func() {
 })
 
 // MOCKS BELOW.
-
-type mockConfigurationPlugin struct{}
-
-func (mcp *mockConfigurationPlugin) GetEvmDenom() string {
-	return "abera"
-}
 
 type mockPLF struct{}
 

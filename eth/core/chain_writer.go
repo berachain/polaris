@@ -78,8 +78,8 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		UncleHash:  types.EmptyUncleHash,
 		Coinbase:   coinbase,
 		Root:       common.Hash{}, // Polaris does not use the Ethereum state root.
-		Difficulty: big.NewInt(0),
-		Number:     big.NewInt(0).SetUint64(number),
+		Difficulty: new(big.Int),
+		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
 		Extra:      []byte{}, // Polaris does not set the Extra field.

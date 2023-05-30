@@ -131,7 +131,6 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 	// *technically* the precompiles change based on the chain config rules, to be fully correct,
 	// we should check every block.
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
-	sp.vmConfig.ExtraEips = sp.cp.ExtraEips()
 	sp.evm = evm
 }
 

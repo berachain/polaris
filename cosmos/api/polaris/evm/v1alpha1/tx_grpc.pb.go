@@ -40,7 +40,6 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	MsgService_EthTransaction_FullMethodName = "/polaris.evm.v1alpha1.MsgService/EthTransaction"
-	MsgService_UpdateParams_FullMethodName   = "/polaris.evm.v1alpha1.MsgService/UpdateParams"
 )
 
 // MsgServiceClient is the client API for MsgService service.
@@ -49,11 +48,6 @@ const (
 type MsgServiceClient interface {
 	// EthTransaction defines a method submitting Ethereum transactions.
 	EthTransaction(ctx context.Context, in *WrappedEthereumTransaction, opts ...grpc.CallOption) (*WrappedEthereumTransactionResult, error)
-	// `UpdateParams` defines a governance operation for updating the x/evm module
-	// parameters. The authority is defaults to the x/gov module account.
-	//
-	// Since: cosmos-sdk 0.47
-	UpdateParams(ctx context.Context, in *UpdateParamsRequest, opts ...grpc.CallOption) (*UpdateParamsResponse, error)
 }
 
 type msgServiceClient struct {
@@ -73,26 +67,12 @@ func (c *msgServiceClient) EthTransaction(ctx context.Context, in *WrappedEthere
 	return out, nil
 }
 
-func (c *msgServiceClient) UpdateParams(ctx context.Context, in *UpdateParamsRequest, opts ...grpc.CallOption) (*UpdateParamsResponse, error) {
-	out := new(UpdateParamsResponse)
-	err := c.cc.Invoke(ctx, MsgService_UpdateParams_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // MsgServiceServer is the server API for MsgService service.
 // All implementations must embed UnimplementedMsgServiceServer
 // for forward compatibility
 type MsgServiceServer interface {
 	// EthTransaction defines a method submitting Ethereum transactions.
 	EthTransaction(context.Context, *WrappedEthereumTransaction) (*WrappedEthereumTransactionResult, error)
-	// `UpdateParams` defines a governance operation for updating the x/evm module
-	// parameters. The authority is defaults to the x/gov module account.
-	//
-	// Since: cosmos-sdk 0.47
-	UpdateParams(context.Context, *UpdateParamsRequest) (*UpdateParamsResponse, error)
 	mustEmbedUnimplementedMsgServiceServer()
 }
 
@@ -102,9 +82,6 @@ type UnimplementedMsgServiceServer struct {
 
 func (UnimplementedMsgServiceServer) EthTransaction(context.Context, *WrappedEthereumTransaction) (*WrappedEthereumTransactionResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EthTransaction not implemented")
-}
-func (UnimplementedMsgServiceServer) UpdateParams(context.Context, *UpdateParamsRequest) (*UpdateParamsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
 }
 func (UnimplementedMsgServiceServer) mustEmbedUnimplementedMsgServiceServer() {}
 
@@ -137,24 +114,6 @@ func _MsgService_EthTransaction_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MsgService_UpdateParams_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateParamsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServiceServer).UpdateParams(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MsgService_UpdateParams_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServiceServer).UpdateParams(ctx, req.(*UpdateParamsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // MsgService_ServiceDesc is the grpc.ServiceDesc for MsgService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -165,10 +124,6 @@ var MsgService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "EthTransaction",
 			Handler:    _MsgService_EthTransaction_Handler,
-		},
-		{
-			MethodName: "UpdateParams",
-			Handler:    _MsgService_UpdateParams_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

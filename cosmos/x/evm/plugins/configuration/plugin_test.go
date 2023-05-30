@@ -79,11 +79,4 @@ var _ = Describe("Plugin", func() {
 			// })
 		})
 	})
-
-	Describe("ExtraEips", func() {
-		It("should return an empty slice", func() {
-			eips := p.ExtraEips()
-			Expect(eips).To(BeEmpty())
-		})
-	})
 })

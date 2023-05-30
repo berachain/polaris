@@ -147,11 +147,14 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 	// Auth, Bank, EVM module
 	var authState authtypes.GenesisState
 	var bankState banktypes.GenesisState
-	var evmState evmtypes.GenesisState
+	// Set Eth Genesis Alloc
+	var ethGen core.Genesis
 
 	encoding.Codec.MustUnmarshalJSON(genState[authtypes.ModuleName], &authState)
 	encoding.Codec.MustUnmarshalJSON(genState[banktypes.ModuleName], &bankState)
-	encoding.Codec.MustUnmarshalJSON(genState[evmtypes.ModuleName], &evmState)
+	if err := ethGen.UnmarshalJSON(genState[evmtypes.ModuleName]); err != nil {
+		panic(err)
+	}
 
 	for mapKey, testKey := range keysMap {
 		newAccount, err := authtypes.NewBaseAccountWithPubKey(testKey.PubKey())
@@ -168,22 +171,9 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 			Coins:   getCoinsForAccount(mapKey),
 		})
 
-		// Set Eth Genesis Alloc
-		var ethGen core.Genesis
-		if err := ethGen.UnmarshalJSON([]byte(evmState.EthGenesis)); err != nil {
-			panic(err)
-		}
-
 		acc := ethGen.Alloc[common.BytesToAddress(newAccount.GetAddress())]
 		acc.Balance = big.NewInt(examoney)
 		ethGen.Alloc[common.BytesToAddress(newAccount.GetAddress())] = acc
-
-		ethGenBytes, err := ethGen.MarshalJSON()
-		if err != nil {
-			panic(err)
-		}
-
-		evmState.EthGenesis = string(ethGenBytes)
 	}
 
 	bankState.DenomMetadata = getTestMetadata()
@@ -204,7 +194,11 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 
 	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
-	genState[evmtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&evmState)
+	ethGenBytes, err := ethGen.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
+	genState[evmtypes.ModuleName] = ethGenBytes
 
 	// Staking module
 	var stakingState stakingtypes.GenesisState

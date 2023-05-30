@@ -27,28 +27,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
-// GetParams is used to get the params for the evm module.
-func (p *plugin) Params() *types.Params {
-	bz := p.paramsStore.Get([]byte{types.ParamsKey})
-	if bz == nil {
-		return &types.Params{}
-	}
-	var params types.Params
-	if err := params.Unmarshal(bz); err != nil {
-		panic(err)
-	}
-	return &params
-}
-
-// SetParams is used to set the params for the evm module.
-func (p *plugin) SetParams(params *types.Params) {
-	bz, err := params.Marshal()
-	if err != nil {
-		panic(err)
-	}
-	p.paramsStore.Set([]byte{types.ParamsKey}, bz)
-}
-
 // GetChainConfig is used to get the genesis info of the Ethereum chain.
 func (p *plugin) ChainConfig() *params.ChainConfig {
 	bz := p.paramsStore.Get([]byte{types.ChainConfigPrefix})

@@ -29,7 +29,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/params"
@@ -40,7 +39,6 @@ type Plugin interface {
 	plugins.Base
 	plugins.HasGenesis
 	core.ConfigurationPlugin
-	SetParams(params *types.Params)
 	SetChainConfig(*params.ChainConfig)
 }
 
@@ -61,15 +59,6 @@ func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 func (p *plugin) Prepare(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	p.paramsStore = sCtx.KVStore(p.storeKey)
-}
-
-// ExtraEips implements the core.ConfigurationPlugin interface.
-func (p *plugin) ExtraEips() []int {
-	eips := make([]int, 0)
-	for _, e := range p.Params().ExtraEIPs {
-		eips = append(eips, int(e))
-	}
-	return eips
 }
 
 // FeeCollector implements the core.ConfigurationPlugin interface.

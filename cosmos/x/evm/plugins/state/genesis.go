@@ -25,21 +25,15 @@ import (
 
 	"github.com/ethereum/go-ethereum/core"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
 // InitGenesis takes in a pointer to a genesis state object and populates the KV store.
-func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
+func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 	p.Reset(ctx)
 
-	var ethGenesis core.Genesis
-	if err := ethGenesis.UnmarshalJSON([]byte(data.EthGenesis)); err != nil {
-		panic(err)
-	}
-
 	// Iterate over the genesis accounts and set the balances.
-	for address, account := range ethGenesis.Alloc {
+	for address, account := range ethGen.Alloc {
 		// TODO: technically wrong until we kill bank keeper
 		// right now this will override whatever the bank keeper genesis said.
 		p.CreateAccount(address)
@@ -55,9 +49,8 @@ func (p *plugin) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 }
 
 // Export genesis modifies a pointer to a genesis state object and populates it.
-func (p *plugin) ExportGenesis(ctx sdk.Context, data *types.GenesisState) {
+func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 	p.Reset(ctx)
-	var ethGen core.Genesis
 	for address, account := range ethGen.Alloc {
 		account.Code = p.GetCode(address)
 		account.Balance = p.GetBalance(address)
@@ -70,10 +63,5 @@ func (p *plugin) ExportGenesis(ctx sdk.Context, data *types.GenesisState) {
 			panic(err)
 		}
 	}
-	bz, err := ethGen.MarshalJSON()
-	if err != nil {
-		panic(err)
-	}
-	data.EthGenesis = string(bz)
 	p.Finalize()
 }
