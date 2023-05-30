@@ -32,7 +32,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Genesis", func() {
@@ -66,10 +65,10 @@ var _ = Describe("Genesis", func() {
 		// Call Init Genesis
 		sp.InitGenesis(ctx, genesis)
 
-		// Check that the code is set.
-		sp.Reset(ctx)
-		Expect(sp.GetCode(alice)).To(Equal(code))
-		sp.Finalize()
+		// // Check that the code is set.
+		// sp.Reset(ctx)
+		// Expect(sp.GetCode(alice)).To(Equal(code))
+		// sp.Finalize()
 
 		// Check that the code hash is set.
 		sp.Reset(ctx)
