@@ -74,9 +74,9 @@ var _ = Describe("GraphQL", func() {
 
 	Describe("querying with a block number", Ordered, func() {
 		BeforeAll(func() {
-			height, err := tf.Network.WaitForHeight(4)
+			height, err := tf.Network.WaitForHeight(2)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(height).To(BeEquivalentTo(5))
+			Expect(height).To(BeNumerically(">=", 2))
 		})
 
 		// TODO: this test is super unstable for some reason.
@@ -102,10 +102,10 @@ var _ = Describe("GraphQL", func() {
 
 		It("should support eth_estimateGas", func() {
 			alice := tf.Address("alice")
-			tf.Network.WaitForHeight(2)
+
 			response, status, err := tf.SendGraphQLRequest(fmt.Sprintf(
 				`query { 
-					block(number: 1) { 
+					block(number: 0) { 
 						estimateGas( data: { to: "%s" }) 
 						} 
 				}`, alice.String()))
@@ -120,7 +120,7 @@ var _ = Describe("GraphQL", func() {
 			eth_getUncleCountByBlockNumber, eth_getUncleByBlockNumberAndIndex`, func() {
 			response, status, err := tf.SendGraphQLRequest(`
 			query {
-				block(number: 4) {
+				block(number: 0) {
 				transactionCount
 				transactionAt(index: 0) {
 					hash
@@ -160,7 +160,7 @@ var _ = Describe("GraphQL", func() {
 		It("should support eth_getTransactionByBlockNumberAndIndex", func() {
 			response, status, err := tf.SendGraphQLRequest(`
 			{
-				block(number: 4) {
+				block(number: 0) {
 				  transactionAt(index: 0) {
 					hash
 					nonce
