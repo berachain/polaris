@@ -23,6 +23,7 @@ package network
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"time"
 
 	cdb "github.com/cosmos/cosmos-db"
@@ -46,6 +47,9 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	runtime "pkg.berachain.dev/polaris/cosmos/runtime"
 	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 type (
@@ -140,12 +144,14 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 	encoding := config.BuildPolarisEncodingConfig(runtime.ModuleBasics)
 	genState := runtime.ModuleBasics.DefaultGenesis(encoding.Codec)
 
-	// Auth & Bank module
+	// Auth, Bank, EVM module
 	var authState authtypes.GenesisState
 	var bankState banktypes.GenesisState
+	var evmState evmtypes.GenesisState
 
 	encoding.Codec.MustUnmarshalJSON(genState[authtypes.ModuleName], &authState)
 	encoding.Codec.MustUnmarshalJSON(genState[banktypes.ModuleName], &bankState)
+	encoding.Codec.MustUnmarshalJSON(genState[evmtypes.ModuleName], &evmState)
 
 	for mapKey, testKey := range keysMap {
 		newAccount, err := authtypes.NewBaseAccountWithPubKey(testKey.PubKey())
@@ -161,6 +167,23 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 			Address: newAccount.Address,
 			Coins:   getCoinsForAccount(mapKey),
 		})
+
+		// Set Eth Genesis Alloc
+		var ethGen core.Genesis
+		if err := ethGen.UnmarshalJSON([]byte(evmState.EthGenesis)); err != nil {
+			panic(err)
+		}
+
+		acc := ethGen.Alloc[common.BytesToAddress(newAccount.GetAddress())]
+		acc.Balance = big.NewInt(examoney)
+		ethGen.Alloc[common.BytesToAddress(newAccount.GetAddress())] = acc
+
+		ethGenBytes, err := ethGen.MarshalJSON()
+		if err != nil {
+			panic(err)
+		}
+
+		evmState.EthGenesis = string(ethGenBytes)
 	}
 
 	bankState.DenomMetadata = getTestMetadata()
@@ -181,6 +204,7 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 
 	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
+	genState[evmtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&evmState)
 
 	// Staking module
 	var stakingState stakingtypes.GenesisState
