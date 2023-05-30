@@ -32,6 +32,8 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
+	"pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -79,26 +81,25 @@ var _ = Describe("GraphQL", func() {
 			Expect(height).To(BeNumerically(">=", 2))
 		})
 
-		// TODO: this test is super unstable for some reason.
-		// It("should support eth_call", func() {
-		// 	_, addr := DeployERC20(tf.GenerateTransactOpts("alice"), client)
-		// 	// function selector for decimals() padded to 32 bytes
-		// 	calldata := "0x313ce56700000000000000000000000000000000000000000000000000000000"
-		// 	query := fmt.Sprintf(`
-		// 	query {
-		// 		block(number: 4) {
-		// 			call(data: { to: "%s", data: "%s" }) {
-		// 				data
-		// 				status
-		// 				gasUsed
-		// 			}
-		// 		}
-		// 	}`, addr.String(), calldata)
-		// 	_, status, err := tf.SendGraphQLRequest(query)
+		It("should support eth_call", func() {
+			_, addr := utils.DeployERC20(tf.GenerateTransactOpts("alice"), client)
+			// function selector for decimals() padded to 32 bytes
+			calldata := "0x313ce56700000000000000000000000000000000000000000000000000000000"
+			query := fmt.Sprintf(`
+		 	query {
+		 		block(number: 4) {
+		 			call(data: { to: "%s", data: "%s" }) {
+		 				data
+		 				status
+		 				gasUsed
+		 			}
+		 		}
+		 	}`, addr.String(), calldata)
+			_, status, err := tf.SendGraphQLRequest(query)
 
-		// 	Expect(status).To(Equal(200))
-		// 	Expect(err).ToNot(HaveOccurred())
-		// })
+			Expect(status).To(Equal(200))
+			Expect(err).ToNot(HaveOccurred())
+		})
 
 		It("should support eth_estimateGas", func() {
 			alice := tf.Address("alice")
@@ -347,16 +348,15 @@ var _ = Describe("GraphQL", func() {
 
 	It("should support eth_sendRawTransaction", func() {
 		alicePrivKey := tf.PrivKey("alice")
-		bob := tf.Address("bob")
 		tx := types.NewTransaction(
-			0, // Nonce
-			bob,
+			1, // Nonce
+			common.BytesToAddress([]byte{0}),
 			big.NewInt(5),  // Value
 			uint64(22000),  // Gas limit
 			big.NewInt(10), // Gas price
 			nil,
 		)
-		signed, err := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(69420)), alicePrivKey)
+		signed, err := types.SignTx(tx, types.NewLondonSigner(big.NewInt(69420)), alicePrivKey)
 		Expect(err).ToNot(HaveOccurred())
 		rlpEncoded, err := rlp.EncodeToBytes(signed)
 		Expect(err).ToNot(HaveOccurred())
