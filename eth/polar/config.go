@@ -45,7 +45,7 @@ func DefaultConfig() *Config {
 	gpoConfig := ethconfig.FullNodeGPO
 	gpoConfig.Default = big.NewInt(gpoDefault)
 	return &Config{
-		GPO:           gpoConfig,
+		GPO:           &gpoConfig,
 		RPCGasCap:     ethconfig.Defaults.RPCGasCap,
 		RPCTxFeeCap:   ethconfig.Defaults.RPCTxFeeCap,
 		RPCEVMTimeout: ethconfig.Defaults.RPCEVMTimeout,
@@ -55,7 +55,7 @@ func DefaultConfig() *Config {
 // Config represents the configurable parameters for Polaris.
 type Config struct {
 	// Gas Price Oracle config.
-	GPO gasprice.Config
+	GPO *gasprice.Config
 
 	// RPCGasCap is the global gas cap for eth-call variants.
 	RPCGasCap uint64 `toml:""`
