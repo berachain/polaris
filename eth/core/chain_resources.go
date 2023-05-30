@@ -37,6 +37,7 @@ import (
 type ChainResources interface {
 	GetStateByNumber(int64) (vm.GethStateDB, error)
 	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
+	NewEVMBlockContext(header *types.Header) *vm.BlockContext
 }
 
 // GetStateByNumber returns a statedb configured to read what the state of the blockchain is/was
@@ -58,17 +59,18 @@ func (bc *blockchain) GetEVM(
 ) *vm.GethEVM {
 	chainCfg := bc.processor.cp.ChainConfig() // TODO: get chain config at height.
 	return vm.NewGethEVMWithPrecompiles(
-		bc.NewEVMBlockContext(header), txContext, state, chainCfg, *vmConfig, bc.processor.pp,
+		*bc.NewEVMBlockContext(header), txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)
 }
 
 // NewEVMBlockContext creates a new block context for use in the EVM.
-func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
+func (bc *blockchain) NewEVMBlockContext(header *types.Header) *vm.BlockContext {
 	feeCollector := bc.cp.FeeCollector()
 	if feeCollector == nil {
 		feeCollector = &header.Coinbase
 	}
-	return NewEVMBlockContext(header, bc, feeCollector)
+	blockContext := NewEVMBlockContext(header, bc, feeCollector)
+	return &blockContext
 }
 
 // CalculateBaseFee calculates the base fee for the next block based on the finalized block or the

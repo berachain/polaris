@@ -405,6 +405,12 @@ func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethSt
 		utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig), state.Error
 }
 
+func (b *backend) GetBlockContext(
+	_ context.Context, header *types.Header,
+) *vm.BlockContext {
+	return b.chain.NewEVMBlockContext(header)
+}
+
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {
 	b.logger.Debug("called eth.rpc.backend.SubscribeChainEvent", "ch", ch)
 	return b.chain.SubscribeChainEvent(ch)
@@ -472,7 +478,7 @@ func (b *backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscri
 }
 
 func (b *backend) Engine() consensus.Engine {
-	panic("not implemented")
+	return nil
 }
 
 // GetBody retrieves the block body corresponding to block by has or number..
