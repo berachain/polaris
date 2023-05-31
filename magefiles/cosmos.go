@@ -110,7 +110,7 @@ func (c Cosmos) Docker(node, arch, versionFlag string) error {
 	} else {
 		path = baseDockerPath + node + "/Dockerfile"
 	}
-	return c.dockerBuildNode("polard-"+node, path, goVersion, version, arch)
+	return c.dockerBuildNode("polard-"+node, path, goVersion, version, arch, true)
 }
 
 func (c Cosmos) RunDockerLocal() error {
@@ -138,12 +138,12 @@ func (c Cosmos) dockerBuildBeradWithX(goVersion string) error {
 // Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) DockerDebug() error {
 	LogGreen("Build a debug docker image for the Cosmos SDK chain...")
-	return c.dockerBuildNode("debug", execDockerPath, goVersion, version, runtime.GOARCH)
+	return c.dockerBuildNode("debug", execDockerPath, goVersion, version, runtime.GOARCH, false)
 }
 
 // Build a docker image for berad with the supplied arguments.
-func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion, arch string) error {
-	return dockerBuildFn(false)(
+func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion, arch string, withX bool) error {
+	return dockerBuildFn(withX)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--build-arg", "FOUNDRY_DIR="+precompileContractsDir,
 		"--build-arg", "GOARCH="+arch,
@@ -200,7 +200,7 @@ func (c Cosmos) TestIntegration() error {
 func (c Cosmos) TestHive() error {
 	LogGreen("Running hive tests for the Cosmos SDK chain.")
 	h := &Hive{}
-	if err := c.dockerBuildNode("polard", execDockerPath, goVersion, "test-hive", runtime.GOARCH); err != nil {
+	if err := c.dockerBuildNode("polard", execDockerPath, goVersion, "test-hive", runtime.GOARCH, true); err != nil {
 		return err
 	}
 	if err := h.Setup(); err != nil {
