@@ -299,7 +299,6 @@ func (b *backend) StateAndHeaderByNumber(
 	// 	block, state := b.eth.miner.Pending()
 	// 	return state, block.Header(), nil
 	// }
-	// StateAtBlockNumber returns nil if the number is not found
 
 	// Otherwise resolve the block number and return its state
 	header, err := b.HeaderByNumber(ctx, number)
@@ -309,12 +308,15 @@ func (b *backend) StateAndHeaderByNumber(
 	if header == nil {
 		return nil, nil, errors.New("header not found")
 	}
+	b.logger.Debug("called eth.rpc.backend.StateAndHeaderByNumber", "header", header)
+
+	// StateAtBlockNumber returns nil if the number is not found
 	state, err := b.chain.StateAtBlockNumber(header.Number.Uint64())
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.StateAndHeaderByNumber", "number", number, "err", err)
 		return nil, nil, err
 	}
-	b.logger.Debug("called eth.rpc.backend.StateAndHeaderByNumber", "header", header)
+
 	return state, header, nil
 }
 
