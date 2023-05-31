@@ -80,7 +80,7 @@ func NewBackend(
 		cfg:           cfg,
 		logger:        log.Root(),
 	}
-	b.gpo = gasprice.NewOracle(b, cfg.GPO)
+	b.gpo = gasprice.NewOracle(b, *cfg.GPO)
 	return b
 }
 
