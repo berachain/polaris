@@ -87,7 +87,11 @@ func AddressFromCodeHashKey(key []byte) common.Address {
 	return common.BytesToAddress(key[1:])
 }
 
+<<<<<<< HEAD
 // AddressFromBalanceKey returns the address from a balance key.
+=======
+// AddressFromBalanceKey returns the address from a code hash key.
+>>>>>>> f71a2d0 (fix)
 func AddressFromBalanceKey(key []byte) common.Address {
 	return common.BytesToAddress(key[1:])
 }
