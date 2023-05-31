@@ -68,6 +68,7 @@ type StateProcessor struct {
 	// during the processing of transactions. This allows us to utilize this information to
 	// build the `block` and return the canonical receipts in `Finalize`.
 	header   *types.Header
+	sealhash common.Hash // hash of the block prior to being sealed (prior to Finalize called)
 	txs      types.Transactions
 	receipts types.Receipts
 }
@@ -111,6 +112,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 
 	// Build a header object so we can track that status of the block as we process it.
 	sp.header = header
+	sp.sealhash = header.Hash()
 	sp.txs = make(types.Transactions, 0, initialTxsCapacity)
 	sp.receipts = make(types.Receipts, 0, initialTxsCapacity)
 
@@ -122,7 +124,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 	// We must re-create the signer since we are processing a new block and the block number has
 	// increased.
 	chainConfig := sp.cp.ChainConfig()
-	sp.signer = types.MakeSigner(chainConfig, sp.header.Number)
+	sp.signer = types.MakeSigner(chainConfig, sp.header.Number, sp.header.Time)
 
 	// Setup the EVM for this block.
 	rules := chainConfig.Rules(sp.header.Number, true, sp.header.Time)
@@ -138,12 +140,8 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 func (sp *StateProcessor) ProcessTransaction(
 	_ context.Context, tx *types.Transaction,
 ) (*ExecutionResult, error) {
-	var (
-		// We set the gasUsed to the amount of gas so far used in the block.
-		gasUsed = sp.gp.BlockGasConsumed()
-		// We set the gasPool = gasLimit - gasUsed.
-		gasPool = GasPool(sp.header.GasLimit - gasUsed)
-	)
+	// We set the gasPool = gasLimit - gasUsed.
+	gasPool := new(GasPool).AddGas(sp.header.GasLimit - sp.gp.BlockGasConsumed())
 
 	// Set the transaction context in the state database.
 	// This clears the logs and sets the transaction info.
@@ -151,8 +149,8 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Inshallah we will be able to apply the transaction.
 	receipt, result, err := ApplyTransactionWithEVMWithResult(
-		sp.evm, sp.cp.ChainConfig(), &gasPool, sp.statedb, sp.header.BaseFee,
-		sp.header.Number, sp.header.Hash(), tx, &gasUsed,
+		sp.evm, sp.cp.ChainConfig(), gasPool, sp.statedb, sp.header.BaseFee,
+		sp.header.Number, sp.sealhash, sp.header.Time, tx, &sp.header.GasUsed,
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
@@ -175,28 +173,28 @@ func (sp *StateProcessor) ProcessTransaction(
 	return result, err
 }
 
-// Finalize finalizes the block in the state processor and returns the receipts and bloom filter.
+// Finalize finalizes the block in the state processor and returns the receipts and bloom filter to
+// be "sealed".
 func (sp *StateProcessor) Finalize(
 	_ context.Context,
 ) (*types.Block, types.Receipts, []*types.Log, error) {
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 
-	// Now that we are done processing the block, we update the header with the consumed gas.
-	sp.header.GasUsed = sp.gp.BlockGasConsumed()
+	var (
+		// "FinalizeAndAssemble" the block with the txs and receipts (sets the TxHash, ReceiptHash,
+		// and Bloom).
+		block = types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
+		hash  = block.Hash()
+		logs  []*types.Log
+	)
 
-	// Finalize the block with the txs and receipts (sets the TxHash, ReceiptHash, and Bloom).
-	block := types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
-
-	// Update hashes on the receipts and logs, we have to do this in Finalize since when
-	// the transaction is actually being processed, we don't have the real blockhash. This is a
-	// fundamental design difference in the way polaris vs geth processes transactions.
-	var logs []*types.Log
-	blockHash := block.Hash()
+	// Update the block hash in all logs since it is now available and not when the receipt/log of
+	// individual transactions were created.
 	for _, receipt := range sp.receipts {
-		receipt.BlockHash = blockHash
+		receipt.BlockHash = hash
 		for _, log := range receipt.Logs {
-			log.BlockHash = blockHash
+			log.BlockHash = hash
 		}
 		logs = append(logs, receipt.Logs...)
 	}

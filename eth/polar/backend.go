@@ -125,7 +125,7 @@ func (b *backend) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
 }
 
 // FeeHistory returns the base fee and gas used history of the last N blocks.
-func (b *backend) FeeHistory(ctx context.Context, blockCount int, lastBlock rpc.BlockNumber,
+func (b *backend) FeeHistory(ctx context.Context, blockCount uint64, lastBlock rpc.BlockNumber,
 	rewardPercentiles []float64) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
 	return b.gpo.FeeHistory(ctx, blockCount, lastBlock, rewardPercentiles)
 }
@@ -398,15 +398,22 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 
 // GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.
 func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethStateDB,
-	header *types.Header, vmConfig *vm.Config,
-) (*vm.GethEVM, func() error, error) {
+	header *types.Header, vmConfig *vm.Config, _ *vm.BlockContext,
+) (*vm.GethEVM, func() error) {
 	if vmConfig == nil {
 		b.logger.Debug("eth.rpc.backend.GetEVM", "vmConfig", "nil")
-		vmConfig = new(vm.Config) // todo: read from blockchain obj.
+		vmConfig = b.chain.GetVMConfig()
 	}
 	txContext := core.NewEVMTxContext(msg)
 	return b.chain.GetEVM(ctx, txContext,
-		utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig), state.Error, nil
+		utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig), state.Error
+}
+
+// GetBlockContext returns a new block context to be used by a EVM.
+func (b *backend) GetBlockContext(
+	_ context.Context, header *types.Header,
+) *vm.BlockContext {
+	return b.chain.NewEVMBlockContext(header)
 }
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {
@@ -476,7 +483,7 @@ func (b *backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscri
 }
 
 func (b *backend) Engine() consensus.Engine {
-	panic("not implemented")
+	return nil
 }
 
 // GetBody retrieves the block body corresponding to block by has or number..
