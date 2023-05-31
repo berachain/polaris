@@ -22,8 +22,6 @@ package params
 
 import (
 	"math/big"
-
-	"pkg.berachain.dev/polaris/eth/common"
 )
 
 const DefaultEIP155ChainID = 2061
@@ -36,7 +34,6 @@ var DefaultChainConfig = &ChainConfig{
 	DAOForkBlock:                  big.NewInt(0),
 	DAOForkSupport:                true,
 	EIP150Block:                   big.NewInt(0),
-	EIP150Hash:                    common.Hash{},
 	EIP155Block:                   big.NewInt(0),
 	EIP158Block:                   big.NewInt(0),
 	ShanghaiTime:                  &zero,

@@ -118,8 +118,8 @@ type (
 	// StatePlugin defines the methods that the chain running Polaris EVM should implement.
 	StatePlugin interface {
 		state.Plugin
-		// GetStateByNumber returns the state at the given block height.
-		GetStateByNumber(int64) (StatePlugin, error)
+		// StateAtBlockNumber returns the state at the given block height.
+		StateAtBlockNumber(uint64) (StatePlugin, error)
 	}
 
 	// TxPoolPlugin defines the methods that the chain running Polaris EVM should implement to

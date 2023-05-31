@@ -373,17 +373,21 @@ var _ = Describe("EthTxPool", func() {
 		})
 		It("should break out of func Nonce(addr) when seeing a noncontigious nonce gap", func() {
 			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
-			_, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2})
+			tx2 := buildSdkTx(key1, 2)
 			_, tx3 := buildTx(key1, &coretypes.LegacyTx{Nonce: 3})
 			_, tx10 := buildTx(key1, &coretypes.LegacyTx{Nonce: 10})
 
 			Expect(etp.Insert(ctx, tx1)).ToNot(HaveOccurred())
-			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
-			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
-			Expect(etp.Insert(ctx, tx10)).ToNot(HaveOccurred())
-			Expect(etp.Nonce(addr1)).To(BeEquivalentTo(4))
-			Expect(etp.Nonce(addr1)).ToNot(BeEquivalentTo(10))
+			Expect(etp.Nonce(addr1)).To(BeEquivalentTo(2))
 
+			Expect(etp.Insert(ctx, tx2)).ToNot(HaveOccurred())
+			Expect(etp.Nonce(addr1)).To(BeEquivalentTo(3))
+
+			Expect(etp.Insert(ctx, tx3)).ToNot(HaveOccurred())
+			Expect(etp.Nonce(addr1)).To(BeEquivalentTo(4))
+
+			Expect(etp.Insert(ctx, tx10)).ToNot(HaveOccurred())
+			Expect(etp.Nonce(addr1)).To(BeEquivalentTo(4)) // should not be 10
 		})
 
 	})
@@ -423,6 +427,23 @@ func isPendingTx(mempool *EthTxPool, tx *coretypes.Transaction) bool {
 		}
 	}
 	return false
+}
+
+func buildSdkTx(from *ecdsa.PrivateKey, nonce uint64) sdk.Tx {
+	pubKey := &ethsecp256k1.PubKey{Key: crypto.CompressPubkey(&from.PublicKey)}
+	signer := crypto.PubkeyToAddress(from.PublicKey)
+	return &mockSdkTx{
+		signers: []sdk.AccAddress{cosmlib.AddressToAccAddress(signer)},
+		msgs:    []sdk.Msg{},
+		pubKeys: []cryptotypes.PubKey{pubKey},
+		signatures: []signing.SignatureV2{
+			{
+				PubKey: pubKey,
+				// NOTE: not including the signature data for the mock
+				Sequence: nonce,
+			},
+		},
+	}
 }
 
 func buildTx(from *ecdsa.PrivateKey, txData coretypes.TxData) (*coretypes.Transaction, sdk.Tx) {

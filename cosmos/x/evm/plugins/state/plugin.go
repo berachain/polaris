@@ -37,7 +37,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 	ethstate "pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/crypto"
-	"pkg.berachain.dev/polaris/eth/rpc"
 	"pkg.berachain.dev/polaris/lib/snapshot"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
@@ -58,10 +57,10 @@ type Plugin interface {
 	core.StatePlugin
 	// SetQueryContextFn sets the query context func for the plugin.
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
+	// IterateBalances iterates over the balances of all accounts and calls the given callback function.
+	IterateBalances(fn func(common.Address, *big.Int) bool)
 	// IterateState iterates over the state of all accounts and calls the given callback function.
 	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
-	// IterateCode iterates over the code of all accounts and calls the given callback function.
-	IterateCode(fn func(addr common.Address, code []byte) bool)
 	// SetGasConfig sets the gas config for the plugin.
 	SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
 }
@@ -356,22 +355,6 @@ func (p *plugin) SetCode(addr common.Address, code []byte) {
 	}
 }
 
-// IterateCode iterates over all the addresses with code and calls the given method.
-func (p *plugin) IterateCode(fn func(address common.Address, code []byte) bool) {
-	it := storetypes.KVStorePrefixIterator(
-		p.cms.GetKVStore(p.storeKey),
-		[]byte{types.CodeHashKeyPrefix},
-	)
-	defer it.Close()
-
-	for ; it.Valid(); it.Next() {
-		addr := AddressFromCodeHashKey(it.Key())
-		if fn(addr, p.GetCode(addr)) {
-			break
-		}
-	}
-}
-
 // =============================================================================
 // Storage
 // =============================================================================
@@ -474,6 +457,21 @@ func getStateFromStore(
 	return common.Hash{}
 }
 
+func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
+	it := storetypes.KVStorePrefixIterator(
+		p.cms.GetKVStore(p.storeKey),
+		[]byte{types.BalanceKeyPrefix},
+	)
+	defer it.Close()
+
+	for ; it.Valid(); it.Next() {
+		addr := AddressFromBalanceKey(it.Key())
+		if fn(addr, p.GetBalance(addr)) {
+			break
+		}
+	}
+}
+
 // =============================================================================
 // Historical State
 // =============================================================================
@@ -483,31 +481,24 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 	p.getQueryContext = gqc
 }
 
-// GetStateByNumber implements `core.StatePlugin`.
-func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
+// StateAtBlockNumber implements `core.StatePlugin`.
+func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
+	var ctx sdk.Context
+
+	// Ensure the query context function is set.
 	if p.getQueryContext == nil {
 		return nil, errors.New("no query context function set in host chain")
 	}
-	// Handle rpc.BlockNumber negative numbers.
-	var iavlHeight int64
-	switch rpc.BlockNumber(number) { //nolint:nolintlint,exhaustive // golangci-lint bug?
-	case rpc.SafeBlockNumber, rpc.FinalizedBlockNumber:
-		iavlHeight = p.ctx.BlockHeight() - 1
-	case rpc.PendingBlockNumber, rpc.LatestBlockNumber:
-		iavlHeight = p.ctx.BlockHeight()
-	case rpc.EarliestBlockNumber:
-		iavlHeight = 1
-	default:
-		iavlHeight = number
-	}
 
-	var ctx sdk.Context
-	if p.ctx.BlockHeight() == iavlHeight {
+	int64Number := int64(number)
+	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
+	// Investigate and hopefully remove this GTE.
+	if int64Number >= p.ctx.BlockHeight() {
 		ctx, _ = p.ctx.CacheContext()
 	} else {
 		// Get the query context at the given height.
 		var err error
-		ctx, err = p.getQueryContext(iavlHeight, false)
+		ctx, err = p.getQueryContext(int64Number, false)
 		if err != nil {
 			return nil, err
 		}

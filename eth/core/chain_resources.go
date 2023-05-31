@@ -35,14 +35,16 @@ import (
 // ChainResources is the interface that defines functions for code paths within the chain to acquire
 // resources to use in execution such as StateDBss and EVMss.
 type ChainResources interface {
-	GetStateByNumber(int64) (vm.GethStateDB, error)
+	StateAtBlockNumber(uint64) (vm.GethStateDB, error)
+	GetVMConfig() *vm.Config
 	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
+	NewEVMBlockContext(header *types.Header) *vm.BlockContext
 }
 
-// GetStateByNumber returns a statedb configured to read what the state of the blockchain is/was
+// StateAtBlockNumber returns a statedb configured to read what the state of the blockchain is/was
 // at a given block number.
-func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
-	sp, err := bc.sp.GetStateByNumber(number)
+func (bc *blockchain) StateAtBlockNumber(number uint64) (vm.GethStateDB, error) {
+	sp, err := bc.sp.StateAtBlockNumber(number)
 	if err != nil {
 		return nil, err
 	}
@@ -58,18 +60,23 @@ func (bc *blockchain) GetEVM(
 ) *vm.GethEVM {
 	chainCfg := bc.processor.cp.ChainConfig() // TODO: get chain config at height.
 	return vm.NewGethEVMWithPrecompiles(
-		bc.NewEVMBlockContext(header), txContext, state, chainCfg, *vmConfig, bc.processor.pp,
+		*bc.NewEVMBlockContext(header), txContext, state, chainCfg, *vmConfig, bc.processor.pp,
 	)
 }
 
 // NewEVMBlockContext creates a new block context for use in the EVM.
-func (bc *blockchain) NewEVMBlockContext(header *types.Header) vm.BlockContext {
-	// TODO: deprecate feecollector? manually handle on the cosmos side?
+func (bc *blockchain) NewEVMBlockContext(header *types.Header) *vm.BlockContext {
 	feeCollector := bc.cp.FeeCollector()
 	if feeCollector == nil {
 		feeCollector = &header.Coinbase
 	}
-	return NewEVMBlockContext(header, bc, feeCollector)
+	blockContext := NewEVMBlockContext(header, bc, feeCollector)
+	return &blockContext
+}
+
+// GetVMConfig returns the vm.Config for the current chain.
+func (bc *blockchain) GetVMConfig() *vm.Config {
+	return bc.vmConfig
 }
 
 // CalculateBaseFee calculates the base fee for the next block based on the finalized block or the

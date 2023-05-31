@@ -73,19 +73,24 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		parentHash = parent.Hash()
 	}
 
+	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
+	// and block nonce (Nonce) on the new header.
 	header := &types.Header{
+		// Used in Polaris.
 		ParentHash: parentHash,
-		UncleHash:  types.EmptyUncleHash,
 		Coinbase:   coinbase,
-		Root:       common.Hash{}, // Polaris does not use the Ethereum state root.
-		Difficulty: new(big.Int),
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
-		Extra:      []byte{}, // Polaris does not set the Extra field.
+		BaseFee:    bc.CalculateNextBaseFee(),
+
+		// Not used in Polaris at the moment, but we set them to prevent nil ptr panic.
+		Difficulty: new(big.Int),
+		UncleHash:  types.EmptyUncleHash,
+		Root:       types.EmptyRootHash,
+		Extra:      []byte{},
 		MixDigest:  common.Hash{},
 		Nonce:      types.BlockNonce{},
-		BaseFee:    bc.CalculateNextBaseFee(),
 	}
 
 	// We update the base fee in the txpool to the next base fee.
@@ -140,17 +145,14 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 
 	// mark the current block, receipts, and logs
 	if block != nil {
-		// Todo: nuke these caches anyways.
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
 
-		// Add to block caches.
-		// Todo: nuke these caches anyways.
+		// Todo: nuke these caches.
 		bc.blockNumCache.Add(blockNum, block)
 		bc.blockHashCache.Add(blockHash, block)
 
-		// Cache transaction data.
-		// Todo: nuke these caches anyways.
+		// Todo: nuke these caches.
 		for txIndex, tx := range block.Transactions() {
 			bc.txLookupCache.Add(
 				tx.Hash(),
@@ -163,12 +165,11 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 			)
 		}
 	}
-	// Todo: nuke these caches anyways.
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
+		// Todo: nuke this cache.
 		bc.receiptsCache.Add(blockHash, receipts)
 	}
-	// Todo: nuke these caches anyways.
 	if logs != nil {
 		bc.pendingLogsFeed.Send(logs)
 		bc.currentLogs.Store(logs)

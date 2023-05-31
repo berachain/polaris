@@ -21,6 +21,8 @@
 package state
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/core"
@@ -51,17 +53,33 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 // Export genesis modifies a pointer to a genesis state object and populates it.
 func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 	p.Reset(ctx)
-	for address, account := range ethGen.Alloc {
-		account.Code = p.GetCode(address)
-		account.Balance = p.GetBalance(address)
-		account.Storage = make(map[common.Hash]common.Hash)
-		err := p.ForEachStorage(address, func(key, value common.Hash) bool {
-			account.Storage[key] = value
-			return false
-		})
-		if err != nil {
-			panic(err)
+	ethGen.Alloc = make(core.GenesisAlloc)
+
+	// Iterate Balances and set the genesis accounts.
+	p.IterateBalances(func(address common.Address, balance *big.Int) bool {
+		account, ok := ethGen.Alloc[address]
+		if !ok {
+			account = core.GenesisAccount{}
 		}
-	}
-	p.Finalize()
+		account.Code = p.GetCode(address)
+		if account.Code != nil {
+			account.Storage = make(map[common.Hash]common.Hash)
+		}
+		account.Balance = p.GetBalance(address)
+		ethGen.Alloc[address] = account
+		return false
+	})
+
+	// Iterate Storage and set the genesis accounts.
+	p.IterateState(func(address common.Address, key common.Hash, value common.Hash) bool {
+		account, ok := ethGen.Alloc[address]
+		if !ok {
+			account = core.GenesisAccount{}
+		}
+		if account.Storage == nil {
+			account.Storage = make(map[common.Hash]common.Hash)
+		}
+		account.Storage[key] = value
+		return false
+	})
 }
