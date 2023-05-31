@@ -29,8 +29,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -107,4 +109,34 @@ func GetGrantAsSendAuth(
 		}
 	}
 	return sendAuths, nil
+}
+
+// SdkUDEToStakingUDE converts a Cosmos SDK Unbonding Delegation Entry list to a geth compatible
+// list of Unbonding Delegation Entries.
+func SdkUDEToStakingUDE(ude []stakingtypes.UnbondingDelegationEntry) []staking.IStakingModuleUnbondingDelegationEntry {
+	entries := make([]staking.IStakingModuleUnbondingDelegationEntry, len(ude))
+	for i, entry := range ude {
+		entries[i] = staking.IStakingModuleUnbondingDelegationEntry{
+			CreationHeight: entry.CreationHeight,
+			CompletionTime: entry.CompletionTime.String(),
+			InitialBalance: entry.InitialBalance.BigInt(),
+			Balance:        entry.Balance.BigInt(),
+		}
+	}
+	return entries
+}
+
+// SdkREToStakingRE converts a Cosmos SDK Redelegation Entry list to a geth compatible list of
+// Redelegation Entries.
+func SdkREToStakingRE(re []stakingtypes.RedelegationEntry) []staking.IStakingModuleRedelegationEntry {
+	entries := make([]staking.IStakingModuleRedelegationEntry, len(re))
+	for i, entry := range re {
+		entries[i] = staking.IStakingModuleRedelegationEntry{
+			CreationHeight: entry.CreationHeight,
+			CompletionTime: entry.CompletionTime.String(),
+			InitialBalance: entry.InitialBalance.BigInt(),
+			SharesDst:      entry.SharesDst.BigInt(),
+		}
+	}
+	return entries
 }
