@@ -23,6 +23,10 @@ package mempool
 import (
 	"context"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/signing"
+
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -122,32 +126,29 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 	pendingNonces := make(map[common.Address]uint64)
 	etp.mu.Lock()
 
-	// search for the first pending ethTx
+	// search for the last pending tx for the given address
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
-		if ethTx := evmtypes.GetAsEthTx(iter.Tx()); ethTx != nil {
-			txAddr := coretypes.GetSender(ethTx)
-			if addr != txAddr {
-				continue
+		txAddr, txNonce := getTxSenderNonce(iter.Tx())
+		if addr != txAddr {
+			continue
+		}
+		pendingNonce, ok := pendingNonces[addr]
+		switch {
+		case !ok:
+			// If on the first lookup the nonce delta is more than 0, then there is a gap
+			// and thus no pending transactions, but there are queued transactions.
+			if sdbNonce := etp.nr.GetNonce(addr); txNonce-sdbNonce >= 1 {
+				return sdbNonce
 			}
-			pendingNonce, ok := pendingNonces[addr]
-			txNonce := ethTx.Nonce()
-			switch {
-			case !ok:
-				// If on the first lookup the nonce delta is more than 0, then there is a gap
-				// and thus no pending transactions, but there are queued transactions.
-				if sdbNonce := etp.nr.GetNonce(addr); txNonce-sdbNonce >= 1 {
-					return sdbNonce
-				}
-				// this is a pending tx, add it to the pending map.
-				pendingNonces[addr] = txNonce
-			case txNonce == pendingNonce+1:
-				// If we are still contiguous and the nonce is the same as the pending nonce,
-				// increment the pending nonce.
-				pendingNonces[addr]++
-			case txNonce > pendingNonce+1:
-				// As soon as we see a non contiguous nonce we break.
-				break
-			}
+			// this is a pending tx, add it to the pending map.
+			pendingNonces[addr] = txNonce
+		case txNonce == pendingNonce+1:
+			// If we are still contiguous and the nonce is the same as the pending nonce,
+			// increment the pending nonce.
+			pendingNonces[addr]++
+		case txNonce > pendingNonce+1:
+			// As soon as we see a non contiguous nonce we break.
+			break
 		}
 	}
 
@@ -193,4 +194,13 @@ func (etp *EthTxPool) Content() (
 	map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions,
 ) {
 	return etp.Pending(false), etp.queued()
+}
+
+// getTxSenderNonce returns the sender address (as an Eth address) and the nonce of the given tx.
+func getTxSenderNonce(tx sdk.Tx) (common.Address, uint64) {
+	sigs, err := tx.(signing.SigVerifiableTx).GetSignaturesV2()
+	if err != nil || len(sigs) == 0 {
+		return common.Address{}, 0
+	}
+	return cosmlib.AccAddressToEthAddress(sdk.AccAddress(sigs[0].PubKey.Address())), sigs[0].Sequence
 }
