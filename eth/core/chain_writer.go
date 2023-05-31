@@ -86,7 +86,12 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		Time:       timestamp,
 		Coinbase:   coinbase,
 		BaseFee:    bc.CalculateNextBaseFee(),
-		Difficulty: big.NewInt(0),
+		// Not used in Polaris at the moment, but we set them to prevent nil ptr panic.
+		Difficulty: new(big.Int),
+		Root:       common.Hash{},
+		Extra:      []byte{},
+		MixDigest:  common.Hash{},
+		Nonce:      types.BlockNonce{},
 	}
 
 	// We update the base fee in the txpool to the next base fee.
