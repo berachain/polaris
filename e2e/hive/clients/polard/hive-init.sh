@@ -19,7 +19,6 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-
 KEYS[0]="dev0"
 KEYS[1]="dev1"
 KEYS[2]="dev2"
@@ -63,6 +62,15 @@ for KEY in "${KEYS[@]}"; do
     polard keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
 done
 
+ETH_GENESIS_SOURCE=$(cat genesis.json)
+temp_genesis=$(cat $GENESIS)
+echo "eth_gen dump: "
+echo $ETH_GENESIS_SOURCE
+
+# Change eth_genesis in config/genesis.json
+updated_genesis=$(echo "$temp_genesis" | jq --argjson eth_gen "$ETH_GENESIS_SOURCE" '.app_state["evm"] = $eth_gen')
+echo "$updated_genesis" > "$GENESIS"
+
 # Change parameter token denominations to abera
 jq '.app_state["staking"]["params"]["bond_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state["crisis"]["constant_fee"]["denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -70,10 +78,19 @@ jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="abera"' "$GE
 jq '.app_state["mint"]["params"]["mint_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.consensus["params"]["block"]["max_gas"]="30000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
+# Dump genesis
+echo "genesis state:"
+cat $GENESIS
+
 # Allocate genesis accounts (cosmos formatted addresses)
 for KEY in "${KEYS[@]}"; do
     polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 done
+
+# Test Account
+# absurd surge gather author blanket acquire proof struggle runway attract cereal quiz tattoo shed almost sudden survey boring film memory picnic favorite verb tank
+# 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
+polard genesis add-genesis-account polar1yrene6g2zwjttemf0c65fscg8w8c55w5vhc9hd 69000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 
 # Sign genesis transaction
 polard genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"

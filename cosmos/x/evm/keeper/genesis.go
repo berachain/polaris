@@ -21,6 +21,8 @@
 package keeper
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
@@ -38,8 +40,17 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 		}
 	}
 
-	// Start the polaris "Node" in order to spin up things like the JSON-RPC server.
-	return k.polaris.StartServices()
+	go func() {
+		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
+
+		// Start the polaris "Node" in order to spin up things like the JSON-RPC server.
+		if err := k.polaris.StartServices(); err != nil {
+			// TODO: figure out how to propagate errors out of goroutine if that is a problem
+			return
+		}
+	}()
+
+	return nil
 }
 
 // ExportGenesis returns the exported genesis state.
