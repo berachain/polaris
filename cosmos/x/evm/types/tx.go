@@ -136,6 +136,9 @@ func (etr *WrappedEthereumTransaction) ValidateBasic() error {
 
 // GetAsEthTx is a helper function to get an EthTx from a sdk.Tx.
 func GetAsEthTx(tx sdk.Tx) *coretypes.Transaction {
+	if len(tx.GetMsgs()) == 0 {
+		return nil
+	}
 	etr, ok := utils.GetAs[*WrappedEthereumTransaction](tx.GetMsgs()[0])
 	if !ok {
 		return nil
