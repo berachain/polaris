@@ -57,10 +57,10 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 	case number > cometBlockHeight:
 		// If the block number is in the future, return the latest header, but log a warning.
 		p.ctx.Logger().Info("GetHeader: block number is in the future", "number", number, "blockHeight", p.ctx.BlockHeight())
-		ctx = p.ctx
+		ctx, _ = p.ctx.CacheContext()
 	case number == cometBlockHeight:
 		// If we are requesting the latest header, use the current context.
-		ctx = p.ctx
+		ctx, _ = p.ctx.CacheContext()
 	case number < cometBlockHeight:
 		// Else we are requesting a historical header, so use a query context.
 		ctx, err = p.getQueryContext(int64(number), false)

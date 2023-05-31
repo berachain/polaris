@@ -38,7 +38,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 	ethstate "pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/crypto"
-	"pkg.berachain.dev/polaris/eth/rpc"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/snapshot"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
@@ -500,31 +500,27 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 
 // GetStateByNumber implements `core.StatePlugin`.
 func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
+	var ctx sdk.Context
+	var err error
 	if p.getQueryContext == nil {
 		return nil, errors.New("no query context function set in host chain")
 	}
-	// Handle rpc.BlockNumber negative numbers.
-	var iavlHeight int64
-	switch rpc.BlockNumber(number) { //nolint:nolintlint,exhaustive // golangci-lint bug?
-	case rpc.SafeBlockNumber, rpc.FinalizedBlockNumber:
-		iavlHeight = p.ctx.BlockHeight() - 1
-	case rpc.PendingBlockNumber, rpc.LatestBlockNumber:
-		iavlHeight = p.ctx.BlockHeight()
-	case rpc.EarliestBlockNumber:
-		iavlHeight = 1
-	default:
-		iavlHeight = number
-	}
 
-	var ctx sdk.Context
-	if p.ctx.BlockHeight() == iavlHeight {
+	// If the block number is in the future, return the latest header.
+	cometBlockHeight := uint64(p.ctx.BlockHeight())
+	switch {
+	case uint64(number) > cometBlockHeight:
+		// If the block number is in the future, return the latest header, but log a warning.
+		p.ctx.Logger().Info("GetStateByNumber: block number is in the future", "number", number, "blockHeight", p.ctx.BlockHeight())
 		ctx, _ = p.ctx.CacheContext()
-	} else {
-		// Get the query context at the given height.
-		var err error
-		ctx, err = p.getQueryContext(iavlHeight, false)
+	case uint64(number) == cometBlockHeight:
+		// If we are requesting the latest header, use the current context.
+		ctx, _ = p.ctx.CacheContext()
+	case uint64(number) < cometBlockHeight:
+		// Else we are requesting a historical header, so use a query context.
+		ctx, err = p.getQueryContext(int64(number), false)
 		if err != nil {
-			return nil, err
+			return nil, errorslib.Wrap(err, "GetStateByNumber: failed to use query context")
 		}
 	}
 
