@@ -76,6 +76,26 @@ var _ = Describe("Staking", func() {
 		delegated, err = stakingPrecompile.GetDelegation(nil, tf.Address("alice"), validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
+
+		undelegateAmt := new(big.Int).Div(delegateAmt, big.NewInt(2))
+		tx, err = stakingPrecompile.Undelegate(
+			tf.GenerateTransactOpts("alice"),
+			validator,
+			undelegateAmt,
+		)
+		Expect(err).ToNot(HaveOccurred())
+		ExpectSuccessReceipt(tf.EthClient, tx)
+
+		ude, err := stakingPrecompile.GetUnbondingDelegation(
+			nil,
+			tf.Address("alice"),
+			validator,
+		)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(ude).To(HaveLen(1))
+		Expect(ude[0].CreationHeight).To(BeNumerically(">=", 1))
+		Expect(ude[0].CompletionTime).ToNot(BeEmpty())
+		Expect(ude[0].Balance.Cmp(undelegateAmt)).To(Equal(0))
 	})
 
 	It("should be able to call a precompile from a smart contract", func() {
