@@ -24,6 +24,7 @@ import (
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/graphql"
@@ -137,4 +138,9 @@ func (pl *Polaris) StartServices() error {
 
 	// Start the services (json-rpc, graphql, etc)
 	return pl.stack.Start()
+}
+
+// GetTxPool returns the Ethereum txpool for the Polaris chain.
+func (pl *Polaris) GetTxPool() *txpool.TxPool {
+	return pl.blockchain.GetTxPool()
 }

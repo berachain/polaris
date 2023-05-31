@@ -22,10 +22,13 @@ package core
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/consensus/misc"
+	"github.com/ethereum/go-ethereum/core/txpool"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -36,9 +39,11 @@ import (
 // resources to use in execution such as StateDBss and EVMss.
 type ChainResources interface {
 	GetStateByNumber(int64) (vm.GethStateDB, error)
+	StateAtHeader(header *types.Header) (vm.GethStateDB, error)
 	GetVMConfig() *vm.Config
 	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
 	NewEVMBlockContext(header *types.Header) *vm.BlockContext
+	GetTxPool() *txpool.TxPool
 }
 
 // GetStateByNumber returns a statedb configured to read what the state of the blockchain is/was
@@ -49,6 +54,16 @@ func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
 		return nil, err
 	}
 	return state.NewStateDB(sp), nil
+}
+
+// StateAt returns a new mutable state based on a particular point in time.
+func (bc *blockchain) StateAt(root common.Hash) (state.StateDBI, error) {
+	return nil, errors.New("state root not supported by Polaris")
+}
+
+// StateAtHeader returns a new mutable state based on a particular block header in time.
+func (bc *blockchain) StateAtHeader(header *types.Header) (vm.GethStateDB, error) {
+	return bc.GetStateByNumber(header.Number.Int64())
 }
 
 // GetEVM returns an EVM ready to be used for executing transactions. It is used by both the
@@ -96,4 +111,9 @@ func (bc *blockchain) CalculateNextBaseFee() *big.Int {
 
 	// This case only triggers for the first block in the chain, when finalizedBlock is empty.
 	return big.NewInt(int64(params.InitialBaseFee))
+}
+
+// GetTxPool returns the txpool for the current chain.
+func (bc *blockchain) GetTxPool() *txpool.TxPool {
+	return bc.txPool
 }

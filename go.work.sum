@@ -278,6 +278,8 @@ cosmossdk.io/errors v1.0.0-beta.7.0.20230524233625-533ee7a552f7/go.mod h1:TB05o6
 cosmossdk.io/x/feegrant v0.0.0-20230117113717-50e7c4a4ceff h1:ASeogeTLcf487ykEMTN2z1p/vykpo2HdPkKC7JpE8pE=
 github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d h1:nalkkPQcITbvhmL4+C4cKA87NW0tfm3Kl9VXRoPywFg=
 github.com/DATA-DOG/go-sqlmock v1.3.3 h1:CWUqKXe0s8A2z6qCgkP4Kru7wC11YoAnoupUKFDnH08=
+github.com/berachain/polaris-geth v0.0.0-20230531184838-7796c6161604 h1:hxNoF7kY6BTVVqk5yQVi/CUVKTD4nEYMhNrJEP1kGRU=
+github.com/berachain/polaris-geth v0.0.0-20230531184838-7796c6161604/go.mod h1:/oo2X/dZLJjf2mJ6YT9wcWxa4nNJDBKDBU6sFIpx1Gs=
 github.com/confio/ics23/go v0.9.0 h1:cWs+wdbS2KRPZezoaaj+qBleXgUk5WOQFMP3CQFGTr4=
 github.com/cpuguy83/go-md2man v1.0.10 h1:BSKMNlYxDvnunlTymqtgONjNnaRV1sTpcovwwjF22jk=
 github.com/creachadair/taskgroup v0.3.2 h1:zlfutDS+5XG40AOxcHDSThxKzns8Tnr9jnr6VqkYlkM=

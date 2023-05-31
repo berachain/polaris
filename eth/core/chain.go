@@ -24,6 +24,7 @@ import (
 	"sync/atomic"
 
 	lru "github.com/ethereum/go-ethereum/common/lru"
+	"github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -88,6 +89,9 @@ type blockchain struct {
 	// blocks. txHash -> txLookupEntry
 	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
 
+	// canonical tx pool for the chain
+	txPool *txpool.TxPool
+
 	// subscription event feeds
 	scope           event.SubscriptionScope
 	chainFeed       event.Feed
@@ -127,6 +131,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 	)
 	bc.currentBlock.Store(nil)
 	bc.finalizedBlock.Store(nil)
+	bc.txPool = txpool.NewTxPool(txpool.DefaultConfig, bc.Config(), bc)
 
 	return bc
 }

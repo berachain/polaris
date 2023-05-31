@@ -22,9 +22,10 @@ package keeper
 
 import (
 	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+
+	gethtxpool "github.com/ethereum/go-ethereum/core/txpool"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
@@ -54,6 +55,7 @@ type Host interface {
 		storetypes.StoreKey,
 		state.AccountKeeper,
 		state.BankKeeper,
+		*gethtxpool.TxPool,
 		func(height int64, prove bool) (sdk.Context, error),
 	)
 }
@@ -85,7 +87,7 @@ func NewHost(
 	h.bp = block.NewPlugin(storeKey, sk)
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
-	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*mempool.WrappedGethTxPool](ethTxMempool))
 	h.pcs = precompiles
 
 	return h
@@ -98,13 +100,14 @@ func (h *host) Setup(
 	offchainStoreKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	bk state.BankKeeper,
+	txpool *gethtxpool.TxPool,
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
 	// Setup the state, precompile, historical, and txpool plugins
 	h.sp = state.NewPlugin(ak, bk, storeKey, h.cp, log.NewFactory(h.pcs().GetPrecompiles()))
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles(), h.sp)
 	h.hp = historical.NewPlugin(h.bp, offchainStoreKey, storeKey)
-	h.txp.SetNonceRetriever(h.sp)
+	h.txp.SetTxPool(txpool)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)

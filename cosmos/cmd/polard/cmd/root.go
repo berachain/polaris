@@ -83,7 +83,7 @@ func NewRootCmd() *cobra.Command {
 	// if err := depinject.Inject(depinject.Configs(runtime.AppConfig, depinject.Supply(
 	// 	sims.NewAppOptionsWithFlagHome(tempDir()),
 	// 	log.NewNopLogger(),
-	// 	evmmempool.NewEthTxPoolFrom(
+	// 	evmmempool.NewWrappedGethTxPoolFrom(
 	// 		evmmempool.DefaultPriorityMempool(),
 	// 	),
 	// )),

@@ -27,6 +27,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	gethtxpool "github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
@@ -43,13 +44,13 @@ var _ Plugin = (*plugin)(nil)
 type Plugin interface {
 	plugins.Base
 	core.TxPoolPlugin
-	SetNonceRetriever(mempool.NonceRetriever)
+	SetTxPool(*gethtxpool.TxPool)
 	SetClientContext(client.Context)
 }
 
 // plugin represents the transaction pool plugin.
 type plugin struct {
-	*mempool.EthTxPool
+	*mempool.WrappedGethTxPool
 
 	clientContext client.Context
 	cp            ConfigurationPlugin
@@ -61,10 +62,10 @@ type plugin struct {
 }
 
 // NewPlugin returns a new transaction pool plugin.
-func NewPlugin(cp ConfigurationPlugin, ethTxMempool *mempool.EthTxPool) Plugin {
+func NewPlugin(cp ConfigurationPlugin, ethTxMempool *mempool.WrappedGethTxPool) Plugin {
 	return &plugin{
-		EthTxPool: ethTxMempool,
-		cp:        cp,
+		WrappedGethTxPool: ethTxMempool,
+		cp:                cp,
 	}
 }
 
@@ -121,7 +122,7 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 	// We insert into the local mempool, without gossiping to peers. We use a blank sdk.Context{}
 	// as the context, as we don't need to use it anyways. We set the priority as the gas price of
 	// the tx.
-	return p.EthTxPool.Insert(sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()), cosmosTx)
+	return p.WrappedGethTxPool.Insert(sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()), cosmosTx)
 }
 
 func (p *plugin) IsPlugin() {}
