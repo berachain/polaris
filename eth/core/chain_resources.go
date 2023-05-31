@@ -57,7 +57,7 @@ func (bc *blockchain) StateAtBlockNumber(number uint64) (vm.GethStateDB, error) 
 }
 
 // StateAt returns a new mutable state based on a particular point in time.
-func (bc *blockchain) StateAt(root common.Hash) (state.StateDBI, error) {
+func (bc *blockchain) StateAt(_ common.Hash) (state.StateDBI, error) {
 	return nil, errors.New("state root not supported by Polaris")
 }
 
