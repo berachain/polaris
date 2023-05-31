@@ -507,6 +507,8 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	}
 
 	int64Number := int64(number)
+	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
+	// Investigate and hopefully remove this GTE.
 	if int64Number >= p.ctx.BlockHeight() {
 		ctx, _ = p.ctx.CacheContext()
 	} else {

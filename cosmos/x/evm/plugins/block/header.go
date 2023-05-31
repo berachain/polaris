@@ -48,6 +48,8 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 	}
 
 	// TODO: ensure we aren't differing from geth / hiding errors here.
+	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
+	// Investigate and hopefully remove this GTE.
 	if number > uint64(p.ctx.BlockHeight()) {
 		number = uint64(p.ctx.BlockHeight())
 	}

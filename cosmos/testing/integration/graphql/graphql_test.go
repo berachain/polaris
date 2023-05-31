@@ -103,7 +103,8 @@ var _ = Describe("GraphQL", func() {
 
 		It("should support eth_estimateGas", func() {
 			alice := tf.Address("alice")
-			tf.Network.WaitForHeight(1)
+			_, err := tf.Network.WaitForHeight(1)
+			Expect(err).NotTo(HaveOccurred())
 			response, status, err := tf.SendGraphQLRequest(fmt.Sprintf(
 				`query { 
 					block(number: 1) { 
