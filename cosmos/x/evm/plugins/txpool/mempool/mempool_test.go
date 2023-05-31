@@ -76,6 +76,10 @@ var _ = Describe("WrappedGethTxPool", func() {
 		mockHost, _, _, _, _, _, _, _ := mock.NewMockHostAndPlugins()
 		mockHost.GetStatePluginFunc = func() core.StatePlugin { return sp }
 		chain := core.NewChain(mockHost)
+		chain.Prepare(ctx, 0)
+		Expect(chain.Finalize(ctx)).ToNot(HaveOccurred())
+		chain.Prepare(ctx, 1)
+		Expect(chain.Finalize(ctx)).ToNot(HaveOccurred())
 		etp.SetTxPool(chain.GetTxPool())
 	})
 
