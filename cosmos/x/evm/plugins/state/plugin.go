@@ -517,7 +517,7 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	}
 
 	var ctx sdk.Context
-	if p.ctx.BlockHeight() == iavlHeight {
+	if iavlHeight >= p.ctx.BlockHeight() {
 		ctx, _ = p.ctx.CacheContext()
 	} else {
 		// Get the query context at the given height.

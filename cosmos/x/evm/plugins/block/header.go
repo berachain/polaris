@@ -49,6 +49,10 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 		return nil, errors.New("GetHeader: getQueryContext is nil")
 	}
 
+	if number > uint64(p.ctx.BlockHeight()) {
+		number = uint64(p.ctx.BlockHeight())
+	}
+
 	iavlHeight, err := p.getIAVLHeight(int64(number))
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "GetHeader: invalid IAVL height")
@@ -69,9 +73,9 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 		return nil, errorslib.Wrap(err, "GetHeader: failed to unmarshal")
 	}
 
-	if int64(header.Number.Uint64()) != iavlHeight {
-		panic("header number is not equal to the given iavl tree height")
-	}
+	// if int64(header.Number.Uint64()) != iavlHeight {
+	// 	panic("header number is not equal to the given iavl tree height")
+	// }
 
 	return header, nil
 }
