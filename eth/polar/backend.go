@@ -302,7 +302,6 @@ func (b *backend) StateAndHeaderByNumber(
 	// StateAtBlockNumber returns nil if the number is not found
 
 	// Otherwise resolve the block number and return its state
-	// Otherwise resolve the block number and return its state
 	header, err := b.HeaderByNumber(ctx, number)
 	if err != nil {
 		return nil, nil, err
