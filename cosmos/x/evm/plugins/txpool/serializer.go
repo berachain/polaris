@@ -57,8 +57,7 @@ func SerializeToSdkTx(
 
 	// Create the WrappedEthereumTransaction message.
 	wrappedEthTx := types.NewFromTransaction(signedTx)
-	// Hack until https://github.com/cosmos/cosmos-sdk/issues/16112 is merged.
-	wrappedEthTx.HackyFixCauseCosmos = ""
+
 	sig, err := wrappedEthTx.GetSignature()
 	if err != nil {
 		return nil, err
