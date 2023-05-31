@@ -35,16 +35,16 @@ import (
 // ChainResources is the interface that defines functions for code paths within the chain to acquire
 // resources to use in execution such as StateDBss and EVMss.
 type ChainResources interface {
-	GetStateByNumber(int64) (vm.GethStateDB, error)
+	StateAtBlockNumber(uint64) (vm.GethStateDB, error)
 	GetVMConfig() *vm.Config
 	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
 	NewEVMBlockContext(header *types.Header) *vm.BlockContext
 }
 
-// GetStateByNumber returns a statedb configured to read what the state of the blockchain is/was
+// StateAtBlockNumber returns a statedb configured to read what the state of the blockchain is/was
 // at a given block number.
-func (bc *blockchain) GetStateByNumber(number int64) (vm.GethStateDB, error) {
-	sp, err := bc.sp.GetStateByNumber(number)
+func (bc *blockchain) StateAtBlockNumber(number uint64) (vm.GethStateDB, error) {
+	sp, err := bc.sp.StateAtBlockNumber(number)
 	if err != nil {
 		return nil, err
 	}
