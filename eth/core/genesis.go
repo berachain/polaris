@@ -30,7 +30,10 @@ import (
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
-type Genesis = core.Genesis
+type (
+	Genesis      = core.Genesis
+	GenesisAlloc = core.GenesisAlloc
+)
 
 // DefaultGenesis is the default genesis block used by Polaris.
 var DefaultGenesis = &core.Genesis{

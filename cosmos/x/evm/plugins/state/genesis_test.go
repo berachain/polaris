@@ -21,10 +21,14 @@
 package state_test
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 
 	. "github.com/onsi/ginkgo/v2"
 )
@@ -50,7 +54,17 @@ var _ = Describe("Genesis", func() {
 	})
 
 	It("should init and export genesis", func() {
-		// genesis := types.DefaultGenesis()
+		genesis := core.DefaultGenesis
+
+		genesis.Alloc[alice] = core.GenesisAlloc{
+			// 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f9930
+				Balance: big.NewInt(5e18), //nolint:gomnd // its okay.
+			},
+		}
+
+		sp.InitGenesis(ctx, genesis)
+
+		sp.GetBalance(alice)
 
 		// // New Contract.
 		// contract := types.Contract{
