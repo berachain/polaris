@@ -34,7 +34,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type WrappedEthereumTransaction struct {
 	// data is inner transaction data of the Ethereum transaction
 	Data []byte `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
-	// deprecate_this_garbage is required until https://github.com/cosmos/cosmos-sdk/issues/16112 is handled.
+	// hacky_fix_cause_cosmos is required until https://github.com/cosmos/cosmos-sdk/issues/16112 is handled.
 	HackyFixCauseCosmos string `protobuf:"bytes,2,opt,name=hacky_fix_cause_cosmos,json=hackyFixCauseCosmos,proto3" json:"hacky_fix_cause_cosmos,omitempty"`
 }
 

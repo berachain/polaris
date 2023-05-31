@@ -73,6 +73,8 @@ type Polaris struct {
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the blockchain.
 	backend Backend
 
+	// filterSystem is the filter system that is used by the filter API.
+	// TODO: relocate
 	filterSystem *filters.FilterSystem
 }
 
@@ -99,7 +101,7 @@ func NewWithNetworkingStack(
 	}
 
 	// Build and set the RPC Backend.
-	pl.backend = NewBackend(pl.blockchain, stack.ExtRPCEnabled(), cfg)
+	pl.backend = NewBackend(pl, stack.ExtRPCEnabled(), cfg)
 	return pl
 }
 
