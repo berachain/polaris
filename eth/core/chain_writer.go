@@ -73,19 +73,16 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		parentHash = parent.Hash()
 	}
 
+	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
+	// and block nonce (Nonce) on the new header.
 	header := &types.Header{
 		ParentHash: parentHash,
-		UncleHash:  types.EmptyUncleHash,
-		Coinbase:   coinbase,
-		Root:       common.Hash{}, // Polaris does not use the Ethereum state root.
-		Difficulty: big.NewInt(0),
-		Number:     big.NewInt(0).SetUint64(number),
+		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
-		Extra:      []byte{}, // Polaris does not set the Extra field.
-		MixDigest:  common.Hash{},
-		Nonce:      types.BlockNonce{},
+		Coinbase:   coinbase,
 		BaseFee:    bc.CalculateNextBaseFee(),
+		Difficulty: big.NewInt(0),
 	}
 
 	// We update the base fee in the txpool to the next base fee.
@@ -140,17 +137,14 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 
 	// mark the current block, receipts, and logs
 	if block != nil {
-		// Todo: nuke these caches anyways.
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
 
-		// Add to block caches.
-		// Todo: nuke these caches anyways.
+		// Todo: nuke these caches.
 		bc.blockNumCache.Add(blockNum, block)
 		bc.blockHashCache.Add(blockHash, block)
 
-		// Cache transaction data.
-		// Todo: nuke these caches anyways.
+		// Todo: nuke these caches.
 		for txIndex, tx := range block.Transactions() {
 			bc.txLookupCache.Add(
 				tx.Hash(),
@@ -163,12 +157,11 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 			)
 		}
 	}
-	// Todo: nuke these caches anyways.
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
+		// Todo: nuke this cache.
 		bc.receiptsCache.Add(blockHash, receipts)
 	}
-	// Todo: nuke these caches anyways.
 	if logs != nil {
 		bc.pendingLogsFeed.Send(logs)
 		bc.currentLogs.Store(logs)
