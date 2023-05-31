@@ -31,8 +31,9 @@ import (
 )
 
 type (
-	Genesis      = core.Genesis
-	GenesisAlloc = core.GenesisAlloc
+	Genesis        = core.Genesis
+	GenesisAlloc   = core.GenesisAlloc
+	GenesisAccount = core.GenesisAccount
 )
 
 // DefaultGenesis is the default genesis block used by Polaris.
