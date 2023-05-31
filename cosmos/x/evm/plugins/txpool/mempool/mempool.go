@@ -42,6 +42,6 @@ func NewWrappedGethTxPool() *WrappedGethTxPool {
 }
 
 // SetTxPool sets the underlying Geth TxPool.
-func (p *WrappedGethTxPool) SetTxPool(txPool *txpool.TxPool) {
-	p.TxPool = txPool
+func (gtp *WrappedGethTxPool) SetTxPool(txPool *txpool.TxPool) {
+	gtp.TxPool = txPool
 }

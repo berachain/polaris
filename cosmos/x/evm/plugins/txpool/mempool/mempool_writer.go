@@ -29,7 +29,7 @@ import (
 )
 
 // Insert is called when a transaction is added to the mempool.
-func (gtp *WrappedGethTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
+func (gtp *WrappedGethTxPool) Insert(_ context.Context, tx sdk.Tx) error {
 	return gtp.AddLocal(evmtypes.GetAsEthTx(tx))
 }
 
