@@ -511,14 +511,16 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 	switch {
 	case uint64(number) > cometBlockHeight:
 		// If the block number is in the future, return the latest header, but log a warning.
-		p.ctx.Logger().Info("GetStateByNumber: block number is in the future", "number", number, "blockHeight", p.ctx.BlockHeight())
+		p.ctx.Logger().Info(
+			"GetStateByNumber: block number is in the future",
+			"number", number, "blockHeight", p.ctx.BlockHeight())
 		ctx, _ = p.ctx.CacheContext()
 	case uint64(number) == cometBlockHeight:
 		// If we are requesting the latest header, use the current context.
 		ctx, _ = p.ctx.CacheContext()
 	case uint64(number) < cometBlockHeight:
 		// Else we are requesting a historical header, so use a query context.
-		ctx, err = p.getQueryContext(int64(number), false)
+		ctx, err = p.getQueryContext(number, false)
 		if err != nil {
 			return nil, errorslib.Wrap(err, "GetStateByNumber: failed to use query context")
 		}
