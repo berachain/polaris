@@ -356,7 +356,7 @@ var _ = Describe("GraphQL", func() {
 			big.NewInt(10), // Gas price
 			nil,
 		)
-		signed, err := types.SignTx(tx, types.NewLondonSigner(big.NewInt(69420)), alicePrivKey)
+		signed, err := types.SignTx(tx, types.NewLondonSigner(big.NewInt(2061)), alicePrivKey)
 		Expect(err).ToNot(HaveOccurred())
 		rlpEncoded, err := rlp.EncodeToBytes(signed)
 		Expect(err).ToNot(HaveOccurred())
