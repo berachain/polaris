@@ -63,6 +63,8 @@ jobs:
         with:
           version: latest
           args: ${{ matrix.args }}
+        env:
+            GOPATH: ~/go
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
