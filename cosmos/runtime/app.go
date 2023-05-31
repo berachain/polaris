@@ -46,10 +46,12 @@ import (
 
 	polarisbaseapp "pkg.berachain.dev/polaris/cosmos/runtime/baseapp"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/abci"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -103,10 +105,16 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *PolarisApp {
 	var (
-		app          = &PolarisApp{}
-		appBuilder   *runtime.AppBuilder
-		ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
-		appConfig    = depinject.Configs(
+		app             = &PolarisApp{}
+		appBuilder      *runtime.AppBuilder
+		ethTxMempool    = evmmempool.NewPolarisEthereumTxPool()
+		setProposalOpts = func(app *baseapp.BaseApp) {
+			hndlr := abci.NewProposalHandler(app, ethTxMempool, logger)
+			app.SetPrepareProposal(hndlr.PrepareProposalHandler())
+			app.SetProcessProposal(hndlr.ProcessProposalHandler())
+		}
+
+		appConfig = depinject.Configs(
 			AppConfig,
 			depinject.Supply(
 				app.App,
@@ -146,7 +154,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	}
 
 	// Build app with the provided options.
-	app.App = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
+	app.App = appBuilder.Build(db, traceStore, append(baseAppOptions, setProposalOpts, baseapp.SetMempool(ethTxMempool))...)
 	// TODO: move this somewhere better, introduce non IAVL enforced module keys as a PR to the SDK
 	// we ask @tac0turtle how 2 fix
 	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
