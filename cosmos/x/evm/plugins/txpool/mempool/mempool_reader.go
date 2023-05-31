@@ -200,7 +200,7 @@ func (etp *EthTxPool) Content() (
 func getTxSenderNonce(tx sdk.Tx) (common.Address, uint64) {
 	sigs, err := tx.(signing.SigVerifiableTx).GetSignaturesV2()
 	if err != nil || len(sigs) == 0 {
-		panic("yay")
+		return common.Address{}, 0
 	}
 	return cosmlib.AccAddressToEthAddress(sdk.AccAddress(sigs[0].PubKey.Address())), sigs[0].Sequence
 }
