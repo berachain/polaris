@@ -70,8 +70,8 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetState method")
 //			},
-//			GetStateByNumberFunc: func(n int64) (core.StatePlugin, error) {
-//				panic("mock out the GetStateByNumber method")
+//			StateAtBlockNumberFunc: func(n int64) (core.StatePlugin, error) {
+//				panic("mock out the StateAtBlockNumber method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
@@ -161,8 +161,8 @@ type StatePluginMock struct {
 	// GetStateFunc mocks the GetState method.
 	GetStateFunc func(address common.Address, hash common.Hash) common.Hash
 
-	// GetStateByNumberFunc mocks the GetStateByNumber method.
-	GetStateByNumberFunc func(n int64) (core.StatePlugin, error)
+	// StateAtBlockNumberFunc mocks the StateAtBlockNumber method.
+	StateAtBlockNumberFunc func(n int64) (core.StatePlugin, error)
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
@@ -279,8 +279,8 @@ type StatePluginMock struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
-		// GetStateByNumber holds details about calls to the GetStateByNumber method.
-		GetStateByNumber []struct {
+		// StateAtBlockNumber holds details about calls to the StateAtBlockNumber method.
+		StateAtBlockNumber []struct {
 			// N is the n argument value.
 			N int64
 		}
@@ -366,7 +366,7 @@ type StatePluginMock struct {
 	lockGetContext        sync.RWMutex
 	lockGetNonce          sync.RWMutex
 	lockGetState          sync.RWMutex
-	lockGetStateByNumber  sync.RWMutex
+	lockStateAtBlockNumber  sync.RWMutex
 	lockPrepare           sync.RWMutex
 	lockRegistryKey       sync.RWMutex
 	lockReset             sync.RWMutex
@@ -888,35 +888,35 @@ func (mock *StatePluginMock) GetStateCalls() []struct {
 	return calls
 }
 
-// GetStateByNumber calls GetStateByNumberFunc.
-func (mock *StatePluginMock) GetStateByNumber(n int64) (core.StatePlugin, error) {
-	if mock.GetStateByNumberFunc == nil {
-		panic("StatePluginMock.GetStateByNumberFunc: method is nil but StatePlugin.GetStateByNumber was just called")
+// StateAtBlockNumber calls StateAtBlockNumberFunc.
+func (mock *StatePluginMock) StateAtBlockNumber(n int64) (core.StatePlugin, error) {
+	if mock.StateAtBlockNumberFunc == nil {
+		panic("StatePluginMock.StateAtBlockNumberFunc: method is nil but StatePlugin.StateAtBlockNumber was just called")
 	}
 	callInfo := struct {
 		N int64
 	}{
 		N: n,
 	}
-	mock.lockGetStateByNumber.Lock()
-	mock.calls.GetStateByNumber = append(mock.calls.GetStateByNumber, callInfo)
-	mock.lockGetStateByNumber.Unlock()
-	return mock.GetStateByNumberFunc(n)
+	mock.lockStateAtBlockNumber.Lock()
+	mock.calls.StateAtBlockNumber = append(mock.calls.StateAtBlockNumber, callInfo)
+	mock.lockStateAtBlockNumber.Unlock()
+	return mock.StateAtBlockNumberFunc(n)
 }
 
-// GetStateByNumberCalls gets all the calls that were made to GetStateByNumber.
+// StateAtBlockNumberCalls gets all the calls that were made to StateAtBlockNumber.
 // Check the length with:
 //
-//	len(mockedStatePlugin.GetStateByNumberCalls())
-func (mock *StatePluginMock) GetStateByNumberCalls() []struct {
+//	len(mockedStatePlugin.StateAtBlockNumberCalls())
+func (mock *StatePluginMock) StateAtBlockNumberCalls() []struct {
 	N int64
 } {
 	var calls []struct {
 		N int64
 	}
-	mock.lockGetStateByNumber.RLock()
-	calls = mock.calls.GetStateByNumber
-	mock.lockGetStateByNumber.RUnlock()
+	mock.lockStateAtBlockNumber.RLock()
+	calls = mock.calls.StateAtBlockNumber
+	mock.lockStateAtBlockNumber.RUnlock()
 	return calls
 }
 
