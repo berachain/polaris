@@ -305,12 +305,17 @@ func (b *backend) StateAndHeaderByNumber(
 	if err != nil {
 		return nil, nil, err
 	}
+	if header == nil {
+		return nil, nil, errors.New("header not found")
+	}
+
 	// GetStateByNumber returns nil if the number is not found
 	state, err := b.chain.GetStateByNumber(header.Number.Uint64())
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.StateAndHeaderByNumber", "number", number, "err", err)
 		return nil, nil, err
 	}
+
 	b.logger.Debug("called eth.rpc.backend.StateAndHeaderByNumber", "header", header)
 	return state, header, nil
 }
