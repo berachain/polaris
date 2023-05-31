@@ -76,19 +76,18 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
 	// and block nonce (Nonce) on the new header.
 	header := &types.Header{
+		// Used in Polaris.
 		ParentHash: parentHash,
-		UncleHash:  types.EmptyUncleHash,
 		Coinbase:   coinbase,
-		Root:       common.Hash{}, // Polaris does not use the Ethereum state root.
-		Difficulty: new(big.Int),
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
-		Coinbase:   coinbase,
 		BaseFee:    bc.CalculateNextBaseFee(),
+
 		// Not used in Polaris at the moment, but we set them to prevent nil ptr panic.
 		Difficulty: new(big.Int),
-		Root:       common.Hash{},
+		UncleHash:  types.EmptyUncleHash,
+		Root:       types.EmptyRootHash,
 		Extra:      []byte{},
 		MixDigest:  common.Hash{},
 		Nonce:      types.BlockNonce{},
