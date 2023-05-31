@@ -70,7 +70,7 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetState method")
 //			},
-//			GetStateByNumberFunc: func(n int64) (core.StatePlugin, error) {
+//			GetStateByNumberFunc: func(v uint64) (core.StatePlugin, error) {
 //				panic("mock out the GetStateByNumber method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
@@ -162,7 +162,7 @@ type StatePluginMock struct {
 	GetStateFunc func(address common.Address, hash common.Hash) common.Hash
 
 	// GetStateByNumberFunc mocks the GetStateByNumber method.
-	GetStateByNumberFunc func(n int64) (core.StatePlugin, error)
+	GetStateByNumberFunc func(v uint64) (core.StatePlugin, error)
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
@@ -281,8 +281,8 @@ type StatePluginMock struct {
 		}
 		// GetStateByNumber holds details about calls to the GetStateByNumber method.
 		GetStateByNumber []struct {
-			// N is the n argument value.
-			N int64
+			// V is the v argument value.
+			V uint64
 		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
@@ -889,19 +889,19 @@ func (mock *StatePluginMock) GetStateCalls() []struct {
 }
 
 // GetStateByNumber calls GetStateByNumberFunc.
-func (mock *StatePluginMock) GetStateByNumber(n int64) (core.StatePlugin, error) {
+func (mock *StatePluginMock) GetStateByNumber(v uint64) (core.StatePlugin, error) {
 	if mock.GetStateByNumberFunc == nil {
 		panic("StatePluginMock.GetStateByNumberFunc: method is nil but StatePlugin.GetStateByNumber was just called")
 	}
 	callInfo := struct {
-		N int64
+		V uint64
 	}{
-		N: n,
+		V: v,
 	}
 	mock.lockGetStateByNumber.Lock()
 	mock.calls.GetStateByNumber = append(mock.calls.GetStateByNumber, callInfo)
 	mock.lockGetStateByNumber.Unlock()
-	return mock.GetStateByNumberFunc(n)
+	return mock.GetStateByNumberFunc(v)
 }
 
 // GetStateByNumberCalls gets all the calls that were made to GetStateByNumber.
@@ -909,10 +909,10 @@ func (mock *StatePluginMock) GetStateByNumber(n int64) (core.StatePlugin, error)
 //
 //	len(mockedStatePlugin.GetStateByNumberCalls())
 func (mock *StatePluginMock) GetStateByNumberCalls() []struct {
-	N int64
+	V uint64
 } {
 	var calls []struct {
-		N int64
+		V uint64
 	}
 	mock.lockGetStateByNumber.RLock()
 	calls = mock.calls.GetStateByNumber

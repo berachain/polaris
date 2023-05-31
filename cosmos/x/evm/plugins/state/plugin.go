@@ -499,7 +499,7 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 }
 
 // GetStateByNumber implements `core.StatePlugin`.
-func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
+func (p *plugin) GetStateByNumber(number uint64) (core.StatePlugin, error) {
 	var ctx sdk.Context
 	var err error
 	if p.getQueryContext == nil {
@@ -520,7 +520,7 @@ func (p *plugin) GetStateByNumber(number int64) (core.StatePlugin, error) {
 		ctx, _ = p.ctx.CacheContext()
 	case uint64(number) < cometBlockHeight:
 		// Else we are requesting a historical header, so use a query context.
-		ctx, err = p.getQueryContext(number, false)
+		ctx, err = p.getQueryContext(int64(number), false)
 		if err != nil {
 			return nil, errorslib.Wrap(err, "GetStateByNumber: failed to use query context")
 		}
