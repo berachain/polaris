@@ -57,33 +57,30 @@ func (h Hive) Setup() error {
 
 	if _, err := os.Stat(clonePath); os.IsNotExist(err) {
 		LogGreen("Cloning ethereum/hive into " + clonePath + "...")
-		if err := ExecuteInDirectory(hiveClone, func(...string) error {
+		return ExecuteInDirectory(hiveClone, func(...string) error {
 			return sh.RunV("git", "clone", "https://github.com/ethereum/hive", ".hive-e2e", "--depth=1")
-		}, false); err != nil {
-			return err
-		}
+		}, false)
 	}
 
 	if err := ExecuteInDirectory(clonePath, func(...string) error {
 		LogGreen("Building Hive...")
-		goBuild(".")
-		return nil
+		return goBuild(".")
 	}, false); err != nil {
 		return err
 	}
 
 	LogGreen("Copying Polaris Hive setup files...")
-	sh.RunV("cp", "-rf", baseHiveDockerPath+"clients/polard", clientsPath)
-	sh.RunV("cp", "-rf", "./e2e/hive/simulators", simulatorsPath)
-
-	if err := ExecuteInDirectory(clonePath, func(...string) error {
-		LogGreen("Building HiveView...")
-		goBuild(".")
-		return nil
-	}, false); err != nil {
+	if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"clients/polard", clientsPath); err != nil {
 		return err
 	}
-	return nil
+	if err := sh.RunV("cp", "-rf", "./e2e/hive/simulators", simulatorsPath); err != nil {
+		return err
+	}
+
+	return ExecuteInDirectory(clonePath, func(...string) error {
+		LogGreen("Building HiveView...")
+		return goBuild(".")
+	}, false)
 }
 
 func (h Hive) Test(sim, client string) error {
