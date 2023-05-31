@@ -306,7 +306,7 @@ func (b *backend) StateAndHeaderByNumber(
 		return nil, nil, err
 	}
 	// GetStateByNumber returns nil if the number is not found
-	state, err := b.chain.GetStateByNumber(header.Number.Int64())
+	state, err := b.chain.GetStateByNumber(header.Number.Uint64())
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.StateAndHeaderByNumber", "number", number, "err", err)
 		return nil, nil, err
