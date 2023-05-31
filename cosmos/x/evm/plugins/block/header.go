@@ -22,13 +22,11 @@ package block
 
 import (
 	"errors"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/rpc"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
@@ -45,18 +43,30 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 //
 // GetHeaderByNumber implements core.BlockPlugin.
 func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
+	var ctx sdk.Context
+	var err error
+
+	// Ensure the plugin is configured correctly.
 	if p.getQueryContext == nil {
 		return nil, errors.New("GetHeader: getQueryContext is nil")
 	}
 
-	iavlHeight, err := p.getIAVLHeight(int64(number))
-	if err != nil {
-		return nil, errorslib.Wrapf(err, "GetHeader: invalid IAVL height")
-	}
-
-	ctx, err := p.getQueryContext(iavlHeight, false)
-	if err != nil {
-		return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
+	// If the block number is in the future, return the latest header.
+	cometBlockHeight := uint64(p.ctx.BlockHeight())
+	switch {
+	case number > cometBlockHeight:
+		// If the block number is in the future, return the latest header, but log a warning.
+		p.ctx.Logger().Info("GetHeader: block number is in the future", "number", number, "blockHeight", p.ctx.BlockHeight())
+		ctx = p.ctx
+	case number == cometBlockHeight:
+		// If we are requesting the latest header, use the current context.
+		ctx = p.ctx
+	case number < cometBlockHeight:
+		// Else we are requesting a historical header, so use a query context.
+		ctx, err = p.getQueryContext(int64(number), false)
+		if err != nil {
+			return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
+		}
 	}
 
 	// Unmarshal the header from the context kv store.
@@ -64,12 +74,15 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 	if bz == nil {
 		return nil, errors.New("GetHeader: polaris header not found in kvstore")
 	}
+
+	// Unmarshal the header.
 	header, err := coretypes.UnmarshalHeader(bz)
 	if err != nil {
 		return nil, errorslib.Wrap(err, "GetHeader: failed to unmarshal")
 	}
 
-	if int64(header.Number.Uint64()) != iavlHeight {
+	// Ensure the header number is equal to the given iavl tree height.
+	if header.Number.Uint64() != number {
 		panic("header number is not equal to the given iavl tree height")
 	}
 
@@ -84,25 +97,4 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 	}
 	p.ctx.KVStore(p.storekey).Set([]byte{types.HeaderKey}, bz)
 	return nil
-}
-
-// getIAVLHeight returns the IAVL height for the given block number.
-func (p *plugin) getIAVLHeight(number int64) (int64, error) {
-	var iavlHeight int64
-	switch rpc.BlockNumber(number) { //nolint:nolintlint,exhaustive // covers all cases.
-	case rpc.SafeBlockNumber, rpc.FinalizedBlockNumber:
-		iavlHeight = p.ctx.BlockHeight() - 1
-	case rpc.PendingBlockNumber, rpc.LatestBlockNumber:
-		iavlHeight = p.ctx.BlockHeight()
-	case rpc.EarliestBlockNumber:
-		iavlHeight = 1
-	default:
-		iavlHeight = number
-	}
-
-	if iavlHeight < 1 {
-		return 1, fmt.Errorf("invalid block number %d", number)
-	}
-
-	return iavlHeight, nil
 }

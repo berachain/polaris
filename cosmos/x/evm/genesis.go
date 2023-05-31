@@ -22,7 +22,11 @@ package evm
 
 import (
 	"encoding/json"
+<<<<<<< Updated upstream
 	"fmt"
+=======
+	"errors"
+>>>>>>> Stashed changes
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
@@ -40,12 +44,22 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 }
 
 // ValidateGenesis performs genesis state validation for the evm module.
+<<<<<<< Updated upstream
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
 	var data types.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
 	}
 	return types.ValidateGenesis(data)
+=======
+func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
+	ethGen := new(core.Genesis)
+	if ethGen.Config == nil {
+		return errors.New("invalid eth genesis file: missing config")
+	}
+	ethGen.UnmarshalJSON(bz)
+	return ethGen.UnmarshalJSON(bz) // todo: improve
+>>>>>>> Stashed changes
 }
 
 // InitGenesis performs genesis initialization for the evm module. It returns
