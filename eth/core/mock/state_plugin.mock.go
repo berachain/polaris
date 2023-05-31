@@ -70,9 +70,6 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetState method")
 //			},
-//			StateAtBlockNumberFunc: func(n int64) (core.StatePlugin, error) {
-//				panic("mock out the StateAtBlockNumber method")
-//			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
 //			},
@@ -102,6 +99,9 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			},
 //			SnapshotFunc: func() int {
 //				panic("mock out the Snapshot method")
+//			},
+//			StateAtBlockNumberFunc: func(v uint64) (core.StatePlugin, error) {
+//				panic("mock out the StateAtBlockNumber method")
 //			},
 //			SubBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
 //				panic("mock out the SubBalance method")
@@ -161,9 +161,6 @@ type StatePluginMock struct {
 	// GetStateFunc mocks the GetState method.
 	GetStateFunc func(address common.Address, hash common.Hash) common.Hash
 
-	// StateAtBlockNumberFunc mocks the StateAtBlockNumber method.
-	StateAtBlockNumberFunc func(n int64) (core.StatePlugin, error)
-
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
 
@@ -193,6 +190,9 @@ type StatePluginMock struct {
 
 	// SnapshotFunc mocks the Snapshot method.
 	SnapshotFunc func() int
+
+	// StateAtBlockNumberFunc mocks the StateAtBlockNumber method.
+	StateAtBlockNumberFunc func(v uint64) (core.StatePlugin, error)
 
 	// SubBalanceFunc mocks the SubBalance method.
 	SubBalanceFunc func(address common.Address, intMoqParam *big.Int)
@@ -279,11 +279,6 @@ type StatePluginMock struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
-		// StateAtBlockNumber holds details about calls to the StateAtBlockNumber method.
-		StateAtBlockNumber []struct {
-			// N is the n argument value.
-			N int64
-		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
@@ -342,6 +337,11 @@ type StatePluginMock struct {
 		// Snapshot holds details about calls to the Snapshot method.
 		Snapshot []struct {
 		}
+		// StateAtBlockNumber holds details about calls to the StateAtBlockNumber method.
+		StateAtBlockNumber []struct {
+			// V is the v argument value.
+			V uint64
+		}
 		// SubBalance holds details about calls to the SubBalance method.
 		SubBalance []struct {
 			// Address is the address argument value.
@@ -350,34 +350,34 @@ type StatePluginMock struct {
 			IntMoqParam *big.Int
 		}
 	}
-	lockAddBalance        sync.RWMutex
-	lockClone             sync.RWMutex
-	lockCreateAccount     sync.RWMutex
-	lockDeleteAccounts    sync.RWMutex
-	lockEmpty             sync.RWMutex
-	lockError             sync.RWMutex
-	lockExist             sync.RWMutex
-	lockFinalize          sync.RWMutex
-	lockForEachStorage    sync.RWMutex
-	lockGetBalance        sync.RWMutex
-	lockGetCode           sync.RWMutex
-	lockGetCodeHash       sync.RWMutex
-	lockGetCommittedState sync.RWMutex
-	lockGetContext        sync.RWMutex
-	lockGetNonce          sync.RWMutex
-	lockGetState          sync.RWMutex
-	lockStateAtBlockNumber  sync.RWMutex
-	lockPrepare           sync.RWMutex
-	lockRegistryKey       sync.RWMutex
-	lockReset             sync.RWMutex
-	lockRevertToSnapshot  sync.RWMutex
-	lockSetBalance        sync.RWMutex
-	lockSetCode           sync.RWMutex
-	lockSetNonce          sync.RWMutex
-	lockSetState          sync.RWMutex
-	lockSetStorage        sync.RWMutex
-	lockSnapshot          sync.RWMutex
-	lockSubBalance        sync.RWMutex
+	lockAddBalance         sync.RWMutex
+	lockClone              sync.RWMutex
+	lockCreateAccount      sync.RWMutex
+	lockDeleteAccounts     sync.RWMutex
+	lockEmpty              sync.RWMutex
+	lockError              sync.RWMutex
+	lockExist              sync.RWMutex
+	lockFinalize           sync.RWMutex
+	lockForEachStorage     sync.RWMutex
+	lockGetBalance         sync.RWMutex
+	lockGetCode            sync.RWMutex
+	lockGetCodeHash        sync.RWMutex
+	lockGetCommittedState  sync.RWMutex
+	lockGetContext         sync.RWMutex
+	lockGetNonce           sync.RWMutex
+	lockGetState           sync.RWMutex
+	lockPrepare            sync.RWMutex
+	lockRegistryKey        sync.RWMutex
+	lockReset              sync.RWMutex
+	lockRevertToSnapshot   sync.RWMutex
+	lockSetBalance         sync.RWMutex
+	lockSetCode            sync.RWMutex
+	lockSetNonce           sync.RWMutex
+	lockSetState           sync.RWMutex
+	lockSetStorage         sync.RWMutex
+	lockSnapshot           sync.RWMutex
+	lockStateAtBlockNumber sync.RWMutex
+	lockSubBalance         sync.RWMutex
 }
 
 // AddBalance calls AddBalanceFunc.
@@ -888,38 +888,6 @@ func (mock *StatePluginMock) GetStateCalls() []struct {
 	return calls
 }
 
-// StateAtBlockNumber calls StateAtBlockNumberFunc.
-func (mock *StatePluginMock) StateAtBlockNumber(n int64) (core.StatePlugin, error) {
-	if mock.StateAtBlockNumberFunc == nil {
-		panic("StatePluginMock.StateAtBlockNumberFunc: method is nil but StatePlugin.StateAtBlockNumber was just called")
-	}
-	callInfo := struct {
-		N int64
-	}{
-		N: n,
-	}
-	mock.lockStateAtBlockNumber.Lock()
-	mock.calls.StateAtBlockNumber = append(mock.calls.StateAtBlockNumber, callInfo)
-	mock.lockStateAtBlockNumber.Unlock()
-	return mock.StateAtBlockNumberFunc(n)
-}
-
-// StateAtBlockNumberCalls gets all the calls that were made to StateAtBlockNumber.
-// Check the length with:
-//
-//	len(mockedStatePlugin.StateAtBlockNumberCalls())
-func (mock *StatePluginMock) StateAtBlockNumberCalls() []struct {
-	N int64
-} {
-	var calls []struct {
-		N int64
-	}
-	mock.lockStateAtBlockNumber.RLock()
-	calls = mock.calls.StateAtBlockNumber
-	mock.lockStateAtBlockNumber.RUnlock()
-	return calls
-}
-
 // Prepare calls PrepareFunc.
 func (mock *StatePluginMock) Prepare(contextMoqParam context.Context) {
 	if mock.PrepareFunc == nil {
@@ -1251,6 +1219,38 @@ func (mock *StatePluginMock) SnapshotCalls() []struct {
 	mock.lockSnapshot.RLock()
 	calls = mock.calls.Snapshot
 	mock.lockSnapshot.RUnlock()
+	return calls
+}
+
+// StateAtBlockNumber calls StateAtBlockNumberFunc.
+func (mock *StatePluginMock) StateAtBlockNumber(v uint64) (core.StatePlugin, error) {
+	if mock.StateAtBlockNumberFunc == nil {
+		panic("StatePluginMock.StateAtBlockNumberFunc: method is nil but StatePlugin.StateAtBlockNumber was just called")
+	}
+	callInfo := struct {
+		V uint64
+	}{
+		V: v,
+	}
+	mock.lockStateAtBlockNumber.Lock()
+	mock.calls.StateAtBlockNumber = append(mock.calls.StateAtBlockNumber, callInfo)
+	mock.lockStateAtBlockNumber.Unlock()
+	return mock.StateAtBlockNumberFunc(v)
+}
+
+// StateAtBlockNumberCalls gets all the calls that were made to StateAtBlockNumber.
+// Check the length with:
+//
+//	len(mockedStatePlugin.StateAtBlockNumberCalls())
+func (mock *StatePluginMock) StateAtBlockNumberCalls() []struct {
+	V uint64
+} {
+	var calls []struct {
+		V uint64
+	}
+	mock.lockStateAtBlockNumber.RLock()
+	calls = mock.calls.StateAtBlockNumber
+	mock.lockStateAtBlockNumber.RUnlock()
 	return calls
 }
 

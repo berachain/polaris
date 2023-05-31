@@ -69,7 +69,9 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 	}
 
 	if header.Number.Uint64() != number {
-		return nil, errorslib.Wrapf(err, "GetHeader: header number mismatch, got %d, expected %d", header.Number.Uint64(), number)
+		return nil, errorslib.Wrapf(err,
+			"GetHeader: header number mismatch, got %d, expected %d",
+			header.Number.Uint64(), number)
 	}
 
 	return header, nil
