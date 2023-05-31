@@ -71,8 +71,16 @@ FROM golang:${GO_VERSION}-alpine as builder
 RUN set -eux; \
     apk add git linux-headers ca-certificates build-base
 
-# Copy our source code into the container
+# Set the working directory
 WORKDIR /workdir
+
+# Copy go.mod and go.sum files recursively (🔥 upgrade)
+COPY **/go.mod **/go.sum **/go.work ./
+
+# Download the go module dependencies
+RUN go mod download
+
+# Copy the rest of the source code
 COPY . .
 
 # Copy the forge output
