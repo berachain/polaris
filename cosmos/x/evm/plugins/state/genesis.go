@@ -42,6 +42,8 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 		p.SetBalance(address, account.Balance)
 		if account.Code != nil {
 			p.SetCode(address, account.Code)
+		}
+		if account.Storage != nil {
 			for k, v := range account.Storage {
 				p.SetState(address, k, v)
 			}
