@@ -17,7 +17,6 @@
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
-
 package abci
 
 import (
@@ -41,9 +40,3 @@ func NewMiner(mempool Mempool, txVerifier baseapp.ProposalTxVerifier, logger log
 		logger:     logger,
 	}
 }
-
-// func loop() {
-// 	for {
-
-// 	}
-// }

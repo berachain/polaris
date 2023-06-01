@@ -38,7 +38,6 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 		}
 	}
 
-	// Start the polaris "Node" in order to spin up things like the JSON-RPC server.
 	return k.polaris.StartServices()
 }
 

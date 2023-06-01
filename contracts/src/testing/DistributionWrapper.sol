@@ -64,7 +64,7 @@ contract DistributionWrapper {
      * @param _withdrawAddress The address of the delegator.
      */
     function setWithdrawAddress(address _withdrawAddress) external returns (bool) {
-        distribution.setWithdrawAddress(_withdrawAddress);
+        return distribution.setWithdrawAddress(_withdrawAddress);
     }
 
     /**

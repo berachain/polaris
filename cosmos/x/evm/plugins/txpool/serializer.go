@@ -21,18 +21,14 @@
 package txpool
 
 import (
-	sdkmath "cosmossdk.io/math"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // SerializeToSdkTx converts an ethereum transaction to a Cosmos native transaction.
@@ -42,15 +38,6 @@ func SerializeToSdkTx(
 	// TODO: do we really need to use extensions for anything? Since we
 	// are using the standard ante handler stuff I don't think we actually need to.
 	tx := clientCtx.TxConfig.NewTxBuilder()
-
-	// Second, we attach the required fees to the Cosmos Tx. This is simply done,
-	// by calling Cost() on the types.Transaction and setting the fee amount to that
-	feeAmt := sdkmath.NewIntFromBigInt(signedTx.Cost())
-	if feeAmt.Sign() < 0 {
-		return nil, errorslib.Wrapf(sdkerrors.ErrInsufficientFee, "fee amount cannot be negative")
-	}
-	// Set the fee amount to the Cosmos transaction.
-	// tx.SetFeeAmount(sdk.Coins{sdk.NewCoin(evmDenom, feeAmt)})
 
 	// We can also retrieve the gaslimit for the transaction from the ethereum transaction.
 	tx.SetGasLimit(signedTx.Gas())
@@ -70,8 +57,7 @@ func SerializeToSdkTx(
 
 	// Create the WrappedEthereumTransaction message.
 	wrappedEthTx := types.NewFromTransaction(signedTx)
-	// Hack until https://github.com/cosmos/cosmos-sdk/issues/16112 is merged.
-	wrappedEthTx.HackyFixCauseCosmos = ""
+
 	sig, err := wrappedEthTx.GetSignature()
 	if err != nil {
 		return nil, err

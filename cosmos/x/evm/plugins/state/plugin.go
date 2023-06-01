@@ -57,10 +57,10 @@ type Plugin interface {
 	core.StatePlugin
 	// SetQueryContextFn sets the query context func for the plugin.
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
+	// IterateBalances iterates over the balances of all accounts and calls the given callback function.
+	IterateBalances(fn func(common.Address, *big.Int) bool)
 	// IterateState iterates over the state of all accounts and calls the given callback function.
 	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
-	// IterateCode iterates over the code of all accounts and calls the given callback function.
-	IterateCode(fn func(addr common.Address, code []byte) bool)
 	// SetGasConfig sets the gas config for the plugin.
 	SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
 }
@@ -355,22 +355,6 @@ func (p *plugin) SetCode(addr common.Address, code []byte) {
 	}
 }
 
-// IterateCode iterates over all the addresses with code and calls the given method.
-func (p *plugin) IterateCode(fn func(address common.Address, code []byte) bool) {
-	it := storetypes.KVStorePrefixIterator(
-		p.cms.GetKVStore(p.storeKey),
-		[]byte{types.CodeHashKeyPrefix},
-	)
-	defer it.Close()
-
-	for ; it.Valid(); it.Next() {
-		addr := AddressFromCodeHashKey(it.Key())
-		if fn(addr, p.GetCode(addr)) {
-			break
-		}
-	}
-}
-
 // =============================================================================
 // Storage
 // =============================================================================
@@ -471,6 +455,21 @@ func getStateFromStore(
 		return common.BytesToHash(value)
 	}
 	return common.Hash{}
+}
+
+func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
+	it := storetypes.KVStorePrefixIterator(
+		p.cms.GetKVStore(p.storeKey),
+		[]byte{types.BalanceKeyPrefix},
+	)
+	defer it.Close()
+
+	for ; it.Valid(); it.Next() {
+		addr := AddressFromBalanceKey(it.Key())
+		if fn(addr, p.GetBalance(addr)) {
+			break
+		}
+	}
 }
 
 // =============================================================================

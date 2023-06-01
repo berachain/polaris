@@ -77,7 +77,7 @@ func (c *Contract) getUnbondingDelegationHelper(
 		return nil, err
 	}
 
-	return []any{res.GetUnbond().Entries}, nil
+	return []any{cosmlib.SdkUDEToStakingUDE(res.GetUnbond().Entries)}, nil
 }
 
 // getRedelegationsHelper is the helper function for `getRedelegations.
@@ -118,7 +118,7 @@ func (c *Contract) getRedelegationsHelper(
 		redelegationEntries = append(redelegationEntries, entryRsp.GetRedelegationEntry())
 	}
 
-	return []any{redelegationEntries}, err
+	return []any{cosmlib.SdkREToStakingRE(redelegationEntries)}, err
 }
 
 // delegateHelper is the helper function for `delegate`.
