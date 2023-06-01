@@ -75,7 +75,7 @@ func (h Hive) Setup() error {
 	if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"clients/polard", clientsPath); err != nil {
 		return err
 	}
-	if err := sh.RunV("cp", "-rf", "./e2e/hive/simulators", simulatorsPath); err != nil {
+	if err := sh.RunV("cp", "-rf", "./e2e/hive/simulators/rpc", simulatorsPath); err != nil {
 		return err
 	}
 

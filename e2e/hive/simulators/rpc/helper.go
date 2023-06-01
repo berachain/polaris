@@ -36,18 +36,17 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ethereum/hive/hivesim"
-	"github.com/kr/pretty"
-
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/ethereum/hive/hivesim"
+	"github.com/kr/pretty"
 )
 
-// default timeout for RPC calls.
+// default timeout for RPC calls
 var rpcTimeout = 10 * time.Second
 
 // TestClient is the environment of a single test.
@@ -195,9 +194,7 @@ func waitForTxConfirmations(t *TestEnv, txHash common.Hash, n uint64) (*types.Re
 				if bytes.Compare(receipt.PostState, checkReceipt.PostState) == 0 {
 					return receipt, nil
 				} else { // chain reorg
-					if _, err := waitForTxConfirmations(t, txHash, n); err != nil {
-						t.Fatal(err)
-					}
+					waitForTxConfirmations(t, txHash, n)
 				}
 			} else {
 				return nil, err
@@ -219,7 +216,7 @@ type loggingRoundTrip struct {
 func (rt *loggingRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
 	// Read and log the request body.
 	reqBytes, err := ioutil.ReadAll(req.Body)
-	req.Body.Close() //#nosec:G104 // its okay.
+	req.Body.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +229,7 @@ func (rt *loggingRoundTrip) RoundTrip(req *http.Request) (*http.Response, error)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close() //#nosec:G307 // its okay.
+	defer resp.Body.Close()
 
 	// Read and log the response bytes.
 	respBytes, err := ioutil.ReadAll(resp.Body)

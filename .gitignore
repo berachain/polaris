@@ -189,6 +189,9 @@ pkg/**/.*.yaml
 .tmp/
 /tmp
 
+# hive
+!e2e/hive/**/genesis.json
+
 # forge
 */**/solidity-files-cache.json
 contracts/out/**/*.bin
