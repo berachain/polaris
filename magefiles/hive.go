@@ -56,7 +56,7 @@ func (h Hive) Setup() error {
 
 	if _, err := os.Stat(clonePath); os.IsNotExist(err) {
 		LogGreen("Cloning ethereum/hive into " + clonePath + "...")
-		err := ExecuteInDirectory(hiveClone, func(...string) error {
+		err = ExecuteInDirectory(hiveClone, func(...string) error {
 			return sh.RunV("git", "clone", "https://github.com/ethereum/hive", ".hive-e2e", "--depth=1")
 		}, false)
 		if err != nil {
