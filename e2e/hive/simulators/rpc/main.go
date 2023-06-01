@@ -23,7 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-// nolint: unused // might use them in the future for tests not yet implemented
+//nolint: unused // might use them in the future for tests not yet implemented
 package main
 
 import (
