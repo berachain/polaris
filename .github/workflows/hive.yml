@@ -18,13 +18,13 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-name: ethereum/hive
+name: ethereum
 
 on:
   pull_request:
 
 jobs:
-  ci:
+  hive:
     strategy:
       matrix:
         simulator: [polaris/rpc]
