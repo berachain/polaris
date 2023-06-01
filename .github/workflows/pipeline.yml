@@ -58,6 +58,7 @@ jobs:
       - name: Install Go Tools
         run: |
           go run magefiles/setup/setup.go ci
+          
       - name: Run ${{ matrix.args }}
         uses: magefile/mage-action@v2
         with:
