@@ -85,6 +85,6 @@ func (h Hive) Setup() error {
 
 func (h Hive) Test(sim, client string) error {
 	return ExecuteInDirectory(clonePath, func(...string) error {
-		return sh.RunV("hive", "--sim", sim, "--client", client)
+		return sh.RunV("./hive", "--sim", sim, "--client", client)
 	}, false)
 }
