@@ -189,9 +189,6 @@ pkg/**/.*.yaml
 .tmp/
 /tmp
 
-# hive
-!e2e/hive/**/genesis.json
-
 # forge
 */**/solidity-files-cache.json
 contracts/out/**/*.bin
@@ -201,6 +198,9 @@ contracts/out/
 */**/broadcast
 */**/*.bin
 */**/*.json
+
+# hive
+!e2e/hive/**/genesis.json
 
 # geth
 *.rlp
