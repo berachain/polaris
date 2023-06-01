@@ -39,6 +39,7 @@ type (
 		SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
 	}
 
+	// ConfigurationPlugin is used to fetch the current chain config.
 	ConfigurationPlugin interface {
 		ChainConfig() *params.ChainConfig
 	}

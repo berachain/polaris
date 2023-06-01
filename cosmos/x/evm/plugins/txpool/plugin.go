@@ -60,7 +60,7 @@ type plugin struct {
 }
 
 // NewPlugin returns a new transaction pool plugin.
-func NewPlugin(cp ConfigurationPlugin, ethTxMempool *mempool.WrappedGethTxPool) Plugin {
+func NewPlugin(cp mempool.ConfigurationPlugin, ethTxMempool *mempool.WrappedGethTxPool) Plugin {
 	p := &plugin{
 		WrappedGethTxPool: ethTxMempool,
 	}
