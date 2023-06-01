@@ -30,6 +30,6 @@ ADD config /config
 RUN ./build_eth_genesis.sh
 
 # Export the usual networking ports to allow outside access to the node
-EXPOSE 8545 8546
+EXPOSE 8545 8546 8547 8551 30303 30303/udp
 
 CMD ["bash", "hive-init.sh"]
