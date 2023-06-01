@@ -181,7 +181,6 @@ release/
 data/
 .DS_Store
 *.pyc
-*.txt
 .vscode/*.log
 
 # upgrades

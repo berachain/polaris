@@ -40,13 +40,6 @@ WORKDIR /workdir
 # Required for forge install.
 COPY .git/ .git/
 
-# TODO
-RUN git clean -xfd
-RUN git submodule foreach --recursive git clean -xfd
-RUN git reset --hard
-RUN git submodule foreach --recursive git reset --hard
-RUN git submodule update --init --recursive
-
 # Copy over all the solidity code.
 ARG FOUNDRY_DIR
 COPY ${FOUNDRY_DIR} ${FOUNDRY_DIR}
