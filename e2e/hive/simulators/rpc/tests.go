@@ -25,9 +25,6 @@
 
 package main
 
-// nolint
-//
-//nolint:nolintlint // TODO: REFACTOR.
 import "math/big"
 
 func consistentChainIDTest(t *TestEnv) {

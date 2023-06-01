@@ -22,9 +22,7 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
-// nolint
-//
-//nolint:nolintlint // TODO: REFACTOR.
+
 package main
 
 import (
@@ -36,17 +34,18 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ethereum/hive/hivesim"
+	"github.com/kr/pretty"
+
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/ethereum/hive/hivesim"
-	"github.com/kr/pretty"
 )
 
-// default timeout for RPC calls
+// default timeout for RPC calls.
 var rpcTimeout = 10 * time.Second
 
 // TestClient is the environment of a single test.

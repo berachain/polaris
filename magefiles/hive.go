@@ -64,23 +64,16 @@ func (h Hive) Setup() error {
 		}
 	}
 
-	if err := ExecuteInDirectory(clonePath, func(...string) error {
-		LogGreen("Building Hive...")
-		return goBuild(".")
-	}, false); err != nil {
-		return err
-	}
-
 	LogGreen("Copying Polaris Hive setup files...")
 	if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"clients/polard", clientsPath); err != nil {
 		return err
 	}
-	if err := sh.RunV("cp", "-rf", "./e2e/hive/simulators/rpc", simulatorsPath); err != nil {
+	if err := sh.RunV("cp", "-rf", "./e2e/hive/simulators", simulatorsPath); err != nil {
 		return err
 	}
 
 	return ExecuteInDirectory(clonePath, func(...string) error {
-		LogGreen("Building HiveView...")
+		LogGreen("Building Hive...")
 		return goBuild(".")
 	}, false)
 }
