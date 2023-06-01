@@ -40,6 +40,7 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 		}
 	}
 
+	// TODO: UN HACKY THIS
 	go func() {
 		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
 

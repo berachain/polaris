@@ -48,7 +48,7 @@ func (h Hive) Setup() error {
 
 	if _, err := os.Stat(hiveClone); os.IsNotExist(err) {
 		LogGreen(hiveClone + " does not exist, creating....")
-		err = os.Mkdir(hiveClone, 0750)
+		err = os.Mkdir(hiveClone, 0755) //#nosec
 		if err != nil {
 			return err
 		}
