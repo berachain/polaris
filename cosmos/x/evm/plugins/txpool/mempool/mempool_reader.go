@@ -79,7 +79,7 @@ func (i *iterator) Tx() sdk.Tx {
 
 // Next implements sdkmempool.Iterator.
 func (i *iterator) Next() sdkmempool.Iterator {
-	i.txs.Pop()
+	i.txs.Shift()
 
 	if i.txs.Peek() == nil {
 		return nil
