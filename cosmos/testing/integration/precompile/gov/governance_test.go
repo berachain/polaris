@@ -92,7 +92,6 @@ var _ = Describe("Call the Precompile Directly", func() {
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.SubmitProposal(txr, prop, msg)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Send coins to the wrapper.
@@ -105,7 +104,6 @@ var _ = Describe("Call the Precompile Directly", func() {
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = bankPrecompile.Send(txr, tf.Address("alice"), wrapperAddr, coins)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Wrapper submits a proposal.
@@ -113,7 +111,6 @@ var _ = Describe("Call the Precompile Directly", func() {
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = wrapper.Submit(txr, prop, msg, "stake", big.NewInt(amt.Int64()))
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Wait for next block.
@@ -148,28 +145,24 @@ var _ = Describe("Call the Precompile Directly", func() {
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.Vote(txr, 1, 1, "metadata")
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Call via wrapper.
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = wrapper.Vote(txr, 1, 1, "metadata")
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Call directly.
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = precompile.CancelProposal(txr, 1)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Call via wrapper.
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = wrapper.CancelProposal(txr, 2)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
 })

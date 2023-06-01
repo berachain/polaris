@@ -23,6 +23,7 @@ package network
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"time"
 
 	cdb "github.com/cosmos/cosmos-db"
@@ -46,6 +47,9 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	runtime "pkg.berachain.dev/polaris/cosmos/runtime"
 	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 type (
@@ -123,7 +127,7 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 		ChainID:         "polaris-2061",
 		NumValidators:   1,
 		BondDenom:       "abera",
-		MinGasPrices:    fmt.Sprintf("0.00006%s", "abera"),
+		MinGasPrices:    fmt.Sprintf("0.00000%s", "abera"),
 		AccountTokens:   sdk.TokensFromConsensusPower(thousand, sdk.DefaultPowerReduction),
 		StakingTokens:   sdk.TokensFromConsensusPower(fivehundred, sdk.DefaultPowerReduction),
 		BondedTokens:    sdk.TokensFromConsensusPower(onehundred, sdk.DefaultPowerReduction),
@@ -140,12 +144,17 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 	encoding := config.BuildPolarisEncodingConfig(runtime.ModuleBasics)
 	genState := runtime.ModuleBasics.DefaultGenesis(encoding.Codec)
 
-	// Auth & Bank module
+	// Auth, Bank, EVM module
 	var authState authtypes.GenesisState
 	var bankState banktypes.GenesisState
+	// Set Eth Genesis Alloc
+	var ethGen core.Genesis
 
 	encoding.Codec.MustUnmarshalJSON(genState[authtypes.ModuleName], &authState)
 	encoding.Codec.MustUnmarshalJSON(genState[banktypes.ModuleName], &bankState)
+	if err := ethGen.UnmarshalJSON(genState[evmtypes.ModuleName]); err != nil {
+		panic(err)
+	}
 
 	for mapKey, testKey := range keysMap {
 		newAccount, err := authtypes.NewBaseAccountWithPubKey(testKey.PubKey())
@@ -161,6 +170,10 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 			Address: newAccount.Address,
 			Coins:   getCoinsForAccount(mapKey),
 		})
+
+		acc := ethGen.Alloc[common.BytesToAddress(newAccount.GetAddress())]
+		acc.Balance = big.NewInt(examoney)
+		ethGen.Alloc[common.BytesToAddress(newAccount.GetAddress())] = acc
 	}
 
 	bankState.DenomMetadata = getTestMetadata()
@@ -181,6 +194,11 @@ func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json
 
 	genState[authtypes.ModuleName] = encoding.Codec.MustMarshalJSON(&authState)
 	genState[banktypes.ModuleName] = encoding.Codec.MustMarshalJSON(&bankState)
+	ethGenBytes, err := ethGen.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
+	genState[evmtypes.ModuleName] = ethGenBytes
 
 	// Staking module
 	var stakingState stakingtypes.GenesisState

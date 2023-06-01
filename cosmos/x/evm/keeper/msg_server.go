@@ -25,11 +25,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Compile-time check to ensure `Keeper` implements the `MsgServiceServer` interface.
@@ -57,24 +53,4 @@ func (k *Keeper) EthTransaction(
 		VmError:    vmErr,
 		ReturnData: result.ReturnData,
 	}, nil
-}
-
-// UpdateParams  processes an incoming request and applies it to the Configuration plugin to
-// update things about both the Polaris Chain as well as the EVM Module.
-func (k *Keeper) UpdateParams(
-	ctx context.Context, req *types.UpdateParamsRequest,
-) (*types.UpdateParamsResponse, error) {
-	// Ensure the authority is valid.
-	if k.authority != req.Authority {
-		return nil, errorsmod.Wrapf(
-			govtypes.ErrInvalidSigner,
-			"invalid authority, expected %s, got %s", k.authority, req.Authority,
-		)
-	}
-
-	// Update the params.
-	cp := utils.MustGetAs[configuration.Plugin](k.host.GetConfigurationPlugin())
-	cp.Prepare(ctx)
-	cp.SetParams(&req.Params)
-	return &types.UpdateParamsResponse{}, nil
 }

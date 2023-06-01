@@ -27,7 +27,6 @@ import (
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/storage"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -45,13 +44,12 @@ var (
 
 var _ = Describe("State Plugin", func() {
 	var ak state.AccountKeeper
-	var bk state.BankKeeper
 	var ctx sdk.Context
 	var sp core.StatePlugin
 
 	BeforeEach(func() {
-		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPLF{})
+		ctx, ak, _, _ = testutil.SetupMinimalKeepers()
+		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
 		sp.Reset(ctx)
 	})
 
@@ -59,7 +57,7 @@ var _ = Describe("State Plugin", func() {
 		Expect(sp.RegistryKey()).To(Equal("statePlugin"))
 	})
 
-	Describe("TestReset", func() {
+	Describe("TestevmReset", func() {
 		It("should reset", func() {
 			sp.CreateAccount(alice)
 			sp.AddBalance(alice, big.NewInt(50))
@@ -105,25 +103,6 @@ var _ = Describe("State Plugin", func() {
 				sp.AddBalance(alice, big.NewInt(100))
 				Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(100)))
 			})
-			It("should panic if using negative value", func() {
-				Expect(func() {
-					sp.AddBalance(alice, big.NewInt(-100))
-				}).To(Panic())
-			})
-		})
-
-		Context("TestSubBalance", func() {
-			It("should not panic when setting balance to negative value", func() {
-				Expect(func() {
-					sp.SubBalance(alice, big.NewInt(100))
-				}).ToNot(Panic())
-				Expect(sp.Error()).To(HaveOccurred())
-			})
-			It("should not panic if using negative value", func() {
-				Expect(func() {
-					sp.SubBalance(alice, big.NewInt(-100))
-				}).To(Panic())
-			})
 		})
 
 		It("should handle complex balance updates", func() {
@@ -141,12 +120,6 @@ var _ = Describe("State Plugin", func() {
 			// Add some balance to alice
 			sp.AddBalance(alice, big.NewInt(100))
 			Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(150)))
-
-			// Subtract some balance from alice
-			Expect(func() {
-				sp.SubBalance(alice, big.NewInt(200))
-			}).ToNot(Panic())
-			Expect(sp.Error()).To(HaveOccurred())
 		})
 	})
 
@@ -277,34 +250,41 @@ var _ = Describe("State Plugin", func() {
 				sp.CreateAccount(bob)
 			})
 
+			type Slot struct {
+				Key   common.Hash
+				Value common.Hash
+			}
+
+			type Storage []Slot
+
 			It("should iterate through storage correctly", func() {
 				Expect(sp.GetCode(alice)).To(BeNil())
-				var aliceStorage storage.Storage
+				var aliceStorage Storage
 				err := sp.ForEachStorage(alice,
 					func(key, value common.Hash) bool {
 						aliceStorage = append(aliceStorage,
-							storage.NewSlot(key, value))
+							Slot{key, value})
 						return true
 					})
 				Expect(err).ToNot(HaveOccurred())
 				Expect(aliceStorage).To(BeEmpty())
 
 				sp.SetState(bob, common.BytesToHash([]byte{1}), common.BytesToHash([]byte{2}))
-				var bobStorage storage.Storage
+				var bobStorage Storage
 				err = sp.ForEachStorage(bob,
 					func(key, value common.Hash) bool {
-						bobStorage = append(bobStorage, storage.NewSlot(key, value))
+						bobStorage = append(bobStorage, Slot{key, value})
 						return true
 					})
 				Expect(err).ToNot(HaveOccurred())
 				Expect(bobStorage).To(HaveLen(1))
 				Expect(bobStorage[0].Key).
-					To(Equal("0x0000000000000000000000000000000000000000000000000000000000000001"))
+					To(Equal(common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000001")))
 				Expect(bobStorage[0].Value).
-					To(Equal("0x0000000000000000000000000000000000000000000000000000000000000002"))
+					To(Equal(common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000002")))
 
 				sp.SetState(bob, common.BytesToHash([]byte{3}), common.BytesToHash([]byte{4}))
-				var bobStorage2 storage.Storage
+				var bobStorage2 Storage
 				i := 0
 				err = sp.ForEachStorage(bob,
 					func(key, value common.Hash) bool {
@@ -312,7 +292,7 @@ var _ = Describe("State Plugin", func() {
 							return false
 						}
 
-						bobStorage2 = append(bobStorage2, storage.NewSlot(key, value))
+						bobStorage2 = append(bobStorage2, Slot{key, value})
 						i++
 						return true
 					},
@@ -484,12 +464,6 @@ var _ = Describe("State Plugin", func() {
 })
 
 // MOCKS BELOW.
-
-type mockConfigurationPlugin struct{}
-
-func (mcp *mockConfigurationPlugin) GetEvmDenom() string {
-	return "abera"
-}
 
 type mockPLF struct{}
 

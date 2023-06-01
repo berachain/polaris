@@ -37,9 +37,6 @@ func NewConfigurationPluginMock() *ConfigurationPluginMock {
 		ChainConfigFunc: func() *params.ChainConfig {
 			return params.DefaultChainConfig
 		},
-		ExtraEipsFunc: func() []int {
-			return []int{}
-		},
 		FeeCollectorFunc: func() *common.Address {
 			return &common.Address{}
 		},

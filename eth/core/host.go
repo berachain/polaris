@@ -83,8 +83,6 @@ type (
 		libtypes.Preparable
 		// ChainConfig returns the current chain configuration of the Polaris EVM.
 		ChainConfig() *params.ChainConfig
-		// ExtraEips returns the extra EIPs that the Polaris EVM supports.
-		ExtraEips() []int
 		// `The fee collector is utilized on chains that have a fee collector account. This was added
 		// specifically to support Cosmos-SDK chains, where we want the coinbase in the block header
 		// to be the operator address of the proposer, but we want the coinbase in the BlockContext

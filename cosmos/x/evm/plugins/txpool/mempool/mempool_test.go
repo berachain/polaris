@@ -64,8 +64,8 @@ var _ = Describe("WrappedGethTxPool", func() {
 	)
 
 	BeforeEach(func() {
-		sCtx, ak, bk, _ := testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, &mockPLF{})
+		sCtx, ak, _, _ := testutil.SetupMinimalKeepers()
+		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
 		ctx = sCtx
 		sp.Reset(ctx)
 		sp.SetNonce(addr1, 1)
@@ -410,12 +410,6 @@ var _ = Describe("WrappedGethTxPool", func() {
 })
 
 // MOCKS BELOW.
-
-type mockConfigurationPlugin struct{}
-
-func (mcp *mockConfigurationPlugin) GetEvmDenom() string {
-	return "abera"
-}
 
 type mockPLF struct{}
 

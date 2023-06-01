@@ -52,7 +52,6 @@ type plugin struct {
 	*mempool.WrappedGethTxPool
 
 	clientCtx client.Context
-	cp        ConfigurationPlugin
 
 	// txFeed and scope is used to send new batch transactions to new txs subscribers when the
 	// batch is added to the mempool.
@@ -64,7 +63,6 @@ type plugin struct {
 func NewPlugin(cp ConfigurationPlugin, ethTxMempool *mempool.WrappedGethTxPool) Plugin {
 	p := &plugin{
 		WrappedGethTxPool: ethTxMempool,
-		cp:                cp,
 	}
 	ethTxMempool.Setup(cp, p)
 	return p
