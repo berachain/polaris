@@ -22,6 +22,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
+
+// nolint: unused // might use them in the future for tests not yet implemented
 package main
 
 import (
@@ -42,9 +44,9 @@ type testSpec struct {
 
 var (
 	// parameters used for signing transactions.
-	chainID   = big.NewInt(7)
-	gasPrice  = big.NewInt(30 * params.GWei)
-	networkID = big.NewInt(7)
+	chainID   = big.NewInt(7)                //nolint: gomnd // it's okay.
+	gasPrice  = big.NewInt(30 * params.GWei) //nolint: gomnd // it's okay.
+	networkID = big.NewInt(7)                //nolint: gomnd // it's okay.
 
 	files = map[string]string{
 		"/genesis.json": "./init/genesis.json",
@@ -85,9 +87,10 @@ interacting with one.`[1:],
 // runAllTests runs the tests against a client instance.
 // Most tests simply wait for tx inclusion in a block so we can run many tests concurrently.
 func runAllTests(t *hivesim.T, c *hivesim.Client, clientName string) {
+	const semaphoreThreads = 16
 	vault := newVault()
 
-	s := newSemaphore(16)
+	s := newSemaphore(semaphoreThreads)
 	for _, test := range tests {
 		test := test
 		s.get()

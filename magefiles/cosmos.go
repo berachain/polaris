@@ -200,7 +200,7 @@ func (c Cosmos) TestIntegration() error {
 func (c Cosmos) TestHive() error {
 	LogGreen("Running hive tests for the Cosmos SDK chain.")
 	h := &Hive{}
-	if err := c.dockerBuildNode("polard", execDockerPath, goVersion, "test-hive", runtime.GOARCH, false); err != nil {
+	if err := c.dockerBuildNode("polard-base", execDockerPath, goVersion, "test-hive", runtime.GOARCH, false); err != nil {
 		return err
 	}
 	if err := h.Setup(); err != nil {

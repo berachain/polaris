@@ -22,6 +22,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
+
+//nolint: unused // might use them in the future for tests not yet implemented
 package main
 
 import (
@@ -47,7 +49,11 @@ var (
 	// Address of the vault in genesis.
 	predeployedVaultAddr = common.HexToAddress("0000000000000000000000000000000000000315")
 	// Number of blocks to wait before funding tx is considered valid.
-	vaultTxConfirmationCount = uint64(5)
+	vaultTxConfirmationCount = uint64(5) //nolint: gomnd // it's okay.
+)
+
+const (
+	numBytes = 32
 )
 
 // vault creates accounts for testing and funds them. An instance of the vault contract is
@@ -74,7 +80,7 @@ func newVault() *vault {
 func (v *vault) generateKey() common.Address {
 	key, err := crypto.GenerateKey()
 	if err != nil {
-		panic(fmt.Errorf("can't generate account key: %v", err))
+		panic(fmt.Errorf("can't generate account key: %w", err))
 	}
 	addr := crypto.PubkeyToAddress(key.PublicKey)
 
@@ -104,6 +110,8 @@ func (v *vault) signTransaction(sender common.Address, tx *types.Transaction) (*
 
 // createAndFundAccount creates a new account that is funded from the vault contract.
 // It will panic when the account could not be created and funded.
+//nolint: gocognit // it's okay for now
+// TODO: refactor
 func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) common.Address {
 	if amount == nil {
 		amount = new(big.Int)
@@ -119,7 +127,7 @@ func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) commo
 		vault, _ = abi.JSON(strings.NewReader(predeployedVaultABI))
 	)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()
 
 	// listen for new heads
@@ -131,7 +139,7 @@ func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) commo
 
 	// set up the log event subscription
 	eventTopic := vault.Events["Send"].ID
-	addressTopic := common.BytesToHash(common.LeftPadBytes(address[:], 32))
+	addressTopic := common.BytesToHash(common.LeftPadBytes(address[:], numBytes))
 	q := ethereum.FilterQuery{
 		Addresses: []common.Address{predeployedVaultAddr},
 		Topics:    [][]common.Hash{{eventTopic}, {addressTopic}},
@@ -144,7 +152,7 @@ func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) commo
 
 	// order the vault to send some ether
 	tx := v.makeFundingTx(t, address, amount)
-	if err := t.Eth.SendTransaction(ctx, tx); err != nil {
+	if err = t.Eth.SendTransaction(ctx, tx); err != nil {
 		t.Fatalf("unable to send funding transaction: %v", err)
 	}
 
@@ -152,7 +160,7 @@ func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) commo
 	var (
 		latestHeader *types.Header
 		receivedLog  *types.Log
-		timeout      = time.NewTimer(120 * time.Second)
+		timeout      = time.NewTimer(120 * time.Second) //nolint:gomnd // it's okay.
 	)
 	for {
 		select {
@@ -165,9 +173,9 @@ func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) commo
 				// chain reorg!
 				receivedLog = nil
 			}
-		case err := <-headsSub.Err():
+		case err = <-headsSub.Err():
 			t.Fatalf("could not fund new account: %v", err)
-		case err := <-logsSub.Err():
+		case err = <-logsSub.Err():
 			t.Fatalf("could not fund new account: %v", err)
 		case <-timeout.C:
 			t.Fatal("could not fund new account: timeout")
@@ -179,8 +187,6 @@ func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) commo
 			}
 		}
 	}
-
-	return address
 }
 
 // createAccount creates a new account that is funded from the vault contract.
@@ -205,13 +211,15 @@ func (v *vault) createAccount(t *TestEnv, amount *big.Int) common.Address {
 	// wait for vaultTxConfirmationCount confirmation by checking the balance vaultTxConfirmationCount blocks back.
 	// createAndFundAccountWithSubscription for a better solution using logs
 	for i := uint64(0); i < vaultTxConfirmationCount*12; i++ {
-		number, err := t.Eth.BlockNumber(t.Ctx())
+		var number uint64
+		number, err = t.Eth.BlockNumber(t.Ctx())
 		if err != nil {
 			t.Fatalf("can't get block number:", err)
 		}
 		if number > txBlock+vaultTxConfirmationCount {
 			checkBlock := number - vaultTxConfirmationCount
-			balance, err := t.Eth.BalanceAt(t.Ctx(), address, new(big.Int).SetUint64(checkBlock))
+			var balance *big.Int
+			balance, err = t.Eth.BalanceAt(t.Ctx(), address, new(big.Int).SetUint64(checkBlock))
 			if err != nil {
 				panic(err)
 			}
@@ -232,7 +240,7 @@ func (v *vault) makeFundingTx(t *TestEnv, recipient common.Address, amount *big.
 	}
 	var (
 		nonce    = v.nextNonce()
-		gasLimit = uint64(75000)
+		gasLimit = uint64(75000) //nolint: gomnd // it's okay.
 		txAmount = new(big.Int)
 	)
 	tx := types.NewTransaction(nonce, predeployedVaultAddr, txAmount, gasLimit, gasPrice, payload)
@@ -272,5 +280,5 @@ contract Vault {
     }
 }`
 	// vault ABI.
-	predeployedVaultABI = `[{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],"name":"sendSome","outputs":[],"payable":false,"type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"","type":"address"},{"indexed":false,"name":"","type":"uint256"}],"name":"Send","type":"event"}]`
+	predeployedVaultABI = `[{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],"name":"sendSome","outputs":[],"payable":false,"type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"","type":"address"},{"indexed":false,"name":"","type":"uint256"}],"name":"Send","type":"event"}]` //nolint:lll // its okay
 )
