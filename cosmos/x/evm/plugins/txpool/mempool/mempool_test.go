@@ -80,7 +80,7 @@ var _ = Describe("WrappedGethTxPool", func() {
 		Expect(chain.Finalize(ctx)).ToNot(HaveOccurred())
 		chain.Prepare(ctx, 1)
 		Expect(chain.Finalize(ctx)).ToNot(HaveOccurred())
-		etp.SetTxPool(chain.GetTxPool())
+		// etp.SetTxPool(chain.GetTxPool())
 	})
 
 	Describe("All Cases", func() {

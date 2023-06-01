@@ -23,17 +23,53 @@ package mempool
 import (
 	"context"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	coretypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // Select returns an Iterator over the app-side mempool. If txs are specified,
 // then they shall be incorporated into the Iterator. The Iterator must
 // closed by the caller.
 func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Iterator {
-	return nil
+	return &iterator{
+		txs: coretypes.NewTransactionsByPriceAndNonce(
+			coretypes.MakeSigner(gtp.cp.ChainConfig(), gtp.blockNumber, gtp.blockTime),
+			gtp.Pending(true),
+			gtp.baseFee,
+		),
+		serializer: gtp.serializer,
+	}
 }
 
 // CountTx returns the number of transactions currently in the mempool.
 func (gtp *WrappedGethTxPool) CountTx() int {
 	return 0
+}
+
+// iterator is used to iterate over the transactions in the sdk mempool.
+type iterator struct {
+	txs        *coretypes.TransactionsByPriceAndNonce
+	serializer SdkTxSerializer
+}
+
+// Tx implements sdkmempool.Iterator.
+func (i *iterator) Tx() sdk.Tx {
+	ethTx := i.txs.Peek()
+	if ethTx == nil {
+		return nil
+	}
+
+	sdkTx, err := i.serializer.SerializeToSdkTx(ethTx)
+	if err != nil {
+		panic(err)
+	}
+
+	return sdkTx
+}
+
+// Next implements sdkmempool.Iterator.
+func (i *iterator) Next() sdkmempool.Iterator {
+	i.txs.Pop()
+	return i
 }

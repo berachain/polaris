@@ -20,6 +20,9 @@
 
 package txpool
 
+import "pkg.berachain.dev/polaris/eth/params"
+
 type ConfigurationPlugin interface {
 	GetEvmDenom() string
+	ChainConfig() *params.ChainConfig
 }

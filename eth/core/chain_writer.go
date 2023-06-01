@@ -92,6 +92,9 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		Nonce:      types.BlockNonce{},
 	}
 
+	// We update the txpool with the new block information.
+	bc.tp.Prepare(header.Number, header.Time, header.BaseFee)
+
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	bc.processor.Prepare(
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),

@@ -26,7 +26,6 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/consensus/misc"
-	"github.com/ethereum/go-ethereum/core/txpool"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -40,10 +39,10 @@ import (
 type ChainResources interface {
 	StateAtHeader(header *types.Header) (vm.GethStateDB, error)
 	StateAtBlockNumber(uint64) (vm.GethStateDB, error)
+	StateAt(common.Hash) (state.StateDBI, error)
 	GetVMConfig() *vm.Config
 	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
 	NewEVMBlockContext(header *types.Header) *vm.BlockContext
-	GetTxPool() *txpool.TxPool
 }
 
 // StateAtBlockNumber returns a statedb configured to read what the state of the blockchain is/was
@@ -111,9 +110,4 @@ func (bc *blockchain) CalculateNextBaseFee() *big.Int {
 
 	// This case only triggers for the first block in the chain, when finalizedBlock is empty.
 	return big.NewInt(int64(params.InitialBaseFee))
-}
-
-// GetTxPool returns the txpool for the current chain.
-func (bc *blockchain) GetTxPool() *txpool.TxPool {
-	return bc.txPool
 }

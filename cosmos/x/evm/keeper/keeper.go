@@ -88,7 +88,7 @@ func (k *Keeper) Setup(
 	logger log.Logger,
 ) {
 	// Setup plugins in the Host
-	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, k.polaris.GetTxPool(), qc)
+	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, k.bk, qc)
 
 	// Build the Polaris EVM Provider
 	cfg, err := polar.LoadConfigFromFilePath(polarisConfigPath)

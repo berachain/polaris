@@ -127,6 +127,8 @@ type (
 	// TxPoolPlugin defines the methods that the chain running Polaris EVM should implement to
 	// support the transaction pool.
 	TxPoolPlugin interface {
+		// Prepare updates the txpool for the current block.
+		Prepare(blockNumber *big.Int, blockTime uint64, baseFee *big.Int)
 		// SendTx submits the tx to the transaction pool.
 		SendTx(tx *types.Transaction) error
 		// Pending returns all pending transactions in the transaction pool.

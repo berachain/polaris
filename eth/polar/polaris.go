@@ -66,7 +66,9 @@ type Polaris struct {
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
 
-	// txPool     *txpool.TxPool
+	// canonical tx pool for the chain
+	txPool *txpool.TxPool
+
 	// blockchain represents the canonical chain.
 	blockchain core.Blockchain
 
@@ -126,6 +128,8 @@ func (pl *Polaris) APIs() []rpc.API {
 
 // StartServices notifies the NetworkStack to spin up (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
+	pl.txPool = txpool.NewTxPool(txpool.DefaultConfig, pl.blockchain.Config(), pl.blockchain)
+
 	// Register the JSON-RPCs with the networking stack.
 	pl.stack.RegisterAPIs(pl.APIs())
 
@@ -144,5 +148,5 @@ func (pl *Polaris) StartServices() error {
 
 // GetTxPool returns the Ethereum txpool for the Polaris chain.
 func (pl *Polaris) GetTxPool() *txpool.TxPool {
-	return pl.blockchain.GetTxPool()
+	return pl.txPool
 }

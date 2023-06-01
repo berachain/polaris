@@ -21,6 +21,8 @@
 package mempool
 
 import (
+	"math/big"
+
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/ethereum/go-ethereum/core/txpool"
 )
@@ -34,6 +36,19 @@ var _ sdkmempool.Mempool = (*WrappedGethTxPool)(nil)
 type WrappedGethTxPool struct {
 	// The underlying Geth mempool implementation.
 	*txpool.TxPool
+
+	// serializer converts eth txs to sdk txs when being iterated over.
+	serializer SdkTxSerializer
+
+	// cp is used to retrieve the current chain config.
+	cp ConfigurationPlugin
+
+	// block data for the current block.
+	blockNumber *big.Int
+	blockTime   uint64
+
+	// baseFee is the base fee for priority calculation.
+	baseFee *big.Int
 }
 
 // NewWrappedGethTxPool creates a new Ethereum transaction pool.
@@ -44,4 +59,18 @@ func NewWrappedGethTxPool() *WrappedGethTxPool {
 // SetTxPool sets the underlying Geth TxPool.
 func (gtp *WrappedGethTxPool) SetTxPool(txPool *txpool.TxPool) {
 	gtp.TxPool = txPool
+}
+
+// Setup sets the chain config and sdk tx serializer on the wrapped Geth TxPool.
+func (gtp *WrappedGethTxPool) Setup(cp ConfigurationPlugin, serializer SdkTxSerializer) {
+	gtp.cp = cp
+	gtp.serializer = serializer
+}
+
+// Prepare updates the mempool for the current block. Set the block number, block time, and base
+// fee.
+func (gtp *WrappedGethTxPool) Prepare(blockNumber *big.Int, blockTime uint64, baseFee *big.Int) {
+	gtp.blockNumber = blockNumber
+	gtp.blockTime = blockTime
+	gtp.baseFee = baseFee
 }

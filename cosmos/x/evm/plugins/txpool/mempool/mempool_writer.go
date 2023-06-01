@@ -30,7 +30,7 @@ import (
 
 // Insert is called when a transaction is added to the mempool.
 func (gtp *WrappedGethTxPool) Insert(_ context.Context, tx sdk.Tx) error {
-	return gtp.AddLocal(evmtypes.GetAsEthTx(tx))
+	return gtp.AddRemote(evmtypes.GetAsEthTx(tx))
 }
 
 // Remove is called when a transaction is removed from the mempool.
