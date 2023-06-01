@@ -27,6 +27,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"strings"
 
 	"github.com/magefile/mage/mg"
@@ -98,15 +99,18 @@ func (c Cosmos) BuildRelease() error {
 // ===========================================================================
 
 // Builds a release version of the Cosmos SDK chain.
-func (c Cosmos) Docker(node string) error {
+func (c Cosmos) Docker(node, arch, versionFlag string) error {
 	LogGreen("Build a release docker image for the Cosmos SDK chain...")
+	if versionFlag != "" {
+		version = versionFlag
+	}
 	var path string
 	if node == "base" {
 		path = execDockerPath
 	} else {
 		path = baseDockerPath + node + "/Dockerfile"
 	}
-	return c.dockerBuildNode("polard-"+node, path, goVersion, version)
+	return c.dockerBuildNode("polard-"+node, path, goVersion, version, arch, true)
 }
 
 func (c Cosmos) RunDockerLocal() error {
@@ -134,14 +138,15 @@ func (c Cosmos) dockerBuildBeradWithX(goVersion string) error {
 // Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) DockerDebug() error {
 	LogGreen("Build a debug docker image for the Cosmos SDK chain...")
-	return c.dockerBuildNode("debug", execDockerPath, goVersion, version)
+	return c.dockerBuildNode("debug", execDockerPath, goVersion, version, runtime.GOARCH, false)
 }
 
 // Build a docker image for berad with the supplied arguments.
-func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion string) error {
-	return dockerBuildFn(false)(
+func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion, arch string, withX bool) error {
+	return dockerBuildFn(withX)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--build-arg", "FOUNDRY_DIR="+precompileContractsDir,
+		"--build-arg", "GOARCH="+arch,
 		"-f", dockerFilePath,
 		"-t", name+":"+imageVersion, //TODO: do not hardcode, have ability to pass as arg
 		".",
@@ -190,6 +195,18 @@ func (c Cosmos) TestUnit() error {
 func (c Cosmos) TestIntegration() error {
 	LogGreen("Running integration tests for the Cosmos SDK chain.")
 	return testIntegration(c.directory() + "/testing/integration")
+}
+
+func (c Cosmos) DockerBuildHive() error {
+	LogGreen("Building hive docker image for the Cosmos SDK chain...")
+	return c.dockerBuildNode("polard-base", execDockerPath, goVersion, "test-hive", runtime.GOARCH, false)
+}
+
+func (c Cosmos) TestHive(sim string) error {
+	if err := c.DockerBuildHive(); err != nil {
+		return err
+	}
+	return Hive{}.Test(sim, "polard")
 }
 
 func dockerBuildFn(useX bool) func(args ...string) error {

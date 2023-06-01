@@ -18,36 +18,29 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package keeper
+package block
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// InitGenesis is called during the InitGenesis.
-func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
-	// Initialize all the plugins.
-	for _, plugin := range k.host.GetAllPlugins() {
-		// checks whether plugin implements methods of HasGenesis and executes them if it does
-		if plugin, ok := utils.GetAs[plugins.HasGenesis](plugin); ok {
-			plugin.InitGenesis(ctx, genState)
-		}
-	}
-
-	return k.polaris.StartServices()
+// InitGenesis performs genesis initialization for the evm module. It returns
+// no validator updates.
+func (p *plugin) InitGenesis(ctx sdk.Context, _ *core.Genesis) {
+	// TODO: IMPLEMENT
+	p.Prepare(ctx)
+	// p.StoreHeader(ethGen.ToBlock().Header())
 }
 
-// ExportGenesis returns the exported genesis state.
-func (k *Keeper) ExportGenesis(ctx sdk.Context) *core.Genesis {
-	genesisState := new(core.Genesis)
-	for _, plugin := range k.host.GetAllPlugins() {
-		if plugin, ok := utils.GetAs[plugins.HasGenesis](plugin); ok {
-			plugin.ExportGenesis(ctx, genesisState)
-		}
-	}
-	return genesisState
+// ExportGenesis returns the exported genesis state as raw bytes for the evm
+// module.
+func (p *plugin) ExportGenesis(ctx sdk.Context, _ *core.Genesis) {
+	// TODO: IMPLEMENT
+	p.Prepare(ctx)
+	// head, err := p.GetHeaderByNumber(0)
+	// if err != nil {
+	// 	panic(err)
+	// }
 }

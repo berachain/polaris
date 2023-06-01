@@ -36,6 +36,7 @@ import (
 
 type Plugin interface {
 	plugins.Base
+	// plugins.HasGenesis // TODO BRING BACK
 	core.BlockPlugin
 
 	// SetQueryContextFn sets the function used for querying historical block headers.

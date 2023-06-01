@@ -23,26 +23,21 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-//go:build tools
-// +build tools
+package main
 
-// This is the canonical way to enforce dependency inclusion in go.mod for tools that are not directly involved in the build process.
-// See
-// https://github.com/golang/go/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
+import "math/big"
 
-package tools
+func consistentChainIDTest(t *TestEnv) {
+	var (
+		expectedChainID = big.NewInt(7) //nolint:gomnd // TODO: REFACTOR.
+	)
 
-//nolint
+	cID, err := t.Eth.ChainID(t.Ctx())
+	if err != nil {
+		t.Fatalf("could not get chain ID: %v", err)
+	}
 
-import (
-	_ "github.com/bufbuild/buf/cmd/buf"
-	_ "github.com/cosmos/gosec/v2/cmd/gosec"
-	_ "github.com/ethereum/go-ethereum/cmd/abigen"
-	_ "github.com/ethereum/go-ethereum/rlp/rlpgen"
-	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
-	_ "github.com/google/addlicense"
-	_ "github.com/matryer/moq"
-	_ "github.com/onsi/ginkgo/v2/ginkgo"
-	_ "github.com/securego/gosec/v2/cmd/gosec"
-	_ "github.com/segmentio/golines"
-)
+	if expectedChainID.Cmp(cID) != 0 {
+		t.Fatalf("expected chain ID %d, got %d", expectedChainID, cID)
+	}
+}
