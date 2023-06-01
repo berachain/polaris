@@ -23,27 +23,18 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-//nolint: unused // might use them in the future for tests not yet implemented
 package main
 
 import (
 	"bytes"
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/ethereum/hive/hivesim"
-	"github.com/kr/pretty"
 
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 )
@@ -134,96 +125,96 @@ func (t *TestEnv) Ctx() context.Context {
 	return t.lastCtx
 }
 
-func waitSynced(c *rpc.Client) error {
-	var (
-		err         error
-		timeout     = 20 * time.Second
-		end         = time.Now().Add(timeout)
-		ctx, cancel = context.WithDeadline(context.Background(), end)
-	)
-	defer func() {
-		cancel()
-		if errors.Is(err, context.DeadlineExceeded) {
-			err = fmt.Errorf("didn't sync within timeout of %v", timeout)
-		}
-	}()
+// func waitSynced(c *rpc.Client) error {
+// 	var (
+// 		err         error
+// 		timeout     = 20 * time.Second
+// 		end         = time.Now().Add(timeout)
+// 		ctx, cancel = context.WithDeadline(context.Background(), end)
+// 	)
+// 	defer func() {
+// 		cancel()
+// 		if errors.Is(err, context.DeadlineExceeded) {
+// 			err = fmt.Errorf("didn't sync within timeout of %v", timeout)
+// 		}
+// 	}()
 
-	ec := ethclient.NewClient(c)
-	for {
-		var progress *ethereum.SyncProgress
-		progress, err = ec.SyncProgress(ctx)
-		if err != nil {
-			return err
-		}
-		var head uint64
-		head, err = ec.BlockNumber(ctx)
-		if err != nil {
-			return err
-		}
-		if progress == nil && head > 0 {
-			return nil // success!
-		}
-		time.Sleep(delay * time.Millisecond)
-	}
-}
+// 	ec := ethclient.NewClient(c)
+// 	for {
+// 		var progress *ethereum.SyncProgress
+// 		progress, err = ec.SyncProgress(ctx)
+// 		if err != nil {
+// 			return err
+// 		}
+// 		var head uint64
+// 		head, err = ec.BlockNumber(ctx)
+// 		if err != nil {
+// 			return err
+// 		}
+// 		if progress == nil && head > 0 {
+// 			return nil // success!
+// 		}
+// 		time.Sleep(delay * time.Millisecond)
+// 	}
+// }
 
-// Naive generic function that works in all situations.
-// A better solution is to use logs to wait for confirmations.
-//nolint: gocognit // function is long since it has a lot of checks
-func waitForTxConfirmations(t *TestEnv, txHash common.Hash, n uint64) (*types.Receipt, error) {
-	var (
-		receipt    *types.Receipt
-		startBlock *types.Block
-		err        error
-	)
+// // Naive generic function that works in all situations.
+// // A better solution is to use logs to wait for confirmations.
+// //nolint: gocognit // function is long since it has a lot of checks
+// func waitForTxConfirmations(t *TestEnv, txHash common.Hash, n uint64) (*types.Receipt, error) {
+// 	var (
+// 		receipt    *types.Receipt
+// 		startBlock *types.Block
+// 		err        error
+// 	)
 
-	for i := 0; i < 90; i++ {
-		receipt, err = t.Eth.TransactionReceipt(t.Ctx(), txHash)
-		if err != nil && !errors.Is(err, ethereum.NotFound) {
-			return nil, err
-		}
-		if receipt != nil {
-			break
-		}
-		time.Sleep(time.Second)
-	}
-	if receipt == nil {
-		return nil, ethereum.NotFound
-	}
+// 	for i := 0; i < 90; i++ {
+// 		receipt, err = t.Eth.TransactionReceipt(t.Ctx(), txHash)
+// 		if err != nil && !errors.Is(err, ethereum.NotFound) {
+// 			return nil, err
+// 		}
+// 		if receipt != nil {
+// 			break
+// 		}
+// 		time.Sleep(time.Second)
+// 	}
+// 	if receipt == nil {
+// 		return nil, ethereum.NotFound
+// 	}
 
-	if startBlock, err = t.Eth.BlockByNumber(t.Ctx(), nil); err != nil {
-		return nil, err
-	}
+// 	if startBlock, err = t.Eth.BlockByNumber(t.Ctx(), nil); err != nil {
+// 		return nil, err
+// 	}
 
-	for i := 0; i < 90; i++ {
-		var currentBlock *types.Block
-		currentBlock, err = t.Eth.BlockByNumber(t.Ctx(), nil)
-		if err != nil {
-			return nil, err
-		}
+// 	for i := 0; i < 90; i++ {
+// 		var currentBlock *types.Block
+// 		currentBlock, err = t.Eth.BlockByNumber(t.Ctx(), nil)
+// 		if err != nil {
+// 			return nil, err
+// 		}
 
-		//nolint: nestif // will fix this soon
-		if startBlock.NumberU64()+n >= currentBlock.NumberU64() {
-			var checkReceipt *types.Receipt
-			checkReceipt, err = t.Eth.TransactionReceipt(t.Ctx(), txHash)
-			if checkReceipt != nil {
-				if bytes.Equal(receipt.PostState, checkReceipt.PostState) {
-					return receipt, nil
-				}
-				// chain reorg
-				if _, err = waitForTxConfirmations(t, txHash, n); err != nil {
-					t.Fatal(err)
-				}
-			} else {
-				return nil, err
-			}
-		}
+// 		//nolint: nestif // will fix this soon
+// 		if startBlock.NumberU64()+n >= currentBlock.NumberU64() {
+// 			var checkReceipt *types.Receipt
+// 			checkReceipt, err = t.Eth.TransactionReceipt(t.Ctx(), txHash)
+// 			if checkReceipt != nil {
+// 				if bytes.Equal(receipt.PostState, checkReceipt.PostState) {
+// 					return receipt, nil
+// 				}
+// 				// chain reorg
+// 				if _, err = waitForTxConfirmations(t, txHash, n); err != nil {
+// 					t.Fatal(err)
+// 				}
+// 			} else {
+// 				return nil, err
+// 			}
+// 		}
 
-		time.Sleep(time.Second)
-	}
+// 		time.Sleep(time.Second)
+// 	}
 
-	return nil, ethereum.NotFound
-}
+// 	return nil, ethereum.NotFound
+// }
 
 // loggingRoundTrip writes requests and responses to the test log.
 type loggingRoundTrip struct {
@@ -234,7 +225,10 @@ type loggingRoundTrip struct {
 func (rt *loggingRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
 	// Read and log the request body.
 	reqBytes, err := io.ReadAll(req.Body)
-	req.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	err = req.Body.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +241,7 @@ func (rt *loggingRoundTrip) RoundTrip(req *http.Request) (*http.Response, error)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //#nosec:G307 // this is a test.
 
 	// Read and log the response bytes.
 	respBytes, err := io.ReadAll(resp.Body)
@@ -260,24 +254,24 @@ func (rt *loggingRoundTrip) RoundTrip(req *http.Request) (*http.Response, error)
 	return &respCopy, nil
 }
 
-func loadGenesis() *types.Block {
-	contents, err := os.ReadFile("init/genesis.json")
-	if err != nil {
-		panic(fmt.Errorf("can't to read genesis file: %w", err))
-	}
-	var genesis core.Genesis
-	if err = json.Unmarshal(contents, &genesis); err != nil {
-		panic(fmt.Errorf("can't parse genesis JSON: %w", err))
-	}
-	return genesis.ToBlock()
-}
+// func loadGenesis() *types.Block {
+// 	contents, err := os.ReadFile("init/genesis.json")
+// 	if err != nil {
+// 		panic(fmt.Errorf("can't to read genesis file: %w", err))
+// 	}
+// 	var genesis core.Genesis
+// 	if err = json.Unmarshal(contents, &genesis); err != nil {
+// 		panic(fmt.Errorf("can't parse genesis JSON: %w", err))
+// 	}
+// 	return genesis.ToBlock()
+// }
 
-// diff checks whether x and y are deeply equal, returning a description
-// of their differences if they are not equal.
-func diff(x, y interface{}) string {
-	var d string
-	for _, l := range pretty.Diff(x, y) {
-		d += l + "\n"
-	}
-	return d
-}
+// // diff checks whether x and y are deeply equal, returning a description
+// // of their differences if they are not equal.
+// func diff(x, y interface{}) string {
+// 	var d string
+// 	for _, l := range pretty.Diff(x, y) {
+// 		d += l + "\n"
+// 	}
+// 	return d
+// }

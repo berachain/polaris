@@ -23,7 +23,6 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-//nolint: unused // might use them in the future for tests not yet implemented
 package main
 
 import (
@@ -32,8 +31,6 @@ import (
 	"strings"
 
 	"github.com/ethereum/hive/hivesim"
-
-	"github.com/ethereum/go-ethereum/params"
 )
 
 type testSpec struct {
@@ -44,9 +41,9 @@ type testSpec struct {
 
 var (
 	// parameters used for signing transactions.
-	chainID   = big.NewInt(7)                //nolint: gomnd // it's okay.
-	gasPrice  = big.NewInt(30 * params.GWei) //nolint: gomnd // it's okay.
-	networkID = big.NewInt(7)                //nolint: gomnd // it's okay.
+	chainID = big.NewInt(7) //nolint: gomnd // it's okay.
+	// gasPrice  = big.NewInt(30 * params.GWei) //nolint: gomnd // it's okay.
+	networkID = big.NewInt(7) //nolint: gomnd // it's okay.
 
 	files = map[string]string{
 		"/genesis.json": "./init/genesis.json",
