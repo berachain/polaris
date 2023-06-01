@@ -111,11 +111,4 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	return nil
 }
 
-// SendPrivTx sends a private transaction to the transaction pool. It takes in a signed ethereum
-// transaction from the rpc backend and wraps it in a Cosmos transaction. The Cosmos transaction is
-// injected into the local mempool, but is NOT gossiped to peers.
-func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
-	return p.WrappedGethTxPool.AddLocal(signedTx)
-}
-
 func (p *plugin) IsPlugin() {}

@@ -22,6 +22,7 @@ package mempool
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/params"

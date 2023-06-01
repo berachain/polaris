@@ -38,11 +38,11 @@ var _ ethcore.TxPoolPlugin = &TxPoolPluginMock{}
 //			PendingFunc: func(b bool) map[common.Address]types.Transactions {
 //				panic("mock out the Pending method")
 //			},
+//			PrepareFunc: func(blockNumber *big.Int, blockTime uint64, baseFee *big.Int)  {
+//				panic("mock out the Prepare method")
+//			},
 //			SendTxFunc: func(tx *types.Transaction) error {
 //				panic("mock out the SendTx method")
-//			},
-//			SetBaseFeeFunc: func(intMoqParam *big.Int)  {
-//				panic("mock out the SetBaseFee method")
 //			},
 //			StatsFunc: func() (int, int) {
 //				panic("mock out the Stats method")
@@ -72,11 +72,11 @@ type TxPoolPluginMock struct {
 	// PendingFunc mocks the Pending method.
 	PendingFunc func(b bool) map[common.Address]types.Transactions
 
+	// PrepareFunc mocks the Prepare method.
+	PrepareFunc func(blockNumber *big.Int, blockTime uint64, baseFee *big.Int)
+
 	// SendTxFunc mocks the SendTx method.
 	SendTxFunc func(tx *types.Transaction) error
-
-	// SetBaseFeeFunc mocks the SetBaseFee method.
-	SetBaseFeeFunc func(intMoqParam *big.Int)
 
 	// StatsFunc mocks the Stats method.
 	StatsFunc func() (int, int)
@@ -109,15 +109,19 @@ type TxPoolPluginMock struct {
 			// B is the b argument value.
 			B bool
 		}
+		// Prepare holds details about calls to the Prepare method.
+		Prepare []struct {
+			// BlockNumber is the blockNumber argument value.
+			BlockNumber *big.Int
+			// BlockTime is the blockTime argument value.
+			BlockTime uint64
+			// BaseFee is the baseFee argument value.
+			BaseFee *big.Int
+		}
 		// SendTx holds details about calls to the SendTx method.
 		SendTx []struct {
 			// Tx is the tx argument value.
 			Tx *types.Transaction
-		}
-		// SetBaseFee holds details about calls to the SetBaseFee method.
-		SetBaseFee []struct {
-			// IntMoqParam is the intMoqParam argument value.
-			IntMoqParam *big.Int
 		}
 		// Stats holds details about calls to the Stats method.
 		Stats []struct {
@@ -133,8 +137,8 @@ type TxPoolPluginMock struct {
 	lockGet                  sync.RWMutex
 	lockNonce                sync.RWMutex
 	lockPending              sync.RWMutex
+	lockPrepare              sync.RWMutex
 	lockSendTx               sync.RWMutex
-	lockSetBaseFee           sync.RWMutex
 	lockStats                sync.RWMutex
 	lockSubscribeNewTxsEvent sync.RWMutex
 }
@@ -294,6 +298,46 @@ func (mock *TxPoolPluginMock) PendingCalls() []struct {
 	return calls
 }
 
+// Prepare calls PrepareFunc.
+func (mock *TxPoolPluginMock) Prepare(blockNumber *big.Int, blockTime uint64, baseFee *big.Int) {
+	if mock.PrepareFunc == nil {
+		panic("TxPoolPluginMock.PrepareFunc: method is nil but TxPoolPlugin.Prepare was just called")
+	}
+	callInfo := struct {
+		BlockNumber *big.Int
+		BlockTime   uint64
+		BaseFee     *big.Int
+	}{
+		BlockNumber: blockNumber,
+		BlockTime:   blockTime,
+		BaseFee:     baseFee,
+	}
+	mock.lockPrepare.Lock()
+	mock.calls.Prepare = append(mock.calls.Prepare, callInfo)
+	mock.lockPrepare.Unlock()
+	mock.PrepareFunc(blockNumber, blockTime, baseFee)
+}
+
+// PrepareCalls gets all the calls that were made to Prepare.
+// Check the length with:
+//
+//	len(mockedTxPoolPlugin.PrepareCalls())
+func (mock *TxPoolPluginMock) PrepareCalls() []struct {
+	BlockNumber *big.Int
+	BlockTime   uint64
+	BaseFee     *big.Int
+} {
+	var calls []struct {
+		BlockNumber *big.Int
+		BlockTime   uint64
+		BaseFee     *big.Int
+	}
+	mock.lockPrepare.RLock()
+	calls = mock.calls.Prepare
+	mock.lockPrepare.RUnlock()
+	return calls
+}
+
 // SendTx calls SendTxFunc.
 func (mock *TxPoolPluginMock) SendTx(tx *types.Transaction) error {
 	if mock.SendTxFunc == nil {
@@ -323,38 +367,6 @@ func (mock *TxPoolPluginMock) SendTxCalls() []struct {
 	mock.lockSendTx.RLock()
 	calls = mock.calls.SendTx
 	mock.lockSendTx.RUnlock()
-	return calls
-}
-
-// SetBaseFee calls SetBaseFeeFunc.
-func (mock *TxPoolPluginMock) SetBaseFee(intMoqParam *big.Int) {
-	if mock.SetBaseFeeFunc == nil {
-		panic("TxPoolPluginMock.SetBaseFeeFunc: method is nil but TxPoolPlugin.SetBaseFee was just called")
-	}
-	callInfo := struct {
-		IntMoqParam *big.Int
-	}{
-		IntMoqParam: intMoqParam,
-	}
-	mock.lockSetBaseFee.Lock()
-	mock.calls.SetBaseFee = append(mock.calls.SetBaseFee, callInfo)
-	mock.lockSetBaseFee.Unlock()
-	mock.SetBaseFeeFunc(intMoqParam)
-}
-
-// SetBaseFeeCalls gets all the calls that were made to SetBaseFee.
-// Check the length with:
-//
-//	len(mockedTxPoolPlugin.SetBaseFeeCalls())
-func (mock *TxPoolPluginMock) SetBaseFeeCalls() []struct {
-	IntMoqParam *big.Int
-} {
-	var calls []struct {
-		IntMoqParam *big.Int
-	}
-	mock.lockSetBaseFee.RLock()
-	calls = mock.calls.SetBaseFee
-	mock.lockSetBaseFee.RUnlock()
 	return calls
 }
 

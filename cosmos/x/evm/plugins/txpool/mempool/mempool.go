@@ -24,6 +24,7 @@ import (
 	"math/big"
 
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+
 	"github.com/ethereum/go-ethereum/core/txpool"
 )
 

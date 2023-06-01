@@ -25,6 +25,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+
 	coretypes "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -32,6 +33,11 @@ import (
 // then they shall be incorporated into the Iterator. The Iterator must
 // closed by the caller.
 func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Iterator {
+	numPending, _ := gtp.Stats()
+	if numPending == 0 {
+		return nil
+	}
+
 	return &iterator{
 		txs: coretypes.NewTransactionsByPriceAndNonce(
 			coretypes.MakeSigner(gtp.cp.ChainConfig(), gtp.blockNumber, gtp.blockTime),
@@ -57,12 +63,15 @@ type iterator struct {
 func (i *iterator) Tx() sdk.Tx {
 	ethTx := i.txs.Peek()
 	if ethTx == nil {
+		// should never hit this case because the immediately before call to Next() should return
+		// nil
 		return nil
 	}
 
 	sdkTx, err := i.serializer.SerializeToSdkTx(ethTx)
 	if err != nil {
-		panic(err)
+		// gtp.logger.Error("eth tx could not be serialized to sdk tx:", err)
+		return nil
 	}
 
 	return sdkTx
@@ -71,5 +80,9 @@ func (i *iterator) Tx() sdk.Tx {
 // Next implements sdkmempool.Iterator.
 func (i *iterator) Next() sdkmempool.Iterator {
 	i.txs.Pop()
+
+	if i.txs.Peek() == nil {
+		return nil
+	}
 	return i
 }

@@ -24,13 +24,22 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
+
+// InsertPriv sends a private transaction to the transaction pool. It takes in a signed ethereum
+// transaction from the rpc backend and wraps it in a Cosmos transaction. The Cosmos transaction is
+// injected into the local mempool, but is NOT gossiped to peers.
+func (gtp *WrappedGethTxPool) InsertPriv(signedTx *coretypes.Transaction) error {
+	return gtp.AddLocal(signedTx)
+}
 
 // Insert is called when a transaction is added to the mempool.
 func (gtp *WrappedGethTxPool) Insert(_ context.Context, tx sdk.Tx) error {
-	return gtp.AddRemote(evmtypes.GetAsEthTx(tx))
+	return gtp.AddRemotes(coretypes.Transactions{evmtypes.GetAsEthTx(tx)})[0]
 }
 
 // Remove is called when a transaction is removed from the mempool.
@@ -38,7 +47,9 @@ func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
 		removed := gtp.RemoveTx(ethTx.Hash(), true)
 		if removed < 1 {
-			return ErrRemoveFailed
+			// TODO: RemoveTx will return 0 if the tx was removed from future queue. We should
+			// handle this specific case better.
+			return sdkmempool.ErrTxNotFound
 		}
 	}
 	return nil
