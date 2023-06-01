@@ -219,7 +219,7 @@ type loggingRoundTrip struct {
 func (rt *loggingRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
 	// Read and log the request body.
 	reqBytes, err := ioutil.ReadAll(req.Body)
-	req.Body.Close()
+	req.Body.Close() //#nosec:G104 // its okay.
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +232,7 @@ func (rt *loggingRoundTrip) RoundTrip(req *http.Request) (*http.Response, error)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //#nosec:G307 // its okay.
 
 	// Read and log the response bytes.
 	respBytes, err := ioutil.ReadAll(resp.Body)
