@@ -43,9 +43,6 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        if: ${{ matrix.args == 'cosmos:testhive' }}
       - name: Cache Golang Deps
         uses: actions/cache@v3
         with:
