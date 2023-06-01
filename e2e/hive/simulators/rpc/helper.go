@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 //
-// Copyright (c) 2023 Berachain Foundation
+// # Copyright (c) 2023 Berachain Foundation
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -22,7 +22,9 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
-
+// nolint
+//
+//nolint:nolintlint // TODO: REFACTOR.
 package main
 
 import (
@@ -193,7 +195,9 @@ func waitForTxConfirmations(t *TestEnv, txHash common.Hash, n uint64) (*types.Re
 				if bytes.Compare(receipt.PostState, checkReceipt.PostState) == 0 {
 					return receipt, nil
 				} else { // chain reorg
-					waitForTxConfirmations(t, txHash, n)
+					if _, err := waitForTxConfirmations(t, txHash, n); err != nil {
+						t.Fatal(err)
+					}
 				}
 			} else {
 				return nil, err

@@ -25,19 +25,22 @@
 
 package main
 
+// nolint
+//
+//nolint:nolintlint // TODO: REFACTOR.
 import "math/big"
 
 func consistentChainIDTest(t *TestEnv) {
 	var (
-		expectedChainID = big.NewInt(7)
+		expectedChainID = big.NewInt(7) //nolint:gomnd // TODO: REFACTOR.
 	)
 
-	chainID, err := t.Eth.ChainID(t.Ctx())
+	cID, err := t.Eth.ChainID(t.Ctx())
 	if err != nil {
 		t.Fatalf("could not get chain ID: %v", err)
 	}
 
-	if expectedChainID.Cmp(chainID) != 0 {
-		t.Fatalf("expected chain ID %d, got %d", expectedChainID, chainID)
+	if expectedChainID.Cmp(cID) != 0 {
+		t.Fatalf("expected chain ID %d, got %d", expectedChainID, cID)
 	}
 }

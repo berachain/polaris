@@ -43,16 +43,15 @@ var (
 
 type Hive mg.Namespace
 
-func (Hive) directory() string {
-	return "Hive"
-}
-
 func (h Hive) Setup() error {
 	LogGreen("Executing Hive tests on polard client...")
 
 	if _, err := os.Stat(hiveClone); os.IsNotExist(err) {
 		LogGreen(hiveClone + " does not exist, creating....")
-		os.Mkdir(hiveClone, 0755)
+		err = os.Mkdir(hiveClone, 0755)
+		if err != nil {
+			return err
+		}
 	}
 
 	if _, err := os.Stat(clonePath); os.IsNotExist(err) {
