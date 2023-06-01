@@ -32,4 +32,4 @@ MaxHeaderHistory = 192
 MaxBlockHistory = 5000
 Default = 1000000000
 MaxPrice = 100000000000
-IgnorePrice = 0
+IgnorePrice = 1

@@ -40,9 +40,9 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
@@ -65,7 +65,6 @@ var _ = Describe("Processor", func() {
 	var (
 		k            *keeper.Keeper
 		ak           state.AccountKeeper
-		bk           state.BankKeeper
 		sk           stakingkeeper.Keeper
 		ctx          sdk.Context
 		sc           ethprecompile.StatefulImpl
@@ -87,9 +86,9 @@ var _ = Describe("Processor", func() {
 		}
 
 		// before chain, init genesis state
-		ctx, ak, bk, sk = testutil.SetupMinimalKeepers()
+		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
 		k = keeper.NewKeeper(
-			ak, bk, sk,
+			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
 			"authority",
 			evmmempool.NewPolarisEthereumTxPool(),
@@ -97,6 +96,12 @@ var _ = Describe("Processor", func() {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
+		for _, plugin := range k.GetHost().GetAllPlugins() {
+			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
+			if hasInitGenesis {
+				plugin.InitGenesis(ctx, core.DefaultGenesis)
+			}
+		}
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
@@ -104,12 +109,6 @@ var _ = Describe("Processor", func() {
 		sc = staking.NewPrecompileContract(&sk)
 		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger())
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
-		for _, plugin := range k.GetHost().GetAllPlugins() {
-			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
-			if hasInitGenesis {
-				plugin.InitGenesis(ctx, types.DefaultGenesis())
-			}
-		}
 
 		// Set validator with consensus address.
 		consAddr, err := validator.GetConsAddr()
@@ -159,6 +158,7 @@ var _ = Describe("Processor", func() {
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
+			k.GetHost().GetStatePlugin().Reset(ctx)
 			k.GetHost().GetStatePlugin().CreateAccount(addr)
 			k.GetHost().GetStatePlugin().AddBalance(addr, (&big.Int{}).Mul(big.NewInt(9000000000000000000), big.NewInt(999)))
 			k.GetHost().GetStatePlugin().Finalize()

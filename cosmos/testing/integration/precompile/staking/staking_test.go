@@ -25,8 +25,13 @@ import (
 	"testing"
 	"time"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	"pkg.berachain.dev/polaris/eth/common"
 
@@ -43,6 +48,7 @@ func TestStakingPrecompile(t *testing.T) {
 var (
 	tf                *integration.TestFixture
 	stakingPrecompile *bindings.StakingModule
+	bankPrecompile    *bbindings.BankModule
 	validator         common.Address
 	delegateAmt       = big.NewInt(123450000000)
 )
@@ -53,6 +59,10 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	validator = common.Address(tf.Network.Validators[0].Address.Bytes())
 	stakingPrecompile, _ = bindings.NewStakingModule(
 		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
+	bankPrecompile, _ = bbindings.NewBankModule(
+		cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
+		tf.EthClient,
+	)
 	return nil
 }, func(data []byte) {})
 
@@ -70,7 +80,6 @@ var _ = Describe("Staking", func() {
 		txr.Value = delegateAmt
 		tx, err := stakingPrecompile.Delegate(txr, validator, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		delegated, err = stakingPrecompile.GetDelegation(nil, tf.Address("alice"), validator)
@@ -106,7 +115,6 @@ var _ = Describe("Staking", func() {
 			"MTK",
 		)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		delegated, err := stakingPrecompile.GetDelegation(nil, contractAddr, validator)
@@ -118,13 +126,23 @@ var _ = Describe("Staking", func() {
 		Expect(addresses).To(HaveLen(1))
 		Expect(addresses[0]).To(Equal(validator))
 
-		// Send tokens to the contract to delegate and mint LSD.
 		txr := tf.GenerateTransactOpts("alice")
+		amt := big.NewInt(123450000000)
+		tx, err = bankPrecompile.Send(txr, tf.Address("alice"), contractAddr, []bbindings.CosmosCoin{
+			{
+				Denom:  "abera",
+				Amount: amt,
+			},
+		})
+		Expect(err).ToNot(HaveOccurred())
+		ExpectSuccessReceipt(tf.EthClient, tx)
+
+		// Send tokens to the contract to delegate and mint LSD.
+		txr = tf.GenerateTransactOpts("alice")
 		txr.GasLimit = 0
 		txr.Value = delegateAmt
 		tx, err = contract.Delegate(txr, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Wait for a couple blocks to query.

@@ -92,22 +92,19 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 // AppModule implements an application module for the evm module.
 type AppModule struct {
 	AppModuleBasic
-	keeper     *keeper.Keeper
-	accKeeper  AccountKeeper
-	bankKeeper BankKeeper
+	keeper    *keeper.Keeper
+	accKeeper AccountKeeper
 }
 
 // NewAppModule creates a new AppModule object.
 func NewAppModule(
 	keeper *keeper.Keeper,
 	ak AccountKeeper,
-	bk BankKeeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         keeper,
 		accKeeper:      ak,
-		bankKeeper:     bk,
 	}
 }
 

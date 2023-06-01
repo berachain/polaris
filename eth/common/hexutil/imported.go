@@ -28,3 +28,5 @@ type (
 	Bytes = hexutil.Bytes
 	Uint  = hexutil.Uint
 )
+
+var MustDecode = hexutil.MustDecode

@@ -23,19 +23,19 @@ package configuration
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 // InitGenesis performs genesis initialization for the evm module. It returns
 // no validator updates.
-func (p *plugin) InitGenesis(ctx sdk.Context, genesisState *types.GenesisState) {
+func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 	p.Prepare(ctx)
-	p.SetParams(&genesisState.Params)
+	p.SetChainConfig(ethGen.Config)
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the evm
 // module.
-func (p *plugin) ExportGenesis(ctx sdk.Context, genesisState *types.GenesisState) {
+func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 	p.Prepare(ctx)
-	genesisState.Params = *p.GetParams()
+	ethGen.Config = p.ChainConfig()
 }

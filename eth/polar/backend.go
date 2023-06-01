@@ -80,6 +80,10 @@ func NewBackend(
 		cfg:           cfg,
 		logger:        log.Root(),
 	}
+
+	if cfg.GPO.Default == nil {
+		panic("cfg.GPO.Default is nil")
+	}
 	b.gpo = gasprice.NewOracle(b, *cfg.GPO)
 	return b
 }

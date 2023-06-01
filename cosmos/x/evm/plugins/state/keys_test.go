@@ -98,13 +98,3 @@ var _ = Describe("CodeKeyFor", func() {
 		Expect(key[1:]).To(Equal(address.Bytes()))
 	})
 })
-
-var _ = Describe("CodeHashFromKey", func() {
-	It("returns a code hash", func() {
-		address := common.HexToHash("0x1234567890abcdef1234567890abcdef12345678")
-		key := CodeKeyFor(address)
-
-		address2 := CodeHashFromKey(key)
-		Expect(address2).To(Equal(address))
-	})
-})

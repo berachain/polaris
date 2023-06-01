@@ -82,7 +82,7 @@ func (bc *blockchain) GetVMConfig() *vm.Config {
 // CalculateBaseFee calculates the base fee for the next block based on the finalized block or the
 // plugin's base fee.
 func (bc *blockchain) CalculateNextBaseFee() *big.Int {
-	if pluginBaseFee := bc.bp.BaseFee(); pluginBaseFee.Cmp(big.NewInt(0)) >= 0 /* non-negative */ {
+	if pluginBaseFee := bc.bp.BaseFee(); pluginBaseFee.Cmp(new(big.Int)) >= 0 /* non-negative */ {
 		return pluginBaseFee
 	}
 
