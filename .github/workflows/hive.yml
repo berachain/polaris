@@ -18,7 +18,7 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-name: hive
+name: ethereum/hive
 
 on:
   pull_request:
@@ -27,7 +27,8 @@ jobs:
   ci:
     strategy:
       matrix:
-        args: ["cosmos:testhive"]
+        simulator: [polaris/rpc]
+        namespace: [cosmos]
         os: [ubuntu-latest]
         go-version: [1.20.4]
     runs-on: ${{ matrix.os }}
@@ -51,13 +52,10 @@ jobs:
           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-
-      - name: Install Go Tools
-        run: |
-          go run magefiles/setup/setup.go ci
-      - name: Run ${{ matrix.args }}
+      - name: Run ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
         uses: magefile/mage-action@v2
         with:
           version: latest
-          args: ${{ matrix.args }}
+          args: hive:setup ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
         env:
-            GOPATH: /home/runner/go
+          GOPATH: /home/runner/go
