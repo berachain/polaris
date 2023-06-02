@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/ethereum/hive v0.0.0-20230526161643-a5c0542ee4ac
+	gotest.tools v2.2.0+incompatible
 )
 
 require (
@@ -50,5 +51,4 @@ require (
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
-	gotest.tools v2.2.0+incompatible // indirect
 )
