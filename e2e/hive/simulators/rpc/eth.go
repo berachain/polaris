@@ -27,8 +27,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/crypto"
+
+	"github.com/ethereum/go-ethereum/core/types"
 	"gotest.tools/assert"
 )
 
@@ -71,6 +75,15 @@ func blockNumberSupport(t *TestEnv) {
 
 func getBalanceSupport(t *TestEnv) {
 	// balance, err := t.Eth.BalanceAt(ctx, , nil)
+
+	var mySigner = types.NewLondonSigner(big.NewInt(5))
+	key, err := crypto.GenerateKey()
+	if err != nil {
+		panic("sdfs")
+	}
+
+	types.SignNewTx(key, mySigner, &types.LegacyTx{})
+	fmt.Printf("acount: %v\n", mySigner)
 }
 
 func estimateGasSupport(t *TestEnv) {
