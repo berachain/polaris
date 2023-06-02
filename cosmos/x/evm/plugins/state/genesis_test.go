@@ -21,12 +21,14 @@
 package state_test
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -35,49 +37,33 @@ import (
 
 var _ = Describe("Genesis", func() {
 	var (
-		ctx      sdk.Context
-		sp       state.Plugin
-		codeHash common.Hash
-		code     []byte
-		slot     common.Hash
-		value    common.Hash
+		ctx  sdk.Context
+		sp   state.Plugin
+		code []byte
 	)
 
 	BeforeEach(func() {
 		var ak state.AccountKeeper
-		var bk state.BankKeeper
-		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ak, bk, testutil.EvmKey, &mockConfigurationPlugin{}, nil)
+		ctx, ak, _, _ = testutil.SetupMinimalKeepers()
+		sp = state.NewPlugin(ak, testutil.EvmKey, nil)
 
 		// Create account for alice.
 		sp.Reset(ctx)
-		sp.CreateAccount(alice)
-		sp.Finalize()
-
 		code = []byte("code")
-		codeHash = crypto.Keccak256Hash(code)
-		slot = common.HexToHash("0x456")
-		value = common.HexToHash("0x789")
 	})
 
 	It("should init and export genesis", func() {
-		genesis := types.DefaultGenesis()
+		genesis := new(core.Genesis)
+		genesis.Alloc = make(core.GenesisAlloc)
 
-		// New Contract.
-		contract := types.Contract{
-			CodeHash: codeHash.Hex(),
-			SlotToValue: map[string]string{
-				slot.Hex(): value.Hex(),
+		genesis.Alloc[alice] = core.GenesisAccount{
+			Balance: big.NewInt(5e18),
+			Storage: map[common.Hash]common.Hash{
+				common.BytesToHash([]byte("key")): common.BytesToHash([]byte("value")),
 			},
+			Code: code,
 		}
-
-		// Set the address to contract.
-		genesis.AddressToContract[alice.Hex()] = &contract
-
-		// Set the code hash to code.
-		genesis.HashToCode[codeHash.Hex()] = string(code)
-
-		// Init Genesis.
+		// Call Init Genesis
 		sp.InitGenesis(ctx, genesis)
 
 		// Check that the code is set.
@@ -87,25 +73,14 @@ var _ = Describe("Genesis", func() {
 
 		// Check that the code hash is set.
 		sp.Reset(ctx)
-		Expect(sp.GetCodeHash(alice)).To(Equal(codeHash))
+		Expect(sp.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash(code)))
 		sp.Finalize()
+		Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(5e18)))
+		Expect(sp.GetCode(alice), code)
 
-		// Check that the storage is set.
-		sp.Reset(ctx)
-		Expect(sp.GetState(alice, slot)).To(Equal(value))
-		sp.Finalize()
-
-		// Export Genesis.
-		exportedGenesis := types.GenesisState{}
+		// Very exported genesis is equal.
+		var exportedGenesis core.Genesis
 		sp.ExportGenesis(ctx, &exportedGenesis)
-
-		// Check that the code is exported.
-		Expect(exportedGenesis.AddressToContract).To(Equal(genesis.AddressToContract))
-		// Check that the hash to code is exported.
-		Expect(exportedGenesis.HashToCode).To(Equal(genesis.HashToCode))
-		// Check that the storage is exported.
-		Expect(
-			exportedGenesis.AddressToContract[alice.Hex()].SlotToValue).
-			To(Equal(genesis.AddressToContract[alice.Hex()].SlotToValue))
+		Expect(exportedGenesis.Alloc).To(Equal(genesis.Alloc))
 	})
 })

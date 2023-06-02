@@ -22,7 +22,6 @@ package evm
 
 import (
 	"encoding/json"
-	"fmt"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
@@ -30,30 +29,34 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 // DefaultGenesis returns default genesis state as raw bytes for the evm
 // module.
-func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(types.DefaultGenesis())
+func (AppModuleBasic) DefaultGenesis(_ codec.JSONCodec) json.RawMessage {
+	ethGen, err := core.DefaultGenesis.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
+	return ethGen
 }
 
 // ValidateGenesis performs genesis state validation for the evm module.
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
-	var data types.GenesisState
-	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
-		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
-	}
-	return types.ValidateGenesis(data)
+func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
+	ethGen := new(core.Genesis)
+	return ethGen.UnmarshalJSON(bz) // todo: improve
 }
 
 // InitGenesis performs genesis initialization for the evm module. It returns
 // no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
-	var genesisState types.GenesisState
-	cdc.MustUnmarshalJSON(data, &genesisState)
-	if err := am.keeper.InitGenesis(ctx, genesisState); err != nil {
+func (am AppModule) InitGenesis(ctx sdk.Context, _ codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
+	var ethGen core.Genesis
+	if err := ethGen.UnmarshalJSON(data); err != nil {
+		panic(err)
+	}
+
+	if err := am.keeper.InitGenesis(ctx, &ethGen); err != nil {
 		panic(err)
 	}
 	return []abci.ValidatorUpdate{}
@@ -61,6 +64,11 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 
 // ExportGenesis returns the exported genesis state as raw bytes for the evm
 // module.
-func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(am.keeper.ExportGenesis(ctx))
+func (am AppModule) ExportGenesis(ctx sdk.Context, _ codec.JSONCodec) json.RawMessage {
+	ethGen := am.keeper.ExportGenesis(ctx)
+	ethGenBz, err := ethGen.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
+	return ethGenBz
 }

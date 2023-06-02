@@ -24,9 +24,6 @@ var _ core.ConfigurationPlugin = &ConfigurationPluginMock{}
 //			ChainConfigFunc: func() *params.ChainConfig {
 //				panic("mock out the ChainConfig method")
 //			},
-//			ExtraEipsFunc: func() []int {
-//				panic("mock out the ExtraEips method")
-//			},
 //			FeeCollectorFunc: func() *common.Address {
 //				panic("mock out the FeeCollector method")
 //			},
@@ -43,9 +40,6 @@ type ConfigurationPluginMock struct {
 	// ChainConfigFunc mocks the ChainConfig method.
 	ChainConfigFunc func() *params.ChainConfig
 
-	// ExtraEipsFunc mocks the ExtraEips method.
-	ExtraEipsFunc func() []int
-
 	// FeeCollectorFunc mocks the FeeCollector method.
 	FeeCollectorFunc func() *common.Address
 
@@ -57,9 +51,6 @@ type ConfigurationPluginMock struct {
 		// ChainConfig holds details about calls to the ChainConfig method.
 		ChainConfig []struct {
 		}
-		// ExtraEips holds details about calls to the ExtraEips method.
-		ExtraEips []struct {
-		}
 		// FeeCollector holds details about calls to the FeeCollector method.
 		FeeCollector []struct {
 		}
@@ -70,7 +61,6 @@ type ConfigurationPluginMock struct {
 		}
 	}
 	lockChainConfig  sync.RWMutex
-	lockExtraEips    sync.RWMutex
 	lockFeeCollector sync.RWMutex
 	lockPrepare      sync.RWMutex
 }
@@ -99,33 +89,6 @@ func (mock *ConfigurationPluginMock) ChainConfigCalls() []struct {
 	mock.lockChainConfig.RLock()
 	calls = mock.calls.ChainConfig
 	mock.lockChainConfig.RUnlock()
-	return calls
-}
-
-// ExtraEips calls ExtraEipsFunc.
-func (mock *ConfigurationPluginMock) ExtraEips() []int {
-	if mock.ExtraEipsFunc == nil {
-		panic("ConfigurationPluginMock.ExtraEipsFunc: method is nil but ConfigurationPlugin.ExtraEips was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockExtraEips.Lock()
-	mock.calls.ExtraEips = append(mock.calls.ExtraEips, callInfo)
-	mock.lockExtraEips.Unlock()
-	return mock.ExtraEipsFunc()
-}
-
-// ExtraEipsCalls gets all the calls that were made to ExtraEips.
-// Check the length with:
-//
-//	len(mockedConfigurationPlugin.ExtraEipsCalls())
-func (mock *ConfigurationPluginMock) ExtraEipsCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockExtraEips.RLock()
-	calls = mock.calls.ExtraEips
-	mock.lockExtraEips.RUnlock()
 	return calls
 }
 

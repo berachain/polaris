@@ -109,6 +109,9 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			SnapshotFunc: func() int {
 //				panic("mock out the Snapshot method")
 //			},
+//			StateAtBlockNumberFunc: func(v uint64) (core.StatePlugin, error) {
+//				panic("mock out the StateAtBlockNumber method")
+//			},
 //			SubBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
 //				panic("mock out the SubBalance method")
 //			},
@@ -205,6 +208,9 @@ type StatePluginMock struct {
 
 	// SnapshotFunc mocks the Snapshot method.
 	SnapshotFunc func() int
+
+	// StateAtBlockNumberFunc mocks the StateAtBlockNumber method.
+	StateAtBlockNumberFunc func(v uint64) (core.StatePlugin, error)
 
 	// SubBalanceFunc mocks the SubBalance method.
 	SubBalanceFunc func(address common.Address, intMoqParam *big.Int)
@@ -365,6 +371,11 @@ type StatePluginMock struct {
 		}
 		// Snapshot holds details about calls to the Snapshot method.
 		Snapshot []struct {
+		}
+		// StateAtBlockNumber holds details about calls to the StateAtBlockNumber method.
+		StateAtBlockNumber []struct {
+			// V is the v argument value.
+			V uint64
 		}
 		// SubBalance holds details about calls to the SubBalance method.
 		SubBalance []struct {
@@ -1345,6 +1356,38 @@ func (mock *StatePluginMock) SnapshotCalls() []struct {
 	mock.lockSnapshot.RLock()
 	calls = mock.calls.Snapshot
 	mock.lockSnapshot.RUnlock()
+	return calls
+}
+
+// StateAtBlockNumber calls StateAtBlockNumberFunc.
+func (mock *StatePluginMock) StateAtBlockNumber(v uint64) (core.StatePlugin, error) {
+	if mock.StateAtBlockNumberFunc == nil {
+		panic("StatePluginMock.StateAtBlockNumberFunc: method is nil but StatePlugin.StateAtBlockNumber was just called")
+	}
+	callInfo := struct {
+		V uint64
+	}{
+		V: v,
+	}
+	mock.lockStateAtBlockNumber.Lock()
+	mock.calls.StateAtBlockNumber = append(mock.calls.StateAtBlockNumber, callInfo)
+	mock.lockStateAtBlockNumber.Unlock()
+	return mock.StateAtBlockNumberFunc(v)
+}
+
+// StateAtBlockNumberCalls gets all the calls that were made to StateAtBlockNumber.
+// Check the length with:
+//
+//	len(mockedStatePlugin.StateAtBlockNumberCalls())
+func (mock *StatePluginMock) StateAtBlockNumberCalls() []struct {
+	V uint64
+} {
+	var calls []struct {
+		V uint64
+	}
+	mock.lockStateAtBlockNumber.RLock()
+	calls = mock.calls.StateAtBlockNumber
+	mock.lockStateAtBlockNumber.RUnlock()
 	return calls
 }
 

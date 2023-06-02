@@ -64,8 +64,16 @@ FROM golang:${GO_VERSION}-alpine as builder
 RUN set -eux; \
     apk add git linux-headers ca-certificates build-base
 
-# Copy our source code into the container
+# Set the working directory
 WORKDIR /workdir
+
+# Copy go.mod and go.sum files recursively (🔥 upgrade)
+COPY **/go.mod **/go.sum **/go.work ./
+
+# Download the go module dependencies
+RUN go mod download
+
+# Copy the rest of the source code
 COPY . .
 
 # Copy the forge output
@@ -81,9 +89,7 @@ ARG DB_BACKEND
 ARG CMD_PATH
 
 # Build Executable
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/root/go/pkg/mod \
-    VERSION=$(echo $(git describe --tags) | sed 's/^v//') && \
+RUN VERSION=$(echo $(git describe --tags) | sed 's/^v//') && \
     COMMIT=$(git log -1 --format='%H') && \
     env GOOS=${GOOS} GOARCH=${GOARCH} && \
     env NAME=${NAME} DB_BACKEND=${DB_BACKEND} && \

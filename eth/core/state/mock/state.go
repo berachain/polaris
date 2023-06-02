@@ -57,7 +57,7 @@ func NewEmptyStatePlugin() *PluginMock {
 		},
 		CreateAccountFunc: func(address common.Address) {
 			Accounts[address] = &Account{
-				Balance:  big.NewInt(0),
+				Balance:  new(big.Int),
 				CodeHash: crypto.Keccak256Hash(nil),
 			}
 		},

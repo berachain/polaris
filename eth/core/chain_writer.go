@@ -78,11 +78,12 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	header := &types.Header{
 		// Used in Polaris.
 		ParentHash: parentHash,
+		Coinbase:   coinbase,
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
-		Coinbase:   coinbase,
 		BaseFee:    bc.CalculateNextBaseFee(),
+
 		// Not used in Polaris at the moment, but we set them to prevent nil ptr panic.
 		Difficulty: new(big.Int),
 		UncleHash:  types.EmptyUncleHash,

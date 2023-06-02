@@ -22,6 +22,8 @@ package polar
 
 import (
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
@@ -72,6 +74,8 @@ type Polaris struct {
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the blockchain.
 	backend Backend
 
+	// filterSystem is the filter system that is used by the filter API.
+	// TODO: relocate
 	filterSystem *filters.FilterSystem
 }
 
@@ -98,7 +102,7 @@ func NewWithNetworkingStack(
 	}
 
 	// Build and set the RPC Backend.
-	pl.backend = NewBackend(pl.blockchain, stack.ExtRPCEnabled(), cfg)
+	pl.backend = NewBackend(pl, stack.ExtRPCEnabled(), cfg)
 	return pl
 }
 
@@ -135,6 +139,12 @@ func (pl *Polaris) StartServices() error {
 		return err
 	}
 
-	// Start the services (json-rpc, graphql, etc)
-	return pl.stack.Start()
+	go func() {
+		// TODO: unhack this.
+		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
+		if pl.stack.Start() != nil {
+			os.Exit(1)
+		}
+	}()
+	return nil
 }

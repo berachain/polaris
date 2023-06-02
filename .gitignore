@@ -181,7 +181,6 @@ release/
 data/
 .DS_Store
 *.pyc
-*.txt
 .vscode/*.log
 
 # upgrades
@@ -199,6 +198,9 @@ contracts/out/
 */**/broadcast
 */**/*.bin
 */**/*.json
+
+# hive
+!e2e/hive/**/genesis.json
 
 # geth
 *.rlp

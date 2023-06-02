@@ -25,11 +25,6 @@ const (
 	DefaultEvmDenom = "abera"
 )
 
-var (
-	// DefaultExtraEIPs is the default extra EIPs.
-	DefaultExtraEIPs = []int64{}
-)
-
 // DefaultParams contains the default values for all parameters.
 func DefaultParams() *Params {
 	return &Params{}

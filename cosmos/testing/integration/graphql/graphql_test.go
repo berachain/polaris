@@ -103,10 +103,11 @@ var _ = Describe("GraphQL", func() {
 
 		It("should support eth_estimateGas", func() {
 			alice := tf.Address("alice")
-
+			_, err := tf.Network.WaitForHeight(1)
+			Expect(err).NotTo(HaveOccurred())
 			response, status, err := tf.SendGraphQLRequest(fmt.Sprintf(
 				`query { 
-					block(number: 0) { 
+					block(number: 1) { 
 						estimateGas( data: { to: "%s" }) 
 						} 
 				}`, alice.String()))
@@ -161,7 +162,7 @@ var _ = Describe("GraphQL", func() {
 		It("should support eth_getTransactionByBlockNumberAndIndex", func() {
 			response, status, err := tf.SendGraphQLRequest(`
 			{
-				block(number: 0) {
+				block(number: 1) {
 				  transactionAt(index: 0) {
 					hash
 					nonce

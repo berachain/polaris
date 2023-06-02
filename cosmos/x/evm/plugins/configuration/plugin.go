@@ -29,7 +29,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/params"
@@ -40,16 +39,13 @@ type Plugin interface {
 	plugins.Base
 	plugins.HasGenesis
 	core.ConfigurationPlugin
-	SetParams(params *types.Params)
-	GetParams() *types.Params
-	GetEvmDenom() string
+	SetChainConfig(*params.ChainConfig)
 }
 
 // plugin implements the core.ConfigurationPlugin interface.
 type plugin struct {
 	storeKey    storetypes.StoreKey
 	paramsStore storetypes.KVStore
-	evmDenom    string
 }
 
 // NewPlugin returns a new plugin instance.
@@ -63,27 +59,6 @@ func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 func (p *plugin) Prepare(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	p.paramsStore = sCtx.KVStore(p.storeKey)
-}
-
-func (p *plugin) GetEvmDenom() string {
-	if p.evmDenom == "" {
-		p.evmDenom = p.GetParams().EvmDenom
-	}
-	return p.evmDenom
-}
-
-// ChainConfig implements the core.ConfigurationPlugin interface.
-func (p *plugin) ChainConfig() *params.ChainConfig {
-	return p.GetParams().EthereumChainConfig()
-}
-
-// ExtraEips implements the core.ConfigurationPlugin interface.
-func (p *plugin) ExtraEips() []int {
-	eips := make([]int, 0)
-	for _, e := range p.GetParams().ExtraEIPs {
-		eips = append(eips, int(e))
-	}
-	return eips
 }
 
 // FeeCollector implements the core.ConfigurationPlugin interface.

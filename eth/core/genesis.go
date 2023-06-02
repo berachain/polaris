@@ -18,44 +18,43 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package storage
+package core
 
 import (
-	"fmt"
-	"strings"
+	"math/big"
+
+	"github.com/ethereum/go-ethereum/core"
 
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/lib/errors"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"pkg.berachain.dev/polaris/eth/common/hexutil"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
-// Compile-time interface assertions.
-var (
-	_ libtypes.Cloneable[*Slot] = (*Slot)(nil)
-	_ fmt.Stringer              = (*Slot)(nil)
+type (
+	Genesis        = core.Genesis
+	GenesisAlloc   = core.GenesisAlloc
+	GenesisAccount = core.GenesisAccount
 )
 
-// NewSlot creates a new State instance.
-func NewSlot(key, value common.Hash) *Slot {
-	return &Slot{
-		Key:   key.Hex(),
-		Value: value.Hex(),
-	}
-}
+// DefaultGenesis is the default genesis block used by Polaris.
+var DefaultGenesis = &core.Genesis{
+	// Genesis Config
+	Config: params.DefaultChainConfig,
 
-// ValidateBasic checks to make sure the key is not empty.
-func (s *Slot) ValidateBasic() error {
-	if strings.TrimSpace(s.Key) == "" {
-		return errors.Wrapf(ErrInvalidState, "key cannot be empty %s", s.Key)
-	}
+	// Genesis Block
+	Nonce:      0,
+	Timestamp:  0,
+	ExtraData:  hexutil.MustDecode("0x11bbe8db4e347b4e8c937c1c8370e4b5ed33adb3db69cbdb7a38e1e50b1b82fa"),
+	GasLimit:   30_000_000, //nolint:gomnd // its okay.
+	Difficulty: big.NewInt(0),
+	Mixhash:    common.Hash{},
+	Coinbase:   common.Address{},
 
-	return nil
-}
-
-// Clone implements `types.Cloneable`.
-func (s *Slot) Clone() *Slot {
-	return &Slot{
-		Key:   s.Key,
-		Value: s.Value,
-	}
+	// Genesis Accounts
+	Alloc: core.GenesisAlloc{
+		// 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
+		common.HexToAddress("0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4"): {
+			Balance: big.NewInt(5e18), //nolint:gomnd // its okay.
+		},
+	},
 }

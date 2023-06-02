@@ -162,7 +162,7 @@ var _ = Describe("StateProcessor", func() {
 			}
 			sdb.FinaliseFunc = func(bool) {}
 			legacyTxData.To = nil
-			legacyTxData.Value = big.NewInt(0)
+			legacyTxData.Value = new(big.Int)
 			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
 			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
 			result, err := sp.ProcessTransaction(context.Background(), signedTx)

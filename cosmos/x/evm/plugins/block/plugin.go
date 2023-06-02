@@ -36,11 +36,14 @@ import (
 
 type Plugin interface {
 	plugins.Base
+	// plugins.HasGenesis // TODO BRING BACK
 	core.BlockPlugin
 
 	// SetQueryContextFn sets the function used for querying historical block headers.
 	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
 }
+
+// TODO read genesis block from EthGenesis.
 
 type plugin struct {
 	// ctx is the current block context, used for accessing current block info and kv stores.

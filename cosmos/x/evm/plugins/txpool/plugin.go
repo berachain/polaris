@@ -52,7 +52,6 @@ type plugin struct {
 	*mempool.EthTxPool
 
 	clientContext client.Context
-	cp            ConfigurationPlugin
 
 	// txFeed and scope is used to send new batch transactions to new txs subscribers when the
 	// batch is added to the mempool.
@@ -61,10 +60,9 @@ type plugin struct {
 }
 
 // NewPlugin returns a new transaction pool plugin.
-func NewPlugin(cp ConfigurationPlugin, ethTxMempool *mempool.EthTxPool) Plugin {
+func NewPlugin(ethTxMempool *mempool.EthTxPool) Plugin {
 	return &plugin{
 		EthTxPool: ethTxMempool,
-		cp:        cp,
 	}
 }
 
@@ -83,7 +81,7 @@ func (p *plugin) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscrip
 // broadcasted to the network.
 func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	// Serialize the transaction to Bytes
-	txBytes, err := SerializeToBytes(p.cp.GetEvmDenom(), p.clientContext, signedEthTx)
+	txBytes, err := SerializeToBytes(p.clientContext, signedEthTx)
 	if err != nil {
 		return errorslib.Wrap(err, "failed to serialize transaction")
 	}
@@ -113,7 +111,7 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 // transaction from the rpc backend and wraps it in a Cosmos transaction. The Cosmos transaction is
 // injected into the local mempool, but is NOT gossiped to peers.
 func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
-	cosmosTx, err := SerializeToSdkTx(p.cp.GetEvmDenom(), p.clientContext, signedTx)
+	cosmosTx, err := SerializeToSdkTx(p.clientContext, signedTx)
 	if err != nil {
 		return err
 	}

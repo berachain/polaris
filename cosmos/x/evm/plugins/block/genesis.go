@@ -18,26 +18,29 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-syntax = "proto3";
-package polaris.evm.v1alpha1;
+package block
 
-import "gogoproto/gogo.proto";
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-option go_package = "pkg.berachain.dev/polaris/cosmos/x/evm/types";
+	"pkg.berachain.dev/polaris/eth/core"
+)
 
-// `Params` defines the parameters for the x/evm module.
-message Params {
-  // `evm_denom` represents the token denomination used as the native token
-  // within the EVM.
-  string evm_denom = 1 [(gogoproto.moretags) = "yaml:\"evm_denom\""];
+// InitGenesis performs genesis initialization for the evm module. It returns
+// no validator updates.
+func (p *plugin) InitGenesis(ctx sdk.Context, _ *core.Genesis) {
+	// TODO: IMPLEMENT
+	p.Prepare(ctx)
+	// p.StoreHeader(ethGen.ToBlock().Header())
+}
 
-  // `extra_eips` defines a list of additional EIPs for the vm.Config
-  repeated int64 extra_eips = 2 [
-    (gogoproto.customname) = "ExtraEIPs",
-    (gogoproto.moretags) = "yaml:\"extra_eips\""
-  ];
-
-  // `chain_config` represents the ethereum chain config for the polaris
-  // EVM
-  string chain_config = 3 [(gogoproto.moretags) = "yaml:\"chain_config\""];
+// ExportGenesis returns the exported genesis state as raw bytes for the evm
+// module.
+func (p *plugin) ExportGenesis(ctx sdk.Context, _ *core.Genesis) {
+	// TODO: IMPLEMENT
+	p.Prepare(ctx)
+	// head, err := p.GetHeaderByNumber(0)
+	// if err != nil {
+	// 	panic(err)
+	// }
 }

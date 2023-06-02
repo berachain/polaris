@@ -25,7 +25,10 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/distribution"
 	sbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
@@ -47,6 +50,7 @@ var (
 	tf                *integration.TestFixture
 	precompile        *bindings.DistributionModule
 	stakingPrecompile *sbindings.StakingModule
+	bankPrecompile    *bbindings.BankModule
 	validator         common.Address
 )
 
@@ -61,6 +65,10 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the staking precompile.
 	stakingPrecompile, _ = sbindings.NewStakingModule(
 		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
+	bankPrecompile, _ = bbindings.NewBankModule(
+		cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
+		tf.EthClient,
+	)
 	// Set the validator address.
 	validator = common.Address(tf.Network.Validators[0].Address.Bytes())
 	return nil
@@ -77,7 +85,6 @@ var _ = Describe("Distribution Precompile", func() {
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.SetWithdrawAddress0(txr, addr.String())
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
 	It("should be able to set withdraw address with ethereum address", func() {
@@ -86,7 +93,6 @@ var _ = Describe("Distribution Precompile", func() {
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.SetWithdrawAddress(txr, ethAddr)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
 	It("should be able to get delegator reward", func() {
@@ -99,7 +105,6 @@ var _ = Describe("Distribution Precompile", func() {
 		txr.Value = delegateAmt
 		tx, err := stakingPrecompile.Delegate(txr, val, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Wait for the 2 block to be produced, to make sure there are rewards.
@@ -112,7 +117,6 @@ var _ = Describe("Distribution Precompile", func() {
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = precompile.WithdrawDelegatorReward(txr, tf.Address("alice"), val)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
 
@@ -125,19 +129,29 @@ var _ = Describe("Distribution Precompile", func() {
 			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"),
 		)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
+
+		txr := tf.GenerateTransactOpts("alice")
+		amt := big.NewInt(123450000000)
+		tx, err = bankPrecompile.Send(txr, tf.Address("alice"), contractAddress, []bbindings.CosmosCoin{
+			{
+				Denom:  "abera",
+				Amount: amt,
+			},
+		})
+		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Delegate some tokens to a validator.
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
 		val := validators[0]
-		amt := big.NewInt(123450000000)
-		txr := tf.GenerateTransactOpts("alice")
+		amt = big.NewInt(123450000000)
+		txr = tf.GenerateTransactOpts("alice")
 		txr.Value = amt
+
 		tx, err = contract.Delegate(txr, val)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Wait for the 2 block to be produced, to make sure there are rewards.
@@ -150,7 +164,6 @@ var _ = Describe("Distribution Precompile", func() {
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = contract.WithdrawRewards(txr, contractAddress, val)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Get withdraw address enabled.
