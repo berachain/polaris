@@ -77,6 +77,9 @@ jobs:
           key: ${{ runner.os }}-golang-codeql-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-codeql-
+      - name: Install Go Tools
+        run: |
+          go run magefiles/setup/setup.go ci
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
