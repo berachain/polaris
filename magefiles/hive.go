@@ -90,3 +90,11 @@ func (h Hive) Test(sim, client string) error {
 		return sh.RunV("./hive", "--sim", sim, "--client", client)
 	}, false)
 }
+
+func (h Hive) GenerateTests(sim, namespace string) error {
+	path := sim + "/"
+	LogGreen("Generating tests for " + path + namespace)
+	return ExecuteInDirectory("e2e/hive/simulators", func(...string) error {
+		return sh.RunV("./generate_tests.sh", path+namespace+".go", path+"tests.go", namespace)
+	}, false)
+}

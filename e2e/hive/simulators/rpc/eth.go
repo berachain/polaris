@@ -27,9 +27,9 @@ package main
 
 import "math/big"
 
-func connectMultipleClients(t *TestEnv) {
+// func connectMultipleClients(t *TestEnv) {
 
-}
+// }
 
 func chainIDSupport(t *TestEnv) {
 	var (
@@ -46,18 +46,18 @@ func chainIDSupport(t *TestEnv) {
 	}
 }
 
-func gasPriceSupport(t *TestEnv) {
+// func gasPriceSupport(t *TestEnv) {
 
-}
+// }
 
-func blockNumberSupport(t *TestEnv) {
+// func blockNumberSupport(t *TestEnv) {
 
-}
+// }
 
-func getBalanceSupport(t *TestEnv) {
+// func getBalanceSupport(t *TestEnv) {
 
-}
+// }
 
-func estimateGasSupport(t *TestEnv) {
+// func estimateGasSupport(t *TestEnv) {
 
-}
+// }

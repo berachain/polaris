@@ -25,9 +25,9 @@
 
 package main
 
-// tests defined per sim
+// tests defined per sim.
 var (
-	eth_tests = []testSpec{{Name: "http/ConnectMultipleClients", Run: connectMultipleClients}, {Name: "http/ChainIDSupport", Run: chainIDSupport}, {Name: "http/GasPriceSupport", Run: gasPriceSupport}, {Name: "http/BlockNumberSupport", Run: blockNumberSupport}, {Name: "http/GetBalanceSupport", Run: getBalanceSupport}, {Name: "http/EstimateGasSupport", Run: estimateGasSupport}, {Name: "ws/ConnectMultipleClients", Run: connectMultipleClients}, {Name: "ws/ChainIDSupport", Run: chainIDSupport}, {Name: "ws/GasPriceSupport", Run: gasPriceSupport}, {Name: "ws/BlockNumberSupport", Run: blockNumberSupport}, {Name: "ws/GetBalanceSupport", Run: getBalanceSupport}, {Name: "ws/EstimateGasSupport", Run: estimateGasSupport}}
+	eth_tests = []testSpec{{Name: "http/ChainIDSupport", Run: chainIDSupport}, {Name: "ws/ChainIDSupport", Run: chainIDSupport}}
 )
 
 var tests = eth_tests

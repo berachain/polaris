@@ -56,11 +56,6 @@ var (
 )
 
 func main() {
-	fmt.Println("pp on the pp")
-	for _, test := range tests {
-		fmt.Println(test.Name)
-	}
-
 	suite := hivesim.Suite{
 		Name: "rpc",
 		Description: `The RPC test suite runs a set of RPC related tests against a running node. It tests
