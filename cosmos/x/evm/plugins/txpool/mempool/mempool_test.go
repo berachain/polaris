@@ -30,6 +30,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+
 	"github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/trie"
@@ -42,7 +43,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/mock"
 	ethstate "pkg.berachain.dev/polaris/eth/core/state"
 	smock "pkg.berachain.dev/polaris/eth/core/state/mock"
-	"pkg.berachain.dev/polaris/eth/core/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
@@ -69,7 +69,7 @@ var _ = Describe("WrappedGethTxPool", func() {
 	)
 
 	BeforeEach(func() {
-		etp := NewWrappedGethTxPool()
+		etp = NewWrappedGethTxPool()
 		sp := smock.NewEmptyStatePlugin()
 		sdb := ethstate.NewStateDB(sp)
 		cp := mock.NewConfigurationPluginMock()
@@ -415,22 +415,22 @@ func newMockBlockChain(sdb vm.GethStateDB) *mockBlockChain {
 	}
 }
 
-func (bc *mockBlockChain) CurrentBlock() *types.Header {
-	return &types.Header{
+func (bc *mockBlockChain) CurrentBlock() *coretypes.Header {
+	return &coretypes.Header{
 		Number:   new(big.Int),
 		GasLimit: 1000000000,
 	}
 }
 
-func (bc *mockBlockChain) GetBlock(hash common.Hash, number uint64) *types.Block {
-	return types.NewBlock(bc.CurrentBlock(), nil, nil, nil, trie.NewStackTrie(nil))
+func (bc *mockBlockChain) GetBlock(_ common.Hash, _ uint64) *coretypes.Block {
+	return coretypes.NewBlock(bc.CurrentBlock(), nil, nil, nil, trie.NewStackTrie(nil))
 }
 
 func (bc *mockBlockChain) StateAt(common.Hash) (vm.GethStateDB, error) {
 	return bc.sdb, nil
 }
 
-func (bc *mockBlockChain) StateAtHeader(*types.Header) (vm.GethStateDB, error) {
+func (bc *mockBlockChain) StateAtHeader(*coretypes.Header) (vm.GethStateDB, error) {
 	return bc.sdb, nil
 }
 

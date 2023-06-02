@@ -24,9 +24,10 @@ import (
 	"math/big"
 
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
-	"pkg.berachain.dev/polaris/eth/core/types"
 
 	"github.com/ethereum/go-ethereum/core/txpool"
+
+	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // Compile-time interface assertion.
