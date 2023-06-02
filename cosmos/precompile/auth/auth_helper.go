@@ -26,6 +26,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -102,4 +103,19 @@ func (c *Contract) getSendAllownaceHelper(
 	allowance := getHighestAllowance(sendAuths, coinDenom)
 
 	return []any{allowance}, nil
+}
+
+// acc must be the bech32 encoded address.
+func (c *Contract) accountInfoHelper(
+	ctx context.Context,
+	acc string,
+) ([]any, error) {
+	res, err := c.authQueryServer.AccountInfo(ctx, &authtypes.QueryAccountInfoRequest{
+		Address: acc,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return []any{cosmlib.SdkAccountToAuthAccount(res.GetInfo())}, nil
 }
