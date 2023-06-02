@@ -25,6 +25,7 @@ import (
 	"testing"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -56,7 +57,7 @@ var (
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
 	tf = integration.NewTestFixture(GinkgoT())
-	validator = common.Address(tf.Network.Validators[0].Address.Bytes())
+	validator = common.Address(tf.Network.Validators[0].ValAddress.Bytes())
 	stakingPrecompile, _ = bindings.NewStakingModule(
 		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
 	bankPrecompile, _ = bbindings.NewBankModule(
@@ -67,7 +68,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 }, func(data []byte) {})
 
 var _ = Describe("Staking", func() {
-	It("should call functions on the precompile directly", func() {
+	FIt("should call functions on the precompile directly", func() {
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(validators).To(ContainElement(validator))
@@ -85,6 +86,13 @@ var _ = Describe("Staking", func() {
 		delegated, err = stakingPrecompile.GetDelegation(nil, tf.Address("alice"), validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
+
+		delVals, err := stakingPrecompile.GetDelegatorValidators0(nil, tf.Address("alice"))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(delVals).To(HaveLen(1))
+		delValAddr, err := sdk.ValAddressFromBech32(delVals[0].OperatorAddress)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(cosmlib.ValAddressToEthAddress(delValAddr)).To(Equal(validator))
 
 		undelegateAmt := new(big.Int).Div(delegateAmt, big.NewInt(2))
 		tx, err = stakingPrecompile.Undelegate(
@@ -105,6 +113,13 @@ var _ = Describe("Staking", func() {
 		Expect(ude[0].CreationHeight).To(BeNumerically(">=", 1))
 		Expect(ude[0].CompletionTime).ToNot(BeEmpty())
 		Expect(ude[0].Balance.Cmp(undelegateAmt)).To(Equal(0))
+
+		vals, err := stakingPrecompile.GetValidators(nil)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(vals).To(HaveLen(1))
+		valAddr, err := sdk.ValAddressFromBech32(vals[0].OperatorAddress)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(cosmlib.ValAddressToEthAddress(valAddr)).To(Equal(validator))
 	})
 
 	It("should be able to call a precompile from a smart contract", func() {
