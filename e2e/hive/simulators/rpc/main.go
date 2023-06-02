@@ -30,6 +30,7 @@ import (
 	"math/big"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/hive/hivesim"
 )
 
@@ -41,9 +42,9 @@ type testSpec struct {
 
 var (
 	// parameters used for signing transactions.
-	chainID = big.NewInt(7) //nolint: gomnd // it's okay.
-	// gasPrice  = big.NewInt(30 * params.GWei) //nolint: gomnd // it's okay.
-	networkID = big.NewInt(7) //nolint: gomnd // it's okay.
+	chainID   = big.NewInt(7)                //nolint: gomnd // it's okay.
+	gasPrice  = big.NewInt(30 * params.GWei) //nolint: gomnd // it's okay.
+	networkID = big.NewInt(7)                //nolint: gomnd // it's okay.
 
 	files = map[string]string{
 		"/genesis.json": "./init/genesis.json",

@@ -91,6 +91,12 @@ func (h Hive) Test(sim, client string) error {
 	}, false)
 }
 
+func (h Hive) TestWithOutput(sim, client string) error {
+	return ExecuteInDirectory(clonePath, func(...string) error {
+		return sh.RunV("./hive", "--sim", sim, "--client", client, "--docker.output")
+	}, false)
+}
+
 func (h Hive) GenerateTests(sim, namespace string) error {
 	path := sim + "/"
 	LogGreen("Generating tests for " + path + namespace)

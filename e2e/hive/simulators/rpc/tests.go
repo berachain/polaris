@@ -27,7 +27,7 @@ package main
 
 // tests defined per sim.
 var (
-	ethTests = []testSpec{{Name: "http/ChainIDSupport", Run: chainIDSupport}, {Name: "ws/ChainIDSupport", Run: chainIDSupport}} //nolint: lll // auto-generated
+	ethTests = []testSpec{{Name: "http/ChainIDSupport", Run: chainIDSupport}, {Name: "http/GasPriceSupport", Run: gasPriceSupport}, {Name: "http/BlockNumberSupport", Run: blockNumberSupport}, {Name: "http/GetBalanceSupport", Run: getBalanceSupport}, {Name: "http/EstimateGasSupport", Run: estimateGasSupport}, {Name: "http/GetTransactionByHash", Run: getTransactionByHash}, {Name: "ws/ChainIDSupport", Run: chainIDSupport}, {Name: "ws/GasPriceSupport", Run: gasPriceSupport}, {Name: "ws/BlockNumberSupport", Run: blockNumberSupport}, {Name: "ws/GetBalanceSupport", Run: getBalanceSupport}, {Name: "ws/EstimateGasSupport", Run: estimateGasSupport}, {Name: "ws/GetTransactionByHash", Run: getTransactionByHash}} //nolint: lll // auto-generated
 )
 
 var tests = ethTests

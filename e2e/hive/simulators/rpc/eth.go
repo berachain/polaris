@@ -25,11 +25,20 @@
 
 package main
 
-import "math/big"
+import (
+	"context"
+	"math/big"
+
+	"gotest.tools/assert"
+)
 
 // func connectMultipleClients(t *TestEnv) {
 
 // }
+
+var (
+	ctx = context.Background()
+)
 
 func chainIDSupport(t *TestEnv) {
 	var (
@@ -37,27 +46,37 @@ func chainIDSupport(t *TestEnv) {
 	)
 
 	cID, err := t.Eth.ChainID(t.Ctx())
-	if err != nil {
-		t.Fatalf("could not get chain ID: %v", err)
-	}
+	assert.NilError(t, err, "could not get chain ID: %w", err)
 
 	if expectedChainID.Cmp(cID) != 0 {
 		t.Fatalf("expected chain ID %d, got %d", expectedChainID, cID)
 	}
 }
 
-// func gasPriceSupport(t *TestEnv) {
+func gasPriceSupport(t *TestEnv) {
+	gasPrice, err := t.Eth.SuggestGasPrice(ctx)
+	assert.NilError(t, err, "could not get gasPrice: %w", err)
+	if gasPrice == nil {
+		t.Fatalf("gasPrice is nil")
+	}
+}
 
-// }
+func blockNumberSupport(t *TestEnv) {
+	blockNumber, err := t.Eth.BlockNumber(ctx)
+	assert.NilError(t, err, "could not get blockNumber: %w", err)
+	if blockNumber <= 0 {
+		t.Fatalf("blockNumber <= 0, got: %d", blockNumber)
+	}
+}
 
-// func blockNumberSupport(t *TestEnv) {
+func getBalanceSupport(t *TestEnv) {
+	// balance, err := t.Eth.BalanceAt(ctx, , nil)
+}
 
-// }
+func estimateGasSupport(t *TestEnv) {
 
-// func getBalanceSupport(t *TestEnv) {
+}
 
-// }
+func getTransactionByHash(t *TestEnv) {
 
-// func estimateGasSupport(t *TestEnv) {
-
-// }
+}
