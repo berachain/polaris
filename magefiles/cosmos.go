@@ -197,16 +197,16 @@ func (c Cosmos) TestIntegration() error {
 	return testIntegration(c.directory() + "/testing/integration")
 }
 
-func (c Cosmos) TestHive() error {
-	LogGreen("Running hive tests for the Cosmos SDK chain.")
-	h := &Hive{}
-	if err := c.dockerBuildNode("polard-base", execDockerPath, goVersion, "test-hive", runtime.GOARCH, false); err != nil {
+func (c Cosmos) DockerBuildHive() error {
+	LogGreen("Building hive docker image for the Cosmos SDK chain...")
+	return c.dockerBuildNode("polard-base", execDockerPath, goVersion, "test-hive", runtime.GOARCH, false)
+}
+
+func (c Cosmos) TestHive(sim string) error {
+	if err := c.DockerBuildHive(); err != nil {
 		return err
 	}
-	if err := h.Setup(); err != nil {
-		return err
-	}
-	return h.Test("polaris/rpc", "polard")
+	return Hive{}.Test(sim, "polard")
 }
 
 func dockerBuildFn(useX bool) func(args ...string) error {

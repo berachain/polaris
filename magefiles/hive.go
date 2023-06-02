@@ -54,6 +54,13 @@ func (h Hive) Setup() error {
 		}
 	}
 
+	if err := ExecuteInDirectory(hiveClone, func(...string) error {
+		LogGreen("Removing existing .hive-e2e")
+		return sh.RunV("rm", "-rf", clonePath)
+	}, false); err != nil {
+		return err
+	}
+
 	if _, err := os.Stat(clonePath); os.IsNotExist(err) {
 		LogGreen("Cloning ethereum/hive into " + clonePath + "...")
 		err = ExecuteInDirectory(hiveClone, func(...string) error {
