@@ -25,9 +25,39 @@
 
 package main
 
-// tests defined per sim
-var (
-	eth_tests = []testSpec{{Name: "http/ConnectMultipleClients", Run: connectMultipleClients}, {Name: "http/ChainIDSupport", Run: chainIDSupport}, {Name: "http/GasPriceSupport", Run: gasPriceSupport}, {Name: "http/BlockNumberSupport", Run: blockNumberSupport}, {Name: "http/GetBalanceSupport", Run: getBalanceSupport}, {Name: "http/EstimateGasSupport", Run: estimateGasSupport}, {Name: "ws/ConnectMultipleClients", Run: connectMultipleClients}, {Name: "ws/ChainIDSupport", Run: chainIDSupport}, {Name: "ws/GasPriceSupport", Run: gasPriceSupport}, {Name: "ws/BlockNumberSupport", Run: blockNumberSupport}, {Name: "ws/GetBalanceSupport", Run: getBalanceSupport}, {Name: "ws/EstimateGasSupport", Run: estimateGasSupport}}
-)
+import "math/big"
 
-var tests = eth_tests
+func connectMultipleClients(t *TestEnv) {
+
+}
+
+func chainIDSupport(t *TestEnv) {
+	var (
+		expectedChainID = big.NewInt(7) //nolint:gomnd // TODO: REFACTOR.
+	)
+
+	cID, err := t.Eth.ChainID(t.Ctx())
+	if err != nil {
+		t.Fatalf("could not get chain ID: %v", err)
+	}
+
+	if expectedChainID.Cmp(cID) != 0 {
+		t.Fatalf("expected chain ID %d, got %d", expectedChainID, cID)
+	}
+}
+
+func gasPriceSupport(t *TestEnv) {
+
+}
+
+func blockNumberSupport(t *TestEnv) {
+
+}
+
+func getBalanceSupport(t *TestEnv) {
+
+}
+
+func estimateGasSupport(t *TestEnv) {
+
+}
