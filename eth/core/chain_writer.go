@@ -94,7 +94,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	}
 
 	// We update the txpool with the new block information.
-	bc.tp.Prepare(header.Number, header.Time, header.BaseFee)
+	bc.tp.Prepare(header)
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	bc.processor.Prepare(

@@ -30,16 +30,21 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/ethereum/go-ethereum/core/txpool"
+	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/mock"
+	ethstate "pkg.berachain.dev/polaris/eth/core/state"
+	smock "pkg.berachain.dev/polaris/eth/core/state/mock"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
 
@@ -64,23 +69,17 @@ var _ = Describe("WrappedGethTxPool", func() {
 	)
 
 	BeforeEach(func() {
-		sCtx, ak, _, _ := testutil.SetupMinimalKeepers()
-		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
-		ctx = sCtx
-		sp.Reset(ctx)
+		etp := NewWrappedGethTxPool()
+		sp := smock.NewEmptyStatePlugin()
+		sdb := ethstate.NewStateDB(sp)
+		cp := mock.NewConfigurationPluginMock()
+		bc := newMockBlockChain(sdb)
+		txp := txpool.NewTxPool(txpool.DefaultConfig, cp.ChainConfig(), bc)
+		etp.SetTxPool(txp)
 		sp.SetNonce(addr1, 1)
 		sp.SetNonce(addr2, 2)
-		sp.Finalize()
-		sp.Reset(ctx)
-		etp = NewWrappedGethTxPool()
-		mockHost, _, _, _, _, _, _, _ := mock.NewMockHostAndPlugins()
-		mockHost.GetStatePluginFunc = func() core.StatePlugin { return sp }
-		chain := core.NewChain(mockHost)
-		chain.Prepare(ctx, 0)
-		Expect(chain.Finalize(ctx)).ToNot(HaveOccurred())
-		chain.Prepare(ctx, 1)
-		Expect(chain.Finalize(ctx)).ToNot(HaveOccurred())
-		// etp.SetTxPool(chain.GetTxPool())
+		etp.Setup(cp, &mockSerializer{})
+		etp.Prepare(bc.CurrentBlock())
 	})
 
 	Describe("All Cases", func() {
@@ -359,13 +358,6 @@ var _ = Describe("WrappedGethTxPool", func() {
 		// 	Expect(higherPriorityTx.Hash()).To(Equal(ethTx2.Hash()))
 		// 	Expect(lowerPriorityTx.Hash()).To(Equal(ethTx1.Hash()))
 		// })
-		// It("should allow you to set the base fee of the WrappedGethTxPool", func() {
-		// 	before := etp.priorityPolicy.baseFee
-		// 	etp.SetBaseFee(big.NewInt(69))
-		// 	after := etp.priorityPolicy.baseFee
-		// 	Expect(before).ToNot(BeEquivalentTo(after))
-		// 	Expect(after).To(BeEquivalentTo(big.NewInt(69)))
-		// })
 
 		It("should throw when attempting to remove a transaction that doesn't exist", func() {
 			_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(1)})
@@ -411,6 +403,41 @@ var _ = Describe("WrappedGethTxPool", func() {
 
 // MOCKS BELOW.
 
+type mockBlockChain struct {
+	sdb           vm.GethStateDB
+	chainHeadFeed *event.Feed
+}
+
+func newMockBlockChain(sdb vm.GethStateDB) *mockBlockChain {
+	return &mockBlockChain{
+		sdb:           sdb,
+		chainHeadFeed: new(event.Feed),
+	}
+}
+
+func (bc *mockBlockChain) CurrentBlock() *types.Header {
+	return &types.Header{
+		Number:   new(big.Int),
+		GasLimit: 1000000000,
+	}
+}
+
+func (bc *mockBlockChain) GetBlock(hash common.Hash, number uint64) *types.Block {
+	return types.NewBlock(bc.CurrentBlock(), nil, nil, nil, trie.NewStackTrie(nil))
+}
+
+func (bc *mockBlockChain) StateAt(common.Hash) (vm.GethStateDB, error) {
+	return bc.sdb, nil
+}
+
+func (bc *mockBlockChain) StateAtHeader(*types.Header) (vm.GethStateDB, error) {
+	return bc.sdb, nil
+}
+
+func (bc *mockBlockChain) SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription {
+	return bc.chainHeadFeed.Subscribe(ch)
+}
+
 type mockPLF struct{}
 
 func (mplf *mockPLF) Build(event *sdk.Event) (*coretypes.Log, error) {
@@ -443,6 +470,33 @@ func isPendingTx(mempool *WrappedGethTxPool, tx *coretypes.Transaction) bool {
 		}
 	}
 	return false
+}
+
+type mockSerializer struct{}
+
+func (ms *mockSerializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error) {
+	signer := coretypes.LatestSignerForChainID(params.DefaultChainConfig.ChainID)
+	addr, err := signer.Sender(signedTx)
+	if err != nil {
+		return nil, err
+	}
+	pk, err := coretypes.PubkeyFromTx(signedTx, signer)
+	if err != nil {
+		return nil, err
+	}
+	pubKey := &ethsecp256k1.PubKey{Key: pk}
+	return &mockSdkTx{
+		signers: []sdk.AccAddress{cosmlib.AddressToAccAddress(addr)},
+		msgs:    []sdk.Msg{evmtypes.NewFromTransaction(signedTx)},
+		pubKeys: []cryptotypes.PubKey{pubKey},
+		signatures: []signing.SignatureV2{
+			{
+				PubKey: pubKey,
+				// NOTE: not including the signature data for the mock
+				Sequence: signedTx.Nonce(),
+			},
+		},
+	}, nil
 }
 
 func buildSdkTx(from *ecdsa.PrivateKey, nonce uint64) sdk.Tx {

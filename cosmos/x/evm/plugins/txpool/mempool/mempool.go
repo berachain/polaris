@@ -24,6 +24,7 @@ import (
 	"math/big"
 
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	"pkg.berachain.dev/polaris/eth/core/types"
 
 	"github.com/ethereum/go-ethereum/core/txpool"
 )
@@ -44,12 +45,10 @@ type WrappedGethTxPool struct {
 	// cp is used to retrieve the current chain config.
 	cp ConfigurationPlugin
 
-	// block data for the current block.
+	// block data for the pending block.
 	blockNumber *big.Int
 	blockTime   uint64
-
-	// baseFee is the base fee for priority calculation.
-	baseFee *big.Int
+	baseFee     *big.Int
 }
 
 // NewWrappedGethTxPool creates a new Ethereum transaction pool.
@@ -68,10 +67,10 @@ func (gtp *WrappedGethTxPool) Setup(cp ConfigurationPlugin, serializer SdkTxSeri
 	gtp.serializer = serializer
 }
 
-// Prepare updates the mempool for the current block. Set the block number, block time, and base
+// Prepare updates the mempool for the current block. Sets the block number, block time, and base
 // fee.
-func (gtp *WrappedGethTxPool) Prepare(blockNumber *big.Int, blockTime uint64, baseFee *big.Int) {
-	gtp.blockNumber = blockNumber
-	gtp.blockTime = blockTime
-	gtp.baseFee = baseFee
+func (gtp *WrappedGethTxPool) Prepare(header *types.Header) {
+	gtp.blockNumber = header.Number
+	gtp.blockTime = header.Time
+	gtp.baseFee = header.BaseFee
 }

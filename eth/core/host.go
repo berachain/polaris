@@ -126,7 +126,7 @@ type (
 	// support the transaction pool.
 	TxPoolPlugin interface {
 		// Prepare updates the txpool for the current block.
-		Prepare(blockNumber *big.Int, blockTime uint64, baseFee *big.Int)
+		Prepare(header *types.Header)
 		// SendTx submits the tx to the transaction pool.
 		SendTx(tx *types.Transaction) error
 		// Pending returns all pending transactions in the transaction pool.

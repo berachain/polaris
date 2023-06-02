@@ -21,3 +21,7 @@
 package mock
 
 //go:generate moq -out ./txpool_plugin.mock.go -pkg mock ../ TxPoolPlugin
+
+func NewTxPoolPluginMock() *TxPoolPluginMock {
+	return &TxPoolPluginMock{}
+}

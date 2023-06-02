@@ -8,7 +8,6 @@ import (
 	ethereumcore "github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/event"
-	"math/big"
 	ethcore "pkg.berachain.dev/polaris/eth/core"
 	"sync"
 )
@@ -38,7 +37,7 @@ var _ ethcore.TxPoolPlugin = &TxPoolPluginMock{}
 //			PendingFunc: func(b bool) map[common.Address]types.Transactions {
 //				panic("mock out the Pending method")
 //			},
-//			PrepareFunc: func(blockNumber *big.Int, blockTime uint64, baseFee *big.Int)  {
+//			PrepareFunc: func(header *types.Header)  {
 //				panic("mock out the Prepare method")
 //			},
 //			SendTxFunc: func(tx *types.Transaction) error {
@@ -73,7 +72,7 @@ type TxPoolPluginMock struct {
 	PendingFunc func(b bool) map[common.Address]types.Transactions
 
 	// PrepareFunc mocks the Prepare method.
-	PrepareFunc func(blockNumber *big.Int, blockTime uint64, baseFee *big.Int)
+	PrepareFunc func(header *types.Header)
 
 	// SendTxFunc mocks the SendTx method.
 	SendTxFunc func(tx *types.Transaction) error
@@ -111,12 +110,8 @@ type TxPoolPluginMock struct {
 		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
-			// BlockNumber is the blockNumber argument value.
-			BlockNumber *big.Int
-			// BlockTime is the blockTime argument value.
-			BlockTime uint64
-			// BaseFee is the baseFee argument value.
-			BaseFee *big.Int
+			// Header is the header argument value.
+			Header *types.Header
 		}
 		// SendTx holds details about calls to the SendTx method.
 		SendTx []struct {
@@ -299,23 +294,19 @@ func (mock *TxPoolPluginMock) PendingCalls() []struct {
 }
 
 // Prepare calls PrepareFunc.
-func (mock *TxPoolPluginMock) Prepare(blockNumber *big.Int, blockTime uint64, baseFee *big.Int) {
+func (mock *TxPoolPluginMock) Prepare(header *types.Header) {
 	if mock.PrepareFunc == nil {
 		panic("TxPoolPluginMock.PrepareFunc: method is nil but TxPoolPlugin.Prepare was just called")
 	}
 	callInfo := struct {
-		BlockNumber *big.Int
-		BlockTime   uint64
-		BaseFee     *big.Int
+		Header *types.Header
 	}{
-		BlockNumber: blockNumber,
-		BlockTime:   blockTime,
-		BaseFee:     baseFee,
+		Header: header,
 	}
 	mock.lockPrepare.Lock()
 	mock.calls.Prepare = append(mock.calls.Prepare, callInfo)
 	mock.lockPrepare.Unlock()
-	mock.PrepareFunc(blockNumber, blockTime, baseFee)
+	mock.PrepareFunc(header)
 }
 
 // PrepareCalls gets all the calls that were made to Prepare.
@@ -323,14 +314,10 @@ func (mock *TxPoolPluginMock) Prepare(blockNumber *big.Int, blockTime uint64, ba
 //
 //	len(mockedTxPoolPlugin.PrepareCalls())
 func (mock *TxPoolPluginMock) PrepareCalls() []struct {
-	BlockNumber *big.Int
-	BlockTime   uint64
-	BaseFee     *big.Int
+	Header *types.Header
 } {
 	var calls []struct {
-		BlockNumber *big.Int
-		BlockTime   uint64
-		BaseFee     *big.Int
+		Header *types.Header
 	}
 	mock.lockPrepare.RLock()
 	calls = mock.calls.Prepare
