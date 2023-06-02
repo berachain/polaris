@@ -438,14 +438,6 @@ func (bc *mockBlockChain) SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent)
 	return bc.chainHeadFeed.Subscribe(ch)
 }
 
-type mockPLF struct{}
-
-func (mplf *mockPLF) Build(event *sdk.Event) (*coretypes.Log, error) {
-	return &coretypes.Log{
-		Address: common.BytesToAddress([]byte(event.Type)),
-	}, nil
-}
-
 func isQueuedTx(mempool *WrappedGethTxPool, tx *coretypes.Transaction) bool {
 	_, queued := mempool.Content()
 

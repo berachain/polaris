@@ -22,6 +22,8 @@ package polar
 
 import (
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/core/txpool"
@@ -142,8 +144,14 @@ func (pl *Polaris) StartServices() error {
 		return err
 	}
 
-	// Start the services (json-rpc, graphql, etc)
-	return pl.stack.Start()
+	go func() {
+		// TODO: unhack this.
+		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
+		if pl.stack.Start() != nil {
+			os.Exit(1)
+		}
+	}()
+	return nil
 }
 
 // GetTxPool returns the Ethereum txpool for the Polaris chain.
