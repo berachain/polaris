@@ -23,10 +23,10 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-# This simulation runs JSON-RPC API tests.
+ARG GO_VERSION=1.20.4
 
 # This simulation runs JSON-RPC API tests.
-FROM golang:1-alpine as builder
+FROM golang:${GO_VERSION}-alpine as builder
 RUN apk add --update gcc musl-dev linux-headers
 
 # Build the simulator executable.

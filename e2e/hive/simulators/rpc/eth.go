@@ -27,7 +27,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/crypto"
@@ -83,7 +82,6 @@ func getBalanceSupport(t *TestEnv) {
 	}
 
 	types.SignNewTx(key, mySigner, &types.LegacyTx{})
-	fmt.Printf("acount: %v\n", mySigner)
 }
 
 func estimateGasSupport(t *TestEnv) {
