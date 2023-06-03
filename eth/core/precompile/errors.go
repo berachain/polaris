@@ -49,4 +49,8 @@ var (
 	// ErrNoPrecompileMethodForABIMethod is returned when no precompile method is provided for a
 	// corresponding ABI method.
 	ErrNoPrecompileMethodForABIMethod = errors.New("this ABI method does not have a corresponding precompile method")
+
+	// ErrPrecompileReentrancy is returned when a precompile method is invoked while another
+	// precompile method is still running.
+	ErrPrecompileReentrancy = errors.New("precompile reentrancy detected")
 )

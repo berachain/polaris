@@ -23,6 +23,7 @@ package precompile
 import (
 	"context"
 	"math/big"
+	"sync"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -46,6 +47,7 @@ type stateful struct {
 	// receive      *Method // TODO: implement
 	// fallback     *Method // TODO: implement
 
+	reentrancyLock sync.Mutex
 }
 
 // NewStateful creates and returns a new `stateful` with the given method ids precompile functions map.
@@ -53,8 +55,9 @@ func NewStateful(
 	rp Registrable, idsToMethods map[string]*Method,
 ) vm.PrecompileContainer {
 	return &stateful{
-		Registrable:  rp,
-		idsToMethods: idsToMethods,
+		Registrable:    rp,
+		idsToMethods:   idsToMethods,
+		reentrancyLock: sync.Mutex{},
 	}
 }
 
@@ -70,6 +73,13 @@ func (sc *stateful) Run(
 	value *big.Int,
 	readonly bool,
 ) ([]byte, error) {
+	// If acquiring the lock fails then the precompile is already running and we should abort
+	// execution.
+	if !sc.reentrancyLock.TryLock() {
+		return nil, ErrPrecompileReentrancy
+	}
+	defer sc.reentrancyLock.Unlock()
+
 	if sc.idsToMethods == nil {
 		return nil, ErrContainerHasNoMethods
 	}
