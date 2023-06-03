@@ -4,7 +4,6 @@ go 1.20
 
 replace (
 	cosmossdk.io/collections => cosmossdk.io/collections v0.0.0-20230603143550-95178ce03674
-	cosmossdk.io/errors => cosmossdk.io/errors v1.0.0-beta.7.0.20230603143550-95178ce03674
 	cosmossdk.io/x/circuit => github.com/cosmos/cosmos-sdk/x/circuit v0.0.0-20230603143550-95178ce03674
 	cosmossdk.io/x/evidence => github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230603143550-95178ce03674
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230603143550-95178ce03674
