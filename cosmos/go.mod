@@ -3,14 +3,14 @@ module pkg.berachain.dev/polaris/cosmos
 go 1.20
 
 replace (
+	// cosmos-sdk required replaces.
 	cosmossdk.io/collections => cosmossdk.io/collections v0.0.0-20230603143550-95178ce03674
-	cosmossdk.io/x/circuit => github.com/cosmos/cosmos-sdk/x/circuit v0.0.0-20230603143550-95178ce03674
 	cosmossdk.io/x/evidence => github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230603143550-95178ce03674
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230603143550-95178ce03674
-
-	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230530204432-e9a3700deefc
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+
+	// go-ethereum required replaces.
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230530204432-e9a3700deefc
 )
 
 require (
