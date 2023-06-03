@@ -18,32 +18,19 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mempool
+package handler
 
 import (
-	"context"
+	"github.com/ethereum/go-ethereum/event"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
-
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// Insert is called when a transaction is added to the mempool.
-func (gtp *WrappedGethTxPool) Insert(_ context.Context, tx sdk.Tx) error {
-	return gtp.AddRemotes(coretypes.Transactions{evmtypes.GetAsEthTx(tx)})[0]
-}
-
-// Remove is called when a transaction is removed from the mempool.
-func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
-	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		removed := gtp.RemoveTx(ethTx.Hash(), true)
-		if removed < 1 {
-			// TODO: RemoveTx will return 0 if the tx was removed from future queue. We should
-			// handle this specific case better.
-			return sdkmempool.ErrTxNotFound
-		}
+type (
+	// TxPool defines the required functions of the transaction pool.
+	TxPool interface {
+		SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription
+		SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
 	}
-	return nil
-}
+)

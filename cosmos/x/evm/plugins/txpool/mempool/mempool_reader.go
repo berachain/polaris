@@ -50,7 +50,8 @@ func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Itera
 
 // CountTx returns the number of transactions currently in the mempool.
 func (gtp *WrappedGethTxPool) CountTx() int {
-	return 0
+	pending, queued := gtp.Stats()
+	return pending + queued
 }
 
 // iterator is used to iterate over the transactions in the sdk mempool.
@@ -70,7 +71,7 @@ func (i *iterator) Tx() sdk.Tx {
 
 	sdkTx, err := i.serializer.SerializeToSdkTx(ethTx)
 	if err != nil {
-		// gtp.logger.Error("eth tx could not be serialized to sdk tx:", err)
+		// TODO: gtp.logger.Error("eth tx could not be serialized to sdk tx:", err)
 		return nil
 	}
 
