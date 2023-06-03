@@ -28,8 +28,6 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
-
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -43,7 +41,7 @@ import (
 func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs,
 	modulesToExport []string) (servertypes.ExportedApp, error) {
 	// as if they could withdraw from the start of the next block
-	ctx := app.NewContext(true, cmtproto.Header{Height: app.LastBlockHeight()})
+	ctx := app.NewContext(true)
 
 	// We export at last height + 1, because that's the height at which
 	// CometBFT will start InitChain.
@@ -139,12 +137,12 @@ func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowed
 		}
 
 		var feePool distributiontypes.FeePool
-		feePool, err = app.DistrKeeper.GetFeePool(ctx)
+		feePool, err = app.DistrKeeper.FeePool.Get(ctx)
 		if err != nil {
 			panic(err)
 		}
 		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
-		if err = app.DistrKeeper.SetFeePool(ctx, feePool); err != nil {
+		if err = app.DistrKeeper.FeePool.Set(ctx, feePool); err != nil {
 			panic(err)
 		}
 
