@@ -89,6 +89,7 @@ import (
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -139,12 +140,12 @@ var (
 // capabilities aren't needed for testing.
 type PolarisApp struct {
 	*polarisruntime.PolarisApp
-
-	LegacyAminoCodec       *codec.LegacyAmino
-	ApplicationCodec       codec.Codec
-	TxnConfig              client.TxConfig
-	CodecInterfaceRegistry codectypes.InterfaceRegistry
-	AutoCliOptions         autocli.AppOptions
+	legacyAmino       *codec.LegacyAmino
+	appCodec          codec.Codec
+	txConfig          client.TxConfig
+	interfaceRegistry codectypes.InterfaceRegistry
+	// TODO I think move?
+	autoCliOpts autocli.AppOptions
 
 	// keepers
 	AccountKeeper         authkeeper.AccountKeeper
@@ -211,11 +212,10 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 
 	if err := depinject.Inject(appConfig,
 		&appBuilder.AppBuilder,
-		&app.ApplicationCodec,
-		&app.LegacyAminoCodec,
-		&app.TxnConfig,
-		&app.CodecInterfaceRegistry,
-		&app.AutoCliOptions,
+		&app.appCodec,
+		&app.legacyAmino,
+		&app.txConfig,
+		&app.interfaceRegistry,
 		&app.AccountKeeper,
 		&app.BankKeeper,
 		&app.StakingKeeper,
@@ -272,7 +272,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	)
 
 	// We must register the EthSecp256k1 signature type because it is not registered by default.
-	// TODO: remove once upstreamed to the SDK.
+	// TODO: remove once upstreamed to the SDK. and/or move the polarisruntime.AppBuilder
 	app.RegisterEthSecp256k1SignatureType()
 
 	if err := app.RegisterStreamingServices(appOpts, app.KVStoreKeys()); err != nil {
@@ -312,35 +312,35 @@ func (app *PolarisApp) SimulationManager() *module.SimulationManager {
 	return nil
 }
 
-// LegacyAmino returns polarisruntime's amino codec.
+// LegacyAmino returns SimApp's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
 func (app *PolarisApp) LegacyAmino() *codec.LegacyAmino {
-	return app.LegacyAminoCodec
+	return app.legacyAmino
 }
 
-// AppCodec returns polarisruntime's app codec.
+// AppCodec returns SimApp's app codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
 func (app *PolarisApp) AppCodec() codec.Codec {
-	return app.ApplicationCodec
+	return app.appCodec
 }
 
-// InterfaceRegistry returns polarisruntime's InterfaceRegistry.
+// InterfaceRegistry returns SimApp's InterfaceRegistry.
 func (app *PolarisApp) InterfaceRegistry() codectypes.InterfaceRegistry {
-	return app.CodecInterfaceRegistry
+	return app.interfaceRegistry
 }
 
-// TxConfig returns polarisruntime's TxConfig.
+// TxConfig returns SimApp's TxConfig
 func (app *PolarisApp) TxConfig() client.TxConfig {
-	return app.TxnConfig
+	return app.txConfig
 }
 
-// AutoCliOpts returns the autocli options for the app.
+// TODO move?
 func (app *PolarisApp) AutoCliOpts() autocli.AppOptions {
-	return app.AutoCliOptions
+	return app.autoCliOpts
 }
 
 // GetSubspace returns a param subspace for a given module name.
@@ -353,7 +353,7 @@ func (app *PolarisApp) GetSubspace(moduleName string) paramstypes.Subspace {
 
 // RegisterEthSecp256k1SignatureType registers the eth_secp256k1 signature type.
 func (app *PolarisApp) RegisterEthSecp256k1SignatureType() {
-	ethcryptocodec.RegisterInterfaces(app.CodecInterfaceRegistry)
+	ethcryptocodec.RegisterInterfaces(app.interfaceRegistry)
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
