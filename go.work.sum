@@ -1,6 +1,12 @@
+cosmossdk.io/x/feegrant v0.0.0-20230117113717-50e7c4a4ceff h1:ASeogeTLcf487ykEMTN2z1p/vykpo2HdPkKC7JpE8pE=
+cosmossdk.io/x/nft v0.0.0-20230113085233-fae3332d62fc h1:uk4+YTFhtG71jpmv5ZJQhb/V7h9j9rO1HacJc7O4dz8=
+github.com/coreos/go-semver v0.3.0 h1:wkHLiw0WNATZnSG7epLsujiMCgPAc9xhjJ4tgnAxmfM=
+github.com/cosmos/cosmos-sdk/x/circuit v0.0.0-20230525153548-b6613f9163f8 h1:Sl2a83Wn8vlKPvgndtPmNOKzGlX4y9HwGWlouO77x54=
 github.com/cpuguy83/go-md2man v1.0.10 h1:BSKMNlYxDvnunlTymqtgONjNnaRV1sTpcovwwjF22jk=
 github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
 github.com/pelletier/go-toml v1.9.5 h1:4yBQzkHv+7BHq2PQUZF3Mx0IYxG7LsP222s7Agd3ve8=
 github.com/russross/blackfriday v1.6.0 h1:KqfZb0pUVN2lYqZUYRddxF4OR8ZMURnJIG5Y3VRLtww=
+github.com/tendermint/tendermint v0.37.0-rc2 h1:2n1em+jfbhSv6QnBj8F6KHCpbIzZCB8KgcjidJUQNlY=
 github.com/urfave/cli v1.22.1 h1:+mkCCcOFKPnCmVYVcURKps1Xe+3zP90gSYGNfRkjoIY=
+go.etcd.io/etcd v0.0.0-20191023171146-3cf2f69b5738 h1:VcrIfasaLFkyjk6KNlXQSzO+B0fZcnECiDrKJsfxka0=
 gotest.tools v2.2.0+incompatible h1:VsBPFP1AI068pPrMxtb/S8Zkgf9xEmTLJjfM+P5UIEo=

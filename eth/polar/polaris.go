@@ -135,18 +135,18 @@ func (pl *Polaris) StartServices() error {
 	// Register the JSON-RPCs with the networking stack.
 	pl.stack.RegisterAPIs(pl.APIs())
 
-	// Register the filter API separately in order to get access to the filterSystem
-	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
-
-	// Register the GraphQL API (todo update cors stuff)
-	// TODO: gate this behind a flag
-	if err := graphql.New(pl.stack, pl.backend, pl.filterSystem, []string{"*"}, []string{"*"}); err != nil {
-		return err
-	}
-
+	// TODO: unhack this, it is 100% ghetto af and is hack fixing an obvious race condition at startup.
 	go func() {
-		// TODO: unhack this.
 		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
+		// Register the filter API separately in order to get access to the filterSystem
+		pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
+
+		// Register the GraphQL API (todo update cors stuff)
+		// TODO: gate this behind a flag
+		if err := graphql.New(pl.stack, pl.backend, pl.filterSystem, []string{"*"}, []string{"*"}); err != nil {
+			panic(err)
+		}
+
 		if pl.stack.Start() != nil {
 			os.Exit(1)
 		}
