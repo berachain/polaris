@@ -35,7 +35,7 @@ import (
 
 func TestConfig(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/app/config")
+	RunSpecs(t, "cosmos/simapp/config")
 }
 
 var _ = Describe("Configuration", func() {
