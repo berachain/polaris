@@ -34,6 +34,12 @@ import (
 func (gtp *WrappedGethTxPool) Insert(_ context.Context, tx sdk.Tx) error {
 	// TODO: @calbera we might want to call with sync here? idk if this could cause problems.
 	// TODO: trying sync on CI rn
+	return gtp.AddRemotes(coretypes.Transactions{evmtypes.GetAsEthTx(tx)})[0]
+}
+
+// InsertSync is called when a transaction is added to the mempool.
+// FOR UNIT TESTING PURPOSES ONLY to avoid race conditions.
+func (gtp *WrappedGethTxPool) InsertSync(_ context.Context, tx sdk.Tx) error {
 	return gtp.AddRemotesSync(coretypes.Transactions{evmtypes.GetAsEthTx(tx)})[0]
 }
 
