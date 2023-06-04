@@ -18,25 +18,8 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package main
+package app
 
-import (
-	"os"
-
-	"cosmossdk.io/log"
-
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-
-	"pkg.berachain.dev/polaris/cosmos/cmd/polard/cmd"
-	runtime "pkg.berachain.dev/polaris/cosmos/runtime"
-	runtimeconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
-)
-
-func main() {
-	runtimeconfig.SetupCosmosConfig()
-	rootCmd := cmd.NewRootCmd()
-	if err := svrcmd.Execute(rootCmd, "", runtime.DefaultNodeHome); err != nil {
-		log.NewLogger(rootCmd.OutOrStderr()).Error("failure when running app", "err", err)
-		os.Exit(1)
-	}
+func (app PolarisApp) RegisterUpgradeHandlers() {
+	// no-op in the sample app
 }

@@ -19,7 +19,7 @@
 // TITLE.
 
 //nolint:revive // embed.
-package runtime
+package app
 
 import (
 	"io"
@@ -29,13 +29,17 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
+	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appconfig"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -43,13 +47,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
+	simappconfig "pkg.berachain.dev/polaris/cosmos/app/config"
 	polarisbaseapp "pkg.berachain.dev/polaris/cosmos/runtime/baseapp"
-	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -239,4 +245,43 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 // SimulationManager implements the SimulationApp interface.
 func (app *PolarisApp) SimulationManager() *module.SimulationManager {
 	return app.sm
+}
+
+// LegacyAmino returns PolarisBaseApp's amino codec.
+//
+// NOTE: This is solely to be used for testing purposes as it may be desirable
+// for modules to register their own custom testing types.
+func (app *PolarisApp) LegacyAmino() *codec.LegacyAmino {
+	return app.LegacyAminoCodec
+}
+
+// AppCodec returns PolarisBaseApp's app codec.
+//
+// NOTE: This is solely to be used for testing purposes as it may be desirable
+// for modules to register their own custom testing types.
+func (app *PolarisApp) AppCodec() codec.Codec {
+	return app.ApplicationCodec
+}
+
+// InterfaceRegistry returns PolarisBaseApp's InterfaceRegistry.
+func (app *PolarisApp) InterfaceRegistry() codectypes.InterfaceRegistry {
+	return app.CodecInterfaceRegistry
+}
+
+// TxConfig returns PolarisBaseApp's TxConfig.
+func (app *PolarisApp) TxConfig() client.TxConfig {
+	return app.TxnConfig
+}
+
+// AutoCliOpts returns the autocli options for the app.
+func (app *PolarisApp) AutoCliOpts() autocli.AppOptions {
+	return app.AutoCliOptions
+}
+
+// GetSubspace returns a param subspace for a given module name.
+//
+// NOTE: This is solely to be used for testing purposes.
+func (app *PolarisApp) GetSubspace(moduleName string) paramstypes.Subspace {
+	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
+	return subspace
 }

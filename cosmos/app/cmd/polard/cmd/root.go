@@ -60,8 +60,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
+	"pkg.berachain.dev/polaris/cosmos/app"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
-	"pkg.berachain.dev/polaris/cosmos/runtime"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 )
 
@@ -80,7 +80,7 @@ func NewRootCmd() *cobra.Command {
 	// )
 
 	// // TODO: make it so that x/evm doesn't need this.
-	// if err := depinject.Inject(depinject.Configs(runtime.AppConfig, depinject.Supply(
+	// if err := depinject.Inject(depinject.Configs(app.AppConfig, depinject.Supply(
 	// 	sims.NewAppOptionsWithFlagHome(tempDir()),
 	// 	log.NewNopLogger(),
 	// 	evmmempool.NewEthTxPoolFrom(
@@ -100,7 +100,7 @@ func NewRootCmd() *cobra.Command {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
 	// note, this is not necessary when using app wiring, as depinject can be directly used.
 	// for consistency between app-v1 and app-v2, we do it the same way via methods on simapp
-	tempApp := runtime.NewPolarisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, sims.NewAppOptionsWithFlagHome(tempDir()))
+	tempApp := app.NewPolarisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, sims.NewAppOptionsWithFlagHome(tempDir()))
 	encodingConfig := params.EncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),
@@ -120,7 +120,7 @@ func NewRootCmd() *cobra.Command {
 		WithLegacyAmino(legacyAmino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
-		WithHomeDir(runtime.DefaultNodeHome).
+		WithHomeDir(app.DefaultNodeHome).
 		WithViper(""). // In simapp, we don't use any prefix for env variables.
 		WithKeyringOptions(keyring.EthSecp256k1Option())
 
@@ -168,7 +168,7 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	initRootCmd(rootCmd, txConfig, interfaceRegistry, appCodec, runtime.ModuleBasics)
+	initRootCmd(rootCmd, txConfig, interfaceRegistry, appCodec, app.ModuleBasics)
 
 	if err := tempApp.AutoCliOpts().EnhanceRootCommand(rootCmd); err != nil {
 		panic(err)
@@ -225,7 +225,7 @@ func initRootCmd(
 	cfg.Seal()
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, runtime.DefaultNodeHome),
+		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
 		// NewTestnetCmd(basicManager, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
@@ -233,7 +233,7 @@ func initRootCmd(
 		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommands(rootCmd, runtime.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+	server.AddCommands(rootCmd, app.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
@@ -241,7 +241,7 @@ func initRootCmd(
 		genesisCommand(txConfig, basicManager),
 		queryCommand(),
 		txCommand(),
-		keys.Commands(runtime.DefaultNodeHome),
+		keys.Commands(app.DefaultNodeHome),
 	)
 }
 
@@ -251,7 +251,7 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter.
 func genesisCommand(txConfig client.TxConfig, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
-	cmd := genutilcli.Commands(txConfig, basicManager, runtime.DefaultNodeHome)
+	cmd := genutilcli.Commands(txConfig, basicManager, app.DefaultNodeHome)
 
 	for _, subCmd := range cmds {
 		cmd.AddCommand(subCmd)
@@ -313,7 +313,7 @@ func newApp(
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
-	return runtime.NewPolarisApp(
+	return app.NewPolarisApp(
 		logger, db, traceStore, true,
 		appOpts,
 		baseappOptions...,
@@ -347,15 +347,15 @@ func appExport(
 	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
 	appOpts = viperAppOpts
 
-	var polarisApp *runtime.PolarisApp
+	var polarisApp *app.PolarisApp
 	if height != -1 {
-		polarisApp = runtime.NewPolarisApp(logger, db, traceStore, false, appOpts)
+		polarisApp = app.NewPolarisApp(logger, db, traceStore, false, appOpts)
 
 		if err := polarisApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		polarisApp = runtime.NewPolarisApp(logger, db, traceStore, true, appOpts)
+		polarisApp = app.NewPolarisApp(logger, db, traceStore, true, appOpts)
 	}
 
 	return polarisApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
@@ -364,7 +364,7 @@ func appExport(
 var tempDir = func() string {
 	dir, err := os.MkdirTemp("", "polarisApp")
 	if err != nil {
-		dir = runtime.DefaultNodeHome
+		dir = app.DefaultNodeHome
 	}
 	defer os.RemoveAll(dir)
 

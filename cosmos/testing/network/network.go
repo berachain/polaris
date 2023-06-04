@@ -42,11 +42,11 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"pkg.berachain.dev/polaris/cosmos/app"
+	config "pkg.berachain.dev/polaris/cosmos/app/config"
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
 	ethkeyring "pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
-	runtime "pkg.berachain.dev/polaris/cosmos/runtime"
-	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -107,7 +107,7 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 // DefaultConfig will initialize config for the network with custom application,
 // genesis and single validator. All other parameters are inherited from cosmos-sdk/testutil/network.DefaultConfig.
 func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
-	encoding := config.BuildPolarisEncodingConfig(runtime.ModuleBasics)
+	encoding := config.BuildPolarisEncodingConfig(app.ModuleBasics)
 	cfg := network.Config{
 		Codec:             encoding.Codec,
 		TxConfig:          encoding.TxConfig,
@@ -115,7 +115,7 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 		InterfaceRegistry: encoding.InterfaceRegistry,
 		AccountRetriever:  authtypes.AccountRetriever{},
 		AppConstructor: func(val network.ValidatorI) servertypes.Application {
-			return runtime.NewPolarisApp(
+			return app.NewPolarisApp(
 				val.GetCtx().Logger, cdb.NewMemDB(), nil, true, sims.EmptyAppOptions{},
 				baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.GetAppConfig().Pruning)),
 				baseapp.SetMinGasPrices(val.GetAppConfig().MinGasPrices),
@@ -141,8 +141,8 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 }
 
 func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json.RawMessage {
-	encoding := config.BuildPolarisEncodingConfig(runtime.ModuleBasics)
-	genState := runtime.ModuleBasics.DefaultGenesis(encoding.Codec)
+	encoding := config.BuildPolarisEncodingConfig(app.ModuleBasics)
+	genState := app.ModuleBasics.DefaultGenesis(encoding.Codec)
 
 	// Auth, Bank, EVM module
 	var authState authtypes.GenesisState

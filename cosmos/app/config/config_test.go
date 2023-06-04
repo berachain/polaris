@@ -26,7 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	sgconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
+	sgconfig "pkg.berachain.dev/polaris/cosmos/app/config"
 	"pkg.berachain.dev/polaris/eth/accounts"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -35,7 +35,7 @@ import (
 
 func TestConfig(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/runtime/config")
+	RunSpecs(t, "cosmos/app/config")
 }
 
 var _ = Describe("Configuration", func() {

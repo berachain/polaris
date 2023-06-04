@@ -18,8 +18,25 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package runtime
+package main
 
-func (app PolarisApp) RegisterUpgradeHandlers() {
-	// no-op in the sample app
+import (
+	"os"
+
+	"cosmossdk.io/log"
+
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+
+	"pkg.berachain.dev/polaris/cosmos/app"
+	"pkg.berachain.dev/polaris/cosmos/app/cmd/polard/cmd"
+	runtimeconfig "pkg.berachain.dev/polaris/cosmos/app/config"
+)
+
+func main() {
+	runtimeconfig.SetupCosmosConfig()
+	rootCmd := cmd.NewRootCmd()
+	if err := svrcmd.Execute(rootCmd, "", app.DefaultNodeHome); err != nil {
+		log.NewLogger(rootCmd.OutOrStderr()).Error("failure when running app", "err", err)
+		os.Exit(1)
+	}
 }
