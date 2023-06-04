@@ -43,7 +43,6 @@ type PolarisApp struct {
 //
 // NOTE: This is solely to be used for testing purposes.
 func (app *PolarisApp) GetKey(storeKey string) *storetypes.KVStoreKey {
-
 	// Aux keys first
 	for _, k := range app.auxStoreKeys {
 		if kv, ok := utils.GetAs[*storetypes.KVStoreKey](k); ok && kv.Name() == storeKey {
