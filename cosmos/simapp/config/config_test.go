@@ -26,7 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	sgconfig "pkg.berachain.dev/polaris/cosmos/app/config"
+	sgconfig "pkg.berachain.dev/polaris/cosmos/simapp/config"
 	"pkg.berachain.dev/polaris/eth/accounts"
 
 	. "github.com/onsi/ginkgo/v2"

@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package app
+package simapp
 
 import (
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"

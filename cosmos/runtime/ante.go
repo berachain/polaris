@@ -18,8 +18,4 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package app
-
-func (app PolarisApp) RegisterUpgradeHandlers() {
-	// no-op in the sample app
-}
+package runtime

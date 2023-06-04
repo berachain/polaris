@@ -60,8 +60,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	"pkg.berachain.dev/polaris/cosmos/app"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
+	simapp "pkg.berachain.dev/polaris/cosmos/simapp"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 )
 
@@ -80,7 +80,7 @@ func NewRootCmd() *cobra.Command {
 	// )
 
 	// // TODO: make it so that x/evm doesn't need this.
-	// if err := depinject.Inject(depinject.Configs(app.AppConfig, depinject.Supply(
+	// if err := depinject.Inject(depinject.Configs(simsimapp.AppConfig, depinject.Supply(
 	// 	sims.NewAppOptionsWithFlagHome(tempDir()),
 	// 	log.NewNopLogger(),
 	// 	evmmempool.NewEthTxPoolFrom(
@@ -100,7 +100,7 @@ func NewRootCmd() *cobra.Command {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
 	// note, this is not necessary when using app wiring, as depinject can be directly used.
 	// for consistency between app-v1 and app-v2, we do it the same way via methods on simapp
-	tempApp := app.NewPolarisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, sims.NewAppOptionsWithFlagHome(tempDir()))
+	tempApp := simapp.NewPolarisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, sims.NewAppOptionsWithFlagHome(tempDir()))
 	encodingConfig := params.EncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),
@@ -120,7 +120,7 @@ func NewRootCmd() *cobra.Command {
 		WithLegacyAmino(legacyAmino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
-		WithHomeDir(app.DefaultNodeHome).
+		WithHomeDir(simapp.DefaultNodeHome).
 		WithViper(""). // In simapp, we don't use any prefix for env variables.
 		WithKeyringOptions(keyring.EthSecp256k1Option())
 
@@ -168,7 +168,7 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	initRootCmd(rootCmd, txConfig, interfaceRegistry, appCodec, app.ModuleBasics)
+	initRootCmd(rootCmd, txConfig, interfaceRegistry, appCodec, simapp.ModuleBasics)
 
 	if err := tempApp.AutoCliOpts().EnhanceRootCommand(rootCmd); err != nil {
 		panic(err)
@@ -197,15 +197,15 @@ func initAppConfig() (string, interface{}) {
 	// server config.
 	srvCfg := serverconfig.DefaultConfig()
 	// The SDK's default minimum gas price is set to "" (empty value) inside
-	// app.toml. If left empty by validators, the node will halt on startup.
-	// However, the chain developer can set a default app.toml value for their
+	// simapp.toml. If left empty by validators, the node will halt on startup.
+	// However, the chain developer can set a default simapp.toml value for their
 	// validators here.
 	//
 	// In summary:
 	// - if you leave srvCfg.MinGasPrices = "", all validators MUST tweak their
-	//   own app.toml config,
+	//   own simapp.toml config,
 	// - if you set srvCfg.MinGasPrices non-empty, validators CAN tweak their
-	//   own app.toml to override, or use this default value.
+	//   own simapp.toml to override, or use this default value.
 	//
 	// In simapp, we set the min gas prices to 0.
 	srvCfg.MinGasPrices = "0stake"
@@ -225,7 +225,7 @@ func initRootCmd(
 	cfg.Seal()
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
+		genutilcli.InitCmd(basicManager, simapp.DefaultNodeHome),
 		// NewTestnetCmd(basicManager, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
@@ -233,7 +233,7 @@ func initRootCmd(
 		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommands(rootCmd, app.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+	server.AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
@@ -241,7 +241,7 @@ func initRootCmd(
 		genesisCommand(txConfig, basicManager),
 		queryCommand(),
 		txCommand(),
-		keys.Commands(app.DefaultNodeHome),
+		keys.Commands(simapp.DefaultNodeHome),
 	)
 }
 
@@ -251,7 +251,7 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter.
 func genesisCommand(txConfig client.TxConfig, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
-	cmd := genutilcli.Commands(txConfig, basicManager, app.DefaultNodeHome)
+	cmd := genutilcli.Commands(txConfig, basicManager, simapp.DefaultNodeHome)
 
 	for _, subCmd := range cmds {
 		cmd.AddCommand(subCmd)
@@ -313,7 +313,7 @@ func newApp(
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
-	return app.NewPolarisApp(
+	return simapp.NewPolarisApp(
 		logger, db, traceStore, true,
 		appOpts,
 		baseappOptions...,
@@ -347,24 +347,24 @@ func appExport(
 	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
 	appOpts = viperAppOpts
 
-	var polarisApp *app.PolarisApp
+	var polarApp *simapp.PolarisApp
 	if height != -1 {
-		polarisApp = app.NewPolarisApp(logger, db, traceStore, false, appOpts)
+		polarApp = simapp.NewPolarisApp(logger, db, traceStore, false, appOpts)
 
-		if err := polarisApp.LoadHeight(height); err != nil {
+		if err := polarApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		polarisApp = app.NewPolarisApp(logger, db, traceStore, true, appOpts)
+		polarApp = simapp.NewPolarisApp(logger, db, traceStore, true, appOpts)
 	}
 
-	return polarisApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
+	return polarApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }
 
 var tempDir = func() string {
 	dir, err := os.MkdirTemp("", "polarisApp")
 	if err != nil {
-		dir = app.DefaultNodeHome
+		dir = simapp.DefaultNodeHome
 	}
 	defer os.RemoveAll(dir)
 

@@ -19,7 +19,7 @@
 // TITLE.
 
 //nolint:revive // embed.
-package app
+package simapp
 
 import (
 	"io"
@@ -49,12 +49,13 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	simappconfig "pkg.berachain.dev/polaris/cosmos/app/config"
 	polarisruntime "pkg.berachain.dev/polaris/cosmos/runtime"
+	simappconfig "pkg.berachain.dev/polaris/cosmos/simapp/config"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -118,7 +119,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 				appOpts,
 				logger,
 				ethTxMempool,
-				polarisruntime.PrecompilesToInject(&app.PolarisBaseApp),
+				PrecompilesToInject(&app.PolarisBaseApp),
 			),
 		)
 	)
@@ -142,7 +143,6 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 		&app.ParamsKeeper,
 		&app.AuthzKeeper,
 		&app.EvidenceKeeper,
-		&app.GroupKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.EVMKeeper,
 		&app.ERC20Keeper,

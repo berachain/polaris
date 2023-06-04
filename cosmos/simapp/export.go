@@ -19,7 +19,7 @@
 // TITLE.
 
 //nolint:nonamedreturns // for now.
-package app
+package simapp
 
 import (
 	"encoding/json"

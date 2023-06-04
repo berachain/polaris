@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package runtime
+package simapp
 
 import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -31,12 +31,16 @@ import (
 	erc20precompile "pkg.berachain.dev/polaris/cosmos/precompile/erc20"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
 	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
+	"pkg.berachain.dev/polaris/cosmos/runtime"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
 // PrecompilesToInject returns a function that provides the initialization of the standard
 // set of precompiles.
-func PrecompilesToInject(app *PolarisBaseApp, customPcs ...ethprecompile.Registrable) func() *ethprecompile.Injector {
+func PrecompilesToInject(
+	app *runtime.PolarisBaseApp,
+	customPcs ...ethprecompile.Registrable,
+) func() *ethprecompile.Injector {
 	return func() *ethprecompile.Injector {
 		// Create the precompile injector with the standard precompiles.
 		pcs := ethprecompile.NewPrecompiles([]ethprecompile.Registrable{
