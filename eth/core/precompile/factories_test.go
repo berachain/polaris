@@ -173,11 +173,3 @@ func (ims *invalidMockStateful) PrecompileMethods() precompile.Methods {
 		},
 	}
 }
-
-type mockDynamic struct {
-	*mockStateful
-}
-
-func (md *mockDynamic) Name() string {
-	return ""
-}
