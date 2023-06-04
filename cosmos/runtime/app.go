@@ -22,10 +22,13 @@ package runtime
 
 import (
 	storetypes "cosmossdk.io/store/types"
+
 	"github.com/cosmos/cosmos-sdk/runtime"
-	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
+
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/lib/utils"
+
+	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
 // App extends an ABCI application, but with most of its parameters exported.
@@ -36,6 +39,7 @@ type PolarisApp struct {
 
 	auxStoreKeys []storetypes.StoreKey
 
+	// TODO: this is ghetto
 	wrappedTxPool *evmmempool.WrappedGethTxPool
 }
 

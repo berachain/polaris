@@ -25,14 +25,14 @@ import (
 	"io"
 
 	dbm "github.com/cosmos/cosmos-db"
-	"pkg.berachain.dev/polaris/cosmos/runtime/miner"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/runtime"
+
+	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 )
 
 // AppBuilder is a type that is injected into a container by the runtime module
@@ -52,7 +52,8 @@ func (a *AppBuilder) DefaultGenesis() map[string]json.RawMessage {
 }
 
 // Build builds an *App instance.
-func (a *AppBuilder) Build(db dbm.DB, traceStore io.Writer, logger log.Logger, baseAppOptions ...func(*baseapp.BaseApp)) *PolarisApp {
+func (a *AppBuilder) Build(db dbm.DB, traceStore io.Writer, _ log.Logger,
+	txPool *evmmempool.WrappedGethTxPool, baseAppOptions ...func(*baseapp.BaseApp)) *PolarisApp {
 	a.polarisApp = &PolarisApp{}
 
 	// TODO: move this somewhere better, introduce non IAVL enforced module keys as a PR to the SDK
@@ -68,10 +69,11 @@ func (a *AppBuilder) Build(db dbm.DB, traceStore io.Writer, logger log.Logger, b
 	// Build the base runtime.App (and thus baseapp.BaseApp)
 	a.polarisApp.App = a.AppBuilder.Build(db, traceStore, baseAppOptions...)
 
-	a.polarisApp.wrappedTxPool = evmmempool.NewWrappedGethTxPool()
-	txMiner := miner.NewProposalHandler(a.polarisApp, a.polarisApp.wrappedTxPool, logger)
-	a.polarisApp.SetPrepareProposal(txMiner.PrepareProposalHandler())
-	a.polarisApp.SetProcessProposal(txMiner.ProcessProposalHandler())
+	a.polarisApp.wrappedTxPool = txPool
+	// TODO: not working yet.
+	// txMiner := miner.NewProposalHandler(a.polarisApp, a.polarisApp.wrappedTxPool, logger)
+	// a.polarisApp.SetPrepareProposal(txMiner.PrepareProposalHandler())
+	// a.polarisApp.SetProcessProposal(txMiner.ProcessProposalHandler())
 
 	// Mount our custom stores.
 	a.polarisApp.MountCustomStores(offchainKey)

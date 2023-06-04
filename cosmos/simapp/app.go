@@ -52,8 +52,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -88,9 +86,9 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
+	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -166,9 +164,6 @@ type PolarisApp struct {
 	// polaris keepers
 	ERC20Keeper *erc20keeper.Keeper
 	EVMKeeper   *evmkeeper.Keeper
-
-	// simulation manager
-	sm *module.SimulationManager
 }
 
 //nolint:gochecknoinits // its okay.
@@ -191,9 +186,9 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *PolarisApp {
 	var (
-		app        = &PolarisApp{}
-		appBuilder = &polarisruntime.AppBuilder{}
-		// ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
+		app          = &PolarisApp{}
+		appBuilder   = &polarisruntime.AppBuilder{}
+		ethTxMempool = evmmempool.NewWrappedGethTxPool()
 		// ph                                 = miner.NewProposalHandler(app, ethTxMempool, logger)
 		// mempoolOpt runtime.BaseAppOption = baseapp.SetMempool(ethTxMempool)
 		// proposalOpt  runtime.BaseAppOption = func(ba *baseapp.BaseApp) {
@@ -207,6 +202,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 				appOpts,
 				// mempoolOpt,
 				// proposalOpt,
+				ethTxMempool,
 				logger,
 				PrecompilesToInject(app),
 			),
@@ -240,7 +236,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	}
 
 	// Build app with the provided options.
-	app.PolarisApp = appBuilder.Build(db, traceStore, logger, baseAppOptions...)
+	app.PolarisApp = appBuilder.Build(db, traceStore, logger, ethTxMempool, baseAppOptions...)
 
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
@@ -291,21 +287,6 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	app.RegisterUpgradeHandlers()
 
-	// add test gRPC service for testing gRPC queries in isolation
-	// testdata_pulsar.RegisterQueryServer(app.GRPCQueryRouter(), testdata_pulsar.QueryImpl{})
-
-	// create the simulation manager and define the order of the modules for deterministic simulations
-	//
-	// NOTE: this is not required for apps that don't use the simulator for fuzz testing
-	// transactions
-	overrideModules := map[string]module.AppModuleSimulation{
-		authtypes.ModuleName: auth.NewAppModule(app.ApplicationCodec, app.AccountKeeper,
-			authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
-	}
-	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
-
-	app.sm.RegisterStoreDecoders()
-
 	// A custom InitChainer can be set if extra pre-init-genesis logic is required.
 	// By default, when using app wiring enabled module, this is not required.
 	// For instance, the upgrade module will set automatically the module version map in its init
@@ -328,7 +309,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 
 // SimulationManager implements the SimulationApp interface.
 func (app *PolarisApp) SimulationManager() *module.SimulationManager {
-	return app.sm
+	return nil
 }
 
 // LegacyAmino returns polarisruntime's amino codec.
