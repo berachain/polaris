@@ -89,7 +89,9 @@ func GetDefaultPrecompiles(rules *params.Rules) []Registrable {
 	// Depending on the hard fork rules, we need to register a different set of precompiles.
 	var addrToPrecompiles map[common.Address]vm.PrecompileContainer
 	switch {
-	case rules.IsBerlin, rules.IsIstanbul:
+	case rules.IsIstanbul:
+		addrToPrecompiles = vm.PrecompiledContractsIstanbul
+	case rules.IsBerlin:
 		addrToPrecompiles = vm.PrecompiledContractsBerlin
 	case rules.IsByzantium:
 		addrToPrecompiles = vm.PrecompiledContractsByzantium

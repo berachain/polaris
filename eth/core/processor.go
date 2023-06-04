@@ -218,8 +218,6 @@ func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []precompile.R
 		// choose the appropriate precompile factory
 		var af precompile.AbstractFactory
 		switch {
-		case utils.Implements[precompile.DynamicImpl](pc):
-			af = precompile.NewDynamicFactory()
 		case utils.Implements[precompile.StatefulImpl](pc):
 			af = precompile.NewStatefulFactory()
 		case utils.Implements[precompile.StatelessImpl](pc):
