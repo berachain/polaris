@@ -47,4 +47,5 @@ var (
 	PrecompiledContractsBerlin    = vm.PrecompiledContractsBerlin
 	PrecompiledContractsByzantium = vm.PrecompiledContractsByzantium
 	PrecompiledContractsHomestead = vm.PrecompiledContractsHomestead
+	PrecompiledContractsIstanbul  = vm.PrecompiledContractsIstanbul
 )
