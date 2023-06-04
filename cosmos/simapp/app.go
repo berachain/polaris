@@ -89,7 +89,6 @@ import (
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -333,7 +332,7 @@ func (app *PolarisApp) InterfaceRegistry() codectypes.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
-// TxConfig returns SimApp's TxConfig
+// TxConfig returns SimApp's TxConfig.
 func (app *PolarisApp) TxConfig() client.TxConfig {
 	return app.txConfig
 }
