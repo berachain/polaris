@@ -31,14 +31,13 @@ import (
 	erc20precompile "pkg.berachain.dev/polaris/cosmos/precompile/erc20"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
 	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
-	"pkg.berachain.dev/polaris/cosmos/runtime"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
 // PrecompilesToInject returns a function that provides the initialization of the standard
 // set of precompiles.
 func PrecompilesToInject(
-	app *runtime.PolarisBaseApp,
+	app *PolarisApp,
 	customPcs ...ethprecompile.Registrable,
 ) func() *ethprecompile.Injector {
 	return func() *ethprecompile.Injector {

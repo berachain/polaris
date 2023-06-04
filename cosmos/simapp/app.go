@@ -34,6 +34,10 @@ import (
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
+	"cosmossdk.io/x/evidence"
+	evidencekeeper "cosmossdk.io/x/evidence/keeper"
+	"cosmossdk.io/x/upgrade"
+	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -41,21 +45,53 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	"github.com/cosmos/cosmos-sdk/server"
+	"github.com/cosmos/cosmos-sdk/server/api"
+	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
+	"github.com/cosmos/cosmos-sdk/x/bank"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	"github.com/cosmos/cosmos-sdk/x/consensus"
+	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
+	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
+	distr "github.com/cosmos/cosmos-sdk/x/distribution"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	"github.com/cosmos/cosmos-sdk/x/genutil"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	"github.com/cosmos/cosmos-sdk/x/gov"
+	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	"github.com/cosmos/cosmos-sdk/x/mint"
+	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+	"github.com/cosmos/cosmos-sdk/x/params"
+	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
+	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/cosmos/cosmos-sdk/x/slashing"
+	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
+	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	polarisruntime "pkg.berachain.dev/polaris/cosmos/runtime"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/simapp/config"
+	"pkg.berachain.dev/polaris/cosmos/x/erc20"
+	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
+	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
+	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -66,7 +102,29 @@ var (
 	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
 	// and genesis verification.
-	ModuleBasics = module.NewBasicManager(polarisruntime.ModuleBasics...)
+	ModuleBasics = module.NewBasicManager([]module.AppModuleBasic{
+		auth.AppModuleBasic{},
+		genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
+		bank.AppModuleBasic{},
+		staking.AppModuleBasic{},
+		mint.AppModuleBasic{},
+		distr.AppModuleBasic{},
+		gov.NewAppModuleBasic(
+			[]govclient.ProposalHandler{
+				paramsclient.ProposalHandler,
+			},
+		),
+		params.AppModuleBasic{},
+		crisis.AppModuleBasic{},
+		slashing.AppModuleBasic{},
+		upgrade.AppModuleBasic{},
+		evidence.AppModuleBasic{},
+		authzmodule.AppModuleBasic{},
+		consensus.AppModuleBasic{},
+		evm.AppModuleBasic{},
+		erc20.AppModuleBasic{},
+	}...,
+	)
 
 	// application configuration (used by depinject).
 	AppConfig = appconfig.Compose(&appv1alpha1.Config{
@@ -83,7 +141,32 @@ var (
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
 type PolarisApp struct {
-	polarisruntime.PolarisBaseApp
+	*polarisruntime.App
+
+	LegacyAminoCodec       *codec.LegacyAmino
+	ApplicationCodec       codec.Codec
+	TxnConfig              client.TxConfig
+	CodecInterfaceRegistry codectypes.InterfaceRegistry
+	AutoCliOptions         autocli.AppOptions
+
+	// keepers
+	AccountKeeper         authkeeper.AccountKeeper
+	BankKeeper            bankkeeper.Keeper
+	StakingKeeper         *stakingkeeper.Keeper
+	SlashingKeeper        slashingkeeper.Keeper
+	MintKeeper            mintkeeper.Keeper
+	DistrKeeper           distrkeeper.Keeper
+	GovKeeper             *govkeeper.Keeper
+	CrisisKeeper          *crisiskeeper.Keeper
+	UpgradeKeeper         *upgradekeeper.Keeper
+	ParamsKeeper          paramskeeper.Keeper
+	AuthzKeeper           authzkeeper.Keeper
+	EvidenceKeeper        evidencekeeper.Keeper
+	ConsensusParamsKeeper consensuskeeper.Keeper
+
+	// polaris keepers
+	ERC20Keeper *erc20keeper.Keeper
+	EVMKeeper   *evmkeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -109,23 +192,24 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *PolarisApp {
 	var (
-		app          = &PolarisApp{}
-		appBuilder   *runtime.AppBuilder
+		app = &PolarisApp{
+			App: &polarisruntime.App{},
+		}
+		appBuilder   = &polarisruntime.AppBuilder{}
 		ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
 		appConfig    = depinject.Configs(
 			AppConfig,
 			depinject.Supply(
-				app.App,
 				appOpts,
 				logger,
 				ethTxMempool,
-				PrecompilesToInject(&app.PolarisBaseApp),
+				PrecompilesToInject(app),
 			),
 		)
 	)
 
 	if err := depinject.Inject(appConfig,
-		&appBuilder,
+		&appBuilder.AppBuilder,
 		&app.ApplicationCodec,
 		&app.LegacyAminoCodec,
 		&app.TxnConfig,
@@ -155,7 +239,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	// TODO: move this somewhere better, introduce non IAVL enforced module keys as a PR to the SDK
 	// we ask @tac0turtle how 2 fix
 	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
-	app.PolarisBaseApp.MountCustomStores(offchainKey)
+	app.App.MountCustomStores(offchainKey)
 
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
@@ -283,4 +367,20 @@ func (app *PolarisApp) AutoCliOpts() autocli.AppOptions {
 func (app *PolarisApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
+}
+
+// RegisterEthSecp256k1SignatureType registers the eth_secp256k1 signature type.
+func (app *PolarisApp) RegisterEthSecp256k1SignatureType() {
+	ethcryptocodec.RegisterInterfaces(app.CodecInterfaceRegistry)
+}
+
+// RegisterAPIRoutes registers all application module routes with the provided
+// API server.
+func (app *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
+	// register swagger API in app.go so that other applications can override easily
+	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
+		panic(err)
+	}
+	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
 }

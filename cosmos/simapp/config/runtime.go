@@ -26,7 +26,6 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
@@ -95,7 +94,6 @@ var DefaultRuntime = &runtimev1alpha1.Module{
 		group.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
-		vestingtypes.ModuleName,
 		consensustypes.ModuleName,
 	},
 	// When ExportGenesis is not specified, the export genesis module order

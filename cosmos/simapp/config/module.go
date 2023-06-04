@@ -21,10 +21,6 @@
 package config
 
 import (
-	"time"
-
-	"google.golang.org/protobuf/types/known/durationpb"
-
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
 	authzmodulev1 "cosmossdk.io/api/cosmos/authz/module/v1"
@@ -35,21 +31,18 @@ import (
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	genutilmodulev1 "cosmossdk.io/api/cosmos/genutil/module/v1"
 	govmodulev1 "cosmossdk.io/api/cosmos/gov/module/v1"
-	groupmodulev1 "cosmossdk.io/api/cosmos/group/module/v1"
 	mintmodulev1 "cosmossdk.io/api/cosmos/mint/module/v1"
 	paramsmodulev1 "cosmossdk.io/api/cosmos/params/module/v1"
 	slashingmodulev1 "cosmossdk.io/api/cosmos/slashing/module/v1"
 	stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
 	upgrademodulev1 "cosmossdk.io/api/cosmos/upgrade/module/v1"
-	vestingmodulev1 "cosmossdk.io/api/cosmos/vesting/module/v1"
 	"cosmossdk.io/core/appconfig"
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
@@ -57,7 +50,6 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/cosmos/cosmos-sdk/x/group"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -109,10 +101,6 @@ var (
 			}),
 		},
 		{
-			Name:   vestingtypes.ModuleName,
-			Config: appconfig.WrapAny(&vestingmodulev1.Module{}),
-		},
-		{
 			Name: banktypes.ModuleName,
 			Config: appconfig.WrapAny(&bankmodulev1.Module{
 				BlockedModuleAccountsOverride: BlockAccAddrs,
@@ -157,15 +145,6 @@ var (
 		{
 			Name:   minttypes.ModuleName,
 			Config: appconfig.WrapAny(&mintmodulev1.Module{}),
-		},
-		{
-			Name: group.ModuleName,
-			Config: appconfig.WrapAny(&groupmodulev1.Module{
-				//nolint:gomnd // its okay.
-				MaxExecutionPeriod: durationpb.New(time.Second * 1209600),
-				//nolint:gomnd // its okay.
-				MaxMetadataLen: 255,
-			}),
 		},
 		{
 			Name:   govtypes.ModuleName,

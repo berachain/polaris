@@ -80,7 +80,7 @@ func (Cosmos) Build() error {
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
 		"-o", generateOutDirectory(cmd),
-		"./cosmos/app/cmd/" + cmd,
+		"./cosmos/simapp/" + cmd,
 	}
 	fmt.Println(strings.Join(args, " "))
 	return goBuild(args...)
