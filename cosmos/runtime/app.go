@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package baseapp
+package runtime
 
 import (
 	"cosmossdk.io/client/v2/autocli"

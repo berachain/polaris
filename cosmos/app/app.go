@@ -50,12 +50,11 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	simappconfig "pkg.berachain.dev/polaris/cosmos/app/config"
-	polarisbaseapp "pkg.berachain.dev/polaris/cosmos/runtime/baseapp"
+	polarisruntime "pkg.berachain.dev/polaris/cosmos/runtime"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -66,7 +65,7 @@ var (
 	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
 	// and genesis verification.
-	ModuleBasics = module.NewBasicManager(polarisbaseapp.ModuleBasics...)
+	ModuleBasics = module.NewBasicManager(polarisruntime.ModuleBasics...)
 
 	// application configuration (used by depinject).
 	AppConfig = appconfig.Compose(&appv1alpha1.Config{
@@ -79,11 +78,11 @@ var (
 	_ servertypes.Application = (*PolarisApp)(nil)
 )
 
-// PolarisBaseApp extends an ABCI application, but with most of its parameters exported.
+// polarisruntime extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
 type PolarisApp struct {
-	polarisbaseapp.PolarisBaseApp
+	polarisruntime.PolarisBaseApp
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -119,7 +118,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 				appOpts,
 				logger,
 				ethTxMempool,
-				polarisbaseapp.PrecompilesToInject(&app.PolarisBaseApp),
+				polarisruntime.PrecompilesToInject(&app.PolarisBaseApp),
 			),
 		)
 	)
@@ -247,7 +246,7 @@ func (app *PolarisApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
-// LegacyAmino returns PolarisBaseApp's amino codec.
+// LegacyAmino returns polarisruntime's amino codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
@@ -255,7 +254,7 @@ func (app *PolarisApp) LegacyAmino() *codec.LegacyAmino {
 	return app.LegacyAminoCodec
 }
 
-// AppCodec returns PolarisBaseApp's app codec.
+// AppCodec returns polarisruntime's app codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
@@ -263,12 +262,12 @@ func (app *PolarisApp) AppCodec() codec.Codec {
 	return app.ApplicationCodec
 }
 
-// InterfaceRegistry returns PolarisBaseApp's InterfaceRegistry.
+// InterfaceRegistry returns polarisruntime's InterfaceRegistry.
 func (app *PolarisApp) InterfaceRegistry() codectypes.InterfaceRegistry {
 	return app.CodecInterfaceRegistry
 }
 
-// TxConfig returns PolarisBaseApp's TxConfig.
+// TxConfig returns polarisruntime's TxConfig.
 func (app *PolarisApp) TxConfig() client.TxConfig {
 	return app.TxnConfig
 }

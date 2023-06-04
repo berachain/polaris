@@ -30,8 +30,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
 	"pkg.berachain.dev/polaris/cosmos/app"
+	"pkg.berachain.dev/polaris/cosmos/app/cmd/polard/cmd"
 	"pkg.berachain.dev/polaris/cosmos/app/config"
-	"pkg.berachain.dev/polaris/cosmos/cmd/polard/cmd"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

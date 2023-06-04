@@ -19,7 +19,7 @@
 // TITLE.
 
 //nolint:nonamedreturns // for now.
-package baseapp
+package app
 
 import (
 	"encoding/json"
@@ -40,7 +40,7 @@ import (
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
 // file.
-func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs,
+func (app *PolarisApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs,
 	modulesToExport []string) (servertypes.ExportedApp, error) {
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, cmtproto.Header{Height: app.LastBlockHeight()})
@@ -78,7 +78,7 @@ func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool, jailA
 //	in favor of export at a block height
 //
 //nolint:funlen,gocognit // from cosmos-sdk.
-func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
+func (app *PolarisApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
 	applyAllowedAddrs := false
 
 	// check if there is a allowed address list
