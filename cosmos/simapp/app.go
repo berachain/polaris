@@ -88,7 +88,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
 
@@ -192,15 +191,23 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *PolarisApp {
 	var (
-		app          = &PolarisApp{}
-		appBuilder   = &polarisruntime.AppBuilder{}
-		ethTxMempool = evmmempool.NewWrappedGethTxPool()
-		appConfig    = depinject.Configs(
+		app        = &PolarisApp{}
+		appBuilder = &polarisruntime.AppBuilder{}
+		// ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
+		// ph                                 = miner.NewProposalHandler(app, ethTxMempool, logger)
+		// mempoolOpt runtime.BaseAppOption = baseapp.SetMempool(ethTxMempool)
+		// proposalOpt  runtime.BaseAppOption = func(ba *baseapp.BaseApp) {
+		// 	fmt.Println("OPT EXECUTION")
+		// 	app.SetPrepareProposal(ph.PrepareProposalHandler())
+		// 	app.SetProcessProposal(ph.ProcessProposalHandler())
+		// }
+		appConfig = depinject.Configs(
 			AppConfig,
 			depinject.Supply(
 				appOpts,
+				// mempoolOpt,
+				// proposalOpt,
 				logger,
-				ethTxMempool,
 				PrecompilesToInject(app),
 			),
 		)
@@ -233,7 +240,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	}
 
 	// Build app with the provided options.
-	app.PolarisApp = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
+	app.PolarisApp = appBuilder.Build(db, traceStore, logger, baseAppOptions...)
 
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
