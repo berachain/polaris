@@ -33,14 +33,25 @@ import (
 // App extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
-type App struct {
+type PolarisApp struct {
 	*runtime.App
+
+	auxStoreKeys []storetypes.StoreKey
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey {
+func (app *PolarisApp) GetKey(storeKey string) *storetypes.KVStoreKey {
+
+	// Aux keys first
+	for _, k := range app.auxStoreKeys {
+		if kv, ok := utils.GetAs[*storetypes.KVStoreKey](k); ok && kv.Name() == storeKey {
+			return kv
+		}
+	}
+
+	// Then base keys
 	kvStoreKey, ok := utils.GetAs[*storetypes.KVStoreKey](app.UnsafeFindStoreKey(storeKey))
 	if !ok {
 		return nil
@@ -49,8 +60,17 @@ func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey {
 }
 
 // KVStoreKeys returns all the registered KVStoreKeys.
-func (app *App) KVStoreKeys() map[string]*storetypes.KVStoreKey {
+func (app *PolarisApp) KVStoreKeys() map[string]*storetypes.KVStoreKey {
 	keys := make(map[string]*storetypes.KVStoreKey)
+
+	// Aux keys first
+	for _, k := range app.auxStoreKeys {
+		if kv, ok := utils.GetAs[*storetypes.KVStoreKey](k); ok {
+			keys[kv.Name()] = kv
+		}
+	}
+
+	// Then base keys
 	for _, k := range app.GetStoreKeys() {
 		if kv, ok := utils.GetAs[*storetypes.KVStoreKey](k); ok {
 			keys[kv.Name()] = kv
@@ -67,9 +87,10 @@ func (app *App) KVStoreKeys() map[string]*storetypes.KVStoreKey {
 
 // MountCustomStore mounts a custom store to the baseapp.
 // TODO: GET UPSTREAMED
-func (app *App) MountCustomStores(keys ...storetypes.StoreKey) {
+func (app *PolarisApp) MountCustomStores(keys ...storetypes.StoreKey) {
 	for _, key := range keys {
 		// StoreTypeDB doesn't do anything upon commit, so its blessed for the offchain stuff.
 		app.MountStore(key, storetypes.StoreTypeDB)
+		app.auxStoreKeys = append(app.auxStoreKeys, key)
 	}
 }

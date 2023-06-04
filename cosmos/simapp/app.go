@@ -33,7 +33,6 @@ import (
 	"cosmossdk.io/core/appconfig"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/evidence"
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 	"cosmossdk.io/x/upgrade"
@@ -92,6 +91,7 @@ import (
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -141,7 +141,7 @@ var (
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
 type PolarisApp struct {
-	*polarisruntime.App
+	*polarisruntime.PolarisApp
 
 	LegacyAminoCodec       *codec.LegacyAmino
 	ApplicationCodec       codec.Codec
@@ -192,9 +192,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *PolarisApp {
 	var (
-		app = &PolarisApp{
-			App: &polarisruntime.App{},
-		}
+		app          = &PolarisApp{}
 		appBuilder   = &polarisruntime.AppBuilder{}
 		ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
 		appConfig    = depinject.Configs(
@@ -235,11 +233,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	}
 
 	// Build app with the provided options.
-	app.App = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
-	// TODO: move this somewhere better, introduce non IAVL enforced module keys as a PR to the SDK
-	// we ask @tac0turtle how 2 fix
-	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
-	app.App.MountCustomStores(offchainKey)
+	app.PolarisApp = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
 
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
@@ -252,7 +246,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
-		offchainKey,
+		app.GetKey("offchain-evm"),
 		app.CreateQueryContext,
 		// TODO: clean this up.
 		homePath+"/config/polaris.toml",
