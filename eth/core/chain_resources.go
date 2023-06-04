@@ -22,10 +22,12 @@ package core
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/consensus/misc"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -35,7 +37,9 @@ import (
 // ChainResources is the interface that defines functions for code paths within the chain to acquire
 // resources to use in execution such as StateDBss and EVMss.
 type ChainResources interface {
+	StateAtHeader(header *types.Header) (vm.GethStateDB, error)
 	StateAtBlockNumber(uint64) (vm.GethStateDB, error)
+	StateAt(common.Hash) (state.StateDBI, error)
 	GetVMConfig() *vm.Config
 	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
 	NewEVMBlockContext(header *types.Header) *vm.BlockContext
@@ -49,6 +53,16 @@ func (bc *blockchain) StateAtBlockNumber(number uint64) (vm.GethStateDB, error) 
 		return nil, err
 	}
 	return state.NewStateDB(sp), nil
+}
+
+// StateAt returns a new mutable state based on a particular point in time.
+func (bc *blockchain) StateAt(_ common.Hash) (state.StateDBI, error) {
+	return nil, errors.New("state root not supported by Polaris")
+}
+
+// StateAtHeader returns a new mutable state based on a particular block header in time.
+func (bc *blockchain) StateAtHeader(header *types.Header) (vm.GethStateDB, error) {
+	return bc.StateAtBlockNumber(header.Number.Uint64())
 }
 
 // GetEVM returns an EVM ready to be used for executing transactions. It is used by both the

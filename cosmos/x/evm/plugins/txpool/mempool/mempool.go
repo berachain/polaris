@@ -22,74 +22,56 @@ package mempool
 
 import (
 	"math/big"
-	"sync"
 
-	"github.com/cosmos/cosmos-sdk/types/mempool"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/ethereum/go-ethereum/core/txpool"
+
+	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// EthTxPool is a mempool for Ethereum transactions. It wraps a PriorityNonceMempool and caches
-// transactions that are added to the mempool by ethereum transaction hash.
-type EthTxPool struct {
-	// The underlying mempool implementation.
-	*mempool.PriorityNonceMempool[*big.Int]
+// Compile-time interface assertion.
+var _ sdkmempool.Mempool = (*WrappedGethTxPool)(nil)
 
-	// We need to keep track of the priority policy so that we can update the base fee.
-	priorityPolicy *EthereumTxPriorityPolicy
+// WrappedGethTxPool is a mempool for Ethereum transactions. It wraps a Geth TxPool.
+// NOTE: currently does not support adding `sdk.Tx`s that do NOT have a `WrappedEthereumTransaction`
+// as the tx Msg.
+type WrappedGethTxPool struct {
+	// The underlying Geth mempool implementation.
+	*txpool.TxPool
 
-	// NonceRetriever is used to retrieve the nonce for a given address (this is typically a
-	// reference to the StateDB).
-	nr NonceRetriever
+	// serializer converts eth txs to sdk txs when being iterated over.
+	serializer SdkTxSerializer
 
-	// ethTxCache caches transactions that are added to the mempool so that they can be retrieved
-	// later
-	ethTxCache map[common.Hash]*coretypes.Transaction
+	// cp is used to retrieve the current chain config.
+	cp ConfigurationPlugin
 
-	// nonceToHash maps a nonce to the hash of the transaction that was added to the mempool with
-	// that nonce. This is used to retrieve the hash of a transaction that was added to the mempool
-	// by nonce.
-	nonceToHash map[common.Address]map[uint64]common.Hash
-
-	// We have a mutex to protect the ethTxCache and nonces maps since they are accessed
-	// concurrently by multiple goroutines.
-	mu sync.RWMutex
+	// block data for the pending block.
+	blockNumber *big.Int
+	blockTime   uint64
+	baseFee     *big.Int
 }
 
-// NewPolarisEthereumTxPool creates a new Ethereum transaction pool.
-func NewPolarisEthereumTxPool() *EthTxPool {
-	tpp := EthereumTxPriorityPolicy{
-		baseFee: big.NewInt(0),
-	}
-	config := mempool.PriorityNonceMempoolConfig[*big.Int]{
-		TxReplacement: EthereumTxReplacePolicy[*big.Int]{
-			PriceBump: 10, //nolint:gomnd // 10% to match geth.
-		}.Func,
-		TxPriority: mempool.TxPriority[*big.Int]{
-			GetTxPriority: tpp.GetTxPriority,
-			Compare: func(a *big.Int, b *big.Int) int {
-				return a.Cmp(b)
-			},
-			MinValue: big.NewInt(-1),
-		},
-		MaxTx: 10000, //nolint:gomnd // todo: parametize this.
-	}
-
-	return &EthTxPool{
-		PriorityNonceMempool: mempool.NewPriorityMempool(config),
-		nonceToHash:          make(map[common.Address]map[uint64]common.Hash),
-		ethTxCache:           make(map[common.Hash]*coretypes.Transaction),
-		priorityPolicy:       &tpp,
-	}
+// NewWrappedGethTxPool creates a new Ethereum transaction pool.
+func NewWrappedGethTxPool() *WrappedGethTxPool {
+	return &WrappedGethTxPool{}
 }
 
-// SetNonceRetriever sets the nonce retriever db for the mempool.
-func (etp *EthTxPool) SetNonceRetriever(nr NonceRetriever) {
-	etp.nr = nr
+// SetTxPool sets the underlying Geth TxPool.
+func (gtp *WrappedGethTxPool) SetTxPool(txPool *txpool.TxPool) {
+	gtp.TxPool = txPool
 }
 
-// SetBaseFee updates the base fee in the priority policy.
-func (etp *EthTxPool) SetBaseFee(baseFee *big.Int) {
-	etp.priorityPolicy.baseFee = baseFee
+// Setup sets the chain config and sdk tx serializer on the wrapped Geth TxPool.
+func (gtp *WrappedGethTxPool) Setup(cp ConfigurationPlugin, serializer SdkTxSerializer) {
+	gtp.cp = cp
+	gtp.serializer = serializer
+}
+
+// Prepare updates the mempool for the current block. Sets the block number, block time, and base
+// fee.
+func (gtp *WrappedGethTxPool) Prepare(header *types.Header) {
+	gtp.blockNumber = header.Number
+	gtp.blockTime = header.Time
+	gtp.baseFee = header.BaseFee
 }

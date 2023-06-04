@@ -23,5 +23,5 @@ package mempool
 import "errors"
 
 var (
-	ErrIncorrectTxType = errors.New("tx is not of type WrappedEthereumTransaction")
+	ErrRemoveFailed = errors.New("failed to remove tx from mempool")
 )

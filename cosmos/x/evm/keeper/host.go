@@ -84,7 +84,7 @@ func NewHost(
 	h.bp = block.NewPlugin(storeKey, sk)
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
-	h.txp = txpool.NewPlugin(utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*mempool.WrappedGethTxPool](ethTxMempool))
 	h.pcs = precompiles
 
 	return h
@@ -102,7 +102,6 @@ func (h *host) Setup(
 	h.sp = state.NewPlugin(ak, storeKey, log.NewFactory(h.pcs().GetPrecompiles()))
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles(), h.sp)
 	h.hp = historical.NewPlugin(h.bp, offchainStoreKey, storeKey)
-	h.txp.SetNonceRetriever(h.sp)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)

@@ -17,9 +17,26 @@
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
+package miner
 
-package txpool
+import (
+	"cosmossdk.io/log"
 
-type ConfigurationPlugin interface {
-	GetEvmDenom() string
+	"github.com/cosmos/cosmos-sdk/baseapp"
+)
+
+// Mempool defines a mempool interface that can be used to query transactions.
+type Miner struct {
+	txVerifier baseapp.ProposalTxVerifier
+	mempool    Mempool
+	logger     log.Logger
+}
+
+// NewMiner returns a new instance of a miner.
+func NewMiner(mempool Mempool, txVerifier baseapp.ProposalTxVerifier, logger log.Logger) *Miner {
+	return &Miner{
+		txVerifier: txVerifier,
+		mempool:    mempool,
+		logger:     logger,
+	}
 }

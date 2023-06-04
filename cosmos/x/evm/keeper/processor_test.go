@@ -91,7 +91,7 @@ var _ = Describe("Processor", func() {
 			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
 			"authority",
-			evmmempool.NewPolarisEthereumTxPool(),
+			evmmempool.NewWrappedGethTxPool(),
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},

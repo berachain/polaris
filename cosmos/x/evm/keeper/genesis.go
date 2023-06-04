@@ -24,6 +24,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -38,7 +39,13 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 		}
 	}
 
-	return k.polaris.StartServices()
+	// Start the polaris "Node" in order to spin up things like the JSON-RPC server.
+	err := k.polaris.StartServices()
+	if err != nil {
+		return err
+	}
+	k.host.GetTxPoolPlugin().(txpool.Plugin).SetTxPool(k.polaris.GetTxPool())
+	return nil
 }
 
 // ExportGenesis returns the exported genesis state.
