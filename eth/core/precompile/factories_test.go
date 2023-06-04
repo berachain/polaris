@@ -91,23 +91,6 @@ var _ = Describe("Container Factories", func() {
 			Expect(err.Error()).To(Equal("incomplete precompile Method"))
 		})
 	})
-
-	Context("Dynamic Container Factory", func() {
-		var dcf *precompile.DynamicFactory
-
-		BeforeEach(func() {
-			dcf = precompile.NewDynamicFactory()
-		})
-
-		It("should properly build dynamic container", func() {
-			pc, err := dcf.Build(&mockDynamic{&mockStateful{&mockBase{}}}, nil)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(pc).ToNot(BeNil())
-
-			_, err = dcf.Build(&mockStateful{&mockBase{}}, nil)
-			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: DynamicContainerImpl"))
-		})
-	})
 })
 
 // MOCKS BELOW.
