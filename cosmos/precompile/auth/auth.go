@@ -46,23 +46,25 @@ type Contract struct {
 	ethprecompile.BaseContract
 
 	authQueryServer authtypes.QueryServer
-
-	msgServer   authz.MsgServer
-	queryServer authz.QueryServer
+	msgServer       authz.MsgServer
+	queryServer     authz.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the auth(z) module precompile contract. Uses the
 // auth module's account address as the contract address.
-func NewPrecompileContract(m authz.MsgServer, q authz.QueryServer) *Contract {
+func NewPrecompileContract(
+	authQueryServer authtypes.QueryServer,
+	authzMsgServer authz.MsgServer,
+	authzQueryServer authz.QueryServer,
+) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.AuthModuleMetaData.ABI,
-			cosmlib.AccAddressToEthAddress(
-				authtypes.NewModuleAddress(authtypes.ModuleName),
-			),
+			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(authtypes.ModuleName)),
 		),
-		msgServer:   m,
-		queryServer: q,
+		authQueryServer: authQueryServer,
+		msgServer:       authzMsgServer,
+		queryServer:     authzQueryServer,
 	}
 }
 

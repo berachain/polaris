@@ -27,7 +27,6 @@ import (
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -180,11 +179,19 @@ func SdkValidatorsToStakingValidators(vals []stakingtypes.Validator) (
 }
 
 // SdkAccountToAuthAccount converts a Cosmos SDK Base Account to a geth compatible Base Account.
-func SdkAccountToAuthAccount(acc *authtypes.BaseAccount) auth.IAuthModuleBaseAccount {
+func SdkAccountToAuthAccount(acc sdk.AccountI) auth.IAuthModuleBaseAccount {
+	if acc == nil {
+		return auth.IAuthModuleBaseAccount{}
+	}
+
+	var pubKey []byte
+	if pk := acc.GetPubKey(); pk != nil {
+		pubKey = pk.Bytes()
+	}
 	return auth.IAuthModuleBaseAccount{
-		Addr:          EthAddressFromBech32(acc.Address),
-		PubKey:        acc.GetPubKey().Bytes(),
-		AccountNumber: acc.AccountNumber,
-		Sequence:      acc.Sequence,
+		Addr:          AccAddressToEthAddress(acc.GetAddress()),
+		PubKey:        pubKey,
+		AccountNumber: acc.GetAccountNumber(),
+		Sequence:      acc.GetSequence(),
 	}
 }

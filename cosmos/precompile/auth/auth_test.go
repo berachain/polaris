@@ -29,6 +29,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 
@@ -65,8 +66,11 @@ var _ = Describe("Address Precompile", func() {
 			MsgRouterMockWithSend(),
 			ak,
 		)
-		contract = utils.MustGetAs[*auth.Contract](auth.NewPrecompileContract(k, k))
-
+		contract = utils.MustGetAs[*auth.Contract](
+			auth.NewPrecompileContract(
+				authkeeper.NewQueryServer(ak), k, k,
+			),
+		)
 	})
 
 	It("should have static registry key", func() {
