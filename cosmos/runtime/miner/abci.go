@@ -25,11 +25,13 @@ import (
 	"math/big"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/ethereum/go-ethereum/trie"
-	"pkg.berachain.dev/polaris/eth/core/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+
+	"github.com/ethereum/go-ethereum/trie"
+
+	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 type Mempool = sdkmempool.Mempool
