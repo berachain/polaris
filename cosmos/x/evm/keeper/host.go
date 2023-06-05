@@ -101,7 +101,8 @@ func (h *host) Setup(
 	// Setup the state, precompile, historical, and txpool plugins
 	h.sp = state.NewPlugin(ak, storeKey, log.NewFactory(h.pcs().GetPrecompiles()))
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles(), h.sp)
-	h.hp = historical.NewPlugin(h.bp, offchainStoreKey, storeKey)
+	// TODO: re-enable historical plugin using ABCI listener.
+	// h.hp = historical.NewPlugin(h.bp, offchainStoreKey, storeKey)
 	h.txp.SetNonceRetriever(h.sp)
 
 	// Set the query context function for the block and state plugins
