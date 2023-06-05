@@ -32,6 +32,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/runtime"
 
+	"pkg.berachain.dev/polaris/cosmos/runtime/miner"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 )
 
@@ -52,7 +53,7 @@ func (a *AppBuilder) DefaultGenesis() map[string]json.RawMessage {
 }
 
 // Build builds an *App instance.
-func (a *AppBuilder) Build(db dbm.DB, traceStore io.Writer, _ log.Logger,
+func (a *AppBuilder) Build(db dbm.DB, traceStore io.Writer, logger log.Logger,
 	txPool *evmmempool.WrappedGethTxPool, baseAppOptions ...func(*baseapp.BaseApp)) *PolarisApp {
 	a.polarisApp = &PolarisApp{}
 
@@ -60,20 +61,14 @@ func (a *AppBuilder) Build(db dbm.DB, traceStore io.Writer, _ log.Logger,
 	// we ask @tac0turtle how 2 fix
 	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
 
-	// proposalOpt  runtime.BaseAppOption = func(ba *baseapp.BaseApp) {
-	// 	fmt.Println("OPT EXECUTION")
-	// 	app.SetPrepareProposal(ph.PrepareProposalHandler())
-	// 	app.SetProcessProposal(ph.ProcessProposalHandler())
-	// }
-
 	// Build the base runtime.App (and thus baseapp.BaseApp)
 	a.polarisApp.App = a.AppBuilder.Build(db, traceStore, baseAppOptions...)
 
+	// Configure the proposal handlers to use our custom tx pool and miner.
 	a.polarisApp.wrappedTxPool = txPool
-	// TODO: not working yet.
-	// txMiner := miner.NewProposalHandler(a.polarisApp, a.polarisApp.wrappedTxPool, logger)
-	// a.polarisApp.SetPrepareProposal(txMiner.PrepareProposalHandler())
-	// a.polarisApp.SetProcessProposal(txMiner.ProcessProposalHandler())
+	polarisMiner := miner.NewMiner(a.polarisApp.wrappedTxPool, a.polarisApp, logger)
+	a.polarisApp.SetPrepareProposal(polarisMiner.PrepareProposalHandler())
+	a.polarisApp.SetProcessProposal(polarisMiner.ProcessProposalHandler())
 
 	// Mount our custom stores.
 	a.polarisApp.MountCustomStores(offchainKey)

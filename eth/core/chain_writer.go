@@ -61,7 +61,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	}
 
 	coinbase, timestamp := bc.bp.GetNewBlockMetadata(number)
-	bc.logger.Info("Preparing block", "number", number, "coinbase", coinbase.Hex(), "timestamp", timestamp)
+	bc.logger.Debug("preparing block", "number", number, "coinbase", coinbase.Hex(), "timestamp", timestamp)
 
 	// Build the new block header.
 	var parentHash common.Hash
@@ -105,7 +105,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 
 // ProcessTransaction processes the given transaction and returns the receipt.
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
-	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
+	bc.logger.Debug("Processing transaction", "tx hash", tx.Hash().Hex())
 
 	// Reset the Gas and State plugins for the tx.
 	bc.gp.Reset(ctx) // TODO: may not need this.
@@ -122,7 +122,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	}
 
 	blockHash, blockNum := block.Hash(), block.Number().Uint64()
-	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
+	bc.logger.Debug("finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
 
 	// store the block header on the host chain
 	err = bc.bp.StoreHeader(block.Header())

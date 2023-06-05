@@ -49,6 +49,7 @@ var (
 	NewLondonSigner        = types.NewLondonSigner
 	BytesToBloom           = types.BytesToBloom
 	CreateBloom            = types.CreateBloom
+	CopyHeader             = types.CopyHeader
 	MakeSigner             = types.MakeSigner
 	LogsBloom              = types.LogsBloom
 	LegacyTxType           = types.LegacyTxType
