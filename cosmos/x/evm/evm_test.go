@@ -18,39 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package block
+package evm_test
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"testing"
 
-	"pkg.berachain.dev/polaris/eth/core"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-// InitGenesis performs genesis initialization for the block plugin in the
-// evm module.
-func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
-	p.Prepare(ctx)
-	if err := p.StoreHeader(ethGen.ToBlock().Header()); err != nil {
-		panic(err)
-	}
-}
-
-// Export genesis modifies a pointer to a genesis state object and populates it.
-func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
-	p.Prepare(ctx)
-	head, err := p.GetHeaderByNumber(0)
-	if err != nil {
-		panic(err)
-	}
-	ethGen.Number = head.Number.Uint64()
-	ethGen.Nonce = head.Nonce.Uint64()
-	ethGen.Timestamp = head.Time
-	ethGen.ParentHash = head.ParentHash
-	ethGen.ExtraData = head.Extra
-	ethGen.GasLimit = head.GasLimit
-	ethGen.GasUsed = head.GasUsed
-	ethGen.BaseFee = head.BaseFee
-	ethGen.Difficulty = head.Difficulty
-	ethGen.Mixhash = head.MixDigest
-	ethGen.Coinbase = head.Coinbase
+func TestTypes(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "cosmos/x/evm")
 }
