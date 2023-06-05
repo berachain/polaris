@@ -1,28 +1,3 @@
-// SPDX-License-Identifier: MIT
-//
-// # Copyright (c) 2023 Berachain Foundation
-//
-// Permission is hereby granted, free of charge, to any person
-// obtaining a copy of this software and associated documentation
-// files (the "Software"), to deal in the Software without
-// restriction, including without limitation the rights to use,
-// copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following
-// conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-// OTHER DEALINGS IN THE SOFTWARE.
-
 package main
 
 import (
@@ -48,11 +23,7 @@ var (
 	// Address of the vault in genesis.
 	predeployedVaultAddr = common.HexToAddress("0000000000000000000000000000000000000315")
 	// Number of blocks to wait before funding tx is considered valid.
-	vaultTxConfirmationCount = uint64(5) //nolint: gomnd // it's okay.
-)
-
-const (
-	numBytes = 32
+	vaultTxConfirmationCount = uint64(5)
 )
 
 // vault creates accounts for testing and funds them. An instance of the vault contract is
@@ -61,11 +32,10 @@ const (
 //
 // The purpose of the vault is allowing tests to run concurrently without worrying about
 // nonce assignment and unexpected balance changes.
-
 type vault struct {
-	mu sync.Mutex //nolint: unused // for now
+	mu sync.Mutex
 	// This tracks the account nonce of the vault account.
-	nonce uint64 //nolint: unused // for now
+	nonce uint64
 	// Created accounts are tracked in this map.
 	accounts map[common.Address]*ecdsa.PrivateKey
 }
@@ -80,7 +50,7 @@ func newVault() *vault {
 func (v *vault) generateKey() common.Address {
 	key, err := crypto.GenerateKey()
 	if err != nil {
-		panic(fmt.Errorf("can't generate account key: %w", err))
+		panic(fmt.Errorf("can't generate account key: %v", err))
 	}
 	addr := crypto.PubkeyToAddress(key.PublicKey)
 
@@ -110,9 +80,6 @@ func (v *vault) signTransaction(sender common.Address, tx *types.Transaction) (*
 
 // createAndFundAccount creates a new account that is funded from the vault contract.
 // It will panic when the account could not be created and funded.
-
-// TODO: refactor
-
 func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) common.Address {
 	if amount == nil {
 		amount = new(big.Int)
@@ -128,7 +95,7 @@ func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) commo
 		vault, _ = abi.JSON(strings.NewReader(predeployedVaultABI))
 	)
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	// listen for new heads
@@ -140,7 +107,7 @@ func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) commo
 
 	// set up the log event subscription
 	eventTopic := vault.Events["Send"].ID
-	addressTopic := common.BytesToHash(common.LeftPadBytes(address[:], numBytes))
+	addressTopic := common.BytesToHash(common.LeftPadBytes(address[:], 32))
 	q := ethereum.FilterQuery{
 		Addresses: []common.Address{predeployedVaultAddr},
 		Topics:    [][]common.Hash{{eventTopic}, {addressTopic}},
@@ -153,7 +120,7 @@ func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) commo
 
 	// order the vault to send some ether
 	tx := v.makeFundingTx(t, address, amount)
-	if err = t.Eth.SendTransaction(ctx, tx); err != nil {
+	if err := t.Eth.SendTransaction(ctx, tx); err != nil {
 		t.Fatalf("unable to send funding transaction: %v", err)
 	}
 
@@ -161,7 +128,7 @@ func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) commo
 	var (
 		latestHeader *types.Header
 		receivedLog  *types.Log
-		timeout      = time.NewTimer(120 * time.Second) //nolint:gomnd // it's okay.
+		timeout      = time.NewTimer(120 * time.Second)
 	)
 	for {
 		select {
@@ -174,9 +141,9 @@ func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) commo
 				// chain reorg!
 				receivedLog = nil
 			}
-		case err = <-headsSub.Err():
+		case err := <-headsSub.Err():
 			t.Fatalf("could not fund new account: %v", err)
-		case err = <-logsSub.Err():
+		case err := <-logsSub.Err():
 			t.Fatalf("could not fund new account: %v", err)
 		case <-timeout.C:
 			t.Fatal("could not fund new account: timeout")
@@ -188,6 +155,8 @@ func (v *vault) createAccountWithSubscription(t *TestEnv, amount *big.Int) commo
 			}
 		}
 	}
+
+	return address
 }
 
 // createAccount creates a new account that is funded from the vault contract.
@@ -200,6 +169,7 @@ func (v *vault) createAccount(t *TestEnv, amount *big.Int) common.Address {
 
 	// order the vault to send some ether
 	tx := v.makeFundingTx(t, address, amount)
+	fmt.Printf("tx info: %v", tx)
 	if err := t.Eth.SendTransaction(t.Ctx(), tx); err != nil {
 		t.Fatalf("unable to send funding transaction: %v", err)
 	}
@@ -212,25 +182,27 @@ func (v *vault) createAccount(t *TestEnv, amount *big.Int) common.Address {
 	// wait for vaultTxConfirmationCount confirmation by checking the balance vaultTxConfirmationCount blocks back.
 	// createAndFundAccountWithSubscription for a better solution using logs
 	for i := uint64(0); i < vaultTxConfirmationCount*12; i++ {
-		var number uint64
-		number, err = t.Eth.BlockNumber(t.Ctx())
+		number, err := t.Eth.BlockNumber(t.Ctx())
 		if err != nil {
 			t.Fatalf("can't get block number:", err)
 		}
+		fmt.Printf("block number: %v", number)
 		if number > txBlock+vaultTxConfirmationCount {
+			fmt.Println("reached number > txBlock+vaultTxConfirmCount")
 			checkBlock := number - vaultTxConfirmationCount
-			var balance *big.Int
-			balance, err = t.Eth.BalanceAt(t.Ctx(), address, new(big.Int).SetUint64(checkBlock))
+			balance, err := t.Eth.BalanceAt(t.Ctx(), address, new(big.Int).SetUint64(checkBlock))
 			if err != nil {
 				panic(err)
 			}
 			if balance.Cmp(amount) >= 0 {
 				return address
 			}
+
+			fmt.Printf("balance: %v, amount: %v", balance, amount)
 		}
 		time.Sleep(time.Second)
 	}
-	panic(fmt.Sprintf("could not fund account %v in transaction %v", address, tx.Hash()))
+	panic(fmt.Sprintf("could not fund account %v in transaction %v with vaultTxConfirmCount %v", address, tx.Hash(), vaultTxConfirmationCount))
 }
 
 func (v *vault) makeFundingTx(t *TestEnv, recipient common.Address, amount *big.Int) *types.Transaction {
@@ -241,7 +213,7 @@ func (v *vault) makeFundingTx(t *TestEnv, recipient common.Address, amount *big.
 	}
 	var (
 		nonce    = v.nextNonce()
-		gasLimit = uint64(75000) //nolint: gomnd // it's okay.
+		gasLimit = uint64(75000)
 		txAmount = new(big.Int)
 	)
 	tx := types.NewTransaction(nonce, predeployedVaultAddr, txAmount, gasLimit, gasPrice, payload)
@@ -265,7 +237,7 @@ func (v *vault) nextNonce() uint64 {
 
 var (
 	predeployedVaultContractSrc = `
-pragma solidity ^0.4.6;.
+pragma solidity ^0.4.6;
 
 // The vault contract is used in the hive rpc-tests suite.
 // From this preallocated contract accounts that are created
@@ -273,25 +245,13 @@ pragma solidity ^0.4.6;.
 contract Vault {
     event Send(address indexed, uint);
 
-	    // sendSome send 'amount' wei 'to'
-	    function sendSome(address to, uint amount) {
-	        if (to.send(amount)) {
-	            Send(to, amount);
-	        }
-	    }
-	}`
-
-	// vault ABI.
-	predeployedVaultABI = `[{"constant":false,
-"inputs":[{"name":"to","type":"address"},
-{"name":"amount","type":"uint256"}],
-"name":"sendSome",
-"outputs":[],
-"payable":false,
-"type":"function"},
-{"anonymous":false,
-"inputs":[{"indexed":true,"name":"",
-"type":"address"},
-{"indexed":false,"name":"","type":"uint256"}],
-"name":"Send","type":"event"}]` //nolint:lll // its okay
+    // sendSome send 'amount' wei 'to'
+    function sendSome(address to, uint amount) {
+        if (to.send(amount)) {
+            Send(to, amount);
+        }
+    }
+}`
+	// vault ABI
+	predeployedVaultABI = `[{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],"name":"sendSome","outputs":[],"payable":false,"type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"","type":"address"},{"indexed":false,"name":"","type":"uint256"}],"name":"Send","type":"event"}]`
 )
