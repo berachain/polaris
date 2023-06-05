@@ -25,7 +25,37 @@ import (
 )
 
 var _ = Describe("", func() {
+	var (
+	// ethGen        *types.GenesisState
+	// ctx, ak, _, k = testutil.SetupMinimalKeepers()
+	)
+	Context("On ValidateGenesis", func() {
+		BeforeEach(func() {
+		})
+
+		When("", func() {
+			It("", func() {
+
+			})
+		})
+	})
+
 	Context("On InitGenesis", func() {
+		BeforeEach(func() {
+			// ethGen = types.DefaultGenesis()
+		})
+
+		When("", func() {
+			BeforeEach(func() {
+
+			})
+			It("", func() {
+
+			})
+		})
+	})
+
+	Context("On ExportGenesis", func() {
 		BeforeEach(func() {
 
 		})
