@@ -94,7 +94,7 @@ func NewHost(
 // sets the query context function for the block and state plugins (to support historical queries).
 func (h *host) Setup(
 	storeKey storetypes.StoreKey,
-	offchainStoreKey storetypes.StoreKey,
+	_ storetypes.StoreKey,
 	ak state.AccountKeeper,
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
