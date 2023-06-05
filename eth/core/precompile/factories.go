@@ -31,7 +31,6 @@ const (
 	// container impl names stored as constants, to be used in error messages.
 	statelessContainerName = `StatelessContainerImpl`
 	statefulContainerName  = `StatefulContainerImpl`
-	dynamicContainerName   = `DynamicContainerImpl`
 )
 
 // AbstractFactory is an interface that all precompile container factories must adhere to.
@@ -44,7 +43,6 @@ type AbstractFactory interface {
 var (
 	_ AbstractFactory = (*StatelessFactory)(nil)
 	_ AbstractFactory = (*StatefulFactory)(nil)
-	_ AbstractFactory = (*DynamicFactory)(nil)
 )
 
 // ===========================================================================
@@ -78,8 +76,7 @@ func (sf *StatelessFactory) Build(
 // ===========================================================================
 
 // StatefulFactory is used to build stateful precompile containers.
-type StatefulFactory struct {
-}
+type StatefulFactory struct{}
 
 // NewStatefulFactory creates and returns a new `StatefulFactory`.
 func NewStatefulFactory() *StatefulFactory {
@@ -152,36 +149,4 @@ func (sf *StatefulFactory) buildIdsToMethods(
 		idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = precompileMethod
 	}
 	return idsToMethods, nil
-}
-
-// ===========================================================================
-// Dynamic Container Factory
-// ===========================================================================
-
-// DynamicFactory is used to build dynamic precompile containers.
-type DynamicFactory struct {
-	*StatefulFactory
-}
-
-// NewDynamicFactory creates and returns a new `DynamicFactory` for the given
-// log registry `lr`.
-func NewDynamicFactory() *DynamicFactory {
-	return &DynamicFactory{
-		StatefulFactory: NewStatefulFactory(),
-	}
-}
-
-// Build returns a dynamic precompile container for the given base contract implememntation.
-// This function will return an error if the given contract is not a dyanmic implementation.
-//
-// Build implements `AbstractFactory`.
-func (dcf *DynamicFactory) Build(
-	rp Registrable, p Plugin,
-) (vm.PrecompileContainer, error) {
-	dci, ok := utils.GetAs[DynamicImpl](rp)
-	if !ok {
-		return nil, errors.Wrap(ErrWrongContainerFactory, dynamicContainerName)
-	}
-
-	return dcf.StatefulFactory.Build(dci, p)
 }
