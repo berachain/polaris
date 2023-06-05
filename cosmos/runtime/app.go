@@ -150,7 +150,9 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	// TODO: move this somewhere better, introduce non IAVL enforced module keys as a PR to the SDK
 	// we ask @tac0turtle how 2 fix
 	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
-	app.PolarisBaseApp.MountCustomStores(offchainKey)
+
+	// TODO: re-enable historical plugin using ABCI listener.
+	// app.PolarisBaseApp.MountCustomStores(offchainKey)
 
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
