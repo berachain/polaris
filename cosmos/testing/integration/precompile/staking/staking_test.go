@@ -120,6 +120,10 @@ var _ = Describe("Staking", func() {
 		valAddr, err := sdk.ValAddressFromBech32(vals[0].OperatorAddress)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(cosmlib.ValAddressToEthAddress(valAddr)).To(Equal(validator))
+
+		val, err := stakingPrecompile.GetValidator(nil, validator)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(val.OperatorAddress).To(Equal(vals[0].OperatorAddress))
 	})
 
 	It("should be able to call a precompile from a smart contract", func() {

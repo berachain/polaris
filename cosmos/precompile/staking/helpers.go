@@ -261,7 +261,8 @@ func (c *Contract) validatorHelper(ctx context.Context, valAddr string) ([]any, 
 		return nil, err
 	}
 
-	return []any{val}, nil
+	// guaranteed not to panic because val is guaranteed to have length 1.
+	return []any{val[0]}, nil
 }
 
 // accAddr must be the bech32 address of the delegator.
