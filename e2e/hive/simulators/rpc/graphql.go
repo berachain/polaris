@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"math/big"
 	"net/http"
@@ -37,6 +38,9 @@ func graphQLChainIdSupport(t *TestEnv) {
 
 func graphQLGetLatestBlockSupport(t *TestEnv) {
 	query := `{"query": "{block{number}}","variables": null}`
+	var result interface{}
+	t.CallContext(t.Ctx(), &result, query)
+	fmt.Println("RESULT: ", result)
 	sendHTTP(t, HTTPReq{body: query, want: `{"data":{"block":{"number":"0x1"}}}`, code: http.StatusOK})
 }
 
