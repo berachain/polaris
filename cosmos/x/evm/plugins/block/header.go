@@ -86,6 +86,5 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
 	}
 	p.ctx.KVStore(p.storekey).Set([]byte{types.HeaderKey}, bz)
-	// fmt.Println("STORING   HEADER", header, "hash", header.Hash().Hex())
 	return nil
 }
