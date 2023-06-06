@@ -49,6 +49,7 @@ var DefaultGenesis = &core.Genesis{
 	Difficulty: big.NewInt(0),
 	Mixhash:    common.Hash{},
 	Coinbase:   common.Address{},
+	BaseFee:    big.NewInt(int64(params.InitialBaseFee)),
 
 	// Genesis Accounts
 	Alloc: core.GenesisAlloc{

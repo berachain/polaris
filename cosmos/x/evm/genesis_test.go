@@ -21,18 +21,26 @@
 package evm_test
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	"pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/rpc"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -47,13 +55,15 @@ var _ = Describe("", func() {
 		ak     state.AccountKeeper
 		sk     stakingkeeper.Keeper
 		k      *keeper.Keeper
-		ethGen *types.GenesisState
+		ethGen *core.Genesis
 		am     evm.AppModule
 		err    error
 	)
 
 	BeforeEach(func() {
+		ethGen = core.DefaultGenesis
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
+		sc = staking.NewPrecompileContract(&sk)
 		k = keeper.NewKeeper(
 			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
@@ -63,6 +73,9 @@ var _ = Describe("", func() {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
+		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger())
+
+		am = evm.NewAppModule(k, ak)
 	})
 
 	Context("On ValidateGenesis", func() {
@@ -78,13 +91,10 @@ var _ = Describe("", func() {
 
 	Context("On InitGenesis", func() {
 		BeforeEach(func() {
-			ethGen = core.DefaultGenesis()
-			am = evm.NewAppModule(k, ak)
 		})
-
 		JustBeforeEach(func() {
 			var bz []byte
-			bz, err = ethGen.Marshal()
+			bz, err = json.Marshal(ethGen)
 			if err != nil {
 				panic(err)
 			}
@@ -97,20 +107,92 @@ var _ = Describe("", func() {
 			})
 			It("should succeed without error", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(k.GetHost().GetBlockPlugin().GetHeaderByNumber(0)).To(Equal(ethGen.ToBlock().Header()))
+			})
+			It("should contain the same genesis header values", func() {
+				bp := k.GetHost().GetBlockPlugin()
+				expectedHeader := ethGen.ToBlock().Header()
+				Expect(bp.GetHeaderByNumber(0)).To(Equal(expectedHeader))
+			})
+			It("should contain the correct chain config", func() {
+				actualConfig := k.GetHost().GetConfigurationPlugin().ChainConfig()
+				expectedConfig := ethGen.Config
+				Expect(actualConfig).To(Equal(expectedConfig))
+			})
+			It("should have the correct balances", func() {
+				sp := k.GetHost().GetStatePlugin()
+				for addr, acc := range ethGen.Alloc {
+					balance := sp.GetBalance(addr)
+					cmp := balance.Cmp(acc.Balance)
+					Expect(cmp).To(BeZero())
+				}
+			})
+			It("should have the correct code", func() {
+				sp := k.GetHost().GetStatePlugin()
+				for addr, acc := range ethGen.Alloc {
+					code := sp.GetCode(addr)
+					cmp := bytes.Compare(code, acc.Code)
+					Expect(cmp).To(BeZero())
+				}
+			})
+			It("should have the correct hash", func() {
+				sp := k.GetHost().GetStatePlugin()
+				for addr, acc := range ethGen.Alloc {
+					for key, expectedHash := range acc.Storage {
+						actualHash := sp.GetState(addr, key)
+						cmp := bytes.Compare(actualHash.Bytes(), expectedHash.Bytes())
+						Expect(cmp).To(BeZero())
+					}
+				}
 			})
 		})
 	})
 
 	Context("On ExportGenesis", func() {
-		BeforeEach(func() {
+		var (
+			actualGenesis core.Genesis
+		)
+		JustBeforeEach(func() {
+			var bz []byte
+			bz, err = json.Marshal(ethGen)
+			if err != nil {
+				panic(err)
+			}
+			am.InitGenesis(ctx, cdc, bz)
 
+			data := am.ExportGenesis(ctx, cdc)
+			if data == nil {
+				panic(fmt.Errorf("data is nil"))
+			}
+			if err := actualGenesis.UnmarshalJSON(data); err != nil {
+				panic(err)
+			}
 		})
 
-		When("", func() {
-			It("", func() {
-
+		When("the genesis is valid", func() {
+			It("should export without fail", func() {
+				Expect(actualGenesis).To(Equal(*ethGen))
 			})
 		})
 	})
 })
+
+type polarisMock struct {
+}
+
+func (p *polarisMock) APIs() []rpc.API {
+	return nil
+}
+
+func (p *polarisMock) StartServices() error {
+	return nil
+}
+
+func (p *polarisMock) Prepare(ctx context.Context, number uint64) {}
+
+func (p *polarisMock) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*core.ExecutionResult, error) {
+	return nil, nil
+}
+
+func (p *polarisMock) Finalize(ctx context.Context) error {
+	return nil
+}
