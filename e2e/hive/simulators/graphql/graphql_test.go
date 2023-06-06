@@ -1,99 +1,94 @@
 package main
 
 import (
-	"fmt"
-	"io"
-	"math/big"
-	"net/http"
-	"strings"
+	"encoding/json"
+	"io/ioutil"
+	"strconv"
+	"testing"
 
-	"gotest.tools/assert"
+	"github.com/ethereum/hive/hivesim"
 )
 
-type HTTPReq struct {
-	body string
-	want string
-	code int
+type testResponse struct {
+	Data gasPrice `json:"data"`
 }
 
-func graphQLChainIdSupport(t *TestEnv) {
-	var (
-		expectedChainID = big.NewInt(7) //nolint:gomnd // TODO: REFACTOR.
-	)
-
-	//	query := `
-	//		query {
-	//			block {
-	//				number
-	//			}
-	//		}`
-
-	cID, err := t.Eth.ChainID(t.Ctx())
-	assert.NilError(t, err, "could not get chain ID: %w", err)
-
-	if expectedChainID.Cmp(cID) != 0 {
-		t.Fatalf("expected chain ID %d, got %d", expectedChainID, cID)
-	}
+type gasPrice struct {
+	GasPrice string `json:"gasPrice"`
 }
 
-func graphQLGetLatestBlockSupport(t *TestEnv) {
-	query := `{"query": "{block{number}}","variables": null}`
-	var result interface{}
-	sendHTTP(t, query)
-	fmt.Println("RESULT: ", result)
-}
-
-//func graphQLBlockNumberSupport(t *TestEnv) {
-//	var (
-//		expectedBlockNumber = big.NewInt(1) //nolint:gomnd // TODO: REFACTOR.
-//	)
-//
-//	bN, err := t.Eth.BlockNumber(t.Ctx())
-//	assert.NilError(t, err, "could not get block number: %w", err)
-//
-//	if expectedBlockNumber.Cmp(bN) != 0 {
-//		t.Fatalf("expected block number %d, got %d", expectedBlockNumber, bN)
-//	}
-//}
-
-func graphQLGasPriceSupport(t *TestEnv) {
-	// query := `{"query": "{block{number}}","variables": null}`
-	// var result interface{}
-	// fmt.Println("RESULT:", result)
-}
-
-func graphQLGetBlockByHashSupport(t *TestEnv) {}
-
-func graphQLAccountDataSupport(t *TestEnv) {}
-
-func graphQLGetTransactionByBlockHashAndIndex(t *TestEnv) {}
-
-func graphQLGetLogsSupport(t *TestEnv) {}
-
-func graphQLSendRawTransactionSupport(t *TestEnv) {}
-
-func graphQLSyncingSupport(t *TestEnv) {}
-
-func graphQLFailMalformatted(t *TestEnv) {}
-
-// TODO use t.CallContext(...)
-func sendHTTP(t *TestEnv, tt HTTPReq) (*http.Response, error) {
-
-	resp, err := http.Post("http://localhost:8545/graphql", "application/json", strings.NewReader(tt.body))
+// Test_responseMatch tests whether the graphql tests are able
+// to successfully compare a response to an array of valid expected
+// responses.
+func Test_responseMatch(t *testing.T) {
+	// create hivesim tester
+	hivesimT := &hivesim.T{}
+	// unmarshal JSON test file
+	fp := "./testcases/07_eth_gasPrice.json"
+	data, err := ioutil.ReadFile(fp)
 	if err != nil {
-		t.Fatalf("could not post: %v", err)
+		t.Fatalf("Warning: can't read test file %s: %v", fp, err)
 	}
-	bodyBytes, err := io.ReadAll(resp.Body)
-	resp.Body.Close()
-	if err != nil {
-		t.Fatalf("could not read from response body: %v", err)
+	var gqlTest graphQLTest
+	if err = json.Unmarshal(data, &gqlTest); err != nil {
+		t.Fatalf("Warning: can't unmarshal test file %s: %v", fp, err)
 	}
-	if have := string(bodyBytes); have != tt.want {
-		t.Errorf("testcase %s,\nhave:\n%v\nwant:\n%v", tt.body, have, tt.want)
+	// build test case
+	tc := testCase{
+		name:    "test1",
+		gqlTest: &gqlTest,
 	}
-	if tt.code != resp.StatusCode {
-		t.Errorf("testcase %s,\nwrong statuscode, have: %v, want: %v", tt.body, resp.StatusCode, tt.code)
+	// create valid tests
+	var tests = []struct {
+		resp            testResponse
+		status          string
+		expectedFailure bool // true == failure expected
+	}{
+		{
+			resp: testResponse{
+				Data: gasPrice{GasPrice: "0x1"},
+			},
+			status: "200",
+		},
+		{
+			resp: testResponse{
+				Data: gasPrice{GasPrice: "0x10"},
+			},
+			status: "200",
+		},
+		{
+			resp: testResponse{
+				Data: gasPrice{GasPrice: "0x12"},
+			},
+			status:          "400",
+			expectedFailure: true,
+		},
+		{
+			resp: testResponse{
+				Data: gasPrice{GasPrice: "0x11"},
+			},
+			status:          "400",
+			expectedFailure: true,
+		},
+		{
+			resp: testResponse{
+				Data: gasPrice{GasPrice: "failfailfail"},
+			},
+			status:          "200",
+			expectedFailure: true,
+		},
 	}
 
-	return resp, nil
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			resp, err := json.Marshal(tt.resp)
+			if err != nil {
+				t.Fatal("could not marshal data: ", err)
+			}
+			err = tc.responseMatch(hivesimT, "200", resp)
+			if err != nil && !tt.expectedFailure {
+				t.Fatal(err)
+			}
+		})
+	}
 }

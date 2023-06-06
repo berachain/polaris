@@ -80,7 +80,7 @@ func deliverTests(t *hivesim.T, wg *sync.WaitGroup, limit int) <-chan *testCase 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		filepath.Walk("./testcases", func(filepath string, info os.FileInfo, err error) error {
+		filepath.Walk("./existing_tests", func(filepath string, info os.FileInfo, err error) error {
 			if limit >= 0 && i >= limit {
 				return nil
 			}

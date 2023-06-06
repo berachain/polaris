@@ -178,7 +178,6 @@ var _ = Describe("GraphQL", func() {
 				  }
 				}
 			  }
-			  
 		`)
 			transactionAt := gjson.Get(response, "data.block.transactionAt").Exists()
 
