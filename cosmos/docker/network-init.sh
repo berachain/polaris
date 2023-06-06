@@ -18,8 +18,8 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-CONTAINER1="polaris-node0"
-CONTAINER2="polaris-node1"
+CONTAINER1="polard-node0"
+CONTAINER2="polard-node1"
 
 HOMEDIR="/pv/.polard"
 SCRIPTS="/scripts"

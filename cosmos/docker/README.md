@@ -7,4 +7,6 @@
 5. in terminal window 2: docker exec polard-node0 bash -c ./scripts/seed-start.sh
 6. in terminal window 3: docker exec polard-node1 bash -c ./scripts/seed-start.sh
 
-to kill a process, docker ps, and docker exec polard-node0 bash -c "kill -9 $PID"
+To kill a process:
+docker exec polard-node1 bash -c ps
+docker exec polard-node1 bash -c "kill -9 $PID"
