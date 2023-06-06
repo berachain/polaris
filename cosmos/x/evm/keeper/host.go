@@ -94,14 +94,15 @@ func NewHost(
 // sets the query context function for the block and state plugins (to support historical queries).
 func (h *host) Setup(
 	storeKey storetypes.StoreKey,
-	offchainStoreKey storetypes.StoreKey,
+	_ storetypes.StoreKey,
 	ak state.AccountKeeper,
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
 	// Setup the state, precompile, historical, and txpool plugins
 	h.sp = state.NewPlugin(ak, storeKey, log.NewFactory(h.pcs().GetPrecompiles()))
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles(), h.sp)
-	h.hp = historical.NewPlugin(h.bp, offchainStoreKey, storeKey)
+	// TODO: re-enable historical plugin using ABCI listener.
+	// h.hp = historical.NewPlugin(h.bp, offchainStoreKey, storeKey)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)

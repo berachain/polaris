@@ -32,14 +32,18 @@ import (
 
 // Insert is called when a transaction is added to the mempool.
 func (gtp *WrappedGethTxPool) Insert(_ context.Context, tx sdk.Tx) error {
-	// TODO: @calbera we might want to call with sync here? idk if this could cause problems.
-	// TODO: trying sync on CI rn
-	return gtp.AddRemotes(coretypes.Transactions{evmtypes.GetAsEthTx(tx)})[0]
+	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
+		return gtp.AddRemotes(coretypes.Transactions{ethTx})[0]
+	}
+	return nil
 }
 
-// InsertSync is called when a transaction is added to the mempool. (For testing purposes).
+// InsertSync is called when a transaction is added to the mempool (for testing purposes).
 func (gtp *WrappedGethTxPool) InsertSync(_ context.Context, tx sdk.Tx) error {
-	return gtp.AddRemotesSync(coretypes.Transactions{evmtypes.GetAsEthTx(tx)})[0]
+	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
+		return gtp.AddRemotesSync(coretypes.Transactions{ethTx})[0]
+	}
+	return nil
 }
 
 // Remove is called when a transaction is removed from the mempool.
