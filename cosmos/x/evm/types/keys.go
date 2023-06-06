@@ -30,7 +30,7 @@ const (
 	TxHashKeyToTxPrefix
 	VersionKey
 	HeaderKey
+	GenesisHeaderKey
 	ParamsKey
 	ChainConfigPrefix
-	GenesisBlockPrefix
 )

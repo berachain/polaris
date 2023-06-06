@@ -31,7 +31,6 @@ import (
 	"github.com/ethereum/go-ethereum/graphql"
 
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/log"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
@@ -148,9 +147,4 @@ func (pl *Polaris) StartServices() error {
 		}
 	}()
 	return nil
-}
-
-// SetGenesisBlock is a wrapper which sets the Genesis block in blockchain.
-func (pl *Polaris) SetGenesisBlock(genesisBlock *types.Block) error {
-	return pl.blockchain.SetGenesisBlock(genesisBlock)
 }

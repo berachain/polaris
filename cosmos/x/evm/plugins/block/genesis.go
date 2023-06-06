@@ -42,6 +42,7 @@ func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 	if err != nil {
 		panic(err)
 	}
+	// TODO: does not handle root. TODO DO SOMETHING HERE.
 	ethGen.Number = head.Number.Uint64()
 	ethGen.Nonce = head.Nonce.Uint64()
 	ethGen.Timestamp = head.Time

@@ -42,7 +42,6 @@ var _ Blockchain = (*blockchain)(nil)
 
 type Blockchain interface {
 	Config() *params.ChainConfig
-	SetGenesisBlock(genesisBlock *types.Block) error
 	ChainReader
 	ChainWriter
 	ChainSubscriber
@@ -135,12 +134,4 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 // ChainConfig returns the Ethereum chain config of the  chain.
 func (bc *blockchain) Config() *params.ChainConfig {
 	return bc.cp.ChainConfig()
-}
-
-// SetGenesisBlock sets the value of currentBlock and finalizedBlock
-// to the genesisBlock on chain genesis.
-func (bc *blockchain) SetGenesisBlock(genesisBlock *types.Block) error {
-	bc.currentBlock.Store(genesisBlock)
-	bc.finalizedBlock.Store(genesisBlock)
-	return nil
 }

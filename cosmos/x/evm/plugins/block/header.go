@@ -43,24 +43,30 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 //
 // GetHeaderByNumber implements core.BlockPlugin.
 func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
-	if p.getQueryContext == nil {
-		return nil, errors.New("GetHeader: getQueryContext is nil")
+	var bz []byte
+	if number == 0 {
+		bz = p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderKey})
+	} else {
+		if p.getQueryContext == nil {
+			return nil, errors.New("GetHeader: getQueryContext is nil")
+		}
+
+		// TODO: ensure we aren't differing from geth / hiding errors here.
+		// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
+		// Investigate and hopefully remove this GTE.
+		if number > uint64(p.ctx.BlockHeight()) {
+			number = uint64(p.ctx.BlockHeight())
+		}
+
+		ctx, err := p.getQueryContext(int64(number), false)
+		if err != nil {
+			return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
+		}
+
+		// Unmarshal the header from the context kv store.
+		bz = ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey})
 	}
 
-	// TODO: ensure we aren't differing from geth / hiding errors here.
-	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
-	// Investigate and hopefully remove this GTE.
-	if number > uint64(p.ctx.BlockHeight()) {
-		number = uint64(p.ctx.BlockHeight())
-	}
-
-	ctx, err := p.getQueryContext(int64(number), false)
-	if err != nil {
-		return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
-	}
-
-	// Unmarshal the header from the context kv store.
-	bz := ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey})
 	if bz == nil {
 		return nil, errors.New("GetHeader: polaris header not found in kvstore")
 	}
@@ -79,12 +85,15 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 	return header, nil
 }
 
-// SetHeader saves a block to the store.
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
+	key := types.HeaderKey
+	if header.Number.Uint64() == 0 {
+		key = types.GenesisHeaderKey
+	}
 	bz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
 	}
-	p.ctx.KVStore(p.storekey).Set([]byte{types.HeaderKey}, bz)
+	p.ctx.KVStore(p.storekey).Set([]byte{key}, bz)
 	return nil
 }
