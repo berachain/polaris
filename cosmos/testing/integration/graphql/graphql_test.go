@@ -201,8 +201,7 @@ var _ = Describe("GraphQL", func() {
 
 	})
 
-	It(`should support eth_getBlockByHash, eth_getBlockTransactionCountByHash, 
-		eth_getUncleByBlockHashAndIndex, eth_getUncleCountByBlockHash`, func() {
+	It(`should support eth_getBlockByHash, eth_getBlockTransactionCountByHash, eth_getUncleByBlockHashAndIndex, eth_getUncleCountByBlockHash`, func() {
 		mostRecentBlockHash, err := getMostRecentBlockHash()
 		Expect(err).ToNot(HaveOccurred())
 		query := fmt.Sprintf(`
