@@ -35,6 +35,11 @@ func (gtp *WrappedGethTxPool) Insert(_ context.Context, tx sdk.Tx) error {
 	return gtp.AddRemotes(coretypes.Transactions{evmtypes.GetAsEthTx(tx)})[0]
 }
 
+// InsertSync is called when a transaction is added to the mempool. (For testing purposes).
+func (gtp *WrappedGethTxPool) InsertSync(_ context.Context, tx sdk.Tx) error {
+	return gtp.AddRemotesSync(coretypes.Transactions{evmtypes.GetAsEthTx(tx)})[0]
+}
+
 // Remove is called when a transaction is removed from the mempool.
 func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {

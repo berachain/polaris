@@ -21,13 +21,9 @@
 package mempool
 
 import (
-	"math/big"
-
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"github.com/ethereum/go-ethereum/core/txpool"
-
-	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // Compile-time interface assertion.
@@ -46,10 +42,10 @@ type WrappedGethTxPool struct {
 	// cp is used to retrieve the current chain config.
 	cp ConfigurationPlugin
 
-	// block data for the pending block.
-	blockNumber *big.Int
-	blockTime   uint64
-	baseFee     *big.Int
+	// // block data for the pending block.
+	// blockNumber *big.Int
+	// blockTime   uint64
+	// baseFee     *big.Int
 }
 
 // NewWrappedGethTxPool creates a new Ethereum transaction pool.
@@ -68,10 +64,10 @@ func (gtp *WrappedGethTxPool) Setup(cp ConfigurationPlugin, serializer SdkTxSeri
 	gtp.serializer = serializer
 }
 
-// Prepare updates the mempool for the current block. Sets the block number, block time, and base
-// fee.
-func (gtp *WrappedGethTxPool) Prepare(header *types.Header) {
-	gtp.blockNumber = header.Number
-	gtp.blockTime = header.Time
-	gtp.baseFee = header.BaseFee
-}
+// // Prepare updates the mempool for the current block. Sets the block number, block time, and base
+// // fee.
+// func (gtp *WrappedGethTxPool) Prepare(header *types.Header) {
+// 	gtp.blockNumber = header.Number
+// 	gtp.blockTime = header.Time
+// 	gtp.baseFee = header.BaseFee
+// }

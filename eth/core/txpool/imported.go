@@ -18,15 +18,13 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package handler
+package txpool
 
-import (
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-)
+import "github.com/ethereum/go-ethereum/core/txpool"
 
-type (
-	// TxPool defines the required functions of the transaction pool.
-	TxSerializer interface {
-		SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
-	}
+type TxPool = txpool.TxPool
+
+var (
+	NewTxPool     = txpool.NewTxPool
+	DefaultConfig = txpool.DefaultConfig
 )

@@ -31,7 +31,6 @@ import (
 // ChainReader defines methods that are used to read the state and blocks of the chain.
 type ChainReader interface {
 	ChainBlockReader
-	ChainTxPoolReader
 	ChainSubscriber
 }
 
@@ -52,17 +51,6 @@ type ChainBlockReader interface {
 
 	// THIS SHOULD BE MOVED TO A "MINER" TYPE THING
 	PendingBlockAndReceipts() (*types.Block, types.Receipts)
-}
-
-// ChainTxPoolReader defines methods that are used to read information about the state
-// of the mempool.
-type ChainTxPoolReader interface {
-	GetPoolTransactions() (types.Transactions, error)
-	GetPoolTransaction(common.Hash) *types.Transaction
-	GetPoolNonce(common.Address) (uint64, error)
-	GetPoolStats() (int, int)
-	GetPoolContent() (map[common.Address]types.Transactions, map[common.Address]types.Transactions)
-	GetPoolContentFrom(addr common.Address) (types.Transactions, types.Transactions)
 }
 
 // =========================================================================
@@ -330,48 +318,4 @@ func (bc *blockchain) GetTd(hash common.Hash, number uint64) *big.Int {
 		return nil
 	}
 	return block.Difficulty()
-}
-
-// =========================================================================
-// TransactionPoolReader
-// =========================================================================
-
-// GetPoolTransactions returns all of the transactions that are currently in
-// the mempool.
-func (bc *blockchain) GetPoolTransactions() (types.Transactions, error) {
-	pending := bc.tp.Pending(false)
-	txs := make(types.Transactions, len(pending))
-	for _, batch := range pending {
-		txs = append(txs, batch...)
-	}
-	return txs, nil
-}
-
-// GetPoolTransaction returns a transaction from the mempool by hash.
-func (bc *blockchain) GetPoolTransaction(hash common.Hash) *types.Transaction {
-	return bc.tp.Get(hash)
-}
-
-// GetPoolNonce returns the pending nonce of addr from the mempool.
-func (bc *blockchain) GetPoolNonce(addr common.Address) (uint64, error) {
-	return bc.tp.Nonce(addr), bc.statedb.Error()
-}
-
-// GetPoolStats returns the number of pending and queued txs in the mempool.
-func (bc *blockchain) GetPoolStats() (int, int) {
-	return bc.tp.Stats()
-}
-
-// GetPoolContent returns the pending and queued txs in the mempool.
-func (bc *blockchain) GetPoolContent() (
-	map[common.Address]types.Transactions, map[common.Address]types.Transactions,
-) {
-	return bc.tp.Content()
-}
-
-// GetPoolContentFrom returns the pending and queued txs in the mempool for the given address.
-func (bc *blockchain) GetPoolContentFrom(addr common.Address) (
-	types.Transactions, types.Transactions,
-) {
-	return bc.tp.ContentFrom(addr)
 }
