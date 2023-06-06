@@ -42,4 +42,5 @@ docker cp ./temp/genesis.json $CONTAINER2:$HOMEDIR/config/genesis.json
 
 # start
 # docker exec $CONTAINER1 bash -c "$SCRIPTS/seed-start.sh"
+
 # docker exec $CONTAINER2 bash -c "$SCRIPTS/seed-start.sh"

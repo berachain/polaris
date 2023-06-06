@@ -1,0 +1,7 @@
+1. make your changes in code
+2. mage cosmos:dockerx base linux amd64
+3. mage cosmos:dockerx seed linux amd64
+4. in terminal window 1: docker compose up
+5. in terminal window 2: cd polaris/cosmos/docker, sh ./network-init.sh
+6. in terminal window 2: docker exec $CONTAINER1 bash -c "$SCRIPTS/seed-start.sh"
+7. in terminal window 3: docker exec $CONTAINER2 bash -c "$SCRIPTS/seed-start.sh"

@@ -14,9 +14,9 @@ services:
       - type: bind
         source: ./temp/seed0
         target: /pv
-      - type: bind
-        source: ./temp/genesis.json
-        target: /pv/config/genesis.json
+      # - type: bind
+      #   source: ./temp/genesis.json
+      #   target: /pv/config/genesis.json
     networks:
       localnet:
         ipv4_address: 192.168.10.10
@@ -34,9 +34,9 @@ services:
       - type: bind
         source: ./temp/seed1
         target: /pv
-      - type: bind
-        source: ./temp/genesis.json
-        target: /pv/config/genesis.json
+      # - type: bind
+      #   source: ./temp/genesis.json
+      #   target: /pv/config/genesis.json
     networks:
       localnet:
         ipv4_address: 192.168.10.11
