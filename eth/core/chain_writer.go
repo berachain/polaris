@@ -82,7 +82,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
-		BaseFee:    bc.CalculateNextBaseFee(),
+		BaseFee:    bc.CalculateNextBaseFee(number),
 
 		// Not used in Polaris at the moment, but we set them to prevent nil ptr panic.
 		Difficulty: new(big.Int),
