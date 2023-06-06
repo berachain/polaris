@@ -21,14 +21,50 @@
 package evm_test
 
 import (
+	storetypes "cosmossdk.io/store/types"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/x/erc20/types"
+	"pkg.berachain.dev/polaris/cosmos/x/evm"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
+	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	"pkg.berachain.dev/polaris/eth/core"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("", func() {
 	var (
-	// ethGen        *types.GenesisState
-	// ctx, ak, _, k = testutil.SetupMinimalKeepers()
+		cdc    codec.JSONCodec
+		ctx    sdk.Context
+		sc     ethprecompile.StatefulImpl
+		ak     state.AccountKeeper
+		sk     stakingkeeper.Keeper
+		k      *keeper.Keeper
+		ethGen *types.GenesisState
+		am     evm.AppModule
+		err    error
 	)
+
+	BeforeEach(func() {
+		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
+		k = keeper.NewKeeper(
+			ak, sk,
+			storetypes.NewKVStoreKey("evm"),
+			"authority",
+			evmmempool.NewPolarisEthereumTxPool(),
+			func() *ethprecompile.Injector {
+				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
+			},
+		)
+	})
+
 	Context("On ValidateGenesis", func() {
 		BeforeEach(func() {
 		})
@@ -42,15 +78,26 @@ var _ = Describe("", func() {
 
 	Context("On InitGenesis", func() {
 		BeforeEach(func() {
-			// ethGen = types.DefaultGenesis()
+			ethGen = core.DefaultGenesis()
+			am = evm.NewAppModule(k, ak)
 		})
 
-		When("", func() {
+		JustBeforeEach(func() {
+			var bz []byte
+			bz, err = ethGen.Marshal()
+			if err != nil {
+				panic(err)
+			}
+			am.InitGenesis(ctx, cdc, bz)
+		})
+
+		When("the genesis is valid", func() {
 			BeforeEach(func() {
 
 			})
-			It("", func() {
-
+			It("should succeed without error", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(k.GetHost().GetBlockPlugin().GetHeaderByNumber(0)).To(Equal(ethGen.ToBlock().Header()))
 			})
 		})
 	})
