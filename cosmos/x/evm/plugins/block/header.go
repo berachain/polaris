@@ -22,6 +22,7 @@ package block
 
 import (
 	"errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -81,10 +82,11 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 
 // SetHeader saves a block to the store.
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
-	bz, err := coretypes.MarshalHeader(header)
-	if err != nil {
-		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
-	}
-	p.ctx.KVStore(p.storekey).Set([]byte{types.HeaderKey}, bz)
+	fmt.Println("STORING HEADER", header)
+	// bz, err := coretypes.MarshalHeader(header)
+	// if err != nil {
+	// 	return errorslib.Wrap(err, "SetHeader: failed to marshal header")
+	// }
+	// p.ctx.KVStore(p.storekey).Set([]byte{types.HeaderKey}, bz)
 	return nil
 }

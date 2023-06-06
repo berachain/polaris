@@ -22,6 +22,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -101,6 +102,8 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
 		header,
 	)
+
+	fmt.Println("PREPARING HEADER", header)
 }
 
 // ProcessTransaction processes the given transaction and returns the receipt.
