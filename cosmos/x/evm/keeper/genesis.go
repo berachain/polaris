@@ -38,7 +38,7 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 		}
 	}
 
-	return k.polaris.StartServices()
+	return nil
 }
 
 // ExportGenesis returns the exported genesis state.

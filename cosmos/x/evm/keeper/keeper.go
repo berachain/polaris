@@ -21,6 +21,8 @@
 package keeper
 
 import (
+	"time"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
@@ -116,6 +118,12 @@ func (k *Keeper) Setup(
 			return nil
 		}),
 	)
+
+	// todo temp fix
+	go func() {
+		time.Sleep(3 * time.Second)
+		k.polaris.StartServices()
+	}()
 }
 
 // Logger returns a module-specific logger.
