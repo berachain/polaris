@@ -26,9 +26,7 @@
 package main
 
 import (
-	"fmt"
 	"runtime"
-	"strings"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -47,7 +45,7 @@ var (
 
 	// Variables.
 	imageName              = "polard"
-	imageVersion           = "no-hp"
+	imageVersion           = "v0.0.0"
 	baseDockerPath         = "./cosmos/docker/"
 	execDockerPath         = baseDockerPath + "base.Dockerfile"
 	localDockerPath        = baseDockerPath + "local/Dockerfile"
@@ -87,7 +85,6 @@ func (Cosmos) Build() error {
 		"-o", generateOutDirectory(cmd),
 		"./cosmos/cmd/" + cmd,
 	}
-	fmt.Println(strings.Join(args, " "))
 	return goBuild(args...)
 }
 
@@ -104,30 +101,20 @@ func (c Cosmos) BuildRelease() error {
 // ===========================================================================
 
 // Builds a release version of the Cosmos SDK chain.
-func (c Cosmos) Docker(node, arch, versionFlag string) error {
+func (c Cosmos) Docker(dockerType, arch string) error {
 	LogGreen("Build a release docker image for the Cosmos SDK chain...")
-	if versionFlag != "" {
-		version = versionFlag
-	}
-	var path string
-	if node == "base" {
-		path = execDockerPath
-	} else {
-		path = baseDockerPath + node + "/Dockerfile"
-	}
-	return c.dockerBuildNode("polard-"+node, path, goVersion, version, arch, true)
+	return c.dockerBuildBeradWith(dockerType, goVersion, arch, false)
 }
 
 func (c Cosmos) RunDockerLocal() error {
 	return dockerRun("-p", "8545:8545", "polard-local:v0.0.0")
 }
 
-func (c Cosmos) DockerX(dockerType, os, arch string) error {
-	LogGreen("Building a " + dockerType + "  polard docker image for " + os + "/" + arch)
-	return c.dockerBuildBeradWithX(goVersion, os, arch, dockerType)
+func (c Cosmos) DockerX(dockerType, arch string) error {
+	return c.dockerBuildBeradWith(dockerType, goVersion, arch, true)
 }
 
-func (c Cosmos) dockerBuildBeradWithX(goVersion, os, arch, dockerType string) error {
+func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX bool) error {
 	var dockerFilePath string
 	switch dockerType {
 	case "local":
@@ -139,15 +126,20 @@ func (c Cosmos) dockerBuildBeradWithX(goVersion, os, arch, dockerType string) er
 	default:
 		dockerFilePath = execDockerPath
 	}
-
-	return dockerBuildFn(true)(
+	tag := imageName + "/" + dockerType + ":" + imageVersion
+	LogGreen(
+		"Building a "+dockerType+" polard docker image",
+		"platform", "linux"+"/"+arch,
+		"tag", tag,
+	)
+	return dockerBuildFn(withX)(
 		"--build-arg", "GO_VERSION="+goVersion,
-		"--platform", os+"/"+arch,
+		"--platform", "linux/"+arch,
 		"--build-arg", "PRECOMPILE_CONTRACTS_DIR="+precompileContractsDir,
-		"--build-arg", "GOOS="+os,
+		"--build-arg", "GOOS=linux",
 		"--build-arg", "GOARCH="+arch,
 		"-f", dockerFilePath,
-		"-t", imageName+"-"+dockerType+":"+imageVersion,
+		"-t", tag,
 		".",
 	)
 }

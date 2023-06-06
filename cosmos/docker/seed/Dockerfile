@@ -20,7 +20,7 @@ ARG GOOS=darwin
 
 
 # Use the latest foundry image
-FROM polard:no-hp as basepolard
+FROM polard/base:v0.0.0 as basepolard
 
 RUN apk add --no-cache bash jq
 
