@@ -1,0 +1,50 @@
+version: '3.3'
+
+services:
+  node0:
+    platform: linux/amd64
+    container_name: polaris-node0
+    image: "polard-seed:no-hp"
+    ports:
+      - "26656-26658:26656-26658"
+      - "9090-9091:9090-9091"
+    environment:
+      - ID=0
+    volumes:
+      - type: bind
+        source: ./temp/seed0
+        target: /pv
+      - type: bind
+        source: ./temp/genesis.json
+        target: /pv/config/genesis.json
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.10
+
+  node1:
+    platform: linux/amd64
+    container_name: polaris-node1
+    image: "polard-seed:no-hp"
+    ports:
+      - "26659-26661:26656-26658"
+      - "9092-9093:9090-9091"
+    environment:
+      - ID=1
+    volumes:
+      - type: bind
+        source: ./temp/seed1
+        target: /pv
+      - type: bind
+        source: ./temp/genesis.json
+        target: /pv/config/genesis.json
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.11
+
+networks:
+  localnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.10.0/24

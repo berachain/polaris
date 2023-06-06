@@ -46,8 +46,13 @@ var (
 	dockerRun    = RunCmdV("docker", "run")
 
 	// Variables.
+	imageName              = "polard"
+	imageVersion           = "no-hp"
 	baseDockerPath         = "./cosmos/docker/"
 	execDockerPath         = baseDockerPath + "base.Dockerfile"
+	localDockerPath        = baseDockerPath + "local/Dockerfile"
+	seedDockerPath         = baseDockerPath + "seed/Dockerfile"
+	valDockerPath          = baseDockerPath + "validator/Dockerfile"
 	goVersion              = "1.20.4"
 	precompileContractsDir = "./contracts"
 )
@@ -117,20 +122,32 @@ func (c Cosmos) RunDockerLocal() error {
 	return dockerRun("-p", "8545:8545", "polard-local:v0.0.0")
 }
 
-func (c Cosmos) DockerX() error {
-	LogGreen("Build a release docker image for the Cosmos SDK chain...")
-	return c.dockerBuildBeradWithX(goVersion)
+func (c Cosmos) DockerX(dockerType, os, arch string) error {
+	LogGreen("Building a " + dockerType + "  polard docker image for " + os + "/" + arch)
+	return c.dockerBuildBeradWithX(goVersion, os, arch, dockerType)
 }
 
-func (c Cosmos) dockerBuildBeradWithX(goVersion string) error {
+func (c Cosmos) dockerBuildBeradWithX(goVersion, os, arch, dockerType string) error {
+	var dockerFilePath string
+	switch dockerType {
+	case "local":
+		dockerFilePath = localDockerPath
+	case "seed":
+		dockerFilePath = seedDockerPath
+	case "validator":
+		dockerFilePath = valDockerPath
+	default:
+		dockerFilePath = execDockerPath
+	}
+
 	return dockerBuildFn(true)(
 		"--build-arg", "GO_VERSION="+goVersion,
-		"--platform", "linux/amd64", // TODO: do not hard code, have ability to pass as arg
-		"--build-arg", "FOUNDRY_DIR="+precompileContractsDir,
-		"--build-arg", "GOOS=linux",
-		"--build-arg", "GOARCH=amd64",
-		"-f", execDockerPath,
-		"-t", "polaris:devnet-0.1", //TODO: do not hardcode, have ability to pass as arg
+		"--platform", os+"/"+arch,
+		"--build-arg", "PRECOMPILE_CONTRACTS_DIR="+precompileContractsDir,
+		"--build-arg", "GOOS="+os,
+		"--build-arg", "GOARCH="+arch,
+		"-f", dockerFilePath,
+		"-t", imageName+"-"+dockerType+":"+imageVersion,
 		".",
 	)
 }
