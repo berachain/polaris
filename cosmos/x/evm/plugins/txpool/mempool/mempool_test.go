@@ -94,7 +94,6 @@ var _ = Describe("WrappedGethTxPool", func() {
 		addr1Nonce = 1
 		addr2Nonce = 2
 		etp.Setup(cp, &mockSerializer{})
-		// etp.Prepare(bc.CurrentBlock())
 	})
 
 	Describe("All Cases", func() {
@@ -253,6 +252,7 @@ var _ = Describe("WrappedGethTxPool", func() {
 			pending, _ := etp.Stats()
 			Expect(pending).To(Equal(3))
 		})
+
 		It("should handle many pending txs", func() {
 			ethTx1, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(100), Gas: 100000})
 			ethTx2, tx2 := buildTx(key1, &coretypes.LegacyTx{Nonce: 2, GasPrice: big.NewInt(200), Gas: 100000})
@@ -288,32 +288,32 @@ var _ = Describe("WrappedGethTxPool", func() {
 
 			// apologies in advance for this test, it's not great.
 
-			// var wg sync.WaitGroup
+			var wg sync.WaitGroup
 
-			// wg.Add(1)
-			// go func(etp *WrappedGethTxPool) {
-			// 	defer wg.Done()
-			// 	for i := 1; i <= 10; i++ {
-			// 		_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
-			// 		Expect(etp.InsertSync(ctx, tx)).ToNot(HaveOccurred())
-			// 	}
-			// }(etp)
+			wg.Add(1)
+			go func(etp *WrappedGethTxPool) {
+				defer wg.Done()
+				for i := 1; i <= 10; i++ {
+					_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+					Expect(etp.InsertSync(ctx, tx)).ToNot(HaveOccurred())
+				}
+			}(etp)
 
-			// wg.Add(1)
-			// go func(etp *WrappedGethTxPool) {
-			// 	defer wg.Done()
-			// 	for i := 2; i <= 11; i++ {
-			// 		_, tx := buildTx(key2, &coretypes.LegacyTx{Nonce: uint64(i)})
-			// 		Expect(etp.InsertSync(ctx, tx)).ToNot(HaveOccurred())
-			// 	}
-			// }(etp)
+			wg.Add(1)
+			go func(etp *WrappedGethTxPool) {
+				defer wg.Done()
+				for i := 2; i <= 11; i++ {
+					_, tx := buildTx(key2, &coretypes.LegacyTx{Nonce: uint64(i)})
+					Expect(etp.InsertSync(ctx, tx)).ToNot(HaveOccurred())
+				}
+			}(etp)
 
-			// wg.Wait()
-			// lenPending, _ := etp.Stats()
-			// Expect(lenPending).To(BeEquivalentTo(20))
+			wg.Wait()
+			lenPending, _ := etp.Stats()
+			Expect(lenPending).To(BeEquivalentTo(20))
 		})
-		It("should handle concurrent reads", func() {
 
+		It("should handle concurrent reads", func() {
 			readsFromA := 0
 			readsFromB := 0
 
@@ -351,31 +351,6 @@ var _ = Describe("WrappedGethTxPool", func() {
 			Expect(readsFromA).To(BeEquivalentTo(readsFromB))
 		})
 
-		// It("should be able to return the transaction priority for a Cosmos tx and effective gas tip value", func() {
-		// 	ethTx1, tx1 := buildTx(key1, &coretypes.DynamicFeeTx{
-		// 		Nonce: 1, GasTipCap: big.NewInt(1), GasFeeCap: big.NewInt(10000)})
-		// 	ethTx2, tx2 := buildTx(key2, &coretypes.DynamicFeeTx{
-		// 		Nonce: 2, GasTipCap: big.NewInt(2), GasFeeCap: big.NewInt(200)})
-
-		// 	// Test that the priority policy is working as expected.
-		// 	tpp := EthereumTxPriorityPolicy{baseFee: big.NewInt(69)}
-		// 	Expect(tpp.GetTxPriority(ctx, tx1)).To(Equal(ethTx1.EffectiveGasTipValue(tpp.baseFee)))
-		// 	Expect(tpp.GetTxPriority(ctx, tx2)).To(Equal(ethTx2.EffectiveGasTipValue(tpp.baseFee)))
-
-		// 	// Test live mempool
-		// 	err := etp.InsertSync(ctx, tx1)
-		// 	Expect(err).ToNot(HaveOccurred())
-		// 	err = etp.InsertSync(ctx, tx2)
-		// 	Expect(err).ToNot(HaveOccurred())
-
-		// 	// Test that the priority policy is working as expected.
-		// 	iter := etp.Select(context.TODO(), nil)
-		// 	higherPriorityTx := evmtypes.GetAsEthTx(iter.Tx())
-		// 	lowerPriorityTx := evmtypes.GetAsEthTx(iter.Next().Tx())
-		// 	Expect(higherPriorityTx.Hash()).To(Equal(ethTx2.Hash()))
-		// 	Expect(lowerPriorityTx.Hash()).To(Equal(ethTx1.Hash()))
-		// })
-
 		It("should throw when attempting to remove a transaction that doesn't exist", func() {
 			_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(100), Gas: 100000})
 			Expect(etp.InsertSync(ctx, tx)).ToNot(HaveOccurred())
@@ -396,6 +371,7 @@ var _ = Describe("WrappedGethTxPool", func() {
 			Expect(etp.Nonce(addr1)).To(BeEquivalentTo(sdbNonce))
 
 		})
+
 		// TODO: SDK TRANSACTIONS BIG BROKEN.
 		// It("should break out of func Nonce(addr) when seeing a noncontigious nonce gap", func() {
 		// 	_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(100), Gas: 100000})
