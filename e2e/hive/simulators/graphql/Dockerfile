@@ -39,5 +39,5 @@ RUN go build -v .
 FROM alpine:latest
 ADD . /source
 WORKDIR /source
-COPY --from=builder /source/rpc .
+COPY --from=builder /source/graphql .
 ENTRYPOINT ["./graphql"]
