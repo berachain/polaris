@@ -4,292 +4,80 @@
 package mock
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	ethereumcore "github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
-	ethcore "pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"sync"
 )
 
-// Ensure, that TxPoolPluginMock does implement ethcore.TxPoolPlugin.
+// Ensure, that TxPoolPluginMock does implement core.TxPoolPlugin.
 // If this is not the case, regenerate this file with moq.
-var _ ethcore.TxPoolPlugin = &TxPoolPluginMock{}
+var _ core.TxPoolPlugin = &TxPoolPluginMock{}
 
-// TxPoolPluginMock is a mock implementation of ethcore.TxPoolPlugin.
+// TxPoolPluginMock is a mock implementation of core.TxPoolPlugin.
 //
 //	func TestSomethingThatUsesTxPoolPlugin(t *testing.T) {
 //
-//		// make and configure a mocked ethcore.TxPoolPlugin
+//		// make and configure a mocked core.TxPoolPlugin
 //		mockedTxPoolPlugin := &TxPoolPluginMock{
-//			ContentFunc: func() (map[common.Address]types.Transactions, map[common.Address]types.Transactions) {
-//				panic("mock out the Content method")
-//			},
-//			ContentFromFunc: func(addr common.Address) (types.Transactions, types.Transactions) {
-//				panic("mock out the ContentFrom method")
-//			},
-//			GetFunc: func(hash common.Hash) *types.Transaction {
-//				panic("mock out the Get method")
-//			},
-//			NonceFunc: func(address common.Address) uint64 {
-//				panic("mock out the Nonce method")
-//			},
-//			PendingFunc: func(b bool) map[common.Address]types.Transactions {
-//				panic("mock out the Pending method")
+//			GetHandlerFunc: func() txpool.Handler {
+//				panic("mock out the GetHandler method")
 //			},
 //			PrepareFunc: func(header *types.Header)  {
 //				panic("mock out the Prepare method")
 //			},
-//			SendTxFunc: func(tx *types.Transaction) error {
-//				panic("mock out the SendTx method")
-//			},
-//			StatsFunc: func() (int, int) {
-//				panic("mock out the Stats method")
-//			},
-//			SubscribeNewTxsEventFunc: func(ch chan<- ethereumcore.NewTxsEvent) event.Subscription {
-//				panic("mock out the SubscribeNewTxsEvent method")
-//			},
 //		}
 //
-//		// use mockedTxPoolPlugin in code that requires ethcore.TxPoolPlugin
+//		// use mockedTxPoolPlugin in code that requires core.TxPoolPlugin
 //		// and then make assertions.
 //
 //	}
 type TxPoolPluginMock struct {
-	// ContentFunc mocks the Content method.
-	ContentFunc func() (map[common.Address]types.Transactions, map[common.Address]types.Transactions)
-
-	// ContentFromFunc mocks the ContentFrom method.
-	ContentFromFunc func(addr common.Address) (types.Transactions, types.Transactions)
-
-	// GetFunc mocks the Get method.
-	GetFunc func(hash common.Hash) *types.Transaction
-
-	// NonceFunc mocks the Nonce method.
-	NonceFunc func(address common.Address) uint64
-
-	// PendingFunc mocks the Pending method.
-	PendingFunc func(b bool) map[common.Address]types.Transactions
+	// GetHandlerFunc mocks the GetHandler method.
+	GetHandlerFunc func() txpool.Handler
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(header *types.Header)
 
-	// SendTxFunc mocks the SendTx method.
-	SendTxFunc func(tx *types.Transaction) error
-
-	// StatsFunc mocks the Stats method.
-	StatsFunc func() (int, int)
-
-	// SubscribeNewTxsEventFunc mocks the SubscribeNewTxsEvent method.
-	SubscribeNewTxsEventFunc func(ch chan<- ethereumcore.NewTxsEvent) event.Subscription
-
 	// calls tracks calls to the methods.
 	calls struct {
-		// Content holds details about calls to the Content method.
-		Content []struct {
-		}
-		// ContentFrom holds details about calls to the ContentFrom method.
-		ContentFrom []struct {
-			// Addr is the addr argument value.
-			Addr common.Address
-		}
-		// Get holds details about calls to the Get method.
-		Get []struct {
-			// Hash is the hash argument value.
-			Hash common.Hash
-		}
-		// Nonce holds details about calls to the Nonce method.
-		Nonce []struct {
-			// Address is the address argument value.
-			Address common.Address
-		}
-		// Pending holds details about calls to the Pending method.
-		Pending []struct {
-			// B is the b argument value.
-			B bool
+		// GetHandler holds details about calls to the GetHandler method.
+		GetHandler []struct {
 		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
 			// Header is the header argument value.
 			Header *types.Header
 		}
-		// SendTx holds details about calls to the SendTx method.
-		SendTx []struct {
-			// Tx is the tx argument value.
-			Tx *types.Transaction
-		}
-		// Stats holds details about calls to the Stats method.
-		Stats []struct {
-		}
-		// SubscribeNewTxsEvent holds details about calls to the SubscribeNewTxsEvent method.
-		SubscribeNewTxsEvent []struct {
-			// Ch is the ch argument value.
-			Ch chan<- ethereumcore.NewTxsEvent
-		}
 	}
-	lockContent              sync.RWMutex
-	lockContentFrom          sync.RWMutex
-	lockGet                  sync.RWMutex
-	lockNonce                sync.RWMutex
-	lockPending              sync.RWMutex
-	lockPrepare              sync.RWMutex
-	lockSendTx               sync.RWMutex
-	lockStats                sync.RWMutex
-	lockSubscribeNewTxsEvent sync.RWMutex
+	lockGetHandler sync.RWMutex
+	lockPrepare       sync.RWMutex
 }
 
-// Content calls ContentFunc.
-func (mock *TxPoolPluginMock) Content() (map[common.Address]types.Transactions, map[common.Address]types.Transactions) {
-	if mock.ContentFunc == nil {
-		panic("TxPoolPluginMock.ContentFunc: method is nil but TxPoolPlugin.Content was just called")
+// GetHandler calls GetHandlerFunc.
+func (mock *TxPoolPluginMock) GetHandler() txpool.Handler {
+	if mock.GetHandlerFunc == nil {
+		panic("TxPoolPluginMock.GetHandlerFunc: method is nil but TxPoolPlugin.GetHandler was just called")
 	}
 	callInfo := struct {
 	}{}
-	mock.lockContent.Lock()
-	mock.calls.Content = append(mock.calls.Content, callInfo)
-	mock.lockContent.Unlock()
-	return mock.ContentFunc()
+	mock.lockGetHandler.Lock()
+	mock.calls.GetHandler = append(mock.calls.GetHandler, callInfo)
+	mock.lockGetHandler.Unlock()
+	return mock.GetHandlerFunc()
 }
 
-// ContentCalls gets all the calls that were made to Content.
+// GetHandlerCalls gets all the calls that were made to GetHandler.
 // Check the length with:
 //
-//	len(mockedTxPoolPlugin.ContentCalls())
-func (mock *TxPoolPluginMock) ContentCalls() []struct {
+//	len(mockedTxPoolPlugin.GetHandlerCalls())
+func (mock *TxPoolPluginMock) GetHandlerCalls() []struct {
 } {
 	var calls []struct {
 	}
-	mock.lockContent.RLock()
-	calls = mock.calls.Content
-	mock.lockContent.RUnlock()
-	return calls
-}
-
-// ContentFrom calls ContentFromFunc.
-func (mock *TxPoolPluginMock) ContentFrom(addr common.Address) (types.Transactions, types.Transactions) {
-	if mock.ContentFromFunc == nil {
-		panic("TxPoolPluginMock.ContentFromFunc: method is nil but TxPoolPlugin.ContentFrom was just called")
-	}
-	callInfo := struct {
-		Addr common.Address
-	}{
-		Addr: addr,
-	}
-	mock.lockContentFrom.Lock()
-	mock.calls.ContentFrom = append(mock.calls.ContentFrom, callInfo)
-	mock.lockContentFrom.Unlock()
-	return mock.ContentFromFunc(addr)
-}
-
-// ContentFromCalls gets all the calls that were made to ContentFrom.
-// Check the length with:
-//
-//	len(mockedTxPoolPlugin.ContentFromCalls())
-func (mock *TxPoolPluginMock) ContentFromCalls() []struct {
-	Addr common.Address
-} {
-	var calls []struct {
-		Addr common.Address
-	}
-	mock.lockContentFrom.RLock()
-	calls = mock.calls.ContentFrom
-	mock.lockContentFrom.RUnlock()
-	return calls
-}
-
-// Get calls GetFunc.
-func (mock *TxPoolPluginMock) Get(hash common.Hash) *types.Transaction {
-	if mock.GetFunc == nil {
-		panic("TxPoolPluginMock.GetFunc: method is nil but TxPoolPlugin.Get was just called")
-	}
-	callInfo := struct {
-		Hash common.Hash
-	}{
-		Hash: hash,
-	}
-	mock.lockGet.Lock()
-	mock.calls.Get = append(mock.calls.Get, callInfo)
-	mock.lockGet.Unlock()
-	return mock.GetFunc(hash)
-}
-
-// GetCalls gets all the calls that were made to Get.
-// Check the length with:
-//
-//	len(mockedTxPoolPlugin.GetCalls())
-func (mock *TxPoolPluginMock) GetCalls() []struct {
-	Hash common.Hash
-} {
-	var calls []struct {
-		Hash common.Hash
-	}
-	mock.lockGet.RLock()
-	calls = mock.calls.Get
-	mock.lockGet.RUnlock()
-	return calls
-}
-
-// Nonce calls NonceFunc.
-func (mock *TxPoolPluginMock) Nonce(address common.Address) uint64 {
-	if mock.NonceFunc == nil {
-		panic("TxPoolPluginMock.NonceFunc: method is nil but TxPoolPlugin.Nonce was just called")
-	}
-	callInfo := struct {
-		Address common.Address
-	}{
-		Address: address,
-	}
-	mock.lockNonce.Lock()
-	mock.calls.Nonce = append(mock.calls.Nonce, callInfo)
-	mock.lockNonce.Unlock()
-	return mock.NonceFunc(address)
-}
-
-// NonceCalls gets all the calls that were made to Nonce.
-// Check the length with:
-//
-//	len(mockedTxPoolPlugin.NonceCalls())
-func (mock *TxPoolPluginMock) NonceCalls() []struct {
-	Address common.Address
-} {
-	var calls []struct {
-		Address common.Address
-	}
-	mock.lockNonce.RLock()
-	calls = mock.calls.Nonce
-	mock.lockNonce.RUnlock()
-	return calls
-}
-
-// Pending calls PendingFunc.
-func (mock *TxPoolPluginMock) Pending(b bool) map[common.Address]types.Transactions {
-	if mock.PendingFunc == nil {
-		panic("TxPoolPluginMock.PendingFunc: method is nil but TxPoolPlugin.Pending was just called")
-	}
-	callInfo := struct {
-		B bool
-	}{
-		B: b,
-	}
-	mock.lockPending.Lock()
-	mock.calls.Pending = append(mock.calls.Pending, callInfo)
-	mock.lockPending.Unlock()
-	return mock.PendingFunc(b)
-}
-
-// PendingCalls gets all the calls that were made to Pending.
-// Check the length with:
-//
-//	len(mockedTxPoolPlugin.PendingCalls())
-func (mock *TxPoolPluginMock) PendingCalls() []struct {
-	B bool
-} {
-	var calls []struct {
-		B bool
-	}
-	mock.lockPending.RLock()
-	calls = mock.calls.Pending
-	mock.lockPending.RUnlock()
+	mock.lockGetHandler.RLock()
+	calls = mock.calls.GetHandler
+	mock.lockGetHandler.RUnlock()
 	return calls
 }
 
@@ -322,96 +110,5 @@ func (mock *TxPoolPluginMock) PrepareCalls() []struct {
 	mock.lockPrepare.RLock()
 	calls = mock.calls.Prepare
 	mock.lockPrepare.RUnlock()
-	return calls
-}
-
-// SendTx calls SendTxFunc.
-func (mock *TxPoolPluginMock) SendTx(tx *types.Transaction) error {
-	if mock.SendTxFunc == nil {
-		panic("TxPoolPluginMock.SendTxFunc: method is nil but TxPoolPlugin.SendTx was just called")
-	}
-	callInfo := struct {
-		Tx *types.Transaction
-	}{
-		Tx: tx,
-	}
-	mock.lockSendTx.Lock()
-	mock.calls.SendTx = append(mock.calls.SendTx, callInfo)
-	mock.lockSendTx.Unlock()
-	return mock.SendTxFunc(tx)
-}
-
-// SendTxCalls gets all the calls that were made to SendTx.
-// Check the length with:
-//
-//	len(mockedTxPoolPlugin.SendTxCalls())
-func (mock *TxPoolPluginMock) SendTxCalls() []struct {
-	Tx *types.Transaction
-} {
-	var calls []struct {
-		Tx *types.Transaction
-	}
-	mock.lockSendTx.RLock()
-	calls = mock.calls.SendTx
-	mock.lockSendTx.RUnlock()
-	return calls
-}
-
-// Stats calls StatsFunc.
-func (mock *TxPoolPluginMock) Stats() (int, int) {
-	if mock.StatsFunc == nil {
-		panic("TxPoolPluginMock.StatsFunc: method is nil but TxPoolPlugin.Stats was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockStats.Lock()
-	mock.calls.Stats = append(mock.calls.Stats, callInfo)
-	mock.lockStats.Unlock()
-	return mock.StatsFunc()
-}
-
-// StatsCalls gets all the calls that were made to Stats.
-// Check the length with:
-//
-//	len(mockedTxPoolPlugin.StatsCalls())
-func (mock *TxPoolPluginMock) StatsCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockStats.RLock()
-	calls = mock.calls.Stats
-	mock.lockStats.RUnlock()
-	return calls
-}
-
-// SubscribeNewTxsEvent calls SubscribeNewTxsEventFunc.
-func (mock *TxPoolPluginMock) SubscribeNewTxsEvent(ch chan<- ethereumcore.NewTxsEvent) event.Subscription {
-	if mock.SubscribeNewTxsEventFunc == nil {
-		panic("TxPoolPluginMock.SubscribeNewTxsEventFunc: method is nil but TxPoolPlugin.SubscribeNewTxsEvent was just called")
-	}
-	callInfo := struct {
-		Ch chan<- ethereumcore.NewTxsEvent
-	}{
-		Ch: ch,
-	}
-	mock.lockSubscribeNewTxsEvent.Lock()
-	mock.calls.SubscribeNewTxsEvent = append(mock.calls.SubscribeNewTxsEvent, callInfo)
-	mock.lockSubscribeNewTxsEvent.Unlock()
-	return mock.SubscribeNewTxsEventFunc(ch)
-}
-
-// SubscribeNewTxsEventCalls gets all the calls that were made to SubscribeNewTxsEvent.
-// Check the length with:
-//
-//	len(mockedTxPoolPlugin.SubscribeNewTxsEventCalls())
-func (mock *TxPoolPluginMock) SubscribeNewTxsEventCalls() []struct {
-	Ch chan<- ethereumcore.NewTxsEvent
-} {
-	var calls []struct {
-		Ch chan<- ethereumcore.NewTxsEvent
-	}
-	mock.lockSubscribeNewTxsEvent.RLock()
-	calls = mock.calls.SubscribeNewTxsEvent
-	mock.lockSubscribeNewTxsEvent.RUnlock()
 	return calls
 }

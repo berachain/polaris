@@ -95,7 +95,7 @@ var _ = Describe("WrappedGethTxPool", func() {
 		addr1Nonce = 1
 		addr2Nonce = 2
 		etp.Setup(cp, &mockSerializer{})
-		etp.Prepare(bc.CurrentBlock())
+		// etp.Prepare(bc.CurrentBlock())
 	})
 
 	Describe("All Cases", func() {
@@ -380,9 +380,6 @@ var _ = Describe("WrappedGethTxPool", func() {
 		It("should throw when attempting to remove a transaction that doesn't exist", func() {
 			_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(100), Gas: 100000})
 			Expect(etp.InsertSync(ctx, tx)).ToNot(HaveOccurred())
-			// TODO: @calbera we might want to call with sync here? idk if this could cause problems.
-			// TODO: since we are calling Insert with sync=false rn, this creates a race condition with the line
-			// TODO: below, we temporarily add a sleep to avoid this, but we should fix this.
 			time.Sleep(200 * time.Millisecond)
 			Expect(etp.Remove(tx)).ToNot(HaveOccurred())
 			Expect(etp.Remove(tx)).To(HaveOccurred())

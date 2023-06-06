@@ -22,6 +22,7 @@ package mempool
 
 import (
 	"context"
+	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
@@ -40,9 +41,14 @@ func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Itera
 
 	return &iterator{
 		txs: coretypes.NewTransactionsByPriceAndNonce(
-			coretypes.MakeSigner(gtp.cp.ChainConfig(), gtp.blockNumber, gtp.blockTime),
+			// Should be pending block.
+			// coretypes.MakeSigner(gtp.cp.ChainConfig(), gtp.blockNumber, gtp.blockTime),
+			// HACK FIX LATEST SIGNIER IS WRONG
+			coretypes.LatestSigner(gtp.cp.ChainConfig()),
 			gtp.Pending(true),
-			gtp.baseFee,
+			// basefee broken until prepare proposal miner change
+			// gtp.baseFee,
+			big.NewInt(0),
 		),
 		serializer: gtp.serializer,
 	}

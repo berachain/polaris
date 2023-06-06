@@ -30,7 +30,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/event"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
@@ -42,22 +44,21 @@ const txChanSize = 4096
 // Handler listens for new insertions into the geth txpool and broadcasts them to the CometBFT
 // layer for p2p and ABCI.
 type Handler struct {
-	txpool TxPool
-	txsCh  chan core.NewTxsEvent
-	txsSub event.Subscription
+	wtxpool    *mempool.WrappedGethTxPool
+	serializer TxSerializer
+	txsCh      chan core.NewTxsEvent
+	txsSub     event.Subscription
 
 	clientCtx client.Context
 
 	wg sync.WaitGroup
 }
 
-// NewHandler creates a new Handler but does not start the broadcast loop.
-func NewHandler(txpool TxPool) *Handler {
-	h := &Handler{
-		txpool: txpool,
-		wg:     sync.WaitGroup{},
+func NewHandler(wtxpool *mempool.WrappedGethTxPool, s TxSerializer) *Handler {
+	return &Handler{
+		wtxpool:    wtxpool,
+		serializer: s,
 	}
-	return h
 }
 
 // SetClientContext sets the client context for the Handler.
@@ -65,12 +66,16 @@ func (h *Handler) SetClientContext(clientCtx client.Context) {
 	h.clientCtx = clientCtx
 }
 
+func (h *Handler) SetTxPool(txpool *txpool.TxPool) {
+	h.wtxpool.SetTxPool(txpool)
+}
+
 // Start starts the Handler.
 // TODO: when is this called?
 func (h *Handler) Start() {
 	h.wg.Add(1)
 	h.txsCh = make(chan core.NewTxsEvent, txChanSize)
-	h.txsSub = h.txpool.SubscribeNewTxsEvent(h.txsCh)
+	h.txsSub = h.wtxpool.SubscribeNewTxsEvent(h.txsCh)
 	go h.txBroadcastLoop() // start broadcast handlers
 }
 
@@ -103,7 +108,7 @@ func (h *Handler) txBroadcastLoop() {
 func (h *Handler) BroadcastTransactions(txs types.Transactions) {
 	for _, signedEthTx := range txs {
 		// Serialize the transaction to Bytes
-		txBytes, err := h.txpool.SerializeToBytes(signedEthTx)
+		txBytes, err := h.serializer.SerializeToBytes(signedEthTx)
 		if err != nil {
 			// TODO: log error?
 			panic(errorslib.Wrap(err, "failed to serialize transaction"))
@@ -111,7 +116,7 @@ func (h *Handler) BroadcastTransactions(txs types.Transactions) {
 
 		// Send the transaction to the CometBFT mempool, which will gossip it to peers via
 		// CometBFT's p2p layer.
-		syncCtx := h.clientCtx.WithBroadcastMode(flags.BroadcastSync)
+		syncCtx := h.clientCtx.WithBroadcastMode(flags.BroadcastAsync)
 		rsp, err := syncCtx.BroadcastTx(txBytes)
 		if rsp != nil && rsp.Code != 0 {
 			// TODO: log error?

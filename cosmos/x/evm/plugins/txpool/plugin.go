@@ -23,13 +23,11 @@ package txpool
 import (
 	"github.com/cosmos/cosmos-sdk/client"
 
-	gethtxpool "github.com/ethereum/go-ethereum/core/txpool"
-
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/handler"
 	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core/txpool"
 )
 
 // Compile-time type assertion.
@@ -39,23 +37,19 @@ var _ Plugin = (*plugin)(nil)
 type Plugin interface {
 	plugins.Base
 	core.TxPoolPlugin
-	SetTxPool(*gethtxpool.TxPool)
 	SetClientContext(client.Context)
 }
 
 // plugin represents the transaction pool plugin.
 type plugin struct {
-	*mempool.WrappedGethTxPool
 	clientCtx client.Context
 	handler   *handler.Handler
 }
 
 // NewPlugin returns a new transaction pool plugin.
 func NewPlugin(cp mempool.ConfigurationPlugin, ethTxMempool *mempool.WrappedGethTxPool) Plugin {
-	p := &plugin{
-		WrappedGethTxPool: ethTxMempool,
-	}
-	p.handler = handler.NewHandler(p)
+	p := &plugin{}
+	p.handler = handler.NewHandler(ethTxMempool, p)
 	ethTxMempool.Setup(cp, p)
 	return p
 }
@@ -64,14 +58,10 @@ func NewPlugin(cp mempool.ConfigurationPlugin, ethTxMempool *mempool.WrappedGeth
 func (p *plugin) SetClientContext(ctx client.Context) {
 	p.clientCtx = ctx
 	p.handler.SetClientContext(ctx)
-	p.handler.Start()
 }
 
-// SendTx sends a transaction to the transaction pool. It takes in a signed Ethereum transaction
-// from the rpc backend and wraps it in a Cosmos transaction. The Cosmos transaction is then
-// broadcasted to the network.
-func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
-	return p.WrappedGethTxPool.AddLocal(signedEthTx)
+func (p *plugin) GetHandler() txpool.Handler {
+	return p.handler
 }
 
 func (p *plugin) IsPlugin() {}

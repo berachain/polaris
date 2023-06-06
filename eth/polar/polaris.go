@@ -26,12 +26,12 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
-	"github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/graphql"
 
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/log"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
@@ -69,7 +69,8 @@ type Polaris struct {
 	stack NetworkingStack
 
 	// canonical tx pool for the chain
-	txPool *txpool.TxPool
+	txPool  *txpool.TxPool
+	handler txpool.Handler
 
 	// blockchain represents the canonical chain.
 	blockchain core.Blockchain
@@ -90,6 +91,7 @@ func NewWithNetworkingStack(
 ) *Polaris {
 	pl := &Polaris{
 		cfg:        cfg,
+		handler:    host.GetTxPoolPlugin().GetHandler(),
 		blockchain: core.NewChain(host),
 		stack:      stack,
 	}
@@ -106,6 +108,7 @@ func NewWithNetworkingStack(
 
 	// Build and set the RPC Backend.
 	pl.backend = NewBackend(pl, stack.ExtRPCEnabled(), cfg)
+
 	return pl
 }
 
@@ -131,6 +134,7 @@ func (pl *Polaris) APIs() []rpc.API {
 // StartServices notifies the NetworkStack to spin up (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
 	pl.txPool = txpool.NewTxPool(txpool.DefaultConfig, pl.blockchain.Config(), pl.blockchain)
+	pl.handler.SetTxPool(pl.txPool)
 
 	// Register the JSON-RPCs with the networking stack.
 	pl.stack.RegisterAPIs(pl.APIs())
@@ -150,11 +154,10 @@ func (pl *Polaris) StartServices() error {
 		if pl.stack.Start() != nil {
 			os.Exit(1)
 		}
+
+		pl.handler.Start()
 	}()
 	return nil
 }
 
-// GetTxPool returns the Ethereum txpool for the Polaris chain.
-func (pl *Polaris) GetTxPool() *txpool.TxPool {
-	return pl.txPool
-}
+func (pl *Polaris) TxPool() *txpool.TxPool { return pl.txPool }
