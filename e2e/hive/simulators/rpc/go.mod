@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/ethereum/go-ethereum v1.12.0
-	github.com/ethereum/hive v0.0.0-20230526161643-a5c0542ee4ac
+	github.com/ethereum/hive v0.0.0-20230603165725-f64d6ae89ba0
 )
 
 require (
@@ -43,7 +43,6 @@ require (
 	github.com/urfave/cli/v2 v2.25.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/time v0.3.0 // indirect

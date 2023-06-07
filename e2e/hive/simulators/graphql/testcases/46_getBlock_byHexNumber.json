@@ -1,0 +1,10 @@
+{
+  "request": "{block (number : \"0x1e\") { gasUsed gasLimit }} ",
+
+  "responses":[{
+    "data" : {
+      "block" : null  
+    }
+  }],
+  "statusCode": 200
+}
