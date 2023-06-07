@@ -65,17 +65,19 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 	return header, nil
 }
 
+// StoreHeader implements core.BlockPlugin.
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
-	key := p.getKeyForBlockNumber(int(header.Number.Int64()))
 	bz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
 	}
-	p.ctx.KVStore(p.storekey).Set(key, bz)
+	p.ctx.KVStore(p.storekey).Set(p.getKeyForBlockNumber(header.Number.Uint64()), bz)
 	return nil
 }
 
-func (p *plugin) getKeyForBlockNumber(number int) []byte {
+// getKeyForBlockNumber returns the genesis header key if the requested block number is 0. In all
+// other cases, the regular header key is returned.
+func (p *plugin) getKeyForBlockNumber(number uint64) []byte {
 	key := types.HeaderKey
 	if number == 0 {
 		key = types.GenesisHeaderKey
@@ -83,10 +85,12 @@ func (p *plugin) getKeyForBlockNumber(number int) []byte {
 	return []byte{key}
 }
 
+// readHeaderBytes reads the header at the given height, using the plugin's query context for
+// non-genesis blocks.
 func (p *plugin) readHeaderBytes(number uint64) ([]byte, error) {
 	// if number requested is 0, get the genesis block header
 	if number == 0 {
-		return p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderKey}), nil
+		return p.readGenesisHeaderBytes(), nil
 	}
 
 	// try fetching the query context for a historical block header
@@ -109,4 +113,9 @@ func (p *plugin) readHeaderBytes(number uint64) ([]byte, error) {
 
 	// Unmarshal the header at IAVL height from its context kv store.
 	return ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey}), nil
+}
+
+// readGenesisHeaderBytes returns the header bytes at the genesis key.
+func (p *plugin) readGenesisHeaderBytes() []byte {
+	return p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderKey})
 }
