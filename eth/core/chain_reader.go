@@ -333,11 +333,10 @@ func (bc *blockchain) GetTd(hash common.Hash, number uint64) *big.Int {
 
 // readLastState retrieves the last state of the blockchain (block, receipts, logs) from the
 // host chain and loads it into the blockchain as current state.
-func (bc *blockchain) readLastState() {
+func (bc *blockchain) readLastState(latestHeight uint64) {
 	// load current/finalized block
 	if bc.currentBlock.Load() == nil || bc.finalizedBlock.Load() == nil {
-		height := bc.bp.GetChainHeadHeight()
-		header := bc.GetHeaderByNumber(height)
+		header := bc.GetHeaderByNumber(latestHeight)
 		if header == nil {
 			panic("readLastState: failed to get last known header from host chain")
 		}

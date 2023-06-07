@@ -60,7 +60,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	}
 
 	// enforce that the blockchain has valid latest chain state
-	bc.readLastState()
+	bc.readLastState(number)
 	if number == 0 {
 		// 
 		return
