@@ -30,8 +30,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"cosmossdk.io/client/v2/autocli"
+	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	"cosmossdk.io/simapp/params"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
 	"cosmossdk.io/x/tx/signing"
 
@@ -50,7 +51,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
@@ -63,56 +63,34 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	"pkg.berachain.dev/polaris/cosmos/runtime"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
+	evmmepool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
 //
+// NewRootCmd creates a new root command for simd. It is called once in the main function.
+//
 //nolint:funlen // from cosmos-sdk
 func NewRootCmd() *cobra.Command {
-	// TODO: GET DEPINJECT WORKING HERE
-	// var (
-	// 	interfaceRegistry  codectypes.InterfaceRegistry
-	// 	appCodec           codec.Codec
-	// 	txConfig           client.TxConfig
-	// 	legacyAmino        *codec.LegacyAmino
-	// 	autoCliOpts        autocli.AppOptions
-	// 	moduleBasicManager module.BasicManager
-	// )
-
-	// // TODO: make it so that x/evm doesn't need this.
-	// if err := depinject.Inject(depinject.Configs(runtime.AppConfig, depinject.Supply(
-	// 	sims.NewAppOptionsWithFlagHome(tempDir()),
-	// 	log.NewNopLogger(),
-	// 	evmmempool.NewEthTxPoolFrom(
-	// 		evmmempool.DefaultPriorityMempool(),
-	// 	),
-	// )),
-	// 	&interfaceRegistry,
-	// 	&appCodec,
-	// 	&txConfig,
-	// 	&legacyAmino,
-	// 	&autoCliOpts,
-	// 	&moduleBasicManager,
-	// ); err != nil {
-	// 	panic(err)
-	// }
-
-	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
-	// note, this is not necessary when using app wiring, as depinject can be directly used.
-	// for consistency between app-v1 and app-v2, we do it the same way via methods on simapp
-	tempApp := runtime.NewPolarisApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, sims.NewAppOptionsWithFlagHome(tempDir()))
-	encodingConfig := params.EncodingConfig{
-		InterfaceRegistry: tempApp.InterfaceRegistry(),
-		Codec:             tempApp.AppCodec(),
-		TxConfig:          tempApp.TxConfig(),
-		Amino:             tempApp.LegacyAmino(),
-	}
 	var (
-		appCodec          = encodingConfig.Codec
-		txConfig          = encodingConfig.TxConfig
-		legacyAmino       = encodingConfig.Amino
-		interfaceRegistry = encodingConfig.InterfaceRegistry
+		interfaceRegistry  codectypes.InterfaceRegistry
+		appCodec           codec.Codec
+		txConfig           client.TxConfig
+		legacyAmino        *codec.LegacyAmino
+		autoCliOpts        autocli.AppOptions
+		moduleBasicManager module.BasicManager
 	)
+
+	if err := depinject.Inject(depinject.Configs(runtime.AppConfig, depinject.Supply(evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
+		&interfaceRegistry,
+		&appCodec,
+		&txConfig,
+		&legacyAmino,
+		&autoCliOpts,
+		&moduleBasicManager,
+	); err != nil {
+		panic(err)
+	}
 
 	initClientCtx := client.Context{}.
 		WithCodec(appCodec).
@@ -170,7 +148,7 @@ func NewRootCmd() *cobra.Command {
 
 	initRootCmd(rootCmd, txConfig, interfaceRegistry, appCodec, runtime.ModuleBasics)
 
-	if err := tempApp.AutoCliOpts().EnhanceRootCommand(rootCmd); err != nil {
+	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
 		panic(err)
 	}
 
