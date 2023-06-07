@@ -1,11 +1,13 @@
 {
   "request": 
     
-  "{ block(number: 30) { transactionAt(index: 1) {block{hash}  hash} } }",
+  "{ block(number: 2) { transactionAt(index: 1) {block{hash}  hash} } }",
 
   "responses":[{
     "data" : {
-      "block" : null 
+      "block" : {
+        "transactionAt": null
+      } 
     }
   }],
   "statusCode": 200
