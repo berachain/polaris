@@ -21,11 +21,8 @@
 package integration
 
 import (
-	"bytes"
 	"context"
 	"crypto/ecdsa"
-	"encoding/json"
-	"io"
 	"math/big"
 	"net/http"
 	"strings"
@@ -140,36 +137,6 @@ func (tf *TestFixture) Address(name string) common.Address {
 func (tf *TestFixture) CreateKeyWithName(name string) {
 	newKey, _ := ethsecp256k1.GenPrivKey()
 	tf.keysMap[name] = newKey
-}
-
-func (tf *TestFixture) SendGraphQLRequest(query string) (string, int, error) {
-	url := tf.HTTPAddr + "/graphql"
-	requestBody, err := json.Marshal(map[string]string{
-		"query": query,
-	})
-	if err != nil {
-		return "", fiveHundredError, err
-	}
-
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, url, bytes.NewBuffer(requestBody))
-	if err != nil {
-		return "", fiveHundredError, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := tf.EthGraphQLClient.Do(req)
-	if err != nil {
-		return "", fiveHundredError, err
-	}
-	defer resp.Body.Close() //#nosec:G307 // only used in testing.
-
-	responseBody, err := io.ReadAll(resp.Body)
-	responseStatusCode := resp.StatusCode
-	if err != nil {
-		return "", fiveHundredError, err
-	}
-
-	return string(responseBody), responseStatusCode, nil
 }
 
 func setupTestAccounts(keysMap map[string]*ethsecp256k1.PrivKey) {
