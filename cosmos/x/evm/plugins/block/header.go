@@ -84,10 +84,12 @@ func (p *plugin) getKeyForBlockNumber(number int) []byte {
 }
 
 func (p *plugin) readHeaderBytes(number uint64) ([]byte, error) {
+	// if number requested is 0, get the genesis block header
 	if number == 0 {
 		return p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderKey}), nil
 	}
 
+	// try fetching the query context for a historical block header
 	if p.getQueryContext == nil {
 		return nil, errors.New("GetHeader: getQueryContext is nil")
 	}
@@ -96,6 +98,7 @@ func (p *plugin) readHeaderBytes(number uint64) ([]byte, error) {
 	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
 	// Investigate and hopefully remove this GTE.
 	if number > uint64(p.ctx.BlockHeight()) {
+		// cannot retrieve future block header
 		number = uint64(p.ctx.BlockHeight())
 	}
 
@@ -104,20 +107,6 @@ func (p *plugin) readHeaderBytes(number uint64) ([]byte, error) {
 		return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
 	}
 
-	// Unmarshal the header from the context kv store.
+	// Unmarshal the header at IAVL height from its context kv store.
 	return ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey}), nil
 }
-
-// func (p *plugin) MarshalToBlock(ethGen *core.Genesis) {
-// 	ethGen.Number = head.Number.Uint64()
-// 	ethGen.Nonce = head.Nonce.Uint64()
-// 	ethGen.Timestamp = head.Time
-// 	ethGen.ParentHash = head.ParentHash
-// 	ethGen.ExtraData = head.Extra
-// 	ethGen.GasLimit = head.GasLimit
-// 	ethGen.GasUsed = head.GasUsed
-// 	ethGen.BaseFee = head.BaseFee
-// 	ethGen.Difficulty = head.Difficulty
-// 	ethGen.Mixhash = head.MixDigest
-// 	ethGen.Coinbase = head.Coinbase
-// }

@@ -63,7 +63,7 @@ var DefaultGenesis = &core.Genesis{
 
 // UnmarshalGenesisHeader sets the fields of the given header into the Genesis struct.
 func UnmarshalGenesisHeader(header *types.Header, gen *Genesis) {
-	// TODO: does not handle root. TODO DO SOMETHING HERE.
+	// Note: cannot set the state root on the genesis.
 	gen.Number = header.Number.Uint64()
 	gen.Nonce = header.Nonce.Uint64()
 	gen.Timestamp = header.Time
