@@ -25,7 +25,6 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/consensus/misc"
-
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -85,7 +84,6 @@ func (bc *blockchain) CalculateNextBaseFee() *big.Int {
 		return pluginBaseFee
 	}
 
-	// If the base fee supplied by the plugins is negative, then we assume that the host chain
 	// wants to use the built-in EIP-1559 math.
 	parent := bc.CurrentFinalBlock()
 	if parent == nil {

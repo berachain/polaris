@@ -67,16 +67,6 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 	return header, nil
 }
 
-// GetChainHeadHeight the last known chain block height from the host chain.
-func (p *plugin) GetChainHeadHeight() uint64 {
-	chainHeadHeight := p.ctx.BlockHeight()
-	if chainHeadHeight == 0 {
-		// if we are on genesis, the latest committed block is the genesis block
-		return 0
-	}
-	return uint64(chainHeadHeight - 1)
-}
-
 // StoreHeader implements core.BlockPlugin.
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
 	bz, err := coretypes.MarshalHeader(header)

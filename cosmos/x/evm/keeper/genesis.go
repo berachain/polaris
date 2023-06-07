@@ -38,7 +38,7 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 		}
 	}
 
-	k.polaris.Prepare(ctx, uint64(ctx.BlockHeight()))
+	k.polaris.Prepare(ctx, 0)
 
 	return k.polaris.StartServices()
 }
