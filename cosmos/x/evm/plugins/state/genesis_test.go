@@ -66,17 +66,10 @@ var _ = Describe("Genesis", func() {
 		// Call Init Genesis
 		sp.InitGenesis(ctx, genesis)
 
-<<<<<<< HEAD
-		// // Check that the code is set.
-		// sp.Reset(ctx)
-		// Expect(sp.GetCode(alice)).To(Equal(code))
-		// sp.Finalize()
-=======
 		// Check that the code is set.
 		sp.Reset(ctx)
 		Expect(sp.GetCode(alice)).To(Equal(code))
 		sp.Finalize()
->>>>>>> f71a2d0 (fix)
 
 		// Check that the code hash is set.
 		sp.Reset(ctx)

@@ -48,25 +48,3 @@ func (p *plugin) SetChainConfig(chainConfig *params.ChainConfig) {
 	}
 	p.paramsStore.Set([]byte{types.ChainConfigPrefix}, bz)
 }
-
-// GetChainConfig is used to get the genesis info of the Ethereum chain.
-func (p *plugin) ChainConfig() *params.ChainConfig {
-	bz := p.paramsStore.Get([]byte{types.ChainConfigPrefix})
-	if bz == nil {
-		return nil
-	}
-	var chainConfig params.ChainConfig
-	if err := json.Unmarshal(bz, &chainConfig); err != nil {
-		panic(err)
-	}
-	return &chainConfig
-}
-
-// GetEthGenesis is used to get the genesis info of the Ethereum chain.
-func (p *plugin) SetChainConfig(chainConfig *params.ChainConfig) {
-	bz, err := json.Marshal(chainConfig)
-	if err != nil {
-		panic(err)
-	}
-	p.paramsStore.Set([]byte{types.ChainConfigPrefix}, bz)
-}
