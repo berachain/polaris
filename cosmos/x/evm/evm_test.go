@@ -18,19 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package evm_test
 
-const (
-	CodeKeyPrefix byte = iota
-	BalanceKeyPrefix
-	StorageKeyPrefix
-	CodeHashKeyPrefix
-	BlockHashKeyToNumPrefix
-	BlockHashKeyToReceiptsPrefix
-	TxHashKeyToTxPrefix
-	VersionKey
-	HeaderKey
-	GenesisHeaderKey
-	ParamsKey
-	ChainConfigPrefix
+import (
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
+
+func TestTypes(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "cosmos/x/evm")
+}

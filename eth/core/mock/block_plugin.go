@@ -20,10 +20,16 @@
 
 package mock
 
+import "github.com/ethereum/go-ethereum/core/types"
+
 // const testBaseFee = 69
 
 //go:generate moq -out ./block_plugin.mock.go -pkg mock ../ BlockPlugin
 
 func NewBlockPluginMock() *BlockPluginMock {
-	return &BlockPluginMock{}
+	return &BlockPluginMock{
+		GetHeaderByNumberFunc: func(v uint64) (*types.Header, error) {
+			return &types.Header{}, nil
+		},
+	}
 }
