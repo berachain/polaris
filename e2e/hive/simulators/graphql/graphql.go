@@ -157,7 +157,7 @@ func (tc *testCase) run(t *hivesim.T, c *hivesim.Client) {
 		return
 	}
 
-	//tc.responseMatch(t, resp.Status, respBytes)
+	tc.responseMatch(t, resp.Status, respBytes)
 }
 
 func (tc *testCase) responseMatch(t *hivesim.T, respStatus string, respBytes []byte) error {

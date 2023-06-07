@@ -1,15 +1,9 @@
 {
-  "request":     
-    "{ gasPrice }",
+  "request": "{ gasPrice }",
   "responses": [
     {
-      "data" : {
-        "gasPrice" : "0x10"
-      }
-    },
-    {
-      "data" : {
-        "gasPrice" : "0x1"
+      "data": {
+        "gasPrice": "0x6fc23ac0"
       }
     }
   ],

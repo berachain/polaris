@@ -5,7 +5,7 @@
   "responses": [{
     "data" : {
       "block" : {
-        "number" : "0x20"
+        "number" : "0x2"
       }
     }
   }],

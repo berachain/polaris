@@ -5,7 +5,7 @@
       "data": {
         "block": {
           "account": {
-            "storage": "0xaabbccffffffffffffffffffffffffffffffffffffffffffffffffffffffffee"
+            "storage": "0x0000000000000000000000000000000000000000000000000000000000000000"
           }
         }
       }

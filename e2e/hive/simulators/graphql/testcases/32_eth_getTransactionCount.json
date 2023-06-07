@@ -5,16 +5,7 @@
       "data": {
         "block": {
           "account": {
-            "transactionCount": "0x20"
-          }
-        }
-      }
-    },
-    {
-      "data": {
-        "block": {
-          "account": {
-            "transactionCount": "0x20"
+            "transactionCount": "0x0"
           }
         }
       }

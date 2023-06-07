@@ -3,14 +3,7 @@
   "responses": [
     {
       "data": {
-        "transaction": {
-            "block": {
-              "number": "0x1e"
-            },
-           "from": {
-            "transactionCount": "0x1d"
-          }
-         }
+        "transaction":null 
       }
     }
   ],
