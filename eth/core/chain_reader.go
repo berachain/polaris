@@ -180,7 +180,7 @@ func (bc *blockchain) GetBlock(hash common.Hash, number uint64) *types.Block {
 	if block == nil || err != nil {
 		block, err = bc.hp.GetBlockByNumber(number)
 		if block == nil || err != nil {
-			bc.logger.Debug("failed to get block from historical plugin", "err", err)
+			bc.logger.Error("failed to get block from historical plugin", "err", err)
 			return nil
 		}
 	}
@@ -201,14 +201,14 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
-		bc.logger.Error("historical plugin not supported by host chain")
+		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil
 	}
 
 	// check the historical plugin
 	block, err := bc.hp.GetBlockByHash(hash)
 	if block == nil || err != nil {
-		bc.logger.Debug("failed to get receipts from historical plugin", "block", block, "err", err)
+		bc.logger.Error("failed to get receipts from historical plugin", "block", block, "err", err)
 		return nil
 	}
 
@@ -260,14 +260,14 @@ func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
-		bc.logger.Error("historical plugin not supported by host chain")
+		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil
 	}
 
 	// check the historical plugin
 	receipts, err := bc.hp.GetReceiptsByHash(blockHash)
 	if receipts == nil || err != nil {
-		bc.logger.Debug("failed to get receipts from historical plugin", "receipts", receipts, "err", err)
+		bc.logger.Error("failed to get receipts from historical plugin", "receipts", receipts, "err", err)
 		return nil
 	}
 
