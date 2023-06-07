@@ -47,8 +47,14 @@ func (p *plugin) StoreBlock(block *coretypes.Block) error {
 	prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).Set(block.Hash().Bytes(), numBz)
 
 	// store the version offchain for consistency.
-	if sdk.BigEndianToUint64(store.Get([]byte{types.VersionKey})) != blockNum-1 {
-		panic("off-chain store's latest block number is not synced")
+	if offChainNum := sdk.BigEndianToUint64(store.Get([]byte{types.VersionKey})); offChainNum != blockNum-1 {
+		panic(
+			fmt.Errorf(
+				"off-chain store's latest block number %d is not synced with previous block number %d",
+				offChainNum,
+				blockNum-1,
+			),
+		)
 	}
 	store.Set([]byte{types.VersionKey}, numBz)
 	return nil
@@ -100,13 +106,18 @@ func (p *plugin) StoreTransactions(
 
 // GetBlockByNumber returns the block at the given height.
 func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
-	// get header from on chain.
+	// get header from on chain
 	header, err := p.bp.GetHeaderByNumber(number)
 	if err != nil {
 		return nil, err
 	}
 
-	// get receipts from off chain.
+	// the genesis block does not have txs and receipts to get from off chain
+	if number == 0 {
+		return coretypes.NewBlock(header, nil, nil, nil, trie.NewStackTrie(nil)), nil
+	}
+
+	// get receipts from off chain
 	blockHash := header.Hash()
 	receiptsBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
 		[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
@@ -118,7 +129,7 @@ func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
 		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
 	}
 
-	// get txns from off chain.
+	// get txns from off chain
 	txStore := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
 	txs := make(coretypes.Transactions, len(receipts))
 	for _, receipt := range receipts {
@@ -134,7 +145,7 @@ func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
 		txs = append(txs, tle.Tx)
 	}
 
-	// build the block.
+	// build the block
 	return coretypes.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil)), nil
 }
 
