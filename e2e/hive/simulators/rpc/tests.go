@@ -25,9 +25,19 @@
 
 package main
 
-// tests defined per sim.
-var (
-	ethTests = []testSpec{{Name: "http/TransactionReceiptTest", Run: TransactionReceiptTest},{Name: "ws/TransactionReceiptTest", Run: TransactionReceiptTest},} //nolint: lll // auto-generated
-)
+import "math/big"
 
-var tests = ethTests
+func consistentChainIDTest(t *TestEnv) {
+	var (
+		expectedChainID = big.NewInt(7) //nolint:gomnd // TODO: REFACTOR.
+	)
+
+	cID, err := t.Eth.ChainID(t.Ctx())
+	if err != nil {
+		t.Fatalf("could not get chain ID: %v", err)
+	}
+
+	if expectedChainID.Cmp(cID) != 0 {
+		t.Fatalf("expected chain ID %d, got %d", expectedChainID, cID)
+	}
+}

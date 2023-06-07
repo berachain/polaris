@@ -30,7 +30,6 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/hive/hivesim"
 )
 
@@ -42,28 +41,23 @@ type testSpec struct {
 
 var (
 	// parameters used for signing transactions.
-	chainID   = big.NewInt(7)                //nolint: gomnd // it's okay.
-	gasPrice  = big.NewInt(30 * params.GWei) //nolint: gomnd // it's okay.
-	networkID = big.NewInt(7)                //nolint: gomnd // it's okay.
+	chainID = big.NewInt(7) //nolint: gomnd // it's okay.
+	// gasPrice  = big.NewInt(30 * params.GWei) //nolint: gomnd // it's okay.
+	networkID = big.NewInt(7) //nolint: gomnd // it's okay.
 
 	files = map[string]string{
 		"/genesis.json": "./init/genesis.json",
 	}
 
 	clientEnv = hivesim.Params{
-		"HIVE_NODETYPE":       "full",
-		"HIVE_NETWORK_ID":     networkID.String(),
-		"HIVE_CHAIN_ID":       chainID.String(),
-		"HIVE_FORK_HOMESTEAD": "0",
-		"HIVE_FORK_TANGERINE": "0",
-		"HIVE_FORK_SPURIOUS":  "0",
-
-		// All tests use clique PoA to mine new blocks.
-		"HIVE_CLIQUE_PERIOD":     "1",
-		"HIVE_CLIQUE_PRIVATEKEY": "9c647b8b7c4e7c3490668fb6c11473619db80c93704c70893d3813af4090c39c",
-		"HIVE_MINER":             "658bdf435d810c91414ec09147daa6db62406379",
+		"HIVE_NETWORK_ID": networkID.String(),
+		"HIVE_CHAIN_ID":   chainID.String(),
 	}
 )
+
+var tests = []testSpec{
+	{Name: "http/ConsistentChainIDTest", Run: consistentChainIDTest},
+}
 
 func main() {
 	suite := hivesim.Suite{
