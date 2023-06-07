@@ -310,11 +310,11 @@ func (bc *blockchain) GetTransactionLookup(
 
 // GetHeaderByNumber retrieves a header from the blockchain.
 func (bc *blockchain) GetHeaderByNumber(number uint64) *types.Header {
-	block := bc.GetBlockByNumber(number)
-	if block == nil {
+	header, err := bc.bp.GetHeaderByNumber(number)
+	if header == nil || err != nil {
 		return nil
 	}
-	return block.Header()
+	return header
 }
 
 // GetTd retrieves a block's total difficulty in the canonical chain from the

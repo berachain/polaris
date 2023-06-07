@@ -22,14 +22,10 @@ package core
 
 import (
 	"context"
-	"math/big"
-
-	"github.com/ethereum/go-ethereum/consensus/misc"
 
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/eth/params"
 )
 
 // ChainResources is the interface that defines functions for code paths within the chain to acquire
@@ -77,34 +73,4 @@ func (bc *blockchain) NewEVMBlockContext(header *types.Header) *vm.BlockContext 
 // GetVMConfig returns the vm.Config for the current chain.
 func (bc *blockchain) GetVMConfig() *vm.Config {
 	return bc.vmConfig
-}
-
-// CalculateBaseFee calculates the base fee for the next block based on the finalized block or the
-// plugin's base fee.
-func (bc *blockchain) CalculateNextBaseFee(number uint64) *big.Int {
-	// TODO: ONCE WE ARE STORING GENESIS HEADER CORRECTLY, WE SHOULD REMOVE THIS HACK
-	// TODO: THE BELOW GETHEADERBYNUMBER SHOULD WORK ON 0
-	if number == 0 {
-		return big.NewInt(int64(params.InitialBaseFee))
-	}
-
-	if pluginBaseFee := bc.bp.BaseFee(); pluginBaseFee.Cmp(new(big.Int)) >= 0 /* non-negative */ {
-		return pluginBaseFee
-	}
-
-	// If the base fee supplied by the plugins is negative, then we assume that the host chain
-	// wants to use the built-in EIP-1559 math.
-	if parent := bc.finalizedBlock.Load(); parent != nil {
-		// If the base fee supplied by the plugins is non-negative, then we assume that the host
-		// chain wants to use the base fee supplied by the plugin.
-		misc.CalcBaseFee(bc.Config(), parent.Header())
-	}
-
-	// We check the block plugin to see if it has a base fee for the previous block.
-	if parent, err := bc.bp.GetHeaderByNumber(number - 1); err == nil {
-		return misc.CalcBaseFee(bc.Config(), parent)
-	}
-
-	// TODO: we should probably panic here to be safe, but tbd.
-	return big.NewInt(int64(params.InitialBaseFee))
 }
