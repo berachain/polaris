@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -79,17 +80,18 @@ func deliverTests(t *hivesim.T, wg *sync.WaitGroup, limit int) <-chan *testCase 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		filepath.Walk("./testcases", func(filepath string, info os.FileInfo, err error) error {
-			if limit >= 0 && i >= limit {
+		err := filepath.Walk("./testcases", func(filepath string, info os.FileInfo, err error) error {
+			switch {
+			case limit >= 0 && i >= limit:
 				return nil
-			}
-			if info.IsDir() {
+			case info.IsDir():
 				return nil
-			}
-			if fname := info.Name(); !strings.HasSuffix(fname, ".json") {
+			case !strings.HasSuffix(info.Name(), ".json"):
 				return nil
+			case err != nil:
+				return err
 			}
-			data, err := ioutil.ReadFile(filepath)
+			data, err := os.ReadFile(filepath)
 			if err != nil {
 				t.Logf("Warning: can't read test file %s: %v", filepath, err)
 				return nil
@@ -99,7 +101,7 @@ func deliverTests(t *hivesim.T, wg *sync.WaitGroup, limit int) <-chan *testCase 
 				t.Logf("Warning: can't unmarshal test file %s: %v", filepath, err)
 				return nil
 			}
-			i = i + 1
+			i++
 			t := testCase{
 				name:    strings.TrimSuffix(info.Name(), path.Ext(info.Name())),
 				gqlTest: &gqlTest,
@@ -108,6 +110,9 @@ func deliverTests(t *hivesim.T, wg *sync.WaitGroup, limit int) <-chan *testCase 
 			return nil
 		})
 		close(out)
+		if err != nil {
+			t.Logf("Warning: can't read test files: %v", err)
+		}
 	}()
 	return out
 }
@@ -128,36 +133,56 @@ type qlQuery struct {
 	Query string `json:"query"`
 }
 
-// prepareRunTest administers the hive-specific test stuff, registering the suite and reporting back the suite results
+// prepareRunTest administers the hive-specific test stuff, registering the suite and reporting back the suite results.
 func (tc *testCase) run(t *hivesim.T, c *hivesim.Client) {
 	// Example of working queries:
-	// curl 'http://127.0.0.1:8545/graphql' --data-binary '{"query":"query blockNumber {\n  block {\n    number\n  }\n}\n"}'
-	// curl 'http://127.0.0.1:8545/graphql' --data-binary '{"query":"query blockNumber {\n  block {\n    number\n  }\n}\n","variables":null,"operationName":"blockNumber"}'
+	// curl 'http://127.0.0.1:8545/graphql'
+	//--data-binary '{"query":"query blockNumber {\n
+	// block {\n
+	//    number\n
+	//  }\n
+	// }\n
+	// "}'
+
+	// curl 'http://127.0.0.1:8545/graphql' --data-binary '{"query":"query blockNumber {\n
+	//  block {\n
+	//    number\n
+	//  }\n
+	// }\n
+	// ","variables":null,"operationName":"blockNumber"}'
 	postData, err := json.Marshal(qlQuery{Query: tc.gqlTest.Request})
 	if err != nil {
 		t.Fatal("can't marshal query:", err)
 	}
-	url := fmt.Sprintf("http://%v:8545/graphql", c.IP)
-	resp, err := http.Post(url, "application/json", bytes.NewReader(postData))
+	u := fmt.Sprintf("http://%v:8545/graphql", c.IP)
+	parsedURL, err := url.Parse(u)
+	if err != nil {
+		t.Fatal("can't parse URL:", err)
+	}
+	resp, err := http.Post(parsedURL.String(), "application/json", bytes.NewReader(postData))
 	if err != nil {
 		t.Fatal("HTTP post failed:", err)
 	}
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal("can't read HTTP response:", err)
 	}
 	resp.Body.Close()
 
 	if resp.StatusCode != tc.gqlTest.StatusCode {
-		t.Errorf("HTTP response code is %d, want %d \n response body: %s", resp.StatusCode, tc.gqlTest.StatusCode, string(respBytes))
+		t.Errorf("HTTP response code is %d, want %d \n response body: %s",
+			resp.StatusCode, tc.gqlTest.StatusCode, string(respBytes))
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		// Test expects HTTP error, and the client sent one, test done.
 		// We don't bother to check the exact error messages, those aren't fully specified.
 		return
 	}
 
-	tc.responseMatch(t, resp.Status, respBytes)
+	err = tc.responseMatch(t, resp.Status, respBytes)
+	if err != nil {
+		t.Errorf("Could not run tests. Error: %v", err)
+	}
 }
 
 func (tc *testCase) responseMatch(t *hivesim.T, respStatus string, respBytes []byte) error {
