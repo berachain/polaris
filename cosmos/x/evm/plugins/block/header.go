@@ -43,30 +43,10 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 //
 // GetHeaderByNumber implements core.BlockPlugin.
 func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
-	var bz []byte
-	if number == 0 {
-		bz = p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderKey})
-	} else {
-		if p.getQueryContext == nil {
-			return nil, errors.New("GetHeader: getQueryContext is nil")
-		}
-
-		// TODO: ensure we aren't differing from geth / hiding errors here.
-		// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
-		// Investigate and hopefully remove this GTE.
-		if number > uint64(p.ctx.BlockHeight()) {
-			number = uint64(p.ctx.BlockHeight())
-		}
-
-		ctx, err := p.getQueryContext(int64(number), false)
-		if err != nil {
-			return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
-		}
-
-		// Unmarshal the header from the context kv store.
-		bz = ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey})
+	bz, err := p.readHeaderBytes(number)
+	if err != nil {
+		return nil, err
 	}
-
 	if bz == nil {
 		return nil, errors.New("GetHeader: polaris header not found in kvstore")
 	}
@@ -86,14 +66,58 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 }
 
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
-	key := types.HeaderKey
-	if header.Number.Uint64() == 0 {
-		key = types.GenesisHeaderKey
-	}
+	key := p.getKeyForBlockNumber(int(header.Number.Int64()))
 	bz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
 	}
-	p.ctx.KVStore(p.storekey).Set([]byte{key}, bz)
+	p.ctx.KVStore(p.storekey).Set(key, bz)
 	return nil
 }
+
+func (p *plugin) getKeyForBlockNumber(number int) []byte {
+	key := types.HeaderKey
+	if number == 0 {
+		key = types.GenesisHeaderKey
+	}
+	return []byte{key}
+}
+
+func (p *plugin) readHeaderBytes(number uint64) ([]byte, error) {
+	if number == 0 {
+		return p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderKey}), nil
+	}
+
+	if p.getQueryContext == nil {
+		return nil, errors.New("GetHeader: getQueryContext is nil")
+	}
+
+	// TODO: ensure we aren't differing from geth / hiding errors here.
+	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
+	// Investigate and hopefully remove this GTE.
+	if number > uint64(p.ctx.BlockHeight()) {
+		number = uint64(p.ctx.BlockHeight())
+	}
+
+	ctx, err := p.getQueryContext(int64(number), false)
+	if err != nil {
+		return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
+	}
+
+	// Unmarshal the header from the context kv store.
+	return ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey}), nil
+}
+
+// func (p *plugin) MarshalToBlock(ethGen *core.Genesis) {
+// 	ethGen.Number = head.Number.Uint64()
+// 	ethGen.Nonce = head.Nonce.Uint64()
+// 	ethGen.Timestamp = head.Time
+// 	ethGen.ParentHash = head.ParentHash
+// 	ethGen.ExtraData = head.Extra
+// 	ethGen.GasLimit = head.GasLimit
+// 	ethGen.GasUsed = head.GasUsed
+// 	ethGen.BaseFee = head.BaseFee
+// 	ethGen.Difficulty = head.Difficulty
+// 	ethGen.Mixhash = head.MixDigest
+// 	ethGen.Coinbase = head.Coinbase
+// }
