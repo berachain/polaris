@@ -61,6 +61,10 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 
 	// enforce that the blockchain has valid latest chain state
 	bc.readLastState()
+	if number == 0 {
+		// 
+		return
+	}
 
 	coinbase, timestamp := bc.bp.GetNewBlockMetadata(number)
 	bc.logger.Info("Preparing block", "number", number, "coinbase", coinbase.Hex(), "timestamp", timestamp)

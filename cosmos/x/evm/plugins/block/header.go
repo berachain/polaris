@@ -57,17 +57,24 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 	}
 
 	if header.Number.Uint64() != number {
-		return nil, errorslib.Wrapf(err,
+		return nil, errorslib.Wrapf(
+			err,
 			"GetHeader: header number mismatch, got %d, expected %d",
-			header.Number.Uint64(), number)
+			header.Number.Uint64(), number,
+		)
 	}
 
 	return header, nil
 }
 
-// GetLatestHeight the last known chain block height from the host chain.
-func (p *plugin) GetLatestHeight() uint64 {
-	return uint64(p.ctx.BlockHeight())
+// GetChainHeadHeight the last known chain block height from the host chain.
+func (p *plugin) GetChainHeadHeight() uint64 {
+	chainHeadHeight := p.ctx.BlockHeight()
+	if chainHeadHeight == 0 {
+		// if we are on genesis, the latest committed block is the genesis block
+		return 0
+	}
+	return uint64(chainHeadHeight - 1)
 }
 
 // StoreHeader implements core.BlockPlugin.

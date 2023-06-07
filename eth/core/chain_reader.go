@@ -23,6 +23,8 @@ package core
 import (
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/trie"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -233,6 +235,7 @@ func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 	// check the historical plugin
 	block, err := bc.hp.GetBlockByNumber(number)
 	if block == nil || err != nil {
+		bc.logger.Error("failed to get block from historical plugin", "err", err)
 		return nil
 	}
 
@@ -310,11 +313,12 @@ func (bc *blockchain) GetTransactionLookup(
 
 // GetHeaderByNumber retrieves a header from the blockchain.
 func (bc *blockchain) GetHeaderByNumber(number uint64) *types.Header {
-	block := bc.GetBlockByNumber(number)
-	if block == nil {
+	header, err := bc.bp.GetHeaderByNumber(number)
+	if header == nil || err != nil {
+		bc.logger.Error("failed to get header by number", "number", number, "err", err)
 		return nil
 	}
-	return block.Header()
+	return header
 }
 
 // GetTd retrieves a block's total difficulty in the canonical chain from the
@@ -332,30 +336,32 @@ func (bc *blockchain) GetTd(hash common.Hash, number uint64) *big.Int {
 func (bc *blockchain) readLastState() {
 	// load current/finalized block
 	if bc.currentBlock.Load() == nil || bc.finalizedBlock.Load() == nil {
-		block := bc.GetBlockByNumber(bc.bp.GetLatestHeight())
-		if block == nil {
-			panic("readLastState: failed to get last known block from host chain")
+		height := bc.bp.GetChainHeadHeight()
+		header := bc.GetHeaderByNumber(height)
+		if header == nil {
+			panic("readLastState: failed to get last known header from host chain")
 		}
+		block := types.NewBlock(header, nil, nil, nil, trie.NewStackTrie(nil))
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
 	}
 
 	// load current receipts
 	if bc.currentReceipts.Load() == nil {
-		receipts := bc.GetReceiptsByHash(bc.currentBlock.Load().Hash())
-		if receipts == nil {
-			panic("readLastState: failed to get last known receipts from host chain")
+		if receipts := bc.GetReceiptsByHash(bc.currentBlock.Load().Hash()); receipts != nil {
+			bc.currentReceipts.Store(receipts)
 		}
-		bc.currentReceipts.Store(receipts)
 	}
 
 	// load current logs
 	if bc.currentLogs.Load() == nil {
-		var logs []*types.Log
-		for _, receipt := range utils.MustGetAs[types.Receipts](bc.currentReceipts.Load()) {
-			logs = append(logs, receipt.Logs...)
+		if receipts := bc.currentReceipts.Load(); receipts != nil {
+			var logs []*types.Log
+			for _, receipt := range utils.MustGetAs[types.Receipts](receipts) {
+				logs = append(logs, receipt.Logs...)
+			}
+			bc.currentLogs.Store(logs)
 		}
-		bc.currentLogs.Store(logs)
 	}
 }
 

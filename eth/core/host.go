@@ -69,8 +69,8 @@ type (
 		GetNewBlockMetadata(uint64) (common.Address, uint64)
 		// GetHeaderByNumber returns the block header at the given block number.
 		GetHeaderByNumber(uint64) (*types.Header, error)
-		// GetLatestHeight the last known chain block height from the host chain.
-		GetLatestHeight() uint64
+		// GetChainHeadHeight the last known chain block height from the host chain.
+		GetChainHeadHeight() uint64
 		// StoreHeader stores the block header at the given block number.
 		StoreHeader(*types.Header) error
 		// BaseFee returns the base fee of the current block.

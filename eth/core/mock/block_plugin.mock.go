@@ -28,8 +28,8 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			GetHeaderByNumberFunc: func(v uint64) (*types.Header, error) {
 //				panic("mock out the GetHeaderByNumber method")
 //			},
-//			GetLatestHeightFunc: func() uint64 {
-//				panic("mock out the GetLatestHeight method")
+//			GetChainHeadHeightFunc: func() uint64 {
+//				panic("mock out the GetChainHeadHeight method")
 //			},
 //			GetNewBlockMetadataFunc: func(v uint64) (common.Address, uint64) {
 //				panic("mock out the GetNewBlockMetadata method")
@@ -53,8 +53,8 @@ type BlockPluginMock struct {
 	// GetHeaderByNumberFunc mocks the GetHeaderByNumber method.
 	GetHeaderByNumberFunc func(v uint64) (*types.Header, error)
 
-	// GetLatestHeightFunc mocks the GetLatestHeight method.
-	GetLatestHeightFunc func() uint64
+	// GetChainHeadHeightFunc mocks the GetChainHeadHeight method.
+	GetChainHeadHeightFunc func() uint64
 
 	// GetNewBlockMetadataFunc mocks the GetNewBlockMetadata method.
 	GetNewBlockMetadataFunc func(v uint64) (common.Address, uint64)
@@ -75,8 +75,8 @@ type BlockPluginMock struct {
 			// V is the v argument value.
 			V uint64
 		}
-		// GetLatestHeight holds details about calls to the GetLatestHeight method.
-		GetLatestHeight []struct {
+		// GetChainHeadHeight holds details about calls to the GetChainHeadHeight method.
+		GetChainHeadHeight []struct {
 		}
 		// GetNewBlockMetadata holds details about calls to the GetNewBlockMetadata method.
 		GetNewBlockMetadata []struct {
@@ -96,7 +96,7 @@ type BlockPluginMock struct {
 	}
 	lockBaseFee             sync.RWMutex
 	lockGetHeaderByNumber   sync.RWMutex
-	lockGetLatestHeight     sync.RWMutex
+	lockGetChainHeadHeight     sync.RWMutex
 	lockGetNewBlockMetadata sync.RWMutex
 	lockPrepare             sync.RWMutex
 	lockStoreHeader         sync.RWMutex
@@ -161,30 +161,30 @@ func (mock *BlockPluginMock) GetHeaderByNumberCalls() []struct {
 	return calls
 }
 
-// GetLatestHeight calls GetLatestHeightFunc.
-func (mock *BlockPluginMock) GetLatestHeight() uint64 {
-	if mock.GetLatestHeightFunc == nil {
-		panic("BlockPluginMock.GetLatestHeightFunc: method is nil but BlockPlugin.GetLatestHeight was just called")
+// GetChainHeadHeight calls GetChainHeadHeightFunc.
+func (mock *BlockPluginMock) GetChainHeadHeight() uint64 {
+	if mock.GetChainHeadHeightFunc == nil {
+		panic("BlockPluginMock.GetChainHeadHeightFunc: method is nil but BlockPlugin.GetChainHeadHeight was just called")
 	}
 	callInfo := struct {
 	}{}
-	mock.lockGetLatestHeight.Lock()
-	mock.calls.GetLatestHeight = append(mock.calls.GetLatestHeight, callInfo)
-	mock.lockGetLatestHeight.Unlock()
-	return mock.GetLatestHeightFunc()
+	mock.lockGetChainHeadHeight.Lock()
+	mock.calls.GetChainHeadHeight = append(mock.calls.GetChainHeadHeight, callInfo)
+	mock.lockGetChainHeadHeight.Unlock()
+	return mock.GetChainHeadHeightFunc()
 }
 
-// GetLatestHeightCalls gets all the calls that were made to GetLatestHeight.
+// GetChainHeadHeightCalls gets all the calls that were made to GetChainHeadHeight.
 // Check the length with:
 //
-//	len(mockedBlockPlugin.GetLatestHeightCalls())
-func (mock *BlockPluginMock) GetLatestHeightCalls() []struct {
+//	len(mockedBlockPlugin.GetChainHeadHeightCalls())
+func (mock *BlockPluginMock) GetChainHeadHeightCalls() []struct {
 } {
 	var calls []struct {
 	}
-	mock.lockGetLatestHeight.RLock()
-	calls = mock.calls.GetLatestHeight
-	mock.lockGetLatestHeight.RUnlock()
+	mock.lockGetChainHeadHeight.RLock()
+	calls = mock.calls.GetChainHeadHeight
+	mock.lockGetChainHeadHeight.RUnlock()
 	return calls
 }
 
