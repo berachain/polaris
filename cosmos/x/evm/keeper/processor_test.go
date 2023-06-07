@@ -125,6 +125,7 @@ var _ = Describe("Processor", func() {
 			WithKVGasConfig(storetypes.GasConfig{}).
 			WithBlockHeight(1)
 		err = k.BeginBlocker(ctx)
+
 		Expect(err).ToNot(HaveOccurred())
 	})
 
