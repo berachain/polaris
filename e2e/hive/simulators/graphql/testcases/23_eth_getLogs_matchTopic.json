@@ -3,9 +3,7 @@
   "responses": [
     {
       "data": {
-        "block": {
-          "logs": []
-        }
+        "block": null 
       }
     }
   ],

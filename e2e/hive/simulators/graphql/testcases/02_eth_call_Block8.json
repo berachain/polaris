@@ -3,12 +3,7 @@
   ,
   "responses":[{
     "data" : {
-      "block" : {
-        "call" : {
-          "data" : "0x",
-          "status" : "0x1"
-        }
-      }
+      "block" : null
     }
   }],
   "statusCode": 200

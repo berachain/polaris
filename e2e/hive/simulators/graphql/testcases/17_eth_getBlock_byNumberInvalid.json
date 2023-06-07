@@ -3,9 +3,7 @@
   "responses": [
     {
       "data": {
-        "block": { 
-          "number": "0x2"
-        }
+        "block": null 
       }
     }
   ],

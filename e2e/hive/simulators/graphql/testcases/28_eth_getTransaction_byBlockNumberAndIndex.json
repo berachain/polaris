@@ -3,9 +3,7 @@
   "responses": [
     {
       "data": {
-        "block": {
-          "transactionAt": null
-        }
+        "block": null 
       }
     }
   ],

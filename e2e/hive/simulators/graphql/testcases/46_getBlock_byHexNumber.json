@@ -3,10 +3,7 @@
 
   "responses":[{
     "data" : {
-      "block" : {
-        "gasUsed" : "0x0",
-        "gasLimit" : "0x1c9c380"
-      }
+      "block" : null  
     }
   }],
   "statusCode": 200
