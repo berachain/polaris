@@ -22,7 +22,6 @@ package evm_test
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 
@@ -30,7 +29,9 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
@@ -39,10 +40,7 @@ import (
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/rpc"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -163,7 +161,7 @@ var _ = Describe("", func() {
 			if data == nil {
 				panic(fmt.Errorf("data is nil"))
 			}
-			if err := actualGenesis.UnmarshalJSON(data); err != nil {
+			if err = actualGenesis.UnmarshalJSON(data); err != nil {
 				panic(err)
 			}
 		})
@@ -175,24 +173,3 @@ var _ = Describe("", func() {
 		})
 	})
 })
-
-type polarisMock struct {
-}
-
-func (p *polarisMock) APIs() []rpc.API {
-	return nil
-}
-
-func (p *polarisMock) StartServices() error {
-	return nil
-}
-
-func (p *polarisMock) Prepare(ctx context.Context, number uint64) {}
-
-func (p *polarisMock) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*core.ExecutionResult, error) {
-	return nil, nil
-}
-
-func (p *polarisMock) Finalize(ctx context.Context) error {
-	return nil
-}

@@ -41,7 +41,7 @@ type Keeper struct {
 	// ak is the reference to the AccountKeeper.
 	ak state.AccountKeeper
 	// provider is the struct that houses the Polaris EVM.
-	polaris polar.PolarisBase
+	polaris *polar.Polaris
 	// The (unexposed) key used to access the store from the Context.
 	storeKey storetypes.StoreKey
 	// authority is the bech32 address that is allowed to execute governance proposals.

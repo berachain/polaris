@@ -22,7 +22,6 @@ package block
 
 import (
 	"errors"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -91,7 +90,6 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 	if header.Number.Uint64() == 0 {
 		key = types.GenesisHeaderKey
 	}
-	fmt.Println(header.BaseFee)
 	bz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")

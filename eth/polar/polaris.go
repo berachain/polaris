@@ -21,7 +21,6 @@
 package polar
 
 import (
-	"context"
 	"net/http"
 	"os"
 	"time"
@@ -32,7 +31,6 @@ import (
 	"github.com/ethereum/go-ethereum/graphql"
 
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/log"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
@@ -60,24 +58,6 @@ type NetworkingStack interface {
 
 	// Start starts the networking stack.
 	Start() error
-}
-
-// PolarisBase defines methods that any implementation of Polaris must support
-type PolarisBase interface {
-	// APIs return the collection of RPC services the polar package offers.
-	APIs() []rpc.API
-
-	// StartServices notifies the NetworkStack to spin up (i.e json-rpc).
-	StartServices() error
-
-	// Prepare prepares the Polaris chain for processing a new block at the given height.
-	Prepare(ctx context.Context, number uint64)
-
-	// ProcessTransaction processes the given transaction and returns the receipt.
-	ProcessTransaction(ctx context.Context, tx *types.Transaction) (*core.ExecutionResult, error)
-
-	// Finalize finalizes the current block.
-	Finalize(ctx context.Context) error
 }
 
 // Polaris is the only object that an implementing chain should use.
