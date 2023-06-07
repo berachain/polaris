@@ -124,10 +124,16 @@ var _ = Describe("Processor", func() {
 		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000000000)).
 			WithKVGasConfig(storetypes.GasConfig{}).
 			WithBlockHeight(1)
-		k.GetHost().GetBlockPlugin().StoreHeader(&coretypes.Header{Number: big.NewInt(0), ParentHash: common.Hash{0x01}, BaseFee: big.NewInt(1)})
+		err = k.GetHost().GetBlockPlugin().StoreHeader(
+			&coretypes.Header{
+				Number:     big.NewInt(0),
+				ParentHash: common.Hash{0x01},
+				BaseFee:    big.NewInt(1),
+			},
+		)
+		Expect(err).ToNot(HaveOccurred())
 
 		err = k.BeginBlocker(ctx)
-
 		Expect(err).ToNot(HaveOccurred())
 	})
 
