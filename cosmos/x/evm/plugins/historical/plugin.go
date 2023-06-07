@@ -44,7 +44,7 @@ type plugin struct {
 	// bp represents the block plugin, used for accessing historical block headers.
 	bp core.BlockPlugin
 	// storekey is the store key for the header store.
-	storekey storetypes.StoreKey
+	storeKey storetypes.StoreKey
 	//  `offchainStore` is the offchain store, used for accessing offchain data.
 	offchainStoreKey storetypes.StoreKey
 }
@@ -56,7 +56,7 @@ func NewPlugin(
 	return &plugin{
 		bp:               bp,
 		offchainStoreKey: offchainStoreKey,
-		storekey:         storekey,
+		storeKey:         storekey,
 	}
 }
 
