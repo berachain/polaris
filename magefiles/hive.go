@@ -54,6 +54,13 @@ func (h Hive) Setup() error {
 		}
 	}
 
+	if err := ExecuteInDirectory(hiveClone, func(...string) error {
+		LogGreen("Removing existing .hive-e2e")
+		return sh.RunV("rm", "-rf", clonePath)
+	}, false); err != nil {
+		return err
+	}
+
 	if _, err := os.Stat(clonePath); os.IsNotExist(err) {
 		LogGreen("Cloning ethereum/hive into " + clonePath + "...")
 		err = ExecuteInDirectory(hiveClone, func(...string) error {
@@ -81,5 +88,19 @@ func (h Hive) Setup() error {
 func (h Hive) Test(sim, client string) error {
 	return ExecuteInDirectory(clonePath, func(...string) error {
 		return sh.RunV("./hive", "--sim", sim, "--client", client)
+	}, false)
+}
+
+func (h Hive) TestV(sim, client string) error {
+	return ExecuteInDirectory(clonePath, func(...string) error {
+		return sh.RunV("./hive", "--sim", sim, "--client", client, "--docker.output")
+	}, false)
+}
+
+func (h Hive) GenerateTests(sim, namespace string) error {
+	path := sim + "/"
+	LogGreen("Generating tests for " + path + namespace)
+	return ExecuteInDirectory("e2e/hive/simulators", func(...string) error {
+		return sh.RunV("./generate_tests.sh", path+namespace+".go", path+"tests.go", namespace)
 	}, false)
 }

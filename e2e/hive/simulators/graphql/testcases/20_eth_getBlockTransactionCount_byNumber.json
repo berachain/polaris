@@ -1,0 +1,11 @@
+{
+  "request": "{block (number : 30) {transactions{hash} difficulty totalDifficulty gasUsed gasLimit nonce ommerCount logsBloom mixHash ommerHash extraData stateRoot receiptsRoot transactionCount transactionsRoot}} ",
+  "responses": [
+    {
+      "data": {
+        "block": null 
+      }
+    }
+  ],
+  "statusCode": 200
+}
