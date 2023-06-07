@@ -55,10 +55,12 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	bc.bp.Prepare(ctx)
 	bc.cp.Prepare(ctx)
 	bc.gp.Prepare(ctx)
-
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
 	}
+
+	// enforce that the blockchain has valid latest chain state
+	bc.readLastState()
 
 	coinbase, timestamp := bc.bp.GetNewBlockMetadata(number)
 	bc.logger.Info("Preparing block", "number", number, "coinbase", coinbase.Hex(), "timestamp", timestamp)
@@ -82,7 +84,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
-		BaseFee:    bc.CalculateNextBaseFee(number),
+		BaseFee:    bc.CalculateNextBaseFee(),
 
 		// Not used in Polaris at the moment, but we set them to prevent nil ptr panic.
 		Difficulty: new(big.Int),
@@ -143,6 +145,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		}
 	}
 
+	// TODO: refactor in historical plugin PR fix. Move this to writeLastState helper function.
 	// mark the current block, receipts, and logs
 	if block != nil {
 		bc.currentBlock.Store(block)

@@ -327,6 +327,38 @@ func (bc *blockchain) GetTd(hash common.Hash, number uint64) *big.Int {
 	return block.Difficulty()
 }
 
+// readLastState retrieves the last state of the blockchain (block, receipts, logs) from the
+// host chain and loads it into the blockchain as current state.
+func (bc *blockchain) readLastState() {
+	// load current/finalized block
+	if bc.currentBlock.Load() == nil || bc.finalizedBlock.Load() == nil {
+		block := bc.GetBlockByNumber(bc.bp.GetLatestHeight())
+		if block == nil {
+			panic("readLastState: failed to get last known block from host chain")
+		}
+		bc.currentBlock.Store(block)
+		bc.finalizedBlock.Store(block)
+	}
+
+	// load current receipts
+	if bc.currentReceipts.Load() == nil {
+		receipts := bc.GetReceiptsByHash(bc.currentBlock.Load().Hash())
+		if receipts == nil {
+			panic("readLastState: failed to get last known receipts from host chain")
+		}
+		bc.currentReceipts.Store(receipts)
+	}
+
+	// load current logs
+	if bc.currentLogs.Load() == nil {
+		var logs []*types.Log
+		for _, receipt := range utils.MustGetAs[types.Receipts](bc.currentReceipts.Load()) {
+			logs = append(logs, receipt.Logs...)
+		}
+		bc.currentLogs.Store(logs)
+	}
+}
+
 // =========================================================================
 // TransactionPoolReader
 // =========================================================================

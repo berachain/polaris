@@ -65,6 +65,11 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 	return header, nil
 }
 
+// GetLatestHeight the last known chain block height from the host chain.
+func (p *plugin) GetLatestHeight() uint64 {
+	return uint64(p.ctx.BlockHeight())
+}
+
 // StoreHeader implements core.BlockPlugin.
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
 	bz, err := coretypes.MarshalHeader(header)
