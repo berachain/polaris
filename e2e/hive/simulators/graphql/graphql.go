@@ -80,7 +80,7 @@ func deliverTests(t *hivesim.T, wg *sync.WaitGroup, limit int) <-chan *testCase 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := filepath.Walk("./testcases", func(filepath string, info os.FileInfo, err error) error {
+		err := filepath.Walk("./testcases", func(filePath string, info os.FileInfo, err error) error {
 			switch {
 			case limit >= 0 && i >= limit:
 				return nil
@@ -91,14 +91,15 @@ func deliverTests(t *hivesim.T, wg *sync.WaitGroup, limit int) <-chan *testCase 
 			case err != nil:
 				return err
 			}
-			data, err := os.ReadFile(filepath)
+			filePath = filepath.Join("./", filepath.Clean(filePath))
+			data, err := os.ReadFile(filePath)
 			if err != nil {
-				t.Logf("Warning: can't read test file %s: %v", filepath, err)
+				t.Logf("Warning: can't read test file %s: %v", filePath, err)
 				return nil
 			}
 			var gqlTest graphQLTest
 			if err = json.Unmarshal(data, &gqlTest); err != nil {
-				t.Logf("Warning: can't unmarshal test file %s: %v", filepath, err)
+				t.Logf("Warning: can't unmarshal test file %s: %v", filePath, err)
 				return nil
 			}
 			i++
@@ -167,7 +168,11 @@ func (tc *testCase) run(t *hivesim.T, c *hivesim.Client) {
 	if err != nil {
 		t.Fatal("can't read HTTP response:", err)
 	}
-	resp.Body.Close()
+
+	err = resp.Body.Close()
+	if err != nil {
+		t.Fatal("can't close HTTP response body:", err)
+	}
 
 	if resp.StatusCode != tc.gqlTest.StatusCode {
 		t.Errorf("HTTP response code is %d, want %d \n response body: %s",
