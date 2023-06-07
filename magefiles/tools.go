@@ -50,7 +50,7 @@ var (
 	// Dependencies.
 	moq = "github.com/matryer/moq"
 
-	moduleDirs = []string{"contracts", "e2e/hive/simulators/rpc", "eth", "cosmos", "magefiles", "lib"}
+	moduleDirs = []string{"contracts", "e2e/hive/simulators/rpc", "e2e/ict", "eth", "cosmos", "magefiles", "lib"}
 )
 
 // ===========================================================================
