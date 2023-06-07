@@ -1,0 +1,11 @@
+{
+  "request": "{block (number : 30) { difficulty totalDifficulty gasUsed gasLimit nonce ommerCount logsBloom mixHash ommerHash extraData stateRoot receiptsRoot transactionCount transactionsRoot ommers{hash} ommerAt(index : 1){hash} account(address: \"0x6295ee1b4f6dd65047762f924ecd367c17eabf8f\"){balance} }} ",
+  "responses": [
+    {
+      "data": {
+        "block": null 
+      }
+    }
+  ],
+  "statusCode": 200
+}

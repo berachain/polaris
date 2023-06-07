@@ -1,0 +1,21 @@
+{
+  "request": "{block{account { balance } }}",
+  "responses": [{
+    "errors": [
+      {
+        "message": "Validation error of type MissingFieldArgument: Missing field argument address @ 'account'",
+        "locations": [
+          {
+            "line": 1,
+            "column": 2
+          }
+        ],
+        "extensions": {
+          "classification": "ValidationError"
+        }
+      }
+    ]
+  }],
+  "statusCode": 400
+}
+

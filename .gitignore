@@ -200,7 +200,7 @@ contracts/out/
 */**/*.json
 
 # hive
-!e2e/hive/**/genesis.json
+!e2e/hive/**/*.json
 
 # geth
 *.rlp
