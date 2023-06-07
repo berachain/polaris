@@ -24,7 +24,6 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"math/big"
-	"net/http"
 	"strings"
 	"time"
 
@@ -49,14 +48,13 @@ var defaultAccountNames = []string{"alice", "bob", "charlie"}
 // TestFixture is a testing fixture that can be used to test the
 // Ethereum JSON-RPC API.
 type TestFixture struct {
-	t                network.TestingT
-	Network          *network.Network
-	EthClient        *ethclient.Client
-	EthWsClient      *ethclient.Client
-	EthGraphQLClient *http.Client
-	HTTPAddr         string
-	WsAddr           string
-	keysMap          map[string]*ethsecp256k1.PrivKey
+	t           network.TestingT
+	Network     *network.Network
+	EthClient   *ethclient.Client
+	EthWsClient *ethclient.Client
+	HTTPAddr    string
+	WsAddr      string
+	keysMap     map[string]*ethsecp256k1.PrivKey
 }
 
 // NewTestFixture creates a new TestFixture.
@@ -86,18 +84,15 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 	wsaddr := "ws:" + apiAddr + ":8546"
 	wsClient, _ := ethclient.DialContext(ctx, wsaddr)
 
-	graphQLClient := &http.Client{}
-
 	// Build and return the Test Fixture.
 	return &TestFixture{
-		t:                t,
-		Network:          net,
-		EthClient:        client,
-		EthWsClient:      wsClient,
-		EthGraphQLClient: graphQLClient,
-		HTTPAddr:         httpAddr,
-		WsAddr:           wsaddr,
-		keysMap:          keysMap,
+		t:           t,
+		Network:     net,
+		EthClient:   client,
+		EthWsClient: wsClient,
+		HTTPAddr:    httpAddr,
+		WsAddr:      wsaddr,
+		keysMap:     keysMap,
 	}
 }
 
