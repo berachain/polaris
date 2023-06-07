@@ -25,11 +25,11 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //			BaseFeeFunc: func() *big.Int {
 //				panic("mock out the BaseFee method")
 //			},
-//			GetHeaderByNumberFunc: func(v uint64) (*types.Header, error) {
-//				panic("mock out the GetHeaderByNumber method")
-//			},
 //			GetChainHeadHeightFunc: func() uint64 {
 //				panic("mock out the GetChainHeadHeight method")
+//			},
+//			GetHeaderByNumberFunc: func(v uint64) (*types.Header, error) {
+//				panic("mock out the GetHeaderByNumber method")
 //			},
 //			GetNewBlockMetadataFunc: func(v uint64) (common.Address, uint64) {
 //				panic("mock out the GetNewBlockMetadata method")
@@ -50,11 +50,11 @@ type BlockPluginMock struct {
 	// BaseFeeFunc mocks the BaseFee method.
 	BaseFeeFunc func() *big.Int
 
-	// GetHeaderByNumberFunc mocks the GetHeaderByNumber method.
-	GetHeaderByNumberFunc func(v uint64) (*types.Header, error)
-
 	// GetChainHeadHeightFunc mocks the GetChainHeadHeight method.
 	GetChainHeadHeightFunc func() uint64
+
+	// GetHeaderByNumberFunc mocks the GetHeaderByNumber method.
+	GetHeaderByNumberFunc func(v uint64) (*types.Header, error)
 
 	// GetNewBlockMetadataFunc mocks the GetNewBlockMetadata method.
 	GetNewBlockMetadataFunc func(v uint64) (common.Address, uint64)
@@ -70,13 +70,13 @@ type BlockPluginMock struct {
 		// BaseFee holds details about calls to the BaseFee method.
 		BaseFee []struct {
 		}
+		// GetChainHeadHeight holds details about calls to the GetChainHeadHeight method.
+		GetChainHeadHeight []struct {
+		}
 		// GetHeaderByNumber holds details about calls to the GetHeaderByNumber method.
 		GetHeaderByNumber []struct {
 			// V is the v argument value.
 			V uint64
-		}
-		// GetChainHeadHeight holds details about calls to the GetChainHeadHeight method.
-		GetChainHeadHeight []struct {
 		}
 		// GetNewBlockMetadata holds details about calls to the GetNewBlockMetadata method.
 		GetNewBlockMetadata []struct {
@@ -95,8 +95,8 @@ type BlockPluginMock struct {
 		}
 	}
 	lockBaseFee             sync.RWMutex
+	lockGetChainHeadHeight  sync.RWMutex
 	lockGetHeaderByNumber   sync.RWMutex
-	lockGetChainHeadHeight     sync.RWMutex
 	lockGetNewBlockMetadata sync.RWMutex
 	lockPrepare             sync.RWMutex
 	lockStoreHeader         sync.RWMutex
@@ -129,6 +129,33 @@ func (mock *BlockPluginMock) BaseFeeCalls() []struct {
 	return calls
 }
 
+// GetChainHeadHeight calls GetChainHeadHeightFunc.
+func (mock *BlockPluginMock) GetChainHeadHeight() uint64 {
+	if mock.GetChainHeadHeightFunc == nil {
+		panic("BlockPluginMock.GetChainHeadHeightFunc: method is nil but BlockPlugin.GetChainHeadHeight was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetChainHeadHeight.Lock()
+	mock.calls.GetChainHeadHeight = append(mock.calls.GetChainHeadHeight, callInfo)
+	mock.lockGetChainHeadHeight.Unlock()
+	return mock.GetChainHeadHeightFunc()
+}
+
+// GetChainHeadHeightCalls gets all the calls that were made to GetChainHeadHeight.
+// Check the length with:
+//
+//	len(mockedBlockPlugin.GetChainHeadHeightCalls())
+func (mock *BlockPluginMock) GetChainHeadHeightCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetChainHeadHeight.RLock()
+	calls = mock.calls.GetChainHeadHeight
+	mock.lockGetChainHeadHeight.RUnlock()
+	return calls
+}
+
 // GetHeaderByNumber calls GetHeaderByNumberFunc.
 func (mock *BlockPluginMock) GetHeaderByNumber(v uint64) (*types.Header, error) {
 	if mock.GetHeaderByNumberFunc == nil {
@@ -158,33 +185,6 @@ func (mock *BlockPluginMock) GetHeaderByNumberCalls() []struct {
 	mock.lockGetHeaderByNumber.RLock()
 	calls = mock.calls.GetHeaderByNumber
 	mock.lockGetHeaderByNumber.RUnlock()
-	return calls
-}
-
-// GetChainHeadHeight calls GetChainHeadHeightFunc.
-func (mock *BlockPluginMock) GetChainHeadHeight() uint64 {
-	if mock.GetChainHeadHeightFunc == nil {
-		panic("BlockPluginMock.GetChainHeadHeightFunc: method is nil but BlockPlugin.GetChainHeadHeight was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockGetChainHeadHeight.Lock()
-	mock.calls.GetChainHeadHeight = append(mock.calls.GetChainHeadHeight, callInfo)
-	mock.lockGetChainHeadHeight.Unlock()
-	return mock.GetChainHeadHeightFunc()
-}
-
-// GetChainHeadHeightCalls gets all the calls that were made to GetChainHeadHeight.
-// Check the length with:
-//
-//	len(mockedBlockPlugin.GetChainHeadHeightCalls())
-func (mock *BlockPluginMock) GetChainHeadHeightCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockGetChainHeadHeight.RLock()
-	calls = mock.calls.GetChainHeadHeight
-	mock.lockGetChainHeadHeight.RUnlock()
 	return calls
 }
 
