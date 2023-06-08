@@ -38,7 +38,8 @@ import (
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
 // file.
-func (app *SimApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs, modulesToExport []string) (servertypes.ExportedApp, error) {
+func (app *SimApp) ExportAppStateAndValidators(forZeroHeight bool,
+	jailAllowedAddrs, modulesToExport []string) (servertypes.ExportedApp, error) {
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true).WithBlockHeader(cmtproto.Header{Height: app.LastBlockHeight()})
 
@@ -73,6 +74,8 @@ func (app *SimApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAd
 // NOTE zero height genesis is a temporary feature which will be deprecated
 //
 //	in favor of export at a block height
+//
+//nolint:funlen,gocognit // from sdk.
 func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
 	applyAllowedAddrs := false
 
@@ -137,7 +140,7 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 			panic(err)
 		}
 		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
-		if err := app.DistrKeeper.FeePool.Set(ctx, feePool); err != nil {
+		if err = app.DistrKeeper.FeePool.Set(ctx, feePool); err != nil {
 			panic(err)
 		}
 

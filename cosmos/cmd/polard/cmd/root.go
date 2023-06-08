@@ -79,14 +79,6 @@ func NewRootCmd() *cobra.Command {
 		autoCliOpts        autocli.AppOptions
 		moduleBasicManager module.BasicManager
 	)
-
-	// x := []signing.CustomGetSigner{
-	// 	{
-	// 		MsgType: "polaris.evm.v1alpha1.WrappedEthereumTransaction",
-	// 		Fn:      evmtypes.GetEthereumSigner,
-	// 	},
-	// }
-
 	if err := depinject.Inject(depinject.Configs(simapp.AppConfig, depinject.Supply(
 		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
 		&interfaceRegistry,

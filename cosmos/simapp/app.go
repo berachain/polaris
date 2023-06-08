@@ -110,18 +110,19 @@ type SimApp struct {
 	sm *module.SimulationManager
 }
 
+//nolint:gochecknoinits // from sdk.
 func init() {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, ".simapp")
+	DefaultNodeHome = filepath.Join(userHomeDir, ".polard")
 }
 
 // NewPolarisApp returns a reference to an initialized SimApp.
 //
-//nolint:funlun // from sdk.
+//nolint:funlen // from sdk.
 func NewPolarisApp(
 	logger log.Logger,
 	db dbm.DB,
@@ -282,17 +283,6 @@ func NewPolarisApp(
 	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
 
 	app.sm.RegisterStoreDecoders()
-
-	// A custom InitChainer can be set if extra pre-init-genesis logic is required.
-	// By default, when using app wiring enabled module, this is not required.
-	// For instance, the upgrade module will set automatically the module version map in its init genesis thanks to app wiring.
-	// However, when registering a module manually (i.e. that does not support app wiring), the module version map
-	// must be set manually as follow. The upgrade module will de-duplicate the module version map.
-	//
-	// app.SetInitChainer(func(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
-	// 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap())
-	// 	return app.App.InitChainer(ctx, req)
-	// })
 
 	if err := app.Load(loadLatest); err != nil {
 		panic(err)

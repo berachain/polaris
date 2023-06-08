@@ -56,10 +56,6 @@ func TestGovernancePrecompile(t *testing.T) {
 	RunSpecs(t, "cosmos/precompile/governance")
 }
 
-func init() {
-	config.SetupCosmosConfig()
-}
-
 var _ = Describe("Governance Precompile", func() {
 	var (
 		ctx      sdk.Context
