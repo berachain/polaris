@@ -183,11 +183,18 @@ func (v *vault) createAccount(t *TestEnv, amount *big.Int) common.Address {
 		t.Fatalf("unable to send funding transaction: %v", err)
 	}
 
+	time.Sleep(5 * time.Second)
 	receipt, err := t.Eth.TransactionReceipt(t.Ctx(), tx.Hash())
 	if err != nil {
 		t.Fatalf("can't get transaction receipt:", err)
 	}
 	fmt.Printf("RECEIPT info: %v\n", receipt)
+	fmt.Printf("RECEPT block number info: %v\n", receipt.BlockNumber)
+
+	fmt.Printf("tx.Hash() info: %v\n", tx.Hash())
+
+	balance, err := t.Eth.BalanceAt(t.Ctx(), address, nil)
+	fmt.Printf("\n\nbalance: %v, amount: %v\n", balance, amount)
 
 	panic("end of test")
 
@@ -235,7 +242,7 @@ func (v *vault) makeFundingTx(t *TestEnv, recipient common.Address, amount *big.
 		txAmount = new(big.Int)
 	)
 	tx := types.NewTransaction(nonce, predeployedVaultAddr, txAmount, gasLimit, gasPrice, payload)
-	signer := types.NewEIP155Signer(chainID)
+	signer := types.LatestSignerForChainID(chainID)
 	signedTx, err := types.SignTx(tx, signer, vaultKey)
 	if err != nil {
 		t.Fatal("can't sign vault funding tx:", err)

@@ -50,6 +50,7 @@ import (
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -152,7 +153,7 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
 
 	// TODO: re-enable historical plugin using ABCI listener.
-	// app.PolarisBaseApp.MountCustomStores(offchainKey)
+	app.PolarisBaseApp.MountCustomStores(offchainKey)
 
 	// ===============================================================
 	// THE "DEPINJECT IS CAUSING PROBLEMS" SECTION
