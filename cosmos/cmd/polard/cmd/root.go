@@ -58,7 +58,9 @@ import (
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
+	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	"pkg.berachain.dev/polaris/cosmos/runtime"
@@ -66,8 +68,6 @@ import (
 	evmmepool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 )
 
-// NewRootCmd creates a new root command for simd. It is called once in the main function.
-//
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
 //
 //nolint:funlen // from cosmos-sdk
@@ -81,7 +81,11 @@ func NewRootCmd() *cobra.Command {
 		moduleBasicManager module.BasicManager
 	)
 
-	if err := depinject.Inject(depinject.Configs(runtime.AppConfig, depinject.Supply(evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
+	if err := depinject.Inject(depinject.Configs(runtime.AppConfig, depinject.Supply(
+		map[string]module.AppModuleBasic{
+			genutiltypes.ModuleName: genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
+		},
+		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,
@@ -146,7 +150,7 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	initRootCmd(rootCmd, txConfig, interfaceRegistry, appCodec, runtime.ModuleBasics)
+	initRootCmd(rootCmd, txConfig, interfaceRegistry, appCodec, moduleBasicManager)
 
 	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
 		panic(err)
@@ -171,6 +175,22 @@ func initCometBFTConfig() *cmtcfg.Config {
 // return "", nil if no custom configuration is required for the application.
 func initAppConfig() (string, interface{}) {
 	// The following code snippet is just for reference.
+
+	// WASMConfig defines configuration for the wasm module.
+	type WASMConfig struct {
+		// This is the maximum sdk gas (wasm and storage) that we allow for any x/wasm "smart" queries
+		QueryGasLimit uint64 `mapstructure:"query_gas_limit"`
+
+		// Address defines the gRPC-web server to listen on
+		LruSize uint64 `mapstructure:"lru_size"`
+	}
+
+	type CustomAppConfig struct {
+		serverconfig.Config
+
+		WASM WASMConfig `mapstructure:"wasm"`
+	}
+
 	// Optionally allow the chain developer to overwrite the SDK's default
 	// server config.
 	srvCfg := serverconfig.DefaultConfig()
@@ -189,14 +209,30 @@ func initAppConfig() (string, interface{}) {
 	srvCfg.MinGasPrices = "0stake"
 	// srvCfg.BaseConfig.IAVLDisableFastNode = true // disable fastnode by default
 
-	return serverconfig.DefaultConfigTemplate, srvCfg
+	customAppConfig := CustomAppConfig{
+		Config: *srvCfg,
+		WASM: WASMConfig{
+			LruSize:       1,
+			QueryGasLimit: 300000,
+		},
+	}
+
+	customAppTemplate := serverconfig.DefaultConfigTemplate + `
+[wasm]
+# This is the maximum sdk gas (wasm and storage) that we allow for any x/wasm "smart" queries
+query_gas_limit = 300000
+# This is the number of wasm vm instances we keep cached in memory for speed-up
+# Warning: this is currently unstable and may lead to crashes, best to keep for 0 unless testing locally
+lru_size = 0`
+
+	return customAppTemplate, customAppConfig
 }
 
 func initRootCmd(
 	rootCmd *cobra.Command,
 	txConfig client.TxConfig,
-	_ codectypes.InterfaceRegistry,
-	_ codec.Codec,
+	interfaceRegistry codectypes.InterfaceRegistry,
+	appCodec codec.Codec,
 	basicManager module.BasicManager,
 ) {
 	cfg := sdk.GetConfig()
@@ -204,7 +240,6 @@ func initRootCmd(
 
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(basicManager, runtime.DefaultNodeHome),
-		// NewTestnetCmd(basicManager, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(newApp),
@@ -227,7 +262,7 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 }
 
-// genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter.
+// genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
 func genesisCommand(txConfig client.TxConfig, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
 	cmd := genutilcli.Commands(txConfig, basicManager, runtime.DefaultNodeHome)
 
@@ -282,7 +317,7 @@ func txCommand() *cobra.Command {
 	return cmd
 }
 
-// newApp creates the application.
+// newApp creates the application
 func newApp(
 	logger log.Logger,
 	db dbm.DB,
@@ -325,26 +360,16 @@ func appExport(
 	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
 	appOpts = viperAppOpts
 
-	var polarisApp *runtime.PolarisApp
+	var simApp *runtime.PolarisApp
 	if height != -1 {
-		polarisApp = runtime.NewPolarisApp(logger, db, traceStore, false, appOpts)
+		simApp = runtime.NewPolarisApp(logger, db, traceStore, false, appOpts)
 
-		if err := polarisApp.LoadHeight(height); err != nil {
+		if err := simApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		polarisApp = runtime.NewPolarisApp(logger, db, traceStore, true, appOpts)
+		simApp = runtime.NewPolarisApp(logger, db, traceStore, true, appOpts)
 	}
 
-	return polarisApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
-}
-
-var tempDir = func() string {
-	dir, err := os.MkdirTemp("", "polarisApp")
-	if err != nil {
-		dir = runtime.DefaultNodeHome
-	}
-	defer os.RemoveAll(dir)
-
-	return dir
+	return simApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }

@@ -43,6 +43,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/genutil"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	"github.com/cosmos/cosmos-sdk/x/gov"
+	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 
 	polarisbaseapp "pkg.berachain.dev/polaris/cosmos/runtime/baseapp"
 	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
@@ -50,6 +56,7 @@ import (
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -113,6 +120,15 @@ func NewPolarisApp( //nolint:funlen // as defined by the sdk.
 				appOpts,
 				logger,
 				ethTxMempool,
+				// supply custom module basics
+				map[string]module.AppModuleBasic{
+					genutiltypes.ModuleName: genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
+					govtypes.ModuleName: gov.NewAppModuleBasic(
+						[]govclient.ProposalHandler{
+							paramsclient.ProposalHandler,
+						},
+					),
+				},
 				polarisbaseapp.PrecompilesToInject(&app.PolarisBaseApp),
 			),
 		)

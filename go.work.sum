@@ -3,6 +3,7 @@ cosmossdk.io/x/feegrant v0.0.0-20230117113717-50e7c4a4ceff h1:ASeogeTLcf487ykEMT
 cosmossdk.io/x/nft v0.0.0-20230113085233-fae3332d62fc h1:uk4+YTFhtG71jpmv5ZJQhb/V7h9j9rO1HacJc7O4dz8=
 github.com/btcsuite/btcutil v0.0.0-20190425235716-9e5f4b9a998d h1:yJzD/yFppdVCf6ApMkVy8cUxV0XrxdP9rVf6D87/Mng=
 github.com/coinbase/rosetta-sdk-go/types v1.0.0 h1:jpVIwLcPoOeCR6o1tU+Xv7r5bMONNbHU7MuEHboiFuA=
+github.com/cosmos/cosmos-sdk/x/circuit v0.0.0-20230525153548-b6613f9163f8 h1:Sl2a83Wn8vlKPvgndtPmNOKzGlX4y9HwGWlouO77x54=
 github.com/cosmos/rosetta-sdk-go v0.10.0 h1:E5RhTruuoA7KTIXUcMicL76cffyeoyvNybzUGSKFTcM=
 github.com/cpuguy83/go-md2man v1.0.10 h1:BSKMNlYxDvnunlTymqtgONjNnaRV1sTpcovwwjF22jk=
 github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
