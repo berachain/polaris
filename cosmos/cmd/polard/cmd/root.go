@@ -60,6 +60,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
+	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	"pkg.berachain.dev/polaris/cosmos/simapp"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
@@ -68,7 +69,7 @@ import (
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
 //
-
+//nolint:funlen // from cosmos-sdk
 func NewRootCmd() *cobra.Command {
 	var (
 		interfaceRegistry  codectypes.InterfaceRegistry
@@ -90,6 +91,8 @@ func NewRootCmd() *cobra.Command {
 	); err != nil {
 		panic(err)
 	}
+
+	ethcryptocodec.RegisterInterfaces(interfaceRegistry)
 
 	initClientCtx := client.Context{}.
 		WithCodec(appCodec).
@@ -132,6 +135,9 @@ func NewRootCmd() *cobra.Command {
 				codec.NewProtoCodec(interfaceRegistry),
 				txConfigOpts,
 			)
+			if err != nil {
+				return err
+			}
 
 			initClientCtx = initClientCtx.WithTxConfig(txConfigWithTextual)
 			if err := client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
@@ -257,7 +263,7 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 }
 
-// genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter.
+// genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
 func genesisCommand(txConfig client.TxConfig, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
 	cmd := genutilcli.Commands(txConfig, basicManager, simapp.DefaultNodeHome)
 
@@ -312,7 +318,7 @@ func txCommand() *cobra.Command {
 	return cmd
 }
 
-// newApp creates the application.
+// newApp creates the application
 func newApp(
 	logger log.Logger,
 	db dbm.DB,
