@@ -231,6 +231,57 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 	return []any{addrs}, nil
 }
 
+func (c *Contract) validatorsHelper(ctx context.Context) ([]any, error) {
+	res, err := c.querier.Validators(ctx, &stakingtypes.QueryValidatorsRequest{
+		Status: stakingtypes.BondStatusBonded,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	vals, err := cosmlib.SdkValidatorsToStakingValidators(res.GetValidators())
+	if err != nil {
+		return nil, err
+	}
+
+	return []any{vals}, nil
+}
+
+// valAddr must be the bech32 address of the validator.
+func (c *Contract) validatorHelper(ctx context.Context, valAddr string) ([]any, error) {
+	res, err := c.querier.Validator(ctx, &stakingtypes.QueryValidatorRequest{
+		ValidatorAddr: valAddr,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	val, err := cosmlib.SdkValidatorsToStakingValidators([]stakingtypes.Validator{res.GetValidator()})
+	if err != nil {
+		return nil, err
+	}
+
+	// guaranteed not to panic because val is guaranteed to have length 1.
+	return []any{val[0]}, nil
+}
+
+// accAddr must be the bech32 address of the delegator.
+func (c *Contract) delegatorValidatorsHelper(ctx context.Context, accAddr string) ([]any, error) {
+	res, err := c.querier.DelegatorValidators(ctx, &stakingtypes.QueryDelegatorValidatorsRequest{
+		DelegatorAddr: accAddr,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	vals, err := cosmlib.SdkValidatorsToStakingValidators(res.GetValidators())
+	if err != nil {
+		return nil, err
+	}
+
+	return []any{vals}, nil
+}
+
 // bondDenom returns the bond denom from the staking module.
 func (c *Contract) bondDenom(ctx context.Context) (string, error) {
 	res, err := c.querier.Params(ctx, &stakingtypes.QueryParamsRequest{})

@@ -215,7 +215,7 @@ func (c Cosmos) TestHive(sim string) error {
 	if err := c.DockerBuildHive(); err != nil {
 		return err
 	}
-	return Hive{}.Test(sim, "polard")
+	return Hive{}.TestV(sim, "polard")
 }
 
 func dockerBuildFn(useX bool) func(args ...string) error {

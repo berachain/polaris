@@ -1,0 +1,14 @@
+{
+  "request": "{block (number : \"0x1\") { gasUsed gasLimit }} ",
+  "responses": [
+    {
+      "data": {
+        "block": {
+          "gasLimit": "0x1c9c380",
+          "gasUsed": "0x0"
+        }
+      }
+    }
+  ],
+  "statusCode": 200
+}

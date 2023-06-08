@@ -66,9 +66,34 @@ interface IStakingModule {
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
     /**
-     * @dev Returns a list of active validators.
+     * @dev Returns a list of active validator addresses.
      */
     function getActiveValidators() external view returns (address[] memory);
+
+    /**
+     * @dev Returns a list of all active validators.
+     */
+    function getValidators() external view returns (Validator[] memory);
+
+    /**
+     * @dev Returns the validator at the given address.
+     */
+    function getValidator(address validatorAddress) external view returns (Validator memory);
+
+    /**
+     * @dev Returns the validator at the given address (bech32 encoded).
+     */
+    function getValidator(string calldata validatorAddress) external view returns (Validator memory);
+
+    /**
+     * @dev Returns all the validators delegated to by the given delegator.
+     */
+    function getDelegatorValidators(address delegatorAddress) external view returns (Validator[] memory);
+
+    /**
+     * @dev Returns all the validators delegated to by the given delegator (bech32 encoded).
+     */
+    function getDelegatorValidators(string calldata delegatorAddress) external view returns (Validator[] memory);
 
     /**
      * @dev Returns the `amount` of tokens currently delegated by `delegatorAddress` to
@@ -186,6 +211,54 @@ interface IStakingModule {
         returns (bool);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
+
+    /**
+     * @dev Represents a validator.
+     */
+    struct Validator {
+        string operatorAddress;
+        bytes consensusPubkey;
+        bool jailed;
+        string status;
+        uint256 tokens;
+        uint256 delegatorShares;
+        Description description;
+        int64 unbondingHeight;
+        string unbondingTime;
+        Commission commission;
+        uint256 minSelfDelegation;
+        int64 unbondingOnHoldRefCount;
+        uint64[] unbondingIds;
+    }
+
+    /**
+     * @dev Represents the commission parameters for a given validator.
+     */
+    struct Commission {
+        CommissionRates commissionRates;
+        string updateTime;
+    }
+
+    /**
+     * @dev Represents the initial commission rates to be used for creating a validator.
+     */
+    struct CommissionRates {
+        uint256 rate;
+        uint256 maxRate;
+        uint256 maxChangeRate;
+    }
+
+    /**
+     * @dev Represents a validator description.
+     */
+    struct Description {
+        string moniker;
+        string identity;
+        string website;
+        string securityContact;
+        string details;
+    }
+
     /**
      * @dev Represents one entry of an unbonding delegation
      *

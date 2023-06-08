@@ -1,0 +1,13 @@
+{
+  "request":     
+    "{ block(number: 2) { number } }",
+
+  "responses": [{
+    "data" : {
+      "block" : {
+        "number" : "0x2"
+      }
+    }
+  }],
+  "statusCode": 200
+}

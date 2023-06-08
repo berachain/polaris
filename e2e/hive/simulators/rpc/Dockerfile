@@ -23,10 +23,9 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-# This simulation runs JSON-RPC API tests.
-
 ARG GO_VERSION=1.20.4
 
+# This simulation runs JSON-RPC API tests.
 FROM golang:${GO_VERSION}-alpine as builder
 RUN apk add --update gcc musl-dev linux-headers
 
@@ -34,7 +33,7 @@ RUN apk add --update gcc musl-dev linux-headers
 ADD . /source
 WORKDIR /source
 RUN go mod tidy
-RUN go build .
+RUN go build -v .
 
 # Build the simulator run container.
 FROM alpine:latest

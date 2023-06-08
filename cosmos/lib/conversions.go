@@ -32,6 +32,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -139,4 +140,58 @@ func SdkREToStakingRE(re []stakingtypes.RedelegationEntry) []staking.IStakingMod
 		}
 	}
 	return entries
+}
+
+// SdkValidatorsToStakingValidators converts a Cosmos SDK Validator list to a geth compatible list
+// of Validators.
+func SdkValidatorsToStakingValidators(vals []stakingtypes.Validator) (
+	[]staking.IStakingModuleValidator, error,
+) {
+	valsOut := make([]staking.IStakingModuleValidator, len(vals))
+	for i, val := range vals {
+		pubKey, err := val.ConsPubKey()
+		if err != nil {
+			return nil, err
+		}
+		valsOut[i] = staking.IStakingModuleValidator{
+			OperatorAddress: val.OperatorAddress,
+			ConsensusPubkey: pubKey.Bytes(),
+			Jailed:          val.Jailed,
+			Status:          val.Status.String(),
+			Tokens:          val.Tokens.BigInt(),
+			DelegatorShares: val.DelegatorShares.BigInt(),
+			Description:     staking.IStakingModuleDescription(val.Description),
+			UnbondingHeight: val.UnbondingHeight,
+			UnbondingTime:   val.UnbondingTime.String(),
+			Commission: staking.IStakingModuleCommission{
+				CommissionRates: staking.IStakingModuleCommissionRates{
+					Rate:          val.Commission.CommissionRates.Rate.BigInt(),
+					MaxRate:       val.Commission.CommissionRates.MaxRate.BigInt(),
+					MaxChangeRate: val.Commission.CommissionRates.MaxChangeRate.BigInt(),
+				},
+			},
+			MinSelfDelegation:       val.MinSelfDelegation.BigInt(),
+			UnbondingOnHoldRefCount: val.UnbondingOnHoldRefCount,
+			UnbondingIds:            val.UnbondingIds,
+		}
+	}
+	return valsOut, nil
+}
+
+// SdkAccountToAuthAccount converts a Cosmos SDK Base Account to a geth compatible Base Account.
+func SdkAccountToAuthAccount(acc sdk.AccountI) auth.IAuthModuleBaseAccount {
+	if acc == nil {
+		return auth.IAuthModuleBaseAccount{}
+	}
+
+	var pubKey []byte
+	if pk := acc.GetPubKey(); pk != nil {
+		pubKey = pk.Bytes()
+	}
+	return auth.IAuthModuleBaseAccount{
+		Addr:          AccAddressToEthAddress(acc.GetAddress()),
+		PubKey:        pubKey,
+		AccountNumber: acc.GetAccountNumber(),
+		Sequence:      acc.GetSequence(),
+	}
 }
