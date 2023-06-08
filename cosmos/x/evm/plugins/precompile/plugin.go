@@ -43,6 +43,11 @@ import (
 type Plugin interface {
 	plugins.Base
 	core.PrecompilePlugin
+
+	KVGasConfig() storetypes.GasConfig
+	SetKVGasConfig(storetypes.GasConfig)
+	TransientKVGasConfig() storetypes.GasConfig
+	SetTransientKVGasConfig(storetypes.GasConfig)
 }
 
 // plugin runs precompile containers in the Cosmos environment with the context gas configs.
@@ -50,6 +55,10 @@ type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 	// precompiles is all supported precompile contracts.
 	precompiles []ethprecompile.Registrable
+	// kvGasConfig is the gas config for the KV store.
+	kvGasConfig storetypes.GasConfig
+	// transientKVGasConfig is the gas config for the transient KV store.
+	transientKVGasConfig storetypes.GasConfig
 	// sp allows resetting the context for the reentrancy into the EVM.
 	sp StatePlugin
 }
@@ -57,10 +66,32 @@ type plugin struct {
 // NewPlugin creates and returns a plugin with the default KV store gas configs.
 func NewPlugin(precompiles []ethprecompile.Registrable, sp StatePlugin) Plugin {
 	return &plugin{
-		Registry:    registry.NewMap[common.Address, vm.PrecompileContainer](),
-		precompiles: precompiles,
-		sp:          sp,
+		Registry:             registry.NewMap[common.Address, vm.PrecompileContainer](),
+		precompiles:          precompiles,
+		kvGasConfig:          storetypes.KVGasConfig(),
+		transientKVGasConfig: storetypes.TransientGasConfig(),
+		sp:                   sp,
 	}
+}
+
+// KVGasConfig implements Plugin.
+func (p *plugin) KVGasConfig() storetypes.GasConfig {
+	return p.kvGasConfig
+}
+
+// SetKVGasConfig implements Plugin.
+func (p *plugin) SetKVGasConfig(kvGasConfig storetypes.GasConfig) {
+	p.kvGasConfig = kvGasConfig
+}
+
+// TransientKVGasConfig implements Plugin.
+func (p *plugin) TransientKVGasConfig() storetypes.GasConfig {
+	return p.transientKVGasConfig
+}
+
+// SetTransientKVGasConfig implements Plugin.
+func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConfig) {
+	p.transientKVGasConfig = transientKVGasConfig
 }
 
 // GetPrecompiles implements core.PrecompilePlugin.
@@ -104,7 +135,9 @@ func (p *plugin) Run(
 
 	// run precompile container
 	ret, err := pc.Run(
-		ctx.WithGasMeter(gm),
+		ctx.WithGasMeter(gm).
+			WithKVGasConfig(p.kvGasConfig).
+			WithTransientKVGasConfig(p.transientKVGasConfig),
 		evm,
 		input,
 		caller,
@@ -161,7 +194,7 @@ func (p *plugin) disableReentrancy(sdb vm.PolarisStateDB) {
 	cem.BeginPrecompileExecution(sdb)
 
 	// restore ctx gas configs for continuing precompile execution
-	p.sp.SetGasConfig(sdkCtx.KVGasConfig(), sdkCtx.TransientKVGasConfig())
+	p.sp.SetGasConfig(p.kvGasConfig, p.transientKVGasConfig)
 }
 
 func (p *plugin) IsPlugin() {}
