@@ -52,15 +52,17 @@ func SerializeToSdkTx(
 	if err != nil {
 		return nil, err
 	}
-
 	pk := ethsecp256k1.PubKey{Key: pkBz}
 
 	// Create the WrappedEthereumTransaction message.
 	wrappedEthTx := types.NewFromTransaction(signedTx)
 
 	// fuck cosmos: https://github.com/cosmos/cosmos-sdk/pull/16340/files
-	wrappedEthTx.HackyFixCauseCosmos = sdk.MustBech32ifyAddressBytes(
+	wrappedEthTx.HackyFixCauseCosmos, err = sdk.Bech32ifyAddressBytes(
 		sdk.GetConfig().GetBech32AccountAddrPrefix(), pk.Address())
+	if err != nil {
+		return nil, err
+	}
 	sig, err := wrappedEthTx.GetSignature()
 	if err != nil {
 		return nil, err
