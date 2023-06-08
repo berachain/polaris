@@ -76,15 +76,6 @@ func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeep
 		distribution.AppModuleBasic{},
 	)
 
-	ak.SetModuleAccount(
-		ctx,
-		authtypes.NewEmptyModuleAccount(
-			distributiontypes.ModuleName,
-			authtypes.Minter,
-			authtypes.Burner,
-		),
-	)
-
 	dk := distrkeeper.NewKeeper(
 		encCfg.Codec,
 		runtime.NewKVStoreService(storetypes.NewKVStoreKey(distributiontypes.StoreKey)),
@@ -100,7 +91,7 @@ func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeep
 	err := dk.Params.Set(ctx, params)
 	Expect(err).ToNot(HaveOccurred())
 
-	err = dk.SetFeePool(ctx, distributiontypes.InitialFeePool())
+	err = dk.FeePool.Set(ctx, distributiontypes.InitialFeePool())
 	Expect(err).ToNot(HaveOccurred())
 	return ctx, &dk, &sk, &bk
 }

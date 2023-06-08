@@ -18,37 +18,33 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mock
+//nolint:revive // embed.
+package runtime
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
+	"cosmossdk.io/core/appconfig"
 
-	"pkg.berachain.dev/polaris/cosmos/testing/types/mock/interfaces/mock"
+	"github.com/cosmos/cosmos-sdk/types/module"
+
+	polarisbaseapp "pkg.berachain.dev/polaris/cosmos/runtime/baseapp"
+	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
+
+	_ "embed"
+	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
-// FakeMsg is a mock implementation of sdk.Msg for testing purposes.
-func NewMsg() *mock.MsgMock {
-	mockedMsg := &mock.MsgMock{
-		ProtoMessageFunc: func() {
-			panic("mock out the ProtoMessage method")
-		},
-		ResetFunc: func() {
-			panic("mock out the Reset method")
-		},
-		StringFunc: func() string {
-			panic("mock out the String method")
-		},
-	}
-	return mockedMsg
-}
+var (
+	// DefaultNodeHome default home directories for the application daemon.
+	DefaultNodeHome string
 
-// FakeMsg is a mock implementation of sdk.Msg for testing purposes.
-func NewTx() *mock.TxMock {
-	// make and configure a mocked interfaces.Tx
-	mockedTx := &mock.TxMock{
-		GetMsgsFunc: func() []sdk.Msg {
-			panic("mock out the GetMsgs method")
-		},
-	}
-	return mockedTx
-}
+	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
+	// non-dependant module elements, such as codec registration
+	// and genesis verification.
+	ModuleBasics = module.NewBasicManager(polarisbaseapp.ModuleBasics...)
+
+	// application configuration (used by depinject).
+	AppConfig = appconfig.Compose(&appv1alpha1.Config{
+		Modules: simappconfig.DefaultModule,
+	})
+)
