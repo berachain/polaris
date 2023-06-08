@@ -43,11 +43,6 @@ import (
 type Plugin interface {
 	plugins.Base
 	core.PrecompilePlugin
-
-	KVGasConfig() storetypes.GasConfig
-	SetKVGasConfig(storetypes.GasConfig)
-	TransientKVGasConfig() storetypes.GasConfig
-	SetTransientKVGasConfig(storetypes.GasConfig)
 }
 
 // plugin runs precompile containers in the Cosmos environment with the context gas configs.
@@ -55,10 +50,6 @@ type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
 	// precompiles is all supported precompile contracts.
 	precompiles []ethprecompile.Registrable
-	// kvGasConfig is the gas config for the KV store.
-	kvGasConfig storetypes.GasConfig
-	// transientKVGasConfig is the gas config for the transient KV store.
-	transientKVGasConfig storetypes.GasConfig
 	// sp allows resetting the context for the reentrancy into the EVM.
 	sp StatePlugin
 }
@@ -68,11 +59,7 @@ func NewPlugin(precompiles []ethprecompile.Registrable, sp StatePlugin) Plugin {
 	return &plugin{
 		Registry:    registry.NewMap[common.Address, vm.PrecompileContainer](),
 		precompiles: precompiles,
-		// TODO: Re-enable gas config for precompiles.
-		// https://github.com/berachain/polaris/issues/393
-		kvGasConfig:          storetypes.GasConfig{},
-		transientKVGasConfig: storetypes.GasConfig{},
-		sp:                   sp,
+		sp:          sp,
 	}
 }
 
@@ -92,26 +79,6 @@ func (p *plugin) GetActive(rules *params.Rules) []common.Address {
 		active[i+len(p.precompiles)] = pc.RegistryKey()
 	}
 	return active
-}
-
-// KVGasConfig implements Plugin.
-func (p *plugin) KVGasConfig() storetypes.GasConfig {
-	return p.kvGasConfig
-}
-
-// SetKVGasConfig implements Plugin.
-func (p *plugin) SetKVGasConfig(kvGasConfig storetypes.GasConfig) {
-	p.kvGasConfig = kvGasConfig
-}
-
-// TransientKVGasConfig implements Plugin.
-func (p *plugin) TransientKVGasConfig() storetypes.GasConfig {
-	return p.transientKVGasConfig
-}
-
-// SetTransientKVGasConfig implements Plugin.
-func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConfig) {
-	p.transientKVGasConfig = transientKVGasConfig
 }
 
 // Run runs the a precompile container and returns the remaining gas after execution by injecting
@@ -137,9 +104,7 @@ func (p *plugin) Run(
 
 	// run precompile container
 	ret, err := pc.Run(
-		ctx.WithGasMeter(gm).
-			WithKVGasConfig(p.kvGasConfig).
-			WithTransientKVGasConfig(p.transientKVGasConfig),
+		ctx.WithGasMeter(gm),
 		evm,
 		input,
 		caller,

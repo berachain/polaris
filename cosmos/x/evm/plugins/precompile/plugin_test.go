@@ -64,17 +64,6 @@ var _ = Describe("plugin", func() {
 		_, _, err := p.Run(e, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
-
-	// TODO: re-enable once dynamic gas config is implemented.
-	// It("should plug in custom gas configs", func() {
-	// 	Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(0)))
-	// 	Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(0)))
-
-	// 	p.SetKVGasConfig(storetypes.KVGasConfig())
-	// 	Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
-	// 	p.SetTransientKVGasConfig(storetypes.TransientGasConfig())
-	// 	Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
-	// })
 })
 
 // MOCKS BELOW.
