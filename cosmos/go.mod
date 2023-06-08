@@ -16,12 +16,12 @@ replace (
 require (
 	cosmossdk.io/api v0.4.3-0.20230608151552-9b9e319d1abc
 	cosmossdk.io/client/v2 v2.0.0-20230608151552-9b9e319d1abc
-	cosmossdk.io/collections v0.2.0 // indirect
+	cosmossdk.io/collections v0.2.1-0.20230608151552-9b9e319d1abc // indirect
 	cosmossdk.io/core v0.8.1-0.20230608151552-9b9e319d1abc
-	cosmossdk.io/depinject v1.0.0-alpha.3
+	cosmossdk.io/depinject v1.0.0-alpha.3.0.20230608151552-9b9e319d1abc
 	cosmossdk.io/log v1.1.0
 	cosmossdk.io/math v1.0.1
-	cosmossdk.io/store v0.1.0-alpha.1.0.20230606190835-3e18f4088b2c
+	cosmossdk.io/store v0.1.0-alpha.1.0.20230608151552-9b9e319d1abc
 	cosmossdk.io/tools/confix v0.0.0-20230608151552-9b9e319d1abc
 	cosmossdk.io/x/evidence v0.1.0
 	cosmossdk.io/x/upgrade v0.0.0-20230608151552-9b9e319d1abc
