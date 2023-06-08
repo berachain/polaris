@@ -23,8 +23,6 @@ package config
 import (
 	"sync"
 
-	sdkmath "cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/eth/accounts"
@@ -56,7 +54,6 @@ func SetupCosmosConfig() {
 		config := sdk.GetConfig()
 		SetBech32Prefixes(config)
 		SetBip44CoinType(config)
-		RegisterDenoms()
 		config.Seal()
 	})
 }
@@ -72,15 +69,4 @@ func SetBech32Prefixes(config *sdk.Config) {
 func SetBip44CoinType(config *sdk.Config) {
 	config.SetCoinType(accounts.Bip44CoinType)
 	config.SetPurpose(sdk.Purpose)
-}
-
-// RegisterDenoms registers the base and display denominations to the SDK.
-func RegisterDenoms() {
-	if err := sdk.RegisterDenom("bera", sdkmath.LegacyOneDec()); err != nil {
-		panic(err)
-	}
-
-	if err := sdk.RegisterDenom("abera", sdkmath.LegacyNewDecWithPrec(1, accounts.EtherDecimals)); err != nil {
-		panic(err)
-	}
 }

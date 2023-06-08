@@ -1,38 +1,16 @@
-// SPDX-License-Identifier: BUSL-1.1
-//
-// Copyright (C) 2023, Berachain Foundation. All rights reserved.
-// Use of this software is govered by the Business Source License included
-// in the LICENSE file of this repository and at www.mariadb.com/bsl11.
-//
-// ANY USE OF THE LICENSED WORK IN VIOLATION OF THIS LICENSE WILL AUTOMATICALLY
-// TERMINATE YOUR RIGHTS UNDER THIS LICENSE FOR THE CURRENT AND ALL OTHER
-// VERSIONS OF THE LICENSED WORK.
-//
-// THIS LICENSE DOES NOT GRANT YOU ANY RIGHT IN ANY TRADEMARK OR LOGO OF
-// LICENSOR OR ITS AFFILIATES (PROVIDED THAT YOU MAY USE A TRADEMARK OR LOGO OF
-// LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
-//
-// TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
-// AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
-// EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
-// TITLE.
-
-//nolint:nonamedreturns // for now.
-package baseapp
+package simapp
 
 import (
 	"encoding/json"
 	"fmt"
 	"log"
 
-	storetypes "cosmossdk.io/store/types"
-
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	storetypes "cosmossdk.io/store/types"
 
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -40,8 +18,7 @@ import (
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
 // file.
-func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs,
-	modulesToExport []string) (servertypes.ExportedApp, error) {
+func (app *SimApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs, modulesToExport []string) (servertypes.ExportedApp, error) {
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, cmtproto.Header{Height: app.LastBlockHeight()})
 
@@ -53,7 +30,7 @@ func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool, jailA
 		app.prepForZeroHeightGenesis(ctx, jailAllowedAddrs)
 	}
 
-	genState, err := app.ModuleManager.ExportGenesisForModules(ctx, app.AppCodec(), modulesToExport)
+	genState, err := app.ModuleManager.ExportGenesisForModules(ctx, app.appCodec, modulesToExport)
 	if err != nil {
 		return servertypes.ExportedApp{}, err
 	}
@@ -76,9 +53,7 @@ func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool, jailA
 // NOTE zero height genesis is a temporary feature which will be deprecated
 //
 //	in favor of export at a block height
-//
-//nolint:funlen,gocognit // from cosmos-sdk.
-func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
+func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
 	applyAllowedAddrs := false
 
 	// check if there is a allowed address list
@@ -137,18 +112,16 @@ func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowed
 		if err != nil {
 			panic(err)
 		}
-
-		var feePool distributiontypes.FeePool
-		feePool, err = app.DistrKeeper.GetFeePool(ctx)
+		feePool, err := app.DistrKeeper.GetFeePool(ctx)
 		if err != nil {
 			panic(err)
 		}
 		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
-		if err = app.DistrKeeper.SetFeePool(ctx, feePool); err != nil {
+		if err := app.DistrKeeper.SetFeePool(ctx, feePool); err != nil {
 			panic(err)
 		}
 
-		if err = app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator()); err != nil {
+		if err := app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator()); err != nil {
 			panic(err)
 		}
 		return false
@@ -162,12 +135,12 @@ func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowed
 		}
 		delAddr := sdk.MustAccAddressFromBech32(del.DelegatorAddress)
 
-		if err = app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, delAddr, valAddr); err != nil {
+		if err := app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, delAddr, valAddr); err != nil {
 			// never called as BeforeDelegationCreated always returns nil
 			panic(fmt.Errorf("error while incrementing period: %w", err))
 		}
 
-		if err = app.DistrKeeper.Hooks().AfterDelegationModified(ctx, delAddr, valAddr); err != nil {
+		if err := app.DistrKeeper.Hooks().AfterDelegationModified(ctx, delAddr, valAddr); err != nil {
 			// never called as AfterDelegationModified always returns nil
 			panic(fmt.Errorf("error while creating a new delegation period record: %w", err))
 		}
@@ -179,7 +152,7 @@ func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowed
 	/* Handle staking state. */
 
 	// iterate through redelegations, reset creation height
-	app.StakingKeeper.IterateRedelegations(ctx, func(_ int64, red stakingtypes.Redelegation) bool {
+	app.StakingKeeper.IterateRedelegations(ctx, func(_ int64, red stakingtypes.Redelegation) (stop bool) {
 		for i := range red.Entries {
 			red.Entries[i].CreationHeight = 0
 		}
@@ -188,7 +161,7 @@ func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowed
 	})
 
 	// iterate through unbonding delegations, reset creation height
-	app.StakingKeeper.IterateUnbondingDelegations(ctx, func(_ int64, ubd stakingtypes.UnbondingDelegation) bool {
+	app.StakingKeeper.IterateUnbondingDelegations(ctx, func(_ int64, ubd stakingtypes.UnbondingDelegation) (stop bool) {
 		for i := range ubd.Entries {
 			ubd.Entries[i].CreationHeight = 0
 		}

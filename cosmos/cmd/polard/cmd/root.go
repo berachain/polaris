@@ -58,12 +58,10 @@ import (
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
-	"pkg.berachain.dev/polaris/cosmos/runtime"
+	"pkg.berachain.dev/polaris/cosmos/simapp"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmepool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 )
@@ -81,10 +79,7 @@ func NewRootCmd() *cobra.Command {
 		moduleBasicManager module.BasicManager
 	)
 
-	if err := depinject.Inject(depinject.Configs(runtime.AppConfig, depinject.Supply(
-		map[string]module.AppModuleBasic{
-			genutiltypes.ModuleName: genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
-		},
+	if err := depinject.Inject(depinject.Configs(simapp.AppConfig, depinject.Supply(
 		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
 		&interfaceRegistry,
 		&appCodec,
@@ -102,7 +97,7 @@ func NewRootCmd() *cobra.Command {
 		WithLegacyAmino(legacyAmino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
-		WithHomeDir(runtime.DefaultNodeHome).
+		WithHomeDir(simapp.DefaultNodeHome).
 		WithViper(""). // In simapp, we don't use any prefix for env variables.
 		WithKeyringOptions(keyring.EthSecp256k1Option())
 
@@ -239,14 +234,14 @@ func initRootCmd(
 	cfg.Seal()
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, runtime.DefaultNodeHome),
+		genutilcli.InitCmd(basicManager, simapp.DefaultNodeHome),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(newApp),
 		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommands(rootCmd, runtime.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+	server.AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
@@ -254,7 +249,7 @@ func initRootCmd(
 		genesisCommand(txConfig, basicManager),
 		queryCommand(),
 		txCommand(),
-		keys.Commands(runtime.DefaultNodeHome),
+		keys.Commands(simapp.DefaultNodeHome),
 	)
 }
 
@@ -264,7 +259,7 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
 func genesisCommand(txConfig client.TxConfig, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
-	cmd := genutilcli.Commands(txConfig, basicManager, runtime.DefaultNodeHome)
+	cmd := genutilcli.Commands(txConfig, basicManager, simapp.DefaultNodeHome)
 
 	for _, subCmd := range cmds {
 		cmd.AddCommand(subCmd)
@@ -326,7 +321,7 @@ func newApp(
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
-	return runtime.NewPolarisApp(
+	return simapp.NewPolarisApp(
 		logger, db, traceStore, true,
 		appOpts,
 		baseappOptions...,
@@ -360,15 +355,15 @@ func appExport(
 	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
 	appOpts = viperAppOpts
 
-	var simApp *runtime.PolarisApp
+	var simApp *simapp.SimApp
 	if height != -1 {
-		simApp = runtime.NewPolarisApp(logger, db, traceStore, false, appOpts)
+		simApp = simapp.NewPolarisApp(logger, db, traceStore, false, appOpts)
 
 		if err := simApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		simApp = runtime.NewPolarisApp(logger, db, traceStore, true, appOpts)
+		simApp = simapp.NewPolarisApp(logger, db, traceStore, true, appOpts)
 	}
 
 	return simApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
