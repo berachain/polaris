@@ -144,7 +144,6 @@ func NewPolarisApp(
 				logger,
 				// supply the mempool
 				ethTxMempool,
-
 				// ADVANCED CONFIGURATION
 
 				//

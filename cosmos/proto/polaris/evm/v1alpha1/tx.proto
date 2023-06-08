@@ -35,8 +35,12 @@ service MsgService {
 
 // WrappedEthereumTransaction encapsulates an Ethereum transaction as an SDK message.
 message WrappedEthereumTransaction {
+  option (cosmos.msg.v1.signer) = "hacky_fix_cause_cosmos";
   // data is inner transaction data of the Ethereum transaction
   bytes data = 1;
+
+  // hacky_fix_cause_cosmos is required until https://github.com/cosmos/cosmos-sdk/issues/16112 is handled.
+  string hacky_fix_cause_cosmos = 2;
 }
 
 // WrappedEthereumTransactionResult defines the Msg/EthereumTx response type.
