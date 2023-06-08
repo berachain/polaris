@@ -132,9 +132,8 @@ func (p *plugin) Run(
 	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
 	ctx := sdk.UnwrapSDKContext(sdb.GetContext())
 
-	// begin precompile execution => begin emitting Cosmos event as Eth logs
-	cem := utils.MustGetAs[state.ControllableEventManager](ctx.EventManager())
-	cem.BeginPrecompileExecution(sdb)
+	// disable reentrancy into the EVM
+	p.disableReentrancy(sdb)
 
 	// run precompile container
 	ret, err := pc.Run(
@@ -148,8 +147,8 @@ func (p *plugin) Run(
 		readonly,
 	)
 
-	// end precompile execution => stop emitting Cosmos event as Eth logs
-	cem.EndPrecompileExecution()
+	// enable reentrancy into the EVM
+	p.enableReentrancy(sdb)
 
 	// handle overconsumption of gas
 	if gm.GasConsumed() > suppliedGas {
@@ -164,7 +163,10 @@ func (p *plugin) Run(
 //
 // EnableReentrancy implements core.PrecompilePlugin.
 func (p *plugin) EnableReentrancy(evm ethprecompile.EVM) {
-	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
+	p.enableReentrancy(utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB()))
+}
+
+func (p *plugin) enableReentrancy(sdb vm.PolarisStateDB) {
 	sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
 
 	// pause precompile execution => stop emitting Cosmos event as Eth logs for now
@@ -183,7 +185,10 @@ func (p *plugin) EnableReentrancy(evm ethprecompile.EVM) {
 //
 // DisableReentrancy implements core.PrecompilePlugin.
 func (p *plugin) DisableReentrancy(evm ethprecompile.EVM) {
-	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
+	p.disableReentrancy(utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB()))
+}
+
+func (p *plugin) disableReentrancy(sdb vm.PolarisStateDB) {
 	sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
 
 	// resume precompile execution => begin emitting Cosmos event as Eth logs again
