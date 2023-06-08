@@ -1,6 +1,6 @@
 {
   "request":     
-    "{ block { number } }",
+    "{ block(number: 2) { number } }",
 
   "responses": [{
     "data" : {
