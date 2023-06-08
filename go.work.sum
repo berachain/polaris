@@ -233,6 +233,8 @@ cloud.google.com/go/websecurityscanner v1.5.0 h1:AHC1xmaNMOZtNqxI9Rmm87IJEyPaRkO
 cloud.google.com/go/websecurityscanner v1.5.0/go.mod h1:Y6xdCPy81yi0SQnDY1xdNTNpfY1oAgXUlcfN3B3eSng=
 cloud.google.com/go/workflows v1.10.0 h1:FfGp9w0cYnaKZJhUOMqCOJCYT/WlvYBfTQhFWV3sRKI=
 cloud.google.com/go/workflows v1.10.0/go.mod h1:fZ8LmRmZQWacon9UCX1r/g/DfAXx5VcPALq2CxzdePw=
+cosmossdk.io/errors v1.0.0-beta.7.0.20230524212735-6cabb6aa5741 h1:BCRz06fvddw7cKGiEGDiSox3qMsjQ97f92K+PDZDHdc=
+cosmossdk.io/errors v1.0.0-beta.7.0.20230524212735-6cabb6aa5741/go.mod h1:TB05o6YXkZkzsc+6bZFAV5kZRBtoCU9tUkbeMIqEg0w=
 cosmossdk.io/tools/rosetta v0.2.1 h1:ddOMatOH+pbxWbrGJKRAawdBkPYLfKXutK9IETnjYxw=
 cosmossdk.io/x/circuit v0.0.0-20230220112800-f69b9ff58fbe h1:nWBTqYCiv4aLB1iJA+9QwoBYPpgd/GzoyHwmZj6OYmM=
 cosmossdk.io/x/feegrant v0.0.0-20230117113717-50e7c4a4ceff h1:ASeogeTLcf487ykEMTN2z1p/vykpo2HdPkKC7JpE8pE=

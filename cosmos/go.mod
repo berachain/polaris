@@ -3,8 +3,6 @@ module pkg.berachain.dev/polaris/cosmos
 go 1.20
 
 replace (
-	cosmossdk.io/collections => cosmossdk.io/collections v0.2.1-0.20230608151552-9b9e319d1abc
-	cosmossdk.io/errors => cosmossdk.io/errors v1.0.0-beta.7.0.20230608151552-9b9e319d1abc
 	cosmossdk.io/x/evidence => github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230608151552-9b9e319d1abc
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230608151552-9b9e319d1abc
 
