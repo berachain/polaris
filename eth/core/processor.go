@@ -156,6 +156,9 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
 	}
 
+	fmt.Println("TX RECEIPT and RESULT", receipt, result)
+	fmt.Println("receipt status:", receipt.Status)
+
 	// Consume the gas used by the state transition. In both the out of block gas as well as out of
 	// gas on the plugin cases, the line below will consume the remaining gas for the block and
 	// transaction respectively.
@@ -165,8 +168,6 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Update the block information.
 	sp.txs = append(sp.txs, tx)
-	// We set the blockhash to be nil to be safe, since the blockhash isn't fully correct yet.
-	receipt.BlockHash = common.Hash{}
 	sp.receipts = append(sp.receipts, receipt)
 
 	// Return the execution result to the caller.

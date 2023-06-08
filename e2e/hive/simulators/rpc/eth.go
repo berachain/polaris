@@ -90,7 +90,7 @@ var (
 // TransactionReceiptTest sends a transaction and tests the receipt fields.
 func TransactionReceiptTest(t *TestEnv) {
 	var (
-		_ = t.Vault.createAccount(t, big.NewInt(params.Ether))
+		_ = t.Vault.createAccount(t, big.NewInt(params.Wei))
 	)
 
 	// rawTx := types.NewTransaction(uint64(0), common.Address{}, big.NewInt(1), 100000, gasPrice, nil)

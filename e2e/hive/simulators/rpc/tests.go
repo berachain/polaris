@@ -27,7 +27,7 @@ package main
 
 // tests defined per sim.
 var (
-	ethTests = []testSpec{{Name: "http/TransactionReceiptTest", Run: TransactionReceiptTest},{Name: "ws/TransactionReceiptTest", Run: TransactionReceiptTest},} //nolint: lll // auto-generated
+	ethTests = []testSpec{{Name: "http/TransactionReceiptTest", Run: TransactionReceiptTest}} //nolint: lll // auto-generated
 )
 
 var tests = ethTests

@@ -2,6 +2,8 @@ module pkg.berachain.dev/polaris/e2e/hive/simulators/rpc
 
 go 1.20
 
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230530204432-e9a3700deefc
+
 require (
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/ethereum/hive v0.0.0-20230603165725-f64d6ae89ba0
