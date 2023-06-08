@@ -29,7 +29,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
@@ -80,7 +79,7 @@ var (
 	_ precompile.ValueDecoder = ReturnStringAsIs
 )
 
-// ConvertSdkCoins converts the string representation of an `sdk.Coin` to a `[]*generated.IBankModuleCoin`.
+// ConvertSdkCoins converts the string representation of an `sdk.Coins` to a `[]generated.CosmosCoin`.
 //
 // ConvertSdkCoins is a `precompile.ValueDecoder`.
 func ConvertSdkCoins(attributeValue string) (any, error) {
@@ -89,12 +88,7 @@ func ConvertSdkCoins(attributeValue string) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// handle empty string input
-	if coins == nil {
-		return []libgenerated.CosmosCoin{}, nil
-	}
-
+	// convert to geth compatible coins
 	evmCoins := cosmlib.SdkCoinsToEvmCoins(coins)
 	return evmCoins, nil
 }
