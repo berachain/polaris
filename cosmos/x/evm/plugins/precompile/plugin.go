@@ -74,6 +74,24 @@ func NewPlugin(precompiles []ethprecompile.Registrable, sp StatePlugin) Plugin {
 	}
 }
 
+// GetPrecompiles implements core.PrecompilePlugin.
+func (p *plugin) GetPrecompiles(_ *params.Rules) []ethprecompile.Registrable {
+	return p.precompiles
+}
+
+// GetActive implements core.PrecompilePlugin.
+func (p *plugin) GetActive(rules *params.Rules) []common.Address {
+	defaults := ethprecompile.GetDefaultPrecompiles(rules)
+	active := make([]common.Address, len(p.precompiles)+len(defaults))
+	for i, pc := range p.precompiles {
+		active[i] = pc.RegistryKey()
+	}
+	for i, pc := range defaults {
+		active[i+len(p.precompiles)] = pc.RegistryKey()
+	}
+	return active
+}
+
 // KVGasConfig implements Plugin.
 func (p *plugin) KVGasConfig() storetypes.GasConfig {
 	return p.kvGasConfig
@@ -92,24 +110,6 @@ func (p *plugin) TransientKVGasConfig() storetypes.GasConfig {
 // SetTransientKVGasConfig implements Plugin.
 func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConfig) {
 	p.transientKVGasConfig = transientKVGasConfig
-}
-
-// GetPrecompiles implements core.PrecompilePlugin.
-func (p *plugin) GetPrecompiles(_ *params.Rules) []ethprecompile.Registrable {
-	return p.precompiles
-}
-
-// GetActive implements core.PrecompilePlugin.
-func (p *plugin) GetActive(rules *params.Rules) []common.Address {
-	defaults := ethprecompile.GetDefaultPrecompiles(rules)
-	active := make([]common.Address, len(p.precompiles)+len(defaults))
-	for i, pc := range p.precompiles {
-		active[i] = pc.RegistryKey()
-	}
-	for i, pc := range defaults {
-		active[i+len(p.precompiles)] = pc.RegistryKey()
-	}
-	return active
 }
 
 // Run runs the a precompile container and returns the remaining gas after execution by injecting
