@@ -31,13 +31,15 @@ func AccAddressToEthAddress(accAddress sdk.AccAddress) common.Address {
 	return common.BytesToAddress(accAddress)
 }
 
-// EthAddressFromBEch32 converts a Bech32 string to an Ethereum `Address`.
+// EthAddressFromBech32 converts a Bech32 string to an Ethereum `Address`.
+// Note: Do NOT use for val or cons address.
 func EthAddressFromBech32(bech32Str string) common.Address {
 	addrBech32, _ := sdk.AccAddressFromBech32(bech32Str)
 	return AccAddressToEthAddress(addrBech32)
 }
 
-// EthAddressFromBEch32 converts Ethereum `Address` to a Bech32 string.
+// Bech32FromEthAddress converts Ethereum `Address` to a Bech32 string.
+// Note: Do NOT use for val or cons address.
 func Bech32FromEthAddress(ethAddr common.Address) string {
 	return AddressToAccAddress(ethAddr).String()
 }
