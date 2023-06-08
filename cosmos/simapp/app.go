@@ -146,7 +146,7 @@ func NewPolarisApp(
 				// supply the mempool
 				ethTxMempool,
 				// ADVANCED CONFIGURATION
-
+				PrecompilesToInject(app),
 				//
 				// AUTH
 				//
