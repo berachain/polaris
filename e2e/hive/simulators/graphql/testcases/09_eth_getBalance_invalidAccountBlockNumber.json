@@ -1,9 +1,13 @@
 {
-  "request": "{block (number: 25) {account(address: \"0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef\") { balance } }}",
+  "request": "{block (number: 2) {account(address: \"0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef\") { balance } }}",
   "responses": [
     {
       "data": {
-        "block": null
+        "block": {
+          "account": {
+            "balance": "0x0"
+          }
+        }
       }
     }
   ],

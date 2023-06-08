@@ -1,9 +1,11 @@
 {
-  "request": "{ block(number: 30) { transactionAt(index: 0) {block{hash}  hash} } }",
+  "request": "{ block(number: 2) { transactionAt(index: 0) {block{hash}  hash} } }",
   "responses": [
     {
       "data": {
-        "block": null 
+        "block": {
+          "transactionAt": null
+        }
       }
     }
   ],
