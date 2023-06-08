@@ -333,13 +333,22 @@ func (bc *blockchain) GetTd(hash common.Hash, number uint64) *big.Int {
 
 // readLastState retrieves the last state of the blockchain (block, receipts, logs) from the
 // host chain and loads it into the blockchain as current state.
-func (bc *blockchain) readLastState(latestHeight uint64) {
+func (bc *blockchain) readLastState(currentHeight uint64) {
 	// load current/finalized block
 	if bc.currentBlock.Load() == nil || bc.finalizedBlock.Load() == nil {
+		// for any height other than genesis (0), load the previous block information
+		latestHeight := currentHeight
+		if latestHeight > 0 {
+			latestHeight -= 1
+		}
+
+		// get the corresponding header and store the block
 		header := bc.GetHeaderByNumber(latestHeight)
 		if header == nil {
 			panic("readLastState: failed to get last known header from host chain")
 		}
+		// NOTE: We do not store the receipts and txs here because we may not have them via the
+		// historical plugin.
 		block := types.NewBlock(header, nil, nil, nil, trie.NewStackTrie(nil))
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
