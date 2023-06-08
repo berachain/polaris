@@ -128,7 +128,7 @@ func NewRootCmd() *cobra.Command {
 
 			// Add a custom sign mode handler for ethereum transactions.
 			txConfigOpts.CustomSignModes = []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
-			txConfigWithTextual := tx.NewTxConfigWithOptions(
+			txConfigWithTextual, err := tx.NewTxConfigWithOptions(
 				codec.NewProtoCodec(interfaceRegistry),
 				txConfigOpts,
 			)
