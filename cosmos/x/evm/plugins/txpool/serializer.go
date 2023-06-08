@@ -57,7 +57,9 @@ func SerializeToSdkTx(
 	// Create the WrappedEthereumTransaction message.
 	wrappedEthTx := types.NewFromTransaction(signedTx)
 
-	// fuck cosmos: https://github.com/cosmos/cosmos-sdk/pull/16340/files
+	// fuck cosmos on god fr fr: https://github.com/cosmos/cosmos-sdk/pull/16340/files
+	// https://github.com/cosmos/cosmos-sdk/issues/16112
+	// this signer change should be reverted imo.
 	wrappedEthTx.HackyFixCauseCosmos, err = sdk.Bech32ifyAddressBytes(
 		sdk.GetConfig().GetBech32AccountAddrPrefix(), pk.Address())
 	if err != nil {
