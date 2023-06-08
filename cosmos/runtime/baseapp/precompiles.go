@@ -21,6 +21,7 @@
 package baseapp
 
 import (
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -40,7 +41,9 @@ func PrecompilesToInject(app *PolarisBaseApp, customPcs ...ethprecompile.Registr
 	return func() *ethprecompile.Injector {
 		// Create the precompile injector with the standard precompiles.
 		pcs := ethprecompile.NewPrecompiles([]ethprecompile.Registrable{
-			authprecompile.NewPrecompileContract(app.AuthzKeeper, app.AuthzKeeper),
+			authprecompile.NewPrecompileContract(
+				authkeeper.NewQueryServer(app.AccountKeeper), app.AuthzKeeper, app.AuthzKeeper,
+			),
 			bankprecompile.NewPrecompileContract(
 				bankkeeper.NewMsgServerImpl(app.BankKeeper),
 				app.BankKeeper,

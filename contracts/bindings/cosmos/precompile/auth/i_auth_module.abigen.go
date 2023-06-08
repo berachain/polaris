@@ -35,9 +35,17 @@ type CosmosCoin struct {
 	Denom  string
 }
 
+// IAuthModuleBaseAccount is an auto generated low-level Go binding around an user-defined struct.
+type IAuthModuleBaseAccount struct {
+	Addr          common.Address
+	PubKey        []byte
+	AccountNumber uint64
+	Sequence      uint64
+}
+
 // AuthModuleMetaData contains all meta data concerning the AuthModule contract.
 var AuthModuleMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"account\",\"type\":\"string\"}],\"name\":\"convertBech32ToHexAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"convertHexToBech32\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSendAllowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"expiration\",\"type\":\"uint256\"}],\"name\":\"setSendAllowance\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"account\",\"type\":\"string\"}],\"name\":\"convertBech32ToHexAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"convertHexToBech32\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"account\",\"type\":\"string\"}],\"name\":\"getAccountInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"pubKey\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"accountNumber\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"sequence\",\"type\":\"uint64\"}],\"internalType\":\"structIAuthModule.BaseAccount\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"getAccountInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"pubKey\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"accountNumber\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"sequence\",\"type\":\"uint64\"}],\"internalType\":\"structIAuthModule.BaseAccount\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSendAllowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"expiration\",\"type\":\"uint256\"}],\"name\":\"setSendAllowance\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // AuthModuleABI is the input ABI used to generate the binding from.
@@ -246,6 +254,68 @@ func (_AuthModule *AuthModuleSession) ConvertHexToBech32(account common.Address)
 // Solidity: function convertHexToBech32(address account) view returns(string)
 func (_AuthModule *AuthModuleCallerSession) ConvertHexToBech32(account common.Address) (string, error) {
 	return _AuthModule.Contract.ConvertHexToBech32(&_AuthModule.CallOpts, account)
+}
+
+// GetAccountInfo is a free data retrieval call binding the contract method 0x6e39f8db.
+//
+// Solidity: function getAccountInfo(string account) view returns((address,bytes,uint64,uint64))
+func (_AuthModule *AuthModuleCaller) GetAccountInfo(opts *bind.CallOpts, account string) (IAuthModuleBaseAccount, error) {
+	var out []interface{}
+	err := _AuthModule.contract.Call(opts, &out, "getAccountInfo", account)
+
+	if err != nil {
+		return *new(IAuthModuleBaseAccount), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(IAuthModuleBaseAccount)).(*IAuthModuleBaseAccount)
+
+	return out0, err
+
+}
+
+// GetAccountInfo is a free data retrieval call binding the contract method 0x6e39f8db.
+//
+// Solidity: function getAccountInfo(string account) view returns((address,bytes,uint64,uint64))
+func (_AuthModule *AuthModuleSession) GetAccountInfo(account string) (IAuthModuleBaseAccount, error) {
+	return _AuthModule.Contract.GetAccountInfo(&_AuthModule.CallOpts, account)
+}
+
+// GetAccountInfo is a free data retrieval call binding the contract method 0x6e39f8db.
+//
+// Solidity: function getAccountInfo(string account) view returns((address,bytes,uint64,uint64))
+func (_AuthModule *AuthModuleCallerSession) GetAccountInfo(account string) (IAuthModuleBaseAccount, error) {
+	return _AuthModule.Contract.GetAccountInfo(&_AuthModule.CallOpts, account)
+}
+
+// GetAccountInfo0 is a free data retrieval call binding the contract method 0x7b510fe8.
+//
+// Solidity: function getAccountInfo(address account) view returns((address,bytes,uint64,uint64))
+func (_AuthModule *AuthModuleCaller) GetAccountInfo0(opts *bind.CallOpts, account common.Address) (IAuthModuleBaseAccount, error) {
+	var out []interface{}
+	err := _AuthModule.contract.Call(opts, &out, "getAccountInfo0", account)
+
+	if err != nil {
+		return *new(IAuthModuleBaseAccount), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(IAuthModuleBaseAccount)).(*IAuthModuleBaseAccount)
+
+	return out0, err
+
+}
+
+// GetAccountInfo0 is a free data retrieval call binding the contract method 0x7b510fe8.
+//
+// Solidity: function getAccountInfo(address account) view returns((address,bytes,uint64,uint64))
+func (_AuthModule *AuthModuleSession) GetAccountInfo0(account common.Address) (IAuthModuleBaseAccount, error) {
+	return _AuthModule.Contract.GetAccountInfo0(&_AuthModule.CallOpts, account)
+}
+
+// GetAccountInfo0 is a free data retrieval call binding the contract method 0x7b510fe8.
+//
+// Solidity: function getAccountInfo(address account) view returns((address,bytes,uint64,uint64))
+func (_AuthModule *AuthModuleCallerSession) GetAccountInfo0(account common.Address) (IAuthModuleBaseAccount, error) {
+	return _AuthModule.Contract.GetAccountInfo0(&_AuthModule.CallOpts, account)
 }
 
 // GetSendAllowance is a free data retrieval call binding the contract method 0xfbdb0e87.
