@@ -120,6 +120,8 @@ func init() {
 }
 
 // NewPolarisApp returns a reference to an initialized SimApp.
+//
+//nolint:funlun // from sdk.
 func NewPolarisApp(
 	logger log.Logger,
 	db dbm.DB,
@@ -275,7 +277,8 @@ func NewPolarisApp(
 	// NOTE: this is not required apps that don't use the simulator for fuzz testing
 	// transactions
 	overrideModules := map[string]module.AppModuleSimulation{
-		authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
+		authtypes.ModuleName: auth.NewAppModule(app.appCodec,
+			app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
 	}
 	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
 
@@ -372,6 +375,7 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
+	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
 }
 
 // GetMaccPerms returns a copy of the module account permissions

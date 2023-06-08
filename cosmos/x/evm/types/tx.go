@@ -25,13 +25,20 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"cosmossdk.io/x/tx/signing"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/txpool"
-
+	"google.golang.org/protobuf/proto"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
+
+var _ signing.GetSignersFunc = GetEthereumSigner
+
+func GetEthereumSigner(proto.Message) ([][]byte, error) {
+	return nil, errors.New("not implemented")
+}
 
 // WrappedEthereumTransaction defines a Cosmos SDK message for Ethereum transactions.
 var _ sdk.Msg = (*WrappedEthereumTransaction)(nil)

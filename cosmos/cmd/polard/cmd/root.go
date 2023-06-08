@@ -65,6 +65,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/simapp"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmepool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
@@ -80,8 +81,17 @@ func NewRootCmd() *cobra.Command {
 		moduleBasicManager module.BasicManager
 	)
 
+	x := []signing.CustomGetSigner{
+		{
+			MsgType: "polaris.evm.v1alpha1.WrappedEthereumTransaction",
+			Fn:      evmtypes.GetEthereumSigner,
+		},
+	}
+
+	o
+
 	if err := depinject.Inject(depinject.Configs(simapp.AppConfig, depinject.Supply(
-		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
+		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger(), x)),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,
@@ -131,6 +141,10 @@ func NewRootCmd() *cobra.Command {
 
 			// Add a custom sign mode handler for ethereum transactions.
 			txConfigOpts.CustomSignModes = []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
+			txConfigOpts.SigningOptions.DefineCustomGetSigners(
+				"polaris.evm.v1alpha1.WrappedEthereumTransaction",
+				evmtypes.GetEthereumSigner,
+			)
 			txConfigWithTextual, err := tx.NewTxConfigWithOptions(
 				codec.NewProtoCodec(interfaceRegistry),
 				txConfigOpts,
@@ -232,8 +246,8 @@ lru_size = 0`
 func initRootCmd(
 	rootCmd *cobra.Command,
 	txConfig client.TxConfig,
-	interfaceRegistry codectypes.InterfaceRegistry,
-	appCodec codec.Codec,
+	_ codectypes.InterfaceRegistry,
+	_ codec.Codec,
 	basicManager module.BasicManager,
 ) {
 	cfg := sdk.GetConfig()
