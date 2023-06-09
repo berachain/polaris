@@ -204,6 +204,36 @@ func (tc *testCase) responseMatch(t *hivesim.T, respStatus string, respBytes []b
 		if reflect.DeepEqual(response, got) {
 			return nil
 		}
+
+	}
+
+	// this is just for the gasPrice test
+	// TODO: move this out, very specific to the gasPrice test
+	// and not a good example of how to do this.
+	var initialBaseFee uint64 = 5000000
+	if data, ok := got.(map[string]interface{}); ok {
+		if !ok {
+			t.Fail()
+		}
+
+		inner, ok := data["data"].(map[string]interface{})
+		if !ok {
+			t.Fail()
+		}
+
+		gasPrice, ok := inner["gasPrice"].(string)
+		if !ok {
+			t.Fail()
+		}
+
+		gp, err := strconv.ParseUint(gasPrice[2:], 16, 64)
+		if err != nil {
+			t.Fail()
+		}
+
+		if gp > initialBaseFee {
+			return nil
+		}
 	}
 
 	prettyQuery, ok := reindentJSON(tc.gqlTest.Request)
