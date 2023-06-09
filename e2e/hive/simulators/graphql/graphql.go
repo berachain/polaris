@@ -266,7 +266,6 @@ func assertGasPrice(t *hivesim.T, got interface{}) error {
 		}
 
 		if gp > initialBaseFee {
-			fmt.Println("bro we should be hitting this")
 			return nil
 		}
 	}
