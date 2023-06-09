@@ -206,11 +206,6 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 
 // GetBlock retrieves a block from the database by hash and number, caching it if found.
 func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
-	// return the genesis block if querying block 0
-	if number == 0 {
-		return types.NewBlockWithHeader(bc.genesisBlock.Header())
-	}
-
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
 		bc.blockHashCache.Add(block.Hash(), block)
