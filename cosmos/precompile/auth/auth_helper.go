@@ -22,14 +22,17 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"math/big"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // setSendAllowanceHelper is the helper method to call the grant method on the msgServer, with a
@@ -102,4 +105,24 @@ func (c *Contract) getSendAllownaceHelper(
 	allowance := getHighestAllowance(sendAuths, coinDenom)
 
 	return []any{allowance}, nil
+}
+
+// acc must be the bech32 encoded address.
+func (c *Contract) accountInfoHelper(
+	ctx context.Context,
+	acc string,
+) ([]any, error) {
+	res, err := c.authQueryServer.Account(ctx, &authtypes.QueryAccountRequest{
+		Address: acc,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	account, ok := utils.GetAs[sdk.AccountI](res.GetAccount().GetCachedValue())
+	if !ok {
+		return nil, errors.New("invalid SDK account type")
+	}
+
+	return []any{cosmlib.SdkAccountToAuthAccount(account)}, nil
 }

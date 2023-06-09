@@ -24,6 +24,7 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/consensus/misc"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -62,25 +63,21 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	bc.logger.Info("Preparing block", "number", number, "coinbase", coinbase.Hex(), "timestamp", timestamp)
 
 	// Build the new block header.
-	var parentHash common.Hash
-	if number > 1 {
-		parent, err := bc.bp.GetHeaderByNumber(number - 1)
-		if err != nil {
-			panic(err)
-		}
-		parentHash = parent.Hash()
+	parent := bc.CurrentFinalBlock()
+	if number >= 1 && parent == nil {
+		parent = bc.GetHeaderByNumber(number - 1)
 	}
 
 	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
 	// and block nonce (Nonce) on the new header.
 	header := &types.Header{
 		// Used in Polaris.
-		ParentHash: parentHash,
+		ParentHash: parent.Hash(),
 		Coinbase:   coinbase,
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
-		BaseFee:    bc.CalculateNextBaseFee(),
+		BaseFee:    misc.CalcBaseFee(bc.Config(), parent),
 
 		// Not used in Polaris at the moment, but we set them to prevent nil ptr panic.
 		Difficulty: new(big.Int),

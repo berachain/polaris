@@ -21,10 +21,43 @@
 package historical
 
 import (
+	storetypes "cosmossdk.io/store/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/eth/core/mock"
+
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Historical Plugin", func() {
+	var (
+		p   *plugin
+		ctx sdk.Context
+	)
+
+	BeforeEach(func() {
+		ctx = testutil.NewContext()
+		p = &plugin{
+			ctx:              ctx,
+			bp:               mock.NewBlockPluginMock(),
+			storeKey:         storetypes.NewKVStoreKey("evm"),
+			offchainStoreKey: storetypes.NewKVStoreKey("offchain-evm"),
+		}
+	})
+
+	Context("After Genesis", func() {
+		When("BlockByNumber is called on block 0", func() {
+			It("should return the header without error", func() {
+				block, err := p.GetBlockByNumber(0)
+				Expect(err).ToNot(HaveOccurred())
+				header := block.Header()
+				Expect(header).ToNot(BeNil()) // mock header
+			})
+		})
+	})
 
 	// It("should get the header at current height", func() {
 	// 	header, err := p.GetHeaderByNumber(ctx.BlockHeight())

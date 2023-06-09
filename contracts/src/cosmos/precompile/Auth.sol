@@ -42,6 +42,16 @@ interface IAuthModule {
     function convertBech32ToHexAddress(string calldata account) external view returns (address);
 
     /**
+     * @dev Returns the base account information for the given account address.
+     */
+    function getAccountInfo(address account) external view returns (BaseAccount memory);
+
+    /**
+     * @dev Returns the base account information for the given account address (bech32 encoded).
+     */
+    function getAccountInfo(string calldata account) external view returns (BaseAccount memory);
+
+    /**
      * @dev setSendAllowance sets the send authorization (allowance) between owner and spender.
      * @param owner the account approving the allowance
      * @param spender the account being granted the allowance
@@ -60,4 +70,16 @@ interface IAuthModule {
      * @param denom the denomination of the Coin that was allowed
      */
     function getSendAllowance(address owner, address spender, string calldata denom) external view returns (uint256);
+
+    //////////////////////////////////////////// UTILS ////////////////////////////////////////////
+
+    /**
+     * @dev Represents a Cosmos base account.
+     */
+    struct BaseAccount {
+        address addr; // equivalent to the Address field of authtypes.BaseAccount
+        bytes pubKey;
+        uint64 accountNumber;
+        uint64 sequence; // represents account nonce
+    }
 }

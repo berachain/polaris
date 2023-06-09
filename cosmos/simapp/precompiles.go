@@ -18,9 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package baseapp
+package simapp
 
 import (
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -36,11 +37,13 @@ import (
 
 // PrecompilesToInject returns a function that provides the initialization of the standard
 // set of precompiles.
-func PrecompilesToInject(app *PolarisBaseApp, customPcs ...ethprecompile.Registrable) func() *ethprecompile.Injector {
+func PrecompilesToInject(app *SimApp, customPcs ...ethprecompile.Registrable) func() *ethprecompile.Injector {
 	return func() *ethprecompile.Injector {
 		// Create the precompile injector with the standard precompiles.
 		pcs := ethprecompile.NewPrecompiles([]ethprecompile.Registrable{
-			authprecompile.NewPrecompileContract(app.AuthzKeeper, app.AuthzKeeper),
+			authprecompile.NewPrecompileContract(
+				authkeeper.NewQueryServer(app.AccountKeeper), app.AuthzKeeper, app.AuthzKeeper,
+			),
 			bankprecompile.NewPrecompileContract(
 				bankkeeper.NewMsgServerImpl(app.BankKeeper),
 				app.BankKeeper,

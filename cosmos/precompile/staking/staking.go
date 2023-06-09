@@ -120,6 +120,26 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			AbiSig:  "getActiveValidators()",
 			Execute: c.GetActiveValidators,
 		},
+		{
+			AbiSig:  "getValidators()",
+			Execute: c.GetValidators,
+		},
+		{
+			AbiSig:  "getValidator(address)",
+			Execute: c.GetValidatorAddrInput,
+		},
+		{
+			AbiSig:  "getValidator(string)",
+			Execute: c.GetValidatorStringInput,
+		},
+		{
+			AbiSig:  "getDelegatorValidators(address)",
+			Execute: c.GetDelegatorValidatorsAddrInput,
+		},
+		{
+			AbiSig:  "getDelegatorValidators(string)",
+			Execute: c.GetDelegatorValidatorsStringInput,
+		},
 	}
 }
 
@@ -518,4 +538,84 @@ func (c *Contract) GetActiveValidators(
 	_ ...any,
 ) ([]any, error) {
 	return c.activeValidatorsHelper(ctx)
+}
+
+// GetValidators implements the `getValidators()` method.
+func (c *Contract) GetValidators(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	_ ...any,
+) ([]any, error) {
+	return c.validatorsHelper(ctx)
+}
+
+// GetValidators implements the `getValidator(address)` method.
+func (c *Contract) GetValidatorAddrInput(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	val, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+
+	return c.validatorHelper(ctx, sdk.ValAddress(val[:]).String())
+}
+
+// GetValidators implements the `getValidator(string)` method.
+func (c *Contract) GetValidatorStringInput(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	valBech32, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+
+	return c.validatorHelper(ctx, valBech32)
+}
+
+// GetDelegatorValidatorsAddrInput implements the `getDelegatorValidators(address)` method.
+func (c *Contract) GetDelegatorValidatorsAddrInput(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	del, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidHexAddress
+	}
+
+	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(del))
+}
+
+// GetDelegatorValidatorsStringInput implements the `getDelegatorValidators(string)` method.
+func (c *Contract) GetDelegatorValidatorsStringInput(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	delBech32, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+
+	return c.delegatorValidatorsHelper(ctx, delBech32)
 }

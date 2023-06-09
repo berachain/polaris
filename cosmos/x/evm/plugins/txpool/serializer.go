@@ -49,12 +49,19 @@ func (p *plugin) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, erro
 	if err != nil {
 		return nil, err
 	}
-
 	pk := ethsecp256k1.PubKey{Key: pkBz}
 
 	// Create the WrappedEthereumTransaction message.
 	wrappedEthTx := types.NewFromTransaction(signedTx)
 
+	// fuck cosmos on god fr fr: https://github.com/cosmos/cosmos-sdk/pull/16340/files
+	// https://github.com/cosmos/cosmos-sdk/issues/16112
+	// this signer change should be reverted imo.
+	wrappedEthTx.HackyFixCauseCosmos, err = sdk.Bech32ifyAddressBytes(
+		sdk.GetConfig().GetBech32AccountAddrPrefix(), pk.Address())
+	if err != nil {
+		return nil, err
+	}
 	sig, err := wrappedEthTx.GetSignature()
 	if err != nil {
 		return nil, err

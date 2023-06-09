@@ -38,28 +38,33 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
+// requiredGas is the amount required to convert between eth addresses and bech32 cosmos addresses.
 const requiredGas = 1000
 
 // Contract is the precompile contract for the auth(z) module.
 type Contract struct {
 	ethprecompile.BaseContract
 
-	msgServer   authz.MsgServer
-	queryServer authz.QueryServer
+	authQueryServer authtypes.QueryServer
+	msgServer       authz.MsgServer
+	queryServer     authz.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the auth(z) module precompile contract. Uses the
 // auth module's account address as the contract address.
-func NewPrecompileContract(m authz.MsgServer, q authz.QueryServer) *Contract {
+func NewPrecompileContract(
+	authQueryServer authtypes.QueryServer,
+	authzMsgServer authz.MsgServer,
+	authzQueryServer authz.QueryServer,
+) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.AuthModuleMetaData.ABI,
-			cosmlib.AccAddressToEthAddress(
-				authtypes.NewModuleAddress(authtypes.ModuleName),
-			),
+			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(authtypes.ModuleName)),
 		),
-		msgServer:   m,
-		queryServer: q,
+		authQueryServer: authQueryServer,
+		msgServer:       authzMsgServer,
+		queryServer:     authzQueryServer,
 	}
 }
 
@@ -83,6 +88,14 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 		{
 			AbiSig:  "getSendAllowance(address,address,string)",
 			Execute: c.GetSendAllowance,
+		},
+		{
+			AbiSig:  "getAccountInfo(address)",
+			Execute: c.GetAccountInfoAddrInput,
+		},
+		{
+			AbiSig:  "getAccountInfo(string)",
+			Execute: c.GetAccountInfoStringInput,
 		},
 	}
 }
@@ -226,4 +239,36 @@ func getHighestAllowance(sendAuths []*banktypes.SendAuthorization, coinDenom str
 		}
 	}
 	return max
+}
+
+// GetAccountInfoAddrInput implements `getAccountInfo(address)`.
+func (c *Contract) GetAccountInfoAddrInput(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	acc, ok := utils.GetAs[common.Address](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+	return c.accountInfoHelper(ctx, cosmlib.Bech32FromEthAddress(acc))
+}
+
+// GetAccountInfoStringInput implements `getAccountInfo(string)`.
+func (c *Contract) GetAccountInfoStringInput(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	acc, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, precompile.ErrInvalidString
+	}
+	return c.accountInfoHelper(ctx, acc)
 }

@@ -43,24 +43,10 @@ func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Conte
 //
 // GetHeaderByNumber implements core.BlockPlugin.
 func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
-	if p.getQueryContext == nil {
-		return nil, errors.New("GetHeader: getQueryContext is nil")
-	}
-
-	// TODO: ensure we aren't differing from geth / hiding errors here.
-	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
-	// Investigate and hopefully remove this GTE.
-	if number > uint64(p.ctx.BlockHeight()) {
-		number = uint64(p.ctx.BlockHeight())
-	}
-
-	ctx, err := p.getQueryContext(int64(number), false)
+	bz, err := p.readHeaderBytes(number)
 	if err != nil {
-		return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
+		return nil, err
 	}
-
-	// Unmarshal the header from the context kv store.
-	bz := ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey})
 	if bz == nil {
 		return nil, errors.New("GetHeader: polaris header not found in kvstore")
 	}
@@ -79,12 +65,57 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 	return header, nil
 }
 
-// SetHeader saves a block to the store.
+// StoreHeader implements core.BlockPlugin.
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
 	bz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
 	}
-	p.ctx.KVStore(p.storekey).Set([]byte{types.HeaderKey}, bz)
+	p.ctx.KVStore(p.storekey).Set(p.getKeyForBlockNumber(header.Number.Uint64()), bz)
 	return nil
+}
+
+// getKeyForBlockNumber returns the genesis header key if the requested block number is 0. In all
+// other cases, the regular header key is returned.
+func (p *plugin) getKeyForBlockNumber(number uint64) []byte {
+	key := types.HeaderKey
+	if number == 0 {
+		key = types.GenesisHeaderKey
+	}
+	return []byte{key}
+}
+
+// readHeaderBytes reads the header at the given height, using the plugin's query context for
+// non-genesis blocks.
+func (p *plugin) readHeaderBytes(number uint64) ([]byte, error) {
+	// if number requested is 0, get the genesis block header
+	if number == 0 {
+		return p.readGenesisHeaderBytes(), nil
+	}
+
+	// try fetching the query context for a historical block header
+	if p.getQueryContext == nil {
+		return nil, errors.New("GetHeader: getQueryContext is nil")
+	}
+
+	// TODO: ensure we aren't differing from geth / hiding errors here.
+	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
+	// Investigate and hopefully remove this GTE.
+	if number > uint64(p.ctx.BlockHeight()) {
+		// cannot retrieve future block header
+		number = uint64(p.ctx.BlockHeight())
+	}
+
+	ctx, err := p.getQueryContext(int64(number), false)
+	if err != nil {
+		return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
+	}
+
+	// Unmarshal the header at IAVL height from its context kv store.
+	return ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey}), nil
+}
+
+// readGenesisHeaderBytes returns the header bytes at the genesis key.
+func (p *plugin) readGenesisHeaderBytes() []byte {
+	return p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderKey})
 }
