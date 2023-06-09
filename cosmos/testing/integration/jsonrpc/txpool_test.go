@@ -50,7 +50,7 @@ var _ = Describe("Tx Pool", func() {
 		Expect(tf.Network.WaitForNextBlock()).To(Succeed())
 	})
 
-	FIt("should handle txpool requests: pending nonce", func() {
+	It("should handle txpool requests: pending nonce", func() {
 		aliceCurrNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(aliceCurrNonce).To(BeNumerically(">=", 2))

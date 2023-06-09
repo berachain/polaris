@@ -23,10 +23,6 @@ package types
 import (
 	"errors"
 
-	"google.golang.org/protobuf/proto"
-
-	"cosmossdk.io/x/tx/signing"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/core"
@@ -36,12 +32,6 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
-
-var _ signing.GetSignersFunc = GetEthereumSigner
-
-func GetEthereumSigner(proto.Message) ([][]byte, error) {
-	return nil, nil
-}
 
 // WrappedEthereumTransaction defines a Cosmos SDK message for Ethereum transactions.
 var _ sdk.Msg = (*WrappedEthereumTransaction)(nil)
