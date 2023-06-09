@@ -16,8 +16,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/hive/hivesim"
-	"pkg.berachain.dev/polaris/eth/params"
 )
 
 func main() {
