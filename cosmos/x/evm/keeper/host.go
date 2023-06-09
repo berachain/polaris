@@ -24,7 +24,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
@@ -38,7 +37,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Compile-time interface assertion.
@@ -74,7 +72,7 @@ type host struct {
 func NewHost(
 	storeKey storetypes.StoreKey,
 	sk block.StakingKeeper,
-	ethTxMempool sdkmempool.Mempool,
+	ethTxMempool *mempool.WrappedGethTxPool,
 	precompiles func() *ethprecompile.Injector,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
@@ -84,7 +82,7 @@ func NewHost(
 	h.bp = block.NewPlugin(storeKey, sk)
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
-	h.txp = txpool.NewPlugin(h.cp, utils.MustGetAs[*mempool.WrappedGethTxPool](ethTxMempool))
+	h.txp = txpool.NewPlugin(h.cp, ethTxMempool)
 	h.pcs = precompiles
 
 	return h

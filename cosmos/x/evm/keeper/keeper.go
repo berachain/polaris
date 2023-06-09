@@ -26,11 +26,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
@@ -56,7 +56,7 @@ func NewKeeper(
 	sk block.StakingKeeper,
 	storeKey storetypes.StoreKey,
 	authority string,
-	ethTxMempool sdkmempool.Mempool,
+	ethTxMempool *mempool.WrappedGethTxPool,
 	pcs func() *ethprecompile.Injector,
 ) *Keeper {
 	// We setup the keeper with some Cosmos standard sauce.

@@ -25,12 +25,12 @@ import (
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
 
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	modulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
+	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
@@ -49,7 +49,7 @@ type DepInjectInput struct {
 	Config    *modulev1alpha1.Module
 	Key       *store.KVStoreKey
 
-	Mempool           sdkmempool.Mempool
+	Mempool           *evmmempool.WrappedGethTxPool  `optional:"true"`
 	CustomPrecompiles func() *ethprecompile.Injector `optional:"true"`
 
 	AccountKeeper AccountKeeper
