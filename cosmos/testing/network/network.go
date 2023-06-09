@@ -47,6 +47,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	runtime "pkg.berachain.dev/polaris/cosmos/runtime"
 	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
+	"pkg.berachain.dev/polaris/cosmos/simapp"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -115,7 +116,7 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 		InterfaceRegistry: encoding.InterfaceRegistry,
 		AccountRetriever:  authtypes.AccountRetriever{},
 		AppConstructor: func(val network.ValidatorI) servertypes.Application {
-			return runtime.NewPolarisApp(
+			return simapp.NewPolarisApp(
 				val.GetCtx().Logger, cdb.NewMemDB(), nil, true, sims.EmptyAppOptions{},
 				baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.GetAppConfig().Pruning)),
 				baseapp.SetMinGasPrices(val.GetAppConfig().MinGasPrices),

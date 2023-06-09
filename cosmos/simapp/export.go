@@ -18,8 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-//nolint:nonamedreturns // for now.
-package baseapp
+package simapp
 
 import (
 	"encoding/json"
@@ -32,7 +31,6 @@ import (
 
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -40,10 +38,10 @@ import (
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
 // file.
-func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs,
-	modulesToExport []string) (servertypes.ExportedApp, error) {
+func (app *SimApp) ExportAppStateAndValidators(forZeroHeight bool,
+	jailAllowedAddrs, modulesToExport []string) (servertypes.ExportedApp, error) {
 	// as if they could withdraw from the start of the next block
-	ctx := app.NewContext(true, cmtproto.Header{Height: app.LastBlockHeight()})
+	ctx := app.NewContext(true).WithBlockHeader(cmtproto.Header{Height: app.LastBlockHeight()})
 
 	// We export at last height + 1, because that's the height at which
 	// CometBFT will start InitChain.
@@ -53,7 +51,7 @@ func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool, jailA
 		app.prepForZeroHeightGenesis(ctx, jailAllowedAddrs)
 	}
 
-	genState, err := app.ModuleManager.ExportGenesisForModules(ctx, app.AppCodec(), modulesToExport)
+	genState, err := app.ModuleManager.ExportGenesisForModules(ctx, app.appCodec, modulesToExport)
 	if err != nil {
 		return servertypes.ExportedApp{}, err
 	}
@@ -77,8 +75,8 @@ func (app *PolarisBaseApp) ExportAppStateAndValidators(forZeroHeight bool, jailA
 //
 //	in favor of export at a block height
 //
-//nolint:funlen,gocognit // from cosmos-sdk.
-func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
+//nolint:funlen,gocognit // from sdk.
+func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
 	applyAllowedAddrs := false
 
 	// check if there is a allowed address list
@@ -102,7 +100,7 @@ func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowed
 	/* Handle fee distribution state. */
 
 	// withdraw all validator commission
-	app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
+	app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) bool {
 		_, _ = app.DistrKeeper.WithdrawValidatorCommission(ctx, val.GetOperator())
 		return false
 	})
@@ -131,20 +129,18 @@ func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowed
 	ctx = ctx.WithBlockHeight(0)
 
 	// reinitialize all validators
-	app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
+	app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) bool {
 		// donate any unwithdrawn outstanding reward fraction tokens to the community pool
 		scraps, err := app.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, val.GetOperator())
 		if err != nil {
 			panic(err)
 		}
-
-		var feePool distributiontypes.FeePool
-		feePool, err = app.DistrKeeper.GetFeePool(ctx)
+		feePool, err := app.DistrKeeper.FeePool.Get(ctx)
 		if err != nil {
 			panic(err)
 		}
 		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
-		if err = app.DistrKeeper.SetFeePool(ctx, feePool); err != nil {
+		if err = app.DistrKeeper.FeePool.Set(ctx, feePool); err != nil {
 			panic(err)
 		}
 
@@ -231,12 +227,17 @@ func (app *PolarisBaseApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowed
 	/* Handle slashing state. */
 
 	// reset start height on signing infos
-	app.SlashingKeeper.IterateValidatorSigningInfos(
+	err = app.SlashingKeeper.IterateValidatorSigningInfos(
 		ctx,
-		func(addr sdk.ConsAddress, info slashingtypes.ValidatorSigningInfo) (stop bool) {
+		func(addr sdk.ConsAddress, info slashingtypes.ValidatorSigningInfo) bool {
 			info.StartHeight = 0
-			app.SlashingKeeper.SetValidatorSigningInfo(ctx, addr, info)
+			if err = app.SlashingKeeper.SetValidatorSigningInfo(ctx, addr, info); err != nil {
+				panic(err)
+			}
 			return false
 		},
 	)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -87,18 +87,3 @@ var _ = Describe("Configuration", func() {
 		Expect(hdPath).To(Equal(accounts.BIP44HDPath))
 	})
 })
-
-var _ = Describe("RegisterDenoms", func() {
-	It("should register the base and display denominations", func() {
-		sgconfig.RegisterDenoms()
-
-		// Check if the base denomination was registered correctly
-		baseDenom, err := sdk.GetBaseDenom()
-		Expect(baseDenom).To(Equal("abera"))
-		Expect(err).ToNot(HaveOccurred())
-
-		denomUnit, found := sdk.GetDenomUnit(baseDenom)
-		Expect(denomUnit).To(Equal(sdk.NewDecWithPrec(1, 18)))
-		Expect(found).To(BeTrue())
-	})
-})
