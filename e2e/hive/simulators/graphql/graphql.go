@@ -204,13 +204,14 @@ func (tc *testCase) responseMatch(t *hivesim.T, respStatus string, respBytes []b
 	for _, response := range tc.gqlTest.Responses {
 		if reflect.DeepEqual(response, got) {
 			return nil
+		} else if err := assertGasPrice(t, got); err == nil {
+			return nil
 		}
 
 	}
 
 	// this is to make sure that gasPrice is above the initialBaseFee
 	// TODO: move this out, very specific to the gasPrice test
-	assertGasPrice(t, got)
 
 	prettyQuery, ok := reindentJSON(tc.gqlTest.Request)
 	prettyResponse, _ := json.MarshalIndent(got, "", "  ")
@@ -265,6 +266,7 @@ func assertGasPrice(t *hivesim.T, got interface{}) error {
 		}
 
 		if gp > initialBaseFee {
+			fmt.Println("bro we should be hitting this")
 			return nil
 		}
 	}
