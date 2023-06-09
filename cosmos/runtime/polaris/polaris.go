@@ -29,5 +29,3 @@ type Runtime struct {
 func NewPolarisRuntime() *Runtime {
 	return &Runtime{}
 }
-
-func RegisterService()

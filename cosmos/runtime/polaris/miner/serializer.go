@@ -24,6 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -42,7 +43,7 @@ type txSerializer struct {
 }
 
 // NewTxSerializer returns a new TxSerializer.
-func NewTxSerializer(clientCtx client.Context) *txSerializer {
+func newTxSerializer(clientCtx client.Context) *txSerializer {
 	return &txSerializer{
 		clientCtx: clientCtx,
 	}

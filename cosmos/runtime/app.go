@@ -24,6 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
+
 	"pkg.berachain.dev/polaris/cosmos/runtime/polaris"
 	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/miner"
 )
@@ -41,7 +42,7 @@ type PolarisApp struct {
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
 func (a *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
-	// Pass the go-ethereum txpool to the handler, as well as the clinetCtx so  it can
+	// Pass the go-ethereum txpool to the handler, as well as the clientCtx so it can
 	// broadcast transactions inserted into the mempool to comet.
-	a.handler = miner.NewHandler(a.polaris.TxPool(), miner.NewTxSerializer(apiSvr.ClientCtx))
+	a.handler = miner.NewHandler(a.polaris.TxPool(), apiSvr.ClientCtx)
 }

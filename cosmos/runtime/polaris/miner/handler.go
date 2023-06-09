@@ -54,10 +54,10 @@ type Handler struct {
 	wg     sync.WaitGroup
 }
 
-func NewHandler(txPool *txpool.TxPool, s TxSerializer) *Handler {
+func NewHandler(txPool *txpool.TxPool, clientCtx client.Context) *Handler {
 	return &Handler{
 		txPool:     txPool,
-		serializer: s,
+		serializer: newTxSerializer(clientCtx),
 	}
 }
 
