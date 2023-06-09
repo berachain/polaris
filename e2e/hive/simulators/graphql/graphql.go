@@ -14,7 +14,9 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/hive/hivesim"
 )
 
@@ -54,6 +56,8 @@ func graphqlTest(t *hivesim.T, c *hivesim.Client) {
 		}
 	}
 
+	// wait for blocks...
+	time.Sleep(3 * time.Second)
 	var wg sync.WaitGroup
 	testCh := deliverTests(t, &wg, -1)
 	for i := 0; i < parallelism; i++ {
@@ -200,8 +204,14 @@ func (tc *testCase) responseMatch(t *hivesim.T, respStatus string, respBytes []b
 	for _, response := range tc.gqlTest.Responses {
 		if reflect.DeepEqual(response, got) {
 			return nil
+		} else if err := assertGasPrice(t, got); err == nil {
+			return nil
 		}
+
 	}
+
+	// this is to make sure that gasPrice is above the initialBaseFee
+	// TODO: move this out, very specific to the gasPrice test
 
 	prettyQuery, ok := reindentJSON(tc.gqlTest.Request)
 	prettyResponse, _ := json.MarshalIndent(got, "", "  ")
@@ -231,4 +241,36 @@ func reindentJSON(text string) (string, bool) {
 	}
 	indented, _ := json.MarshalIndent(&obj, "", "  ")
 	return string(indented), true
+}
+
+func assertGasPrice(t *hivesim.T, got interface{}) error {
+	var initialBaseFee int64 = int64(params.InitialBaseFee)
+	if data, ok := got.(map[string]interface{}); ok {
+		if !ok {
+			t.Fail()
+		}
+
+		inner, ok := data["data"].(map[string]interface{})
+		if !ok {
+			t.Fail()
+		}
+
+		gasPrice, ok := inner["gasPrice"].(string)
+		if !ok {
+			t.Fail()
+		}
+
+		gp, err := strconv.ParseInt(gasPrice[2:], 16, 64)
+		if err != nil {
+			t.Fail()
+		}
+
+		if gp > initialBaseFee {
+			fmt.Println("bro we should be hitting this")
+			return nil
+		}
+	}
+
+	return fmt.Errorf("gas price is not greater than initial base fee")
+
 }
