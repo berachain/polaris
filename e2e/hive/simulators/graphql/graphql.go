@@ -208,9 +208,8 @@ func (tc *testCase) responseMatch(t *hivesim.T, respStatus string, respBytes []b
 
 	}
 
-	// this is just for the gasPrice test
+	// this is to make sure that gasPrice is above the initialBaseFee
 	// TODO: move this out, very specific to the gasPrice test
-	// and not a good example of how to do this.
 	assertGasPrice(t, got)
 
 	prettyQuery, ok := reindentJSON(tc.gqlTest.Request)
