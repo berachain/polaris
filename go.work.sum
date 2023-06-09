@@ -233,8 +233,6 @@ cloud.google.com/go/websecurityscanner v1.5.0 h1:AHC1xmaNMOZtNqxI9Rmm87IJEyPaRkO
 cloud.google.com/go/websecurityscanner v1.5.0/go.mod h1:Y6xdCPy81yi0SQnDY1xdNTNpfY1oAgXUlcfN3B3eSng=
 cloud.google.com/go/workflows v1.10.0 h1:FfGp9w0cYnaKZJhUOMqCOJCYT/WlvYBfTQhFWV3sRKI=
 cloud.google.com/go/workflows v1.10.0/go.mod h1:fZ8LmRmZQWacon9UCX1r/g/DfAXx5VcPALq2CxzdePw=
-cosmossdk.io/errors v1.0.0-beta.7.0.20230524212735-6cabb6aa5741 h1:BCRz06fvddw7cKGiEGDiSox3qMsjQ97f92K+PDZDHdc=
-cosmossdk.io/errors v1.0.0-beta.7.0.20230524212735-6cabb6aa5741/go.mod h1:TB05o6YXkZkzsc+6bZFAV5kZRBtoCU9tUkbeMIqEg0w=
 cosmossdk.io/tools/rosetta v0.2.1 h1:ddOMatOH+pbxWbrGJKRAawdBkPYLfKXutK9IETnjYxw=
 cosmossdk.io/x/circuit v0.0.0-20230220112800-f69b9ff58fbe h1:nWBTqYCiv4aLB1iJA+9QwoBYPpgd/GzoyHwmZj6OYmM=
 cosmossdk.io/x/feegrant v0.0.0-20230117113717-50e7c4a4ceff h1:ASeogeTLcf487ykEMTN2z1p/vykpo2HdPkKC7JpE8pE=
@@ -306,6 +304,8 @@ github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuP
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
 github.com/aymerick/raymond v2.0.3-0.20180322193309-b565731e1464+incompatible h1:Ppm0npCCsmuR9oQaBtRuZcmILVE74aXE+AmrJj8L2ns=
 github.com/benbjohnson/clock v1.3.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
+github.com/berachain/polaris-geth v0.0.0-20230609180942-c6acc930b404 h1:sVD6hl04VbPoKOCZPncB/tC+R6R6ANaX7EgTcC/XoU4=
+github.com/berachain/polaris-geth v0.0.0-20230609180942-c6acc930b404/go.mod h1:/oo2X/dZLJjf2mJ6YT9wcWxa4nNJDBKDBU6sFIpx1Gs=
 github.com/boombuler/barcode v1.0.0/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/boombuler/barcode v1.0.1/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f h1:bAs4lUbRJpnnkd9VhRV3jjAVU7DJVjMaK+IsvSeZvFo=

@@ -68,7 +68,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 }, func(data []byte) {})
 
 var _ = Describe("Staking", func() {
-	It("should call functions on the precompile directly", func() {
+	FIt("should call functions on the precompile directly", func() {
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(validators).To(ContainElement(validator))

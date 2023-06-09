@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"fmt"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -147,6 +148,8 @@ func (p *plugin) Run(
 
 	// enable reentrancy into the EVM
 	p.enableReentrancy(sdb)
+
+	fmt.Println("gas consumed", gm.GasConsumed(), "supplied gas", suppliedGas)
 
 	// handle overconsumption of gas
 	if gm.GasConsumed() > suppliedGas {
