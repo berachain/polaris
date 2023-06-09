@@ -31,7 +31,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	cosmostestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -66,14 +65,8 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 	ctx, ak, bk, sk := testutil.SetupMinimalKeepers()
 	dk := govtestutil.NewMockDistributionKeeper(ctrl)
 
-	// Register the governance module account.
-	ak.SetModuleAccount(
-		ctx,
-		authtypes.NewEmptyModuleAccount(governancetypes.ModuleName, authtypes.Minter),
-	)
-
 	// Create the codec.
-	encCfg := cosmostestutil.MakeTestEncodingConfig(
+	encCfg := testutil.MakeTestEncodingConfig(
 		gov.AppModuleBasic{},
 		bank.AppModuleBasic{},
 	)

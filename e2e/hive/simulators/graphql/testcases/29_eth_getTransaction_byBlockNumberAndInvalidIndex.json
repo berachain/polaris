@@ -1,7 +1,7 @@
 {
   "request": 
     
-  "{ block(number: 2) { transactionAt(index: 1) {block{hash}  hash} } }",
+  "{ block(number: 0) { transactionAt(index: 1) {block{hash}  hash} } }",
 
   "responses":[{
     "data" : {
