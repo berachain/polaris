@@ -1,11 +1,11 @@
 {
   "request":     
-    "{ block(number: 2) { number } }",
+    "{ block(number: 0) { number } }",
 
   "responses": [{
     "data" : {
       "block" : {
-        "number" : "0x2"
+        "number" : "0x0"
       }
     }
   }],
