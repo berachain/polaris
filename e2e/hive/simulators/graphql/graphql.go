@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/ethereum/hive/hivesim"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
 func main() {
@@ -210,31 +211,7 @@ func (tc *testCase) responseMatch(t *hivesim.T, respStatus string, respBytes []b
 	// this is just for the gasPrice test
 	// TODO: move this out, very specific to the gasPrice test
 	// and not a good example of how to do this.
-	var initialBaseFee uint64 = 5000000
-	if data, ok := got.(map[string]interface{}); ok {
-		if !ok {
-			t.Fail()
-		}
-
-		inner, ok := data["data"].(map[string]interface{})
-		if !ok {
-			t.Fail()
-		}
-
-		gasPrice, ok := inner["gasPrice"].(string)
-		if !ok {
-			t.Fail()
-		}
-
-		gp, err := strconv.ParseUint(gasPrice[2:], 16, 64)
-		if err != nil {
-			t.Fail()
-		}
-
-		if gp > initialBaseFee {
-			return nil
-		}
-	}
+	assertGasPrice(t, got)
 
 	prettyQuery, ok := reindentJSON(tc.gqlTest.Request)
 	prettyResponse, _ := json.MarshalIndent(got, "", "  ")
@@ -264,4 +241,35 @@ func reindentJSON(text string) (string, bool) {
 	}
 	indented, _ := json.MarshalIndent(&obj, "", "  ")
 	return string(indented), true
+}
+
+func assertGasPrice(t *hivesim.T, got interface{}) error {
+	var initialBaseFee int64 = int64(params.InitialBaseFee)
+	if data, ok := got.(map[string]interface{}); ok {
+		if !ok {
+			t.Fail()
+		}
+
+		inner, ok := data["data"].(map[string]interface{})
+		if !ok {
+			t.Fail()
+		}
+
+		gasPrice, ok := inner["gasPrice"].(string)
+		if !ok {
+			t.Fail()
+		}
+
+		gp, err := strconv.ParseInt(gasPrice[2:], 16, 64)
+		if err != nil {
+			t.Fail()
+		}
+
+		if gp > initialBaseFee {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("gas price is not greater than initial base fee")
+
 }
