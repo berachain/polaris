@@ -364,7 +364,7 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
+
 }
 
 // GetMaccPerms returns a copy of the module account permissions

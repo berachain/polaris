@@ -83,6 +83,33 @@ type Polaris struct {
 	filterSystem *filters.FilterSystem
 }
 
+func New(cfg *Config,
+	host core.PolarisHostChain,
+	stack NetworkingStack,
+	logHandler log.Handler,
+	handler txpool.Handler) *Polaris {
+	pl := &Polaris{
+		cfg:        cfg,
+		handler:    handler,
+		blockchain: core.NewChain(host),
+		stack:      stack,
+	}
+	// When creating a Polaris EVM, we allow the implementing chain
+	// to specify their own log handler. If logHandler is nil then we
+	// we use the default geth log handler.
+	// When creating a Polaris EVM, we allow the implementing chain
+	// to specify their own log handler. If logHandler is nil then we
+	// we use the default geth log handler.
+	if logHandler != nil {
+		// Root is a global in geth that is used by the evm to emit logs.
+		log.Root().SetHandler(logHandler)
+	}
+
+	// Build and set the RPC Backend.
+	pl.backend = NewBackend(pl, stack.ExtRPCEnabled(), cfg)
+	return pl
+}
+
 func NewWithNetworkingStack(
 	cfg *Config,
 	host core.PolarisHostChain,
