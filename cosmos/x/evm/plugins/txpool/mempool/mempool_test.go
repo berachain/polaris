@@ -288,25 +288,23 @@ var _ = Describe("WrappedGethTxPool", func() {
 
 		// TODO THESE ARE HOOD AS FUCK TESTS
 		It("should handle concurrent additions", func() {
-
-			// apologies in advance for this test, it's not great.
-
 			var wg sync.WaitGroup
+			wg.Add(2)
 
-			wg.Add(1)
 			go func(etp *WrappedGethTxPool) {
+				defer GinkgoRecover()
 				defer wg.Done()
 				for i := 1; i <= 10; i++ {
-					_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+					_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i), GasPrice: big.NewInt(100000), Gas: 100000})
 					Expect(etp.InsertSync(ctx, tx)).ToNot(HaveOccurred())
 				}
 			}(etp)
 
-			wg.Add(1)
 			go func(etp *WrappedGethTxPool) {
+				defer GinkgoRecover()
 				defer wg.Done()
 				for i := 2; i <= 11; i++ {
-					_, tx := buildTx(key2, &coretypes.LegacyTx{Nonce: uint64(i)})
+					_, tx := buildTx(key2, &coretypes.LegacyTx{Nonce: uint64(i), GasPrice: big.NewInt(100000), Gas: 100000})
 					Expect(etp.InsertSync(ctx, tx)).ToNot(HaveOccurred())
 				}
 			}(etp)

@@ -67,5 +67,3 @@ func (p *plugin) FeeCollector() *common.Address {
 	addr := common.BytesToAddress([]byte(authtypes.FeeCollectorName))
 	return &addr
 }
-
-func (p *plugin) IsPlugin() {}

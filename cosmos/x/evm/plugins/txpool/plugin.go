@@ -63,5 +63,3 @@ func (p *plugin) SetClientContext(ctx client.Context) {
 func (p *plugin) GetHandler() txpool.Handler {
 	return p.handler
 }
-
-func (p *plugin) IsPlugin() {}

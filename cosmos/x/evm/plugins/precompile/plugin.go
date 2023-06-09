@@ -198,5 +198,3 @@ func (p *plugin) disableReentrancy(sdb vm.PolarisStateDB) {
 	// restore ctx gas configs for continuing precompile execution
 	p.sp.SetGasConfig(sdkCtx.KVGasConfig(), sdkCtx.TransientKVGasConfig())
 }
-
-func (p *plugin) IsPlugin() {}
