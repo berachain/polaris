@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/ethereum/hive/hivesim"
 )
@@ -54,6 +55,8 @@ func graphqlTest(t *hivesim.T, c *hivesim.Client) {
 		}
 	}
 
+	// wait for blocks...
+	time.Sleep(3 * time.Second)
 	var wg sync.WaitGroup
 	testCh := deliverTests(t, &wg, -1)
 	for i := 0; i < parallelism; i++ {
