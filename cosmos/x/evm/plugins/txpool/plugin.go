@@ -103,7 +103,6 @@ func (p *plugin) SendTx(signedEthTx *coretypes.Transaction) error {
 	// TODO: support sending batch new txs events when adding queued txs to the pending txs.
 	// TODO: move to mempool?
 	p.txFeed.Send(core.NewTxsEvent{Txs: coretypes.Transactions{signedEthTx}})
-
 	return nil
 }
 

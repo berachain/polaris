@@ -28,11 +28,18 @@ import (
 
 	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectestutil "github.com/cosmos/cosmos-sdk/codec/testutil"
+	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	"github.com/cosmos/cosmos-sdk/std"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authz "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -68,6 +75,42 @@ func NewContextWithMultiStore(ms storetypes.MultiStore) sdk.Context {
 	return sdk.NewContext(ms, cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
 }
 
+// TestEncodingConfig defines an encoding configuration that is used for testing
+// purposes. Note, MakeTestEncodingConfig takes a series of AppModuleBasic types
+// which should only contain the relevant module being tested and any potential
+// dependencies.
+type TestEncodingConfig struct {
+	InterfaceRegistry types.InterfaceRegistry
+	Codec             codec.Codec
+	TxConfig          client.TxConfig
+	Amino             *codec.LegacyAmino
+}
+
+func MakeTestEncodingConfig(modules ...module.AppModuleBasic) TestEncodingConfig {
+	aminoCodec := codec.NewLegacyAmino()
+	interfaceRegistry := codectestutil.CodecOptions{
+		AccAddressPrefix: "polar",
+		ValAddressPrefix: "polarvaloper",
+	}.NewInterfaceRegistry()
+	codec := codec.NewProtoCodec(interfaceRegistry)
+
+	encCfg := TestEncodingConfig{
+		InterfaceRegistry: interfaceRegistry,
+		Codec:             codec,
+		TxConfig:          tx.NewTxConfig(codec, tx.DefaultSignModes),
+		Amino:             aminoCodec,
+	}
+
+	mb := module.NewBasicManager(modules...)
+
+	std.RegisterLegacyAminoCodec(encCfg.Amino)
+	std.RegisterInterfaces(encCfg.InterfaceRegistry)
+	mb.RegisterLegacyAminoCodec(encCfg.Amino)
+	mb.RegisterInterfaces(encCfg.InterfaceRegistry)
+
+	return encCfg
+}
+
 // SetupMinimalKeepers creates and returns keepers for the base SDK modules.
 func SetupMinimalKeepers() (
 	sdk.Context,
@@ -100,19 +143,6 @@ func SetupMinimalKeepers() (
 		},
 		config.Bech32Prefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-	)
-
-	ak.SetModuleAccount(ctx,
-		authtypes.NewEmptyModuleAccount("evm", authtypes.Minter, authtypes.Burner))
-	ak.SetModuleAccount(ctx,
-		authtypes.NewEmptyModuleAccount("erc20", authtypes.Minter, authtypes.Burner))
-	ak.SetModuleAccount(
-		ctx,
-		authtypes.NewEmptyModuleAccount(
-			distrtypes.ModuleName,
-			authtypes.Minter,
-			authtypes.Burner,
-		),
 	)
 
 	bk := bankkeeper.NewBaseKeeper(

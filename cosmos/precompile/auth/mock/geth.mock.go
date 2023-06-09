@@ -5,6 +5,7 @@ package mock
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/state"
 	gethvm "github.com/ethereum/go-ethereum/core/vm"
@@ -379,10 +380,10 @@ var _ MessageRouter = &MessageRouterMock{}
 //
 //		// make and configure a mocked MessageRouter
 //		mockedMessageRouter := &MessageRouterMock{
-//			HandlerFunc: func(msg sdk.Msg) func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error) {
+//			HandlerFunc: func(msg proto.Message) func(ctx sdk.Context, req proto.Message) (*sdk.Result, error) {
 //				panic("mock out the Handler method")
 //			},
-//			HandlerByTypeURLFunc: func(typeURL string) func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error) {
+//			HandlerByTypeURLFunc: func(typeURL string) func(ctx sdk.Context, req proto.Message) (*sdk.Result, error) {
 //				panic("mock out the HandlerByTypeURL method")
 //			},
 //		}
@@ -393,17 +394,17 @@ var _ MessageRouter = &MessageRouterMock{}
 //	}
 type MessageRouterMock struct {
 	// HandlerFunc mocks the Handler method.
-	HandlerFunc func(msg sdk.Msg) func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error)
+	HandlerFunc func(msg proto.Message) func(ctx sdk.Context, req proto.Message) (*sdk.Result, error)
 
 	// HandlerByTypeURLFunc mocks the HandlerByTypeURL method.
-	HandlerByTypeURLFunc func(typeURL string) func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error)
+	HandlerByTypeURLFunc func(typeURL string) func(ctx sdk.Context, req proto.Message) (*sdk.Result, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// Handler holds details about calls to the Handler method.
 		Handler []struct {
 			// Msg is the msg argument value.
-			Msg sdk.Msg
+			Msg proto.Message
 		}
 		// HandlerByTypeURL holds details about calls to the HandlerByTypeURL method.
 		HandlerByTypeURL []struct {
@@ -416,12 +417,12 @@ type MessageRouterMock struct {
 }
 
 // Handler calls HandlerFunc.
-func (mock *MessageRouterMock) Handler(msg sdk.Msg) func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error) {
+func (mock *MessageRouterMock) Handler(msg proto.Message) func(ctx sdk.Context, req proto.Message) (*sdk.Result, error) {
 	if mock.HandlerFunc == nil {
 		panic("MessageRouterMock.HandlerFunc: method is nil but MessageRouter.Handler was just called")
 	}
 	callInfo := struct {
-		Msg sdk.Msg
+		Msg proto.Message
 	}{
 		Msg: msg,
 	}
@@ -436,10 +437,10 @@ func (mock *MessageRouterMock) Handler(msg sdk.Msg) func(ctx sdk.Context, req sd
 //
 //	len(mockedMessageRouter.HandlerCalls())
 func (mock *MessageRouterMock) HandlerCalls() []struct {
-	Msg sdk.Msg
+	Msg proto.Message
 } {
 	var calls []struct {
-		Msg sdk.Msg
+		Msg proto.Message
 	}
 	mock.lockHandler.RLock()
 	calls = mock.calls.Handler
@@ -448,7 +449,7 @@ func (mock *MessageRouterMock) HandlerCalls() []struct {
 }
 
 // HandlerByTypeURL calls HandlerByTypeURLFunc.
-func (mock *MessageRouterMock) HandlerByTypeURL(typeURL string) func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error) {
+func (mock *MessageRouterMock) HandlerByTypeURL(typeURL string) func(ctx sdk.Context, req proto.Message) (*sdk.Result, error) {
 	if mock.HandlerByTypeURLFunc == nil {
 		panic("MessageRouterMock.HandlerByTypeURLFunc: method is nil but MessageRouter.HandlerByTypeURL was just called")
 	}

@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package baseapp
+package simapp
 
 import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -37,7 +37,7 @@ import (
 
 // PrecompilesToInject returns a function that provides the initialization of the standard
 // set of precompiles.
-func PrecompilesToInject(app *PolarisBaseApp, customPcs ...ethprecompile.Registrable) func() *ethprecompile.Injector {
+func PrecompilesToInject(app *SimApp, customPcs ...ethprecompile.Registrable) func() *ethprecompile.Injector {
 	return func() *ethprecompile.Injector {
 		// Create the precompile injector with the standard precompiles.
 		pcs := ethprecompile.NewPrecompiles([]ethprecompile.Registrable{
