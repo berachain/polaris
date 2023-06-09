@@ -66,12 +66,10 @@ type plugin struct {
 // NewPlugin creates and returns a plugin with the default KV store gas configs.
 func NewPlugin(precompiles []ethprecompile.Registrable, sp StatePlugin) Plugin {
 	return &plugin{
-		Registry:    registry.NewMap[common.Address, vm.PrecompileContainer](),
-		precompiles: precompiles,
-		// TODO: Re-enable gas config for precompiles.
-		// https://github.com/berachain/polaris/issues/393
-		kvGasConfig:          storetypes.GasConfig{},
-		transientKVGasConfig: storetypes.GasConfig{},
+		Registry:             registry.NewMap[common.Address, vm.PrecompileContainer](),
+		precompiles:          precompiles,
+		kvGasConfig:          storetypes.KVGasConfig(),
+		transientKVGasConfig: storetypes.TransientGasConfig(),
 		sp:                   sp,
 	}
 }
@@ -196,7 +194,7 @@ func (p *plugin) disableReentrancy(sdb vm.PolarisStateDB) {
 	cem.BeginPrecompileExecution(sdb)
 
 	// restore ctx gas configs for continuing precompile execution
-	p.sp.SetGasConfig(sdkCtx.KVGasConfig(), sdkCtx.TransientKVGasConfig())
+	p.sp.SetGasConfig(p.kvGasConfig, p.transientKVGasConfig)
 }
 
 func (p *plugin) IsPlugin() {}

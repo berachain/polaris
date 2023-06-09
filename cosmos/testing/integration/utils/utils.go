@@ -101,7 +101,7 @@ func ExpectFailedReceipt(
 	// Verify the receipt is good but status failed.
 	receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
 	Expect(err).ToNot(HaveOccurred())
-	Expect(receipt.Status).To(Equal(uint64(0x0))) //nolint:gomnd // success.
+	Expect(receipt.Status).To(Equal(uint64(0x0))) //nolint:gomnd // fail.
 	return receipt
 }
 
