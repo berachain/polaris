@@ -7,7 +7,7 @@ replace (
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230608151552-9b9e319d1abc
 
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230531184838-7796c6161604
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230609180942-c6acc930b404
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 
@@ -47,7 +47,7 @@ require (
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230522054826-1e34ff529c3e
-	pkg.berachain.dev/polaris/eth v0.0.0-20230529182942-8a54f2bce6b2
+	pkg.berachain.dev/polaris/eth v0.0.0-20230609211413-aca63f71aaaa
 	pkg.berachain.dev/polaris/lib v0.0.0-20230522054826-1e34ff529c3e
 )
 
@@ -70,7 +70,6 @@ require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/DataDog/zstd v1.5.5 // indirect
 	github.com/VictoriaMetrics/fastcache v1.12.1 // indirect
-	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/aws/aws-sdk-go v1.44.224 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
