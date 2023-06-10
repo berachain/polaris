@@ -44,7 +44,6 @@ import (
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
-	"pkg.berachain.dev/polaris/eth/log"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/eth/polar"
@@ -106,7 +105,7 @@ var _ = Describe("Processor", func() {
 		pl := &polar.Polaris{}
 		pl.SetBlockchain(core.NewChain(k.GetHost()))
 		k.SetPolaris(pl)
-		log.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error { return nil })) // disable logging
+		ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error { return nil })) // disable logging
 		for _, plugin := range k.GetHost().GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
 			if hasInitGenesis {
