@@ -26,7 +26,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -53,7 +52,6 @@ func NewKeeper(
 	sk block.StakingKeeper,
 	storeKey storetypes.StoreKey,
 	authority string,
-	ethTxMempool *mempool.WrappedGethTxPool,
 	pcs func() *ethprecompile.Injector,
 ) *Keeper {
 	// We setup the keeper with some Cosmos standard sauce.
@@ -66,7 +64,6 @@ func NewKeeper(
 	k.host = NewHost(
 		storeKey,
 		sk,
-		ethTxMempool,
 		pcs,
 	)
 	return k
@@ -76,9 +73,6 @@ func NewKeeper(
 func (k *Keeper) Setup(
 	offchainStoreKey *storetypes.KVStoreKey,
 	qc func(height int64, prove bool) (sdk.Context, error),
-	polarisConfigPath string,
-	polarisDataDir string,
-	logger log.Logger,
 ) {
 	// Setup plugins in the Host
 	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, qc)

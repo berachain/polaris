@@ -35,7 +35,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -226,11 +225,6 @@ func NewPolarisApp(
 	// TODO: MOVE EVM SETUP
 	// ----- BEGIN EVM SETUP ----------------------------------------------
 	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
-	homePath, ok := appOpts.Get(flags.FlagHome).(string)
-	if !ok || homePath == "" {
-		homePath = DefaultNodeHome
-	}
-
 	app.PolarisApp = appBuilder.Build(db,
 		traceStore, ethTxMempool, logger, app.EVMKeeper.GetHost(),
 		append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
@@ -238,10 +232,6 @@ func NewPolarisApp(
 	app.EVMKeeper.Setup(
 		offchainKey,
 		app.CreateQueryContext,
-		// TODO: clean this up.
-		homePath+"/config/polaris.toml",
-		homePath+"/data/polaris",
-		logger,
 	)
 	app.Evmkeeper = app.EVMKeeper
 	opt := ante.HandlerOptions{

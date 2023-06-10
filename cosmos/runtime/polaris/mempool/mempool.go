@@ -53,13 +53,9 @@ func NewWrappedGethTxPool() *WrappedGethTxPool {
 	return &WrappedGethTxPool{}
 }
 
-// SetTxPool sets the underlying Geth TxPool.
-func (gtp *WrappedGethTxPool) SetTxPool(txPool *txpool.TxPool) {
-	gtp.TxPool = txPool
-}
-
 // Setup sets the chain config and sdk tx serializer on the wrapped Geth TxPool.
-func (gtp *WrappedGethTxPool) Setup(cp ConfigurationPlugin, serializer SdkTxSerializer) {
+func (gtp *WrappedGethTxPool) Setup(txPool *txpool.TxPool, cp ConfigurationPlugin, serializer SdkTxSerializer) {
+	gtp.TxPool = txPool
 	gtp.cp = cp
 	gtp.serializer = serializer
 }

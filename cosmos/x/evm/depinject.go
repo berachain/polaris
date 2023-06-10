@@ -29,7 +29,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	modulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
@@ -49,7 +48,6 @@ type DepInjectInput struct {
 	Config    *modulev1alpha1.Module
 	Key       *store.KVStoreKey
 
-	Mempool           *evmmempool.WrappedGethTxPool  `optional:"true"`
 	CustomPrecompiles func() *ethprecompile.Injector `optional:"true"`
 
 	AccountKeeper AccountKeeper
@@ -82,7 +80,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.StakingKeeper,
 		in.Key,
 		authority.String(),
-		in.Mempool,
 		in.CustomPrecompiles,
 	)
 

@@ -24,7 +24,6 @@ import (
 	"math/big"
 	"os"
 
-	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -39,14 +38,16 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/eth/log"
+	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/eth/polar"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -87,28 +88,31 @@ var _ = Describe("Processor", func() {
 
 		// before chain, init genesis state
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
+		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
+		Expect(err).ToNot(HaveOccurred())
+		validator.Status = stakingtypes.Bonded
+		sk.SetValidator(ctx, validator)
+		sc = staking.NewPrecompileContract(&sk)
+		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 		k = keeper.NewKeeper(
 			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
 			"authority",
-			evmmempool.NewWrappedGethTxPool(),
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
+		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil)
+		pl := &polar.Polaris{}
+		pl.SetBlockchain(core.NewChain(k.GetHost()))
+		k.SetPolaris(pl)
+		log.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error { return nil })) // disable logging
 		for _, plugin := range k.GetHost().GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
 			if hasInitGenesis {
 				plugin.InitGenesis(ctx, core.DefaultGenesis)
 			}
 		}
-		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
-		Expect(err).ToNot(HaveOccurred())
-		validator.Status = stakingtypes.Bonded
-		sk.SetValidator(ctx, validator)
-		sc = staking.NewPrecompileContract(&sk)
-		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger())
-		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 
 		// Set validator with consensus address.
 		consAddr, err := validator.GetConsAddr()

@@ -24,9 +24,9 @@ import (
 	"encoding/json"
 	"io"
 
-	"cosmossdk.io/log"
-
 	dbm "github.com/cosmos/cosmos-db"
+
+	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/runtime"

@@ -21,9 +21,6 @@
 package polaris
 
 import (
-	"fmt"
-	"time"
-
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -66,12 +63,18 @@ type PolarisApp struct {
 func (a *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 	// Pass the go-ethereum txpool to the handler, as well as the clientCtx so it can
 	// broadcast transactions inserted into the mempool to comet.
-	fmt.Println("LOADING CLIENT CONTEXT")
 	a.clientCtx = apiSvr.ClientCtx
 
-	// Now that we have the client context we can build the serializer and inject it into the miner.
-	a.mempool.Setup(a.hostChain.GetConfigurationPlugin(), miner.NewTxSerializer(a.clientCtx))
-	a.polaris.SetHandler(miner.NewHandler(a.polaris, a.clientCtx))
+	// At this point in time, the TxPool will have been intialized by Polaris.
+	txPool := a.polaris.TxPool()
+
+	// Now that we have the client context and the txpool, we can setup the mempool and miner.
+	a.mempool.Setup(txPool, a.hostChain.GetConfigurationPlugin(), miner.NewTxSerializer(a.clientCtx))
+	a.polaris.SetHandler(miner.NewHandler(txPool, a.clientCtx))
+
+	if err := a.polaris.StartServices(); err != nil {
+		panic(err)
+	}
 }
 
 // Load is called on application initialization and provides an opportunity to
@@ -86,7 +89,8 @@ func (a *PolarisApp) Load(latest bool) error {
 	// Load EVM keeper or something?
 	// TODO: PARSE POLARIS.TOML CORRECT AGAIN
 	nodeCfg := polar.DefaultGethNodeConfig()
-	nodeCfg.DataDir = "./tmp/polaris"
+	// TODO: unfuck this
+	nodeCfg.DataDir = "./.tmp/polaris"
 	node, err := polar.NewGethNetworkingStack(nodeCfg)
 	if err != nil {
 		panic(err)
@@ -112,16 +116,7 @@ func (a *PolarisApp) Load(latest bool) error {
 	)
 	// todo: this is horrid.
 	a.Evmkeeper.SetPolaris(a.polaris)
-	// Load the polaris runtime to warm the blockchain object.
 
-	go func() {
-		// AHH RACE CONDITIONS
-		// TODO: we do this so that the polaris TxPool() is setup by the RPC stuff.
-		// SO FUCKING GHETTO TODO FIX:
-		// PREPARE PROPOSAL WILL CRASH UNTIL THIS SLEEP IS OVER.
-		time.Sleep(3 * time.Second)
-		a.mempool.SetTxPool(a.polaris.TxPool())
-	}()
-	// a.polaris.Blockchain().LoadLastState()
+	// Load the polaris runtime to warm the blockchain object.
 	return nil
 }

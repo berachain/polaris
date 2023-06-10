@@ -92,11 +92,10 @@ var _ = Describe("WrappedGethTxPool", func() {
 		}
 		bc := newMockBlockChain(sdb)
 		txp := txpool.NewTxPool(txpool.DefaultConfig, cp.ChainConfig(), bc)
-		etp.SetTxPool(txp)
+		etp.Setup(txp, cp, &mockSerializer{})
 		etp.SetGasPrice(big.NewInt(1)) // TODO: set this for real int he real app.
 		addr1Nonce = 1
 		addr2Nonce = 2
-		etp.Setup(cp, &mockSerializer{})
 	})
 
 	Describe("All Cases", func() {

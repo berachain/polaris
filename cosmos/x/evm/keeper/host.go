@@ -25,7 +25,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
@@ -70,7 +69,6 @@ type host struct {
 func NewHost(
 	storeKey storetypes.StoreKey,
 	sk block.StakingKeeper,
-	ethTxMempool *mempool.WrappedGethTxPool,
 	precompiles func() *ethprecompile.Injector,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.

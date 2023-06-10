@@ -44,7 +44,7 @@ type txSerializer struct {
 }
 
 // NewTxSerializer returns a new TxSerializer.
-func NewTxSerializer(clientCtx client.Context) *txSerializer {
+func NewTxSerializer(clientCtx client.Context) TxSerializer {
 	return &txSerializer{
 		clientCtx: clientCtx,
 	}

@@ -21,7 +21,6 @@
 package polar
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -139,12 +138,7 @@ func (pl *Polaris) APIs() []rpc.API {
 
 // StartServices notifies the NetworkStack to spin up (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
-	fmt.Println(pl)
 	go func() {
-		// // For Hive testing. TODO: remove this.
-		// time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
-		// // TODO FIX: SKETCHY HANDLE RACE CONDITION LMFAO
-		// time.Sleep(1 * time.Second) //nolint:gomnd // we will fix this eventually.
 		// TODO: txpool creation, but be decoupled from rpc.
 		pl.txPool = txpool.NewTxPool(txpool.DefaultConfig, pl.blockchain.Config(), pl.blockchain)
 		// pl.handler.SetTxPool(pl.txPool)
@@ -165,7 +159,7 @@ func (pl *Polaris) StartServices() error {
 			os.Exit(1)
 		}
 		// txpool must be not nil before starting.
-		time.Sleep(3 * time.Second) //nolint:gomnd // we will fix this eventually.
+		time.Sleep(1 * time.Second)
 		pl.handler.Start()
 	}()
 	return nil
@@ -176,3 +170,8 @@ func (pl *Polaris) SetHandler(handler txpool.Handler) {
 }
 func (pl *Polaris) TxPool() *txpool.TxPool      { return pl.txPool }
 func (pl *Polaris) Blockchain() core.Blockchain { return pl.blockchain }
+
+// FOR TESTING ONLY.
+func (pl *Polaris) SetBlockchain(blockchain core.Blockchain) {
+	pl.blockchain = blockchain
+}

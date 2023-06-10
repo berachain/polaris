@@ -122,7 +122,7 @@ type (
 	// // support the transaction pool.
 	// TxPoolPlugin interface {
 	// 	GetHandler() txpool.Handler
-	// }
+	// }.
 )
 
 // =============================================================================
