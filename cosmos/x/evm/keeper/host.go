@@ -25,6 +25,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
@@ -33,8 +34,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
@@ -57,13 +56,12 @@ type Host interface {
 
 type host struct {
 	// The various plugins that are are used to implement core.PolarisHostChain.
-	bp  block.Plugin
-	cp  configuration.Plugin
-	gp  gas.Plugin
-	hp  historical.Plugin
-	pp  precompile.Plugin
-	sp  state.Plugin
-	txp txpool.Plugin
+	bp block.Plugin
+	cp configuration.Plugin
+	gp gas.Plugin
+	hp historical.Plugin
+	pp precompile.Plugin
+	sp state.Plugin
 
 	pcs func() *ethprecompile.Injector
 }
@@ -82,7 +80,6 @@ func NewHost(
 	h.bp = block.NewPlugin(storeKey, sk)
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
-	h.txp = txpool.NewPlugin(h.cp, ethTxMempool)
 	h.pcs = precompiles
 
 	return h
@@ -136,12 +133,7 @@ func (h *host) GetStatePlugin() core.StatePlugin {
 	return h.sp
 }
 
-// GetTxPoolPlugin returns the txpool plugin.
-func (h *host) GetTxPoolPlugin() core.TxPoolPlugin {
-	return h.txp
-}
-
 // GetAllPlugins returns all the plugins.
 func (h *host) GetAllPlugins() []plugins.Base {
-	return []plugins.Base{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp, h.txp}
+	return []plugins.Base{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp}
 }

@@ -64,10 +64,10 @@ import (
 
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/runtime/polaris"
+	evmmempool "pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 )
 
 // DefaultNodeHome default home directories for the application daemon.
@@ -232,7 +232,7 @@ func NewPolarisApp(
 	}
 
 	app.PolarisApp = appBuilder.Build(db,
-		traceStore, app.EVMKeeper.GetHost(),
+		traceStore, ethTxMempool, logger, app.EVMKeeper.GetHost(),
 		append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
@@ -243,6 +243,7 @@ func NewPolarisApp(
 		homePath+"/data/polaris",
 		logger,
 	)
+	app.Evmkeeper = app.EVMKeeper
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,
@@ -362,13 +363,11 @@ func (app *SimApp) SimulationManager() *module.SimulationManager {
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
 func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
-	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
+	app.PolarisApp.RegisterAPIRoutes(apiSvr, apiConfig)
 	// register swagger API in app.go so that other applications can override easily
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-
-	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
 }
 
 // GetMaccPerms returns a copy of the module account permissions

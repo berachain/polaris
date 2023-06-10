@@ -26,7 +26,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
-	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/params"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
@@ -46,8 +45,6 @@ type PolarisHostChain interface {
 	GetPrecompilePlugin() PrecompilePlugin
 	// GetStatePlugin returns the `StatePlugin` of the Polaris host chain.
 	GetStatePlugin() StatePlugin
-	// GetTxPoolPlugin returns the `TxPoolPlugin` of the Polaris host chain.
-	GetTxPoolPlugin() TxPoolPlugin
 }
 
 // =============================================================================
@@ -121,11 +118,11 @@ type (
 		StateAtBlockNumber(uint64) (StatePlugin, error)
 	}
 
-	// TxPoolPlugin defines the methods that the chain running Polaris EVM should implement to
-	// support the transaction pool.
-	TxPoolPlugin interface {
-		GetHandler() txpool.Handler
-	}
+	// // TxPoolPlugin defines the methods that the chain running Polaris EVM should implement to
+	// // support the transaction pool.
+	// TxPoolPlugin interface {
+	// 	GetHandler() txpool.Handler
+	// }
 )
 
 // =============================================================================

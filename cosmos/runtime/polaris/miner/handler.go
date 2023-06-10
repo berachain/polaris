@@ -21,6 +21,7 @@
 package miner
 
 import (
+	"fmt"
 	"sync"
 
 	errorsmod "cosmossdk.io/errors"
@@ -33,6 +34,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/polar"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
@@ -48,16 +50,17 @@ type Handler struct {
 	clientCtx  client.Context
 
 	// Ethereum
-	txPool *txpool.TxPool
+	pl     *polar.Polaris
 	txsCh  chan core.NewTxsEvent
 	txsSub event.Subscription
 	wg     sync.WaitGroup
 }
 
-func NewHandler(txPool *txpool.TxPool, clientCtx client.Context) *Handler {
+func NewHandler(pl *polar.Polaris, clientCtx client.Context) *Handler {
 	return &Handler{
-		txPool:     txPool,
-		serializer: newTxSerializer(clientCtx),
+		pl:         pl,
+		serializer: NewTxSerializer(clientCtx),
+		clientCtx:  clientCtx,
 	}
 }
 
@@ -66,7 +69,7 @@ func NewHandler(txPool *txpool.TxPool, clientCtx client.Context) *Handler {
 func (h *Handler) Start() {
 	h.wg.Add(1)
 	h.txsCh = make(chan core.NewTxsEvent, txChanSize)
-	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
+	h.txsSub = h.pl.TxPool().SubscribeNewTxsEvent(h.txsCh)
 	go h.txBroadcastLoop() // start broadcast handlers
 }
 
@@ -83,7 +86,7 @@ func (h *Handler) Stop() {
 }
 
 func (h *Handler) SetTxPool(txPool *txpool.TxPool) {
-	h.txPool = txPool
+	// h.txPool = txPool
 }
 
 // txBroadcastLoop announces new transactions to connected peers.
@@ -111,6 +114,7 @@ func (h *Handler) BroadcastTransactions(txs types.Transactions) {
 
 		// Send the transaction to the CometBFT mempool, which will gossip it to peers via
 		// CometBFT's p2p layer.
+		fmt.Println("Broadcasting transaction to CometBFT mempool", h.clientCtx)
 		syncCtx := h.clientCtx.WithBroadcastMode(flags.BroadcastAsync)
 		rsp, err := syncCtx.BroadcastTx(txBytes)
 		if rsp != nil && rsp.Code != 0 {

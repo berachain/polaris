@@ -21,6 +21,7 @@
 package polar
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -117,35 +118,6 @@ func New(cfg *Config,
 	return pl
 }
 
-func NewWithNetworkingStack(
-	cfg *Config,
-	host core.PolarisHostChain,
-	stack NetworkingStack,
-	logHandler log.Handler,
-) *Polaris {
-	pl := &Polaris{
-		cfg:        cfg,
-		handler:    host.GetTxPoolPlugin().GetHandler(),
-		blockchain: core.NewChain(host),
-		stack:      stack,
-	}
-	// When creating a Polaris EVM, we allow the implementing chain
-	// to specify their own log handler. If logHandler is nil then we
-	// we use the default geth log handler.
-	// When creating a Polaris EVM, we allow the implementing chain
-	// to specify their own log handler. If logHandler is nil then we
-	// we use the default geth log handler.
-	if logHandler != nil {
-		// Root is a global in geth that is used by the evm to emit logs.
-		log.Root().SetHandler(logHandler)
-	}
-
-	// Build and set the RPC Backend.
-	pl.backend = NewBackend(pl, stack.ExtRPCEnabled(), cfg)
-
-	return pl
-}
-
 // APIs return the collection of RPC services the polar package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (pl *Polaris) APIs() []rpc.API {
@@ -167,27 +139,33 @@ func (pl *Polaris) APIs() []rpc.API {
 
 // StartServices notifies the NetworkStack to spin up (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
-	pl.txPool = txpool.NewTxPool(txpool.DefaultConfig, pl.blockchain.Config(), pl.blockchain)
-	pl.handler.SetTxPool(pl.txPool)
-
-	// Register the JSON-RPCs with the networking stack.
-	pl.stack.RegisterAPIs(pl.APIs())
-
-	// Register the filter API separately in order to get access to the filterSystem
-	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
-
-	// Register the GraphQL API (todo update cors stuff)
-	// TODO: gate this behind a flag
-	if err := graphql.New(pl.stack, pl.backend, pl.filterSystem, []string{"*"}, []string{"*"}); err != nil {
-		panic(err)
-	}
+	fmt.Println(pl)
 	go func() {
-		// For Hive testing. TODO: remove this.
-		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
+		// // For Hive testing. TODO: remove this.
+		// time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
+		// // TODO FIX: SKETCHY HANDLE RACE CONDITION LMFAO
+		// time.Sleep(1 * time.Second) //nolint:gomnd // we will fix this eventually.
+		// TODO: txpool creation, but be decoupled from rpc.
+		pl.txPool = txpool.NewTxPool(txpool.DefaultConfig, pl.blockchain.Config(), pl.blockchain)
+		// pl.handler.SetTxPool(pl.txPool)
+
+		// Register the JSON-RPCs with the networking stack.
+		pl.stack.RegisterAPIs(pl.APIs())
+
+		// Register the filter API separately in order to get access to the filterSystem
+		pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
+
+		// Register the GraphQL API (todo update cors stuff)
+		// TODO: gate this behind a flag
+		if err := graphql.New(pl.stack, pl.backend, pl.filterSystem, []string{"*"}, []string{"*"}); err != nil {
+			panic(err)
+		}
+
 		if pl.stack.Start() != nil {
 			os.Exit(1)
 		}
-
+		// txpool must be not nil before starting.
+		time.Sleep(3 * time.Second) //nolint:gomnd // we will fix this eventually.
 		pl.handler.Start()
 	}()
 	return nil

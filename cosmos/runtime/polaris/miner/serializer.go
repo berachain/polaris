@@ -34,6 +34,7 @@ import (
 // TxPool defines the required functions of the transaction pool.
 type TxSerializer interface {
 	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
+	SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
 }
 
 // txSerializer implements the TxSerializer interface. It is used to convert
@@ -43,7 +44,7 @@ type txSerializer struct {
 }
 
 // NewTxSerializer returns a new TxSerializer.
-func newTxSerializer(clientCtx client.Context) *txSerializer {
+func NewTxSerializer(clientCtx client.Context) *txSerializer {
 	return &txSerializer{
 		clientCtx: clientCtx,
 	}

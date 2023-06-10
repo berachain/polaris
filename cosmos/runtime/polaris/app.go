@@ -21,28 +21,44 @@
 package polaris
 
 import (
+	"fmt"
+	"time"
+
+	"cosmossdk.io/log"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 
+	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/miner"
 	"pkg.berachain.dev/polaris/eth/core"
+	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
+
+// TODO deprecate this
+
+type EVMKeeper interface {
+	SetPolaris(*polar.Polaris)
+}
 
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
 //
 //nolint:revive // readability.
 type PolarisApp struct {
-	// core cosmos application
+	// cosmos stuff
 	*runtime.App
-	polaris polar.Polaris
-
-	hostChain core.PolarisHostChain
-
+	logger    log.Logger
 	clientCtx client.Context
+
+	// ethereum stuff
+	polaris   *polar.Polaris
+	mempool   *mempool.WrappedGethTxPool
+	hostChain core.PolarisHostChain
+	Evmkeeper EVMKeeper
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
@@ -50,7 +66,12 @@ type PolarisApp struct {
 func (a *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 	// Pass the go-ethereum txpool to the handler, as well as the clientCtx so it can
 	// broadcast transactions inserted into the mempool to comet.
+	fmt.Println("LOADING CLIENT CONTEXT")
 	a.clientCtx = apiSvr.ClientCtx
+
+	// Now that we have the client context we can build the serializer and inject it into the miner.
+	a.mempool.Setup(a.hostChain.GetConfigurationPlugin(), miner.NewTxSerializer(a.clientCtx))
+	a.polaris.SetHandler(miner.NewHandler(a.polaris, a.clientCtx))
 }
 
 // Load is called on application initialization and provides an opportunity to
@@ -70,16 +91,37 @@ func (a *PolarisApp) Load(latest bool) error {
 	if err != nil {
 		panic(err)
 	}
-	a.polaris = *polar.New(
+	a.polaris = polar.New(
 		polar.DefaultConfig(),
 		a.hostChain,
 		node,
+		ethlog.FuncHandler(
+			func(r *ethlog.Record) error {
+				polarisGethLogger := a.logger.With("module", "polaris-geth")
+				switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
+				case ethlog.LvlTrace, ethlog.LvlDebug:
+					polarisGethLogger.Debug(r.Msg, r.Ctx...)
+				case ethlog.LvlInfo, ethlog.LvlWarn:
+					polarisGethLogger.Info(r.Msg, r.Ctx...)
+				case ethlog.LvlError, ethlog.LvlCrit:
+					polarisGethLogger.Error(r.Msg, r.Ctx...)
+				}
+				return nil
+			}),
 		nil,
-		miner.NewHandler(a.polaris.TxPool(), a.clientCtx),
 	)
+	// todo: this is horrid.
+	a.Evmkeeper.SetPolaris(a.polaris)
 	// Load the polaris runtime to warm the blockchain object.
 
-	// a.polaris.SetHandler(miner.NewHandler(a.polaris.TxPool(), a.clientCtx))
+	go func() {
+		// AHH RACE CONDITIONS
+		// TODO: we do this so that the polaris TxPool() is setup by the RPC stuff.
+		// SO FUCKING GHETTO TODO FIX:
+		// PREPARE PROPOSAL WILL CRASH UNTIL THIS SLEEP IS OVER.
+		time.Sleep(3 * time.Second)
+		a.mempool.SetTxPool(a.polaris.TxPool())
+	}()
 	// a.polaris.Blockchain().LoadLastState()
 	return nil
 }

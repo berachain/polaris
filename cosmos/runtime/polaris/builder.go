@@ -24,11 +24,14 @@ import (
 	"encoding/json"
 	"io"
 
+	"cosmossdk.io/log"
+
 	dbm "github.com/cosmos/cosmos-db"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/runtime"
 
+	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
@@ -50,7 +53,8 @@ func (a *AppBuilder) DefaultGenesis() map[string]json.RawMessage {
 
 // Build builds an *App instance.
 func (a *AppBuilder) Build(db dbm.DB,
-	traceStore io.Writer, host core.PolarisHostChain,
+	traceStore io.Writer,
+	ethTxMempool *mempool.WrappedGethTxPool, logger log.Logger, host core.PolarisHostChain,
 	baseAppOptions ...func(*baseapp.BaseApp)) *PolarisApp {
 	a.polarisApp = &PolarisApp{
 		hostChain: host,
@@ -62,10 +66,12 @@ func (a *AppBuilder) Build(db dbm.DB,
 
 	// Build the base runtime.App (and thus baseapp.BaseApp)
 	a.polarisApp.App = a.AppBuilder.Build(db, traceStore, baseAppOptions...)
-
+	a.polarisApp.logger = logger
+	a.polarisApp.mempool = ethTxMempool
+	a.polarisApp.SetMempool(a.polarisApp.mempool)
 	// Configure the proposal handlers to use our custom tx pool and miner.
 	// a.polarisApp.wrappedTxPool = txPool
-	// a.polarisApp.SetPrepareProposal(polarisMiner.PrepareProposalHandler())
+	// a.polarisApp.SetPrepareProposal(pflarisMiner.PrepareProposalHandler())
 	// a.polarisApp.SetProcessProposal(polarisMiner.ProcessProposalHandler())
 
 	// Mount our custom stores.

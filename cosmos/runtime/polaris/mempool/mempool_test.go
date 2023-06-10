@@ -56,7 +56,7 @@ import (
 
 func TestEthPool(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/x/evm/plugins/txpool/mempool")
+	RunSpecs(t, "cosmos/runtime/polaris/mempool")
 }
 
 var _ = Describe("WrappedGethTxPool", func() {

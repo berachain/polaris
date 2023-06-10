@@ -24,16 +24,13 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
 
@@ -85,37 +82,11 @@ func (k *Keeper) Setup(
 ) {
 	// Setup plugins in the Host
 	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, qc)
+}
 
-	// Build the Polaris EVM Provider
-	cfg, err := polar.LoadConfigFromFilePath(polarisConfigPath)
-	// TODO: fix properly
-	if err != nil || cfg.GPO == nil {
-		logger.Error("failed to load polaris config", "falling back to defaults")
-		cfg = polar.DefaultConfig()
-	}
-
-	// TODO: PARSE POLARIS.TOML CORRECT AGAIN
-	nodeCfg := polar.DefaultGethNodeConfig()
-	nodeCfg.DataDir = polarisDataDir
-	node, err := polar.NewGethNetworkingStack(nodeCfg)
-	if err != nil {
-		panic(err)
-	}
-
-	k.polaris = polar.NewWithNetworkingStack(cfg, k.host, node, ethlog.FuncHandler(
-		func(r *ethlog.Record) error {
-			polarisGethLogger := logger.With("module", "polaris-geth")
-			switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
-			case ethlog.LvlTrace, ethlog.LvlDebug:
-				polarisGethLogger.Debug(r.Msg, r.Ctx...)
-			case ethlog.LvlInfo, ethlog.LvlWarn:
-				polarisGethLogger.Info(r.Msg, r.Ctx...)
-			case ethlog.LvlError, ethlog.LvlCrit:
-				polarisGethLogger.Error(r.Msg, r.Ctx...)
-			}
-			return nil
-		}),
-	)
+// SetPolaris sets the Polaris EVM Provider.
+func (k *Keeper) SetPolaris(polaris *polar.Polaris) {
+	k.polaris = polaris
 }
 
 // Logger returns a module-specific logger.
@@ -126,8 +97,4 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 // GetHost returns the Host that contains all plugins.
 func (k *Keeper) GetHost() Host {
 	return k.host
-}
-
-func (k *Keeper) SetClientCtx(clientContext client.Context) {
-	k.host.GetTxPoolPlugin().(txpool.Plugin).SetClientContext(clientContext)
 }
