@@ -49,7 +49,9 @@ func (a *AppBuilder) DefaultGenesis() map[string]json.RawMessage {
 }
 
 // Build builds an *App instance.
-func (a *AppBuilder) Build(db dbm.DB, traceStore io.Writer, host core.PolarisHostChain, baseAppOptions ...func(*baseapp.BaseApp)) *PolarisApp {
+func (a *AppBuilder) Build(db dbm.DB,
+	traceStore io.Writer, host core.PolarisHostChain,
+	baseAppOptions ...func(*baseapp.BaseApp)) *PolarisApp {
 	a.polarisApp = &PolarisApp{
 		hostChain: host,
 	}

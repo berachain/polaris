@@ -87,7 +87,7 @@ type Polaris struct {
 // host: is the host chain that the Polaris chain will be running on.
 // stack: is the networking stack that will be used to expose JSON-RPC APIs.
 // logHandler: is the log handler that will be used by the EVM, it is used in order to get the host chain logs
-// and the go-ethereum logs to be asthetically the same.
+// and the go-ethereum logs to be aesthetically the same.
 // handler: is used to broadcast new transactions via the p2p mechanism specified by the host chain
 func New(cfg *Config,
 	host core.PolarisHostChain,

@@ -33,6 +33,8 @@ import (
 
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
+//
+//nolint:revive // readability.
 type PolarisApp struct {
 	// core cosmos application
 	*runtime.App

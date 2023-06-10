@@ -231,7 +231,9 @@ func NewPolarisApp(
 		homePath = DefaultNodeHome
 	}
 
-	app.PolarisApp = appBuilder.Build(db, traceStore, app.EVMKeeper.GetHost(), append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
+	app.PolarisApp = appBuilder.Build(db,
+		traceStore, app.EVMKeeper.GetHost(),
+		append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
 		offchainKey,

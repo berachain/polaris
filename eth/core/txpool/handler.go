@@ -20,8 +20,8 @@
 
 package txpool
 
+// Handler is what should broadcast transactions received by the txpool to the host chain network.
 type Handler interface {
-	// APIs returns the list of APIs that the handler exposes.
 	Start()
 	Stop()
 	SetTxPool(txpool *TxPool)

@@ -149,7 +149,6 @@ var _ = Describe("Distribution Precompile", func() {
 		amt = big.NewInt(123450000000)
 		txr = tf.GenerateTransactOpts("alice")
 		txr.Value = amt
-
 		tx, err = contract.Delegate(txr, val)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient, tx)
@@ -177,6 +176,6 @@ var _ = Describe("Distribution Precompile", func() {
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = contract.SetWithdrawAddress(txr, ethAddr)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectMined(tf.EthClient, tx)
+		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
 })
