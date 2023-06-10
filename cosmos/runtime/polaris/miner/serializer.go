@@ -31,7 +31,7 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// TxPool defines the required functions of the transaction pool.
+// TxSerializer defines the required functions of the transaction serializer.
 type TxSerializer interface {
 	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
 	SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)

@@ -30,24 +30,22 @@ import (
 	coretypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-// Select returns an Iterator over the app-side mempool. If txs are specified,
-// then they shall be incorporated into the Iterator. The Iterator must
-// closed by the caller.
+// Select returns an Iterator over the app-side mempool. If txs are specified, then they shall be
+// incorporated into the Iterator. The Iterator must closed by the caller.
 func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Iterator {
+	// return nil if there are no pending txs
 	numPending, _ := gtp.Stats()
 	if numPending == 0 {
 		return nil
 	}
 
+	// return an iterator over the pending txs, sorted by price and nonce
 	return &iterator{
 		txs: coretypes.NewTransactionsByPriceAndNonce(
-			// Should be pending block.
-			// coretypes.MakeSigner(gtp.cp.ChainConfig(), gtp.blockNumber, gtp.blockTime),
-			// HACK FIX LATEST SIGNIER IS WRONG
+			// TODO: HACK FIX LATEST SIGNIER IS WRONG, need pending block number and block time
 			coretypes.LatestSigner(gtp.cp.ChainConfig()),
 			gtp.Pending(true),
-			// basefee broken until prepare proposal miner change
-			// gtp.baseFee,
+			// TODO: need pending block base fee
 			big.NewInt(0),
 		),
 		serializer: gtp.serializer,
@@ -77,7 +75,7 @@ func (i *iterator) Tx() sdk.Tx {
 
 	sdkTx, err := i.serializer.SerializeToSdkTx(ethTx)
 	if err != nil {
-		// TODO: gtp.logger.Error("eth tx could not be serialized to sdk tx:", err)
+		// gtp.logger.Error("eth tx could not be serialized to sdk tx:", err)
 		return nil
 	}
 

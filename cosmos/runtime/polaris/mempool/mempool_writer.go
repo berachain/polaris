@@ -49,10 +49,11 @@ func (gtp *WrappedGethTxPool) InsertSync(_ context.Context, tx sdk.Tx) error {
 // Remove is called when a transaction is removed from the mempool.
 func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		removed := gtp.RemoveTx(ethTx.Hash(), true)
-		if removed < 1 {
-			// TODO: RemoveTx will return 0 if the tx was removed from future queue. We should
-			// handle this specific case better.
+		// remove from the pending queue of txs in the geth mempool.
+		if gtp.RemoveTx(ethTx.Hash(), true) < 1 {
+			// Note: RemoveTx will return 0 if the tx was removed from future queue. Generally, any
+			// tx in the future queue will not be removed because only the pending txs get
+			// selected by prepare proposal.
 			return sdkmempool.ErrTxNotFound
 		}
 	}
