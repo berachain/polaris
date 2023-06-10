@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/miner"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/txpool"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
@@ -65,8 +66,9 @@ func (a *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 	// broadcast transactions inserted into the mempool to comet.
 	a.clientCtx = apiSvr.ClientCtx
 
-	// At this point in time, the TxPool will have been intialized by Polaris.
-	txPool := a.polaris.TxPool()
+	// TODO: move this.
+	txPool := txpool.NewTxPool(txpool.DefaultConfig, a.polaris.Blockchain().Config(), a.polaris.Blockchain())
+	a.polaris.SetTxPool(txPool)
 
 	// Now that we have the client context and the txpool, we can setup the mempool and miner.
 	a.mempool.Setup(txPool, a.hostChain.GetConfigurationPlugin(), miner.NewTxSerializer(a.clientCtx))

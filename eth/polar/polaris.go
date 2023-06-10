@@ -23,7 +23,6 @@ package polar
 import (
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
@@ -138,35 +137,30 @@ func (pl *Polaris) APIs() []rpc.API {
 
 // StartServices notifies the NetworkStack to spin up (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
-	go func() {
-		// TODO: txpool creation, but be decoupled from rpc.
-		pl.txPool = txpool.NewTxPool(txpool.DefaultConfig, pl.blockchain.Config(), pl.blockchain)
-		// pl.handler.SetTxPool(pl.txPool)
+	// Register the JSON-RPCs with the networking stack.
+	pl.stack.RegisterAPIs(pl.APIs())
 
-		// Register the JSON-RPCs with the networking stack.
-		pl.stack.RegisterAPIs(pl.APIs())
+	// Register the filter API separately in order to get access to the filterSystem
+	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
 
-		// Register the filter API separately in order to get access to the filterSystem
-		pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
+	// Register the GraphQL API (todo update cors stuff)
+	// TODO: gate this behind a flag
+	if err := graphql.New(pl.stack, pl.backend, pl.filterSystem, []string{"*"}, []string{"*"}); err != nil {
+		panic(err)
+	}
 
-		// Register the GraphQL API (todo update cors stuff)
-		// TODO: gate this behind a flag
-		if err := graphql.New(pl.stack, pl.backend, pl.filterSystem, []string{"*"}, []string{"*"}); err != nil {
-			panic(err)
-		}
-
-		if pl.stack.Start() != nil {
-			os.Exit(1)
-		}
-		// txpool must be not nil before starting.
-		time.Sleep(1 * time.Second)
-		pl.handler.Start()
-	}()
+	if pl.stack.Start() != nil {
+		os.Exit(1)
+	}
+	pl.handler.Start()
 	return nil
 }
 
 func (pl *Polaris) SetHandler(handler txpool.Handler) {
 	pl.handler = handler
+}
+func (pl *Polaris) SetTxPool(txpool *txpool.TxPool) {
+	pl.txPool = txpool
 }
 func (pl *Polaris) TxPool() *txpool.TxPool      { return pl.txPool }
 func (pl *Polaris) Blockchain() core.Blockchain { return pl.blockchain }
