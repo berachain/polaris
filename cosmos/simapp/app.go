@@ -63,6 +63,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
+	"pkg.berachain.dev/polaris/cosmos/runtime/polaris"
 	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -81,7 +82,7 @@ var (
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
 type SimApp struct {
-	*runtime.App
+	*polaris.PolarisApp
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
 	txConfig          client.TxConfig
@@ -133,7 +134,7 @@ func NewPolarisApp(
 ) *SimApp {
 	var (
 		app          = &SimApp{}
-		appBuilder   *runtime.AppBuilder
+		appBuilder   = &polaris.AppBuilder{}
 		ethTxMempool = evmmempool.NewWrappedGethTxPool()
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
@@ -172,7 +173,7 @@ func NewPolarisApp(
 	)
 
 	if err := depinject.Inject(appConfig,
-		&appBuilder,
+		&appBuilder.AppBuilder,
 		&app.appCodec,
 		&app.legacyAmino,
 		&app.txConfig,
@@ -222,8 +223,6 @@ func NewPolarisApp(
 	// }
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
-	app.App = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
-
 	// TODO: MOVE EVM SETUP
 	// ----- BEGIN EVM SETUP ----------------------------------------------
 	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
@@ -231,6 +230,8 @@ func NewPolarisApp(
 	if !ok || homePath == "" {
 		homePath = DefaultNodeHome
 	}
+
+	app.PolarisApp = appBuilder.Build(db, traceStore, app.EVMKeeper.GetHost(), append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
 		offchainKey,
@@ -364,6 +365,8 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
+
+	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
 }
 
 // GetMaccPerms returns a copy of the module account permissions

@@ -82,6 +82,10 @@ func (h *Handler) Stop() {
 	// log.Info("Ethereum protocol stopped")
 }
 
+func (h *Handler) SetTxPool(txPool *txpool.TxPool) {
+	h.txPool = txPool
+}
+
 // txBroadcastLoop announces new transactions to connected peers.
 func (h *Handler) txBroadcastLoop() {
 	defer h.wg.Done()

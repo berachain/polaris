@@ -18,15 +18,17 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package runtime
+package polaris
 
 import (
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 
-	"pkg.berachain.dev/polaris/cosmos/runtime/polaris"
 	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/miner"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/polar"
 )
 
 // They are exported for convenience in creating helper functions, as object
@@ -34,9 +36,11 @@ import (
 type PolarisApp struct {
 	// core cosmos application
 	*runtime.App
+	polaris polar.Polaris
 
-	polaris *polaris.Runtime
-	handler *miner.Handler
+	hostChain core.PolarisHostChain
+
+	clientCtx client.Context
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
@@ -44,5 +48,36 @@ type PolarisApp struct {
 func (a *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 	// Pass the go-ethereum txpool to the handler, as well as the clientCtx so it can
 	// broadcast transactions inserted into the mempool to comet.
-	a.handler = miner.NewHandler(a.polaris.TxPool(), apiSvr.ClientCtx)
+	a.clientCtx = apiSvr.ClientCtx
+}
+
+// Load is called on application initialization and provides an opportunity to
+// perform initialization logic. It returns an error if initialization fails.
+// We shadow the Load function from cosmos-sdk/runtime/app.go in order to prime the blockchain
+// and miner objects to allow the EVM to reach a consistent state before it begins processing blocks.
+func (a *PolarisApp) Load(latest bool) error {
+	if err := a.App.Load(latest); err != nil {
+		return err
+	}
+
+	// Load EVM keeper or something?
+	// TODO: PARSE POLARIS.TOML CORRECT AGAIN
+	nodeCfg := polar.DefaultGethNodeConfig()
+	nodeCfg.DataDir = "./tmp/polaris"
+	node, err := polar.NewGethNetworkingStack(nodeCfg)
+	if err != nil {
+		panic(err)
+	}
+	a.polaris = *polar.New(
+		polar.DefaultConfig(),
+		a.hostChain,
+		node,
+		nil,
+		miner.NewHandler(a.polaris.TxPool(), a.clientCtx),
+	)
+	// Load the polaris runtime to warm the blockchain object.
+
+	// a.polaris.SetHandler(miner.NewHandler(a.polaris.TxPool(), a.clientCtx))
+	// a.polaris.Blockchain().LoadLastState()
+	return nil
 }

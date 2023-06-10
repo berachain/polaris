@@ -83,11 +83,18 @@ type Polaris struct {
 	filterSystem *filters.FilterSystem
 }
 
+// New creates a new Polaris instance.
+// host: is the host chain that the Polaris chain will be running on.
+// stack: is the networking stack that will be used to expose JSON-RPC APIs.
+// logHandler: is the log handler that will be used by the EVM, it is used in order to get the host chain logs
+// and the go-ethereum logs to be asthetically the same.
+// handler: is used to broadcast new transactions via the p2p mechanism specified by the host chain
 func New(cfg *Config,
 	host core.PolarisHostChain,
 	stack NetworkingStack,
 	logHandler log.Handler,
-	handler txpool.Handler) *Polaris {
+	handler txpool.Handler,
+) *Polaris {
 	pl := &Polaris{
 		cfg:        cfg,
 		handler:    handler,
@@ -186,4 +193,8 @@ func (pl *Polaris) StartServices() error {
 	return nil
 }
 
-func (pl *Polaris) TxPool() *txpool.TxPool { return pl.txPool }
+func (pl *Polaris) SetHandler(handler txpool.Handler) {
+	pl.handler = handler
+}
+func (pl *Polaris) TxPool() *txpool.TxPool      { return pl.txPool }
+func (pl *Polaris) Blockchain() core.Blockchain { return pl.blockchain }
