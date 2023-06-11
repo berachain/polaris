@@ -57,6 +57,7 @@ func (a *AppBuilder) Build(db dbm.DB,
 
 	// Build the base runtime.App (and thus baseapp.BaseApp)
 	a.polarisApp.App = a.AppBuilder.Build(db, traceStore, baseAppOptions...)
+
 	// Create the polaris Runtime.
 	a.polarisApp.polarisRuntime = polaris.CreateRuntime(a.polarisApp.Logger(), ethTxMempool, host)
 	// a.polarisApp.SetPrepareProposal(pflarisMiner.PrepareProposalHandler())
