@@ -32,6 +32,5 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		(*sdk.Msg)(nil),
 		&WrappedEthereumTransaction{},
 	)
-
 	msgservice.RegisterMsgServiceDesc(registry, &_MsgService_serviceDesc)
 }

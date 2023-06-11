@@ -64,5 +64,3 @@ func NewPlugin(
 func (p *plugin) Prepare(ctx context.Context) {
 	p.ctx = sdk.UnwrapSDKContext(ctx)
 }
-
-func (p *plugin) IsPlugin() {}

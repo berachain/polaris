@@ -19,11 +19,9 @@
 // TITLE.
 
 //nolint:revive // embed.
-package runtime
+package network
 
 import (
-	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
-	"cosmossdk.io/core/appconfig"
 	"cosmossdk.io/x/evidence"
 	"cosmossdk.io/x/upgrade"
 
@@ -46,7 +44,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 
-	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/x/erc20"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 
@@ -55,14 +52,7 @@ import (
 )
 
 var (
-	// DefaultNodeHome default home directories for the application daemon.
-	DefaultNodeHome string
-
-	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
-	// non-dependant module elements, such as codec registration
-	// and genesis verification.
-	// ModuleBasics is in charge of setting up basic, non-dependant module elements,.
-	ModuleBasicsList = []module.AppModuleBasic{
+	ModuleBasics = module.NewBasicManager([]module.AppModuleBasic{
 		auth.AppModuleBasic{},
 		genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
 		bank.AppModuleBasic{},
@@ -85,11 +75,5 @@ var (
 		consensus.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		erc20.AppModuleBasic{},
-	}
-	ModuleBasics = module.NewBasicManager(ModuleBasicsList...)
-
-	// application configuration (used by depinject).
-	AppConfig = appconfig.Compose(&appv1alpha1.Config{
-		Modules: simappconfig.DefaultModule,
-	})
+	}...)
 )

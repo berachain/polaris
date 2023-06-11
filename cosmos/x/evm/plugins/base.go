@@ -26,15 +26,12 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
-// Base is the base interface which all x/evm Polaris plugins must implement
-
-type Base interface {
-	IsPlugin()
-}
+// Base is the base interface which all x/evm Polaris plugins must implement.
+type Base interface{}
 
 // HasGenesis represents the base class that all x/evm Polaris plugins which have
-// InitGenesis or ExportGenesis methods must implement
-
+// InitGenesis or ExportGenesis methods must implement. In export genesis, they
+// are expected to manipulate the data stored at the provided pointer.
 type HasGenesis interface {
 	InitGenesis(sdk.Context, *core.Genesis)
 	ExportGenesis(sdk.Context, *core.Genesis)

@@ -62,9 +62,9 @@ import (
 
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
+	evmmepool "pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	"pkg.berachain.dev/polaris/cosmos/simapp"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
-	evmmepool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
@@ -80,7 +80,7 @@ func NewRootCmd() *cobra.Command {
 		moduleBasicManager module.BasicManager
 	)
 	if err := depinject.Inject(depinject.Configs(simapp.AppConfig, depinject.Supply(
-		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
+		evmmepool.NewWrappedGethTxPool(), log.NewNopLogger())),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,

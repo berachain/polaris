@@ -24,7 +24,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
@@ -34,11 +33,8 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Compile-time interface assertion.
@@ -59,13 +55,12 @@ type Host interface {
 
 type host struct {
 	// The various plugins that are are used to implement core.PolarisHostChain.
-	bp  block.Plugin
-	cp  configuration.Plugin
-	gp  gas.Plugin
-	hp  historical.Plugin
-	pp  precompile.Plugin
-	sp  state.Plugin
-	txp txpool.Plugin
+	bp block.Plugin
+	cp configuration.Plugin
+	gp gas.Plugin
+	hp historical.Plugin
+	pp precompile.Plugin
+	sp state.Plugin
 
 	pcs func() *ethprecompile.Injector
 }
@@ -74,7 +69,6 @@ type host struct {
 func NewHost(
 	storeKey storetypes.StoreKey,
 	sk block.StakingKeeper,
-	ethTxMempool sdkmempool.Mempool,
 	precompiles func() *ethprecompile.Injector,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
@@ -84,7 +78,6 @@ func NewHost(
 	h.bp = block.NewPlugin(storeKey, sk)
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
-	h.txp = txpool.NewPlugin(utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 	h.pcs = precompiles
 
 	return h
@@ -103,7 +96,6 @@ func (h *host) Setup(
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles(), h.sp)
 	// TODO: re-enable historical plugin using ABCI listener.
 	// h.hp = historical.NewPlugin(h.bp, offchainStoreKey, storeKey)
-	h.txp.SetNonceRetriever(h.sp)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)
@@ -139,12 +131,7 @@ func (h *host) GetStatePlugin() core.StatePlugin {
 	return h.sp
 }
 
-// GetTxPoolPlugin returns the txpool plugin.
-func (h *host) GetTxPoolPlugin() core.TxPoolPlugin {
-	return h.txp
-}
-
 // GetAllPlugins returns all the plugins.
 func (h *host) GetAllPlugins() []plugins.Base {
-	return []plugins.Base{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp, h.txp}
+	return []plugins.Base{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp}
 }

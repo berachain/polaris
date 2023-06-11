@@ -20,11 +20,8 @@
 
 package mempool
 
-import "pkg.berachain.dev/polaris/eth/common"
+import "errors"
 
-type (
-	// NonceRetriever is used to retrieve a nonce from the db.
-	NonceRetriever interface {
-		GetNonce(addr common.Address) uint64
-	}
+var (
+	ErrRemoveFailed = errors.New("failed to remove tx from mempool")
 )

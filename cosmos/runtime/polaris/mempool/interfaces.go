@@ -18,25 +18,29 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package main
+package mempool
 
 import (
-	"os"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"cosmossdk.io/log"
-
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-
-	"pkg.berachain.dev/polaris/cosmos/cmd/polard/cmd"
-	runtimeconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
-	"pkg.berachain.dev/polaris/cosmos/simapp"
+	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
-func main() {
-	runtimeconfig.SetupCosmosConfig()
-	rootCmd := cmd.NewRootCmd()
-	if err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome); err != nil {
-		log.NewLogger(rootCmd.OutOrStderr()).Error("failure when running app", "err", err)
-		os.Exit(1)
+type (
+	// NonceRetriever is used to retrieve a nonce from the db.
+	NonceRetriever interface {
+		GetNonce(addr common.Address) uint64
 	}
-}
+
+	// SdkTxSerializer is used to convert eth transactions to sdk transactions.
+	SdkTxSerializer interface {
+		SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
+	}
+
+	// ConfigurationPlugin is used to fetch the current chain config.
+	ConfigurationPlugin interface {
+		ChainConfig() *params.ChainConfig
+	}
+)

@@ -25,7 +25,6 @@ import (
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
 
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -49,7 +48,6 @@ type DepInjectInput struct {
 	Config    *modulev1alpha1.Module
 	Key       *store.KVStoreKey
 
-	Mempool           sdkmempool.Mempool
 	CustomPrecompiles func() *ethprecompile.Injector `optional:"true"`
 
 	AccountKeeper AccountKeeper
@@ -82,7 +80,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.StakingKeeper,
 		in.Key,
 		authority.String(),
-		in.Mempool,
 		in.CustomPrecompiles,
 	)
 
