@@ -62,7 +62,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
-	"pkg.berachain.dev/polaris/cosmos/runtime/polaris"
+	polarisruntime "pkg.berachain.dev/polaris/cosmos/runtime"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
@@ -81,7 +81,7 @@ var (
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
 type SimApp struct {
-	*polaris.PolarisApp
+	*polarisruntime.PolarisApp
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
 	txConfig          client.TxConfig
@@ -133,7 +133,7 @@ func NewPolarisApp(
 ) *SimApp {
 	var (
 		app          = &SimApp{}
-		appBuilder   = &polaris.AppBuilder{}
+		appBuilder   = &polarisruntime.AppBuilder{}
 		ethTxMempool = evmmempool.NewWrappedGethTxPool()
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
@@ -226,7 +226,7 @@ func NewPolarisApp(
 	// ----- BEGIN EVM SETUP ----------------------------------------------
 	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
 	app.PolarisApp = appBuilder.Build(db,
-		traceStore, ethTxMempool, logger, app.EVMKeeper.GetHost(),
+		traceStore, ethTxMempool, app.EVMKeeper.GetHost(),
 		append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
