@@ -66,14 +66,29 @@ func (a *PolarisApp) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 	// broadcast transactions inserted into the mempool to comet.
 	a.clientCtx = apiSvr.ClientCtx
 
-	// TODO: move this.
+	// TODO: TxPool initialization
+	// Intializating the txpool here seems to be safe, but I think there may be a race condition here.
+	// What we should really be doing is reading the ChainConfig directly from the database after `Load()` is called.
+	// Opposed to getting it through the blockchain object, which won't be prepare'd until after BeginBlock(), I think
+	// it is just happenstance that RegisterAPIRoutes is happen after the blockchain is prepared.
+	//
+	// Note: Once we are properly loading the state of the blockchain in `Load()` this issue should be formally resolved.
 	txPool := txpool.NewTxPool(txpool.DefaultConfig, a.polaris.Blockchain().Config(), a.polaris.Blockchain())
 	a.polaris.SetTxPool(txPool)
 
 	// Now that we have the client context and the txpool, we can setup the mempool and miner.
 	a.mempool.Setup(txPool, a.hostChain.GetConfigurationPlugin(), miner.NewTxSerializer(a.clientCtx))
+
+	// We set the handler.
 	a.polaris.SetHandler(miner.NewHandler(txPool, a.clientCtx))
 
+	// Note: this is a bit of an awkward place to put this, but if you look in the Cosmos-SDK server:
+	// https://github.com/cosmos/cosmos-sdk/blob/3db9528efb5fec1cccdb4e6f084c24ed195951b1/server/start.go#L504
+	// You'll see that the API server is started right after `RegisterAPIRoutes` is called. So starting the
+	// Polaris services here is quite oddly a semi logical place to do it (in lieu of having a custom
+	// server even though it feels a little strange.
+	// TODO: Really we should create a way for runtime modules to register services with the server package.
+	// We suggest this to @tac0turtle.
 	if err := a.polaris.StartServices(); err != nil {
 		panic(err)
 	}

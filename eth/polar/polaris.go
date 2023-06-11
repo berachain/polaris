@@ -149,9 +149,12 @@ func (pl *Polaris) StartServices() error {
 		panic(err)
 	}
 
+	// Star the networking stack.
 	if pl.stack.Start() != nil {
 		os.Exit(1)
 	}
+
+	// Stack the tx pool handler.
 	pl.handler.Start()
 	return nil
 }

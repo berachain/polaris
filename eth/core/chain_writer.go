@@ -60,7 +60,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	}
 
 	coinbase, timestamp := bc.bp.GetNewBlockMetadata(number)
-	bc.logger.Info("Preparing block", "number", number, "coinbase", coinbase.Hex(), "timestamp", timestamp)
+	bc.logger.Info("preparing block", "number", number, "coinbase", coinbase.Hex(), "timestamp", timestamp)
 
 	// Build the new block header.
 	parent := bc.CurrentFinalBlock()
@@ -118,7 +118,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	}
 
 	blockHash, blockNum := block.Hash(), block.Number().Uint64()
-	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
+	bc.logger.Info("finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
 
 	// store the block header on the host chain
 	err = bc.bp.StoreHeader(block.Header())
