@@ -30,6 +30,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/runtime/polaris"
 	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
+	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/miner"
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
@@ -60,8 +61,9 @@ func (a *AppBuilder) Build(db dbm.DB,
 
 	// Create the polaris Runtime.
 	a.polarisApp.polarisRuntime = polaris.CreateRuntime(a.polarisApp.Logger(), ethTxMempool, host)
-	// a.polarisApp.SetPrepareProposal(pflarisMiner.PrepareProposalHandler())
-	// a.polarisApp.SetProcessProposal(polarisMiner.ProcessProposalHandler())
+	proposalHandler := miner.NewPolarisProposalHandler(a.polarisApp.Logger(), ethTxMempool, a.polarisApp.App)
+	a.polarisApp.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
+	a.polarisApp.SetProcessProposal(proposalHandler.ProcessProposalHandler())
 
 	// Mount our custom stores.
 	// a.polarisApp.MountCustomStores(offchainKey)

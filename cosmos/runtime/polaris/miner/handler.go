@@ -117,7 +117,7 @@ func (h *Handler) BroadcastTransactions(txs types.Transactions) {
 
 		// If we see an ABCI response error.
 		if rsp != nil && rsp.Code != 0 {
-			h.logger.Error("failed to broadcast transaction", "code", rsp.Code, "err", err)
+			h.logger.Error("failed to broadcast transaction", "rsp", rsp, "err", err)
 			continue
 		}
 

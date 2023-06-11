@@ -22,9 +22,12 @@ package mempool
 
 import (
 	"context"
+	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+
+	"github.com/ethereum/go-ethereum/core/txpool"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -33,7 +36,16 @@ import (
 // Insert is called when a transaction is added to the mempool.
 func (gtp *WrappedGethTxPool) Insert(_ context.Context, tx sdk.Tx) error {
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		return gtp.AddRemotes(coretypes.Transactions{ethTx})[0]
+		err := gtp.AddRemotes(coretypes.Transactions{ethTx})[0]
+		// If we see ErrAlreadyKnown, we can ignore it, since this is likely from the ABCI broadcast.
+		// TODO: we should do a check here to make sure that the ErrAlreadyKnown is happening because of
+		// the fact that InsertLocal was called. If this is a genuine p2p broadcast of a tx, we may want to
+		// actually handle the error if already known, in the case where two indepdent peers are sending us the
+		// same transaction. TODO verify this.
+		if errors.Is(err, txpool.ErrAlreadyKnown) {
+			return nil
+		}
+		return err
 	}
 	return nil
 }
