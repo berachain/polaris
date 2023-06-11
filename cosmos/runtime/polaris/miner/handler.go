@@ -92,8 +92,10 @@ func (h *Handler) txBroadcastLoop() {
 	for {
 		select {
 		case event := <-h.txsCh:
+			h.logger.Debug("received new transactions", "numTxs", len(event.Txs))
 			h.BroadcastTransactions(event.Txs)
 		case <-h.txsSub.Err():
+			h.logger.Error("tx subscription error", "err", h.txsSub.Err())
 			return
 		}
 	}
