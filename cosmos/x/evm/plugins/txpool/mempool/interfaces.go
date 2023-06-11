@@ -20,8 +20,11 @@
 
 package mempool
 
-import "errors"
+import "pkg.berachain.dev/polaris/eth/common"
 
-var (
-	ErrRemoveFailed = errors.New("failed to remove tx from mempool")
+type (
+	// NonceRetriever is used to retrieve a nonce from the db.
+	NonceRetriever interface {
+		GetNonce(addr common.Address) uint64
+	}
 )

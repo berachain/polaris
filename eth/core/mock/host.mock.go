@@ -37,6 +37,9 @@ var _ core.PolarisHostChain = &PolarisHostChainMock{}
 //			GetStatePluginFunc: func() core.StatePlugin {
 //				panic("mock out the GetStatePlugin method")
 //			},
+//			GetTxPoolPluginFunc: func() core.TxPoolPlugin {
+//				panic("mock out the GetTxPoolPlugin method")
+//			},
 //		}
 //
 //		// use mockedPolarisHostChain in code that requires core.PolarisHostChain
@@ -62,6 +65,9 @@ type PolarisHostChainMock struct {
 	// GetStatePluginFunc mocks the GetStatePlugin method.
 	GetStatePluginFunc func() core.StatePlugin
 
+	// GetTxPoolPluginFunc mocks the GetTxPoolPlugin method.
+	GetTxPoolPluginFunc func() core.TxPoolPlugin
+
 	// calls tracks calls to the methods.
 	calls struct {
 		// GetBlockPlugin holds details about calls to the GetBlockPlugin method.
@@ -82,6 +88,9 @@ type PolarisHostChainMock struct {
 		// GetStatePlugin holds details about calls to the GetStatePlugin method.
 		GetStatePlugin []struct {
 		}
+		// GetTxPoolPlugin holds details about calls to the GetTxPoolPlugin method.
+		GetTxPoolPlugin []struct {
+		}
 	}
 	lockGetBlockPlugin         sync.RWMutex
 	lockGetConfigurationPlugin sync.RWMutex
@@ -89,6 +98,7 @@ type PolarisHostChainMock struct {
 	lockGetHistoricalPlugin    sync.RWMutex
 	lockGetPrecompilePlugin    sync.RWMutex
 	lockGetStatePlugin         sync.RWMutex
+	lockGetTxPoolPlugin        sync.RWMutex
 }
 
 // GetBlockPlugin calls GetBlockPluginFunc.
@@ -250,5 +260,32 @@ func (mock *PolarisHostChainMock) GetStatePluginCalls() []struct {
 	mock.lockGetStatePlugin.RLock()
 	calls = mock.calls.GetStatePlugin
 	mock.lockGetStatePlugin.RUnlock()
+	return calls
+}
+
+// GetTxPoolPlugin calls GetTxPoolPluginFunc.
+func (mock *PolarisHostChainMock) GetTxPoolPlugin() core.TxPoolPlugin {
+	if mock.GetTxPoolPluginFunc == nil {
+		panic("PolarisHostChainMock.GetTxPoolPluginFunc: method is nil but PolarisHostChain.GetTxPoolPlugin was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetTxPoolPlugin.Lock()
+	mock.calls.GetTxPoolPlugin = append(mock.calls.GetTxPoolPlugin, callInfo)
+	mock.lockGetTxPoolPlugin.Unlock()
+	return mock.GetTxPoolPluginFunc()
+}
+
+// GetTxPoolPluginCalls gets all the calls that were made to GetTxPoolPlugin.
+// Check the length with:
+//
+//	len(mockedPolarisHostChain.GetTxPoolPluginCalls())
+func (mock *PolarisHostChainMock) GetTxPoolPluginCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetTxPoolPlugin.RLock()
+	calls = mock.calls.GetTxPoolPlugin
+	mock.lockGetTxPoolPlugin.RUnlock()
 	return calls
 }

@@ -47,7 +47,7 @@ require (
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230522054826-1e34ff529c3e
-	pkg.berachain.dev/polaris/eth v0.0.0-20230609211413-aca63f71aaaa
+	pkg.berachain.dev/polaris/eth v0.0.0-20230529182942-8a54f2bce6b2
 	pkg.berachain.dev/polaris/lib v0.0.0-20230522054826-1e34ff529c3e
 )
 
@@ -70,6 +70,7 @@ require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/DataDog/zstd v1.5.5 // indirect
 	github.com/VictoriaMetrics/fastcache v1.12.1 // indirect
+	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/aws/aws-sdk-go v1.44.224 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect

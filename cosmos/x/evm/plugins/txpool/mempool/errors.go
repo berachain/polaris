@@ -18,25 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package main
+package mempool
 
-import (
-	"os"
+import "errors"
 
-	"cosmossdk.io/log"
-
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-
-	"pkg.berachain.dev/polaris/cosmos/simapp"
-	"pkg.berachain.dev/polaris/cosmos/simapp/polard/cmd"
-	runtimeconfig "pkg.berachain.dev/polaris/cosmos/types"
+var (
+	ErrIncorrectTxType = errors.New("tx is not of type WrappedEthereumTransaction")
 )
-
-func main() {
-	runtimeconfig.SetupCosmosConfig()
-	rootCmd := cmd.NewRootCmd()
-	if err := svrcmd.Execute(rootCmd, "POLARIS", simapp.DefaultNodeHome); err != nil {
-		log.NewLogger(rootCmd.OutOrStderr()).Error("failure when running app", "err", err)
-		os.Exit(1)
-	}
-}

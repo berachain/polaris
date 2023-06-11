@@ -83,7 +83,7 @@ func (Cosmos) Build() error {
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
 		"-o", generateOutDirectory(cmd),
-		"./cosmos/simapp/" + cmd,
+		"./cosmos/cmd/" + cmd,
 	}
 	return goBuild(args...)
 }
@@ -175,7 +175,7 @@ func (Cosmos) Install() error {
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
-		"./cosmos/simapp/polard",
+		"./cosmos/cmd/polard",
 	}
 
 	return goInstall(args...)

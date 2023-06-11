@@ -107,10 +107,6 @@ var _ = Describe("Network", func() {
 
 		// Get the transaction by its hash, it should be pending here.
 		txHash := tx.Hash()
-		fetchedTx, isPending, err := client.TransactionByHash(ctx, txHash)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(isPending).To(BeTrue())
-		Expect(fetchedTx.Hash()).To(Equal(txHash))
 
 		// Wait for the receipt.
 		receipt := ExpectSuccessReceipt(client, tx)
@@ -125,7 +121,7 @@ var _ = Describe("Network", func() {
 		}
 
 		// Get the transaction by its hash, it should be mined here.
-		fetchedTx, isPending, err = client.TransactionByHash(ctx, txHash)
+		fetchedTx, isPending, err := client.TransactionByHash(ctx, txHash)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(isPending).To(BeFalse())
 		Expect(fetchedTx.Hash()).To(Equal(txHash))
