@@ -56,8 +56,8 @@ func CreateRuntime(
 	hostChain core.PolarisHostChain,
 ) *Runtime {
 	return &Runtime{
-		mempool:   mempool,
 		logger:    logger,
+		mempool:   mempool,
 		hostChain: hostChain,
 	}
 }
@@ -125,7 +125,7 @@ func (r *Runtime) RegisterServices(grpc.ServiceRegistrar) error {
 	r.mempool.Setup(txPool, r.hostChain.GetConfigurationPlugin(), miner.NewTxSerializer(r.clientCtx))
 
 	// We set the handler.
-	r.polaris.SetHandler(miner.NewHandler(txPool, r.clientCtx))
+	r.polaris.SetHandler(miner.NewHandler(r.logger, r.clientCtx, txPool))
 
 	// Note: this is a bit of an awkward place to put this, but if you look in the Cosmos-SDK server:
 	// https://github.com/cosmos/cosmos-sdk/blob/3db9528efb5fec1cccdb4e6f084c24ed195951b1/server/start.go#L504

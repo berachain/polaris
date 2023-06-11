@@ -23,7 +23,7 @@ package miner
 import (
 	"sync"
 
-	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -33,7 +33,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/core/types"
-	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // txChanSize is the size of channel listening to NewTxsEvent. The number is referenced from the
@@ -44,8 +43,9 @@ const txChanSize = 4096
 // layer for p2p and ABCI.
 type Handler struct {
 	// Cosmos
-	serializer TxSerializer
+	logger     log.Logger
 	clientCtx  client.Context
+	serializer TxSerializer
 
 	// Ethereum
 	txPool *txpool.TxPool
@@ -54,11 +54,12 @@ type Handler struct {
 	wg     sync.WaitGroup
 }
 
-func NewHandler(txPool *txpool.TxPool, clientCtx client.Context) *Handler {
+func NewHandler(logger log.Logger, clientCtx client.Context, txPool *txpool.TxPool) *Handler {
 	return &Handler{
-		txPool:     txPool,
-		serializer: NewTxSerializer(clientCtx),
+		logger:     logger.With("module", "miner-handler"),
 		clientCtx:  clientCtx,
+		serializer: NewTxSerializer(clientCtx),
+		txPool:     txPool,
 	}
 }
 
@@ -68,19 +69,21 @@ func (h *Handler) Start() {
 	h.wg.Add(1)
 	h.txsCh = make(chan core.NewTxsEvent, txChanSize)
 	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
+	h.logger.Info("handler started")
 	go h.txBroadcastLoop() // start broadcast handlers
 }
 
 // Stop stops the Handler.
 // TODO: when is this called?
 func (h *Handler) Stop() {
-	h.txsSub.Unsubscribe() // quits txBroadcastLoop
+	// Triggers txBroadcastLoop to quit.
+	h.txsSub.Unsubscribe()
 
-	// Quit new txs channel
+	// Leave the channels.
 	close(h.txsCh)
 	h.wg.Wait()
 
-	// log.Info("Ethereum protocol stopped")
+	h.logger.Info("handler stopped")
 }
 
 // txBroadcastLoop announces new transactions to connected peers.
@@ -102,21 +105,24 @@ func (h *Handler) BroadcastTransactions(txs types.Transactions) {
 		// Serialize the transaction to Bytes
 		txBytes, err := h.serializer.SerializeToBytes(signedEthTx)
 		if err != nil {
-			// TODO: log error?
-			panic(errorslib.Wrap(err, "failed to serialize transaction"))
+			h.logger.Error("failed to serialize transaction", "err", err)
+			continue
 		}
 
 		// Send the transaction to the CometBFT mempool, which will gossip it to peers via
 		// CometBFT's p2p layer.
-		syncCtx := h.clientCtx.WithBroadcastMode(flags.BroadcastAsync)
-		rsp, err := syncCtx.BroadcastTx(txBytes)
+		rsp, err := h.clientCtx.WithBroadcastMode(flags.BroadcastSync).BroadcastTx(txBytes)
+
+		// If we see an ABCI response error.
 		if rsp != nil && rsp.Code != 0 {
-			// TODO: log error?
-			panic(errorsmod.ABCIError(rsp.Codespace, rsp.Code, rsp.RawLog))
+			h.logger.Error("failed to broadcast transaction", "code", rsp.Code, "err", err)
+			continue
 		}
+
+		// If we see any other type of error.
 		if err != nil {
-			// TODO: log error?
-			panic(err)
+			h.logger.Error("error on transactions broadcast", "err", err)
+			continue
 		}
 	}
 }

@@ -52,8 +52,6 @@ func NewTxSerializer(clientCtx client.Context) TxSerializer {
 
 // SerializeToSdkTx converts an ethereum transaction to a Cosmos native transaction.
 func (txs *txSerializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error) {
-	// TODO: do we really need to use extensions for anything? Since we
-	// are using the standard ante handler stuff I don't think we actually need to.
 	tx := txs.clientCtx.TxConfig.NewTxBuilder()
 
 	// We can also retrieve the gaslimit for the transaction from the ethereum transaction.
