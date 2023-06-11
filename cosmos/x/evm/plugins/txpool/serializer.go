@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package miner
+package txpool
 
 import (
 	"github.com/cosmos/cosmos-sdk/client"
@@ -31,30 +31,13 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// TxSerializer defines the required functions of the transaction serializer.
-type TxSerializer interface {
-	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
-	SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
-}
-
-// txSerializer implements the TxSerializer interface. It is used to convert
-// ethereum transactions to Cosmos native transactions.
-type txSerializer struct {
-	clientCtx client.Context
-}
-
-// NewTxSerializer returns a new TxSerializer.
-func NewTxSerializer(clientCtx client.Context) TxSerializer {
-	return &txSerializer{
-		clientCtx: clientCtx,
-	}
-}
-
 // SerializeToSdkTx converts an ethereum transaction to a Cosmos native transaction.
-func (txs *txSerializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error) {
+func SerializeToSdkTx(
+	clientCtx client.Context, signedTx *coretypes.Transaction,
+) (sdk.Tx, error) {
 	// TODO: do we really need to use extensions for anything? Since we
 	// are using the standard ante handler stuff I don't think we actually need to.
-	tx := txs.clientCtx.TxConfig.NewTxBuilder()
+	tx := clientCtx.TxConfig.NewTxBuilder()
 
 	// We can also retrieve the gaslimit for the transaction from the ethereum transaction.
 	tx.SetGasLimit(signedTx.Gas())
@@ -117,15 +100,17 @@ func (txs *txSerializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.
 
 // SerializeToBytes converts an Ethereum transaction to Cosmos formatted txBytes which allows for
 // it to broadcast it to CometBFT.
-func (txs *txSerializer) SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error) {
+func SerializeToBytes(
+	clientCtx client.Context, signedTx *coretypes.Transaction,
+) ([]byte, error) {
 	// First, we convert the Ethereum transaction to a Cosmos transaction.
-	cosmosTx, err := txs.SerializeToSdkTx(signedTx)
+	cosmosTx, err := SerializeToSdkTx(clientCtx, signedTx)
 	if err != nil {
 		return nil, err
 	}
 
 	// Then we use the clientCtx.TxConfig.TxEncoder() to encode the Cosmos transaction into bytes.
-	txBytes, err := txs.clientCtx.TxConfig.TxEncoder()(cosmosTx)
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(cosmosTx)
 	if err != nil {
 		return nil, err
 	}

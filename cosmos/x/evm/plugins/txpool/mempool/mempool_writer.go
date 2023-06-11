@@ -22,40 +22,66 @@ package mempool
 
 import (
 	"context"
+	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // Insert is called when a transaction is added to the mempool.
-func (gtp *WrappedGethTxPool) Insert(_ context.Context, tx sdk.Tx) error {
-	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		return gtp.AddRemotes(coretypes.Transactions{ethTx})[0]
-	}
-	return nil
-}
+func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
+	etp.mu.Lock()
+	defer etp.mu.Unlock()
 
-// InsertSync is called when a transaction is added to the mempool (for testing purposes).
-func (gtp *WrappedGethTxPool) InsertSync(_ context.Context, tx sdk.Tx) error {
-	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		return gtp.AddRemotesSync(coretypes.Transactions{ethTx})[0]
+	// Call the base mempool's Insert method
+	if err := etp.PriorityNonceMempool.Insert(ctx, tx); err != nil {
+		return err
 	}
+
+	// We want to cache the transaction for lookup.
+	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
+		sender := coretypes.GetSender(ethTx)
+		nonce := ethTx.Nonce()
+
+		// Reject txs with a nonce lower than the nonce reported by the statedb.
+		if sdbNonce := etp.nr.GetNonce(sender); sdbNonce > nonce {
+			return errors.New("nonce too low")
+		}
+
+		// Delete old hash.
+		hash := etp.nonceToHash[sender][nonce]
+		delete(etp.ethTxCache, hash)
+
+		// Add new hash.
+		newHash := ethTx.Hash()
+		if etp.nonceToHash[sender] == nil {
+			etp.nonceToHash[sender] = make(map[uint64]common.Hash)
+		}
+		etp.nonceToHash[sender][nonce] = newHash
+		etp.ethTxCache[newHash] = ethTx
+	}
+
 	return nil
 }
 
 // Remove is called when a transaction is removed from the mempool.
-func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
-	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		// remove from the pending queue of txs in the geth mempool.
-		if gtp.RemoveTx(ethTx.Hash(), true) < 1 {
-			// Note: RemoveTx will return 0 if the tx was removed from future queue. Generally, any
-			// tx in the future queue will not be removed because only the pending txs get
-			// selected by prepare proposal.
-			return sdkmempool.ErrTxNotFound
-		}
+func (etp *EthTxPool) Remove(tx sdk.Tx) error {
+	etp.mu.Lock()
+	defer etp.mu.Unlock()
+
+	// Call the base mempool's Remove method
+	if err := etp.PriorityNonceMempool.Remove(tx); err != nil {
+		return err
 	}
+
+	// We want to remove any references to the tx from the cache.
+	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
+		delete(etp.ethTxCache, ethTx.Hash())
+		delete(etp.nonceToHash[coretypes.GetSender(ethTx)], ethTx.Nonce())
+	}
+
 	return nil
 }

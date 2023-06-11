@@ -23,6 +23,7 @@ package polar
 import (
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
@@ -30,7 +31,6 @@ import (
 	"github.com/ethereum/go-ethereum/graphql"
 
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/log"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
@@ -67,10 +67,7 @@ type Polaris struct {
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
 
-	// canonical tx pool for the chain
-	txPool  *txpool.TxPool
-	handler txpool.Handler
-
+	// txPool     *txpool.TxPool
 	// blockchain represents the canonical chain.
 	blockchain core.Blockchain
 
@@ -82,21 +79,14 @@ type Polaris struct {
 	filterSystem *filters.FilterSystem
 }
 
-// New creates a new Polaris instance.
-// host: is the host chain that the Polaris chain will be running on.
-// stack: is the networking stack that will be used to expose JSON-RPC APIs.
-// logHandler: is the log handler that will be used by the EVM, it is used in order to get the host chain logs
-// and the go-ethereum logs to be aesthetically the same.
-// handler: is used to broadcast new transactions via the p2p mechanism specified by the host chain
-func New(cfg *Config,
+func NewWithNetworkingStack(
+	cfg *Config,
 	host core.PolarisHostChain,
 	stack NetworkingStack,
 	logHandler log.Handler,
-	handler txpool.Handler,
 ) *Polaris {
 	pl := &Polaris{
 		cfg:        cfg,
-		handler:    handler,
 		blockchain: core.NewChain(host),
 		stack:      stack,
 	}
@@ -146,26 +136,15 @@ func (pl *Polaris) StartServices() error {
 	// Register the GraphQL API (todo update cors stuff)
 	// TODO: gate this behind a flag
 	if err := graphql.New(pl.stack, pl.backend, pl.filterSystem, []string{"*"}, []string{"*"}); err != nil {
-		panic(err)
+		return err
 	}
 
-	if pl.stack.Start() != nil {
-		os.Exit(1)
-	}
-	pl.handler.Start()
+	go func() {
+		// TODO: unhack this.
+		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
+		if pl.stack.Start() != nil {
+			os.Exit(1)
+		}
+	}()
 	return nil
-}
-
-func (pl *Polaris) SetHandler(handler txpool.Handler) {
-	pl.handler = handler
-}
-func (pl *Polaris) SetTxPool(txpool *txpool.TxPool) {
-	pl.txPool = txpool
-}
-func (pl *Polaris) TxPool() *txpool.TxPool      { return pl.txPool }
-func (pl *Polaris) Blockchain() core.Blockchain { return pl.blockchain }
-
-// FOR TESTING ONLY.
-func (pl *Polaris) SetBlockchain(blockchain core.Blockchain) {
-	pl.blockchain = blockchain
 }

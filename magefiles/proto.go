@@ -58,7 +58,7 @@ func (Proto) Gen() error {
 		"run", "--rm", "-v", dir + ":/workspace",
 		"--workdir", "/workspace",
 		protoImageName + ":" + protoImageVersion,
-		"sh", "./cosmos/proto/scripts/proto_generate.sh",
+		"sh", "./cosmos/build/scripts/proto_generate.sh",
 	}
 
 	return sh.Run("docker", dockerArgs...)

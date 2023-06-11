@@ -36,7 +36,6 @@ type Account struct {
 	Balance  *big.Int
 	Code     []byte
 	CodeHash common.Hash
-	Nonce    uint64
 }
 
 // NewEmptyStatePlugin returns an empty `StatePluginMock`.
@@ -51,7 +50,6 @@ func NewEmptyStatePlugin() *PluginMock {
 				Balance:  Accounts[address].Balance.Add(Accounts[address].Balance, intMoqParam),
 				Code:     Accounts[address].Code,
 				CodeHash: Accounts[address].CodeHash,
-				Nonce:    Accounts[address].Nonce,
 			}
 		},
 		CloneFunc: func() state.Plugin {
@@ -61,7 +59,6 @@ func NewEmptyStatePlugin() *PluginMock {
 			Accounts[address] = &Account{
 				Balance:  new(big.Int),
 				CodeHash: crypto.Keccak256Hash(nil),
-				Nonce:    0,
 			}
 		},
 		DeleteAccountsFunc: func(addresss []common.Address) {
@@ -106,7 +103,7 @@ func NewEmptyStatePlugin() *PluginMock {
 			panic("mock out the GetCommittedState method")
 		},
 		GetNonceFunc: func(address common.Address) uint64 {
-			return Accounts[address].Nonce
+			return 0
 		},
 		GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 			panic("mock out the GetState method")
@@ -128,15 +125,7 @@ func NewEmptyStatePlugin() *PluginMock {
 			}
 		},
 		SetNonceFunc: func(address common.Address, v uint64) {
-			if _, ok := Accounts[address]; !ok {
-				panic("acct doesnt exist")
-			}
-			Accounts[address] = &Account{
-				Balance:  Accounts[address].Balance,
-				Code:     Accounts[address].Code,
-				CodeHash: Accounts[address].CodeHash,
-				Nonce:    v,
-			}
+			panic("mock out the SetNonce method")
 		},
 		SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash) {
 			panic("mock out the SetState method")

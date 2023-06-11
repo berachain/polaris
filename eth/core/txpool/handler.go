@@ -24,4 +24,5 @@ package txpool
 type Handler interface {
 	Start()
 	Stop()
+	SetTxPool(txpool *TxPool)
 }

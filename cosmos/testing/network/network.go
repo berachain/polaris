@@ -45,8 +45,9 @@ import (
 	ethhd "pkg.berachain.dev/polaris/cosmos/crypto/hd"
 	ethkeyring "pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
+	runtime "pkg.berachain.dev/polaris/cosmos/runtime"
+	config "pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/simapp"
-	config "pkg.berachain.dev/polaris/cosmos/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -107,7 +108,7 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 // DefaultConfig will initialize config for the network with custom application,
 // genesis and single validator. All other parameters are inherited from cosmos-sdk/testutil/network.DefaultConfig.
 func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
-	encoding := BuildPolarisEncodingConfig(ModuleBasics)
+	encoding := config.BuildPolarisEncodingConfig(runtime.ModuleBasics)
 	cfg := network.Config{
 		Codec:             encoding.Codec,
 		TxConfig:          encoding.TxConfig,
@@ -141,8 +142,8 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 }
 
 func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json.RawMessage {
-	encoding := BuildPolarisEncodingConfig(ModuleBasics)
-	genState := ModuleBasics.DefaultGenesis(encoding.Codec)
+	encoding := config.BuildPolarisEncodingConfig(runtime.ModuleBasics)
+	genState := runtime.ModuleBasics.DefaultGenesis(encoding.Codec)
 
 	// Auth, Bank, EVM module
 	var authState authtypes.GenesisState

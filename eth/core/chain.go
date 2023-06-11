@@ -21,12 +21,10 @@
 package core
 
 import (
-	"math/big"
 	"sync/atomic"
 
 	lru "github.com/ethereum/go-ethereum/common/lru"
 	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -59,6 +57,7 @@ type blockchain struct {
 	hp HistoricalPlugin
 	gp GasPlugin
 	sp StatePlugin
+	tp TxPoolPlugin
 
 	// StateProcessor is the canonical, persistent state processor that runs the EVM.
 	processor *StateProcessor
@@ -66,9 +65,6 @@ type blockchain struct {
 	statedb vm.PolarisStateDB
 	// vmConfig is the configuration used to create the EVM.
 	vmConfig *vm.Config
-
-	// genesisBlock is the genesis block of the blockchain.
-	genesisBlock *types.Block
 
 	// currentBlock is the current/pending block.
 	currentBlock atomic.Pointer[types.Block]
@@ -110,18 +106,13 @@ type blockchain struct {
 // NewChain creates and returns a `api.Chain` with the given EVM chain configuration and host.
 func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used as `api.Chain`.
 	bc := &blockchain{
-		bp:       host.GetBlockPlugin(),
-		cp:       host.GetConfigurationPlugin(),
-		hp:       host.GetHistoricalPlugin(),
-		gp:       host.GetGasPlugin(),
-		sp:       host.GetStatePlugin(),
-		vmConfig: &vm.Config{},
-		genesisBlock: types.NewBlock(
-			&types.Header{
-				BaseFee: big.NewInt(int64(params.InitialBaseFee)), Number: big.NewInt(0),
-			},
-			nil, nil, nil, trie.NewStackTrie(nil),
-		),
+		bp:             host.GetBlockPlugin(),
+		cp:             host.GetConfigurationPlugin(),
+		hp:             host.GetHistoricalPlugin(),
+		gp:             host.GetGasPlugin(),
+		sp:             host.GetStatePlugin(),
+		tp:             host.GetTxPoolPlugin(),
+		vmConfig:       &vm.Config{},
 		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
 		blockNumCache:  lru.NewCache[uint64, *types.Block](defaultCacheSizeBytes),
 		blockHashCache: lru.NewCache[common.Hash, *types.Block](defaultCacheSizeBytes),
@@ -134,8 +125,8 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 	bc.processor = NewStateProcessor(
 		bc.cp, bc.gp, host.GetPrecompilePlugin(), bc.statedb, bc.vmConfig,
 	)
-	bc.currentBlock.Store(bc.genesisBlock)
-	bc.finalizedBlock.Store(bc.genesisBlock)
+	bc.currentBlock.Store(nil)
+	bc.finalizedBlock.Store(nil)
 
 	return bc
 }

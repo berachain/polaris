@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -36,6 +37,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
+	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 
@@ -64,11 +66,12 @@ var _ = Describe("", func() {
 			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
 			"authority",
+			evmmempool.NewPolarisEthereumTxPool(),
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
-		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil)
+		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger())
 
 		am = evm.NewAppModule(k, ak)
 	})
