@@ -32,7 +32,7 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-type Tests struct {
+type tests struct {
 	Name  string
 	Files []string
 }
@@ -48,7 +48,7 @@ var (
 	simulatorsPath = clonePath + "simulators/polaris/"
 	clientsPath    = clonePath + "clients/polard/"
 
-	simulations = []Tests{{"rpc", []string{"init/genesis.json"}}, {"graphql", []string{"testcases", "init/testGenesis.json"}}}
+	simulations = []tests{{"rpc", []string{"init/genesis.json"}}, {"graphql", []string{"testcases", "init/testGenesis.json"}}}
 )
 
 type Hive mg.Namespace

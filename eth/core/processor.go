@@ -156,9 +156,6 @@ func (sp *StateProcessor) ProcessTransaction(
 		return nil, errors.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
 	}
 
-	fmt.Println("TX RECEIPT and RESULT", receipt, result)
-	fmt.Println("receipt status:", receipt.Status)
-
 	// Consume the gas used by the state transition. In both the out of block gas as well as out of
 	// gas on the plugin cases, the line below will consume the remaining gas for the block and
 	// transaction respectively.

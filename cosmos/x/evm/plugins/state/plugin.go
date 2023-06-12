@@ -23,7 +23,6 @@ package state
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -253,20 +252,12 @@ func (p *plugin) DeleteAccounts(accounts []common.Address) {
 // GetBalance implements `StatePlugin` interface.
 func (p *plugin) GetBalance(addr common.Address) *big.Int {
 	val := new(big.Int).SetBytes(p.ctx.KVStore(p.storeKey).Get(BalanceKeyFor(addr)))
-	fmt.Println("GetBalance", addr, val)
 	return val
 }
 
 // SetBalance implements `StatePlugin` interface.
 func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
-	fmt.Printf("\n")
-	fmt.Println("SetBalance", addr, amount)
-	fmt.Println("====================")
-	fmt.Println("Before", addr, p.GetBalance(addr))
 	p.ctx.KVStore(p.storeKey).Set(BalanceKeyFor(addr), amount.Bytes())
-	fmt.Println("After", addr, p.GetBalance(addr))
-	fmt.Println("====================")
-	fmt.Printf("\n")
 }
 
 // AddBalance implements the `StatePlugin` interface by adding the given amount
@@ -276,16 +267,7 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 	if amount.Sign() == 0 {
 		return
 	}
-	fmt.Printf("\n")
-	fmt.Println("AddBalance", addr, amount)
-	fmt.Println("++++++++++++++++++")
-	fmt.Println("Before", addr, p.GetBalance(addr))
-	sum := new(big.Int).Add(p.GetBalance(addr), amount)
-	p.SetBalance(addr, sum)
-	fmt.Println("Sum", sum)
-	fmt.Println("After", addr, p.GetBalance(addr))
-	fmt.Println("++++++++++++++++++")
-	fmt.Printf("\n")
+	p.SetBalance(addr, new(big.Int).Add(p.GetBalance(addr), amount))
 }
 
 // SubBalance implements the `StatePlugin` interface by subtracting the given amount
@@ -294,16 +276,7 @@ func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
 	if amount.Sign() == 0 {
 		return
 	}
-	fmt.Printf("\n")
-	fmt.Println("SubBalance", addr, amount)
-	fmt.Println("------------------")
-	fmt.Println("Before", addr, p.GetBalance(addr))
-	diff := new(big.Int).Sub(p.GetBalance(addr), amount)
-	p.SetBalance(addr, diff)
-	fmt.Println("Diff", diff)
-	fmt.Println("After", addr, p.GetBalance(addr))
-	fmt.Println("------------------")
-	fmt.Printf("\n")
+	p.SetBalance(addr, new(big.Int).Sub(p.GetBalance(addr), amount))
 }
 
 // =============================================================================
