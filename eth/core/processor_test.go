@@ -62,7 +62,6 @@ var (
 var _ = Describe("StateProcessor", func() {
 	var (
 		sdb *vmmock.PolarisStateDBMock
-		bp  *mock.BlockPluginMock
 		gp  *mock.GasPluginMock
 		cp  *mock.ConfigurationPluginMock
 		pp  *mock.PrecompilePluginMock
@@ -72,10 +71,7 @@ var _ = Describe("StateProcessor", func() {
 
 	BeforeEach(func() {
 		sdb = vmmock.NewEmptyStateDB()
-		_, bp, cp, gp, _, pp, _ = mock.NewMockHostAndPlugins()
-		bp.GetNewBlockMetadataFunc = func(n uint64) (common.Address, uint64) {
-			return common.BytesToAddress([]byte{2}), uint64(3)
-		}
+		_, _, cp, gp, _, pp, _ = mock.NewMockHostAndPlugins()
 		pp.HasFunc = func(addr common.Address) bool {
 			return false
 		}
@@ -189,11 +185,8 @@ var _ = Describe("StateProcessor", func() {
 
 var _ = Describe("No precompile plugin provided", func() {
 	It("should use the default plugin if none is provided", func() {
-		_, bp, cp, gp, _, _, _ := mock.NewMockHostAndPlugins()
+		_, _, cp, gp, _, _, _ := mock.NewMockHostAndPlugins()
 		gp.SetBlockGasLimit(uint64(blockGasLimit))
-		bp.GetNewBlockMetadataFunc = func(n uint64) (common.Address, uint64) {
-			return common.BytesToAddress([]byte{2}), uint64(3)
-		}
 		sp := core.NewStateProcessor(cp, gp, nil, vmmock.NewEmptyStateDB(), &vm.Config{})
 		Expect(func() {
 			sp.Prepare(nil, &types.Header{

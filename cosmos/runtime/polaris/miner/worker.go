@@ -74,7 +74,7 @@ type worker struct {
 func newWorker(
 	logger log.Logger, mp *mempool.WrappedGethTxPool,
 	txVerifier baseapp.ProposalTxVerifier,
-	proposalHandler PolarisProposalHandler,
+	proposalHandler *PolarisProposalHandler,
 	cb CoinbaseProvider,
 ) *worker {
 	return &worker{

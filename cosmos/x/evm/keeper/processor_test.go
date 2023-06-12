@@ -47,6 +47,7 @@ import (
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/eth/polar"
+	polarmock "pkg.berachain.dev/polaris/eth/polar/mock"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -103,8 +104,20 @@ var _ = Describe("Processor", func() {
 		)
 		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil)
 		pl := &polar.Polaris{}
+		miner := &polarmock.MinerMock{}
+		miner.PendingBlockFunc = func() *coretypes.Block {
+			return coretypes.NewBlockWithHeader(&coretypes.Header{
+				Number:   big.NewInt(1),
+				BaseFee:  big.NewInt(1),
+				GasLimit: ctx.BlockGasMeter().Limit(),
+			})
+		}
+
+		// Setup
 		pl.SetBlockchain(core.NewChain(k.GetHost()))
+		pl.SetMiner(miner)
 		k.SetPolaris(pl)
+
 		ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error { return nil })) // disable logging
 		for _, plugin := range k.GetHost().GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)

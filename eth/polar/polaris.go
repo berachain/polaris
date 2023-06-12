@@ -46,6 +46,7 @@ var defaultEthConfig = ethconfig.Config{
 	FilterLogCacheSize: 0,
 }
 
+//go:generate moq -out ./mock/miner.mock.go -pkg mock . Miner
 type Miner interface {
 	PendingBlock() *types.Block
 }

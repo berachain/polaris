@@ -5,9 +5,7 @@ package mock
 
 import (
 	"context"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"math/big"
 	"pkg.berachain.dev/polaris/eth/core"
 	"sync"
 )
@@ -22,14 +20,8 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //
 //		// make and configure a mocked core.BlockPlugin
 //		mockedBlockPlugin := &BlockPluginMock{
-//			BaseFeeFunc: func() *big.Int {
-//				panic("mock out the BaseFee method")
-//			},
 //			GetHeaderByNumberFunc: func(v uint64) (*types.Header, error) {
 //				panic("mock out the GetHeaderByNumber method")
-//			},
-//			GetNewBlockMetadataFunc: func(v uint64) (common.Address, uint64) {
-//				panic("mock out the GetNewBlockMetadata method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
@@ -44,14 +36,8 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //
 //	}
 type BlockPluginMock struct {
-	// BaseFeeFunc mocks the BaseFee method.
-	BaseFeeFunc func() *big.Int
-
 	// GetHeaderByNumberFunc mocks the GetHeaderByNumber method.
 	GetHeaderByNumberFunc func(v uint64) (*types.Header, error)
-
-	// GetNewBlockMetadataFunc mocks the GetNewBlockMetadata method.
-	GetNewBlockMetadataFunc func(v uint64) (common.Address, uint64)
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
@@ -61,16 +47,8 @@ type BlockPluginMock struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
-		// BaseFee holds details about calls to the BaseFee method.
-		BaseFee []struct {
-		}
 		// GetHeaderByNumber holds details about calls to the GetHeaderByNumber method.
 		GetHeaderByNumber []struct {
-			// V is the v argument value.
-			V uint64
-		}
-		// GetNewBlockMetadata holds details about calls to the GetNewBlockMetadata method.
-		GetNewBlockMetadata []struct {
 			// V is the v argument value.
 			V uint64
 		}
@@ -85,38 +63,9 @@ type BlockPluginMock struct {
 			Header *types.Header
 		}
 	}
-	lockBaseFee             sync.RWMutex
-	lockGetHeaderByNumber   sync.RWMutex
-	lockGetNewBlockMetadata sync.RWMutex
-	lockPrepare             sync.RWMutex
-	lockStoreHeader         sync.RWMutex
-}
-
-// BaseFee calls BaseFeeFunc.
-func (mock *BlockPluginMock) BaseFee() *big.Int {
-	if mock.BaseFeeFunc == nil {
-		panic("BlockPluginMock.BaseFeeFunc: method is nil but BlockPlugin.BaseFee was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockBaseFee.Lock()
-	mock.calls.BaseFee = append(mock.calls.BaseFee, callInfo)
-	mock.lockBaseFee.Unlock()
-	return mock.BaseFeeFunc()
-}
-
-// BaseFeeCalls gets all the calls that were made to BaseFee.
-// Check the length with:
-//
-//	len(mockedBlockPlugin.BaseFeeCalls())
-func (mock *BlockPluginMock) BaseFeeCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockBaseFee.RLock()
-	calls = mock.calls.BaseFee
-	mock.lockBaseFee.RUnlock()
-	return calls
+	lockGetHeaderByNumber sync.RWMutex
+	lockPrepare           sync.RWMutex
+	lockStoreHeader       sync.RWMutex
 }
 
 // GetHeaderByNumber calls GetHeaderByNumberFunc.
@@ -148,38 +97,6 @@ func (mock *BlockPluginMock) GetHeaderByNumberCalls() []struct {
 	mock.lockGetHeaderByNumber.RLock()
 	calls = mock.calls.GetHeaderByNumber
 	mock.lockGetHeaderByNumber.RUnlock()
-	return calls
-}
-
-// GetNewBlockMetadata calls GetNewBlockMetadataFunc.
-func (mock *BlockPluginMock) GetNewBlockMetadata(v uint64) (common.Address, uint64) {
-	if mock.GetNewBlockMetadataFunc == nil {
-		panic("BlockPluginMock.GetNewBlockMetadataFunc: method is nil but BlockPlugin.GetNewBlockMetadata was just called")
-	}
-	callInfo := struct {
-		V uint64
-	}{
-		V: v,
-	}
-	mock.lockGetNewBlockMetadata.Lock()
-	mock.calls.GetNewBlockMetadata = append(mock.calls.GetNewBlockMetadata, callInfo)
-	mock.lockGetNewBlockMetadata.Unlock()
-	return mock.GetNewBlockMetadataFunc(v)
-}
-
-// GetNewBlockMetadataCalls gets all the calls that were made to GetNewBlockMetadata.
-// Check the length with:
-//
-//	len(mockedBlockPlugin.GetNewBlockMetadataCalls())
-func (mock *BlockPluginMock) GetNewBlockMetadataCalls() []struct {
-	V uint64
-} {
-	var calls []struct {
-		V uint64
-	}
-	mock.lockGetNewBlockMetadata.RLock()
-	calls = mock.calls.GetNewBlockMetadata
-	mock.lockGetNewBlockMetadata.RUnlock()
 	return calls
 }
 

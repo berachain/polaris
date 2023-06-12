@@ -68,7 +68,7 @@ func (a *AppBuilder) Build(
 		a.polarisApp.Logger(),
 		miner.NewMiner(
 			a.polarisApp.Logger(),
-			ethTxMempool, a.polarisApp.App, proposalHandler, &miner.CB{Sk: sk}), ethTxMempool, host)
+			ethTxMempool, a.polarisApp.App, &proposalHandler, &miner.CB{Sk: sk}), ethTxMempool, host)
 
 	// Setup cosmos stuff.
 	a.polarisApp.SetMempool(ethTxMempool)

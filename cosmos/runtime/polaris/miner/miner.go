@@ -48,7 +48,7 @@ func NewMiner(
 	logger log.Logger,
 	mp *mempool.WrappedGethTxPool,
 	txVerifier baseapp.ProposalTxVerifier,
-	proposalHandler PolarisProposalHandler,
+	proposalHandler *PolarisProposalHandler,
 	cb CoinbaseProvider,
 ) *Miner {
 	return &Miner{
