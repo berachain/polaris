@@ -115,19 +115,17 @@ func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
 // incorporated into the Iterator. The Iterator must closed by the caller.
 func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Iterator {
 	// return nil if there are no pending txs
-	pending := gtp.Pending(true)
-	if len(pending) == 0 {
+	pendingTxs := gtp.Pending(true)
+	if len(pendingTxs) == 0 {
 		return nil
 	}
 
 	// return an iterator over the pending txs, sorted by price and nonce
 	return &iterator{
 		txs: coretypes.NewTransactionsByPriceAndNonce(
-			// TODO: HACK FIX LATEST SIGNIER IS WRONG, need pending block number and block time
-			coretypes.LatestSigner(gtp.cp.ChainConfig()),
-			pending,
-			// TODO: need pending block base fee
-			big.NewInt(0),
+			gtp.signer,
+			pendingTxs,
+			gtp.pendingBaseFee,
 		),
 		serializer: gtp.serializer,
 	}
