@@ -21,8 +21,72 @@
 package block
 
 import (
+	storetypes "cosmossdk.io/store/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+
 	. "github.com/onsi/ginkgo/v2"
-	// . "github.com/onsi/gomega".
+	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Block Plugin", func() {})
+var _ = Describe("Block Plugin", func() {
+	var (
+		p   *plugin
+		ctx sdk.Context
+
+		header *coretypes.Header
+		err    error
+	)
+
+	BeforeEach(func() {
+		ctx = testutil.NewContext()
+		storekey := storetypes.NewKVStoreKey("evm")
+		p = &plugin{
+			ctx:      ctx,
+			storekey: storekey,
+		}
+	})
+
+	Context("GetHeaderByNumber", func() {
+		var (
+			number uint64
+		)
+
+		JustBeforeEach(func() {
+			header, err = p.GetHeaderByNumber(number)
+		})
+
+		It("should return the header at the given block number", func() {
+			Expect(err).To(BeNil())
+			Expect(header.Number).To(Equal(number))
+		})
+
+		It("should return the header at the genesis block number 0", func() {
+			Expect(err).To(BeNil())
+			Expect(header.Number).To(Equal(number))
+		})
+	})
+	Context("GetHeaderByHash", func() {
+		var (
+			hash common.Hash
+		)
+
+		JustBeforeEach(func() {
+			header, err = p.GetHeaderByHash(hash)
+		})
+
+		It("should return the header at the given block hash", func() {
+			Expect(err).To(BeNil())
+			Expect(header.Hash()).To(Equal(hash))
+		})
+
+		It("should return the header at the genesis block hash", func() {
+			Expect(err).To(BeNil())
+			Expect(header.Hash()).To(Equal(hash))
+		})
+	})
+})

@@ -116,11 +116,11 @@ func (bc *blockchain) CurrentSafeBlock() *types.Header {
 // GetHeaderByHash retrieves a block header from the database by hash, caching it if
 // found.
 func (bc *blockchain) GetHeaderByHash(hash common.Hash) *types.Header {
-	block := bc.GetBlockByHash(hash)
-	if block == nil {
+	header, err := bc.bp.GetHeaderByHash(hash)
+	if header == nil || err != nil {
 		return nil
 	}
-	return block.Header()
+	return header
 }
 
 // CurrentReceipts returns the current receipts of the blockchain.
@@ -162,31 +162,11 @@ func (bc *blockchain) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 
 // GetBlock returns a block by its hash or number.
 func (bc *blockchain) GetBlock(hash common.Hash, number uint64) *types.Block {
-	// check the cache
-	if block, ok := bc.blockHashCache.Get(hash); ok {
+	if block := bc.GetBlockByHash(hash); block != nil {
 		return block
 	}
 
-	// check if historical plugin is supported by host chain
-	if bc.hp == nil {
-		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil
-	}
-
-	// Try by Hash
-	block, err := bc.hp.GetBlockByHash(hash)
-	if block == nil || err != nil {
-		block, err = bc.hp.GetBlockByNumber(number)
-		if block == nil || err != nil {
-			bc.logger.Debug("failed to get block from historical plugin", "err", err)
-			return nil
-		}
-	}
-
-	// Cache the found block for next time and return
-	bc.blockHashCache.Add(hash, block)
-	bc.blockNumCache.Add(block.Number().Uint64(), block)
-	return block
+	return bc.GetBlockByNumber(number)
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
@@ -222,6 +202,16 @@ func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 	if block, ok := bc.blockNumCache.Get(number); ok {
 		bc.blockHashCache.Add(block.Hash(), block)
 		return block
+	}
+
+	var block *types.Block
+	if number == 0 {
+		header, err := bc.bp.GetHeaderByNumber(0)
+		if err != nil {
+			// TODO: don't panic inside
+			panic(err)
+		}
+		block = types.NewBlockWithHeader(header)
 	}
 
 	// check if historical plugin is supported by host chain
