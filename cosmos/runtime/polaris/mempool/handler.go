@@ -103,6 +103,7 @@ func (h *Handler) txBroadcastLoop() {
 
 // BroadcastTransactions will propagate a batch of transactions to the CometBFT mempool.
 func (h *Handler) BroadcastTransactions(txs types.Transactions) {
+	h.logger.Debug("broadcasting transactions", "num_txs", len(txs))
 	for _, signedEthTx := range txs {
 		// Serialize the transaction to Bytes
 		txBytes, err := h.serializer.SerializeToBytes(signedEthTx)

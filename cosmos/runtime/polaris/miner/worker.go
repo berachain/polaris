@@ -32,66 +32,74 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 )
 
-const maxTxBytes = 1000000000
+const maxTxBytes = 1000000 // 1mb
 
-type Worker struct {
+type worker struct {
 	logger     log.Logger
 	mempool    mempool.Mempool
 	txVerifier baseapp.ProposalTxVerifier
-	prepChan   chan *abci.RequestPrepareProposal
-	procChan   chan *abci.RequestProcessProposal
-	prepResp   chan *ProposedBlock
-	procResp   chan *ProcessedBlock
-	stop       chan struct{}
+
+	prepCh     chan *abci.RequestPrepareProposal
+	procCh     chan *abci.RequestProcessProposal
+	prepRespCh chan *ProposedBlock
+	procRespCh chan *ProcessedBlock
+	stopCh     chan struct{}
+
+	// snapshotMu       sync.RWMutex
+	// snapshotBlock *types.Block
+	// snapshotReceipts types.Receipts
 }
 
-// NewWorker returns a new miner.
-func NewWorker(
-	logger log.Logger, mp mempool.Mempool, txVerifier baseapp.ProposalTxVerifier, proposalHandler PolarisProposalHandler,
-) *Worker {
-	return &Worker{
+// newWorker returns a new worker.
+func newWorker(
+	logger log.Logger, mp mempool.Mempool,
+	txVerifier baseapp.ProposalTxVerifier,
+	proposalHandler PolarisProposalHandler,
+) *worker {
+	return &worker{
 		logger:     logger.With("module", "polaris-miner"),
 		mempool:    mp,
 		txVerifier: txVerifier,
-		prepChan:   proposalHandler.prepChan,
-		procChan:   proposalHandler.procChan,
-		prepResp:   proposalHandler.prepResp,
-		procResp:   proposalHandler.procResp,
-		stop:       make(chan struct{}),
+		prepCh:     proposalHandler.prepCh,
+		procCh:     proposalHandler.procCh,
+		prepRespCh: proposalHandler.prepRespCh,
+		procRespCh: proposalHandler.procRespCh,
+		stopCh:     make(chan struct{}),
 	}
 }
 
 // Start starts the miner.
-func (m *Worker) Start() {
+func (m *worker) start() {
 	go m.loop()
 }
 
 // Stop stops the miner.
-func (m *Worker) Stop() {
-	close(m.prepChan)
-	close(m.procChan)
-	close(m.prepResp)
-	close(m.procResp)
+func (m *worker) stop() {
+	close(m.prepCh)
+	close(m.procCh)
+	close(m.prepRespCh)
+	close(m.procRespCh)
 
-	m.stop <- struct{}{}
+	m.stopCh <- struct{}{}
 }
 
 // loop is the main loop of the miner.
-func (m *Worker) loop() {
+func (m *worker) loop() {
 	for {
 		select {
-		case req := <-m.prepChan:
-			m.prepResp <- m.BuildBlock(context.Background(), req.Txs)
-		case req := <-m.procChan:
-			m.procResp <- m.ProcessBlock(context.Background(), req.Txs)
-		case <-m.stop:
+		case req := <-m.prepCh:
+			// TODO should we forward the context from the baseapp?
+			m.prepRespCh <- m.buildBlock(context.Background(), req.Txs)
+		case req := <-m.procCh:
+			m.procRespCh <- m.processBlock(context.Background(), req.Txs)
+		case <-m.stopCh:
 			return
 		}
 	}
 }
 
 // BuildBlock builds a block using the provided mempool and txs.s.
-func (m *Worker) BuildBlock(ctx context.Context, txs [][]byte) *ProposedBlock {
+func (m *worker) buildBlock(ctx context.Context, txs [][]byte) *ProposedBlock {
 	_, isNoOp := m.mempool.(mempool.NoOpMempool)
 	if m.mempool == nil || isNoOp {
 		panic("mempool must be set")
@@ -122,7 +130,6 @@ func (m *Worker) BuildBlock(ctx context.Context, txs [][]byte) *ProposedBlock {
 			if totalTxBytes += txSize; totalTxBytes <= maxTxBytes {
 				selectedTxs = append(selectedTxs, bz)
 			} else {
-				// We've reached capacity per req.MaxTxBytes so we cannot select any
 				// more transactions.
 				break
 			}
@@ -136,7 +143,7 @@ func (m *Worker) BuildBlock(ctx context.Context, txs [][]byte) *ProposedBlock {
 }
 
 // ProcessBlock processes a block using the provided mempool and txs.
-func (m *Worker) ProcessBlock(_ context.Context, txs [][]byte) *ProcessedBlock {
+func (m *worker) processBlock(_ context.Context, txs [][]byte) *ProcessedBlock {
 	m.logger.Info("🤨 processing block", "num_txs", len(txs))
 	for _, txBytes := range txs {
 		_, err := m.txVerifier.ProcessProposalVerifyTx(txBytes)

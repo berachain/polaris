@@ -63,7 +63,7 @@ func (a *AppBuilder) Build(db dbm.DB,
 	proposalHandler := miner.NewPolarisProposalHandler()
 	a.polarisApp.polarisRuntime = polaris.CreateRuntime(
 		a.polarisApp.Logger(),
-		miner.NewWorker(a.polarisApp.Logger(),
+		miner.NewMiner(a.polarisApp.Logger(),
 			ethTxMempool, a.polarisApp.App, proposalHandler), ethTxMempool, host)
 
 	// Setup cosmos stuff.

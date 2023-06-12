@@ -41,19 +41,19 @@ type ProcessedBlock struct {
 // PolarisProposalHandler defines the default ABCI PrepareProposal and
 // ProcessProposal handlers.
 type PolarisProposalHandler struct {
-	prepChan chan *abci.RequestPrepareProposal
-	procChan chan *abci.RequestProcessProposal
-	prepResp chan *ProposedBlock
-	procResp chan *ProcessedBlock
+	prepCh     chan *abci.RequestPrepareProposal
+	procCh     chan *abci.RequestProcessProposal
+	prepRespCh chan *ProposedBlock
+	procRespCh chan *ProcessedBlock
 }
 
 // NewPolarisProposalHandler returns a new default.
 func NewPolarisProposalHandler() PolarisProposalHandler {
 	return PolarisProposalHandler{
-		prepChan: make(chan *abci.RequestPrepareProposal),
-		procChan: make(chan *abci.RequestProcessProposal),
-		prepResp: make(chan *ProposedBlock),
-		procResp: make(chan *ProcessedBlock),
+		prepCh:     make(chan *abci.RequestPrepareProposal),
+		procCh:     make(chan *abci.RequestProcessProposal),
+		prepRespCh: make(chan *ProposedBlock),
+		procRespCh: make(chan *ProcessedBlock),
 	}
 }
 
@@ -63,13 +63,13 @@ func NewPolarisProposalHandler() PolarisProposalHandler {
 func (h PolarisProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 	return func(ctx sdk.Context, req *abci.RequestPrepareProposal) (*abci.ResponsePrepareProposal, error) {
 		// Fire off a request to build a block to propose.
-		h.prepChan <- req
+		h.prepCh <- req
 
 		// Wait for the response.
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
-		case block := <-h.prepResp:
+		case block := <-h.prepRespCh:
 			return block.abciResp, block.err
 		}
 	}
@@ -81,13 +81,13 @@ func (h PolarisProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHand
 func (h PolarisProposalHandler) ProcessProposalHandler() sdk.ProcessProposalHandler {
 	return func(ctx sdk.Context, req *abci.RequestProcessProposal) (*abci.ResponseProcessProposal, error) {
 		// Fire off the request to process the proposal.
-		h.procChan <- req
+		h.procCh <- req
 
 		// Wait for the response.
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
-		case block := <-h.procResp:
+		case block := <-h.procRespCh:
 			return block.abciResp, block.err
 		}
 	}

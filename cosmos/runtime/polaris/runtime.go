@@ -45,7 +45,7 @@ type Runtime struct {
 	clientCtx client.Context
 
 	polaris   *polar.Polaris
-	miner     *miner.Worker
+	miner     *miner.Miner
 	mempool   *mempool.WrappedGethTxPool
 	hostChain core.PolarisHostChain
 }
@@ -53,7 +53,7 @@ type Runtime struct {
 // CreateRuntime creates a new Polaris runtime.
 func CreateRuntime(
 	logger log.Logger,
-	miner *miner.Worker,
+	miner *miner.Miner,
 	mempool *mempool.WrappedGethTxPool,
 	hostChain core.PolarisHostChain,
 ) *Runtime {
