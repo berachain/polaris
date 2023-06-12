@@ -107,13 +107,12 @@ func (p *plugin) getKeyForBlockHash(hash common.Hash) []byte {
 }
 
 // getBlockNumberByBlockHash returns the block number specified by the given hash.
-// TODO: design such that it doesn't return block number 0 for blocks which do not exist.
 func (p *plugin) getBlockNumberByBlockHash(hash common.Hash) uint64 {
 	var numBz []byte
 	numBz = prefix.NewStore(p.ctx.KVStore(p.storekey),
 		[]byte{types.HeaderHashKey}).Get(hash.Bytes())
 
-	// this is so bad, refactor somehow
+	// TODO: design such that it doesn't return block number 0 for blocks which do not exist.
 	if numBz == nil {
 		numBz = prefix.NewStore(p.ctx.KVStore(p.storekey),
 			[]byte{types.GenesisHeaderHashKey}).Get(hash.Bytes())

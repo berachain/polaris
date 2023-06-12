@@ -21,9 +21,13 @@
 package block
 
 import (
+	"log"
+	"math/big"
+
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -37,17 +41,34 @@ var _ = Describe("Block Plugin", func() {
 	var (
 		p   *plugin
 		ctx sdk.Context
+		sk  stakingkeeper.Keeper
 
 		header *coretypes.Header
 		err    error
+
+		header1 = &coretypes.Header{Number: big.NewInt(0)}
+		header2 = &coretypes.Header{Number: big.NewInt(1)}
 	)
 
 	BeforeEach(func() {
-		ctx = testutil.NewContext()
+		ctx, _, _, sk = testutil.SetupMinimalKeepers()
 		storekey := storetypes.NewKVStoreKey("evm")
+
+		// TODO: setup query context func.
 		p = &plugin{
-			ctx:      ctx,
 			storekey: storekey,
+			sk:       sk,
+		}
+
+		p.Prepare(ctx)
+
+		// Add two blocks to the block store.
+		if err = p.StoreHeader(header1); err != nil {
+			log.Panic("failed to store header", "err", err)
+		}
+
+		if err = p.StoreHeader(header2); err != nil {
+			log.Panic("failed to store header", "err", err)
 		}
 	})
 
@@ -60,14 +81,26 @@ var _ = Describe("Block Plugin", func() {
 			header, err = p.GetHeaderByNumber(number)
 		})
 
-		It("should return the header at the given block number", func() {
-			Expect(err).ToNot(HaveOccurred())
-			Expect(header.Number).To(Equal(number))
+		When("the number is 0", func() {
+			BeforeEach(func() {
+				number = 0
+			})
+
+			It("should return the header at the genesis block number 0", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(header.Number.Uint64()).To(Equal(number))
+			})
 		})
 
-		It("should return the header at the genesis block number 0", func() {
-			Expect(err).ToNot(HaveOccurred())
-			Expect(header.Number).To(Equal(number))
+		When("the number is not 0", func() {
+			BeforeEach(func() {
+				number = 1
+			})
+
+			It("should return the header at the given block number", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(header.Number.Uint64()).To(Equal(number))
+			})
 		})
 	})
 	Context("GetHeaderByHash", func() {
@@ -79,14 +112,26 @@ var _ = Describe("Block Plugin", func() {
 			header, err = p.GetHeaderByHash(hash)
 		})
 
-		It("should return the header at the given block hash", func() {
-			Expect(err).ToNot(HaveOccurred())
-			Expect(header.Hash()).To(Equal(hash))
+		When("the hash refers to the genesis block", func() {
+			BeforeEach(func() {
+				hash = header1.Hash()
+			})
+
+			It("should return the header at the genesis block hash", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(header.Hash()).To(Equal(hash))
+			})
 		})
 
-		It("should return the header at the genesis block hash", func() {
-			Expect(err).ToNot(HaveOccurred())
-			Expect(header.Hash()).To(Equal(hash))
+		When("the hash does not refer to the genesis block", func() {
+			BeforeEach(func() {
+				hash = header2.Hash()
+			})
+
+			It("should return the header at the given block hash", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(header.Hash()).To(Equal(hash))
+			})
 		})
 	})
 })
