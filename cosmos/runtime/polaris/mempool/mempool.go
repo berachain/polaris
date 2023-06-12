@@ -67,6 +67,7 @@ func (gtp *WrappedGethTxPool) Setup(txPool *txpool.TxPool, cp ConfigurationPlugi
 	gtp.serializer = serializer
 }
 
+// Prepare 
 func (gtp *WrappedGethTxPool) Prepare(pendingBaseFee *big.Int, signer coretypes.Signer) {
 	gtp.pendingBaseFee = pendingBaseFee
 	gtp.signer = signer

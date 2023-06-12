@@ -73,7 +73,10 @@ func (miner *Miner) Stop() {
 
 // PendingBlock returns the header of the next block to be sealed.
 func (miner *Miner) PendingBlock() *types.Block {
+	if miner.worker.pendingHeader == nil {
+		// TODO verify this is okay.
+		return nil
+	}
 	block := types.NewBlockWithHeader(miner.worker.pendingHeader)
-	// TODO ADD TRANSACTIONS
 	return block
 }
