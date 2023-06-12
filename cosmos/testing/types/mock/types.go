@@ -29,9 +29,6 @@ import (
 // FakeMsg is a mock implementation of sdk.Msg for testing purposes.
 func NewMsg() *mock.MsgMock {
 	mockedMsg := &mock.MsgMock{
-		GetSignersFunc: func() []sdk.AccAddress {
-			panic("mock out the GetSigners method")
-		},
 		ProtoMessageFunc: func() {
 			panic("mock out the ProtoMessage method")
 		},
@@ -51,9 +48,6 @@ func NewTx() *mock.TxMock {
 	mockedTx := &mock.TxMock{
 		GetMsgsFunc: func() []sdk.Msg {
 			panic("mock out the GetMsgs method")
-		},
-		ValidateBasicFunc: func() error {
-			panic("mock out the ValidateBasic method")
 		},
 	}
 	return mockedTx

@@ -18,8 +18,13 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package runtime
+package txpool
 
-func (app PolarisApp) RegisterUpgradeHandlers() {
-	// no-op in the sample app
-}
+import "github.com/ethereum/go-ethereum/core/txpool"
+
+type TxPool = txpool.TxPool
+
+var (
+	NewTxPool     = txpool.NewTxPool
+	DefaultConfig = txpool.DefaultConfig
+)
