@@ -46,29 +46,31 @@ type (
 )
 
 var (
-	NewLondonSigner        = types.NewLondonSigner
-	BytesToBloom           = types.BytesToBloom
-	CreateBloom            = types.CreateBloom
-	MakeSigner             = types.MakeSigner
-	LogsBloom              = types.LogsBloom
-	LegacyTxType           = types.LegacyTxType
-	DynamicFeeTxType       = types.DynamicFeeTxType
-	AccessListTxType       = types.AccessListTxType
-	DeriveSha              = types.DeriveSha
-	EmptyTxsHash           = types.EmptyTxsHash
-	EmptyReceiptsHash      = types.EmptyReceiptsHash
-	EmptyRootHash          = types.EmptyRootHash
-	EmptyUncleHash         = types.EmptyUncleHash
-	SignTx                 = types.SignTx
-	Sender                 = types.Sender
-	NewTx                  = types.NewTx
-	NewEIP2930Signer       = types.NewEIP2930Signer
-	LatestSignerForChainID = types.LatestSignerForChainID
-	SignNewTx              = types.SignNewTx
-	MustSignNewTx          = types.MustSignNewTx
-	NewBlock               = types.NewBlock
-	NewBlockWithHeader     = types.NewBlockWithHeader
-	ErrInvalidSig          = types.ErrInvalidSig
+	NewLondonSigner                = types.NewLondonSigner
+	BytesToBloom                   = types.BytesToBloom
+	CreateBloom                    = types.CreateBloom
+	MakeSigner                     = types.MakeSigner
+	LogsBloom                      = types.LogsBloom
+	LegacyTxType                   = types.LegacyTxType
+	DynamicFeeTxType               = types.DynamicFeeTxType
+	AccessListTxType               = types.AccessListTxType
+	DeriveSha                      = types.DeriveSha
+	EmptyTxsHash                   = types.EmptyTxsHash
+	EmptyReceiptsHash              = types.EmptyReceiptsHash
+	EmptyRootHash                  = types.EmptyRootHash
+	EmptyUncleHash                 = types.EmptyUncleHash
+	SignTx                         = types.SignTx
+	Sender                         = types.Sender
+	NewTx                          = types.NewTx
+	NewEIP2930Signer               = types.NewEIP2930Signer
+	LatestSignerForChainID         = types.LatestSignerForChainID
+	SignNewTx                      = types.SignNewTx
+	LatestSigner                   = types.LatestSigner
+	MustSignNewTx                  = types.MustSignNewTx
+	NewBlock                       = types.NewBlock
+	NewBlockWithHeader             = types.NewBlockWithHeader
+	ErrInvalidSig                  = types.ErrInvalidSig
+	NewTransactionsByPriceAndNonce = types.NewTransactionsByPriceAndNonce
 )
 
 var (

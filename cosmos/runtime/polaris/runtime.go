@@ -45,6 +45,7 @@ type Runtime struct {
 	clientCtx client.Context
 
 	polaris   *polar.Polaris
+	miner     *miner.Worker
 	mempool   *mempool.WrappedGethTxPool
 	hostChain core.PolarisHostChain
 }
@@ -52,11 +53,13 @@ type Runtime struct {
 // CreateRuntime creates a new Polaris runtime.
 func CreateRuntime(
 	logger log.Logger,
+	miner *miner.Worker,
 	mempool *mempool.WrappedGethTxPool,
 	hostChain core.PolarisHostChain,
 ) *Runtime {
 	return &Runtime{
 		logger:    logger,
+		miner:     miner,
 		mempool:   mempool,
 		hostChain: hostChain,
 	}
@@ -122,10 +125,10 @@ func (r *Runtime) RegisterServices(grpc.ServiceRegistrar) error {
 	r.polaris.SetTxPool(txPool)
 
 	// Now that we have the client context and the txpool, we can setup the mempool and miner.
-	r.mempool.Setup(txPool, r.hostChain.GetConfigurationPlugin(), miner.NewTxSerializer(r.clientCtx))
+	r.mempool.Setup(txPool, r.hostChain.GetConfigurationPlugin(), mempool.NewTxSerializer(r.clientCtx))
 
 	// We set the handler.
-	r.polaris.SetHandler(miner.NewHandler(r.logger, r.clientCtx, txPool))
+	r.polaris.SetHandler(mempool.NewHandler(r.logger, r.clientCtx, txPool))
 
 	// Note: this is a bit of an awkward place to put this, but if you look in the Cosmos-SDK server:
 	// https://github.com/cosmos/cosmos-sdk/blob/3db9528efb5fec1cccdb4e6f084c24ed195951b1/server/start.go#L504
@@ -134,5 +137,7 @@ func (r *Runtime) RegisterServices(grpc.ServiceRegistrar) error {
 	// server even though it feels a little strange.
 	// TODO: Really we should create a way for runtime modules to register services with the server package.
 	// We suggest this to @tac0turtle.
+
+	r.miner.Start() // move somewhere better
 	return r.polaris.StartServices()
 }

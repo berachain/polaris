@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package miner
+package mempool
 
 import (
 	"sync"
@@ -57,7 +57,7 @@ type Handler struct {
 func NewHandler(logger log.Logger, clientCtx client.Context, txPool *txpool.TxPool) *Handler {
 	return &Handler{
 		logger:     logger.With("module", "miner-handler"),
-		clientCtx:  clientCtx,
+		clientCtx:  clientCtx.WithBroadcastMode(flags.BroadcastSync),
 		serializer: NewTxSerializer(clientCtx),
 		txPool:     txPool,
 	}
@@ -113,7 +113,7 @@ func (h *Handler) BroadcastTransactions(txs types.Transactions) {
 
 		// Send the transaction to the CometBFT mempool, which will gossip it to peers via
 		// CometBFT's p2p layer.
-		rsp, err := h.clientCtx.WithBroadcastMode(flags.BroadcastSync).BroadcastTx(txBytes)
+		rsp, err := h.clientCtx.BroadcastTx(txBytes)
 
 		// If we see an ABCI response error.
 		if rsp != nil && rsp.Code != 0 {
