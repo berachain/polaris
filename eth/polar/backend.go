@@ -182,12 +182,8 @@ func (b *backend) SetHead(_ uint64) {
 func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*types.Header, error) {
 	// Pending block is only known by the miner
 	if number == rpc.PendingBlockNumber {
-		// TODO: handle "miner" stuff
-		// block := b.eth.miner.PendingBlock()
-		// TODO: this may be hiding a larger issue with the timing of the NewHead channel stuff.
-		// Investigate and hopefully remove this GTE.
-		header := b.polar.blockchain.CurrentHeader()
-		return header, nil
+		block := b.polar.miner.PendingBlock()
+		return block.Header(), nil
 	}
 	// Otherwise resolve and return the block
 	if number == rpc.LatestBlockNumber {
@@ -239,11 +235,8 @@ func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Head
 func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*types.Block, error) {
 	// Pending block is only known by the miner
 	if number == rpc.PendingBlockNumber {
-		// 	block := b.eth.miner.PendingBlock()
-		// 	return block, nil
-		// todo: handling pending better.
-		header := b.polar.blockchain.CurrentBlock()
-		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
+		block := b.polar.miner.PendingBlock()
+		return block, nil
 	}
 	// Otherwise resolve and return the block
 	if number == rpc.LatestBlockNumber {

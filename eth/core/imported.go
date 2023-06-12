@@ -57,8 +57,9 @@ var (
 	// TransactionToMessage converts a transaction to a message.
 	TransactionToMessage = core.TransactionToMessage
 
-	Transfer    = core.Transfer
-	CanTransfer = core.CanTransfer
+	Transfer     = core.Transfer
+	CanTransfer  = core.CanTransfer
+	CalcGasLimit = core.CalcGasLimit
 )
 
 var (

@@ -34,15 +34,16 @@ type (
 	Receipt           = types.Receipt
 	Receipts          = types.Receipts
 	ReceiptForStorage = types.ReceiptForStorage
-	Transaction       = types.Transaction
-	Transactions      = types.Transactions
-	Header            = types.Header
-	BlockNonce        = types.BlockNonce
-	DynamicFeeTx      = types.DynamicFeeTx
-	AccessListTx      = types.AccessListTx
-	LegacyTx          = types.LegacyTx
-	TxData            = types.TxData
-	Signer            = types.Signer
+
+	Transaction  = types.Transaction
+	Transactions = types.Transactions
+	Header       = types.Header
+	BlockNonce   = types.BlockNonce
+	DynamicFeeTx = types.DynamicFeeTx
+	AccessListTx = types.AccessListTx
+	LegacyTx     = types.LegacyTx
+	TxData       = types.TxData
+	Signer       = types.Signer
 )
 
 var (
@@ -51,6 +52,7 @@ var (
 	CreateBloom                    = types.CreateBloom
 	MakeSigner                     = types.MakeSigner
 	LogsBloom                      = types.LogsBloom
+	CopyHeader                     = types.CopyHeader
 	LegacyTxType                   = types.LegacyTxType
 	DynamicFeeTxType               = types.DynamicFeeTxType
 	AccessListTxType               = types.AccessListTxType

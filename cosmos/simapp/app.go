@@ -226,7 +226,7 @@ func NewPolarisApp(
 	// ----- BEGIN EVM SETUP ----------------------------------------------
 	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
 	app.PolarisApp = appBuilder.Build(db,
-		traceStore, ethTxMempool, app.EVMKeeper.GetHost(),
+		traceStore, app.StakingKeeper, ethTxMempool, app.EVMKeeper.GetHost(),
 		append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(

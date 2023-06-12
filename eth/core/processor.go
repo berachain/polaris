@@ -196,7 +196,6 @@ func (sp *StateProcessor) Finalize(
 		}
 		logs = append(logs, receipt.Logs...)
 	}
-
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return block, sp.receipts, logs, nil
 }

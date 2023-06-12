@@ -50,10 +50,9 @@ type WrappedGethTxPool struct {
 	// cp is used to retrieve the current chain config.
 	cp ConfigurationPlugin
 
-	// // block data for the pending block.
-	// blockNumber *big.Int
-	// blockTime   uint64
-	// baseFee     *big.Int
+	// pendingBaseFee is set by the miner, as is the signer.
+	pendingBaseFee *big.Int
+	signer         coretypes.Signer
 }
 
 // NewWrappedGethTxPool creates a new Ethereum transaction pool.
@@ -68,13 +67,10 @@ func (gtp *WrappedGethTxPool) Setup(txPool *txpool.TxPool, cp ConfigurationPlugi
 	gtp.serializer = serializer
 }
 
-// // Prepare updates the mempool for the current block. Sets the block number, block time, and base
-// // fee.
-// func (gtp *WrappedGethTxPool) Prepare(header *types.Header) {
-// 	gtp.blockNumber = header.Number
-// 	gtp.blockTime = header.Time
-// 	gtp.baseFee = header.BaseFee
-// }
+func (gtp *WrappedGethTxPool) Prepare(pendingBaseFee *big.Int, signer coretypes.Signer) {
+	gtp.pendingBaseFee = pendingBaseFee
+	gtp.signer = signer
+}
 
 // Insert is called when a transaction is added to the mempool.
 func (gtp *WrappedGethTxPool) Insert(_ context.Context, tx sdk.Tx) error {
@@ -119,8 +115,8 @@ func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
 // incorporated into the Iterator. The Iterator must closed by the caller.
 func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Iterator {
 	// return nil if there are no pending txs
-	numPending, _ := gtp.Stats()
-	if numPending == 0 {
+	pending := gtp.Pending(true)
+	if len(pending) == 0 {
 		return nil
 	}
 
@@ -129,7 +125,7 @@ func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Itera
 		txs: coretypes.NewTransactionsByPriceAndNonce(
 			// TODO: HACK FIX LATEST SIGNIER IS WRONG, need pending block number and block time
 			coretypes.LatestSigner(gtp.cp.ChainConfig()),
-			gtp.Pending(true),
+			pending,
 			// TODO: need pending block base fee
 			big.NewInt(0),
 		),

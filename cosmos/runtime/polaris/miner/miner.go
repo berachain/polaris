@@ -21,29 +21,59 @@
 package miner
 
 import (
+	"context"
+
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
+
+	"github.com/ethereum/go-ethereum/core/types"
+
+	"pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
+type CoinbaseProvider interface {
+	CoinbaseFromContext(context.Context) common.Address
+}
+
+// Miner is a miner.
 type Miner struct {
 	worker *worker
 }
 
 // Newworker returns a new miner.
 func NewMiner(
-	logger log.Logger, mp mempool.Mempool, txVerifier baseapp.ProposalTxVerifier, proposalHandler PolarisProposalHandler,
+	logger log.Logger,
+	mp *mempool.WrappedGethTxPool,
+	txVerifier baseapp.ProposalTxVerifier,
+	proposalHandler PolarisProposalHandler,
+	cb CoinbaseProvider,
 ) *Miner {
 	return &Miner{
-		worker: newWorker(logger, mp, txVerifier, proposalHandler),
+		worker: newWorker(logger, mp, txVerifier, proposalHandler, cb),
 	}
 }
 
+// SetBlockchain sets the blockchain.
+func (miner *Miner) SetBlockchain(bc core.Blockchain) {
+	miner.worker.chain = bc
+}
+
+// Start starts the miner.
 func (miner *Miner) Start() {
 	miner.worker.start()
 }
 
+// Stop stops the miner.
 func (miner *Miner) Stop() {
 	miner.worker.stop()
+}
+
+// PendingBlock returns the header of the next block to be sealed.
+func (miner *Miner) PendingBlock() *types.Block {
+	block := types.NewBlockWithHeader(miner.worker.pendingHeader)
+	// TODO ADD TRANSACTIONS
+	return block
 }

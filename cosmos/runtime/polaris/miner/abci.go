@@ -21,28 +21,34 @@
 package miner
 
 import (
+	"context"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// ProposedBlcok is the result of proposing a block.
-type ProposedBlock struct {
-	abciResp *abci.ResponsePrepareProposal
-	err      error
+type Payload[T any] struct {
+	ctx     context.Context
+	content *T
+	err     error
 }
 
-// ProcessedBlock is the result of processing a block.
-type ProcessedBlock struct {
-	abciResp *abci.ResponseProcessProposal
-	err      error
-}
+type (
+	// PrepareProposal ABCI.
+	ProposalRequest = Payload[abci.RequestPrepareProposal]
+	ProposedBlock   = Payload[abci.ResponsePrepareProposal]
+
+	// ProcessorProposal ABCI.
+	ProcessRequest = Payload[abci.RequestProcessProposal]
+	ProcessedBlock = Payload[abci.ResponseProcessProposal]
+)
 
 // PolarisProposalHandler defines the default ABCI PrepareProposal and
 // ProcessProposal handlers.
 type PolarisProposalHandler struct {
-	prepCh     chan *abci.RequestPrepareProposal
-	procCh     chan *abci.RequestProcessProposal
+	prepCh     chan *ProposalRequest
+	procCh     chan *ProcessRequest
 	prepRespCh chan *ProposedBlock
 	procRespCh chan *ProcessedBlock
 }
@@ -50,8 +56,8 @@ type PolarisProposalHandler struct {
 // NewPolarisProposalHandler returns a new default.
 func NewPolarisProposalHandler() PolarisProposalHandler {
 	return PolarisProposalHandler{
-		prepCh:     make(chan *abci.RequestPrepareProposal),
-		procCh:     make(chan *abci.RequestProcessProposal),
+		prepCh:     make(chan *ProposalRequest),
+		procCh:     make(chan *ProcessRequest),
 		prepRespCh: make(chan *ProposedBlock),
 		procRespCh: make(chan *ProcessedBlock),
 	}
@@ -63,14 +69,14 @@ func NewPolarisProposalHandler() PolarisProposalHandler {
 func (h PolarisProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 	return func(ctx sdk.Context, req *abci.RequestPrepareProposal) (*abci.ResponsePrepareProposal, error) {
 		// Fire off a request to build a block to propose.
-		h.prepCh <- req
+		h.prepCh <- &ProposalRequest{ctx: ctx, content: req}
 
 		// Wait for the response.
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
 		case block := <-h.prepRespCh:
-			return block.abciResp, block.err
+			return block.content, block.err
 		}
 	}
 }
@@ -81,14 +87,14 @@ func (h PolarisProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHand
 func (h PolarisProposalHandler) ProcessProposalHandler() sdk.ProcessProposalHandler {
 	return func(ctx sdk.Context, req *abci.RequestProcessProposal) (*abci.ResponseProcessProposal, error) {
 		// Fire off the request to process the proposal.
-		h.procCh <- req
+		h.procCh <- &ProcessRequest{ctx: ctx, content: req}
 
 		// Wait for the response.
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
 		case block := <-h.procRespCh:
-			return block.abciResp, block.err
+			return block.content, block.err
 		}
 	}
 }

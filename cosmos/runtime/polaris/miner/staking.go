@@ -18,47 +18,32 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package block
+package miner
 
 import (
 	"context"
-
-	storetypes "cosmossdk.io/store/types"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/eth/core"
+	"github.com/ethereum/go-ethereum/common"
 )
 
-type Plugin interface {
-	plugins.Base
-	plugins.HasGenesis
-	core.BlockPlugin
-
-	// SetQueryContextFn sets the function used for querying historical block headers.
-	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
+type StakingKeeper interface {
+	GetValidatorByConsAddr(ctx sdk.Context, addr sdk.ConsAddress) (val stakingtypes.Validator, found bool)
 }
 
-type plugin struct {
-	// ctx is the current block context, used for accessing current block info and kv stores.
-	ctx sdk.Context
-	// storekey is the store key for the header store.
-	storekey storetypes.StoreKey
-	// getQueryContext allows for querying block headers.
-	getQueryContext func(height int64, prove bool) (sdk.Context, error)
-	// sk represents the cosmos staking keeper.
-	sk StakingKeeper
+type CB struct {
+	Sk StakingKeeper
 }
 
-func NewPlugin(storekey storetypes.StoreKey, sk StakingKeeper) Plugin {
-	return &plugin{
-		storekey: storekey,
-		sk:       sk,
+func (cb *CB) CoinbaseFromContext(ctx context.Context) common.Address {
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	cometHeader := sCtx.BlockHeader()
+	val, found := cb.Sk.GetValidatorByConsAddr(sCtx, cometHeader.ProposerAddress)
+	if !found {
+		panic(fmt.Errorf("validator not found: %s", cometHeader.ProposerAddress))
 	}
-}
-
-// Prepare implements core.BlockPlugin.
-func (p *plugin) Prepare(ctx context.Context) {
-	p.ctx = sdk.UnwrapSDKContext(ctx)
+	return common.Address(val.GetOperator())
 }

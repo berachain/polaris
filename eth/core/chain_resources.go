@@ -23,6 +23,7 @@ package core
 import (
 	"context"
 	"errors"
+	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -80,7 +81,12 @@ func (bc *blockchain) NewEVMBlockContext(header *types.Header) *vm.BlockContext 
 	if feeCollector == nil {
 		feeCollector = &header.Coinbase
 	}
-	blockContext := NewEVMBlockContext(header, bc, feeCollector)
+	// TODO: THIS IS KINDA COOKED PROBS
+	headerCpy := types.CopyHeader(header)
+	if headerCpy.Difficulty == nil {
+		headerCpy.Difficulty = new(big.Int)
+	}
+	blockContext := NewEVMBlockContext(headerCpy, bc, feeCollector)
 	return &blockContext
 }
 

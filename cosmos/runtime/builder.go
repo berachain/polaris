@@ -46,9 +46,12 @@ type AppBuilder struct {
 }
 
 // Build builds an *App instance.
-func (a *AppBuilder) Build(db dbm.DB,
+func (a *AppBuilder) Build(
+	db dbm.DB,
 	traceStore io.Writer,
-	ethTxMempool *mempool.WrappedGethTxPool, host core.PolarisHostChain,
+	sk miner.StakingKeeper,
+	ethTxMempool *mempool.WrappedGethTxPool,
+	host core.PolarisHostChain,
 	baseAppOptions ...func(*baseapp.BaseApp)) *PolarisApp {
 	a.polarisApp = &PolarisApp{}
 
@@ -63,8 +66,9 @@ func (a *AppBuilder) Build(db dbm.DB,
 	proposalHandler := miner.NewPolarisProposalHandler()
 	a.polarisApp.polarisRuntime = polaris.CreateRuntime(
 		a.polarisApp.Logger(),
-		miner.NewMiner(a.polarisApp.Logger(),
-			ethTxMempool, a.polarisApp.App, proposalHandler), ethTxMempool, host)
+		miner.NewMiner(
+			a.polarisApp.Logger(),
+			ethTxMempool, a.polarisApp.App, proposalHandler, &miner.CB{Sk: sk}), ethTxMempool, host)
 
 	// Setup cosmos stuff.
 	a.polarisApp.SetMempool(ethTxMempool)

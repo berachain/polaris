@@ -99,6 +99,11 @@ func (r *Runtime) Load() error {
 			}),
 		nil,
 	)
+
+	// BAD FIX LATER
+	r.miner.SetBlockchain(r.polaris.Blockchain())
+	r.polaris.SetMiner(r.miner)
+
 	return nil
 }
 

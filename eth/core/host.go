@@ -21,8 +21,6 @@
 package core
 
 import (
-	"math/big"
-
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -60,15 +58,10 @@ type (
 		// BlockPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset the
 		// BlockPlugin to a default state.
 		libtypes.Preparable
-		// GetNewBlockMetadata returns a new block metadata (coinbase, timestamp) for the given
-		// block number.
-		GetNewBlockMetadata(uint64) (common.Address, uint64)
 		// GetHeaderByNumber returns the block header at the given block number.
 		GetHeaderByNumber(uint64) (*types.Header, error)
 		// StoreHeader stores the block header at the given block number.
 		StoreHeader(*types.Header) error
-		// BaseFee returns the base fee of the current block.
-		BaseFee() *big.Int
 	}
 
 	// ConfigurationPlugin defines the methods that the chain running Polaris EVM should

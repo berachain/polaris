@@ -31,6 +31,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/txpool"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/log"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
@@ -43,6 +44,10 @@ import (
 var defaultEthConfig = ethconfig.Config{
 	SyncMode:           0,
 	FilterLogCacheSize: 0,
+}
+
+type Miner interface {
+	PendingBlock() *types.Block
 }
 
 // NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC apis.
@@ -70,6 +75,7 @@ type Polaris struct {
 	// canonical tx pool for the chain
 	txPool  *txpool.TxPool
 	handler txpool.Handler
+	miner   Miner
 
 	// blockchain represents the canonical chain.
 	blockchain core.Blockchain
@@ -164,6 +170,9 @@ func (pl *Polaris) SetHandler(handler txpool.Handler) {
 }
 func (pl *Polaris) SetTxPool(txpool *txpool.TxPool) {
 	pl.txPool = txpool
+}
+func (pl *Polaris) SetMiner(miner Miner) {
+	pl.miner = miner
 }
 func (pl *Polaris) TxPool() *txpool.TxPool      { return pl.txPool }
 func (pl *Polaris) Blockchain() core.Blockchain { return pl.blockchain }

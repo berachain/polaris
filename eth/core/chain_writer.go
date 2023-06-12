@@ -22,12 +22,9 @@ package core
 
 import (
 	"context"
-	"math/big"
 
-	"github.com/ethereum/go-ethereum/consensus/misc"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
@@ -35,7 +32,7 @@ import (
 type ChainWriter interface {
 	// Prepare prepares the chain for a new block. This method is called before the first tx in
 	// the block.
-	Prepare(context.Context, uint64)
+	Prepare(context.Context, *types.Header)
 	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
 	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
@@ -48,7 +45,7 @@ type ChainWriter interface {
 // =========================================================================
 
 // Prepare prepares the blockchain for processing a new block at the given height.
-func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
+func (bc *blockchain) Prepare(ctx context.Context, header *types.Header) {
 	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
 	bc.sp.Prepare(ctx)
 	bc.bp.Prepare(ctx)
@@ -59,39 +56,6 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		bc.hp.Prepare(ctx)
 	}
 
-	coinbase, timestamp := bc.bp.GetNewBlockMetadata(number)
-	bc.logger.Info("preparing block", "number", number, "coinbase", coinbase.Hex(), "timestamp", timestamp)
-
-	// Build the new block header.
-	parent := bc.CurrentFinalBlock()
-	if number >= 1 && parent == nil {
-		parent = bc.GetHeaderByNumber(number - 1)
-	}
-
-	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
-	// and block nonce (Nonce) on the new header.
-	header := &types.Header{
-		// Used in Polaris.
-		ParentHash: parent.Hash(),
-		Coinbase:   coinbase,
-		Number:     new(big.Int).SetUint64(number),
-		GasLimit:   bc.gp.BlockGasLimit(),
-		Time:       timestamp,
-		BaseFee:    misc.CalcBaseFee(bc.Config(), parent),
-
-		// Not used in Polaris at the moment, but we set them to prevent nil ptr panic.
-		Difficulty: new(big.Int),
-		UncleHash:  types.EmptyUncleHash,
-		Root:       types.EmptyRootHash,
-		Extra:      []byte{},
-		MixDigest:  common.Hash{},
-		Nonce:      types.BlockNonce{},
-	}
-
-	// TODO THIS NEEDS TO HAPPEN IN PREPARE PROPOSAL
-	// // We update the txpool with the new block information.
-	// bc.tp.Prepare(header)
-
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	bc.processor.Prepare(
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
@@ -101,7 +65,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 
 // ProcessTransaction processes the given transaction and returns the receipt.
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
-	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
+	bc.logger.Debug("processing transaction", "tx hash", tx.Hash().Hex())
 
 	// Reset the Gas and State plugins for the tx.
 	bc.gp.Reset(ctx) // TODO: may not need this.
@@ -118,7 +82,7 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	}
 
 	blockHash, blockNum := block.Hash(), block.Number().Uint64()
-	bc.logger.Info("finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
+	bc.logger.Info("💾 committing block", "block_hash", blockHash.Hex(), "num_txs", len(receipts))
 
 	// store the block header on the host chain
 	err = bc.bp.StoreHeader(block.Header())
