@@ -220,4 +220,4 @@ next-env.d.ts
 out
 
 # docker test
- **/temp/
+#  **/temp/
