@@ -32,6 +32,8 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
+// custom tests for Polaris, struct follows {namespace, files_changed}
+// note: this requires an existing instance of the namespace in the Hive repo
 type tests struct {
 	Name  string
 	Files []string
