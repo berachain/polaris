@@ -111,7 +111,6 @@ func (w *worker) mainLoop() {
 	for {
 		select {
 		case req := <-w.prepCh:
-			// TODO should we forward the context from the baseapp?
 			w.prepRespCh <- w.buildBlock(req.ctx, req.content.Txs)
 		case req := <-w.procCh:
 			w.procRespCh <- w.processBlock(req.ctx, req.content.Txs)
