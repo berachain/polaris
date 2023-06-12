@@ -18,4 +18,4 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-rm -rf /pv/.berad
+rm -rf /root/.polard

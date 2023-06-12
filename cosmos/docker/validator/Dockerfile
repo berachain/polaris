@@ -15,9 +15,17 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ARG GO_VERSION
-ARG GOARCH=arm64
-ARG GOOS=darwin
-ARG POLARD_VERSION=v0.0.0
+ARG GOARCH=amd64
+ARG GOOS=linux
 
-# Use the latest foundry image
-FROM polard-base:${POLARD_VERSION} as valpolard
+FROM polard/base:v0.0.0 as basepolard
+
+RUN apk add --no-cache bash jq
+
+WORKDIR /
+
+COPY ./cosmos/docker/validator/scripts scripts/
+
+RUN chmod +x scripts/*
+
+CMD ["sh", "-c", "sleep infinity"]

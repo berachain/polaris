@@ -21,7 +21,7 @@
 CONTAINER1="polard-node0"
 CONTAINER2="polard-node1"
 
-HOMEDIR="/pv/.polard"
+HOMEDIR="/root/.polard"
 SCRIPTS="/scripts"
 
 rm -rf ./temp
@@ -32,14 +32,14 @@ touch ./temp/genesis.json
 
 # init step 1 
 docker exec $CONTAINER1 bash -c "$SCRIPTS/seed0-init-step1.sh"
-docker exec $CONTAINER2 bash -c "$SCRIPTS/seed1-init-step1.sh"
+docker exec $CONTAINER2 bash -c "$SCRIPTS/seed1-init-step1.sh seed-1"
 
 # copy genesis.json from seed-0 to seed-1
 docker cp $CONTAINER1:$HOMEDIR/config/genesis.json ./temp/genesis.json
 docker cp ./temp/genesis.json $CONTAINER2:$HOMEDIR/config/genesis.json
 
 # init step 2
-docker exec $CONTAINER2 bash -c "$SCRIPTS/seed1-init-step2.sh"
+docker exec $CONTAINER2 bash -c "$SCRIPTS/seed1-init-step2.sh seed-1"
 
 # copy genesis.json from seed-1 to seed-0
 docker cp $CONTAINER2:$HOMEDIR/config/genesis.json ./temp/genesis.json
