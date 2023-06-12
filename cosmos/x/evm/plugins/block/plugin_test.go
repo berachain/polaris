@@ -61,12 +61,12 @@ var _ = Describe("Block Plugin", func() {
 		})
 
 		It("should return the header at the given block number", func() {
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(header.Number).To(Equal(number))
 		})
 
 		It("should return the header at the genesis block number 0", func() {
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(header.Number).To(Equal(number))
 		})
 	})
@@ -80,12 +80,12 @@ var _ = Describe("Block Plugin", func() {
 		})
 
 		It("should return the header at the given block hash", func() {
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(header.Hash()).To(Equal(hash))
 		})
 
 		It("should return the header at the genesis block hash", func() {
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(header.Hash()).To(Equal(hash))
 		})
 	})

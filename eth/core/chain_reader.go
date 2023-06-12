@@ -212,18 +212,19 @@ func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 			panic(err)
 		}
 		block = types.NewBlockWithHeader(header)
-	}
+	} else {
+		var err error
+		// check if historical plugin is supported by host chain
+		if bc.hp == nil {
+			bc.logger.Debug("historical plugin not supported by host chain")
+			return nil
+		}
 
-	// check if historical plugin is supported by host chain
-	if bc.hp == nil {
-		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil
-	}
-
-	// check the historical plugin
-	block, err := bc.hp.GetBlockByNumber(number)
-	if block == nil || err != nil {
-		return nil
+		// check the historical plugin
+		block, err = bc.hp.GetBlockByNumber(number)
+		if block == nil || err != nil {
+			return nil
+		}
 	}
 
 	// Cache the found block for next time and return
