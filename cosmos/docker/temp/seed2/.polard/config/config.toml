@@ -19,7 +19,7 @@ version = "0.38.0-rc1"
 proxy_app = "tcp://127.0.0.1:26658"
 
 # A custom human readable name for this node
-moniker = "seed-0"
+moniker = "seed-2"
 
 # Database backend: goleveldb | cleveldb | boltdb | rocksdb | badgerdb
 # * goleveldb (github.com/syndtr/goleveldb - most popular implementation)
@@ -216,7 +216,7 @@ seeds = ""
 bootstrap_peers = ""
 
 # Comma separated list of nodes to keep persistent connections to
-persistent_peers = "cf450fc2e8680492d1933174307b90a2f814806b@192.168.10.13:26656,d0bc36c798e53d0b72249ed34fbaa12e8229902d@192.168.10.12:26656,f6f0d8445f61382504433735df88422741d89d30@192.168.10.11:26656"
+persistent_peers = ""
 
 # UPNP port forwarding
 upnp = false

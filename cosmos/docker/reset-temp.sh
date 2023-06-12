@@ -18,8 +18,10 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-KEY1="val0"
-KEYRING="test"
-HOMEDIR="/root/.berad"
-
-berad genesis add-genesis-account $KEY1 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+rm -rf ./temp
+mkdir ./temp
+mkdir ./temp/seed0
+mkdir ./temp/seed1
+mkdir ./temp/seed2
+mkdir ./temp/seed3
+touch ./temp/genesis.json
