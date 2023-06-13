@@ -53,6 +53,10 @@ func testUnit(path string) error {
 	return ginkgoTest("--skip", ".*integration.*", "./"+path+"/...")
 }
 
+func testUnitRace(path string) error {
+	return ginkgoTest("--race", "--skip", ".*integration.*", "./"+path+"/...")
+}
+
 // Runs the unit tests with coverage.
 func TestUnitCover() error {
 	if err := (Contracts{}).Build(); err != nil {
