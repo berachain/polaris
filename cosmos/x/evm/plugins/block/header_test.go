@@ -69,7 +69,7 @@ var _ = Describe("Header", func() {
 
 		// now querying
 		header2, err := p.GetHeaderByNumber(10)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Expect(header2.Hash()).To(Equal(header.Hash()))
 
 		// get unknown header should return the latest header (10)
@@ -90,7 +90,7 @@ var _ = Describe("Header", func() {
 			Number:      big.NewInt(1),
 		}
 		err := p.StoreHeader(header)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		toAdd := prevHeaderHashes + 5
 		var deletedHash common.Hash
@@ -107,11 +107,11 @@ var _ = Describe("Header", func() {
 
 		// Get the header with height 1.
 		_, err = p.GetHeaderByNumber(1)
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		// Get the header with height 10.
 		_, err = p.GetHeaderByNumber(uint64(toAdd))
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 
 		// check to see that the hash is pruned
 		// this hash will not be found because we only store last 256
@@ -121,7 +121,7 @@ var _ = Describe("Header", func() {
 	})
 })
 
-func mockQueryContext(height int64, prove bool) (sdk.Context, error) {
+func mockQueryContext(height int64, _ bool) (sdk.Context, error) {
 	if height <= 0 {
 		return sdk.Context{}, errors.New("cannot query context at this height")
 	}

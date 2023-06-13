@@ -71,7 +71,7 @@ func runHTTP(t *hivesim.T, c *hivesim.Client, v *vault, fn func(*TestEnv)) {
 		},
 	}
 
-	//nolint: staticcheck // rpc.DialOptions requires ctx
+	//nolint:staticcheck // it's okay.
 	rpcClient, _ := rpc.DialHTTPWithClient(fmt.Sprintf("http://%v:8545/", c.IP), client)
 	defer rpcClient.Close()
 	env := &TestEnv{

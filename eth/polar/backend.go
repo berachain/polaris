@@ -202,6 +202,8 @@ func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*ty
 			return block, nil
 		}
 		return nil, errors.New("safe block not found")
+	case rpc.EarliestBlockNumber:
+		return b.polar.blockchain.GetHeaderByNumber(0)
 	default:
 		return b.polar.blockchain.GetHeaderByNumber(uint64(number))
 	}
