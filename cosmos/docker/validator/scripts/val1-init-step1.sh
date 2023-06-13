@@ -18,7 +18,16 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
+KEY2="val1"
+CHAINID="brickchain-666"
+MONIKER1="val-1"
+KEYRING="test"
+KEYALGO="eth_secp256k1"
 HOMEDIR="/root/.polard"
-LOGLEVEL="info"
 
-polard start --log_level $LOGLEVEL --minimum-gas-prices=0.0001abera --home "$HOMEDIR"
+polard init $MONIKER1 -o --chain-id $CHAINID --home "$HOMEDIR"
+
+polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
+
+polard keys add $KEY1 --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
+  

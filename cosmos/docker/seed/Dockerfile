@@ -15,19 +15,17 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ARG GO_VERSION
-ARG GOARCH=arm64
-ARG GOOS=darwin
+ARG GOARCH=amd64
+ARG GOOS=linux
 
 
 # Use the latest foundry image
 FROM polard/base:v0.0.0 as basepolard
 
-RUN apk add --no-cache bash jq
+RUN apk add --no-cache bash jq sed curl
 
 WORKDIR /
 
-# Copy over the local information
-# COPY ./docker/seed/config config/
 COPY ./cosmos/docker/seed/scripts scripts/
 
 RUN chmod +x scripts/*

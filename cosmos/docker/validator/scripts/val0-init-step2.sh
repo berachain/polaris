@@ -18,7 +18,8 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
+KEY1="val0"
+KEYRING="test"
 HOMEDIR="/root/.polard"
-LOGLEVEL="info"
 
-polard start --log_level $LOGLEVEL --minimum-gas-prices=0.0001abera --home "$HOMEDIR"
+polard genesis add-genesis-account $KEY1 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"

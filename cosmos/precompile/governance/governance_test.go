@@ -42,8 +42,8 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	precomtest "pkg.berachain.dev/polaris/cosmos/precompile/test"
-	"pkg.berachain.dev/polaris/cosmos/runtime/config"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -69,14 +69,14 @@ var _ = Describe("Governance Precompile", func() {
 	BeforeEach(func() {
 		t := precomtest.GinkgoTestReporter{}
 		mockCtrl = gomock.NewController(t)
-		config.SetupCosmosConfig()
+		types.SetupCosmosConfig()
 		caller = cosmlib.AddressToAccAddress(testutil.Alice)
 		ctx, bk, gk = precomtest.Setup(mockCtrl, caller)
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
 			governancekeeper.NewMsgServerImpl(gk),
 			governancekeeper.NewQueryServer(gk),
 		))
-		config.SetupCosmosConfig()
+		types.SetupCosmosConfig()
 	})
 
 	AfterEach(func() {

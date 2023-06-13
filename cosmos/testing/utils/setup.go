@@ -31,7 +31,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectestutil "github.com/cosmos/cosmos-sdk/codec/testutil"
-	"github.com/cosmos/cosmos-sdk/codec/types"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/std"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -50,8 +50,8 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/polaris/cosmos/runtime/config"
 	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
+	"pkg.berachain.dev/polaris/cosmos/types"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -80,7 +80,7 @@ func NewContextWithMultiStore(ms storetypes.MultiStore) sdk.Context {
 // which should only contain the relevant module being tested and any potential
 // dependencies.
 type TestEncodingConfig struct {
-	InterfaceRegistry types.InterfaceRegistry
+	InterfaceRegistry codectypes.InterfaceRegistry
 	Codec             codec.Codec
 	TxConfig          client.TxConfig
 	Amino             *codec.LegacyAmino
@@ -118,7 +118,7 @@ func SetupMinimalKeepers() (
 	bankkeeper.BaseKeeper,
 	stakingkeeper.Keeper,
 ) {
-	config.SetupCosmosConfig()
+	types.SetupCosmosConfig()
 	ctx := NewContext().WithBlockHeight(1)
 
 	encodingConfig := testutil.MakeTestEncodingConfig(
@@ -141,7 +141,7 @@ func SetupMinimalKeepers() (
 			govtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 			distrtypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		},
-		config.Bech32Prefix,
+		types.Bech32Prefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 

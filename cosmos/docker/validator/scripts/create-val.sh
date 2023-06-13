@@ -18,7 +18,3 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-HOMEDIR="/root/.polard"
-LOGLEVEL="info"
-
-polard start --log_level $LOGLEVEL --minimum-gas-prices=0.0001abera --home "$HOMEDIR"
