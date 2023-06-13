@@ -29,10 +29,8 @@ const (
 	BlockHashKeyToReceiptsPrefix
 	TxHashKeyToTxPrefix
 	VersionKey
-	HeaderNumKey
-	HeaderHashKey
-	GenesisHeaderNumKey
-	GenesisHeaderHashKey
+	HeaderKey
+	GenesisHeaderKey
 	ParamsKey
 	ChainConfigPrefix
 )

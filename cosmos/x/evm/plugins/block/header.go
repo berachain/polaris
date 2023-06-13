@@ -22,8 +22,7 @@ package block
 
 import (
 	"errors"
-
-	"cosmossdk.io/store/prefix"
+	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -32,6 +31,9 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
+
+// prevHeaderHashes is the number of previous header hashes being stored on chain.
+const prevHeaderHashes = 256
 
 // ===========================================================================
 // Polaris Block Header Tracking
@@ -72,76 +74,45 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 //
 // GetHeaderByHash implements core.BlockPlugin.
 func (p *plugin) GetHeaderByHash(hash common.Hash) (*coretypes.Header, error) {
-	bz := p.getHeaderBytesFromHash(hash)
-	if bz == nil {
-		return nil, errors.New("GetHeader: polaris header not found in kvstore")
+	numBz := p.ctx.KVStore(p.storekey).Get(hash.Bytes())
+	if numBz == nil {
+		return nil, errors.New("GetHeaderByHash: polaris header not found in kvstore")
 	}
-
-	header, err := coretypes.UnmarshalHeader(bz)
-	if err != nil {
-		return nil, errorslib.Wrap(err, "GetHeader: failed to unmarshal")
-	}
-
-	return header, nil
+	return p.GetHeaderByNumber(new(big.Int).SetBytes(numBz).Uint64())
 }
 
 // StoreHeader implements core.BlockPlugin.
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
-	bz, err := coretypes.MarshalHeader(header)
+	headerBz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
 	}
-	p.ctx.KVStore(p.storekey).Set(p.getKeyForBlockNumber(header.Number.Uint64()), bz)
 
-	// for now use this method, since getting from store when doesn't exist breaks
-	hashKey := []byte{types.HeaderHashKey}
-	if header.Number.Uint64() == 0 {
-		hashKey = []byte{types.GenesisHeaderHashKey}
+	blockHeight := header.Number.Int64()
+	if blockHeight != p.ctx.BlockHeight() {
+		return errors.New("StoreHeader: header height mismatch")
 	}
-	prefix.NewStore(p.ctx.KVStore(p.storekey), hashKey).Set(header.Hash().Bytes(), bz)
+
+	// write genesis header
+	if blockHeight == 0 {
+		return p.writeGenesisHeaderBytes(header.Hash(), headerBz)
+	}
+
+	kvstore := p.ctx.KVStore(p.storekey)
+	// set header key
+	kvstore.Set([]byte{types.HeaderKey}, headerBz)
+
+	// rotate previous header hashes
+	if pruneHeight := blockHeight - prevHeaderHashes; pruneHeight > 0 {
+		toRemove, err := p.GetHeaderByNumber(uint64(pruneHeight))
+		if err != nil {
+			return err
+		}
+		kvstore.Delete(toRemove.Hash().Bytes())
+	}
+	kvstore.Set([]byte{types.HeaderKey}, header.Number.Bytes())
 
 	return nil
-}
-
-// getKeyForBlockNumber returns the genesis header num key if the requested block number is 0.
-// In all other cases, the regular HeaderNumKey is returned.
-func (p *plugin) getKeyForBlockNumber(number uint64) []byte {
-	key := types.HeaderNumKey
-	if number == 0 {
-		key = types.GenesisHeaderNumKey
-	}
-	return []byte{key}
-}
-
-// getKeyForBlockHash returns the genesis header hash key if the requested hash refers
-// to the 0th block, otherwise returns the regular HeaderHashKey.
-// TODO: support key retrieval for headers not in the store
-// func (p *plugin) getKeyForBlockHash(hash common.Hash) []byte {
-// 	header, err := coretypes.UnmarshalHeader(p.getHeaderBytesFromHash(hash))
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	number := header.Number.Uint64()
-
-// 	key := types.HeaderHashKey
-// 	if number == 0 {
-// 		key = types.GenesisHeaderHashKey
-// 	}
-// 	return []byte{key}
-// }
-
-// getHeaderBytesFromHash returns the header bytes specified by the given hash.
-func (p *plugin) getHeaderBytesFromHash(hash common.Hash) []byte {
-	var numBz []byte
-	numBz = prefix.NewStore(p.ctx.KVStore(p.storekey),
-		[]byte{types.HeaderHashKey}).Get(hash.Bytes())
-
-	// check if the header is the genesis header
-	if numBz == nil {
-		numBz = prefix.NewStore(p.ctx.KVStore(p.storekey),
-			[]byte{types.GenesisHeaderHashKey}).Get(hash.Bytes())
-	}
-	return numBz
 }
 
 // readHeaderBytes reads the header at the given height, using the plugin's query context for
@@ -171,10 +142,20 @@ func (p *plugin) readHeaderBytes(number uint64) ([]byte, error) {
 	}
 
 	// Unmarshal the header at IAVL height from its context kv store.
-	return ctx.KVStore(p.storekey).Get([]byte{types.HeaderNumKey}), nil
+	return ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey}), nil
+}
+
+// writeGenesisHeaderBytes writes the genesis header to the kvstore.
+//
+//	GenesisHeaderKey --> Header bytes
+//	Header Hash      --> 0
+func (p *plugin) writeGenesisHeaderBytes(headerHash common.Hash, headerBz []byte) error {
+	p.ctx.KVStore(p.storekey).Set([]byte{types.GenesisHeaderKey}, headerBz)
+	p.ctx.KVStore(p.storekey).Set(headerHash.Bytes(), new(big.Int).Bytes())
+	return nil
 }
 
 // readGenesisHeaderBytes returns the header bytes at the genesis key.
 func (p *plugin) readGenesisHeaderBytes() []byte {
-	return p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderNumKey})
+	return p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderKey})
 }
