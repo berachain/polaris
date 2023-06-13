@@ -78,6 +78,7 @@ var _ = Describe("Block Plugin", func() {
 			if err = p.StoreHeader(&coretypes.Header{Number: big.NewInt(int64(i))}); err != nil {
 				log.Panic("failed to store header: ", i, "err", err)
 			}
+			headers = append(headers, &coretypes.Header{Number: big.NewInt(int64(i))})
 		}
 	})
 
@@ -156,6 +157,33 @@ var _ = Describe("Block Plugin", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(header.Hash()).To(Equal(hash))
 			})
+		})
+
+		When("we query a hash outside the pruning limit", func() {
+			BeforeEach(func() {
+				if err = p.StoreHeader(&coretypes.Header{Number: big.NewInt(int64(hashPruningLimit + 1))}); err != nil {
+					log.Panic("failed to store header: ", hashPruningLimit+1, "err", err)
+				}
+				headers = append(headers, &coretypes.Header{Number: big.NewInt(int64(hashPruningLimit + 1))})
+				hash = headers[hashPruningLimit+1].Hash()
+
+				if err = p.StoreHeader(&coretypes.Header{Number: big.NewInt(int64(hashPruningLimit + 2))}); err != nil {
+					log.Panic("failed to store header: ", hashPruningLimit+2, "err", err)
+				}
+				headers = append(headers, &coretypes.Header{Number: big.NewInt(int64(hashPruningLimit + 2))})
+				hash = headers[hashPruningLimit+1].Hash()
+			})
+
+			It("should return the 257th header without error", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(header.Hash()).To(Equal(hash))
+			})
+
+			It("should not return the 1st (non-genesis) header without error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(header.Hash()).ToNot(Equal(headers[1].Hash()))
+			})
+
 		})
 	})
 })
