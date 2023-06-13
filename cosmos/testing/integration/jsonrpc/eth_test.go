@@ -43,7 +43,7 @@ var _ = Describe("Network", func() {
 		ctx = context.Background()
 	})
 
-	FIt("should connect -- multiple clients", func() {
+	It("should connect -- multiple clients", func() {
 		// Dial an Ethereum RPC Endpoint
 		rpcClient, err := gethrpc.DialContext(ctx, tf.HTTPAddr)
 		Expect(err).ToNot(HaveOccurred())
