@@ -19,6 +19,8 @@
 # TITLE.
 
 HOMEDIR="/root/.polard"
-LOGLEVEL="info"
 
-polard start --log_level $LOGLEVEL --minimum-gas-prices=0.0001abera --home "$HOMEDIR"
+ip=$1
+node_id=$(polard comet show-node-id --home "$HOMEDIR")
+
+echo "$node_id@$ip:26656"

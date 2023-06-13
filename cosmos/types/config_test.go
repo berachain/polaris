@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package config_test
+package types_test
 
 import (
 	"testing"
@@ -26,7 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	sgconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
+	sgconfig "pkg.berachain.dev/polaris/cosmos/types"
 	"pkg.berachain.dev/polaris/eth/accounts"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -35,7 +35,7 @@ import (
 
 func TestConfig(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/runtime/config")
+	RunSpecs(t, "cosmos/types")
 }
 
 var _ = Describe("Configuration", func() {

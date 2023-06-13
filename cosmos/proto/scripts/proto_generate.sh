@@ -49,4 +49,4 @@ rm -rf pkg.berachain.dev
 
 cd ../
 
-./build/scripts/proto_generate_pulsar.sh
+./proto/scripts/proto_generate_pulsar.sh

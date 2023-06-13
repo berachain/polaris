@@ -19,6 +19,7 @@
 # TITLE.
 
 HOMEDIR="/root/.polard"
-LOGLEVEL="info"
+CONFIG_TOML=$HOMEDIR/config/config.toml
 
-polard start --log_level $LOGLEVEL --minimum-gas-prices=0.0001abera --home "$HOMEDIR"
+seed_address=$1
+sed -i "s/^seeds = .*/seeds = \"$seed_address\"/" "$CONFIG_TOML"
