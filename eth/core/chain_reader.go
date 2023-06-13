@@ -202,10 +202,10 @@ func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 
 	var block *types.Block
 	if number == 0 {
-		header, err := bc.bp.GetHeaderByNumber(0)
-		if err != nil {
-			// TODO: don't panic inside
-			panic(err)
+		// get the genesis block header
+		header, err := bc.bp.GetHeaderByNumber(number)
+		if header == nil || err != nil {
+			return nil
 		}
 		block = types.NewBlockWithHeader(header)
 	} else {
