@@ -21,6 +21,7 @@
 package block
 
 import (
+	"errors"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -49,7 +50,7 @@ var _ = Describe("Header", func() {
 		p.Prepare(ctx)
 	})
 
-	FIt("set and get header", func() {
+	It("set and get header", func() {
 		// we are on block 10
 		p.Prepare(ctx.WithBlockHeight(10))
 
@@ -77,7 +78,7 @@ var _ = Describe("Header", func() {
 		Expect(header3.Hash()).To(Equal(header.Hash()))
 	})
 
-	FIt("should be able to prune headers", func() {
+	It("should be able to prune headers", func() {
 		p.Prepare(ctx.WithBlockHeight(1))
 		header := &types.Header{
 			ParentHash:  common.Hash{0x01},
@@ -91,30 +92,39 @@ var _ = Describe("Header", func() {
 		err := p.StoreHeader(header)
 		Expect(err).To(BeNil())
 
-		for i := 1; i <= 260; i++ {
+		toAdd := prevHeaderHashes + 5
+		var deletedHash common.Hash
+		for i := 1; i <= toAdd; i++ {
 			p.Prepare(ctx.WithBlockHeight(int64(i)))
 			ctx = ctx.WithBlockHeight(int64(i))
 			header := &types.Header{Number: big.NewInt(int64(i))}
+			if i == 5 {
+				deletedHash = header.Hash()
+			}
 			err := p.StoreHeader(header)
 			Expect(err).ToNot(HaveOccurred())
 		}
-
-		// Run TrackHistoricalPolarisHeader on the header with height 260.
-		ctx = ctx.WithBlockHeight(260)
-		err = p.StoreHeader(&types.Header{Number: big.NewInt(260)})
-		Expect(err).ToNot(HaveOccurred())
 
 		// Get the header with height 1.
 		_, err = p.GetHeaderByNumber(1)
 		Expect(err).To(BeNil())
 
 		// Get the header with height 10.
-		_, err = p.GetHeaderByNumber(10)
+		_, err = p.GetHeaderByNumber(uint64(toAdd))
 		Expect(err).To(BeNil())
+
+		// check to see that the hash is pruned
+		// this hash will not be found because we only store last 256
+		deletedHeader, err := p.GetHeaderByHash(deletedHash)
+		Expect(err).To(HaveOccurred())
+		Expect(deletedHeader).To(BeNil())
 	})
 })
 
 func mockQueryContext(height int64, prove bool) (sdk.Context, error) {
+	if height <= 0 {
+		return sdk.Context{}, errors.New("cannot query context at this height")
+	}
 	ctx := testutil.NewContext().WithBlockHeight(height)
 	header := &types.Header{
 		ParentHash:  common.Hash{0x01},
