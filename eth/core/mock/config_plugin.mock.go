@@ -5,7 +5,6 @@ package mock
 
 import (
 	"context"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
 	"pkg.berachain.dev/polaris/eth/core"
 	"sync"
@@ -24,9 +23,6 @@ var _ core.ConfigurationPlugin = &ConfigurationPluginMock{}
 //			ChainConfigFunc: func() *params.ChainConfig {
 //				panic("mock out the ChainConfig method")
 //			},
-//			FeeCollectorFunc: func() *common.Address {
-//				panic("mock out the FeeCollector method")
-//			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
 //			},
@@ -40,9 +36,6 @@ type ConfigurationPluginMock struct {
 	// ChainConfigFunc mocks the ChainConfig method.
 	ChainConfigFunc func() *params.ChainConfig
 
-	// FeeCollectorFunc mocks the FeeCollector method.
-	FeeCollectorFunc func() *common.Address
-
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
 
@@ -51,18 +44,14 @@ type ConfigurationPluginMock struct {
 		// ChainConfig holds details about calls to the ChainConfig method.
 		ChainConfig []struct {
 		}
-		// FeeCollector holds details about calls to the FeeCollector method.
-		FeeCollector []struct {
-		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
 			ContextMoqParam context.Context
 		}
 	}
-	lockChainConfig  sync.RWMutex
-	lockFeeCollector sync.RWMutex
-	lockPrepare      sync.RWMutex
+	lockChainConfig sync.RWMutex
+	lockPrepare     sync.RWMutex
 }
 
 // ChainConfig calls ChainConfigFunc.
@@ -89,33 +78,6 @@ func (mock *ConfigurationPluginMock) ChainConfigCalls() []struct {
 	mock.lockChainConfig.RLock()
 	calls = mock.calls.ChainConfig
 	mock.lockChainConfig.RUnlock()
-	return calls
-}
-
-// FeeCollector calls FeeCollectorFunc.
-func (mock *ConfigurationPluginMock) FeeCollector() *common.Address {
-	if mock.FeeCollectorFunc == nil {
-		panic("ConfigurationPluginMock.FeeCollectorFunc: method is nil but ConfigurationPlugin.FeeCollector was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockFeeCollector.Lock()
-	mock.calls.FeeCollector = append(mock.calls.FeeCollector, callInfo)
-	mock.lockFeeCollector.Unlock()
-	return mock.FeeCollectorFunc()
-}
-
-// FeeCollectorCalls gets all the calls that were made to FeeCollector.
-// Check the length with:
-//
-//	len(mockedConfigurationPlugin.FeeCollectorCalls())
-func (mock *ConfigurationPluginMock) FeeCollectorCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockFeeCollector.RLock()
-	calls = mock.calls.FeeCollector
-	mock.lockFeeCollector.RUnlock()
 	return calls
 }
 

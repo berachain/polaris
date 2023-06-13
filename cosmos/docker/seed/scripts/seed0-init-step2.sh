@@ -18,7 +18,7 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-HOMEDIR="/pv/.polard"
+HOMEDIR="/root/.polard"
 
 polard genesis collect-gentxs --home "$HOMEDIR"
 

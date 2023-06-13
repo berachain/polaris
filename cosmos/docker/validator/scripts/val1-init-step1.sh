@@ -18,11 +18,16 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-KEY="$1"
-KEYRING="test"
+KEY2="val1"
 CHAINID="brickchain-666"
-HOMEDIR="/root/.polard"
+MONIKER1="val-1"
+KEYRING="test"
+KEYALGO="eth_secp256k1"
+HOMEDIR="/root/.berad"
 
-polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+berad init $MONIKER1 -o --chain-id $CHAINID --home "$HOMEDIR"
 
-polard genesis gentx $KEY 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
+berad config set client keyring-backend $KEYRING --home "$HOMEDIR"
+
+berad keys add $KEY1 --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
+  

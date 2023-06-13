@@ -18,11 +18,10 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-KEY="$1"
-KEYRING="test"
-CHAINID="brickchain-666"
-HOMEDIR="/root/.polard"
-
-polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
-
-polard genesis gentx $KEY 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
+rm -rf ./temp
+mkdir ./temp
+mkdir ./temp/seed0
+mkdir ./temp/seed1
+mkdir ./temp/seed2
+mkdir ./temp/seed3
+touch ./temp/genesis.json
