@@ -55,7 +55,7 @@ var _ = Describe("Header", func() {
 			Number: big.NewInt(0),
 		}
 		genHash := header.Hash()
-		p.StoreHeader(header)
+		Expect(p.StoreHeader(header)).ToNot(HaveOccurred())
 
 		genHeadByNum, err := p.getGenesisHeader()
 		Expect(err).NotTo(HaveOccurred())
@@ -89,31 +89,18 @@ var _ = Describe("Header", func() {
 		Expect(header2.Hash()).To(Equal(header.Hash()))
 
 		// get unknown header should return the latest header (10)
-		header3, found := p.GetHeaderByNumber(11)
-		Expect(found).To(BeNil())
+		header3, err := p.GetHeaderByNumber(11)
+		Expect(err).ToNot(HaveOccurred())
 		Expect(header3.Hash()).To(Equal(header.Hash()))
 	})
 
-	It("should be able to prune headers", func() {
-		p.Prepare(ctx.WithBlockHeight(1))
-		header := &types.Header{
-			ParentHash:  common.Hash{0x01},
-			UncleHash:   common.Hash{0x02},
-			Coinbase:    common.Address{0x03},
-			Root:        common.Hash{0x04},
-			TxHash:      common.Hash{0x05},
-			ReceiptHash: common.Hash{0x06},
-			Number:      big.NewInt(1),
-		}
-		err := p.StoreHeader(header)
-		Expect(err).ToNot(HaveOccurred())
-
-		toAdd := prevHeaderHashes + 5
+	FIt("should be able to prune headers", func() {
+		toAdd := int64(prevHeaderHashes + 5)
 		var deletedHash common.Hash
-		for i := 1; i <= toAdd; i++ {
-			p.Prepare(ctx.WithBlockHeight(int64(i)))
-			ctx = ctx.WithBlockHeight(int64(i))
-			header := &types.Header{Number: big.NewInt(int64(i))}
+		for i := int64(1); i <= toAdd; i++ {
+			p.Prepare(ctx.WithBlockHeight(i))
+			ctx = ctx.WithBlockHeight(i)
+			header := generateHeaderAtHeight(i)
 			if i == 5 {
 				deletedHash = header.Hash()
 			}
@@ -122,7 +109,7 @@ var _ = Describe("Header", func() {
 		}
 
 		// Get the header with height 1.
-		_, err = p.GetHeaderByNumber(1)
+		_, err := p.GetHeaderByNumber(1)
 		Expect(err).ToNot(HaveOccurred())
 
 		// Get the header with height 10.
@@ -131,7 +118,8 @@ var _ = Describe("Header", func() {
 
 		// check to see that the hash is pruned
 		// this hash will not be found because we only store last 256
-		deletedHeader, err := p.GetHeaderByHash(deletedHash)
+		var deletedHeader *types.Header
+		deletedHeader, err = p.GetHeaderByHash(deletedHash)
 		Expect(err).To(HaveOccurred())
 		Expect(deletedHeader).To(BeNil())
 	})
@@ -142,7 +130,18 @@ func mockQueryContext(height int64, _ bool) (sdk.Context, error) {
 		return sdk.Context{}, errors.New("cannot query context at this height")
 	}
 	ctx := testutil.NewContext().WithBlockHeight(height)
-	header := &types.Header{
+	header := generateHeaderAtHeight(height)
+	headerBz, err := types.MarshalHeader(header)
+	if err != nil {
+		return sdk.Context{}, err
+	}
+	ctx.KVStore(testutil.EvmKey).Set([]byte{evmtypes.HeaderKey}, headerBz)
+	ctx.KVStore(testutil.EvmKey).Set(header.Hash().Bytes(), header.Number.Bytes())
+	return ctx, nil
+}
+
+func generateHeaderAtHeight(height int64) *types.Header {
+	return &types.Header{
 		ParentHash:  common.Hash{0x01},
 		UncleHash:   common.Hash{0x02},
 		Coinbase:    common.Address{0x03},
@@ -151,11 +150,4 @@ func mockQueryContext(height int64, _ bool) (sdk.Context, error) {
 		ReceiptHash: common.Hash{0x06},
 		Number:      big.NewInt(height),
 	}
-	headerBz, err := types.MarshalHeader(header)
-	if err != nil {
-		return sdk.Context{}, err
-	}
-	ctx.KVStore(testutil.EvmKey).Set([]byte{evmtypes.HeaderKey}, headerBz)
-	ctx.KVStore(testutil.EvmKey).Set(header.Hash().Bytes(), header.Number.Bytes())
-	return ctx, nil
 }

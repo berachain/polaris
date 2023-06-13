@@ -108,7 +108,8 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 
 	// rotate previous header hashes
 	if pruneHeight := blockHeight - prevHeaderHashes; pruneHeight > 0 {
-		toRemove, err := p.GetHeaderByNumber(uint64(pruneHeight))
+		var toRemove *coretypes.Header
+		toRemove, err = p.GetHeaderByNumber(uint64(pruneHeight))
 		if err != nil {
 			return err
 		}
