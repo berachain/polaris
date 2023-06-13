@@ -21,6 +21,7 @@
 package block
 
 import (
+	"crypto/rand"
 	"log"
 	"math/big"
 
@@ -37,6 +38,10 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+const (
+	hashPruningLimit = 256
+)
+
 var _ = Describe("Block Plugin", func() {
 	var (
 		p   *plugin
@@ -46,32 +51,33 @@ var _ = Describe("Block Plugin", func() {
 		header *coretypes.Header
 		err    error
 
-		header1 = &coretypes.Header{Number: big.NewInt(0)}
-		header2 = &coretypes.Header{Number: big.NewInt(1)}
+		headers []*coretypes.Header
 	)
 
 	BeforeEach(func() {
 		ctx, _, _, sk = testutil.SetupMinimalKeepers()
 		storekey := storetypes.NewKVStoreKey("evm")
 
-		// TODO: setup query context func.
+		if err != nil {
+			log.Panic("failed to generate random number", "err", err)
+		}
+
+		// TODO: setup getQueryContext properly
+		// right now this only returns the context with height, not the right KVstore
 		p = &plugin{
 			storekey: storekey,
 			sk:       sk,
 			getQueryContext: func(height int64, prove bool) (sdk.Context, error) {
-				return p.ctx, nil
+				return p.ctx.WithBlockHeight(height), nil
 			},
 		}
 
 		p.Prepare(ctx)
 
-		// Add two blocks to the block store.
-		if err = p.StoreHeader(header1); err != nil {
-			log.Panic("failed to store header", "err", err)
-		}
-
-		if err = p.StoreHeader(header2); err != nil {
-			log.Panic("failed to store header", "err", err)
+		for i := 0; i < hashPruningLimit; i++ {
+			if err = p.StoreHeader(&coretypes.Header{Number: big.NewInt(int64(i))}); err != nil {
+				log.Panic("failed to store header: ", i, "err", err)
+			}
 		}
 	})
 
@@ -117,7 +123,7 @@ var _ = Describe("Block Plugin", func() {
 
 		When("the hash refers to the genesis block", func() {
 			BeforeEach(func() {
-				hash = header1.Hash()
+				hash = headers[0].Hash()
 			})
 
 			It("should return the header at the genesis block hash", func() {
@@ -128,10 +134,25 @@ var _ = Describe("Block Plugin", func() {
 
 		When("the hash does not refer to the genesis block", func() {
 			BeforeEach(func() {
-				hash = header2.Hash()
+				hash = headers[1].Hash()
 			})
 
 			It("should return the header at the given block hash", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(header.Hash()).To(Equal(hash))
+			})
+		})
+
+		When("we query any hash within the pruning limit", func() {
+			BeforeEach(func() {
+				height, err := rand.Int(rand.Reader, big.NewInt(hashPruningLimit))
+				if err != nil {
+					log.Panic("failed to generate random number", "err", err)
+				}
+				hash = headers[height.Int64()].Hash()
+			})
+
+			It("should return the right header without error", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(header.Hash()).To(Equal(hash))
 			})
