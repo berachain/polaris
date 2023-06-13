@@ -94,7 +94,10 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 
 	blockHeight := header.Number.Int64()
 	if blockHeight != p.ctx.BlockHeight() {
-		return fmt.Errorf("SetHeader: block height mismatch, got %d, expected %d", blockHeight, p.ctx.BlockHeight())
+		return fmt.Errorf(
+			"StoreHeader: block height mismatch, got %d, expected %d",
+			blockHeight, p.ctx.BlockHeight(),
+		)
 	}
 
 	// write genesis header
