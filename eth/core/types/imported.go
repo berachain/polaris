@@ -50,6 +50,7 @@ var (
 	BytesToBloom           = types.BytesToBloom
 	CreateBloom            = types.CreateBloom
 	MakeSigner             = types.MakeSigner
+	CopyHeader             = types.CopyHeader
 	LogsBloom              = types.LogsBloom
 	LegacyTxType           = types.LegacyTxType
 	DynamicFeeTxType       = types.DynamicFeeTxType
