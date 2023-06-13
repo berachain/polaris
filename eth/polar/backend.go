@@ -225,15 +225,7 @@ func (b *backend) HeaderByNumberOrHash(ctx context.Context,
 
 // HeaderByHash returns the block header with the given hash.
 func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Header, error) {
-	header := b.polar.blockchain.GetHeaderByHash(hash)
-	if header == nil {
-		return nil, errors.New("header for hash not found")
-	}
-
-	// if blockNrOrHash.RequireCanonical && b.eth.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
-	// 	return nil, errors.New("hash is not currently canonical")
-	// }
-	return header, nil
+	return b.polar.blockchain.GetHeaderByHash(hash)
 }
 
 // BlockByNumber returns the block with the given `number`.
