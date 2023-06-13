@@ -150,7 +150,7 @@ func (c Cosmos) DockerDebug() error {
 	return c.dockerBuildNode("debug", execDockerPath, goVersion, version, runtime.GOARCH, false)
 }
 
-// Build a docker image for berad with the supplied arguments.
+// Build a docker image for polard with the supplied arguments.
 func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion, arch string, withX bool) error {
 	return dockerBuildFn(withX)(
 		"--build-arg", "GO_VERSION="+goVersion,
