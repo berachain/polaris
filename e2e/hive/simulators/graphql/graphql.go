@@ -260,7 +260,7 @@ func assertGasPrice(t *hivesim.T, got interface{}) error {
 			t.Fail()
 		}
 
-		gp, err := strconv.ParseInt(gasPrice[2:], 16, 64)
+		gp, err := strconv.ParseInt(gasPrice, 0, 64)
 		if err != nil {
 			t.Fail()
 		}
