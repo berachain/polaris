@@ -44,8 +44,8 @@ type ChainBlockReader interface {
 	GetBlock(common.Hash, uint64) *types.Block
 	GetReceiptsByHash(common.Hash) types.Receipts
 	GetBlockByHash(common.Hash) *types.Block
-	GetHeaderByNumber(uint64) *types.Header
-	GetHeaderByHash(common.Hash) *types.Header
+	GetHeaderByNumber(uint64) (*types.Header, error)
+	GetHeaderByHash(common.Hash) (*types.Header, error)
 	GetBlockByNumber(uint64) *types.Block
 	GetTransactionLookup(common.Hash) *types.TxLookupEntry
 	GetTd(common.Hash, uint64) *big.Int
@@ -116,11 +116,7 @@ func (bc *blockchain) CurrentSafeBlock() *types.Header {
 // GetHeaderByHash retrieves a block header from the database by hash, caching it if
 // found.
 func (bc *blockchain) GetHeaderByHash(hash common.Hash) (*types.Header, error) {
-	header, err := bc.bp.GetHeaderByHash(hash)
-	if header == nil || err != nil {
-		return nil
-	}
-	return header
+	return bc.bp.GetHeaderByHash(hash)
 }
 
 // CurrentReceipts returns the current receipts of the blockchain.
@@ -300,12 +296,8 @@ func (bc *blockchain) GetTransactionLookup(
 }
 
 // GetHeaderByNumber retrieves a header from the blockchain.
-func (bc *blockchain) GetHeaderByNumber(number uint64) *types.Header {
-	header, err := bc.bp.GetHeaderByNumber(number)
-	if header == nil || err != nil {
-		return nil
-	}
-	return header
+func (bc *blockchain) GetHeaderByNumber(number uint64) (*types.Header, error) {
+	return bc.bp.GetHeaderByNumber(number)
 }
 
 // GetTd retrieves a block's total difficulty in the canonical chain from the

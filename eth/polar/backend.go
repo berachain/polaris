@@ -207,7 +207,7 @@ func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*ty
 		}
 		return nil, errors.New("safe block not found")
 	}
-	return b.polar.blockchain.GetHeaderByNumber(uint64(number)), nil
+	return b.polar.blockchain.GetHeaderByNumber(uint64(number))
 }
 
 // HeaderByNumberOrHash returns the header identified by `number` or `hash`.
@@ -391,7 +391,7 @@ func (b *backend) GetLogs(
 // GetTd returns the total difficulty of a block in the canonical chain.
 // This is hardcoded to 69, as it is only applicable in a PoW chain.
 func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
-	if header := b.polar.blockchain.GetHeaderByHash(hash); header != nil {
+	if header, err := b.polar.blockchain.GetHeaderByHash(hash); err == nil {
 		return b.polar.blockchain.GetTd(hash, header.Number.Uint64())
 	}
 	return nil
