@@ -72,7 +72,17 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 //
 // GetHeaderByHash implements core.BlockPlugin.
 func (p *plugin) GetHeaderByHash(hash common.Hash) (*coretypes.Header, error) {
-	return p.GetHeaderByNumber(p.getBlockNumberByBlockHash(hash))
+	bz := p.getHeaderBytesFromHash(hash)
+	if bz == nil {
+		return nil, errors.New("GetHeader: polaris header not found in kvstore")
+	}
+
+	header, err := coretypes.UnmarshalHeader(bz)
+	if err != nil {
+		return nil, errorslib.Wrap(err, "GetHeader: failed to unmarshal")
+	}
+
+	return header, nil
 }
 
 // StoreHeader implements core.BlockPlugin.
@@ -82,7 +92,14 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
 	}
 	p.ctx.KVStore(p.storekey).Set(p.getKeyForBlockNumber(header.Number.Uint64()), bz)
-	p.ctx.KVStore(p.storekey).Set(p.getKeyForBlockHash(header.Hash()), bz)
+
+	// for now use this method, since getting from store when doesn't exist breaks
+	hashKey := []byte{types.HeaderHashKey}
+	if header.Number.Uint64() == 0 {
+		hashKey = []byte{types.GenesisHeaderHashKey}
+	}
+	prefix.NewStore(p.ctx.KVStore(p.storekey), hashKey).Set(header.Hash().Bytes(), bz)
+
 	return nil
 }
 
@@ -98,26 +115,33 @@ func (p *plugin) getKeyForBlockNumber(number uint64) []byte {
 
 // getKeyForBlockHash returns the genesis header hash key if the requested hash refers
 // to the 0th block, otherwise returns the regular HeaderHashKey.
+// TODO: support key retrieval for headers not in the store
 func (p *plugin) getKeyForBlockHash(hash common.Hash) []byte {
+	header, err := coretypes.UnmarshalHeader(p.getHeaderBytesFromHash(hash))
+	if err != nil {
+		panic(err)
+	}
+	number := header.Number.Uint64()
+
 	key := types.HeaderHashKey
-	if p.getBlockNumberByBlockHash(hash) == 0 {
+	if number == 0 {
 		key = types.GenesisHeaderHashKey
 	}
 	return []byte{key}
 }
 
-// getBlockNumberByBlockHash returns the block number specified by the given hash.
-func (p *plugin) getBlockNumberByBlockHash(hash common.Hash) uint64 {
+// getHeaderBytesFromHash returns the header bytes specified by the given hash.
+func (p *plugin) getHeaderBytesFromHash(hash common.Hash) []byte {
 	var numBz []byte
 	numBz = prefix.NewStore(p.ctx.KVStore(p.storekey),
 		[]byte{types.HeaderHashKey}).Get(hash.Bytes())
 
-	// TODO: design such that it doesn't return block number 0 for blocks which do not exist.
+	// check if the header is the genesis header
 	if numBz == nil {
 		numBz = prefix.NewStore(p.ctx.KVStore(p.storekey),
 			[]byte{types.GenesisHeaderHashKey}).Get(hash.Bytes())
 	}
-	return sdk.BigEndianToUint64(numBz)
+	return numBz
 }
 
 // readHeaderBytes reads the header at the given height, using the plugin's query context for

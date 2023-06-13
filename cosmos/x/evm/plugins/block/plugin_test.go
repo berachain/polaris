@@ -21,6 +21,7 @@
 package block
 
 import (
+	"fmt"
 	"log"
 	"math/big"
 
@@ -58,6 +59,9 @@ var _ = Describe("Block Plugin", func() {
 		p = &plugin{
 			storekey: storekey,
 			sk:       sk,
+			getQueryContext: func(height int64, prove bool) (sdk.Context, error) {
+				return p.ctx, nil
+			},
 		}
 
 		p.Prepare(ctx)
@@ -130,6 +134,7 @@ var _ = Describe("Block Plugin", func() {
 
 			It("should return the header at the given block hash", func() {
 				Expect(err).ToNot(HaveOccurred())
+				fmt.Println(header.Number)
 				Expect(header.Hash()).To(Equal(hash))
 			})
 		})
