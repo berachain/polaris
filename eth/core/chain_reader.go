@@ -115,7 +115,7 @@ func (bc *blockchain) CurrentSafeBlock() *types.Header {
 
 // GetHeaderByHash retrieves a block header from the database by hash, caching it if
 // found.
-func (bc *blockchain) GetHeaderByHash(hash common.Hash) *types.Header {
+func (bc *blockchain) GetHeaderByHash(hash common.Hash) (*types.Header, error) {
 	header, err := bc.bp.GetHeaderByHash(hash)
 	if header == nil || err != nil {
 		return nil
