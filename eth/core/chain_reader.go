@@ -113,13 +113,8 @@ func (bc *blockchain) CurrentSafeBlock() *types.Header {
 	return bc.CurrentFinalBlock()
 }
 
-// GetHeaderByHash retrieves a block header from the database by hash, caching it if
-// found.
-func (bc *blockchain) GetHeaderByHash(hash common.Hash) (*types.Header, error) {
-	return bc.bp.GetHeaderByHash(hash)
-}
-
-// CurrentReceipts returns the current receipts of the blockchain.
+// PendingBlockAndReceipts returns the pending block and receipts of the blockchain.
+// TODO: move to the miner. Currently returns the "current" finalized block and receipts.
 func (bc *blockchain) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 	var err error
 
@@ -202,10 +197,10 @@ func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 
 	var block *types.Block
 	if number == 0 {
-		header, err := bc.bp.GetHeaderByNumber(0)
-		if err != nil {
-			// TODO: don't panic inside
-			panic(err)
+		// get the genesis block header
+		header, err := bc.bp.GetHeaderByNumber(number)
+		if header == nil || err != nil {
+			return nil
 		}
 		block = types.NewBlockWithHeader(header)
 	} else {
@@ -299,6 +294,22 @@ func (bc *blockchain) GetTransactionLookup(
 // GetHeaderByNumber retrieves a header from the blockchain.
 func (bc *blockchain) GetHeaderByNumber(number uint64) (*types.Header, error) {
 	return bc.bp.GetHeaderByNumber(number)
+}
+
+// GetHeaderByHash retrieves a block header from the database by hash, caching it if
+// found.
+func (bc *blockchain) GetHeaderByHash(hash common.Hash) (*types.Header, error) {
+	header, err := bc.bp.GetHeaderByHash(hash)
+	if err != nil && bc.hp != nil {
+		// try searching the historical plugin if the block plugin does not have the header
+		var block *types.Block
+		block, err = bc.hp.GetBlockByHash(hash)
+		if err != nil {
+			return nil, err
+		}
+		header = block.Header()
+	}
+	return header, err
 }
 
 // GetTd retrieves a block's total difficulty in the canonical chain from the

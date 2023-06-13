@@ -47,7 +47,23 @@ var _ = Describe("Header", func() {
 		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
 		p = utils.MustGetAs[*plugin](NewPlugin(testutil.EvmKey, sk))
 		p.SetQueryContextFn(mockQueryContext)
-		p.Prepare(ctx)
+		p.Prepare(ctx) // on block 0 (genesis)
+	})
+
+	It("should handle genesis header", func() {
+		header := &types.Header{
+			Number: big.NewInt(0),
+		}
+		genHash := header.Hash()
+		p.StoreHeader(header)
+
+		genHeadByNum, err := p.getGenesisHeader()
+		Expect(err).NotTo(HaveOccurred())
+		Expect(genHeadByNum.Hash()).To(Equal(genHash))
+
+		genHeadByHash, err := p.GetHeaderByHash(genHash)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(genHeadByHash.Hash()).To(Equal(genHash))
 	})
 
 	It("set and get header", func() {
