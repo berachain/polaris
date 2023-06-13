@@ -18,10 +18,9 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-CONTAINER1="polard-node0"
-CONTAINER2="polard-node1"
-
-HOMEDIR="/pv/.polard"
+CONTAINER0="polard-node0"
+CONTAINER1="polard-node1"
+HOMEDIR="/root/.polard"
 SCRIPTS="/scripts"
 
 rm -rf ./temp
@@ -31,31 +30,31 @@ mkdir ./temp/seed1
 touch ./temp/genesis.json
 
 # init step 1 
-docker exec $CONTAINER1 bash -c "$SCRIPTS/seed0-init-step1.sh"
-docker exec $CONTAINER2 bash -c "$SCRIPTS/seed1-init-step1.sh"
+docker exec $CONTAINER0 bash -c "$SCRIPTS/seed0-init-step1.sh"
+docker exec $CONTAINER1 bash -c "$SCRIPTS/seed1-init-step1.sh seed-1"
 
 # copy genesis.json from seed-0 to seed-1
-docker cp $CONTAINER1:$HOMEDIR/config/genesis.json ./temp/genesis.json
-docker cp ./temp/genesis.json $CONTAINER2:$HOMEDIR/config/genesis.json
-
-# init step 2
-docker exec $CONTAINER2 bash -c "$SCRIPTS/seed1-init-step2.sh"
-
-# copy genesis.json from seed-1 to seed-0
-docker cp $CONTAINER2:$HOMEDIR/config/genesis.json ./temp/genesis.json
+docker cp $CONTAINER0:$HOMEDIR/config/genesis.json ./temp/genesis.json
 docker cp ./temp/genesis.json $CONTAINER1:$HOMEDIR/config/genesis.json
 
+# init step 2
+docker exec $CONTAINER1 bash -c "$SCRIPTS/seed1-init-step2.sh seed-1"
+
+# copy genesis.json from seed-1 to seed-0
+docker cp $CONTAINER1:$HOMEDIR/config/genesis.json ./temp/genesis.json
+docker cp ./temp/genesis.json $CONTAINER0:$HOMEDIR/config/genesis.json
+
 # copy gentx
-docker cp $CONTAINER2:$HOMEDIR/config/gentx ./temp/gentx
-docker cp ./temp/gentx $CONTAINER1:$HOMEDIR/config 
+docker cp $CONTAINER1:$HOMEDIR/config/gentx ./temp/gentx
+docker cp ./temp/gentx $CONTAINER0:$HOMEDIR/config 
 
 # init step 2
-docker exec $CONTAINER1 bash -c "$SCRIPTS/seed0-init-step2.sh"
+docker exec $CONTAINER0 bash -c "$SCRIPTS/seed0-init-step2.sh"
 
 # copy genesis.json from seed-0 to seed-1
-docker cp $CONTAINER1:$HOMEDIR/config/genesis.json ./temp/genesis.json
-docker cp ./temp/genesis.json $CONTAINER2:$HOMEDIR/config/genesis.json
+docker cp $CONTAINER0:$HOMEDIR/config/genesis.json ./temp/genesis.json
+docker cp ./temp/genesis.json $CONTAINER1:$HOMEDIR/config/genesis.json
 
 # start
-# docker exec $CONTAINER1 bash -c "$SCRIPTS/seed-start.sh"
-# docker exec $CONTAINER2 bash -c "$SCRIPTS/seed-start.sh"
+# docker exec -it $CONTAINER0 bash -c "$SCRIPTS/seed-start.sh"
+# docker exec -it $CONTAINER1 bash -c "$SCRIPTS/seed-start.sh"

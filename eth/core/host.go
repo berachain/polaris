@@ -85,11 +85,6 @@ type (
 		libtypes.Preparable
 		// ChainConfig returns the current chain configuration of the Polaris EVM.
 		ChainConfig() *params.ChainConfig
-		// `The fee collector is utilized on chains that have a fee collector account. This was added
-		// specifically to support Cosmos-SDK chains, where we want the coinbase in the block header
-		// to be the operator address of the proposer, but we want the coinbase in the BlockContext
-		// to be the FeeCollectorAccount.
-		FeeCollector() *common.Address
 	}
 
 	// GasPlugin is an interface that allows the Polaris EVM to consume gas on the host chain.
