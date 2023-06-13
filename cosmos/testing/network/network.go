@@ -57,11 +57,6 @@ type (
 	Config  = network.Config
 )
 
-//nolint:gochecknoinits // i hate cosmos.
-func init() {
-	types.SetupCosmosConfig()
-}
-
 const (
 	two         = 2
 	thousand    = 1000
@@ -107,6 +102,7 @@ func New(t TestingT, configs ...network.Config) *network.Network {
 // DefaultConfig will initialize config for the network with custom application,
 // genesis and single validator. All other parameters are inherited from cosmos-sdk/testutil/network.DefaultConfig.
 func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
+	types.SetupCosmosConfig()
 	encoding := BuildPolarisEncodingConfig(ModuleBasics)
 	cfg := network.Config{
 		Codec:             encoding.Codec,
