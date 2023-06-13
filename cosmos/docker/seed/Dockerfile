@@ -22,7 +22,7 @@ ARG GOOS=linux
 # Use the latest foundry image
 FROM polard/base:v0.0.0 as basepolard
 
-RUN apk add --no-cache bash jq
+RUN apk add --no-cache bash jq sed curl
 
 WORKDIR /
 
