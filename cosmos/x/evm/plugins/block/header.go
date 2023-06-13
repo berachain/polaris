@@ -28,6 +28,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
@@ -53,7 +54,7 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 		return nil, err
 	}
 	if bz == nil {
-		return nil, errors.New("GetHeader: polaris header not found in kvstore")
+		return nil, core.ErrHeaderNotFound
 	}
 
 	header, err := coretypes.UnmarshalHeader(bz)
@@ -76,7 +77,7 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 func (p *plugin) GetHeaderByHash(hash common.Hash) (*coretypes.Header, error) {
 	numBz := p.ctx.KVStore(p.storekey).Get(hash.Bytes())
 	if numBz == nil {
-		return nil, errors.New("GetHeaderByHash: polaris header not found in kvstore")
+		return nil, core.ErrHeaderNotFound
 	}
 	return p.GetHeaderByNumber(new(big.Int).SetBytes(numBz).Uint64())
 }
