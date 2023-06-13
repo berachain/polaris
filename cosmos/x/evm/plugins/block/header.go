@@ -116,19 +116,19 @@ func (p *plugin) getKeyForBlockNumber(number uint64) []byte {
 // getKeyForBlockHash returns the genesis header hash key if the requested hash refers
 // to the 0th block, otherwise returns the regular HeaderHashKey.
 // TODO: support key retrieval for headers not in the store
-func (p *plugin) getKeyForBlockHash(hash common.Hash) []byte {
-	header, err := coretypes.UnmarshalHeader(p.getHeaderBytesFromHash(hash))
-	if err != nil {
-		panic(err)
-	}
-	number := header.Number.Uint64()
+// func (p *plugin) getKeyForBlockHash(hash common.Hash) []byte {
+// 	header, err := coretypes.UnmarshalHeader(p.getHeaderBytesFromHash(hash))
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	number := header.Number.Uint64()
 
-	key := types.HeaderHashKey
-	if number == 0 {
-		key = types.GenesisHeaderHashKey
-	}
-	return []byte{key}
-}
+// 	key := types.HeaderHashKey
+// 	if number == 0 {
+// 		key = types.GenesisHeaderHashKey
+// 	}
+// 	return []byte{key}
+// }
 
 // getHeaderBytesFromHash returns the header bytes specified by the given hash.
 func (p *plugin) getHeaderBytesFromHash(hash common.Hash) []byte {
