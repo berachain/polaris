@@ -22,6 +22,7 @@ package block
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -62,10 +63,12 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 		return nil, errorslib.Wrap(err, "GetHeader: failed to unmarshal")
 	}
 
-	if header.Number.Uint64() != number {
-		return nil, errorslib.Wrapf(err,
-			"GetHeader: header number mismatch, got %d, expected %d",
-			header.Number.Uint64(), number)
+	if header.Number.Uint64() > number {
+		return nil, errorslib.Wrapf(
+			err,
+			"GetHeader: header number mismatch, requested %d, got %d ",
+			number, header.Number.Uint64(),
+		)
 	}
 
 	return header, nil
@@ -91,7 +94,7 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 
 	blockHeight := header.Number.Int64()
 	if blockHeight != p.ctx.BlockHeight() {
-		return errors.New("StoreHeader: header height mismatch")
+		return fmt.Errorf("SetHeader: block height mismatch, got %d, expected %d", blockHeight, p.ctx.BlockHeight())
 	}
 
 	// write genesis header

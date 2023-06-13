@@ -21,14 +21,21 @@
 package block
 
 import (
+	"errors"
+	"math/big"
+
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Header", func() {
@@ -39,70 +46,116 @@ var _ = Describe("Header", func() {
 		_, _, _, sk := testutil.SetupMinimalKeepers()
 		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
 		p = utils.MustGetAs[*plugin](NewPlugin(testutil.EvmKey, sk))
-		p.Prepare(ctx)
+		p.SetQueryContextFn(mockQueryContext)
+		p.Prepare(ctx) // on block 0 (genesis)
 	})
 
-	// It("set and get header", func() {
-	// 	header := &types.Header{
-	// 		ParentHash:  common.Hash{0x01},
-	// 		UncleHash:   common.Hash{0x02},
-	// 		Coinbase:    common.Address{0x03},
-	// 		Root:        common.Hash{0x04},
-	// 		TxHash:      common.Hash{0x05},
-	// 		ReceiptHash: common.Hash{0x06},
-	// 		Number:      big.NewInt(10),
-	// 	}
-	// 	err := p.SetHeader(header)
-	// 	Expect(err).ToNot(HaveOccurred())
+	It("should handle genesis header", func() {
+		header := &types.Header{
+			Number: big.NewInt(0),
+		}
+		genHash := header.Hash()
+		p.StoreHeader(header)
 
-	// 	header2, found := p.GetHeaderByNumber(10)
-	// 	Expect(found).To(BeTrue())
-	// 	Expect(header2.Hash()).To(Equal(header.Hash()))
+		genHeadByNum, err := p.getGenesisHeader()
+		Expect(err).NotTo(HaveOccurred())
+		Expect(genHeadByNum.Hash()).To(Equal(genHash))
 
-	// 	// get unknown header
-	// 	header3, found := p.GetHeaderByNumber(11)
-	// 	Expect(found).To(BeFalse())
-	// 	Expect(header3).To(BeNil())
-	// })
+		genHeadByHash, err := p.GetHeaderByHash(genHash)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(genHeadByHash.Hash()).To(Equal(genHash))
+	})
 
-	// It("should be able to prune headers", func() {
-	// 	header := &types.Header{
-	// 		ParentHash:  common.Hash{0x01},
-	// 		UncleHash:   common.Hash{0x02},
-	// 		Coinbase:    common.Address{0x03},
-	// 		Root:        common.Hash{0x04},
-	// 		TxHash:      common.Hash{0x05},
-	// 		ReceiptHash: common.Hash{0x06},
-	// 		Number:      big.NewInt(10),
-	// 	}
-	// 	err := p.SetHeader(header)
-	// 	Expect(err).ToNot(HaveOccurred())
+	It("set and get header", func() {
+		// we are on block 10
+		p.Prepare(ctx.WithBlockHeight(10))
 
-	// 	// Get header.
-	// 	header2, found := p.GetHeaderByNumber(10)
-	// 	Expect(found).To(BeFalse())
-	// 	Expect(header2).To(BeNil())
-	// })
+		// just finished processing block 10
+		header := &types.Header{
+			ParentHash:  common.Hash{0x01},
+			UncleHash:   common.Hash{0x02},
+			Coinbase:    common.Address{0x03},
+			Root:        common.Hash{0x04},
+			TxHash:      common.Hash{0x05},
+			ReceiptHash: common.Hash{0x06},
+			Number:      big.NewInt(10),
+		}
+		err := p.StoreHeader(header)
+		Expect(err).ToNot(HaveOccurred())
 
-	// It("should be able to track the headers", func() {
-	// 	for i := 1; i <= 260; i++ {
-	// 		ctx = ctx.WithBlockHeight(int64(i))
-	// 		header := &types.Header{Number: big.NewInt(int64(i))}
-	// 		err := p.SetHeader(header)
-	// 		Expect(err).ToNot(HaveOccurred())
-	// 	}
+		// now querying
+		header2, err := p.GetHeaderByNumber(10)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(header2.Hash()).To(Equal(header.Hash()))
 
-	// 	// Run TrackHistoricalPolarisHeader on the header with height 260.
-	// 	ctx = ctx.WithBlockHeight(260)
-	// 	err := p.SetHeader(&types.Header{Number: big.NewInt(260)})
-	// 	Expect(err).ToNot(HaveOccurred())
+		// get unknown header should return the latest header (10)
+		header3, found := p.GetHeaderByNumber(11)
+		Expect(found).To(BeNil())
+		Expect(header3.Hash()).To(Equal(header.Hash()))
+	})
 
-	// 	// Get the header with height 1.
-	// 	_, found := p.GetHeaderByNumber(1)
-	// 	Expect(found).To(BeFalse())
+	It("should be able to prune headers", func() {
+		p.Prepare(ctx.WithBlockHeight(1))
+		header := &types.Header{
+			ParentHash:  common.Hash{0x01},
+			UncleHash:   common.Hash{0x02},
+			Coinbase:    common.Address{0x03},
+			Root:        common.Hash{0x04},
+			TxHash:      common.Hash{0x05},
+			ReceiptHash: common.Hash{0x06},
+			Number:      big.NewInt(1),
+		}
+		err := p.StoreHeader(header)
+		Expect(err).ToNot(HaveOccurred())
 
-	// 	// Get the header with height 10.
-	// 	_, found = p.GetHeaderByNumber(10)
-	// 	Expect(found).To(BeTrue())
-	// })
+		toAdd := prevHeaderHashes + 5
+		var deletedHash common.Hash
+		for i := 1; i <= toAdd; i++ {
+			p.Prepare(ctx.WithBlockHeight(int64(i)))
+			ctx = ctx.WithBlockHeight(int64(i))
+			header := &types.Header{Number: big.NewInt(int64(i))}
+			if i == 5 {
+				deletedHash = header.Hash()
+			}
+			err := p.StoreHeader(header)
+			Expect(err).ToNot(HaveOccurred())
+		}
+
+		// Get the header with height 1.
+		_, err = p.GetHeaderByNumber(1)
+		Expect(err).ToNot(HaveOccurred())
+
+		// Get the header with height 10.
+		_, err = p.GetHeaderByNumber(uint64(toAdd))
+		Expect(err).ToNot(HaveOccurred())
+
+		// check to see that the hash is pruned
+		// this hash will not be found because we only store last 256
+		deletedHeader, err := p.GetHeaderByHash(deletedHash)
+		Expect(err).To(HaveOccurred())
+		Expect(deletedHeader).To(BeNil())
+	})
 })
+
+func mockQueryContext(height int64, _ bool) (sdk.Context, error) {
+	if height <= 0 {
+		return sdk.Context{}, errors.New("cannot query context at this height")
+	}
+	ctx := testutil.NewContext().WithBlockHeight(height)
+	header := &types.Header{
+		ParentHash:  common.Hash{0x01},
+		UncleHash:   common.Hash{0x02},
+		Coinbase:    common.Address{0x03},
+		Root:        common.Hash{0x04},
+		TxHash:      common.Hash{0x05},
+		ReceiptHash: common.Hash{0x06},
+		Number:      big.NewInt(height),
+	}
+	headerBz, err := types.MarshalHeader(header)
+	if err != nil {
+		return sdk.Context{}, err
+	}
+	ctx.KVStore(testutil.EvmKey).Set([]byte{evmtypes.HeaderKey}, headerBz)
+	ctx.KVStore(testutil.EvmKey).Set(header.Hash().Bytes(), header.Number.Bytes())
+	return ctx, nil
+}
