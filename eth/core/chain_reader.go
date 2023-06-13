@@ -175,7 +175,7 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
-		bc.logger.Error("historical plugin not supported by host chain")
+		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil
 	}
 
@@ -244,7 +244,7 @@ func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
-		bc.logger.Error("historical plugin not supported by host chain")
+		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil
 	}
 
