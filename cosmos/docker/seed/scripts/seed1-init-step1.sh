@@ -18,15 +18,24 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-apk add bash jq
+if [ -z "$CHAINID" ]; then
+    CHAINID="brickchain-666"
+fi
+if [ -z "$KEYRING" ]; then
+    KEYRING="test"
+fi
+if [ -z "$KEYALGO" ]; then
+    KEYALGO="eth_secp256k1"
+fi
+if [ -z "$LOGLEVEL" ]; then
+    LOGLEVEL="info"
+fi
+if [ -z "$HOMEDIR" ]; then
+    HOMEDIR="/root/.polard"
+fi
 
 KEY="$1"
-CHAINID="brickchain-666"
 MONIKER="$1"
-KEYRING="test"
-KEYALGO="eth_secp256k1"
-LOGLEVEL="info"
-HOMEDIR="/root/.polard"
 TRACE=""
 GENESIS=$HOMEDIR/config/genesis.json
 TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json

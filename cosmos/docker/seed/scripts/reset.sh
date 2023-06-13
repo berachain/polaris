@@ -18,4 +18,8 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-rm -rf /root/.polard
+if [ -z "$HOMEDIR" ]; then
+    HOMEDIR="/root/.polard"
+fi
+
+rm -rf $HOMEDIR

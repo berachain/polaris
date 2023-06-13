@@ -18,6 +18,10 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
+if [ -z "$HOMEDIR" ]; then
+    HOMEDIR="/root/.polard"
+fi
+
 HOMEDIR="/root/.polard"
 
 polard genesis collect-gentxs --home "$HOMEDIR"

@@ -18,7 +18,10 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-HOMEDIR="/root/.polard"
+if [ -z "$HOMEDIR" ]; then
+    HOMEDIR="/root/.polard"
+fi
+
 CONFIG_TOML=$HOMEDIR/config/config.toml
 
 seed_address=$1
