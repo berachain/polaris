@@ -21,6 +21,8 @@
 package keeper
 
 import (
+	"math/big"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
@@ -28,6 +30,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
@@ -130,4 +133,36 @@ func (k *Keeper) GetHost() Host {
 
 func (k *Keeper) SetClientCtx(clientContext client.Context) {
 	k.host.GetTxPoolPlugin().(txpool.Plugin).SetClientContext(clientContext)
+	// TODO: move this
+	if err := k.polaris.StartServices(); err != nil {
+		panic(err)
+	}
+}
+
+// TODO: Remove these, because they're hacky af.
+// Required temporarily for BGT plugin.
+func (k *Keeper) GetBalance(ctx sdk.Context, addr sdk.AccAddress) *big.Int {
+	ethAddr := cosmlib.AccAddressToEthAddress(addr)
+	return new(big.Int).SetBytes(ctx.KVStore(k.storeKey).Get(state.BalanceKeyFor(ethAddr)))
+}
+
+func (k *Keeper) SetBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.Int) {
+	ethAddr := cosmlib.AccAddressToEthAddress(addr)
+	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), amount.Bytes())
+}
+
+func (k *Keeper) AddBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.Int) {
+	if amount.Sign() == 0 {
+		return
+	}
+	ethAddr := cosmlib.AccAddressToEthAddress(addr)
+	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), new(big.Int).Add(k.GetBalance(ctx, addr), amount).Bytes())
+}
+
+func (k *Keeper) SubBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.Int) {
+	if amount.Sign() == 0 {
+		return
+	}
+	ethAddr := cosmlib.AccAddressToEthAddress(addr)
+	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), new(big.Int).Sub(k.GetBalance(ctx, addr), amount).Bytes())
 }
