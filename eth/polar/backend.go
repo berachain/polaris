@@ -352,7 +352,7 @@ func (b *backend) GetTransaction(
 	b.logger.Debug("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
 	txLookup := b.polar.blockchain.GetTransactionLookup(txHash)
 	if txLookup == nil {
-		return nil, common.Hash{}, 0, 0, nil
+		return nil, common.Hash{}, 0, 0, ethereum.NotFound
 	}
 	return txLookup.Tx, txLookup.BlockHash, txLookup.BlockNum, txLookup.TxIndex, nil
 }
