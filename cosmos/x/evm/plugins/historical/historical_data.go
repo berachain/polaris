@@ -125,48 +125,6 @@ func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
 		return nil, err
 	}
 	return block, nil
-
-	// // get header from on chain
-	// header, err := p.bp.GetHeaderByNumber(number)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// // the genesis block does not have txs and receipts to get from off chain
-	// if number == 0 {
-	// 	return coretypes.NewBlock(header, nil, nil, nil, trie.NewStackTrie(nil)), nil
-	// }
-
-	// // get receipts from off chain
-	// blockHash := header.Hash()
-	// receiptsBz := prefix.NewStore(p.ctx.KVStore(p.storeKey),
-	// 	[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
-	// if receiptsBz == nil {
-	// 	return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
-	// }
-	// receipts, err := coretypes.UnmarshalReceipts(receiptsBz)
-	// if err != nil {
-	// 	return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
-	// }
-
-	// // get txns from off chain
-	// txStore := prefix.NewStore(p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix})
-	// txs := make(coretypes.Transactions, len(receipts))
-	// for _, receipt := range receipts {
-	// 	tleBz := txStore.Get(receipt.TxHash.Bytes())
-	// 	if tleBz == nil {
-	// 		return nil, fmt.Errorf("failed to find tx %s", receipt.TxHash.Hex())
-	// 	}
-	// 	tle := &coretypes.TxLookupEntry{}
-	// 	err = tle.UnmarshalBinary(tleBz)
-	// 	if err != nil {
-	// 		return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", receipt.TxHash.Hex())
-	// 	}
-	// 	txs = append(txs, tle.Tx)
-	// }
-
-	// // build the block
-	// return coretypes.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil)), nil
 }
 
 // GetBlockByHash returns the block at the given hash.
@@ -180,51 +138,6 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 		return nil, err
 	}
 	return block, nil
-
-	// // get block number from off chain.
-	// numBz := prefix.NewStore(p.ctx.KVStore(p.storeKey),
-	// 	[]byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
-	// if numBz == nil {
-	// 	return nil, fmt.Errorf("failed to find block number for block hash %s", blockHash.Hex())
-	// }
-	// number := sdk.BigEndianToUint64(numBz)
-	// header, err := p.bp.GetHeaderByNumber(number)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// if header.Number.Uint64() != number || header.Hash() != blockHash {
-	// 	panic("header number or hash is not equal to the given number or hash")
-	// }
-
-	// // get receipts from off chain.
-	// receiptsBz := prefix.NewStore(p.ctx.KVStore(p.storeKey),
-	// 	[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
-	// if receiptsBz == nil {
-	// 	return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
-	// }
-	// receipts, err := coretypes.UnmarshalReceipts(receiptsBz)
-	// if err != nil {
-	// 	return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
-	// }
-
-	// // get txns from off chain.
-	// txStore := prefix.NewStore(p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix})
-	// txs := make(coretypes.Transactions, len(receipts))
-	// for _, receipt := range receipts {
-	// 	tleBz := txStore.Get(receipt.TxHash.Bytes())
-	// 	if tleBz == nil {
-	// 		return nil, fmt.Errorf("failed to find tx %s", receipt.TxHash.Hex())
-	// 	}
-	// 	tle := &coretypes.TxLookupEntry{}
-	// 	err = tle.UnmarshalBinary(tleBz)
-	// 	if err != nil {
-	// 		return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", receipt.TxHash.Hex())
-	// 	}
-	// 	txs = append(txs, tle.Tx)
-	// }
-
-	// // build the block.
-	// return coretypes.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil)), nil
 }
 
 // GetTransactionByHash returns the transaction lookup entry with the given hash.

@@ -21,12 +21,13 @@
 package historical
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/mock"
 	"pkg.berachain.dev/polaris/lib/utils"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -60,18 +61,9 @@ var _ = Describe("Historical Data", func() {
 	})
 
 	When("Other blocks", func() {
+		It("should correctly store and return blocks", func() {
 
-		// It("should get the header at current height", func() {
-		// 	header, err := p.GetHeaderByNumber(ctx.BlockHeight())
-		// 	Expect(err).ToNot(HaveOccurred())
-		// 	Expect(header.TxHash).To(Equal(common.BytesToHash(ctx.BlockHeader().DataHash)))
-		// })
-
-		// It("should return empty header for non-existent height", func() {
-		// 	header, err := p.GetHeaderByNumber(100000)
-		// 	Expect(err).ToNot(HaveOccurred())
-		// 	Expect(*header).To(Equal(types.Header{}))
-		// })
+		})
 	})
 
 })
