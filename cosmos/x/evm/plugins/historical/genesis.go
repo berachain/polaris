@@ -18,20 +18,21 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package historical
 
-const (
-	CodeKeyPrefix byte = iota
-	BalanceKeyPrefix
-	StorageKeyPrefix
-	CodeHashKeyPrefix
-	BlockHashKeyToNumPrefix
-	BlockNumKeyToBlockPrefix
-	BlockHashKeyToReceiptsPrefix
-	TxHashKeyToTxPrefix
-	VersionKey
-	HeaderKey
-	GenesisHeaderKey
-	ParamsKey
-	ChainConfigPrefix
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/polaris/eth/core"
 )
+
+func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
+	p.Prepare(ctx)
+
+	// store genesis block
+	if err := p.StoreBlock(ethGen.ToBlock()); err != nil {
+		panic(err)
+	}
+}
+
+func (p *plugin) ExportGenesis(_ sdk.Context, _ *core.Genesis) {}
