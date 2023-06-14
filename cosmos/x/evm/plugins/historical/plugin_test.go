@@ -21,11 +21,16 @@
 package historical
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/trie"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/mock"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -62,7 +67,52 @@ var _ = Describe("Historical Data", func() {
 
 	When("Other blocks", func() {
 		It("should correctly store and return blocks", func() {
+			ctx = ctx.WithBlockHeight(1)
+			header := &coretypes.Header{
+				Number:   big.NewInt(1),
+				GasLimit: 1000,
+			}
+			tx := coretypes.NewTransaction(0, common.Address{0x1}, big.NewInt(1), 1000, big.NewInt(1), []byte{0x12})
+			txHash := tx.Hash()
+			receipts := coretypes.Receipts{
+				{
+					Type:              2,
+					Status:            1,
+					CumulativeGasUsed: 500,
+					TxHash:            txHash,
+					ContractAddress:   common.Address{0x1},
+					GasUsed:           500,
+					BlockNumber:       big.NewInt(1),
+				},
+			}
+			txs := coretypes.Transactions{tx}
+			block := coretypes.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil))
+			blockHash := block.Hash()
+			receipts[0].BlockHash = blockHash
 
+			Expect(p.StoreBlock(block)).To(Succeed())
+			Expect(p.StoreReceipts(blockHash, receipts)).To(Succeed())
+			Expect(p.StoreTransactions(1, blockHash, txs)).To(Succeed())
+
+			blockByNum, err := p.GetBlockByNumber(1)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(blockByNum.Hash()).To(Equal(blockHash))
+
+			blockByHash, err := p.GetBlockByHash(blockHash)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(blockByHash.Hash()).To(Equal(blockHash))
+
+			receiptsByHash, err := p.GetReceiptsByHash(blockHash)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(receiptsByHash[0].TxHash).To(Equal(receipts[0].TxHash))
+			Expect(receiptsByHash[0].BlockHash).To(Equal(blockHash))
+
+			tleByHash, err := p.GetTransactionByHash(txHash)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(tleByHash.TxIndex).To(Equal(uint64(0)))
+			Expect(tleByHash.BlockHash).To(Equal(blockHash))
+			Expect(tleByHash.BlockNum).To(Equal(uint64(1)))
+			Expect(tleByHash.Tx.Hash()).To(Equal(txHash))
 		})
 	})
 
