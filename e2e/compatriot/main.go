@@ -21,9 +21,9 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
-	"github.com/fatih/color"
+	"github.com/magefile/mage/sh"
 )
 
 const CACHED = "./cached.json"
@@ -33,37 +33,25 @@ func main() {
 	setup()
 
 	// make queries and save results to file 1
-	makeCalls(CACHED)
+	Query(CACHED)
 
 	// kill the chain
 
-	// make queries adn save results to file 2
-	makeCalls(NONCACHED)
+	// make queries and save results to file 2
+	Query(NONCACHED)
 
 	// compare file 1 and file 2
+	err := sh.Run("diff", CACHED, NONCACHED)
+	if err != nil {
+		log.Fatalf("main: An error occurred %v when diffing\n", err)
+	}
 
 	// run sanity checks
-
-	// print results
-
-	color.Set(color.FgGreen)
-	fmt.Println("The following JSON-RPC methods are likely supported in your EVM chain:")
-	for _, val := range supportedMethods {
-		fmt.Println(val)
+	if err := sanityCheck(CACHED); err != nil {
+		log.Fatalf("main: An error occurred %v when sanity checking cached file\n", err)
 	}
-	fmt.Println()
 
-	color.Set(color.FgYellow)
-	fmt.Println("The following JSON-RPC methods may or may not be supported in your EVM chain:")
-	for _, val := range possiblySupportedMethods {
-		fmt.Println(val)
+	if err := sanityCheck(NONCACHED); err != nil {
+		log.Fatalf("main: An error occurred %v when sanity checking non-cached file\n", err)
 	}
-	fmt.Println()
-
-	color.Set(color.FgRed)
-	fmt.Println("The following JSON-RPC methods are likely unsupported in your EVM chain:")
-	for _, val := range unsupportedMethods {
-		fmt.Println(val)
-	}
-	fmt.Println()
 }
