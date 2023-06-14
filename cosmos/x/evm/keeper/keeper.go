@@ -130,4 +130,8 @@ func (k *Keeper) GetHost() Host {
 
 func (k *Keeper) SetClientCtx(clientContext client.Context) {
 	k.host.GetTxPoolPlugin().(txpool.Plugin).SetClientContext(clientContext)
+	// TODO: move this
+	if err := k.polaris.StartServices(); err != nil {
+		panic(err)
+	}
 }
