@@ -30,12 +30,19 @@ type RPCResponse struct {
 }
 
 // makeCalls loads prexisting JSON-RPC calls from a file and queries the chain
-func makeCalls(output string) {
+func makeCalls(outputFile string) {
 	calls := make([]RPCRequest, 0)
 	loadCalls(&calls)
 
+	var output string
 	for i := 0; i < len(calls); i++ {
-		call(calls[i])
+		output += formatOutput(calls[i].Method, call(calls[i]))
+	}
+
+	// add the results to a file and format
+	err := os.WriteFile("./"+outputFile, []byte(output), 0644)
+	if err != nil {
+		log.Fatalf("call: An error occurred %v when writing output", err)
 	}
 }
 
@@ -51,30 +58,36 @@ func loadCalls(calls *[]RPCRequest) {
 }
 
 // call makes a JSON-RPC call to the chain and saves the results
-func call(postRequest RPCRequest) {
+func call(postRequest RPCRequest) RPCResponse {
 	postBody, _ := json.Marshal(postRequest)
-	otherBuffer := bytes.NewBuffer(postBody)
+	buffer := bytes.NewBuffer(postBody)
 
-	otherBody := makeRequest(POLARIS_RPC, otherBuffer)
+	body := makeRequest(POLARIS_RPC, buffer)
+	response := RPCResponse{}
+	json.Unmarshal([]byte(body), &response)
 
-	fmt.Println(postRequest.Method)
-	otherResp := RPCResponse{}
-	json.Unmarshal([]byte(otherBody), &otherResp)
-
-	// add the results to a file and format
+	return response
 }
 
 // makeRequest makes the actual HTTP request to the chain
 func makeRequest(rpc string, postBuffer *bytes.Buffer) string {
-	resp, err := http.Post(rpc, "application/json", postBuffer)
+	response, err := http.Post(rpc, "application/json", postBuffer)
 	if err != nil {
 		log.Fatalf("An Error Occured %v", err)
 	}
-	defer resp.Body.Close()
+	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	return string(body)
+}
+
+func formatOutput(method string, result RPCResponse) string {
+	return fmt.Sprintln("-------------------------\n" +
+		"Method: " + method + "\n" +
+		"Result: " + result.Result.(string) + "\n" +
+		"Error: " + result.Err.Message + "\n" +
+		"-------------------------\n")
 }
