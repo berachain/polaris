@@ -90,6 +90,7 @@ func main() {
 	}
 
 	// compare file 1 and file 2
+	// TODO: upgrade this as to not store all of the files in memory
 	diff := exec.Command("diff", CACHED, NONCACHED)
 	diff.Stdout = os.NewFile(3, diffFile)
 	if err := diff.Run(); err != nil {
