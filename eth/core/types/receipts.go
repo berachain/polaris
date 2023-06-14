@@ -37,6 +37,16 @@ func MarshalReceipts(receipts Receipts) ([]byte, error) {
 		return nil, err
 	}
 	return bz, nil
+
+	// var bz []byte
+	// for _, receipt := range receipts {
+	// 	receiptBz, err := receipt.MarshalBinary()
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	bz = append(bz, receiptBz...)
+	// }
+	// return bz, nil
 }
 
 // UnmarshalReceipts unmarshals receipts from bytes to `[]*ReceiptForStorage` to `Receipts` using

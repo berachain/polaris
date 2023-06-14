@@ -77,14 +77,14 @@ func NewKeeper(
 
 // Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
 func (k *Keeper) Setup(
-	offchainStoreKey *storetypes.KVStoreKey,
+	_ *storetypes.KVStoreKey,
 	qc func(height int64, prove bool) (sdk.Context, error),
 	polarisConfigPath string,
 	polarisDataDir string,
 	logger log.Logger,
 ) {
 	// Setup plugins in the Host
-	k.host.Setup(k.storeKey, offchainStoreKey, k.ak, qc)
+	k.host.Setup(k.storeKey, nil, k.ak, qc)
 
 	// Build the Polaris EVM Provider
 	cfg, err := polar.LoadConfigFromFilePath(polarisConfigPath)

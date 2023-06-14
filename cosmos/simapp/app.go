@@ -226,14 +226,16 @@ func NewPolarisApp(
 
 	// TODO: MOVE EVM SETUP
 	// ----- BEGIN EVM SETUP ----------------------------------------------
-	offchainKey := storetypes.NewKVStoreKey("offchain-evm")
+	// TODO: reenable offchain
+	// offchainKey := storetypes.NewKVStoreKey("offchain-evm")
+	// app.MountStore(offchainKey, storetypes.StoreTypeDB)
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
 		homePath = DefaultNodeHome
 	}
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
-		offchainKey,
+		nil,
 		app.CreateQueryContext,
 		// TODO: clean this up.
 		homePath+"/config/polaris.toml",

@@ -35,28 +35,32 @@ import (
 type Plugin interface {
 	plugins.Base
 	core.HistoricalPlugin
+	plugins.HasGenesis
 }
 
 // plugin keeps track of polaris blocks via headers.
 type plugin struct {
 	// ctx is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
+	cp  core.ConfigurationPlugin
 	// bp represents the block plugin, used for accessing historical block headers.
 	bp core.BlockPlugin
 	// storekey is the store key for the header store.
 	storeKey storetypes.StoreKey
+	// TODO: reenable offchain
 	//  `offchainStore` is the offchain store, used for accessing offchain data.
-	offchainStoreKey storetypes.StoreKey
+	// offchainStoreKey storetypes.StoreKey
 }
 
 // NewPlugin creates a new instance of the block plugin from the given context.
 func NewPlugin(
-	bp core.BlockPlugin, offchainStoreKey storetypes.StoreKey, storekey storetypes.StoreKey,
+	cp core.ConfigurationPlugin, bp core.BlockPlugin,
+	_ storetypes.StoreKey, storekey storetypes.StoreKey,
 ) Plugin {
 	return &plugin{
-		bp:               bp,
-		offchainStoreKey: offchainStoreKey,
-		storeKey:         storekey,
+		cp:       cp,
+		bp:       bp,
+		storeKey: storekey,
 	}
 }
 
@@ -66,3 +70,13 @@ func (p *plugin) Prepare(ctx context.Context) {
 }
 
 func (p *plugin) IsPlugin() {}
+
+func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
+	p.Prepare(ctx)
+
+	if err := p.StoreBlock(ethGen.ToBlock()); err != nil {
+		panic(err)
+	}
+}
+
+func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {}

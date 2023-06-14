@@ -41,10 +41,11 @@ var _ = Describe("Historical Plugin", func() {
 	BeforeEach(func() {
 		ctx = testutil.NewContext()
 		p = &plugin{
-			ctx:              ctx,
-			bp:               mock.NewBlockPluginMock(),
-			storeKey:         storetypes.NewKVStoreKey("evm"),
-			offchainStoreKey: storetypes.NewKVStoreKey("offchain-evm"),
+			ctx:      ctx,
+			cp:       mock.NewConfigurationPluginMock(),
+			bp:       mock.NewBlockPluginMock(),
+			storeKey: storetypes.NewKVStoreKey("evm"),
+			// offchainStoreKey: storetypes.NewKVStoreKey("offchain-evm"),
 		}
 	})
 

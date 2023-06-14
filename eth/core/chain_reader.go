@@ -21,6 +21,7 @@
 package core
 
 import (
+	"fmt"
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -163,12 +164,14 @@ func (bc *blockchain) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 // GetBlock returns a block by its hash or number.
 func (bc *blockchain) GetBlock(hash common.Hash, number uint64) *types.Block {
 	// check the cache
-	if block, ok := bc.blockHashCache.Get(hash); ok {
-		return block
-	}
+	// if block, ok := bc.blockHashCache.Get(hash); ok {
+	// 	fmt.Println("GET BLOCK found in cache")
+	// 	return block
+	// }
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
+		fmt.Println("GET BLOCK hp is nil")
 		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil
 	}
@@ -186,19 +189,22 @@ func (bc *blockchain) GetBlock(hash common.Hash, number uint64) *types.Block {
 	// Cache the found block for next time and return
 	bc.blockHashCache.Add(hash, block)
 	bc.blockNumCache.Add(block.Number().Uint64(), block)
+	fmt.Println("GET BLOCK found in hp written to cache")
 	return block
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
 func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 	// check the block hash cache
-	if block, ok := bc.blockHashCache.Get(hash); ok {
-		bc.blockNumCache.Add(block.Number().Uint64(), block)
-		return block
-	}
+	// if block, ok := bc.blockHashCache.Get(hash); ok {
+	// 	bc.blockNumCache.Add(block.Number().Uint64(), block)
+	// 	fmt.Println("GET BLOCK BY HASH found in cache")
+	// 	return block
+	// }
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
+		fmt.Println("GET BLOCK BY HASH hp is nil")
 		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil
 	}
@@ -206,6 +212,7 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 	// check the historical plugin
 	block, err := bc.hp.GetBlockByHash(hash)
 	if block == nil || err != nil {
+		fmt.Println("GET BLOCK BY HASH hp failed", err)
 		bc.logger.Debug("failed to get receipts from historical plugin", "block", block, "err", err)
 		return nil
 	}
@@ -213,19 +220,22 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 	// Cache the found block for next time and return
 	bc.blockNumCache.Add(block.Number().Uint64(), block)
 	bc.blockHashCache.Add(hash, block)
+	fmt.Println("GET BLOCK BY HASH found in hp and cached we good")
 	return block
 }
 
 // GetBlock retrieves a block from the database by hash and number, caching it if found.
 func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 	// check the block number cache
-	if block, ok := bc.blockNumCache.Get(number); ok {
-		bc.blockHashCache.Add(block.Hash(), block)
-		return block
-	}
+	// if block, ok := bc.blockNumCache.Get(number); ok {
+	// 	bc.blockHashCache.Add(block.Hash(), block)
+	// 	fmt.Println("GET BLOCK BY NUM found in cache")
+	// 	return block
+	// }
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
+		fmt.Println("GET BLOCK BY NUM hp is nil")
 		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil
 	}
@@ -233,12 +243,14 @@ func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 	// check the historical plugin
 	block, err := bc.hp.GetBlockByNumber(number)
 	if block == nil || err != nil {
+		fmt.Println("GET BLOCK BY NUM hp failed", err)
 		return nil
 	}
 
 	// Cache the found block for next time and return
 	bc.blockNumCache.Add(number, block)
 	bc.blockHashCache.Add(block.Hash(), block)
+	fmt.Println("GET BLOCK BY NUM found in hp and cached we good")
 	return block
 }
 
@@ -287,12 +299,13 @@ func (bc *blockchain) GetTransactionLookup(
 	hash common.Hash,
 ) *types.TxLookupEntry {
 	// check the cache
-	if txLookupEntry, ok := bc.txLookupCache.Get(hash); ok {
-		return txLookupEntry
-	}
+	// if txLookupEntry, ok := bc.txLookupCache.Get(hash); ok {
+	// 	return txLookupEntry
+	// }
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
+		fmt.Println("GET TX LOOKUP hp is nil")
 		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil
 	}
@@ -300,11 +313,13 @@ func (bc *blockchain) GetTransactionLookup(
 	// check the historical plugin
 	txLookupEntry, err := bc.hp.GetTransactionByHash(hash)
 	if err != nil {
+		fmt.Println("GET TX LOOKUP hp failed", err)
 		return nil
 	}
 
 	// cache the found transaction for next time and return
 	bc.txLookupCache.Add(hash, txLookupEntry)
+	fmt.Println("GET TX LOOKUP cache is good", err)
 	return txLookupEntry
 }
 
