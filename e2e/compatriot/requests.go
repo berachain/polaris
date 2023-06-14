@@ -57,6 +57,7 @@ func Query(outputFile string) error {
 		return fmt.Errorf("call: An error occurred %v when writing output\n", err)
 	}
 
+	fmt.Println("finished querying")
 	return nil
 }
 

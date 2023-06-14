@@ -21,30 +21,64 @@
 package main
 
 import (
+	"fmt"
 	"log"
-
-	"github.com/magefile/mage/sh"
+	"os"
+	"os/exec"
+	"time"
 )
 
 const CACHED = "./cached.json"
 const NONCACHED = "./noncached.json"
 
 func main() {
-	setup()
+	if err := os.Chdir("../.."); err != nil {
+		log.Fatalf("main: An error occurred %v when changing directory\n", err)
+	}
+
+	startChain := exec.Command("./cosmos/init.sh")
+	startChain.Stdout = os.Stdout
+	if err := startChain.Start(); err != nil {
+		log.Fatalf("main: An error occurred %v when starting chain\n", err)
+	}
+	// setup()
+
+	print := exec.Command("cat", "magefiles/LICENSE.header")
+	if err := print.Run(); err != nil {
+		log.Fatalf("main: An error occurred %v when printing\n", err)
+	}
+
+	time.Sleep(10 * time.Second)
 
 	// make queries and save results to file 1
+	// TODO: figure out how to query the chain and output results after the endpoints are ready
 	Query(CACHED)
 
 	// kill the chain
+	if err := startChain.Wait(); err != nil {
+		log.Fatalf("main: An error occurred %v when waiting for start chain to finish\n", err)
+	}
+
+	if err := startChain.Process.Kill(); err != nil {
+		log.Fatalf("main: An error occurred %v when killing the program\n", err)
+	}
+
+	// restart the chain
+	restartChain := exec.Command("./bin/polard", "start", "--home", "$HOMEDIR")
+	if err := restartChain.Run(); err != nil {
+		log.Fatalf("main: An error occurred %v when restarting chain\n", err)
+	}
 
 	// make queries and save results to file 2
 	Query(NONCACHED)
 
 	// compare file 1 and file 2
-	err := sh.Run("diff", CACHED, NONCACHED)
+	diff := exec.Command("diff", CACHED, NONCACHED)
+	output, err := diff.Output()
 	if err != nil {
 		log.Fatalf("main: An error occurred %v when diffing\n", err)
 	}
+	fmt.Println(string(output))
 
 	// run sanity checks
 	if err := sanityCheck(CACHED); err != nil {
