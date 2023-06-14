@@ -38,7 +38,7 @@ type ChainReader interface {
 // ChainBlockReader defines methods that are used to read information about blocks in the chain.
 type ChainBlockReader interface {
 	CurrentHeader() *types.Header
-	CurrentBlock() *types.Header
+	CurrentBlock() *types.Block
 	CurrentFinalBlock() *types.Header
 	CurrentSafeBlock() *types.Header
 	GetBlock(common.Hash, uint64) *types.Block
@@ -80,15 +80,15 @@ func (bc *blockchain) CurrentHeader() *types.Header {
 	return block.Header()
 }
 
-// CurrentHeader returns the current header of the blockchain.
-func (bc *blockchain) CurrentBlock() *types.Header {
+// CurrentBlock returns the current block of the blockchain.
+func (bc *blockchain) CurrentBlock() *types.Block {
 	block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
 	if block == nil || !ok {
 		return nil
 	}
 	bc.blockNumCache.Add(block.Number().Uint64(), block)
 	bc.blockHashCache.Add(block.Hash(), block)
-	return block.Header()
+	return block
 }
 
 // CurrentSnapBlock is UNUSED in Polaris.
