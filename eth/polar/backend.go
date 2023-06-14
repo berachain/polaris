@@ -105,7 +105,7 @@ func (b *backend) CurrentHeader() *types.Header {
 
 // CurrentBlock returns the current block from the local chain.
 func (b *backend) CurrentBlock() *types.Header {
-	return b.polar.blockchain.CurrentBlock()
+	return b.polar.blockchain.CurrentHeader()
 }
 
 // SyncProgress returns the current progress of the sync algorithm.
@@ -189,7 +189,7 @@ func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*ty
 		header := b.polar.blockchain.CurrentHeader()
 		return header, nil
 	case rpc.LatestBlockNumber:
-		return b.polar.blockchain.CurrentBlock(), nil
+		return b.polar.blockchain.CurrentHeader(), nil
 	case rpc.FinalizedBlockNumber:
 		block := b.polar.blockchain.CurrentFinalBlock()
 		if block != nil {
@@ -235,13 +235,11 @@ func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*typ
 		// 	block := b.eth.miner.PendingBlock()
 		// 	return block, nil
 		// todo: handling pending better.
-		header := b.polar.blockchain.CurrentBlock()
-		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
+		return b.polar.blockchain.CurrentBlock(), nil
 
 	// Otherwise resolve and return the block
 	case rpc.LatestBlockNumber:
-		header := b.polar.blockchain.CurrentBlock()
-		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
+		return b.polar.blockchain.CurrentBlock(), nil
 
 	case rpc.FinalizedBlockNumber:
 		header := b.polar.blockchain.CurrentFinalBlock()
