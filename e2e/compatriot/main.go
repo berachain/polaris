@@ -74,10 +74,13 @@ func main() {
 	}
 
 	// restart the chain
-	restartChain := exec.Command("./bin/polard", "start")
+	restartChain := exec.Command("./bin/polard", "start", "--home", "./.tmp/polard")
+	restartChain.Stdout = os.Stdout
 	if err := restartChain.Start(); err != nil {
 		log.Fatalf("main: An error occurred %v when restarting chain\n", err)
 	}
+
+	time.Sleep(10 * time.Second)
 
 	// make queries and save results to file 2
 	Query(NONCACHED)

@@ -22,6 +22,7 @@ var txHashes []common.Hash
 // setup starts up the chain and spams the transactions
 func setup() error {
 	txHashes = submitTransactionsToNetwork()
+	requests = generateQueries()
 	return nil
 }
 

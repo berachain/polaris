@@ -33,9 +33,12 @@ type RPCOutput struct {
 	Response RPCResponse `json:"response"`
 }
 
+// TODO: make this a buffer stream to not store all tests in memory?
+var requests []RPCRequest
+
 // Query loads prexisting JSON-RPC calls from a file and queries the chain
 func Query(outputFile string) error {
-	calls := generateQueries() // generates the queries according to the chain setup
+	calls := requests
 
 	var output []RPCOutput
 	for i := 0; i < len(calls); i++ {
