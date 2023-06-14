@@ -83,7 +83,7 @@ func (Cosmos) Build() error {
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
 		"-o", generateOutDirectory(cmd),
-		"./cosmos/cmd/" + cmd,
+		"./cosmos/simapp/" + cmd,
 	}
 	return goBuild(args...)
 }
@@ -150,7 +150,7 @@ func (c Cosmos) DockerDebug() error {
 	return c.dockerBuildNode("debug", execDockerPath, goVersion, version, runtime.GOARCH, false)
 }
 
-// Build a docker image for berad with the supplied arguments.
+// Build a docker image for polard with the supplied arguments.
 func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion, arch string, withX bool) error {
 	return dockerBuildFn(withX)(
 		"--build-arg", "GO_VERSION="+goVersion,
@@ -175,7 +175,7 @@ func (Cosmos) Install() error {
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
-		"./cosmos/cmd/polard",
+		"./cosmos/simapp/polard",
 	}
 
 	return goInstall(args...)
@@ -198,6 +198,12 @@ func (c Cosmos) Test() error {
 func (c Cosmos) TestUnit() error {
 	LogGreen("Running unit tests for the Cosmos SDK chain.")
 	return testUnit(c.directory())
+}
+
+// Runs all unit tests for the Cosmos SDK chain.
+func (c Cosmos) TestUnitRace() error {
+	LogGreen("Running unit tests for the Cosmos SDK chain.")
+	return testUnitRace(c.directory())
 }
 
 // Runs all integration for the Cosmos SDK chain.

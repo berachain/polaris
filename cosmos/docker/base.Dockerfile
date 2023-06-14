@@ -24,7 +24,7 @@ ARG GOOS=linux
 ARG NAME=polaris-cosmos
 ARG APP_NAME=polard
 ARG DB_BACKEND=pebbledb
-ARG CMD_PATH=./cosmos/cmd/polard
+ARG CMD_PATH=./cosmos/simapp/polard
 ARG FOUNDRY_DIR=contracts
 
 #######################################################

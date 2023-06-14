@@ -23,11 +23,11 @@ CHAINID="brickchain-666"
 MONIKER1="val-1"
 KEYRING="test"
 KEYALGO="eth_secp256k1"
-HOMEDIR="/root/.berad"
+HOMEDIR="/root/.polard"
 
-berad init $MONIKER1 -o --chain-id $CHAINID --home "$HOMEDIR"
+polard init $MONIKER1 -o --chain-id $CHAINID --home "$HOMEDIR"
 
-berad config set client keyring-backend $KEYRING --home "$HOMEDIR"
+polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
 
-berad keys add $KEY1 --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
+polard keys add $KEY1 --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
   

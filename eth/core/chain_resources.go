@@ -22,6 +22,7 @@ package core
 
 import (
 	"context"
+	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -62,6 +63,9 @@ func (bc *blockchain) GetEVM(
 
 // NewEVMBlockContext creates a new block context for use in the EVM.
 func (bc *blockchain) NewEVMBlockContext(header *types.Header) *vm.BlockContext {
+	if header = types.CopyHeader(header); header.Difficulty == nil {
+		header.Difficulty = new(big.Int)
+	}
 	blockContext := NewEVMBlockContext(header, bc, &header.Coinbase)
 	return &blockContext
 }

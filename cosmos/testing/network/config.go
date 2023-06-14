@@ -19,16 +19,19 @@
 // TITLE.
 
 //nolint:revive // embed.
-package runtime
+package network
 
 import (
-	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
-	"cosmossdk.io/core/appconfig"
+	simappparams "cosmossdk.io/simapp/params"
 	"cosmossdk.io/x/evidence"
 	"cosmossdk.io/x/upgrade"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -46,18 +49,19 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 
-	simappconfig "pkg.berachain.dev/polaris/cosmos/runtime/config"
+	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/x/erc20"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
+	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 
 	_ "embed"
 
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
+// TODO: we should migrate to the dep-injected version of network.go
+
 var (
-	// DefaultNodeHome default home directories for the application daemon.
-	DefaultNodeHome string
 
 	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
@@ -88,9 +92,27 @@ var (
 		erc20.AppModuleBasic{},
 	}
 	ModuleBasics = module.NewBasicManager(ModuleBasicsList...)
-
-	// application configuration (used by depinject).
-	AppConfig = appconfig.Compose(&appv1alpha1.Config{
-		Modules: simappconfig.DefaultModule,
-	})
 )
+
+func BuildPolarisEncodingConfig(mb module.BasicManager) simappparams.EncodingConfig {
+	cdc := codec.NewLegacyAmino()
+	interfaceRegistry := types.NewInterfaceRegistry()
+	codec := codec.NewProtoCodec(interfaceRegistry)
+	cryptocodec.RegisterInterfaces(interfaceRegistry)
+	ethcryptocodec.RegisterInterfaces(interfaceRegistry)
+
+	txConfig := tx.NewTxConfig(
+		codec,
+		tx.DefaultSignModes,
+		evmante.SignModeEthTxHandler{},
+	)
+	mb.RegisterLegacyAminoCodec(cdc)
+	mb.RegisterInterfaces(interfaceRegistry)
+
+	return simappparams.EncodingConfig{
+		InterfaceRegistry: interfaceRegistry,
+		Codec:             codec,
+		TxConfig:          txConfig,
+		Amino:             cdc,
+	}
+}
