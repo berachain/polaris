@@ -33,10 +33,12 @@ const NONCACHED = "./e2e/compatriot/noncached.json"
 const diffFile = "./e2e/compatriot/diff.txt"
 
 func main() {
+	// set the directory
 	if err := os.Chdir("../.."); err != nil {
 		log.Fatalf("main: An error occurred %v when changing directory\n", err)
 	}
 
+	// start the chain
 	startChain := exec.Command("./cosmos/init.sh")
 	startChain.Stdout = os.Stdout
 	if err := startChain.Start(); err != nil {
@@ -47,7 +49,6 @@ func main() {
 	time.Sleep(10 * time.Second) // hacky fix to wait for chain endpoints to be setup correctly
 
 	// make queries and save results to file 1
-	// TODO: figure out how to query the chain and output results after the endpoints are ready
 	Query(CACHED)
 
 	// kill the chain
