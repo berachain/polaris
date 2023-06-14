@@ -259,8 +259,11 @@ func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, e
 	if err != nil {
 		return nil, err
 	}
-
-	receipts.DeriveFields(p.cp.ChainConfig(), blockHash, block.NumberU64(), block.Time(), block.BaseFee(), block.Transactions())
+	if err = receipts.DeriveFields(
+		p.cp.ChainConfig(), blockHash, block.NumberU64(), block.Time(), block.BaseFee(), block.Transactions(),
+	); err != nil {
+		return nil, err
+	}
 
 	return receipts, nil
 }
