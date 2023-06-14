@@ -1,0 +1,421 @@
+[
+    {
+        "jsonrpc": "2.0",
+        "method": "web3_clientVersion",
+        "params": [],
+        "id": 0
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "web3_sha3",
+        "params": [
+            "0x68656c6c6f20776f726c64"
+        ],
+        "id": 1
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "net_version",
+        "params": [],
+        "id": 2
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "net_listening",
+        "params": [],
+        "id": 3
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "net_peerCount",
+        "params": [],
+        "id": 4
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_syncing",
+        "params": [],
+        "id": 5
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_coinbase",
+        "params": [],
+        "id": 6
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_mining",
+        "params": [],
+        "id": 7
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_hashrate",
+        "params": [],
+        "id": 8
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_gasPrice",
+        "params": [],
+        "id": 9
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_accounts",
+        "params": [],
+        "id": 10
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_blockNumber",
+        "params": [],
+        "id": 11
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getBalance",
+        "params": [
+            "0x407d73d8a49eeb85d32cf465507dd71d507100c1",
+            "latest"
+        ],
+        "id": 12
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getStorageAt",
+        "params": [
+            "0x295a70b2de5e3953354a6a8344e616ed314d7251",
+            "0x0",
+            "latest"
+        ],
+        "id": 13
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getTransactionCount",
+        "params": [
+            "0x407d73d8a49eeb85d32cf465507dd71d507100c1",
+            "latest"
+        ],
+        "id": 14
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getBlockTransactionCountByHash",
+        "params": [
+            "0xb903239f8543d04b5dc1ba6579132b143087c68db1b2168786408fcbce568238"
+        ],
+        "id": 15
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getBlockTransactionCountByNumber",
+        "params": [
+            "0xe8"
+        ],
+        "id": 16
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getUncleCountByBlockHash",
+        "params": [
+            "0xb903239f8543d04b5dc1ba6579132b143087c68db1b2168786408fcbce568238"
+        ],
+        "id": 17
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getUncleCountByBlockNumber",
+        "params": [
+            "0xe8"
+        ],
+        "id": 18
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getCode",
+        "params": [
+            "0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b",
+            "0x2"
+        ],
+        "id": 19
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_sign",
+        "params": [
+            "0x9b2055d370f73ec7d8a03e965129118dc8f5bf83",
+            "0xdeadbeaf"
+        ],
+        "id": 20
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_signTransaction",
+        "params": [
+            {
+                "data": "0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675",
+                "from": "0xb60e8dd61c5d32be8058bb8eb970870f07233155",
+                "gas": "0x76c0",
+                "gasPrice": "0x9184e72a000",
+                "to": "0xd46e8dd67c5d32be8058bb8eb970870f07244567",
+                "value": "0x9184e72a",
+                "nonce": "0x0"
+            }
+        ],
+        "id": 21
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_sendTransaction",
+        "params": [
+            {
+                "from": "0xb60e8dd61c5d32be8058bb8eb970870f07233155",
+                "to": "0xd46e8dd67c5d32be8058bb8eb970870f07244567",
+                "gas": "0x76c0",
+                "gasPrice": "0x9184e72a000",
+                "value": "0x9184e72a",
+                "data": "0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"
+            }
+        ],
+        "id": 22
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_sendRawTransaction",
+        "params": [
+            "0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"
+        ],
+        "id": 23
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_call",
+        "params": [
+            {
+                "from": null,
+                "to": "0x6b175474e89094c44da98b954eedeac495271d0f",
+                "data": "0x70a082310000000000000000000000006E0d01A76C3Cf4288372a29124A26D4353EE51BE"
+            },
+            "latest"
+        ],
+        "id": 24
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_estimateGas",
+        "params": [
+            {
+                "from": "0x8D97689C9818892B700e27F316cc3E41e17fBeb9",
+                "to": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
+                "value": "0x186a0"
+            }
+        ],
+        "id": 25
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getBlockByHash",
+        "params": [
+            "0x829df9bb801fc0494abf2f443423a49ffa32964554db71b098d332d87b70a48b",
+            false
+        ],
+        "id": 26
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getBlockByNumber",
+        "params": [
+            "0xc5043f",
+            false
+        ],
+        "id": 27
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getTransactionByHash",
+        "params": [
+            "0xb1fac2cb5074a4eda8296faebe3b5a3c10b48947dd9a738b2fdf859be0e1fbaf"
+        ],
+        "id": 28
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getTransactionByBlockHashAndIndex",
+        "params": [
+            "0x829df9bb801fc0494abf2f443423a49ffa32964554db71b098d332d87b70a48b",
+            "0x0"
+        ],
+        "id": 29
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getTransactionByBlockNumberAndIndex",
+        "params": [
+            "0xc5043f",
+            "0x0"
+        ],
+        "id": 30
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getTransactionReceipt",
+        "params": [
+            "0x85d995eba9763907fdf35cd2034144dd9d53ce32cbec21349d4b12823c6860c5"
+        ],
+        "id": 31
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getUncleByBlockHashAndIndex",
+        "params": [
+            "0xb3b20624f8f0f86eb50dd04688409e5cea4bd02d700bf6e79e9384d47d6a5a35",
+            "0x0"
+        ],
+        "id": 32
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getUncleByBlockNumberAndIndex",
+        "params": [
+            "0x29c",
+            "0x0"
+        ],
+        "id": 33
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_newFilter",
+        "params": [
+          {
+            "fromBlock": "0xe20360",
+            "toBlock": "0xe20411",
+            "address": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "topics": []
+          }
+        ],
+        "id": 34
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getFilterChanges",
+        "params": [
+            "0x326abc65a524491bac93bf474aace6b5"
+        ],
+        "id": 35
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getFilterLogs",
+        "params": [
+          "0x326abc65a524491bac93bf474aace6b5"
+        ],
+        "id": 36
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_newBlockFilter",
+        "params": [],
+        "id": 37
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_newPendingTransactionFilter",
+        "params": [],
+        "id": 38
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_uninstallFilter",
+        "params": [
+          "0x326abc65a524491bac93bf474aace6b5"
+        ],
+        "id": 39
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getLogs",
+        "params": [
+          {
+            "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+          }
+        ],
+        "id": 40
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getWork",
+        "params": [],
+        "id": 1
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_submitWork",
+        "params": [
+            "0x0000000000000001",
+            "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+            "0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000"
+        ],
+        "id": 1
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_submitHashrate",
+        "params": [
+            "0x500000",
+            "0x59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c"
+        ],
+        "id": 73
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_pendingTransactions",
+        "params": [],
+        "id": 1
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_getProof",
+        "params": [
+            "0x1234567890123456789012345678901234567890",
+            [
+                "0x0000000000000000000000000000000000000000000000000000000000000000",
+                "0x0000000000000000000000000000000000000000000000000000000000000001"
+            ],
+            "latest"
+        ],
+        "id": 1
+    },
+    {
+        "jsonrpc":"2.0",
+        "method":"eth_createAccessList",
+        "params": [
+            {
+                "from": "0x0000000000000000000000000000000000000001", 
+                "to": "0x2be5e8c109e2197D077D13A82dAead6a9b3433C5",
+                "data": "0xcae9ca51000000000000000000000000c4a11aaf6ea915ed7ac194161d2fc9384f15bff2000000000000000000000000000000000000000000000039c0885c3cdaeccc000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000004000000000000000000000000056e465f654393fa48f007ed7346105c7195cee4300000000000000000000000039a13a796a3cd9f480c28259230d2ef0a7026033"
+                
+            }, 
+            "pending"
+        ],
+        "id":1
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_maxPriorityFeePerGas",
+        "params": [],
+        "id": 1
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "eth_feeHistory",
+        "params": [
+            "0x5",
+            "latest",
+            []
+        ],
+        "id": 1337
+    }
+]
