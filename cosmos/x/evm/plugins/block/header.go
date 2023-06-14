@@ -118,7 +118,7 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 		}
 		kvstore.Delete(toRemove.Hash().Bytes())
 	}
-	kvstore.Set([]byte{types.HeaderKey}, header.Number.Bytes())
+	kvstore.Set(header.Hash().Bytes(), header.Number.Bytes())
 
 	return nil
 }

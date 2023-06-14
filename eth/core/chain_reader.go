@@ -75,6 +75,8 @@ func (bc *blockchain) CurrentHeader() *types.Header {
 	if block == nil || !ok {
 		return nil
 	}
+	bc.blockNumCache.Add(block.Number().Uint64(), block)
+	bc.blockHashCache.Add(block.Hash(), block)
 	return block.Header()
 }
 

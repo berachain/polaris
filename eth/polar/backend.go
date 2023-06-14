@@ -230,28 +230,33 @@ func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Head
 // BlockByNumber returns the block with the given `number`.
 func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*types.Block, error) {
 	// Pending block is only known by the miner
-	if number == rpc.PendingBlockNumber {
+	switch number {
+	case rpc.PendingBlockNumber:
 		// 	block := b.eth.miner.PendingBlock()
 		// 	return block, nil
 		// todo: handling pending better.
 		header := b.polar.blockchain.CurrentBlock()
 		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
-	}
+
 	// Otherwise resolve and return the block
-	if number == rpc.LatestBlockNumber {
+	case rpc.LatestBlockNumber:
 		header := b.polar.blockchain.CurrentBlock()
 		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
-	}
-	if number == rpc.FinalizedBlockNumber {
+
+	case rpc.FinalizedBlockNumber:
 		header := b.polar.blockchain.CurrentFinalBlock()
 		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
-	}
-	if number == rpc.SafeBlockNumber {
+
+	case rpc.SafeBlockNumber:
 		header := b.polar.blockchain.CurrentSafeBlock()
 		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
+
+	case rpc.EarliestBlockNumber:
+		return b.polar.blockchain.GetBlockByNumber(0), nil
+	default:
+		// safe to assume number >= 0
+		return b.polar.blockchain.GetBlockByNumber(uint64(number)), nil
 	}
-	// safe to assume number >= 0
-	return b.polar.blockchain.GetBlockByNumber(uint64(number)), nil
 }
 
 // BlockByHash returns the block with the given `hash`.
