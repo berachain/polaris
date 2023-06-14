@@ -307,7 +307,7 @@ func (b *backend) StateAndHeaderByNumber(
 		return nil, nil, err
 	}
 	if header == nil {
-		return nil, nil, errors.New("header not found")
+		return nil, nil, core.ErrHeaderNotFound
 	}
 	b.logger.Debug("called eth.rpc.backend.StateAndHeaderByNumber", "header", header)
 
