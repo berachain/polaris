@@ -55,7 +55,6 @@ import (
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 
 	_ "embed"
-
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 

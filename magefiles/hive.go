@@ -50,7 +50,9 @@ var (
 	simulatorsPath = clonePath + "simulators/polaris/"
 	clientsPath    = clonePath + "clients/polard/"
 
-	simulations = []tests{{"rpc", []string{"init/genesis.json"}}, {"graphql", []string{"testcases", "init/testGenesis.json"}}}
+	simulations = []tests{
+		{"rpc", []string{"init/genesis.json"}},
+		{"graphql", []string{"testcases", "init/testGenesis.json"}}}
 )
 
 type Hive mg.Namespace
@@ -98,7 +100,8 @@ func (h Hive) Setup() error {
 			if err := sh.RunV("rm", "-rf", simulatorsPath+sim.Name+"/"+file); err != nil {
 				return err
 			}
-			if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"simulators/"+sim.Name+"/"+file, simulatorsPath+sim.Name+"/"+file); err != nil {
+			if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"simulators/"+sim.Name+
+				"/"+file, simulatorsPath+sim.Name+"/"+file); err != nil {
 				return err
 			}
 		}
