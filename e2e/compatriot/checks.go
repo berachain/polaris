@@ -21,7 +21,7 @@ func sanityCheck(file string) error {
 		return fmt.Errorf("sanityCheck: An error occurred %v when unmarshalling the file\n", err)
 	}
 
-	return nil
+	return checkNull(results)
 }
 
 func checkNull(results []RPCOutput) error {
