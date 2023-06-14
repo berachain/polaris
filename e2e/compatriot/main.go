@@ -21,50 +21,30 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
-	"os"
 
 	"github.com/fatih/color"
 )
 
-const GETH_RPC = "http://localhost:8555"
-const OTHER_RPC = "http://localhost:8545"
-const TESTS = "./tests.json"
-
-var supportedMethods []string
-var possiblySupportedMethods []string
-var unsupportedMethods []string
-
-type RPCRequest struct {
-	Jsonrpc string `json:"jsonrpc"`
-	Method  string `json:"method"`
-	Params  []any  `json:"params"`
-	Id      int64  `json:"id"`
-}
-
-type ResponseErr struct {
-	Code    int64  `json:"code"`
-	Message string `json:"message"`
-}
-
-type RPCResponse struct {
-	Jsonrpc string      `json:"jsonrpc"`
-	Id      int64       `json:"id"`
-	Result  any         `json:"result"`
-	Err     ResponseErr `json:"error"`
-}
+const CACHED = "./cached.json"
+const NONCACHED = "./noncached.json"
 
 func main() {
-	calls := make([]RPCRequest, 0)
-	loadCalls(&calls)
-	for i := 0; i < len(calls); i++ {
-		call(calls[i])
-	}
+	setup()
+
+	// make queries and save results to file 1
+	makeCalls(CACHED)
+
+	// kill the chain
+
+	// make queries adn save results to file 2
+	makeCalls(NONCACHED)
+
+	// compare file 1 and file 2
+
+	// run sanity checks
+
+	// print results
 
 	color.Set(color.FgGreen)
 	fmt.Println("The following JSON-RPC methods are likely supported in your EVM chain:")
@@ -86,60 +66,4 @@ func main() {
 		fmt.Println(val)
 	}
 	fmt.Println()
-
-}
-
-func loadCalls(calls *[]RPCRequest) {
-	jsonFile, err := os.Open(TESTS)
-	if err != nil {
-		log.Fatalf("An error occurred %v", err)
-	}
-
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	json.Unmarshal(byteValue, calls)
-}
-
-func call(postRequest RPCRequest) {
-	postBody, _ := json.Marshal(postRequest)
-	gethBuffer := bytes.NewBuffer(postBody)
-	otherBuffer := bytes.NewBuffer(postBody)
-
-	gethBody := makeRequest(GETH_RPC, gethBuffer)
-	otherBody := makeRequest(OTHER_RPC, otherBuffer)
-
-	fmt.Println(postRequest.Method)
-	otherResp := RPCResponse{}
-	json.Unmarshal([]byte(otherBody), &otherResp)
-
-	if gethBody != otherBody {
-		if otherResp.Err != (RPCResponse{}).Err {
-			color.Set(color.FgRed)
-			fmt.Printf("ERROR: %v\n", otherResp.Err.Message)
-			unsupportedMethods = append(unsupportedMethods, postRequest.Method)
-		} else {
-			possiblySupportedMethods = append(possiblySupportedMethods, postRequest.Method)
-		}
-
-		color.Set(color.FgYellow)
-	} else {
-		supportedMethods = append(supportedMethods, postRequest.Method)
-		color.Set(color.FgGreen)
-	}
-	fmt.Printf("Geth returned: %vOther returned: %v\n\n", gethBody, otherBody)
-	color.Unset()
-}
-
-func makeRequest(rpc string, postBuffer *bytes.Buffer) string {
-	resp, err := http.Post(rpc, "application/json", postBuffer)
-	if err != nil {
-		log.Fatalf("An Error Occured %v", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	return string(body)
 }
