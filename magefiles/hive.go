@@ -52,6 +52,7 @@ var (
 
 	simulations = []tests{
 		{"rpc", []string{"init/genesis.json"}},
+		{"rpc-compat", []string{"tests", "Dockerfile"}},
 		{"graphql", []string{"testcases", "init/testGenesis.json"}}}
 )
 
