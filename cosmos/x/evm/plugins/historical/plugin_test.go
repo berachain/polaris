@@ -24,6 +24,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/trie"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
