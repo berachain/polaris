@@ -21,54 +21,57 @@
 package historical
 
 import (
-	storetypes "cosmossdk.io/store/types"
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/mock"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	"pkg.berachain.dev/polaris/eth/core/mock"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Historical Plugin", func() {
+var _ = Describe("Historical Data", func() {
 	var (
 		p   *plugin
 		ctx sdk.Context
 	)
 
 	BeforeEach(func() {
-		ctx = testutil.NewContext()
-		p = &plugin{
-			ctx:      ctx,
-			cp:       mock.NewConfigurationPluginMock(),
-			bp:       mock.NewBlockPluginMock(),
-			storeKey: storetypes.NewKVStoreKey("evm"),
-			// offchainStoreKey: storetypes.NewKVStoreKey("offchain-evm"),
-		}
+		ctx = testutil.NewContext().WithBlockHeight(0)
+		cp := mock.NewConfigurationPluginMock()
+		bp := mock.NewBlockPluginMock()
+
+		p = utils.MustGetAs[*plugin](NewPlugin(cp, bp, nil, testutil.EvmKey))
+		p.InitGenesis(ctx, core.DefaultGenesis)
 	})
 
-	Context("After Genesis", func() {
-		When("BlockByNumber is called on block 0", func() {
-			It("should return the header without error", func() {
-				block, err := p.GetBlockByNumber(0)
-				Expect(err).ToNot(HaveOccurred())
-				header := block.Header()
-				Expect(header).ToNot(BeNil()) // mock header
-			})
+	When("Genesis block", func() {
+		It("should return the header without error", func() {
+			block, err := p.GetBlockByNumber(0)
+			Expect(err).ToNot(HaveOccurred())
+			header := block.Header()
+			Expect(header).ToNot(BeNil())
+			blockByHash, err := p.GetBlockByHash(block.Hash())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(blockByHash).ToNot(BeNil())
+			Expect(blockByHash.Hash()).To(Equal(block.Hash()))
 		})
 	})
 
-	// It("should get the header at current height", func() {
-	// 	header, err := p.GetHeaderByNumber(ctx.BlockHeight())
-	// 	Expect(err).ToNot(HaveOccurred())
-	// 	Expect(header.TxHash).To(Equal(common.BytesToHash(ctx.BlockHeader().DataHash)))
-	// })
+	When("Other blocks", func() {
 
-	// It("should return empty header for non-existent height", func() {
-	// 	header, err := p.GetHeaderByNumber(100000)
-	// 	Expect(err).ToNot(HaveOccurred())
-	// 	Expect(*header).To(Equal(types.Header{}))
-	// })
+		// It("should get the header at current height", func() {
+		// 	header, err := p.GetHeaderByNumber(ctx.BlockHeight())
+		// 	Expect(err).ToNot(HaveOccurred())
+		// 	Expect(header.TxHash).To(Equal(common.BytesToHash(ctx.BlockHeader().DataHash)))
+		// })
+
+		// It("should return empty header for non-existent height", func() {
+		// 	header, err := p.GetHeaderByNumber(100000)
+		// 	Expect(err).ToNot(HaveOccurred())
+		// 	Expect(*header).To(Equal(types.Header{}))
+		// })
+	})
+
 })
