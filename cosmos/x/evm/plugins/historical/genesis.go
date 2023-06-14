@@ -18,34 +18,20 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package historical
 
 import (
-	"unsafe"
-
-	"github.com/ethereum/go-ethereum/rlp"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
-// MarshalReceipts marshals `Receipts`, as type `[]*ReceiptForStorage`, to bytes using rlp
-// encoding.
-func MarshalReceipts(receipts Receipts) ([]byte, error) {
-	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
-	receiptsForStorage := *(*[]*ReceiptForStorage)(unsafe.Pointer(&receipts))
+func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
+	p.Prepare(ctx)
 
-	bz, err := rlp.EncodeToBytes(receiptsForStorage)
-	if err != nil {
-		return nil, err
+	// store genesis block
+	if err := p.StoreBlock(ethGen.ToBlock()); err != nil {
+		panic(err)
 	}
-	return bz, nil
 }
 
-// UnmarshalReceipts unmarshals receipts from bytes to `[]*ReceiptForStorage` to `Receipts` using
-// rlp decoding.
-func UnmarshalReceipts(bz []byte) (Receipts, error) {
-	var receiptsForStorage []*ReceiptForStorage
-	if err := rlp.DecodeBytes(bz, &receiptsForStorage); err != nil {
-		return nil, err
-	}
-	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
-	return *(*Receipts)(unsafe.Pointer(&receiptsForStorage)), nil
-}
+func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {}

@@ -152,7 +152,6 @@ func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
 	// txStore := prefix.NewStore(p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix})
 	// txs := make(coretypes.Transactions, len(receipts))
 	// for _, receipt := range receipts {
-	// 	fmt.Println("RECEIPT FROM OFF CHAIN", receipt)
 	// 	tleBz := txStore.Get(receipt.TxHash.Bytes())
 	// 	if tleBz == nil {
 	// 		return nil, fmt.Errorf("failed to find tx %s", receipt.TxHash.Hex())
@@ -211,7 +210,6 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	// txStore := prefix.NewStore(p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix})
 	// txs := make(coretypes.Transactions, len(receipts))
 	// for _, receipt := range receipts {
-	// 	fmt.Println("RECEIPT FROM OFF CHAIN", receipt)
 	// 	tleBz := txStore.Get(receipt.TxHash.Bytes())
 	// 	if tleBz == nil {
 	// 		return nil, fmt.Errorf("failed to find tx %s", receipt.TxHash.Hex())

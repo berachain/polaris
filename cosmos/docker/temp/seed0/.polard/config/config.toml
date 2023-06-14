@@ -216,7 +216,7 @@ seeds = ""
 bootstrap_peers = ""
 
 # Comma separated list of nodes to keep persistent connections to
-persistent_peers = "64f90db886ccd48941e6fac7618e884fa2f6c627@192.168.10.13:26656,65254bfe84a3d6ccb29cdb99854c97704e8fe563@192.168.10.12:26656,9bedcae37dbea008efbb22b2b71b189fdf240b83@192.168.10.11:26656"
+persistent_peers = "1d6b366cd5def1e04382ebef2823939c3b97c6c9@192.168.10.11:26656,610615f764c707eb05d00cbc96f03cb6f4de5365@192.168.10.13:26656,dc3a7a6764abd888dd04c33730e853a1d85e653f@192.168.10.12:26656"
 
 # UPNP port forwarding
 upnp = false

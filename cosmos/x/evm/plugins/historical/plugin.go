@@ -42,7 +42,8 @@ type Plugin interface {
 type plugin struct {
 	// ctx is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
-	cp  core.ConfigurationPlugin
+	// cp is used to get the current chain config.
+	cp core.ConfigurationPlugin
 	// bp represents the block plugin, used for accessing historical block headers.
 	bp core.BlockPlugin
 	// storekey is the store key for the header store.
@@ -70,13 +71,3 @@ func (p *plugin) Prepare(ctx context.Context) {
 }
 
 func (p *plugin) IsPlugin() {}
-
-func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
-	p.Prepare(ctx)
-
-	if err := p.StoreBlock(ethGen.ToBlock()); err != nil {
-		panic(err)
-	}
-}
-
-func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {}
