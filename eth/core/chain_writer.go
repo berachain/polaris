@@ -121,18 +121,22 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	// store the block header on the host chain
 	err = bc.bp.StoreHeader(block.Header())
 	if err != nil {
+		bc.logger.Error("failed to store block header", "err", err)
 		return err
 	}
 
 	// store the block, receipts, and txs on the host chain if historical plugin is supported
 	if bc.hp != nil {
 		if err = bc.hp.StoreBlock(block); err != nil {
+			bc.logger.Error("failed to store block", "err", err)
 			return err
 		}
 		if err = bc.hp.StoreReceipts(blockHash, receipts); err != nil {
+			bc.logger.Error("failed to store receipts", "err", err)
 			return err
 		}
 		if err = bc.hp.StoreTransactions(blockNum, blockHash, block.Transactions()); err != nil {
+			bc.logger.Error("failed to store transactions", "err", err)
 			return err
 		}
 	}
