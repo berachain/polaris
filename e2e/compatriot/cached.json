@@ -1,0 +1,626 @@
+[
+    {
+        "method": "web3_clientVersion",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 0,
+            "result": "Polaris-Geth/v1.12.0-stable/darwin-arm64/go1.20.4",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "web3_sha3",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": "0x47173285a8d7341e5e972fc677286384f802f8ef42a5ec5f03bbfa254cb01fad",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "net_version",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "result": "2061",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "net_listening",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "result": true,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "net_peerCount",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 4,
+            "result": "0x1",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_syncing",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "result": false,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_coinbase",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 6,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_coinbase does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_mining",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 7,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_mining does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_hashrate",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 8,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_hashrate does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_gasPrice",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 9,
+            "result": "0x565adcb7",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_accounts",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 10,
+            "result": [],
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_blockNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 11,
+            "result": "0x6",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getBalance",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 12,
+            "result": "0x0",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getStorageAt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 13,
+            "result": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionCount",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 14,
+            "result": "0x0",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockTransactionCountByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 15,
+            "result": null,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockTransactionCountByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 16,
+            "result": null,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getUncleCountByBlockHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 17,
+            "result": null,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getUncleCountByBlockNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 18,
+            "result": null,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getCode",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 19,
+            "result": "0x",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_sign",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 20,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "unknown account"
+            }
+        }
+    },
+    {
+        "method": "eth_signTransaction",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 21,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "unknown account"
+            }
+        }
+    },
+    {
+        "method": "eth_sendTransaction",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 22,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "unknown account"
+            }
+        }
+    },
+    {
+        "method": "eth_sendRawTransaction",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 23,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "rlp: element is larger than containing list"
+            }
+        }
+    },
+    {
+        "method": "eth_call",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 24,
+            "result": "0x",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_estimateGas",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 25,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "err: insufficient funds for gas * price + value: address 0x8D97689C9818892B700e27F316cc3E41e17fBeb9 have 0 want 100000 (supplied gas 15010499)"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 26,
+            "result": null,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 27,
+            "result": null,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 28,
+            "result": null,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionByBlockHashAndIndex",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 29,
+            "result": null,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionByBlockNumberAndIndex",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 30,
+            "result": null,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 31,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getUncleByBlockHashAndIndex",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 32,
+            "result": null,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getUncleByBlockNumberAndIndex",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 33,
+            "result": null,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_newFilter",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 34,
+            "result": "0xd6ea70d8bb2ba4e29c13d618a6f8369f",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getFilterChanges",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 35,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "filter not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getFilterLogs",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 36,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "filter not found"
+            }
+        }
+    },
+    {
+        "method": "eth_newBlockFilter",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 37,
+            "result": "0x1721c1948066b5d2d6aa2393d66401f8",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_newPendingTransactionFilter",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 38,
+            "result": "0x5b8162169d7885ed46b5dc9b35d15998",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_uninstallFilter",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 39,
+            "result": false,
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getLogs",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 40,
+            "result": [],
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getWork",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getWork does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_submitWork",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_submitWork does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_submitHashrate",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 73,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_submitHashrate does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_pendingTransactions",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": [],
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getProof",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+                "accountProof": [],
+                "address": "0x1234567890123456789012345678901234567890",
+                "balance": "0x0",
+                "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                "nonce": "0x0",
+                "storageHash": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+                "storageProof": [
+                    {
+                        "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                        "proof": [],
+                        "value": "0x0"
+                    },
+                    {
+                        "key": "0x0000000000000000000000000000000000000000000000000000000000000001",
+                        "proof": [],
+                        "value": "0x0"
+                    }
+                ]
+            },
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_createAccessList",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "failed to apply transaction: 0x501ab395af241aa95fc970b476b64d0673953f841991e3dbfbf8b3f7265d9e44 err: insufficient funds for gas * price + value: address 0x0000000000000000000000000000000000000001 have 0 want 94879531900000000"
+            }
+        }
+    },
+    {
+        "method": "eth_maxPriorityFeePerGas",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": "0x3b9aca00",
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_feeHistory",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1337,
+            "result": {
+                "baseFeePerGas": [
+                    "0x2da282a8",
+                    "0x27ee3253",
+                    "0x22f06c09",
+                    "0x1e925e88",
+                    "0x1ac012b7",
+                    "0x17681061"
+                ],
+                "gasUsedRatio": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "oldestBlock": "0x2"
+            },
+            "error": {
+                "code": 0,
+                "message": ""
+            }
+        }
+    }
+]

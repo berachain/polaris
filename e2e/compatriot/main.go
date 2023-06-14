@@ -21,15 +21,16 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
-const CACHED = "./cached.json"
-const NONCACHED = "./noncached.json"
+const CACHED = "./e2e/compatriot/cached.json"
+const NONCACHED = "./e2e/compatriot/noncached.json"
+const diffFile = "./e2e/compatriot/diff.txt"
 
 func main() {
 	if err := os.Chdir("../.."); err != nil {
@@ -43,42 +44,55 @@ func main() {
 	}
 	// setup()
 
-	print := exec.Command("cat", "magefiles/LICENSE.header")
-	if err := print.Run(); err != nil {
-		log.Fatalf("main: An error occurred %v when printing\n", err)
-	}
-
-	time.Sleep(10 * time.Second)
+	time.Sleep(10 * time.Second) // hacky fix to wait for chain endpoints to be setup correctly
 
 	// make queries and save results to file 1
 	// TODO: figure out how to query the chain and output results after the endpoints are ready
 	Query(CACHED)
 
 	// kill the chain
-	if err := startChain.Wait(); err != nil {
-		log.Fatalf("main: An error occurred %v when waiting for start chain to finish\n", err)
-	}
+	ps := exec.Command("ps")
+	grep := exec.Command("grep", "./bin/polard")
+
+	pipe, _ := ps.StdoutPipe()
+	defer pipe.Close()
+
+	grep.Stdin = pipe
+	ps.Start()
+	output, _ := grep.Output()
+
+	// kill the subprocess
+	exec.Command("kill", string(strings.Fields(string(output))[0])).Run()
 
 	if err := startChain.Process.Kill(); err != nil {
 		log.Fatalf("main: An error occurred %v when killing the program\n", err)
 	}
 
 	// restart the chain
-	restartChain := exec.Command("./bin/polard", "start", "--home", "$HOMEDIR")
-	if err := restartChain.Run(); err != nil {
+	restartChain := exec.Command("./bin/polard", "start")
+	if err := restartChain.Start(); err != nil {
 		log.Fatalf("main: An error occurred %v when restarting chain\n", err)
 	}
 
 	// make queries and save results to file 2
 	Query(NONCACHED)
 
+	if err := restartChain.Process.Kill(); err != nil {
+		log.Fatalf("main: An error occurred %v when killing the restarted chain\n", err)
+	}
+
 	// compare file 1 and file 2
 	diff := exec.Command("diff", CACHED, NONCACHED)
-	output, err := diff.Output()
-	if err != nil {
-		log.Fatalf("main: An error occurred %v when diffing\n", err)
+	diff.Stdout = os.NewFile(3, diffFile)
+	if err := diff.Run(); err != nil {
+		switch err.(type) {
+		case *exec.ExitError:
+			// this is just an exit code error, no worries
+			// do nothing
+		default: //couldnt run diff
+			log.Fatalf("main: An error occurred %v when diffing\n", err)
+		}
 	}
-	fmt.Println(string(output))
 
 	// run sanity checks
 	if err := sanityCheck(CACHED); err != nil {

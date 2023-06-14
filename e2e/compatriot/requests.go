@@ -108,7 +108,7 @@ func makeRequest(rpc string, postBuffer *bytes.Buffer) (string, error) {
 
 // Marshal marshals the output slice to JSON
 func Marshal(output []RPCOutput) ([]byte, error) {
-	jsonOutput, err := json.Marshal(output)
+	jsonOutput, err := json.MarshalIndent(output, "", "    ")
 	if err != nil {
 		return nil, fmt.Errorf("Marshal: An error occurred %v trying to marshal data\n", err)
 	}
