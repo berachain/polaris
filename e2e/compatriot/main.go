@@ -44,9 +44,13 @@ func main() {
 	if err := startChain.Start(); err != nil {
 		log.Fatalf("main: An error occurred %v when starting chain\n", err)
 	}
-	// setup()
 
 	time.Sleep(10 * time.Second) // hacky fix to wait for chain endpoints to be setup correctly
+
+	// chain setup
+	if err := setup(); err != nil {
+		log.Fatalf("main: An error occurred %v when setting up chain\n", err)
+	}
 
 	// make queries and save results to file 1
 	Query(CACHED)

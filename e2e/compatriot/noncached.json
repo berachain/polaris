@@ -1,373 +1,373 @@
 [
     {
-        "method": "web3_clientVersion",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 0,
-            "result": "Polaris-Geth/v1.12.0-stable/darwin-arm64/go1.20.4",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "web3_sha3",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 1,
-            "result": "0x47173285a8d7341e5e972fc677286384f802f8ef42a5ec5f03bbfa254cb01fad",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "net_version",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 2,
-            "result": "2061",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "net_listening",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 3,
-            "result": true,
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "net_peerCount",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 4,
-            "result": "0x1",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_syncing",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 5,
-            "result": false,
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_coinbase",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 6,
             "result": null,
             "error": {
-                "code": -32601,
-                "message": "the method eth_coinbase does not exist/is not available"
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_mining",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 7,
             "result": null,
             "error": {
-                "code": -32601,
-                "message": "the method eth_mining does not exist/is not available"
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_hashrate",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 8,
             "result": null,
             "error": {
-                "code": -32601,
-                "message": "the method eth_hashrate does not exist/is not available"
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_gasPrice",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 9,
-            "result": "0x565adcb7",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_accounts",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 10,
-            "result": [],
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_blockNumber",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 11,
-            "result": "0x6",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getBalance",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 12,
-            "result": "0x0",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getStorageAt",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 13,
-            "result": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getTransactionCount",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 14,
-            "result": "0x0",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getBlockTransactionCountByHash",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 15,
             "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getBlockTransactionCountByNumber",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 16,
             "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getUncleCountByBlockHash",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 17,
             "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getUncleCountByBlockNumber",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 18,
             "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getCode",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 19,
-            "result": "0x",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_sign",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 20,
             "result": null,
             "error": {
                 "code": -32000,
-                "message": "unknown account"
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_signTransaction",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 21,
             "result": null,
             "error": {
                 "code": -32000,
-                "message": "unknown account"
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_sendTransaction",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 22,
             "result": null,
             "error": {
                 "code": -32000,
-                "message": "unknown account"
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_sendRawTransaction",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 23,
             "result": null,
             "error": {
                 "code": -32000,
-                "message": "rlp: element is larger than containing list"
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_call",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 24,
-            "result": "0x",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_estimateGas",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 25,
             "result": null,
             "error": {
                 "code": -32000,
-                "message": "err: insufficient funds for gas * price + value: address 0x8D97689C9818892B700e27F316cc3E41e17fBeb9 have 0 want 100000 (supplied gas 15010499)"
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getBlockByHash",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 26,
             "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getBlockByNumber",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 27,
             "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getTransactionByHash",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 28,
             "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getTransactionByBlockHashAndIndex",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 29,
             "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getTransactionByBlockNumberAndIndex",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 30,
             "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
@@ -384,242 +384,818 @@
         }
     },
     {
-        "method": "eth_getUncleByBlockHashAndIndex",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 32,
             "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getUncleByBlockNumberAndIndex",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 33,
             "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_newFilter",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 34,
-            "result": "0x5b93cf42a36d87c6886ad4165ac7f430",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getFilterChanges",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 35,
             "result": null,
             "error": {
                 "code": -32000,
-                "message": "filter not found"
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getFilterLogs",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 36,
             "result": null,
             "error": {
                 "code": -32000,
-                "message": "filter not found"
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_newBlockFilter",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 37,
-            "result": "0xc59b19eeddd916a1cdec0e97383ce9b3",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_newPendingTransactionFilter",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 38,
-            "result": "0xd59e99a85c1e819ade777ba597ec866",
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_uninstallFilter",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 39,
-            "result": false,
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_getLogs",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 40,
-            "result": [],
-            "error": {
-                "code": 0,
-                "message": ""
-            }
-        }
-    },
-    {
-        "method": "eth_getWork",
-        "response": {
-            "jsonrpc": "2.0",
-            "id": 1,
             "result": null,
             "error": {
-                "code": -32601,
-                "message": "the method eth_getWork does not exist/is not available"
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_submitWork",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
-            "id": 1,
+            "id": 41,
             "result": null,
             "error": {
-                "code": -32601,
-                "message": "the method eth_submitWork does not exist/is not available"
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_submitHashrate",
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 42,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 43,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 44,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 45,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 46,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 47,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 48,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 49,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 50,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 51,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 52,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 53,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 54,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 55,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 56,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 57,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 58,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 59,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 60,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 61,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 62,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 63,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 64,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 65,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 66,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 67,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 68,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 69,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 70,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 71,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 72,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
             "id": 73,
             "result": null,
             "error": {
-                "code": -32601,
-                "message": "the method eth_submitHashrate does not exist/is not available"
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_pendingTransactions",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
-            "id": 1,
-            "result": [],
-            "error": {
-                "code": 0,
-                "message": ""
-            }
-        }
-    },
-    {
-        "method": "eth_getProof",
-        "response": {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "result": {
-                "accountProof": [],
-                "address": "0x1234567890123456789012345678901234567890",
-                "balance": "0x0",
-                "codeHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
-                "nonce": "0x0",
-                "storageHash": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-                "storageProof": [
-                    {
-                        "key": "0x0000000000000000000000000000000000000000000000000000000000000000",
-                        "proof": [],
-                        "value": "0x0"
-                    },
-                    {
-                        "key": "0x0000000000000000000000000000000000000000000000000000000000000001",
-                        "proof": [],
-                        "value": "0x0"
-                    }
-                ]
-            },
-            "error": {
-                "code": 0,
-                "message": ""
-            }
-        }
-    },
-    {
-        "method": "eth_createAccessList",
-        "response": {
-            "jsonrpc": "2.0",
-            "id": 1,
+            "id": 74,
             "result": null,
             "error": {
                 "code": -32000,
-                "message": "failed to apply transaction: 0x501ab395af241aa95fc970b476b64d0673953f841991e3dbfbf8b3f7265d9e44 err: insufficient funds for gas * price + value: address 0x0000000000000000000000000000000000000001 have 0 want 94879531900000000"
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_maxPriorityFeePerGas",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
-            "id": 1,
-            "result": "0x3b9aca00",
+            "id": 75,
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
             }
         }
     },
     {
-        "method": "eth_feeHistory",
+        "method": "eth_getTransactionReceipt",
         "response": {
             "jsonrpc": "2.0",
-            "id": 1337,
-            "result": {
-                "baseFeePerGas": [
-                    "0x2da282a8",
-                    "0x27ee3253",
-                    "0x22f06c09",
-                    "0x1e925e88",
-                    "0x1ac012b7",
-                    "0x17681061"
-                ],
-                "gasUsedRatio": [
-                    0,
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                "oldestBlock": "0x2"
-            },
+            "id": 76,
+            "result": null,
             "error": {
-                "code": 0,
-                "message": ""
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 77,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 78,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 79,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 80,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 81,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 82,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 83,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 84,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 85,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 86,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 87,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 88,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 89,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 90,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 91,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 92,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 93,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 94,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 95,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 96,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 97,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 98,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
+            }
+        }
+    },
+    {
+        "method": "eth_getTransactionReceipt",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 99,
+            "result": null,
+            "error": {
+                "code": -32000,
+                "message": "header not found"
             }
         }
     }
