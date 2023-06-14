@@ -131,6 +131,9 @@ func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
 func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error) {
 	store := p.ctx.KVStore(p.storeKey)
 	numBz := prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
+	if numBz == nil {
+		numBz = sdk.Uint64ToBigEndian(0)
+	}
 	blockBz := prefix.NewStore(store, []byte{types.BlockNumKeyToBlockPrefix}).Get(numBz)
 	block := &coretypes.Block{}
 	err := rlp.DecodeBytes(blockBz, block)
