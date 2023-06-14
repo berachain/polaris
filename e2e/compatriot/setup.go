@@ -122,8 +122,11 @@ func generateQueries() []RPCRequest {
 		   then when we stop the node, nuke the cache, and run again, these will all fail because no more cache and historical plugin gone
 
 		*/
-		request := RPCRequest{"2.0", "eth_getTransactionByHash", []interface{}{txHash.String()}, int64(id)}
-		requests = append(requests, request)
+		blockByNumberRequest := RPCRequest{"2.0", "eth_getBlockByNumber", []interface{}{txHash.String()}, int64(id)}
+		blockByHashRequest := RPCRequest{"2.0", "eth_getBlockByHash", []interface{}{txHash.String()}, int64(id)}
+		transactionByHashRequest := RPCRequest{"2.0", "eth_getTransactionByHash", []interface{}{txHash.String()}, int64(id)}
+		receiptsByHashRequest := RPCRequest{"2.0", "eth_getReceiptsByHash", []interface{}{txHash.String()}, int64(id)}
+		requests = append(requests, blockByNumberRequest, blockByHashRequest, transactionByHashRequest, receiptsByHashRequest)
 	}
 
 	return requests
