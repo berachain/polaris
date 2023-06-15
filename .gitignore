@@ -199,13 +199,14 @@ contracts/out/
 */**/*.bin
 */**/*.json
 
+# e2e
+e2e/**/*.txt
+
 # hive
 !e2e/hive/**/*.json
 
 # compatriot
-e2e/compatriot/*
-!e2e/compatriot/*.go
-!e2e/compatriot/go.*
+e2e/compatriot/compatriot
 
 # geth
 *.rlp
