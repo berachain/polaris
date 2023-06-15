@@ -199,11 +199,12 @@ contracts/out/
 */**/*.bin
 */**/*.json
 
-# hive
-!e2e/hive/**/*.json
-
 # geth
 *.rlp
+
+# hive
+!e2e/hive/**/*.json
+!e2e/hive/**/*.rlp
 
 # cosmos
 .testnets/
