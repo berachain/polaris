@@ -56,7 +56,6 @@ func connectToClient(url string) (*ethclient.Client, error) {
 
 // SignTransaction signs the given transaction with the provided private key and returns the signed transaction object
 func signTransaction(tx *types.Transaction, privateKey *ecdsa.PrivateKey) (*types.Transaction, error) {
-
 	signedTx, err := types.SignTx(tx, coretypes.NewEIP155Signer(big.NewInt(2061)), privateKey)
 	if err != nil {
 		panic(err)
