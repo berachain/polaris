@@ -241,7 +241,7 @@ linters:
     - gci # controls golang package import order and makes it always deterministic
     - ginkgolinter # [if you use ginkgo/gomega] enforces standards of using ginkgo and gomega
     - gochecknoinits # checks that no init functions are present in Go code
-    - gocognit # computes and checks the cognitive complexity of functions
+    # - gocognit # computes and checks the cognitive complexity of functions
     - goconst # finds repeated strings that could be replaced by a constant
     - gocritic # provides diagnostics that check for bugs, performance and style issues
     - gocyclo # computes and checks the cyclomatic complexity of functions

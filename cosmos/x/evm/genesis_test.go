@@ -178,5 +178,5 @@ var _ = Describe("", func() {
 type mockAppOpts struct{}
 
 func (m *mockAppOpts) Get(name string) any {
-	return nil
+	return name
 }

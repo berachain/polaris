@@ -82,7 +82,7 @@ func NewHost(
 
 	// Build the Plugins
 	h.bp = block.NewPlugin(storeKey, sk)
-	h.cp = configuration.NewPlugin(storeKey, 1024*1024)
+	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
 	h.txp = txpool.NewPlugin(utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 	h.pcs = precompiles

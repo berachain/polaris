@@ -49,7 +49,7 @@ type plugin struct {
 }
 
 // NewPlugin returns a new plugin instance.
-func NewPlugin(storeKey storetypes.StoreKey, cacheSize int) Plugin {
+func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 	return &plugin{
 		storeKey: storeKey,
 	}

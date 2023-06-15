@@ -143,7 +143,6 @@ func NewChain(host PolarisHostChain, opts ...BlockchainOpt) *blockchain { //noli
 		bc.blockNumCache = lru.NewCache[uint64, *types.Block](bc.cacheSize)
 		bc.blockHashCache = lru.NewCache[common.Hash, *types.Block](bc.cacheSize)
 		bc.receiptsCache = lru.NewCache[common.Hash, types.Receipts](bc.cacheSize)
-
 		bc.txLookupCache = lru.NewCache[common.Hash, *types.TxLookupEntry](AverageTxsPerBlock * bc.cacheSize)
 	}
 

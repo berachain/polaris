@@ -200,5 +200,5 @@ var _ = Describe("Processor", func() {
 type mockAppOpts struct{}
 
 func (m *mockAppOpts) Get(name string) any {
-	return nil
+	return name
 }
