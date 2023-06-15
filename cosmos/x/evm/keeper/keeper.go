@@ -21,6 +21,8 @@
 package keeper
 
 import (
+	"time"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
@@ -48,6 +50,9 @@ type Keeper struct {
 	authority string
 	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
 	host Host
+
+	// temp syncing
+	lock bool
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -64,6 +69,7 @@ func NewKeeper(
 		ak:        ak,
 		authority: authority,
 		storeKey:  storeKey,
+		lock:      true,
 	}
 
 	k.host = NewHost(
@@ -131,7 +137,14 @@ func (k *Keeper) GetHost() Host {
 func (k *Keeper) SetClientCtx(clientContext client.Context) {
 	k.host.GetTxPoolPlugin().(txpool.Plugin).SetClientContext(clientContext)
 	// TODO: move this
-	if err := k.polaris.StartServices(); err != nil {
-		panic(err)
-	}
+	go func() {
+		// spin lock for a bit
+		for ; k.lock; time.Sleep(1 * time.Second) {
+		}
+
+		if err := k.polaris.StartServices(); err != nil {
+			panic(err)
+		}
+	}()
+
 }
