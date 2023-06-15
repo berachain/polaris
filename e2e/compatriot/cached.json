@@ -1,5 +1,29 @@
 [
     {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 0,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 0,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -25,6 +49,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 0,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number with leading zero digits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -58,6 +118,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -83,6 +179,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -116,6 +248,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 4,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 4,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -141,6 +309,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 4,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -174,6 +378,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 6,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 6,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -199,6 +439,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 6,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 7,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 7,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -232,6 +508,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 7,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 8,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 8,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -257,6 +569,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 8,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 9,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 9,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -290,6 +638,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 9,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 10,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 10,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -315,6 +699,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 10,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 11,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 11,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -348,6 +768,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 11,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 12,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number with leading zero digits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 12,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -373,6 +829,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 12,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 13,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 13,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -406,6 +898,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 13,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 14,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 14,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -431,6 +959,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 14,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 15,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 15,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -464,6 +1028,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 15,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 16,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 16,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -489,6 +1089,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 16,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 17,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 17,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -522,6 +1158,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 17,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 18,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 18,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -547,6 +1219,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 18,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 19,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 19,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -580,6 +1288,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 19,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 20,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 20,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -605,6 +1349,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 20,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 21,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 21,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -638,6 +1418,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 21,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 22,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 22,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -663,6 +1479,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 22,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 23,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 23,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -696,6 +1548,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 23,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 24,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 24,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -721,6 +1609,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 24,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 25,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 25,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -754,6 +1678,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 25,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 26,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 26,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -779,6 +1739,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 26,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 27,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 27,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -812,6 +1808,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 27,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 28,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number with leading zero digits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 28,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -837,6 +1869,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 28,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 29,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 29,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -870,6 +1938,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 29,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 30,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 30,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -895,6 +1999,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 30,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 31,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 31,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -928,6 +2068,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 31,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 32,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 32,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -953,6 +2129,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 32,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 33,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 33,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -986,6 +2198,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 33,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 34,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 34,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1011,6 +2259,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 34,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 35,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number with leading zero digits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 35,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1044,6 +2328,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 35,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 36,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 36,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1069,6 +2389,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 36,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 37,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 37,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1102,6 +2458,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 37,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 38,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 38,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1127,6 +2519,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 38,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 39,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 39,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1160,6 +2588,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 39,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 40,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 40,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1185,6 +2649,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 40,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 41,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 41,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1218,6 +2718,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 41,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 42,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 42,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1243,6 +2779,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 42,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 43,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 43,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1276,6 +2848,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 43,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 44,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 44,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1301,6 +2909,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 44,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 45,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 45,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1334,6 +2978,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 45,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 46,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 46,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1359,6 +3039,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 46,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 47,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 47,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1392,6 +3108,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 47,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 48,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number with leading zero digits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 48,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1417,6 +3169,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 48,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 49,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 49,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1450,6 +3238,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 49,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 50,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 50,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1475,6 +3299,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 50,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 51,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 51,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1508,6 +3368,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 51,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 52,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 52,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1533,6 +3429,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 52,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 53,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 53,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1566,6 +3498,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 53,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 54,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 54,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1591,6 +3559,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 54,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 55,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 55,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1624,6 +3628,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 55,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 56,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 56,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1649,6 +3689,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 56,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 57,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 57,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1682,6 +3758,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 57,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 58,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 58,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1707,6 +3819,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 58,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 59,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 59,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1740,6 +3888,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 59,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 60,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 60,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1765,6 +3949,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 60,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 61,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 61,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1798,6 +4018,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 61,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 62,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 62,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1823,6 +4079,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 62,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 63,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 63,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1856,6 +4148,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 63,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 64,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 64,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1881,6 +4209,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 64,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 65,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 65,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1914,6 +4278,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 65,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 66,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 66,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1939,6 +4339,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 66,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 67,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 67,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -1972,6 +4408,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 67,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 68,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 68,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -1997,6 +4469,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 68,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 69,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 69,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2030,6 +4538,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 69,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 70,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 70,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2055,6 +4599,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 70,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 71,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 71,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2088,6 +4668,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 71,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 72,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 72,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2113,6 +4729,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 72,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 73,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 73,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2146,6 +4798,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 73,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 74,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 74,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2171,6 +4859,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 74,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 75,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 75,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2204,6 +4928,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 75,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 76,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 76,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2229,6 +4989,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 76,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 77,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 77,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2262,6 +5058,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 77,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 78,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number with leading zero digits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 78,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2287,6 +5119,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 78,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 79,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 79,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2320,6 +5188,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 79,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 80,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 80,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2345,6 +5249,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 80,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 81,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 81,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2378,6 +5318,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 81,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 82,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 82,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2403,6 +5379,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 82,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 83,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 83,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2436,6 +5448,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 83,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 84,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 84,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2461,6 +5509,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 84,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 85,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number with leading zero digits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 85,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2494,6 +5578,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 85,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 86,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 86,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2519,6 +5639,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 86,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 87,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number with leading zero digits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 87,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2552,6 +5708,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 87,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 88,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 88,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2577,6 +5769,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 88,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 89,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 89,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2610,6 +5838,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 89,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 90,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 90,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2635,6 +5899,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 90,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 91,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 91,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2668,6 +5968,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 91,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 92,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 92,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2693,6 +6029,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 92,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 93,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 93,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2726,6 +6098,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 93,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 94,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 94,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2751,6 +6159,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 94,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 95,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 95,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2784,6 +6228,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 95,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 96,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 96,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2809,6 +6289,42 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 96,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 97,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 97,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
             }
         }
     },
@@ -2842,6 +6358,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 97,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 98,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 98,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2871,6 +6423,42 @@
         }
     },
     {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 98,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByNumber",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 99,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "invalid argument 0: hex number \u003e 64 bits"
+            }
+        }
+    },
+    {
+        "method": "eth_getBlockByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 99,
+            "result": null,
+            "error": {
+                "code": -32602,
+                "message": "missing value for required argument 1"
+            }
+        }
+    },
+    {
         "method": "eth_getTransactionByHash",
         "response": {
             "jsonrpc": "2.0",
@@ -2896,6 +6484,18 @@
             "error": {
                 "code": 0,
                 "message": ""
+            }
+        }
+    },
+    {
+        "method": "eth_getReceiptsByHash",
+        "response": {
+            "jsonrpc": "2.0",
+            "id": 99,
+            "result": null,
+            "error": {
+                "code": -32601,
+                "message": "the method eth_getReceiptsByHash does not exist/is not available"
             }
         }
     }

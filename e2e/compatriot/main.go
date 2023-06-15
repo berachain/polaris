@@ -23,29 +23,37 @@ package main
 import (
 	"log"
 	"os"
-	"os/exec"
-	"strings"
-	"time"
 )
 
-const CACHED = "./e2e/compatriot/cached.json"
-const NONCACHED = "./e2e/compatriot/noncached.json"
-const diffFile = "./e2e/compatriot/diff.txt"
+// useful files
+const (
+	cached    = "./e2e/compatriot/cached.json"
+	noncached = "./e2e/compatriot/noncached.json"
+	diffFile  = "./e2e/compatriot/diff.txt"
+)
 
 func main() {
+	flags := os.Args[1:]
+
+	var verbose bool
+	// set the verbose flag
+	if len(flags) > 0 {
+		switch flags[0] {
+		case "-v":
+			verbose = true
+		}
+	}
+
 	// set the directory
-	if err := os.Chdir("../.."); err != nil {
-		log.Fatalf("main: An error occurred %v when changing directory\n", err)
+	if err := setDirectory(); err != nil {
+		log.Fatalf("main: An error occurred %v when setting directory\n", err)
 	}
 
 	// start the chain
-	startChain := exec.Command("./cosmos/init.sh")
-	startChain.Stdout = os.Stdout
-	if err := startChain.Start(); err != nil {
-		log.Fatalf("main: An error occurred %v when starting chain\n", err)
+	node, err := startNode(true, verbose)
+	if err != nil {
+		log.Fatalf("main: An error occurred %v when starting the node\n", err)
 	}
-
-	time.Sleep(10 * time.Second) // hacky fix to wait for chain endpoints to be setup correctly
 
 	// chain setup
 	if err := setup(); err != nil {
@@ -53,62 +61,39 @@ func main() {
 	}
 
 	// make queries and save results to file 1
-	Query(CACHED)
+	if err := query(cached); err != nil {
+		log.Fatalf("main: An error occurred %v when querying chain\n", err)
+	}
 
 	// kill the chain
-	ps := exec.Command("ps")
-	grep := exec.Command("grep", "./bin/polard")
-
-	pipe, _ := ps.StdoutPipe()
-	defer pipe.Close()
-
-	grep.Stdin = pipe
-	ps.Start()
-	output, _ := grep.Output()
-
-	// kill the subprocess
-	exec.Command("kill", string(strings.Fields(string(output))[0])).Run()
-
-	if err := startChain.Process.Kill(); err != nil {
-		log.Fatalf("main: An error occurred %v when killing the program\n", err)
+	if err := stopNode(node); err != nil {
+		log.Fatalf("main: An error occurred %v when stopping the node\n", err)
 	}
 
 	// restart the chain
-	restartChain := exec.Command("./bin/polard", "start", "--home", "./.tmp/polard")
-	restartChain.Stdout = os.Stdout
-	if err := restartChain.Start(); err != nil {
-		log.Fatalf("main: An error occurred %v when restarting chain\n", err)
+	node, err = startNode(false, verbose)
+	if err != nil {
+		log.Fatalf("main: An error occurred %v when restarting the node\n", err)
 	}
-
-	time.Sleep(10 * time.Second)
 
 	// make queries and save results to file 2
-	Query(NONCACHED)
+	query(noncached)
 
-	if err := restartChain.Process.Kill(); err != nil {
-		log.Fatalf("main: An error occurred %v when killing the restarted chain\n", err)
+	// kill the chain again
+	if err := stopNode(node); err != nil {
+		log.Fatalf("main: An error occurred %v when stopping the node\n", err)
 	}
 
-	// compare file 1 and file 2
-	// TODO: upgrade this as to not store all of the files in memory
-	diff := exec.Command("diff", CACHED, NONCACHED)
-	diff.Stdout = os.NewFile(3, diffFile)
-	if err := diff.Run(); err != nil {
-		switch err.(type) {
-		case *exec.ExitError:
-			// this is just an exit code error, no worries
-			// do nothing
-		default: //couldnt run diff
-			log.Fatalf("main: An error occurred %v when diffing\n", err)
-		}
+	// compare the two files
+	if err := diff(cached, noncached); err != nil {
+		log.Fatalf("main: An error occurred %v when diffing files\n", err)
 	}
 
 	// run sanity checks
-	if err := sanityCheck(CACHED); err != nil {
+	if err := sanityCheck(cached); err != nil {
 		log.Fatalf("main: An error occurred %v when sanity checking cached file\n", err)
 	}
-
-	if err := sanityCheck(NONCACHED); err != nil {
+	if err := sanityCheck(noncached); err != nil {
 		log.Fatalf("main: An error occurred %v when sanity checking non-cached file\n", err)
 	}
 }

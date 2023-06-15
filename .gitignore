@@ -200,7 +200,12 @@ contracts/out/
 */**/*.json
 
 # hive
-!e2e/**/*.json
+!e2e/hive/**/*.json
+
+# compatriot
+e2e/compatriot/*
+!e2e/compatriot/*.go
+!e2e/compatriot/go.*
 
 # geth
 *.rlp
