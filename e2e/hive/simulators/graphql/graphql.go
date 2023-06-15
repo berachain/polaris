@@ -293,7 +293,7 @@ func assertBlockNumber(t *hivesim.T, got interface{}) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("gas price is not greater than initial base fee")
+	return fmt.Errorf("block height is not greater than 0")
 }
 
 func assertGasPrice(t *hivesim.T, got interface{}) error {
