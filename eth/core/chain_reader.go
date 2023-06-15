@@ -75,8 +75,13 @@ func (bc *blockchain) CurrentHeader() *types.Header {
 	if block == nil || !ok {
 		return nil
 	}
-	bc.blockNumCache.Add(block.Number().Uint64(), block)
-	bc.blockHashCache.Add(block.Hash(), block)
+	if bc.blockNumCache != nil {
+		bc.blockNumCache.Add(block.Number().Uint64(), block)
+	}
+
+	if bc.blockHashCache != nil {
+		bc.blockHashCache.Add(block.Hash(), block)
+	}
 	return block.Header()
 }
 
@@ -86,8 +91,12 @@ func (bc *blockchain) CurrentBlock() *types.Block {
 	if block == nil || !ok {
 		return nil
 	}
-	bc.blockNumCache.Add(block.Number().Uint64(), block)
-	bc.blockHashCache.Add(block.Hash(), block)
+	if bc.blockNumCache != nil {
+		bc.blockNumCache.Add(block.Number().Uint64(), block)
+	}
+	if bc.blockHashCache != nil {
+		bc.blockHashCache.Add(block.Hash(), block)
+	}
 	return block
 }
 
@@ -103,8 +112,12 @@ func (bc *blockchain) CurrentFinalBlock() *types.Header {
 	if fb == nil || !ok {
 		return nil
 	}
-	bc.blockNumCache.Add(fb.Number().Uint64(), fb)
-	bc.blockHashCache.Add(fb.Hash(), fb)
+	if bc.blockNumCache != nil {
+		bc.blockNumCache.Add(fb.Number().Uint64(), fb)
+	}
+	if bc.blockHashCache != nil {
+		bc.blockHashCache.Add(fb.Hash(), fb)
+	}
 	return fb.Header()
 }
 
@@ -149,7 +162,9 @@ func (bc *blockchain) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 	}
 
 	// Add to cache.
-	bc.receiptsCache.Add(block.Hash(), receipts)
+	if bc.receiptsCache != nil {
+		bc.receiptsCache.Add(block.Hash(), receipts)
+	}
 	return block, receipts
 }
 
@@ -165,9 +180,12 @@ func (bc *blockchain) GetBlock(hash common.Hash, number uint64) *types.Block {
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
 func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 	// check the block hash cache
-	if block, ok := bc.blockHashCache.Get(hash); ok {
-		bc.blockNumCache.Add(block.Number().Uint64(), block)
-		return block
+
+	if bc.blockNumCache != nil {
+		if block, ok := bc.blockHashCache.Get(hash); ok {
+			bc.blockNumCache.Add(block.Number().Uint64(), block)
+			return block
+		}
 	}
 
 	// check if historical plugin is supported by host chain
@@ -184,17 +202,24 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 	}
 
 	// Cache the found block for next time and return
-	bc.blockNumCache.Add(block.Number().Uint64(), block)
-	bc.blockHashCache.Add(hash, block)
+	if bc.blockNumCache != nil {
+		bc.blockNumCache.Add(block.Number().Uint64(), block)
+	}
+	if bc.blockHashCache != nil {
+		bc.blockHashCache.Add(hash, block)
+	}
 	return block
 }
 
 // GetBlock retrieves a block from the database by hash and number, caching it if found.
 func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 	// check the block number cache
-	if block, ok := bc.blockNumCache.Get(number); ok {
-		bc.blockHashCache.Add(block.Hash(), block)
-		return block
+
+	if bc.blockNumCache != nil {
+		if block, ok := bc.blockNumCache.Get(number); ok {
+			bc.blockHashCache.Add(block.Hash(), block)
+			return block
+		}
 	}
 
 	var block *types.Block
@@ -221,8 +246,12 @@ func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 	}
 
 	// Cache the found block for next time and return
-	bc.blockNumCache.Add(number, block)
-	bc.blockHashCache.Add(block.Hash(), block)
+	if bc.blockNumCache != nil {
+		bc.blockNumCache.Add(number, block)
+	}
+	if bc.blockHashCache != nil {
+		bc.blockHashCache.Add(block.Hash(), block)
+	}
 	return block
 }
 
@@ -230,13 +259,16 @@ func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 // the given hash.
 func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 	// check the cache
-	if receipts, ok := bc.receiptsCache.Get(blockHash); ok {
-		derived, err := bc.deriveReceipts(receipts, blockHash)
-		if err != nil {
-			bc.logger.Error("failed to derive receipts", "err", err)
-			return nil
+
+	if bc.receiptsCache != nil {
+		if receipts, ok := bc.receiptsCache.Get(blockHash); ok {
+			derived, err := bc.deriveReceipts(receipts, blockHash)
+			if err != nil {
+				bc.logger.Error("failed to derive receipts", "err", err)
+				return nil
+			}
+			return derived
 		}
-		return derived
 	}
 
 	// check if historical plugin is supported by host chain
@@ -253,7 +285,9 @@ func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 	}
 
 	// cache the found receipts for next time and return
-	bc.receiptsCache.Add(blockHash, receipts)
+	if bc.receiptsCache != nil {
+		bc.receiptsCache.Add(blockHash, receipts)
+	}
 	derived, err := bc.deriveReceipts(receipts, blockHash)
 	if err != nil {
 		bc.logger.Error("failed to derive receipts", "err", err)
@@ -271,8 +305,11 @@ func (bc *blockchain) GetTransactionLookup(
 	hash common.Hash,
 ) *types.TxLookupEntry {
 	// check the cache
-	if txLookupEntry, ok := bc.txLookupCache.Get(hash); ok {
-		return txLookupEntry
+
+	if bc.txLookupCache != nil {
+		if txLookupEntry, ok := bc.txLookupCache.Get(hash); ok {
+			return txLookupEntry
+		}
 	}
 
 	// check if historical plugin is supported by host chain
@@ -289,7 +326,9 @@ func (bc *blockchain) GetTransactionLookup(
 	}
 
 	// cache the found transaction for next time and return
-	bc.txLookupCache.Add(hash, txLookupEntry)
+	if bc.txLookupCache != nil {
+		bc.txLookupCache.Add(hash, txLookupEntry)
+	}
 	return txLookupEntry
 }
 

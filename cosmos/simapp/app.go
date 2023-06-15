@@ -241,6 +241,7 @@ func NewPolarisApp(
 		homePath+"/config/polaris.toml",
 		homePath+"/data/polaris",
 		logger,
+		appOpts,
 	)
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,

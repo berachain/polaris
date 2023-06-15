@@ -108,7 +108,10 @@ var _ = Describe("Processor", func() {
 		validator.Status = stakingtypes.Bonded
 		sk.SetValidator(ctx, validator)
 		sc = staking.NewPrecompileContract(&sk)
-		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger())
+		k.Setup(
+			storetypes.NewKVStoreKey("offchain-evm"), nil, "",
+			GinkgoT().TempDir(), log.NewNopLogger(), &mockAppOpts{},
+		)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 
 		// Set validator with consensus address.
@@ -193,3 +196,9 @@ var _ = Describe("Processor", func() {
 		})
 	})
 })
+
+type mockAppOpts struct{}
+
+func (m *mockAppOpts) Get(name string) any {
+	return nil
+}

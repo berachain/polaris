@@ -36,7 +36,7 @@ HOMEDIR="./.tmp/polard"
 # to trace evm
 #TRACE="--trace"
 TRACE=""
-
+BLOCKCHAIN_CACHE_SIZE=0 # number of blocks being cached in-memory
 # Path variables
 CONFIG_TOML=$HOMEDIR/config/config.toml
 APP_TOML=$HOMEDIR/config/app.toml
@@ -115,4 +115,4 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)m
-./bin/polard start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --api.swagger --minimum-gas-prices=0.0001abera --home "$HOMEDIR"
+./bin/polard start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --api.swagger --minimum-gas-prices=0.0001abera --home "$HOMEDIR" --cache_size $BLOCKCHAIN_CACHE_SIZE

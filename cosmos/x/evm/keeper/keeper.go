@@ -28,6 +28,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
@@ -36,9 +37,11 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/polar"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 type Keeper struct {
@@ -90,6 +93,7 @@ func (k *Keeper) Setup(
 	polarisConfigPath string,
 	polarisDataDir string,
 	logger log.Logger,
+	appOpts servertypes.AppOptions,
 ) {
 	// Setup plugins in the Host
 	k.host.Setup(k.storeKey, nil, k.ak, qc)
@@ -110,6 +114,9 @@ func (k *Keeper) Setup(
 		panic(err)
 	}
 
+	var cacheSize int
+	cacheSize, _ = utils.GetAs[int](appOpts.Get("cache_size"))
+
 	k.polaris = polar.NewWithNetworkingStack(cfg, k.host, node, ethlog.FuncHandler(
 		func(r *ethlog.Record) error {
 			polarisGethLogger := logger.With("module", "polaris-geth")
@@ -123,6 +130,7 @@ func (k *Keeper) Setup(
 			}
 			return nil
 		}),
+		core.SetCacheSize(cacheSize),
 	)
 }
 

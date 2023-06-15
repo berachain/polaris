@@ -84,10 +84,11 @@ func NewWithNetworkingStack(
 	host core.PolarisHostChain,
 	stack NetworkingStack,
 	logHandler log.Handler,
+	blockchainOpts ...core.BlockchainOpt,
 ) *Polaris {
 	pl := &Polaris{
 		cfg:        cfg,
-		blockchain: core.NewChain(host),
+		blockchain: core.NewChain(host, blockchainOpts...),
 		stack:      stack,
 	}
 	// When creating a Polaris EVM, we allow the implementing chain

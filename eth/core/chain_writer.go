@@ -147,26 +147,34 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		bc.finalizedBlock.Store(block)
 
 		// Todo: nuke these caches.
-		bc.blockNumCache.Add(blockNum, block)
-		bc.blockHashCache.Add(blockHash, block)
+		if bc.blockNumCache != nil {
+			bc.blockNumCache.Add(blockNum, block)
+		}
+		if bc.blockHashCache != nil {
+			bc.blockHashCache.Add(blockHash, block)
+		}
 
 		// Todo: nuke these caches.
 		for txIndex, tx := range block.Transactions() {
-			bc.txLookupCache.Add(
-				tx.Hash(),
-				&types.TxLookupEntry{
-					Tx:        tx,
-					TxIndex:   uint64(txIndex),
-					BlockNum:  blockNum,
-					BlockHash: blockHash,
-				},
-			)
+			if bc.txLookupCache != nil {
+				bc.txLookupCache.Add(
+					tx.Hash(),
+					&types.TxLookupEntry{
+						Tx:        tx,
+						TxIndex:   uint64(txIndex),
+						BlockNum:  blockNum,
+						BlockHash: blockHash,
+					},
+				)
+			}
 		}
 	}
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
 		// Todo: nuke this cache.
-		bc.receiptsCache.Add(blockHash, receipts)
+		if bc.receiptsCache != nil {
+			bc.receiptsCache.Add(blockHash, receipts)
+		}
 	}
 	if logs != nil {
 		bc.pendingLogsFeed.Send(logs)

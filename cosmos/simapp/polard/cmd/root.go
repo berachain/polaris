@@ -65,6 +65,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/simapp"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmepool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
@@ -246,7 +247,7 @@ func initRootCmd(
 		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+	server.AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addCustomFlags)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
@@ -258,8 +259,12 @@ func initRootCmd(
 	)
 }
 
-func addModuleInitFlags(startCmd *cobra.Command) {
+func addCustomFlags(startCmd *cobra.Command) {
+	// SDK module flags
 	crisis.AddModuleInitFlags(startCmd)
+
+	// custom Polaris flags
+	startCmd.Flags().Int64("cache_size", core.DefaultCacheSize, "number of blocks to store in the node's in-memory cache")
 }
 
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter.

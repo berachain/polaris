@@ -34,8 +34,11 @@ import (
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
-// By default we are storing up to 64mb of historical data for each cache.
-const defaultCacheSizeBytes = 1024 * 1024 * 64
+// By default we are storing up to DefaultCacheSize blocks of historical data for each cache.
+const (
+	DefaultCacheSize   = 10000
+	AverageTxsPerBlock = 500
+)
 
 // Compile-time check to ensure that `blockchain` implements the `Blockchain` api.
 var _ Blockchain = (*blockchain)(nil)
@@ -75,16 +78,16 @@ type blockchain struct {
 	// currentLogs is the current/pending logs.
 	currentLogs atomic.Value
 
-	// receiptsCache is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of
+	// receiptsCache is a cache of the receipts for the last `DefaultCacheSize` bytes of
 	// blocks. blockHash -> receipts
 	receiptsCache *lru.Cache[common.Hash, types.Receipts]
-	// blockNumCache is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
+	// blockNumCache is a cache of the blocks for the last `DefaultCacheSize` bytes of blocks.
 	// blockNum -> block
 	blockNumCache *lru.Cache[uint64, *types.Block]
-	// blockHashCache is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
+	// blockHashCache is a cache of the blocks for the last `DefaultCacheSize` bytes of blocks.
 	// blockHash -> block
 	blockHashCache *lru.Cache[common.Hash, *types.Block]
-	// txLookupCache is a cache of the transactions for the last `defaultCacheSizeBytes` bytes of
+	// txLookupCache is a cache of the transactions for the last `DefaultCacheSize` bytes of
 	// blocks. txHash -> txLookupEntry
 	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
 
@@ -97,30 +100,53 @@ type blockchain struct {
 	rmLogsFeed      event.Feed // currently never used
 	chainSideFeed   event.Feed // currently never used
 	logger          log.Logger
+	cacheSize       int // number of historical blocks stored in the cache
 }
 
 // =========================================================================
 // Constructor
 // =========================================================================
 
-// NewChain creates and returns a `api.Chain` with the given EVM chain configuration and host.
-func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used as `api.Chain`.
-	bc := &blockchain{
-		bp:             host.GetBlockPlugin(),
-		cp:             host.GetConfigurationPlugin(),
-		hp:             host.GetHistoricalPlugin(),
-		gp:             host.GetGasPlugin(),
-		sp:             host.GetStatePlugin(),
-		tp:             host.GetTxPoolPlugin(),
-		vmConfig:       &vm.Config{},
-		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
-		blockNumCache:  lru.NewCache[uint64, *types.Block](defaultCacheSizeBytes),
-		blockHashCache: lru.NewCache[common.Hash, *types.Block](defaultCacheSizeBytes),
-		txLookupCache:  lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSizeBytes),
-		chainHeadFeed:  event.Feed{},
-		scope:          event.SubscriptionScope{},
-		logger:         log.Root(),
+type BlockchainOpt = func(*blockchain)
+
+func SetCacheSize(cacheSize int) BlockchainOpt {
+	return func(bc *blockchain) {
+		if cacheSize >= 0 {
+			bc.cacheSize = cacheSize
+		} else {
+			bc.cacheSize = DefaultCacheSize
+		}
 	}
+}
+
+// NewChain creates and returns a `api.Chain` with the given EVM chain configuration and host.
+func NewChain(host PolarisHostChain, opts ...BlockchainOpt) *blockchain { //nolint:revive // only used as `api.Chain`.
+	bc := &blockchain{
+		bp:            host.GetBlockPlugin(),
+		cp:            host.GetConfigurationPlugin(),
+		hp:            host.GetHistoricalPlugin(),
+		gp:            host.GetGasPlugin(),
+		sp:            host.GetStatePlugin(),
+		tp:            host.GetTxPoolPlugin(),
+		vmConfig:      &vm.Config{},
+		chainHeadFeed: event.Feed{},
+		scope:         event.SubscriptionScope{},
+		logger:        log.Root(),
+	}
+
+	// Execute any options before returning.
+	for _, opt := range opts {
+		opt(bc)
+	}
+
+	if bc.cacheSize > 0 {
+		bc.blockNumCache = lru.NewCache[uint64, *types.Block](bc.cacheSize)
+		bc.blockHashCache = lru.NewCache[common.Hash, *types.Block](bc.cacheSize)
+		bc.receiptsCache = lru.NewCache[common.Hash, types.Receipts](bc.cacheSize)
+
+		bc.txLookupCache = lru.NewCache[common.Hash, *types.TxLookupEntry](AverageTxsPerBlock * bc.cacheSize)
+	}
+
 	bc.statedb = state.NewStateDB(bc.sp)
 	bc.processor = NewStateProcessor(
 		bc.cp, bc.gp, host.GetPrecompilePlugin(), bc.statedb, bc.vmConfig,

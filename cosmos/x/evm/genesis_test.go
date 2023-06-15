@@ -72,7 +72,7 @@ var _ = Describe("", func() {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
-		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger())
+		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger(), &mockAppOpts{})
 
 		am = evm.NewAppModule(k, ak)
 	})
@@ -174,3 +174,9 @@ var _ = Describe("", func() {
 		})
 	})
 })
+
+type mockAppOpts struct{}
+
+func (m *mockAppOpts) Get(name string) any {
+	return nil
+}

@@ -23,6 +23,9 @@ var _ core.ConfigurationPlugin = &ConfigurationPluginMock{}
 //			ChainConfigFunc: func() *params.ChainConfig {
 //				panic("mock out the ChainConfig method")
 //			},
+//			GetCacheSizeFunc: func() int {
+//				panic("mock out the GetCacheSize method")
+//			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
 //			},
@@ -36,6 +39,9 @@ type ConfigurationPluginMock struct {
 	// ChainConfigFunc mocks the ChainConfig method.
 	ChainConfigFunc func() *params.ChainConfig
 
+	// GetCacheSizeFunc mocks the GetCacheSize method.
+	GetCacheSizeFunc func() int
+
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
 
@@ -44,14 +50,18 @@ type ConfigurationPluginMock struct {
 		// ChainConfig holds details about calls to the ChainConfig method.
 		ChainConfig []struct {
 		}
+		// GetCacheSize holds details about calls to the GetCacheSize method.
+		GetCacheSize []struct {
+		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
 			ContextMoqParam context.Context
 		}
 	}
-	lockChainConfig sync.RWMutex
-	lockPrepare     sync.RWMutex
+	lockChainConfig  sync.RWMutex
+	lockGetCacheSize sync.RWMutex
+	lockPrepare      sync.RWMutex
 }
 
 // ChainConfig calls ChainConfigFunc.
@@ -78,6 +88,33 @@ func (mock *ConfigurationPluginMock) ChainConfigCalls() []struct {
 	mock.lockChainConfig.RLock()
 	calls = mock.calls.ChainConfig
 	mock.lockChainConfig.RUnlock()
+	return calls
+}
+
+// GetCacheSize calls GetCacheSizeFunc.
+func (mock *ConfigurationPluginMock) GetCacheSize() int {
+	if mock.GetCacheSizeFunc == nil {
+		panic("ConfigurationPluginMock.GetCacheSizeFunc: method is nil but ConfigurationPlugin.GetCacheSize was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetCacheSize.Lock()
+	mock.calls.GetCacheSize = append(mock.calls.GetCacheSize, callInfo)
+	mock.lockGetCacheSize.Unlock()
+	return mock.GetCacheSizeFunc()
+}
+
+// GetCacheSizeCalls gets all the calls that were made to GetCacheSize.
+// Check the length with:
+//
+//	len(mockedConfigurationPlugin.GetCacheSizeCalls())
+func (mock *ConfigurationPluginMock) GetCacheSizeCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetCacheSize.RLock()
+	calls = mock.calls.GetCacheSize
+	mock.lockGetCacheSize.RUnlock()
 	return calls
 }
 
