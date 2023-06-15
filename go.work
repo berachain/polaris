@@ -4,7 +4,6 @@ use (
 	./contracts
 	./cosmos
 	./e2e/hive/simulators/graphql
-	./e2e/hive/simulators/rpc
 	./eth
 	./lib
 	./magefiles

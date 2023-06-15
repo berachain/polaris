@@ -2,11 +2,9 @@ module pkg.berachain.dev/polaris/e2e/hive/simulators/graphql
 
 go 1.20
 
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230609180942-c6acc930b404
-
 require (
 	github.com/ethereum/go-ethereum v1.12.0
-	github.com/ethereum/hive v0.0.0-20230603165725-f64d6ae89ba0
+	github.com/ethereum/hive v0.0.0-20230614093437-dd1627f5faa9
 )
 
 require (
