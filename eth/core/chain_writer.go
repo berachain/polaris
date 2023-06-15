@@ -155,8 +155,8 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		}
 
 		// Todo: nuke these caches.
-		for txIndex, tx := range block.Transactions() {
-			if bc.txLookupCache != nil {
+		if bc.txLookupCache != nil {
+			for txIndex, tx := range block.Transactions() {
 				bc.txLookupCache.Add(
 					tx.Hash(),
 					&types.TxLookupEntry{
