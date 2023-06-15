@@ -249,9 +249,9 @@ func (w *worker) buildBlock(ctx context.Context, txs [][]byte) *ProposedBlock {
 			} else {
 				break
 			}
+			iterator = iterator.Next()
 		}
 
-		iterator = iterator.Next()
 	}
 
 	return &ProposedBlock{ctx, &abci.ResponsePrepareProposal{Txs: selectedTxs}, nil}
