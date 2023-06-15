@@ -284,7 +284,7 @@ func (bc *blockchain) GetTransactionLookup(
 	// check the historical plugin
 	txLookupEntry, err := bc.hp.GetTransactionByHash(hash)
 	if err != nil {
-		bc.logger.Error("failed to get transaction by hash", "tx", hash, "err", err)
+		bc.logger.Debug("failed to get transaction by hash", "tx", hash, "err", err)
 		return nil
 	}
 

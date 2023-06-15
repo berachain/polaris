@@ -233,6 +233,8 @@ func (tc *testCase) responseMatch(t *hivesim.T, respStatus string, respBytes []b
 			return nil
 		} else if err := assertGasPrice(t, got); err == nil {
 			return nil
+		} else if err := assertBlockNumber(t, got); err == nil {
+			return nil
 		}
 	}
 
@@ -269,6 +271,31 @@ func reindentJSON(text string) (string, bool) {
 	return string(indented), true
 }
 
+func assertBlockNumber(t *hivesim.T, got interface{}) error {
+	if data, ok := got.(map[string]interface{}); ok {
+		inner, dataOk := data["data"].(map[string]interface{})
+		if !dataOk {
+			t.Fail()
+		}
+		blockData, ok := inner["block"].(map[string]interface{})
+		if !ok {
+			t.Fail()
+		}
+		number, ok := blockData["number"].(string)
+		if !ok {
+			t.Fail()
+		}
+		bn, err := strconv.ParseInt(number, 0, 64)
+		if err != nil {
+			t.Fail()
+		}
+		if bn > 0 {
+			return nil
+		}
+	}
+	return fmt.Errorf("gas price is not greater than initial base fee")
+}
+
 func assertGasPrice(t *hivesim.T, got interface{}) error {
 	var initialBaseFee = int64(params.InitialBaseFee)
 	if data, ok := got.(map[string]interface{}); ok {
@@ -276,21 +303,17 @@ func assertGasPrice(t *hivesim.T, got interface{}) error {
 		if !dataOk {
 			t.Fail()
 		}
-
 		gasPrice, gasPriceOk := inner["gasPrice"].(string)
 		if !gasPriceOk {
 			t.Fail()
 		}
-
 		gp, err := strconv.ParseInt(gasPrice, 0, 64)
 		if err != nil {
 			t.Fail()
 		}
-
 		if gp > initialBaseFee {
 			return nil
 		}
 	}
-
 	return fmt.Errorf("gas price is not greater than initial base fee")
 }
