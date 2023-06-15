@@ -58,7 +58,7 @@ var (
 type Hive mg.Namespace
 
 func (h Hive) Setup() error {
-	LogGreen("Executing Hive tests on polard client...")
+	LogGreen("Setting up Hive testing environment...")
 
 	if _, err := os.Stat(hiveClone); os.IsNotExist(err) {
 		LogGreen(hiveClone + " does not exist, creating....")
@@ -69,7 +69,7 @@ func (h Hive) Setup() error {
 	}
 
 	if err := ExecuteInDirectory(hiveClone, func(...string) error {
-		LogGreen("Removing existing .hive-e2e")
+		LogGreen("Removing existing files in .hive-e2e...")
 		return sh.RunV("rm", "-rf", clonePath)
 	}, false); err != nil {
 		return err
@@ -132,22 +132,8 @@ func (h Hive) View() error {
 	}, false); err != nil {
 		return err
 	}
-	if err := ExecuteInDirectory(clonePath, func(...string) error {
-		LogGreen("Serving HiveView...")
-		return sh.RunV("./hiveview", "--serve")
-	}, false); err != nil {
-		return err
-	}
 	return ExecuteInDirectory(clonePath, func(...string) error {
 		LogGreen("Serving HiveView...")
-		return sh.RunV("open", "http://[::]:8080/")
-	}, false)
-}
-
-func (h Hive) GenerateTests(sim, namespace string) error {
-	path := sim + "/"
-	LogGreen("Generating tests for " + path + namespace)
-	return ExecuteInDirectory("e2e/hive/simulators", func(...string) error {
-		return sh.RunV("./generate_tests.sh", path+namespace+".go", path+"tests.go", namespace)
+		return sh.RunV("./hiveview", "--serve")
 	}, false)
 }
