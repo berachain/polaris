@@ -39,8 +39,9 @@ import (
 // defaultTimeout is the default timeout for the test fixture.
 const (
 	fiveHundredError        = 500
-	defaultTimeout          = 10 * time.Second
+	defaultTimeout          = 30 * time.Second
 	defaultNumberOfAccounts = 3
+	defaultWaitForHeight    = 5
 )
 
 var defaultAccountNames = []string{"alice", "bob", "charlie"}
@@ -69,7 +70,7 @@ func NewTestFixture(t network.TestingT) *TestFixture {
 
 	// Build Testing Network.
 	net := network.New(t, network.DefaultConfig(keysMap))
-	_, err := net.WaitForHeightWithTimeout(1, defaultTimeout)
+	_, err := net.WaitForHeightWithTimeout(defaultWaitForHeight, defaultTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}

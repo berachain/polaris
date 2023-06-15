@@ -54,16 +54,17 @@ func TestEthPool(t *testing.T) {
 	RunSpecs(t, "cosmos/x/evm/plugins/txpool/mempool")
 }
 
+var (
+	ctx     sdk.Context
+	sp      core.StatePlugin
+	etp     *EthTxPool
+	key1, _ = crypto.GenerateEthKey()
+	addr1   = crypto.PubkeyToAddress(key1.PublicKey)
+	key2, _ = crypto.GenerateEthKey()
+	addr2   = crypto.PubkeyToAddress(key2.PublicKey)
+)
+
 var _ = Describe("EthTxPool", func() {
-	var (
-		ctx     sdk.Context
-		sp      core.StatePlugin
-		etp     *EthTxPool
-		key1, _ = crypto.GenerateEthKey()
-		addr1   = crypto.PubkeyToAddress(key1.PublicKey)
-		key2, _ = crypto.GenerateEthKey()
-		addr2   = crypto.PubkeyToAddress(key2.PublicKey)
-	)
 
 	BeforeEach(func() {
 		sCtx, ak, _, _ := testutil.SetupMinimalKeepers()
@@ -256,70 +257,42 @@ var _ = Describe("EthTxPool", func() {
 			Expect(pending).To(Equal(0))
 			Expect(queued).To(Equal(2))
 		})
-		It("should handle concurrent additions", func() {
 
-			// apologies in advance for this test, it's not great.
+		It("should handle concurrent reads", func() {
+			readsFromA := 0
+			readsFromB := 0
+			{
+				// fill mempoopl with transactions
+				var wg sync.WaitGroup
 
-			var wg sync.WaitGroup
-
-			wg.Add(1)
-			go func(etp *EthTxPool) {
-				defer wg.Done()
-				for i := 1; i <= 10; i++ {
+				for i := 1; i < 10; i++ {
 					_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
 					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
 				}
-			}(etp)
 
-			wg.Add(1)
-			go func(etp *EthTxPool) {
-				defer wg.Done()
-				for i := 2; i <= 11; i++ {
-					_, tx := buildTx(key2, &coretypes.LegacyTx{Nonce: uint64(i)})
-					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
-				}
-			}(etp)
+				// concurrently read mempool from Peer A ...
+				wg.Add(1)
+				go func(etp *EthTxPool) {
+					defer wg.Done()
+					for _, txs := range etp.Pending(false) {
+						for range txs {
+							readsFromA++
+						}
+					}
+				}(etp)
 
-			wg.Wait()
-			lenPending, _ := etp.Stats()
-			Expect(lenPending).To(BeEquivalentTo(20))
-		})
-		It("should handle concurrent reads", func() {
-
-			readsFromA := 0
-			readsFromB := 0
-
-			// fill mempoopl with transactions
-			var wg sync.WaitGroup
-
-			for i := 1; i < 10; i++ {
-				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
-				Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+				// ... and peer B
+				wg.Add(1)
+				go func(etp *EthTxPool) {
+					defer wg.Done()
+					for _, txs := range etp.Pending(false) {
+						for range txs {
+							readsFromB++
+						}
+					}
+				}(etp)
+				wg.Wait()
 			}
-
-			// concurrently read mempool from Peer A ...
-			wg.Add(1)
-			go func(etp *EthTxPool) {
-				defer wg.Done()
-				for _, txs := range etp.Pending(false) {
-					for range txs {
-						readsFromA++
-					}
-				}
-			}(etp)
-
-			// ... and peer B
-			wg.Add(1)
-			go func(etp *EthTxPool) {
-				defer wg.Done()
-				for _, txs := range etp.Pending(false) {
-					for range txs {
-						readsFromB++
-					}
-				}
-			}(etp)
-
-			wg.Wait()
 			Expect(readsFromA).To(BeEquivalentTo(readsFromB))
 		})
 		It("should be able to return the transaction priority for a Cosmos tx and effective gas tip value", func() {
@@ -392,6 +365,36 @@ var _ = Describe("EthTxPool", func() {
 			Expect(etp.Nonce(addr1)).To(BeEquivalentTo(4)) // should not be 10
 		})
 
+	})
+	Describe("Race Cases", func() {
+		It("should handle concurrent additions", func() {
+
+			// apologies in advance for this test, it's not great.
+
+			var wg sync.WaitGroup
+
+			wg.Add(1)
+			go func(etp *EthTxPool) {
+				defer wg.Done()
+				for i := 1; i <= 10; i++ {
+					_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+				}
+			}(etp)
+
+			wg.Add(1)
+			go func(etp *EthTxPool) {
+				defer wg.Done()
+				for i := 2; i <= 11; i++ {
+					_, tx := buildTx(key2, &coretypes.LegacyTx{Nonce: uint64(i)})
+					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+				}
+			}(etp)
+
+			wg.Wait()
+			lenPending, _ := etp.Stats()
+			Expect(lenPending).To(BeEquivalentTo(20))
+		})
 	})
 })
 
