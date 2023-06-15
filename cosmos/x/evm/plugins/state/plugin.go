@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"math/big"
+	"sync"
 
 	storetypes "cosmossdk.io/store/types"
 
@@ -111,6 +112,8 @@ type plugin struct {
 	// savedErr stores any error that is returned from state modifications on the underlying
 	// keepers.
 	savedErr error
+
+	mu sync.Mutex
 }
 
 // NewPlugin returns a plugin with the given context and keepers.
@@ -123,6 +126,7 @@ func NewPlugin(
 		storeKey: storeKey,
 		ak:       ak,
 		plf:      plf,
+		mu:       sync.Mutex{},
 	}
 }
 
@@ -286,6 +290,8 @@ func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
 // GetNonce implements the `StatePlugin` interface by returning the nonce
 // of an account.
 func (p *plugin) GetNonce(addr common.Address) uint64 {
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	acc := p.ak.GetAccount(p.ctx, addr[:])
 	if acc == nil {
 		return 0
@@ -296,6 +302,8 @@ func (p *plugin) GetNonce(addr common.Address) uint64 {
 // SetNonce implements the `StatePlugin` interface by setting the nonce
 // of an account.
 func (p *plugin) SetNonce(addr common.Address, nonce uint64) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	// get the account or create a new one if doesn't exist
 	acc := p.ak.GetAccount(p.ctx, addr[:])
 	if acc == nil {
