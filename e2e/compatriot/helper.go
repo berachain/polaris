@@ -43,7 +43,7 @@ func startNode(new, verbose bool) (*exec.Cmd, error) {
 	if new {
 		cmd = exec.Command("mage", "start")
 	} else {
-		cmd = exec.Command("./bin/polard", "start", "--home", "./.tmp/polard")
+		cmd = exec.Command("./bin/polard", "start", "--api.enable", "--home", "./.tmp/polard")
 	}
 	if verbose {
 		cmd.Stdout = os.Stdout

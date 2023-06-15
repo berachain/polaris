@@ -52,18 +52,18 @@ func main() {
 
 	var node *exec.Cmd
 
-	// TODO: improve so it tries again
-	// catch panics
-	// requires graceful shutdown of the node on process termination (localhost:8545 is still being run)
-	defer func() {
-		if err := recover(); err != nil {
-			// kill the chain
-			if err := stopNode(node); err != nil {
-				log.Fatalf("main: An error occurred %v when stopping the node\n", err)
-			}
-			log.Fatalf("main: An error occurred %v and was caught\n", err)
-		}
-	}()
+	// // TODO: improve so it tries again
+	// // catch panics
+	// // requires graceful shutdown of the node on process termination (localhost:8545 is still being run)
+	// defer func() {
+	// 	if err := recover(); err != nil {
+	// 		// kill the chain
+	// 		if err := stopNode(node); err != nil {
+	// 			log.Fatalf("main: An error occurred %v when stopping the node\n", err)
+	// 		}
+	// 		log.Fatalf("main: An error occurred %v and was caught\n", err)
+	// 	}
+	// }()
 
 	// start the chain
 	node, err := startNode(true, verbose)

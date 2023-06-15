@@ -39,12 +39,12 @@ type Compatriot mg.Namespace
 func (c Compatriot) Setup() error {
 	LogGreen("Building local docker base image...")
 
-	if err := (Cosmos{}).Docker("base", "arm64"); err != nil {
-		LogRed("Failed to build local docker base image...")
-		return err
-	}
+	// if err := (Cosmos{}).Docker("base", "arm64"); err != nil {
+	// 	LogRed("Failed to build local docker base image...")
+	// 	return err
+	// }
 
-	(Cosmos{}).RunDockerLocal()
+	// (Cosmos{}).RunDockerLocal()
 
 	LogGreen("Building compatriot...")
 
