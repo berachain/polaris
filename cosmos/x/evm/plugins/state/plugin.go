@@ -255,8 +255,7 @@ func (p *plugin) DeleteAccounts(accounts []common.Address) {
 
 // GetBalance implements `StatePlugin` interface.
 func (p *plugin) GetBalance(addr common.Address) *big.Int {
-	val := new(big.Int).SetBytes(p.ctx.KVStore(p.storeKey).Get(BalanceKeyFor(addr)))
-	return val
+	return new(big.Int).SetBytes(p.ctx.KVStore(p.storeKey).Get(BalanceKeyFor(addr)))
 }
 
 // SetBalance implements `StatePlugin` interface.

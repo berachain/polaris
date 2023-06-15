@@ -191,7 +191,7 @@ func (tc *testCase) run(t *hivesim.T, c *hivesim.Client) {
 	if err != nil {
 		t.Fatal("can't parse URL:", err)
 	}
-	resp, err := http.Post(parsedURL.String(), "application/json", bytes.NewReader(postData))
+	resp, err := http.Post(parsedURL.String(), "application/json", bytes.NewReader(postData)) //nolint: noctx, lll // hive team wrote this
 	if err != nil {
 		t.Fatal("HTTP post failed:", err)
 	}
@@ -270,7 +270,7 @@ func reindentJSON(text string) (string, bool) {
 }
 
 func assertGasPrice(t *hivesim.T, got interface{}) error {
-	var initialBaseFee int64 = int64(params.InitialBaseFee)
+	var initialBaseFee = int64(params.InitialBaseFee)
 	if data, ok := got.(map[string]interface{}); ok {
 		inner, dataOk := data["data"].(map[string]interface{})
 		if !dataOk {
