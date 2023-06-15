@@ -83,7 +83,8 @@ func graphqlTest(t *hivesim.T, c *hivesim.Client) {
 	}
 
 	// wait for blocks...
-	time.Sleep(3 * time.Second)
+	delay := 3
+	time.Sleep(time.Duration(delay) * time.Second)
 	var wg sync.WaitGroup
 	testCh := deliverTests(t, &wg, -1)
 	for i := 0; i < parallelism; i++ {
@@ -271,17 +272,13 @@ func reindentJSON(text string) (string, bool) {
 func assertGasPrice(t *hivesim.T, got interface{}) error {
 	var initialBaseFee int64 = int64(params.InitialBaseFee)
 	if data, ok := got.(map[string]interface{}); ok {
-		if !ok {
+		inner, dataOk := data["data"].(map[string]interface{})
+		if !dataOk {
 			t.Fail()
 		}
 
-		inner, ok := data["data"].(map[string]interface{})
-		if !ok {
-			t.Fail()
-		}
-
-		gasPrice, ok := inner["gasPrice"].(string)
-		if !ok {
+		gasPrice, gasPriceOk := inner["gasPrice"].(string)
+		if !gasPriceOk {
 			t.Fail()
 		}
 
