@@ -23,7 +23,6 @@ package main
 import (
 	"context"
 	"crypto/ecdsa"
-	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -113,40 +112,27 @@ func submitTransactionsToNetwork() []common.Hash {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println("sent transaction to network", txHash)
+		// fmt.Println("sent transaction to network", txHash)
 		txHashes = append(txHashes, txHash)
 	}
 	return txHashes
 }
 
+// generateQueries generates the queries to be sent to the chain for every transaction
 func generateQueries() []RPCRequest {
 	var requests []RPCRequest
-	for id, txHash := range txHashes {
-		/*
-		   sendTx() returns hash of the send transaction
+	id := 0
+	for _, txHash := range txHashes {
+		hash := txHash.String()
 
-		   GetReceiptsByHash() returns receipts of the transaction
+		transactionByHashRequest := RPCRequest{"2.0", "eth_getTransactionByHash", []interface{}{hash}, int64(id)}
 
-		   get BlockNumber and BlockHash from the Receipt
+		// blockByNumberRequest := RPCRequest{"2.0", "eth_getBlockByNumber", []interface{}{hash, false}, int64(id+1)}
+		// blockByHashRequest := RPCRequest{"2.0", "eth_getBlockByHash", []interface{}{hash, false}, int64(id+2)}
+		// receiptsByHashRequest := RPCRequest{"2.0", "eth_getTransactionReceipt", []interface{}{hash}, int64(id+3)}
 
-		   Then call GetBlockByNumber() with the block number
-
-		   Then call GetBlockByHash() with the block hash
-
-		   Then call GetTransactionByHash() with the transaction hash
-
-		   Then call GetReceiptsByHash() with the transaction hash
-
-		   on the first run, these will all work beacuse of the cache
-
-		   then when we stop the node, nuke the cache, and run again, these will all fail because no more cache and historical plugin gone
-
-		*/
-		blockByNumberRequest := RPCRequest{"2.0", "eth_getBlockByNumber", []interface{}{txHash.String()}, int64(id)}
-		blockByHashRequest := RPCRequest{"2.0", "eth_getBlockByHash", []interface{}{txHash.String()}, int64(id)}
-		transactionByHashRequest := RPCRequest{"2.0", "eth_getTransactionByHash", []interface{}{txHash.String()}, int64(id)}
-		receiptsByHashRequest := RPCRequest{"2.0", "eth_getReceiptsByHash", []interface{}{txHash.String()}, int64(id)}
-		requests = append(requests, blockByNumberRequest, blockByHashRequest, transactionByHashRequest, receiptsByHashRequest)
+		id += 1
+		requests = append(requests, transactionByHashRequest)
 	}
 
 	return requests

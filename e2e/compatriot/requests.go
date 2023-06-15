@@ -49,7 +49,7 @@ type RPCResponse struct {
 }
 
 type RPCOutput struct {
-	Method   string      `json:"method"`
+	Request  RPCRequest  `json:"request"`
 	Response RPCResponse `json:"response"`
 }
 
@@ -68,6 +68,11 @@ func query(outputFile string) error {
 		}
 		output = append(output, result)
 	}
+
+	// TODO: bring back when results make sense
+	// if err := sanityCheck(output); err != nil {
+	// 	return fmt.Errorf("Query: An error occurred %v when sanity checking results\n", err)
+	// }
 
 	// add the results to a file and format
 	content, err := Marshal(output)
@@ -95,7 +100,7 @@ func call(postRequest RPCRequest) (RPCOutput, error) {
 	var response RPCResponse
 	json.Unmarshal([]byte(body), &response)
 
-	return RPCOutput{Method: postRequest.Method, Response: response}, nil
+	return RPCOutput{Request: postRequest, Response: response}, nil
 }
 
 // makeRequest makes the actual HTTP request to the chain

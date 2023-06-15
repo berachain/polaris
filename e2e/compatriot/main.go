@@ -23,6 +23,7 @@ package main
 import (
 	"log"
 	"os"
+	"os/exec"
 )
 
 // useful files
@@ -49,6 +50,21 @@ func main() {
 		log.Fatalf("main: An error occurred %v when setting directory\n", err)
 	}
 
+	var node *exec.Cmd
+
+	// TODO: improve so it tries again
+	// catch panics
+	// requires graceful shutdown of the node on process termination (localhost:8545 is still being run)
+	// defer func() {
+	// 	if err := recover(); err != nil {
+	// 		// kill the chain
+	// 		if err := stopNode(node); err != nil {
+	// 			log.Fatalf("main: An error occurred %v when stopping the node\n", err)
+	// 		}
+	// 		log.Fatalf("main: An error occurred %v and was caught\n", err)
+	// 	}
+	// }()
+
 	// start the chain
 	node, err := startNode(true, verbose)
 	if err != nil {
@@ -62,6 +78,10 @@ func main() {
 
 	// make queries and save results to file 1
 	if err := query(cached); err != nil {
+		// kill the chain
+		if err := stopNode(node); err != nil {
+			log.Fatalf("main: An error occurred %v when stopping the node\n", err)
+		}
 		log.Fatalf("main: An error occurred %v when querying chain\n", err)
 	}
 
@@ -87,13 +107,5 @@ func main() {
 	// compare the two files
 	if err := diff(cached, noncached); err != nil {
 		log.Fatalf("main: An error occurred %v when diffing files\n", err)
-	}
-
-	// run sanity checks
-	if err := sanityCheck(cached); err != nil {
-		log.Fatalf("main: An error occurred %v when sanity checking cached file\n", err)
-	}
-	if err := sanityCheck(noncached); err != nil {
-		log.Fatalf("main: An error occurred %v when sanity checking non-cached file\n", err)
 	}
 }

@@ -41,7 +41,7 @@ func setDirectory() error {
 func startNode(new, verbose bool) (*exec.Cmd, error) {
 	var cmd *exec.Cmd
 	if new {
-		cmd = exec.Command("./cosmos/init.sh")
+		cmd = exec.Command("mage", "start")
 	} else {
 		cmd = exec.Command("./bin/polard", "start", "--home", "./.tmp/polard")
 	}
@@ -73,7 +73,7 @@ func stopNode(nodeCmd *exec.Cmd) error {
 	}
 
 	// kill the subprocess
-	exec.Command("kill", string(strings.Fields(string(output))[0])).Run()
+	exec.Command("kill", "-9", string(strings.Fields(string(output))[0])).Run()
 	if err := nodeCmd.Process.Kill(); err != nil {
 		return fmt.Errorf("helper: An error occurred %v when killing the process\n", err)
 	}
@@ -81,10 +81,10 @@ func stopNode(nodeCmd *exec.Cmd) error {
 	return nil
 }
 
-// wait waits for 10 seconds
+// wait waits for 5 seconds
 // TODO: resolve hacky fix to wait for chain endpoints to be setup correctly
 func wait() {
-	time.Sleep(10 * time.Second)
+	time.Sleep(5 * time.Second)
 }
 
 // diff compares two files and saves the result to diff.txt
@@ -92,7 +92,12 @@ func wait() {
 func diff(file1, file2 string) error {
 	// compare file 1 and file 2
 	diff := exec.Command("diff", cached, noncached)
-	diff.Stdout = os.NewFile(3, diffFile)
+	out, err := os.Create(diffFile)
+	if err != nil {
+		return fmt.Errorf("main: An error occurred %v when creating diff file\n", err)
+	}
+	defer out.Close()
+	diff.Stdout = out
 	if err := diff.Run(); err != nil {
 		switch err.(type) {
 		case *exec.ExitError:
