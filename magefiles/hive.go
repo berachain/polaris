@@ -27,6 +27,7 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -51,7 +52,7 @@ var (
 	clientsPath    = clonePath + "clients/polard/"
 
 	simulations = []tests{
-		{"rpc", []string{"init/genesis.json"}},
+		{"rpc", []string{"init/genesis.json", "ethclient.hive"}},
 		{"rpc-compat", []string{"Dockerfile", "tests"}},
 		{"graphql", []string{"testcases", "init/testGenesis.json"}}}
 )
@@ -98,13 +99,20 @@ func (h Hive) Setup() error {
 			return err
 		}
 		for _, file := range sim.Files {
-			if err := sh.RunV("rm", "-rf", simulatorsPath+sim.Name+"/"+file); err != nil {
+			name := file
+			if ext := strings.Split(file, "."); len(ext) > 1 && ext[1] == "hive" {
+				name = strings.Split(file, ".")[0] + ".go"
+			}
+			if err := sh.RunV("rm", "-rf", simulatorsPath+sim.Name+"/"+name); err != nil {
 				return err
 			}
+
+			sh.RunV("ls", simulatorsPath+sim.Name)
 			if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"simulators/"+sim.Name+
-				"/"+file, simulatorsPath+sim.Name+"/"+file); err != nil {
+				"/"+file, simulatorsPath+sim.Name+"/"+name); err != nil {
 				return err
 			}
+			sh.RunV("ls", simulatorsPath+sim.Name)
 		}
 	}
 
