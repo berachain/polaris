@@ -1466,12 +1466,12 @@ github.com/rollkit/cometbft v0.0.0-20230524013001-2968c8b8b121 h1:kMzxCUzXcdk318
 github.com/rollkit/cometbft v0.0.0-20230524013001-2968c8b8b121/go.mod h1:Xc6G7GTlHAjeH3l5H8WibF/YrcCR6iDgAGrXVWkMwiU=
 github.com/rollkit/cometbft v0.0.0-20230614163111-d6a8d2c98cc0 h1:VfgqV/mic4DsrCCNkeqJic68FNGpe0F+AmLxoY9WmSo=
 github.com/rollkit/cometbft v0.0.0-20230614163111-d6a8d2c98cc0/go.mod h1:5Jz0Z8YsHSf0ZaAqGvi/ifioSdVFPtEGrm8Y9T/993k=
-github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230615215434-7f213565b33f h1:UdCmCIXz9n2iL+FchlhuJ25SCyfn5lkyxcDj8uJDUus=
-github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230615215434-7f213565b33f/go.mod h1:lcR4PWzVBEVjd8OjAnConIiM5gKTmqZYSW98dfKcT6w=
+github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230616213058-08fe487dda77 h1:k97Ub7WY78hyLYdgOEGwrfUSoZX/Ya8LWC8yVuoGpOc=
+github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230616213058-08fe487dda77/go.mod h1:aZVlWRGF25J2CAoz/npWKhQBpR6gOm27NdSjfPa/evg=
 github.com/rollkit/cosmos-sdk/x/evidence v0.0.0-20230615215434-7f213565b33f h1:hOaHsYHDhPEmBeFr0wcnAGjyiaSFf9maSsARo+qc1oo=
 github.com/rollkit/cosmos-sdk/x/evidence v0.0.0-20230615215434-7f213565b33f/go.mod h1:C/g7Ai2hTVvIytVAFzcRCs8EJHiaBvM2R9/TeJbb+hU=
-github.com/rollkit/rollkit v0.8.2-0.20230614163753-453e39f9a24f h1:NS13cY/5SjbjdDYFlMvj7g/0/EhtHKlDfReVx3sHJhU=
-github.com/rollkit/rollkit v0.8.2-0.20230614163753-453e39f9a24f/go.mod h1:B/KOikuWDXu5JZLXwJsmraVDfwFg4yAsn4DuuHDg3Qw=
+github.com/rollkit/rollkit v0.8.2-0.20230616212804-5e2a12d38cf3 h1:XsPpRYBScFwv5y588NW6nmZmrzTTDYlEOHCpxDl1+ME=
+github.com/rollkit/rollkit v0.8.2-0.20230616212804-5e2a12d38cf3/go.mod h1:B/KOikuWDXu5JZLXwJsmraVDfwFg4yAsn4DuuHDg3Qw=
 github.com/rs/cors v1.7.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
 github.com/rs/cors v1.9.0 h1:l9HGsTsHJcvW14Nk7J9KFz8bzeAWXn3CG6bgt7LsrAE=
 github.com/rs/cors v1.9.0/go.mod h1:XyqrcTp5zjWr1wsJ8PIRZssZ8b/WMcMf71DJnit4EMU=

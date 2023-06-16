@@ -5,7 +5,7 @@ go 1.20
 replace (
 	cosmossdk.io/x/evidence => github.com/rollkit/cosmos-sdk/x/evidence v0.0.0-20230615215434-7f213565b33f
 	github.com/cometbft/cometbft => github.com/rollkit/cometbft v0.0.0-20230614163111-d6a8d2c98cc0
-	github.com/cosmos/cosmos-sdk => github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230615215434-7f213565b33f
+	github.com/cosmos/cosmos-sdk => github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230616213058-08fe487dda77
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230609180942-c6acc930b404
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
@@ -289,7 +289,7 @@ require (
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
 	github.com/rollkit/celestia-openrpc v0.0.0-20230531022214-505ff801e818 // indirect
-	github.com/rollkit/rollkit v0.8.2-0.20230614163753-453e39f9a24f // indirect
+	github.com/rollkit/rollkit v0.8.2-0.20230616212804-5e2a12d38cf3 // indirect
 	github.com/rs/cors v1.9.0 // indirect
 	github.com/rs/zerolog v1.29.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
