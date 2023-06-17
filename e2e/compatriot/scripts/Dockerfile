@@ -32,11 +32,10 @@ COPY ${COMPATRIOT_PATH}/config /config
 COPY ${COMPATRIOT_PATH}/compatriot-init.sh /compatriot-init.sh
 
 # Copy compatriot scripts
+COPY ${COMPATRIOT_PATH}/scripts /scripts
 COPY ${COMPATRIOT_PATH}/compatriot.sh /compatriot.sh
-COPY ${COMPATRIOT_PATH}/spam-tx.sh /spam-tx.sh
-COPY ${COMPATRIOT_PATH}/rpc-requests.sh /rpc-requests.sh
 
-# Set the hom directory
+# Set the home directory
 ENV HOME /
 WORKDIR $HOME
 
