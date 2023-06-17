@@ -29,36 +29,45 @@ import (
 	"github.com/magefile/mage/mg"
 )
 
+// TODO: remove scripts from path
 const (
-	compatriotPath = "./e2e/compatriot/"
+	compatriotPath = "./e2e/compatriot/scripts"
+)
+
+var (
+	compatriotDockerfile = compatriotPath + "Dockerfile"
 )
 
 type Compatriot mg.Namespace
 
+// Build builds the compatriot Docker image.
 func (c Compatriot) Build() error {
 	LogGreen("Building compatriot in Docker...")
 
-	return ExecuteInDirectory(compatriotPath, func(...string) error {
-		return dockerBuild("-f", "./Dockerfile", "--progress=plain", "--no-cache", "-t", "compatriot", ".")
-	}, false)
+	return dockerBuild("-f", compatriotDockerfile, "--progress=plain", "--no-cache", "-t", "compatriot", ".")
 }
 
+// Test runs the compatriot tests.
 func (c Compatriot) Test() error {
 	LogGreen("Running compatriot...")
 
-	return ExecuteInDirectory(compatriotPath, func(...string) error {
-		return dockerRun("compatriot")
-	}, false)
+	return dockerRun("-p", "8545:8545", "compatriot")
+	// return ExecuteInDirectory(compatriotPath, func(...string) error {
+	// 	return dockerRun("compatriot")
+	// }, false)
 }
 
+// TestV runs the compatriot tests with verbose output.
 func (c Compatriot) TestV() error {
 	LogGreen("Running compatriot with verbose output...")
 
-	return ExecuteInDirectory(compatriotPath, func(...string) error {
-		return dockerRun("compatriot", "--verbose")
-	}, false)
+	return dockerRun("-p", "8545:8545", "compatriot", "--verbose")
+	// return ExecuteInDirectory(compatriotPath, func(...string) error {
+	// 	return dockerRun("compatriot", "--verbose")
+	// }, false)
 }
 
+// Run builds and executes the compatriot tests.
 func (c Compatriot) Run() error {
 	LogGreen("Building and running compatriot...")
 

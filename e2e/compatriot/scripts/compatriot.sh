@@ -1,10 +1,11 @@
 #!/bin/bash
 
+EXE=./compatriot-init.sh
 NODE_PID=0
 
 # Function to start the binary executable in a separate process
 start_node() {
-    ./cosmos/init.sh &
+    $EXE &
     NODE_PID=$!
     sleep 3
 }
@@ -18,7 +19,7 @@ restart_node() {
 
 # Function to stop the node process
 stop_node() {
-    kill $NODE_PID
+    kill -9 $NODE_PID
     wait $NODE_PID 2>/dev/null
 }
 
