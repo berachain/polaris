@@ -27,7 +27,6 @@ package main
 
 import (
 	"github.com/magefile/mage/mg"
-	"github.com/magefile/mage/sh"
 )
 
 const (
@@ -36,20 +35,11 @@ const (
 
 type Compatriot mg.Namespace
 
-func (c Compatriot) Setup() error {
-	LogGreen("Building local docker base image...")
-
-	// if err := (Cosmos{}).Docker("base", "arm64"); err != nil {
-	// 	LogRed("Failed to build local docker base image...")
-	// 	return err
-	// }
-
-	// (Cosmos{}).RunDockerLocal()
-
-	LogGreen("Building compatriot...")
+func (c Compatriot) Build() error {
+	LogGreen("Building compatriot in Docker...")
 
 	return ExecuteInDirectory(compatriotPath, func(...string) error {
-		return sh.RunV("go", "build", "-v", ".")
+		return dockerBuild("-f", "./Dockerfile", "--progress=plain", "--no-cache", "-t", "compatriot", ".")
 	}, false)
 }
 
@@ -57,22 +47,22 @@ func (c Compatriot) Test() error {
 	LogGreen("Running compatriot...")
 
 	return ExecuteInDirectory(compatriotPath, func(...string) error {
-		return sh.RunV("./compatriot")
+		return dockerRun("compatriot")
 	}, false)
 }
 
 func (c Compatriot) TestV() error {
-	LogGreen("Running compatriot...")
+	LogGreen("Running compatriot with verbose output...")
 
 	return ExecuteInDirectory(compatriotPath, func(...string) error {
-		return sh.RunV("./compatriot", "-v")
+		return dockerRun("compatriot", "--verbose")
 	}, false)
 }
 
 func (c Compatriot) Run() error {
 	LogGreen("Building and running compatriot...")
 
-	if err := c.Setup(); err != nil {
+	if err := c.Build(); err != nil {
 		LogRed("Failed to build compatriot...")
 		return err
 	}

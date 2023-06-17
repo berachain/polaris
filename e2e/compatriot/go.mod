@@ -2,6 +2,8 @@ module pkg.berachain.dev/polaris/e2e/compatriot
 
 go 1.20
 
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230609180942-c6acc930b404
+
 require github.com/ethereum/go-ethereum v1.12.0
 
 require (

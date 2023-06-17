@@ -17,19 +17,23 @@
 ARG GO_VERSION=1.20.4
 
 # This simulation runs JSON-RPC API tests.
-FROM golang:{$GO_VERSION}-alpine as builder
+FROM golang:${GO_VERSION}-alpine as builder
 RUN apk add --update git ca-certificates gcc musl-dev linux-headers
 
-# Build the simulator executable.
+# Build the executable.
 ADD . /source
 WORKDIR /source
+
+# Install dependencies.
+RUN go get
+RUN go mod download
 RUN go build -v .
 
-# Build the simulator run container.
+RUN ls
+
+# # Build the run container.
 FROM alpine:latest
 ADD . /source
 WORKDIR /source
-COPY --from=builder /source/cache .
-COPY --from=builder /execution-apis/tests ./tests
-
-ENTRYPOINT ["./cache"]
+COPY --from=builder /source/compatriot .
+ENTRYPOINT ["./compatriot"]

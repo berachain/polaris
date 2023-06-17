@@ -41,7 +41,11 @@ func setDirectory() error {
 func startNode(new, verbose bool) (*exec.Cmd, error) {
 	var cmd *exec.Cmd
 	if new {
-		cmd = exec.Command("mage", "start")
+		// err := exec.Command("chmod", "a+x", "./e2e/compatriot/compatriot-init.sh").Run()
+		// if err != nil {
+		// 	return nil, fmt.Errorf("helper: An error occurred %v when running chmod\n", err)
+		// }
+		cmd = exec.Command("./e2e/compatriot/compatriot-init.sh")
 	} else {
 		cmd = exec.Command("./bin/polard", "start", "--api.enable", "--home", "./.tmp/polard")
 	}
