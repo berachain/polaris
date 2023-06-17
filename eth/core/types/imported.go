@@ -63,6 +63,7 @@ var (
 	SignTx                 = types.SignTx
 	Sender                 = types.Sender
 	NewTx                  = types.NewTx
+	NewTransaction         = types.NewTransaction
 	NewEIP2930Signer       = types.NewEIP2930Signer
 	LatestSignerForChainID = types.LatestSignerForChainID
 	SignNewTx              = types.SignNewTx
