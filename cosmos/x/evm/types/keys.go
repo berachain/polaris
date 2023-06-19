@@ -26,6 +26,7 @@ const (
 	StorageKeyPrefix
 	CodeHashKeyPrefix
 	BlockHashKeyToNumPrefix
+	BlockNumKeyToBlockPrefix
 	BlockHashKeyToReceiptsPrefix
 	TxHashKeyToTxPrefix
 	VersionKey

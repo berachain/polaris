@@ -39,11 +39,11 @@ func (etp *EthTxPool) Get(hash common.Hash) *coretypes.Transaction {
 
 // Pending is called when txs in the mempool are retrieved.
 func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
-	pendingNonces := make(map[common.Address]uint64)
-	pending := make(map[common.Address]coretypes.Transactions)
-
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
+
+	pendingNonces := make(map[common.Address]uint64)
+	pending := make(map[common.Address]coretypes.Transactions)
 
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
 		tx := iter.Tx()
@@ -80,11 +80,11 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 
 // queued retrieves the content of the mempool.
 func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
-	pendingNonces := make(map[common.Address]uint64)
-	queued := make(map[common.Address]coretypes.Transactions)
-
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
+
+	pendingNonces := make(map[common.Address]uint64)
+	queued := make(map[common.Address]coretypes.Transactions)
 
 	// After the lock is released we can iterate over the mempool.
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {

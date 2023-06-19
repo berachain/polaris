@@ -1,3 +1,23 @@
+// SPDX-License-Identifier: BUSL-1.1
+//
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Use of this software is govered by the Business Source License included
+// in the LICENSE file of this repository and at www.mariadb.com/bsl11.
+//
+// ANY USE OF THE LICENSED WORK IN VIOLATION OF THIS LICENSE WILL AUTOMATICALLY
+// TERMINATE YOUR RIGHTS UNDER THIS LICENSE FOR THE CURRENT AND ALL OTHER
+// VERSIONS OF THE LICENSED WORK.
+//
+// THIS LICENSE DOES NOT GRANT YOU ANY RIGHT IN ANY TRADEMARK OR LOGO OF
+// LICENSOR OR ITS AFFILIATES (PROVIDED THAT YOU MAY USE A TRADEMARK OR LOGO OF
+// LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
+//
+// TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+// AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+// EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+// TITLE.
+
 package main
 
 import (
@@ -29,14 +49,16 @@ type RPCResponse struct {
 }
 
 type RPCOutput struct {
-	Method   string      `json:"method"`
+	Request  RPCRequest  `json:"request"`
 	Response RPCResponse `json:"response"`
 }
 
+// TODO: make this a buffer stream to not store all tests in memory?
+var requests []RPCRequest
+
 // Query loads prexisting JSON-RPC calls from a file and queries the chain
-func Query(outputFile string) error {
-	calls := make([]RPCRequest, 0)
-	loadCalls(&calls)
+func query(outputFile string) error {
+	calls := requests
 
 	var output []RPCOutput
 	for i := 0; i < len(calls); i++ {
@@ -46,6 +68,11 @@ func Query(outputFile string) error {
 		}
 		output = append(output, result)
 	}
+
+	// TODO: bring back when results make sense
+	// if err := sanityCheck(output); err != nil {
+	// 	return fmt.Errorf("Query: An error occurred %v when sanity checking results\n", err)
+	// }
 
 	// add the results to a file and format
 	content, err := Marshal(output)
@@ -57,21 +84,7 @@ func Query(outputFile string) error {
 		return fmt.Errorf("call: An error occurred %v when writing output\n", err)
 	}
 
-	return nil
-}
-
-func loadCalls(calls *[]RPCRequest) error {
-	jsonFile, err := os.Open(TESTS)
-	if err != nil {
-		return fmt.Errorf("loadCalls: An error occurred %v when opening TESTS\n", err)
-	}
-
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	if err := json.Unmarshal(byteValue, calls); err != nil {
-		return fmt.Errorf("loadCalls: An error occurred %v when unmarshalling TESTS\n", err)
-	}
-
+	fmt.Println("finished querying")
 	return nil
 }
 
@@ -87,7 +100,7 @@ func call(postRequest RPCRequest) (RPCOutput, error) {
 	var response RPCResponse
 	json.Unmarshal([]byte(body), &response)
 
-	return RPCOutput{Method: postRequest.Method, Response: response}, nil
+	return RPCOutput{Request: postRequest, Response: response}, nil
 }
 
 // makeRequest makes the actual HTTP request to the chain
@@ -107,7 +120,7 @@ func makeRequest(rpc string, postBuffer *bytes.Buffer) (string, error) {
 
 // Marshal marshals the output slice to JSON
 func Marshal(output []RPCOutput) ([]byte, error) {
-	jsonOutput, err := json.Marshal(output)
+	jsonOutput, err := json.MarshalIndent(output, "", "    ")
 	if err != nil {
 		return nil, fmt.Errorf("Marshal: An error occurred %v trying to marshal data\n", err)
 	}

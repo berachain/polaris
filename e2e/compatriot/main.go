@@ -22,36 +22,94 @@ package main
 
 import (
 	"log"
-
-	"github.com/magefile/mage/sh"
+	"os"
+	"os/exec"
 )
 
-const CACHED = "./cached.json"
-const NONCACHED = "./noncached.json"
+// useful files
+const (
+	cached    = "./e2e/compatriot/cached.json"
+	noncached = "./e2e/compatriot/noncached.json"
+	diffFile  = "./e2e/compatriot/diff.txt"
+)
 
 func main() {
-	setup()
+	flags := os.Args[1:]
+
+	var verbose bool
+	// set the verbose flag
+	if len(flags) > 0 {
+		switch flags[0] {
+		case "-v":
+			verbose = true
+		}
+	}
+
+	// set the directory
+	if err := setDirectory(); err != nil {
+		log.Fatalf("main: An error occurred %v when setting directory\n", err)
+	}
+
+	var node *exec.Cmd
+
+	// // TODO: improve so it tries again
+	// // catch panics
+	// // requires graceful shutdown of the node on process termination (localhost:8545 is still being run)
+	// defer func() {
+	// 	if err := recover(); err != nil {
+	// 		// kill the chain
+	// 		if err := stopNode(node); err != nil {
+	// 			log.Fatalf("main: An error occurred %v when stopping the node\n", err)
+	// 		}
+	// 		log.Fatalf("main: An error occurred %v and was caught\n", err)
+	// 	}
+	// }()
+
+	// start the chain
+	node, err := startNode(true, verbose)
+	if err != nil {
+		log.Fatalf("main: An error occurred %v when starting the node\n", err)
+	}
+
+	// chain setup
+	if err := setup(); err != nil {
+		// kill the chain
+		if err := stopNode(node); err != nil {
+			log.Fatalf("main: An error occurred %v when stopping the node\n", err)
+		}
+		log.Fatalf("main: An error occurred %v when setting up chain\n", err)
+	}
 
 	// make queries and save results to file 1
-	Query(CACHED)
+	if err := query(cached); err != nil {
+		// kill the chain
+		if err := stopNode(node); err != nil {
+			log.Fatalf("main: An error occurred %v when stopping the node\n", err)
+		}
+		log.Fatalf("main: An error occurred %v when querying chain\n", err)
+	}
 
 	// kill the chain
+	if err := stopNode(node); err != nil {
+		log.Fatalf("main: An error occurred %v when stopping the node\n", err)
+	}
+
+	// restart the chain
+	node, err = startNode(false, verbose)
+	if err != nil {
+		log.Fatalf("main: An error occurred %v when restarting the node\n", err)
+	}
 
 	// make queries and save results to file 2
-	Query(NONCACHED)
+	query(noncached)
 
-	// compare file 1 and file 2
-	err := sh.Run("diff", CACHED, NONCACHED)
-	if err != nil {
-		log.Fatalf("main: An error occurred %v when diffing\n", err)
+	// kill the chain again
+	if err := stopNode(node); err != nil {
+		log.Fatalf("main: An error occurred %v when stopping the node\n", err)
 	}
 
-	// run sanity checks
-	if err := sanityCheck(CACHED); err != nil {
-		log.Fatalf("main: An error occurred %v when sanity checking cached file\n", err)
-	}
-
-	if err := sanityCheck(NONCACHED); err != nil {
-		log.Fatalf("main: An error occurred %v when sanity checking non-cached file\n", err)
+	// compare the two files
+	if err := diff(cached, noncached); err != nil {
+		log.Fatalf("main: An error occurred %v when diffing files\n", err)
 	}
 }
