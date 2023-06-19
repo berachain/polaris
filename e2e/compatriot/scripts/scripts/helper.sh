@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RELATIVE_PATH=scripts/
+RELATIVE_PATH=./
 EXEC=compatriot-init.sh
 SEND_TXS=spam-txs.sh
 REQUESTS=rpc-requests.sh
@@ -8,9 +8,9 @@ NODE_PID=0
 
 # Function to start the binary executable in a separate process
 start_node() {
-    run "${$RELATIVE_PATH}${EXEC}" &
+    . "${RELATIVE_PATH}${EXEC}" &
     NODE_PID=$!
-    sleep 3
+    sleep 3 
 }
 
 # Function to restart the node using the built polard binary
@@ -30,12 +30,26 @@ stop_node() {
 # the tx spam script
 send_transactions() {
     # use tx spam script
-    run "${$RELATIVE_PATH}${SEND_TXS}"
+    . "${RELATIVE_PATH}${SEND_TXS}"
 }
 
 # Function to send RPC queries defined by
 # the rpc requests script
 send_rpc_requests() {
     # use rpc spam script
-    run "${$RELATIVE_PATH}${REQUESTS}"
+    . "${$RELATIVE_PATH}${REQUESTS}"
 }
+
+# start_node
+
+send_transactions
+
+send_rpc_requests
+
+# restart_node
+
+# stop_node
+
+# send_rpc_requests
+
+# stop_node
