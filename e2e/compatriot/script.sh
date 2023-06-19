@@ -53,7 +53,7 @@ while IFS= read -r tx; do
   blockHashes+=("$blockHash")
 done <tmp.json
 
-rm tmp.json
+rm -rf tmp.json
 
 cachedTxByHash=()
 for txh in "${txHashes[@]}"; do
