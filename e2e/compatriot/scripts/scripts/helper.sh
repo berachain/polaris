@@ -2,7 +2,7 @@
 
 RELATIVE_PATH=scripts/
 EXEC=compatriot-init.sh
-SEND_TXS=txs.sh
+SEND_TXS=spam-txs.sh
 REQUESTS=rpc-requests.sh
 NODE_PID=0
 
