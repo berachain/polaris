@@ -13,35 +13,14 @@ for i in {1..10}; do
 done
 
 # Join the array elements with commas and enclose in brackets
-json_output="[$(
-    IFS=,
-    echo "${txReceipts[*]}"
-)]"
+jsonArray="["
+for ((i=0; i<${#txReceipts[@]}; i++)); do
+    jsonArray+="$(printf '%s\n' "${txReceipts[i]}")"
+    if [ $i -lt $((${#txReceipts[@]} - 1)) ]; then
+        jsonArray+=","
+    fi
+done
+jsonArray+="]"
 
-# Write the JSON output to the file
-echo "$json_output" >cachedOutput.json
-jq -r '.' cachedOutput.json >temp.json && mv temp.json cachedOutput.json
-
-txHashes=()
-blockNums=()
-blockHashes=()
-
-jq -c '.[]' cachedOutput.json >formattedCachedOutput.json
-
-while IFS= read -r tx; do
-    # do stuff with $tx
-    txHash=$(echo "$tx" | jq -r ".transactionHash")
-    blockNum=$(echo "$tx" | jq -r ".blockNumber")
-    blockHash=$(echo "$tx" | jq -r ".blockHash")
-    # Output the extracted value
-    txHashes+=("$txHash")
-    blockNums+=("$blockNum")
-    blockHashes+=("$blockHash")
-done <tmp.json
-
-#   return the values for use in the send_rpc_requests() function
-echo "${txHashes[*]}"
-echo "${blockNums[*]}"
-echo "${blockHashes[*]}"
-
-rm -rf cachedOutput.json
+# write the json array to a file
+echo "$jsonArray" | jq '.' > txReceipts.json

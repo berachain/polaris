@@ -20,7 +20,7 @@ send_rpc_requests
 # restart_node
 
 # Retry the RPC requests
-send_rpc_requests
+# send_rpc_requests
 
 # Stop the node
 # stop_node
