@@ -19,12 +19,11 @@
 # TITLE.
 
 name: compatriot
-
 on:
   pull_request:
 
 jobs:
-  hive:
+  ci:
     strategy:
       matrix:
         namespace: [compatriot]
