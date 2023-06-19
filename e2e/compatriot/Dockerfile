@@ -14,45 +14,43 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#######################################################
+###           Stage 0 - Build Arguments             ###
+#######################################################
+
 ARG GOVERSION
 ARG GOARCH=arm64
 ARG GOOS=darwin
 ARG POLARD_VERSION=test-compatriot
 ARG COMPATRIOT_PATH=./e2e/compatriot
 
+
+#######################################################
+###       Stage 1 - Build Solidity Bindings         ###
+#######################################################
+
 # Use the latest foundry image
 FROM ghcr.io/foundry-rs/foundry:nightly as foundry
 
-# Set working directory
-WORKDIR /workdir
-
-# Required for forge install.
-COPY .git/ .git/
-
-RUN cast
-
-# Install dependecies for solidity contracts.
-RUN forge install --no-commit
+#######################################################
+###         Stage 2 - Build the Application         ###
+#######################################################
 
 # Use the latest foundry image
 FROM polard-base:${POLARD_VERSION} as polard-compatriot
 
-RUN apk add --no-cache bash jq
+RUN apk add --no-cache bash jq curl git
 
 WORKDIR /
-
-# RUN curl -L https://foundry.paradigm.xyz | bash
-# RUN source /root/.profile
-# RUN foundryup
 
 # Copy polard requirements
 COPY ./e2e/compatriot/config /config
 
+COPY --from=foundry /usr/local/bin/cast /usr/local/bin/
+
 # Copy compatriot scripts
 COPY ./e2e/compatriot/scripts /scripts
 COPY ./e2e/compatriot/compatriot.sh /compatriot.sh
-
-RUN ls /config
 
 RUN chmod +x scripts/*
 RUN chmod +x *.sh

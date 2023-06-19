@@ -13,8 +13,6 @@ txHashes=$(jq -r '.[].transactionHash' txReceipts.json)
 blockHashes=$(jq -r '.[].blockHash' txReceipts.json)
 blockNums=$(jq -r '.[].blockNumber' txReceipts.json)
 
-rm -rf txReceipts.json # we don't need it anymore, remove it
-
 # gather receipts for each txHash and add response to array
 cachedReceiptsByHash=()
 for txh in $txHashes; do
@@ -79,16 +77,4 @@ blockByHashArray+="]"
 # write the json array to a file
 echo "$blockByHashArray" | jq '.' > "$blockByHashJSON"
 
-
-
-
-
-
-
-
-
 echo "________________________________________"
-# echo "cachedBlockByNumber: ${cachedBlockByNumber[@]}" | jq .
-# echo "________________________________________"
-# echo "cachedBlockByHash: ${cachedBlockByHash[@]}" | jq .
-# echo "________________________________________" |

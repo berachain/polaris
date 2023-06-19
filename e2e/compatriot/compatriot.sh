@@ -35,4 +35,5 @@ sleep 10 # wait for the node to start
 # Stop the node
 kill -9 $NODE_PID
 
+# Diff errors if there are differences
 diff -r cached non-cached
