@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Create the output directory
+mkdir "$1"
+
+# Setting the output files
+blockByNumJSON="$1"/blockByNumber.json
+blockByHashJSON="$1"/blockByHash.json
+receiptsByHashJSON="$1"/receiptsByHash.json
+
 # retrieve the txHashes, blockHashes and blockNums from the cachedOutput.json file
 txHashes=$(jq -r '.[].transactionHash' txReceipts.json)
 blockHashes=$(jq -r '.[].blockHash' txReceipts.json)
@@ -45,7 +53,7 @@ for ((i=0; i<${#cachedReceiptsByHash[@]}; i++)); do
 done
 receiptsByHashArray+="]"
 # write the json array to a file
-echo "$receiptsByHashArray" | jq '.' > receiptsByHash.json
+echo "$receiptsByHashArray" | jq '.' > "$receiptsByHashJSON"
 
 # Join the array elements with commas and enclose in brackets
 blockByNumberArray="["
@@ -57,7 +65,7 @@ for ((i=0; i<${#cachedBlockByNumber[@]}; i++)); do
 done
 blockByNumberArray+="]"
 # write the json array to a file
-echo "$blockByNumberArray" | jq '.' > blockByNumber.json
+echo "$blockByNumberArray" | jq '.' > "$blockByNumJSON"
 
 # Join the array elements with commas and enclose in brackets
 blockByHashArray="["
@@ -69,7 +77,7 @@ for ((i=0; i<${#cachedBlockByHash[@]}; i++)); do
 done
 blockByHashArray+="]"
 # write the json array to a file
-echo "$blockByHashArray" | jq '.' > blockByHash.json
+echo "$blockByHashArray" | jq '.' > "$blockByHashJSON"
 
 
 

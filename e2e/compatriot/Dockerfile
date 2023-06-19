@@ -21,9 +21,21 @@ ARG POLARD_VERSION=test-compatriot
 ARG COMPATRIOT_PATH=./e2e/compatriot
 
 # Use the latest foundry image
+FROM ghcr.io/foundry-rs/foundry:nightly as foundry
+
+# Set working directory
+WORKDIR /workdir
+
+# Required for forge install.
+COPY .git/ .git/
+
+# Install dependecies for solidity contracts.
+RUN forge install --no-commit
+
+# Use the latest foundry image
 FROM polard-base:${POLARD_VERSION} as polard-compatriot
 
-RUN apk add --no-cache bash jq curl
+RUN apk add --no-cache bash jq
 
 WORKDIR /
 
