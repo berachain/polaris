@@ -29,6 +29,8 @@ WORKDIR /workdir
 # Required for forge install.
 COPY .git/ .git/
 
+RUN cast
+
 # Install dependecies for solidity contracts.
 RUN forge install --no-commit
 
