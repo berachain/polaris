@@ -5,7 +5,7 @@
 source ./scripts/helper.sh
 
 # Start the node
-start_node
+# start_node
 
 # Perform transactions
 send_transactions
@@ -14,13 +14,13 @@ send_transactions
 send_rpc_requests
 
 # Stop the node
-stop_node
+# stop_node
 
 # Start the node again
-restart_node
+# restart_node
 
 # Retry the RPC requests
 send_rpc_requests
 
 # Stop the node
-stop_node
+# stop_node

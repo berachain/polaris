@@ -39,17 +39,3 @@ send_rpc_requests() {
     # use rpc spam script
     ./scripts/rpc-requests.sh
 }
-
-# start_node
-
-send_transactions
-
-send_rpc_requests
-
-# restart_node
-
-# stop_node
-
-# send_rpc_requests
-
-# stop_node
