@@ -47,6 +47,31 @@ receiptsByHashArray+="]"
 # write the json array to a file
 echo "$receiptsByHashArray" | jq '.' > receiptsByHash.json
 
+# Join the array elements with commas and enclose in brackets
+blockByNumberArray="["
+for ((i=0; i<${#cachedBlockByNumber[@]}; i++)); do
+    blockByNumberArray+="$(printf '%s\n' "${cachedBlockByNumber[i]}")"
+    if [ $i -lt $((${#cachedBlockByNumber[@]} - 1)) ]; then
+        blockByNumberArray+=","
+    fi
+done
+blockByNumberArray+="]"
+# write the json array to a file
+echo "$blockByNumberArray" | jq '.' > blockByNumber.json
+
+# Join the array elements with commas and enclose in brackets
+blockByHashArray="["
+for ((i=0; i<${#cachedBlockByHash[@]}; i++)); do
+    blockByHashArray+="$(printf '%s\n' "${cachedBlockByHash[i]}")"
+    if [ $i -lt $((${#cachedBlockByHash[@]} - 1)) ]; then
+        blockByHashArray+=","
+    fi
+done
+blockByHashArray+="]"
+# write the json array to a file
+echo "$blockByHashArray" | jq '.' > blockByHash.json
+
+
 
 
 
