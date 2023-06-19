@@ -31,7 +31,7 @@ import (
 
 // TODO: remove scripts from path
 const (
-	compatriotPath = "./e2e/compatriot/scripts"
+	compatriotPath = "./e2e/compatriot/scripts/"
 )
 
 var (
@@ -43,8 +43,16 @@ type Compatriot mg.Namespace
 // Build builds the compatriot Docker image.
 func (c Compatriot) Build() error {
 	LogGreen("Building compatriot in Docker...")
-
 	return dockerBuild("-f", compatriotDockerfile, "--progress=plain", "--no-cache", "-t", "compatriot", ".")
+}
+
+func (c Compatriot) BuildWithBase() error {
+	LogGreen("Building polard base image for compatriot...")
+	if err := (Cosmos{}).DockerBuildCompatriot(); err != nil {
+		return err
+	}
+
+	return c.Build()
 }
 
 // Test runs the compatriot tests.

@@ -17,7 +17,7 @@
 ARG GOVERSION
 ARG GOARCH=arm64
 ARG GOOS=darwin
-ARG POLARD_VERSION=v0.0.0
+ARG POLARD_VERSION=test-compatriot
 ARG COMPATRIOT_PATH=./e2e/compatriot
 
 # Use the latest foundry image
@@ -38,5 +38,7 @@ COPY ${COMPATRIOT_PATH}/compatriot.sh /compatriot.sh
 # Set the home directory
 ENV HOME /
 WORKDIR $HOME
+
+EXPOSE 8545
 
 CMD ["bash", "compatriot.sh"]
