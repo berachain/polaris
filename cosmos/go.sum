@@ -396,8 +396,8 @@ github.com/cosmos/cosmos-db v1.0.0 h1:EVcQZ+qYag7W6uorBKFPvX6gRjw6Uq2hIh4hCWjuQ0
 github.com/cosmos/cosmos-db v1.0.0/go.mod h1:iBvi1TtqaedwLdcrZVYRSSCb6eSy61NLj4UNmdIgs0U=
 github.com/cosmos/cosmos-proto v1.0.0-beta.3 h1:VitvZ1lPORTVxkmF2fAp3IiA61xVwArQYKXTdEcpW6o=
 github.com/cosmos/cosmos-proto v1.0.0-beta.3/go.mod h1:t8IASdLaAq+bbHbjq4p960BvcTqtwuAxid3b/2rOD6I=
-github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230608151552-9b9e319d1abc h1:1O5+g8XoFXiGJdmtBPsS69fih7Mf0LqSkHmDrsMeZYQ=
-github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230608151552-9b9e319d1abc/go.mod h1:H194vsGW6Qo0RVp5inetgU31+s2rk7RKgeztTnxChgM=
+github.com/cosmos/cosmos-sdk v0.50.0-alpha.0 h1:FebMgUdZtIkPziTvxKI1mLnjiaJ+9e/aU4IvLutG0Dg=
+github.com/cosmos/cosmos-sdk v0.50.0-alpha.0/go.mod h1:H194vsGW6Qo0RVp5inetgU31+s2rk7RKgeztTnxChgM=
 github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230608151552-9b9e319d1abc h1:fw+5Xh+4pHufi0iqRKzBa27OcS5O3Qa/4gcjV+sj+Rg=
 github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230608151552-9b9e319d1abc/go.mod h1:C/g7Ai2hTVvIytVAFzcRCs8EJHiaBvM2R9/TeJbb+hU=
 github.com/cosmos/go-bip39 v1.0.0 h1:pcomnQdrdH22njcAatO0yWojsUnCO3y2tNoV1cb6hHY=
