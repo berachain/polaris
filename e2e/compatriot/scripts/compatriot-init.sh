@@ -31,7 +31,7 @@ KEYRING="test"
 KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
 # Set dedicated home directory for the ./bin/polard instance
-HOMEDIR="/"
+HOMEDIR="/.polaris"
 # to trace evm
 #TRACE="--trace"
 TRACE=""
@@ -43,14 +43,14 @@ POLARIS_TOML=$HOMEDIR/config/polaris.toml
 GENESIS=$HOMEDIR/config/genesis.json
 TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 
-echo "config toml:"
-cat "$CONFIG_TOML"
+# echo "config toml:"
+# cat "$CONFIG_TOML"
 
-echo "app toml:"
-cat "$APP_TOML"
+# echo "app toml:"
+# cat "$APP_TOML"
 
-echo "polaris toml:"
-cat "$POLARIS_TOML"
+# echo "polaris toml:"
+# cat "$POLARIS_TOML"
 
 # used to exit on first error (any non-zero exit code)
 set -e

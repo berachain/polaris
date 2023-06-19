@@ -205,9 +205,6 @@ e2e/**/*.txt
 # hive
 !e2e/hive/**/*.json
 
-# compatriot
-e2e/compatriot/compatriot
-
 # geth
 *.rlp
 

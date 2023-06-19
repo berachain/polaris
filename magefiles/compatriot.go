@@ -59,20 +59,14 @@ func (c Compatriot) BuildWithBase() error {
 func (c Compatriot) Test() error {
 	LogGreen("Running compatriot...")
 
-	return dockerRun("-p", "8545:8545", "compatriot")
-	// return ExecuteInDirectory(compatriotPath, func(...string) error {
-	// 	return dockerRun("compatriot")
-	// }, false)
+	return dockerRun("-p", "8545:8545", "-it", "compatriot")
 }
 
 // TestV runs the compatriot tests with verbose output.
 func (c Compatriot) TestV() error {
 	LogGreen("Running compatriot with verbose output...")
 
-	return dockerRun("-p", "8545:8545", "compatriot")
-	// return ExecuteInDirectory(compatriotPath, func(...string) error {
-	// 	return dockerRun("compatriot", "--verbose")
-	// }, false)
+	return dockerRun("-p", "8545:8545", "-it", "compatriot")
 }
 
 // Runs build (without base) and executes the compatriot tests.

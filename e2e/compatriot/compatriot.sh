@@ -1,26 +1,38 @@
 #!/bin/bash
 
-# Include the functions script which
-# contain all the helper functions
-source ./scripts/helper.sh
+LOGLEVEL="info"
+HOMEDIR="/.polaris"
+TRACE=""
+
+declare NODE_PID
 
 # Start the node
-start_node
+./scripts/compatriot-init.sh &
+NODE_PID=$!
+echo "start_node()" $NODE_PID
+
+sleep 10 # wait for the node to start
 
 # Perform transactions
-send_transactions
+./scripts/spam-tx.sh
 
 # Send RPC requests
-send_rpc_requests
+./scripts/rpc-requests.sh
 
 # Stop the node
-stop_node
+kill %1
 
 # Start the node again
-restart_node
+polard start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --api.swagger --minimum-gas-prices=0.0001abera --home "$HOMEDIR" &
+NODE_PID=$!
+echo "restart_node()" $NODE_PID
 
-# Retry the RPC requests
-send_rpc_requests
+sleep 10 # wait for the node to start
+
+# Send the RPC requests again
+./scripts/rpc-requests.sh
+
+jobs
 
 # Stop the node
-stop_node
+kill %2
