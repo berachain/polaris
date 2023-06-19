@@ -75,7 +75,7 @@ func (c Compatriot) TestV() error {
 	// }, false)
 }
 
-// Run builds and executes the compatriot tests.
+// Runs build (without base) and executes the compatriot tests.
 func (c Compatriot) Run() error {
 	LogGreen("Building and running compatriot...")
 
