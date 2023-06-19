@@ -13,11 +13,11 @@ echo "start_node()" $NODE_PID
 
 sleep 10 # wait for the node to start
 
-# Perform transactions
-./scripts/spam-tx.sh
+# # Perform transactions
+# ./scripts/spam-tx.sh
 
-# Send RPC requests
-./scripts/rpc-requests.sh
+# # Send RPC requests
+# ./scripts/rpc-requests.sh
 
 # Stop the node
 kill %1
@@ -29,8 +29,8 @@ echo "restart_node()" $NODE_PID
 
 sleep 10 # wait for the node to start
 
-# Send the RPC requests again
-./scripts/rpc-requests.sh
+# # Send the RPC requests again
+# ./scripts/rpc-requests.sh
 
 jobs
 

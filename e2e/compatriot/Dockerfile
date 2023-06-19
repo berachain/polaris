@@ -23,9 +23,13 @@ ARG COMPATRIOT_PATH=./e2e/compatriot
 # Use the latest foundry image
 FROM polard-base:${POLARD_VERSION} as polard-compatriot
 
-RUN apk add --no-cache bash jq
+RUN apk add --no-cache bash jq curl
 
 WORKDIR /
+
+# RUN curl -L https://foundry.paradigm.xyz | bash
+# RUN source /root/.profile
+# RUN foundryup
 
 # Copy polard requirements
 COPY ./e2e/compatriot/config /config
