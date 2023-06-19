@@ -1,5 +1,5 @@
+
 # syntax=docker/dockerfile:1
-#
 # Copyright (C) 2022, Berachain Foundation. All rights reserved.
 # See the file LICENSE for licensing terms.
 #
@@ -14,26 +14,35 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-ARG GO_VERSION=1.20.4
+ARG GOVERSION
+ARG GOARCH=arm64
+ARG GOOS=darwin
+ARG POLARD_VERSION=test-compatriot
+ARG COMPATRIOT_PATH=./e2e/compatriot
 
-# This simulation runs JSON-RPC API tests.
-FROM golang:${GO_VERSION}-alpine as builder
-RUN apk add --update git ca-certificates gcc musl-dev linux-headers
+# Use the latest foundry image
+FROM polard-base:${POLARD_VERSION} as polard-compatriot
 
-# Build the executable.
-ADD . /source
-WORKDIR /source
+RUN apk add --no-cache bash jq
 
-# Install dependencies.
-RUN go get
-RUN go mod download
-RUN go build -v .
+WORKDIR /
 
-RUN ls
+# Copy polard requirements
+COPY ./e2e/compatriot/config /config
 
-# # Build the run container.
-FROM alpine:latest
-ADD . /source
-WORKDIR /source
-COPY --from=builder /source/compatriot .
-ENTRYPOINT ["./compatriot"]
+# Copy compatriot scripts
+COPY ./e2e/compatriot/scripts /scripts
+COPY ./e2e/compatriot/compatriot.sh /compatriot.sh
+
+RUN ls /config
+
+RUN chmod +x scripts/*
+RUN chmod +x *.sh
+
+# Set the home directory
+ENV HOME /
+WORKDIR $HOME
+
+EXPOSE 8545
+
+CMD ["bash", "compatriot.sh"]

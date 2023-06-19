@@ -217,6 +217,11 @@ func (c Cosmos) DockerBuildHive() error {
 	return c.dockerBuildNode("polard-base", execDockerPath, goVersion, "test-hive", runtime.GOARCH, false)
 }
 
+func (c Cosmos) DockerBuildCompatriot() error {
+	LogGreen("Building compatriot docker image for the Cosmos SDK chain...")
+	return c.dockerBuildNode("polard-base", execDockerPath, goVersion, "test-compatriot", runtime.GOARCH, false)
+}
+
 func (c Cosmos) TestHive(sim string) error {
 	if err := c.DockerBuildHive(); err != nil {
 		return err
