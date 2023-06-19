@@ -31,7 +31,7 @@ import (
 
 // TODO: remove scripts from path
 const (
-	compatriotPath = "./e2e/compatriot/scripts/"
+	compatriotPath = "./e2e/compatriot/"
 )
 
 var (
@@ -69,7 +69,7 @@ func (c Compatriot) Test() error {
 func (c Compatriot) TestV() error {
 	LogGreen("Running compatriot with verbose output...")
 
-	return dockerRun("-p", "8545:8545", "compatriot", "--verbose")
+	return dockerRun("-p", "8545:8545", "compatriot")
 	// return ExecuteInDirectory(compatriotPath, func(...string) error {
 	// 	return dockerRun("compatriot", "--verbose")
 	// }, false)
