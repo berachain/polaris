@@ -50,8 +50,6 @@ type Suicides interface {
 	libtypes.Controllable[string]
 	// Suicides implements `libtypes.Cloneable`.
 	libtypes.Cloneable[Suicides]
-	// SetReadOnly sets the read-only mode of the journal.
-	SetReadOnly(bool)
 	// Suicides marks the given address as suicided.
 	Suicide(common.Address) bool
 	// HasSuicided returns whether the address is suicided.
@@ -69,8 +67,6 @@ type suicides struct {
 	ssp     suicideStatePlugin
 	// lastSnapshot ensures that only 1 address is being suicided per snapshot
 	lastSnapshot int
-	// readOnly tracks whether the journal is read-only
-	readOnly bool
 }
 
 // NewSuicides returns a new suicides journal.
@@ -87,19 +83,10 @@ func (s *suicides) RegistryKey() string {
 	return suicidesRegistryKey
 }
 
-// SetReadOnly sets the read-only mode of the journal.
-func (s *suicides) SetReadOnly(readOnly bool) {
-	s.readOnly = readOnly
-}
-
 // Suicide implements the PolarisStateDB interface by marking the given address as suicided.
 // This clears the account balance, but the code and state of the address remains available
 // until after Commit is called.
 func (s *suicides) Suicide(addr common.Address) bool {
-	if s.readOnly {
-		return false
-	}
-
 	// ensure only one suicide per snapshot call
 	if s.journal.Size() > s.lastSnapshot {
 		// pushed one suicide for this contract call, can do no more
