@@ -45,7 +45,6 @@ type stateful struct {
 	idsToMethods map[string]*Method
 	// receive      *Method // TODO: implement
 	// fallback     *Method // TODO: implement
-
 }
 
 // NewStateful creates and returns a new `stateful` with the given method ids precompile functions map.
@@ -77,9 +76,6 @@ func (sc *stateful) Run(
 		return nil, ErrInvalidInputToPrecompile
 	}
 
-	// Set the statedb to read-only mode if the EVM is in is read-only mode.
-	utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB()).SetReadOnly(readonly)
-
 	// Extract the method ID from the input and load the method.
 	method, found := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
 	if !found {
@@ -101,6 +97,11 @@ func (sc *stateful) Run(
 		readonly,
 		unpackedArgs...,
 	)
+
+	// Ensure that no logs were emitted during the execution of the precompile if in read-only mode.
+	if readonly && len(evm.GetStateDB().Logs()) > 0 {
+		return nil, vm.ErrWriteProtection
+	}
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if err != nil {
