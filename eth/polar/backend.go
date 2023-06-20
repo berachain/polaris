@@ -234,12 +234,14 @@ func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*typ
 	case rpc.PendingBlockNumber:
 		// 	block := b.eth.miner.PendingBlock()
 		// 	return block, nil
-		// todo: handling pending better.
-		return b.polar.blockchain.CurrentBlock(), nil
+		//  TODO: handling pending in the miner.
+		header := b.polar.blockchain.CurrentBlock()
+		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
 
 	// Otherwise resolve and return the block
 	case rpc.LatestBlockNumber:
-		return b.polar.blockchain.CurrentBlock(), nil
+		header := b.polar.blockchain.CurrentBlock()
+		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
 
 	case rpc.FinalizedBlockNumber:
 		header := b.polar.blockchain.CurrentFinalBlock()
@@ -251,10 +253,9 @@ func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*typ
 
 	case rpc.EarliestBlockNumber:
 		return b.polar.blockchain.GetBlockByNumber(0), nil
-	default:
-		// safe to assume number >= 0
-		return b.polar.blockchain.GetBlockByNumber(uint64(number)), nil
 	}
+	// safe to assume number > 0
+	return b.polar.blockchain.GetBlockByNumber(uint64(number)), nil
 }
 
 // BlockByHash returns the block with the given `hash`.
