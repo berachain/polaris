@@ -29,7 +29,6 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/store/snapmulti"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -130,7 +129,7 @@ func (p *plugin) Run(
 	// get native Cosmos SDK context from the Polaris StateDB
 	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
 	ctx := sdk.UnwrapSDKContext(sdb.GetContext())
-	utils.MustGetAs[*snapmulti.Store](ctx.MultiStore()).SetReadOnly(readonly)
+	utils.MustGetAs[MultiStore](ctx.MultiStore()).SetReadOnly(readonly)
 
 	// disable reentrancy into the EVM
 	p.disableReentrancy(sdb)
