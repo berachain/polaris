@@ -149,7 +149,8 @@ func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEn
 	// get tx from off chain.
 	tleBz := prefix.NewStore(p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
 	if tleBz == nil {
-		return nil, fmt.Errorf("failed to find tx %s", txHash.Hex())
+		fmt.Println("GetTransactionByHash: ethereum.NotFound")
+		return nil, nil
 	}
 	tle := &coretypes.TxLookupEntry{}
 	err := tle.UnmarshalBinary(tleBz)
