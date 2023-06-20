@@ -18,18 +18,19 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package snapmulti
+package snapmulti_test
 
 import (
 	"reflect"
 	"testing"
 
-	dbm "github.com/cosmos/cosmos-db"
-
 	sdkcachekv "cosmossdk.io/store/cachekv"
 	sdkcachemulti "cosmossdk.io/store/cachemulti"
 	"cosmossdk.io/store/dbadapter"
 	storetypes "cosmossdk.io/store/types"
+	dbm "github.com/cosmos/cosmos-db"
+
+	"pkg.berachain.dev/polaris/cosmos/x/evm/store/snapmulti"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -43,7 +44,7 @@ func TestSnapMulti(t *testing.T) {
 var _ = Describe("Snapmulti Store", func() {
 	var (
 		byte1          = []byte{1}
-		cms            *store
+		cms            *snapmulti.Store
 		ms             storetypes.MultiStore
 		accStoreParent storetypes.KVStore
 		accStoreCache  storetypes.KVStore
@@ -66,7 +67,7 @@ var _ = Describe("Snapmulti Store", func() {
 		)
 		accStoreParent = ms.GetKVStore(accStoreKey)
 		evmStoreParent = ms.GetKVStore(evmStoreKey)
-		cms = NewStoreFrom(ms)
+		cms = snapmulti.NewStoreFrom(ms)
 		accStoreCache = cms.GetKVStore(accStoreKey)
 		evmStoreCache = cms.GetKVStore(evmStoreKey)
 	})

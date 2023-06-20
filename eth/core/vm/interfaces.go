@@ -31,5 +31,8 @@ type (
 		GethStateDB
 		// GetContext returns the current context of the state plugin.
 		GetContext() context.Context
+		// SetReadOnly sets the read-only flag of the EVM interpeter onto the StateDB. Prevents the
+		// StateDB from adding any logs if in a static call.
+		SetReadOnly(bool)
 	}
 )

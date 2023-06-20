@@ -35,6 +35,8 @@ type Log interface {
 	libtypes.Controllable[string]
 	// Log implements `libtypes.Cloneable`.
 	libtypes.Cloneable[Log]
+	// SetReadOnly sets the read-only mode of the journal.
+	SetReadOnly(bool)
 	// SetTxContext sets the transaction hash and index for the current transaction.
 	SetTxContext(thash common.Hash, ti int)
 	// TxIndex returns the current transaction index.
@@ -53,6 +55,8 @@ type logs struct {
 
 	txHash  common.Hash
 	txIndex int
+
+	readOnly bool
 }
 
 // NewLogs returns a new `logs` journal.
@@ -65,6 +69,11 @@ func NewLogs() Log {
 // RegistryKey implements `libtypes.Registrable`.
 func (l *logs) RegistryKey() string {
 	return logsRegistryKey
+}
+
+// SetReadOnly sets the read-only mode of the journal.
+func (l *logs) SetReadOnly(readOnly bool) {
+	l.readOnly = readOnly
 }
 
 // SetTxContext sets the transaction hash and index for the current transaction.
@@ -81,8 +90,12 @@ func (l *logs) TxIndex() int {
 	return l.txIndex
 }
 
-// AddLog adds a log to the `Logs` store.
+// AddLog adds a log to the `Logs` journal if it is not in read-only mode.
 func (l *logs) AddLog(log *coretypes.Log) {
+	if l.readOnly {
+		return
+	}
+
 	log.TxHash = l.txHash
 	log.TxIndex = uint(l.txIndex)
 	l.Push(log)

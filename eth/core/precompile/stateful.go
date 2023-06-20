@@ -77,6 +77,9 @@ func (sc *stateful) Run(
 		return nil, ErrInvalidInputToPrecompile
 	}
 
+	// Set the statedb to read-only mode if the EVM is in is read-only mode.
+	utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB()).SetReadOnly(readonly)
+
 	// Extract the method ID from the input and load the method.
 	method, found := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
 	if !found {

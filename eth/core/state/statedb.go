@@ -97,6 +97,11 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 // Commit state
 // =============================================================================
 
+func (sdb *stateDB) SetReadOnly(readOnly bool) {
+	sdb.Log.SetReadOnly(readOnly)
+	sdb.Suicides.SetReadOnly(readOnly)
+}
+
 // Finalise deletes the suicided accounts and finalizes all plugins, preparing the statedb for the
 // next transaction.
 func (sdb *stateDB) Finalise(bool) {
