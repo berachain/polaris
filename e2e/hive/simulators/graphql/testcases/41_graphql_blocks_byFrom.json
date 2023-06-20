@@ -1,9 +1,0 @@
-{
-  "request": "{ blocks(from:30) { number } }",
-  "responses": [{
-    "data": {
-      "blocks": [ ]
-    }
-  }],
-  "statusCode": 200
-}
