@@ -80,7 +80,7 @@ func (bc *blockchain) CurrentHeader() *types.Header {
 	return block.Header()
 }
 
-// CurrentBlock returns the current block of the blockchain.
+// CurrentBlock returns the current header of the blockchain.
 func (bc *blockchain) CurrentBlock() *types.Header {
 	block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
 	if block == nil || !ok {
