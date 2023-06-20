@@ -3,11 +3,9 @@
   "responses": [
     {
       "data": {
-        "block": {
-          "transactionCount": "0x0"
-        }
+        "block": null
       }
     }
   ],
-  "statusCode": 200
+  "statusCode": 400
 }
