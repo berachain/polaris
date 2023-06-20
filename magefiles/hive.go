@@ -27,40 +27,24 @@ package main
 
 import (
 	"os"
-	"strings"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
 
-// custom tests for Polaris, struct follows {namespace, files_changed}
-// note: this requires an existing instance of the namespace in the Hive repo
-type tests struct {
-	Name  string
-	Files []string
-}
-
-const (
-	baseHiveDockerPath = "./e2e/hive/"
-)
-
 var (
 	// Variables.
-	hiveClone      = os.Getenv("GOPATH") + "/src/"
-	clonePath      = hiveClone + ".hive-e2e/"
-	simulatorsPath = clonePath + "simulators/polaris/"
-	clientsPath    = clonePath + "clients/polard/"
-
-	simulations = []tests{
-		{"rpc", []string{"init/genesis.json", "ethclient.hive"}},
-		{"rpc-compat", []string{"Dockerfile", "tests"}},
-		{"graphql", []string{"testcases", "init/testGenesis.json"}}}
+	baseHiveDockerPath = "./e2e/hive/"
+	hiveClone          = os.Getenv("GOPATH") + "/src/"
+	clonePath          = hiveClone + ".hive-e2e"
+	simulatorsPath     = clonePath + "/simulators/polaris"
+	clientsPath        = clonePath + "/clients/polard"
 )
 
 type Hive mg.Namespace
 
 func (h Hive) Setup() error {
-	LogGreen("Setting up Hive testing environment...")
+	LogGreen("Executing Hive tests on polard client...")
 
 	if _, err := os.Stat(hiveClone); os.IsNotExist(err) {
 		LogGreen(hiveClone + " does not exist, creating....")
@@ -71,7 +55,7 @@ func (h Hive) Setup() error {
 	}
 
 	if err := ExecuteInDirectory(hiveClone, func(...string) error {
-		LogGreen("Removing existing files in .hive-e2e...")
+		LogGreen("Removing existing .hive-e2e")
 		return sh.RunV("rm", "-rf", clonePath)
 	}, false); err != nil {
 		return err
@@ -88,32 +72,11 @@ func (h Hive) Setup() error {
 	}
 
 	LogGreen("Copying Polaris Hive setup files...")
-	if err := sh.RunV("mkdir", simulatorsPath); err != nil {
-		return err
-	}
 	if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"clients/polard", clientsPath); err != nil {
 		return err
 	}
-	for _, sim := range simulations {
-		if err := sh.RunV("cp", "-rf", clonePath+"simulators/ethereum/"+sim.Name, simulatorsPath+sim.Name); err != nil {
-			return err
-		}
-		for _, file := range sim.Files {
-			name := file
-			if ext := strings.Split(file, "."); len(ext) > 1 && ext[1] == "hive" {
-				name = strings.Split(file, ".")[0] + ".go"
-			}
-			if err := sh.RunV("rm", "-rf", simulatorsPath+sim.Name+"/"+name); err != nil {
-				return err
-			}
-
-			sh.RunV("ls", simulatorsPath+sim.Name)
-			if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"simulators/"+sim.Name+
-				"/"+file, simulatorsPath+sim.Name+"/"+name); err != nil {
-				return err
-			}
-			sh.RunV("ls", simulatorsPath+sim.Name)
-		}
+	if err := sh.RunV("cp", "-rf", "./e2e/hive/simulators", simulatorsPath); err != nil {
+		return err
 	}
 
 	return ExecuteInDirectory(clonePath, func(...string) error {
@@ -134,15 +97,10 @@ func (h Hive) TestV(sim, client string) error {
 	}, false)
 }
 
-func (h Hive) View() error {
-	if err := ExecuteInDirectory(clonePath, func(...string) error {
-		LogGreen("Building HiveView...")
-		return sh.RunV("go", "build", "./cmd/hiveview")
-	}, false); err != nil {
-		return err
-	}
-	return ExecuteInDirectory(clonePath, func(...string) error {
-		LogGreen("Serving HiveView...")
-		return sh.RunV("./hiveview", "--serve")
+func (h Hive) GenerateTests(sim, namespace string) error {
+	path := sim + "/"
+	LogGreen("Generating tests for " + path + namespace)
+	return ExecuteInDirectory("e2e/hive/simulators", func(...string) error {
+		return sh.RunV("./generate_tests.sh", path+namespace+".go", path+"tests.go", namespace)
 	}, false)
 }

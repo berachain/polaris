@@ -1,28 +1,3 @@
-// SPDX-License-Identifier: MIT
-//
-// Copyright (c) 2023 Berachain Foundation
-//
-// Permission is hereby granted, free of charge, to any person
-// obtaining a copy of this software and associated documentation
-// files (the "Software"), to deal in the Software without
-// restriction, including without limitation the rights to use,
-// copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following
-// conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-// OTHER DEALINGS IN THE SOFTWARE.
-
 package main
 
 import (
@@ -41,9 +16,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum/hive/hivesim"
-
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/hive/hivesim"
 )
 
 func main() {
@@ -83,8 +57,7 @@ func graphqlTest(t *hivesim.T, c *hivesim.Client) {
 	}
 
 	// wait for blocks...
-	delay := 3
-	time.Sleep(time.Duration(delay) * time.Second)
+	time.Sleep(3 * time.Second)
 	var wg sync.WaitGroup
 	testCh := deliverTests(t, &wg, -1)
 	for i := 0; i < parallelism; i++ {
@@ -191,7 +164,7 @@ func (tc *testCase) run(t *hivesim.T, c *hivesim.Client) {
 	if err != nil {
 		t.Fatal("can't parse URL:", err)
 	}
-	resp, err := http.Post(parsedURL.String(), "application/json", bytes.NewReader(postData)) //nolint: noctx, lll // hive team wrote this
+	resp, err := http.Post(parsedURL.String(), "application/json", bytes.NewReader(postData))
 	if err != nil {
 		t.Fatal("HTTP post failed:", err)
 	}
@@ -233,9 +206,8 @@ func (tc *testCase) responseMatch(t *hivesim.T, respStatus string, respBytes []b
 			return nil
 		} else if err := assertGasPrice(t, got); err == nil {
 			return nil
-		} else if err := assertBlockNumber(t, got); err == nil {
-			return nil
 		}
+
 	}
 
 	// this is to make sure that gasPrice is above the initialBaseFee
@@ -271,49 +243,33 @@ func reindentJSON(text string) (string, bool) {
 	return string(indented), true
 }
 
-func assertBlockNumber(t *hivesim.T, got interface{}) error {
-	if data, ok := got.(map[string]interface{}); ok {
-		inner, dataOk := data["data"].(map[string]interface{})
-		if !dataOk {
-			t.Fail()
-		}
-		blockData, ok := inner["block"].(map[string]interface{})
-		if !ok {
-			t.Fail()
-		}
-		number, ok := blockData["number"].(string)
-		if !ok {
-			t.Fail()
-		}
-		bn, err := strconv.ParseInt(number, 0, 64)
-		if err != nil {
-			t.Fail()
-		}
-		if bn > 0 {
-			return nil
-		}
-	}
-	return fmt.Errorf("block height is not greater than 0")
-}
-
 func assertGasPrice(t *hivesim.T, got interface{}) error {
-	var initialBaseFee = int64(params.InitialBaseFee)
+	var initialBaseFee int64 = int64(params.InitialBaseFee)
 	if data, ok := got.(map[string]interface{}); ok {
-		inner, dataOk := data["data"].(map[string]interface{})
-		if !dataOk {
+		if !ok {
 			t.Fail()
 		}
-		gasPrice, gasPriceOk := inner["gasPrice"].(string)
-		if !gasPriceOk {
+
+		inner, ok := data["data"].(map[string]interface{})
+		if !ok {
 			t.Fail()
 		}
-		gp, err := strconv.ParseInt(gasPrice, 0, 64)
+
+		gasPrice, ok := inner["gasPrice"].(string)
+		if !ok {
+			t.Fail()
+		}
+
+		gp, err := strconv.ParseInt(gasPrice[2:], 16, 64)
 		if err != nil {
 			t.Fail()
 		}
+
 		if gp > initialBaseFee {
 			return nil
 		}
 	}
+
 	return fmt.Errorf("gas price is not greater than initial base fee")
+
 }
