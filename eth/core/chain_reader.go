@@ -44,8 +44,8 @@ type ChainBlockReader interface {
 	GetBlock(common.Hash, uint64) *types.Block
 	GetReceiptsByHash(common.Hash) types.Receipts
 	GetBlockByHash(common.Hash) *types.Block
-	GetHeaderByNumber(uint64) (*types.Header, error)
-	GetHeaderByHash(common.Hash) (*types.Header, error)
+	GetHeaderByNumber(uint64) *types.Header
+	GetHeaderByHash(common.Hash) *types.Header
 	GetBlockByNumber(uint64) *types.Block
 	GetTransactionLookup(common.Hash) *types.TxLookupEntry
 	GetTd(common.Hash, uint64) *big.Int
@@ -294,24 +294,25 @@ func (bc *blockchain) GetTransactionLookup(
 }
 
 // GetHeaderByNumber retrieves a header from the blockchain.
-func (bc *blockchain) GetHeaderByNumber(number uint64) (*types.Header, error) {
-	return bc.bp.GetHeaderByNumber(number)
+func (bc *blockchain) GetHeaderByNumber(number uint64) *types.Header {
+	header, _ := bc.bp.GetHeaderByNumber(number)
+	return header
 }
 
 // GetHeaderByHash retrieves a block header from the database by hash, caching it if
 // found.
-func (bc *blockchain) GetHeaderByHash(hash common.Hash) (*types.Header, error) {
+func (bc *blockchain) GetHeaderByHash(hash common.Hash) *types.Header {
 	header, err := bc.bp.GetHeaderByHash(hash)
 	if err != nil && bc.hp != nil {
 		// try searching the historical plugin if the block plugin does not have the header
 		var block *types.Block
 		block, err = bc.hp.GetBlockByHash(hash)
 		if err != nil {
-			return nil, err
+			return nil
 		}
 		header = block.Header()
 	}
-	return header, err
+	return header
 }
 
 // GetTd retrieves a block's total difficulty in the canonical chain from the
