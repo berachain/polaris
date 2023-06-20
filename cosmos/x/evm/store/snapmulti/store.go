@@ -123,26 +123,26 @@ func (s *Store) RevertToSnapshot(id int) {
 }
 
 // Finalize commits each of the individual cachekv stores to its corresponding parent cachekv stores
-// in the journal. Finally it commits the root cachekv stores.
+// in the journal. Finally it commits the root cachekv stores. Skip committing writes to the
+// underlying multistore if in read-only mode.
 //
 // Finalize implements `libtypes.Controllable`.
 func (s *Store) Finalize() {
-	// Skip committing writes to the underlying multistore if in read-only mode.
-	if s.readOnly {
-		return
-	}
-
 	// Recursively pop the journal and write each cachekv store to its parent cachekv store.
 	for revision := s.journal.Pop(); revision != nil; revision = s.journal.Pop() {
 		for key, cacheKVStore := range revision {
-			cacheKVStore.Write()
+			if !s.readOnly {
+				cacheKVStore.Write()
+			}
 			delete(revision, key)
 		}
 	}
 
 	// We must handle the root separately.
 	for key, cacheKVStore := range s.root {
-		cacheKVStore.Write()
+		if !s.readOnly {
+			cacheKVStore.Write()
+		}
 		delete(s.root, key)
 	}
 }
