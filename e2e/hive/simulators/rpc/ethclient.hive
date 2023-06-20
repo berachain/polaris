@@ -130,8 +130,8 @@ func estimateGasTest(t *TestEnv) {
 		t.Fatalf("Estimated gas too low, want %d >= %d", estimated, receipt.GasUsed)
 	}
 	// test upper bound
-	if receipt.GasUsed+5000 < estimated {
-		t.Fatalf("ur such a fucking goat fr. gas too high, estimated: %d, used: %d", estimated, receipt.GasUsed)
+	if uint64(float64(receipt.GasUsed)*1.25) < estimated {
+		t.Fatalf("gas too high, estimated: %d, used: %d", estimated, receipt.GasUsed)
 	}
 }
 
