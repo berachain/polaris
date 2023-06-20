@@ -94,7 +94,7 @@ var _ = Describe("Header", func() {
 		Expect(header3.Hash()).To(Equal(header.Hash()))
 	})
 
-	FIt("should be able to prune headers", func() {
+	It("should be able to prune headers", func() {
 		toAdd := int64(prevHeaderHashes + 5)
 		var deletedHash common.Hash
 		for i := int64(1); i <= toAdd; i++ {
