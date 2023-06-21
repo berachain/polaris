@@ -279,7 +279,7 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash rpc.Blo
 	if hash, ok := blockNrOrHash.Hash(); ok {
 		block := b.polar.blockchain.GetBlockByHash(hash)
 		if block == nil {
-			return nil, errors.New("header for hash not found")
+			return nil, core.ErrBlockNotFound
 		}
 		// if blockNrOrHash.RequireCanonical && b.polar.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
 		// 	return nil, errors.New("hash is not currently canonical")
@@ -309,7 +309,8 @@ func (b *backend) StateAndHeaderByNumber(
 		return nil, nil, err
 	}
 	if header == nil {
-		return nil, nil, core.ErrHeaderNotFound
+		// to match Geth
+		return nil, nil, core.ErrBlockNotFound
 	}
 	b.logger.Debug("called eth.rpc.backend.StateAndHeaderByNumber", "header", header)
 
@@ -336,7 +337,8 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 			return nil, nil, err
 		}
 		if header == nil {
-			return nil, nil, errors.New("header for hash not found")
+			// to match Geth
+			return nil, nil, core.ErrBlockNotFound
 		}
 		// if blockNrOrHash.RequireCanonical && b.eth.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
 		// 	return nil, nil, errors.New("hash is not currently canonical")
@@ -355,7 +357,7 @@ func (b *backend) GetTransaction(
 	txLookup := b.polar.blockchain.GetTransactionLookup(txHash)
 	if txLookup == nil {
 		fmt.Println("backend::GetTransaction -- returning tx not found")
-		return nil, common.Hash{}, 0, 0, core.ErrTxNotFound
+		return nil, common.Hash{}, 0, 0, nil
 	}
 	fmt.Println("backend::GetTransaction -- returning tx:", txLookup.Tx.Hash(), "block_hash:", txLookup.BlockHash)
 	return txLookup.Tx, txLookup.BlockHash, txLookup.BlockNum, txLookup.TxIndex, nil
