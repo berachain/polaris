@@ -73,10 +73,6 @@ var _ = Describe("Snapmulti Store", func() {
 		evmStoreCache = cms.GetKVStore(evmStoreKey)
 	})
 
-	When("Read Only mode", func() {
-		
-	})
-
 	It("CorrectStoreType", func() {
 		// Test that the correct store type is returned
 		Expect(reflect.TypeOf(cms.GetKVStore(evmStoreKey))).To(Equal(reflect.TypeOf(&sdkcachekv.Store{})))
@@ -145,6 +141,20 @@ var _ = Describe("Snapmulti Store", func() {
 
 			cms.Finalize()
 			Expect(accStoreParent.Get(byte1)).To(Equal([]byte{2}))
+		})
+
+		When("Read Only mode", func() {
+			// entering a static call
+			// cms.Snapshot()
+			// cms.SetReadOnly(true)
+
+			// // reads and writes still work during execution
+			// cms.GetKVStore(accStoreKey).Set(byte1, []byte{2})
+			// Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal([]byte{2}))
+
+			// // tx over and no longer
+			// cms.Finalize()
+			// Expect(accStoreParent.Get(byte1)).To(Equal(byte1))
 		})
 	})
 })

@@ -136,5 +136,12 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 			return false
 		},
 	}
+	mockedPolarisStateDB.LogsFunc = func() []*types.Log {
+		logs := []*types.Log{}
+		for _, l := range mockedPolarisStateDB.AddLogCalls() {
+			logs = append(logs, l.Log)
+		}
+		return logs
+	}
 	return mockedPolarisStateDB
 }
