@@ -120,7 +120,7 @@ func estimateGasTest(t *TestEnv) {
 		t.Fatalf("Could not send tx: %v", err)
 	}
 
-	receipt, err := waitForTxConfirmations(t, tx.Hash(), 1)
+	receipt, err := waitForTx(t, tx.Hash(), 1)
 	if err != nil {
 		t.Fatalf("Could not wait for confirmations: %v", err)
 	}
@@ -376,7 +376,7 @@ func deployContractTest(t *TestEnv) {
 
 	// fetch transaction receipt for contract address
 	var contractAddress common.Address
-	receipt, err := waitForTxConfirmations(t, deployTx.Hash(), 5)
+	receipt, err := waitForTx(t, deployTx.Hash(), 5)
 	if err != nil {
 		t.Fatalf("Unable to retrieve receipt: %v", err)
 	}
@@ -447,7 +447,7 @@ func deployContractOutOfGasTest(t *TestEnv) {
 	}
 
 	// Wait for the transaction receipt.
-	receipt, err := waitForTxConfirmations(t, deployTx.Hash(), 5)
+	receipt, err := waitForTx(t, deployTx.Hash(), 5)
 	if err != nil {
 		t.Fatalf("unable to fetch tx receipt: %v", err)
 	}
@@ -501,7 +501,7 @@ func receiptTest(t *TestEnv) {
 	}
 
 	// wait for transaction
-	receipt, err := waitForTxConfirmations(t, tx.Hash(), 0)
+	receipt, err := waitForTx(t, tx.Hash(), 0)
 	if err != nil {
 		t.Fatalf("Unable to retrieve tx receipt: %v", err)
 	}
@@ -870,4 +870,26 @@ func TransactionReceiptTest(t *TestEnv) {
 		}
 		return
 	}
+}
+
+func waitForTx(t *TestEnv, txHash common.Hash) (*types.Receipt, error) {
+	var (
+		receipt    *types.Receipt
+		startBlock *types.Block
+		err        error
+	)
+	for i := 0; i < 90; i++ {
+		fmt.Println("WAITING FOR TRANSACIONS")
+		receipt, err = t.Eth.TransactionReceipt(t.Ctx(), txHash)
+		if err != nil && err != ethereum.NotFound {
+			fmt.Println("waitForTx error:", err)
+			return nil, err
+		}
+		if receipt != nil {
+			fmt.Println("WE FOUND THE RECEIPT")
+			break
+		}
+		time.Sleep(time.Second)
+	}
+	return receipt, nil
 }
