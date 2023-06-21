@@ -27,7 +27,7 @@ jobs:
   hive:
     strategy:
       matrix:
-        simulator: [polaris/rpc, polaris/graphql] 
+        simulator: [polaris/rpc, polaris/graphql, polaris/rpc-compat] 
         namespace: [cosmos]
         os: [ubuntu-latest]
         go-version: [1.20.4]

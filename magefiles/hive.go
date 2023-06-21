@@ -106,13 +106,10 @@ func (h Hive) Setup() error {
 			if err := sh.RunV("rm", "-rf", simulatorsPath+sim.Name+"/"+name); err != nil {
 				return err
 			}
-
-			sh.RunV("ls", simulatorsPath+sim.Name)
 			if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"simulators/"+sim.Name+
 				"/"+file, simulatorsPath+sim.Name+"/"+name); err != nil {
 				return err
 			}
-			sh.RunV("ls", simulatorsPath+sim.Name)
 		}
 	}
 
@@ -132,15 +129,6 @@ func (h Hive) TestV(sim, client string) error {
 	return ExecuteInDirectory(clonePath, func(...string) error {
 		return sh.RunV("./hive", "--sim", sim, "--client", client, "--docker.output")
 	}, false)
-}
-
-func (h Hive) TestAll(client string) error {
-	for _, sim := range simulations {
-		ExecuteInDirectory(clonePath, func(...string) error {
-			return sh.RunV("./hive", "--sim", sim.Name, "--client", client, "--docker.output")
-		}, false)
-	}
-	return nil
 }
 
 func (h Hive) View() error {
