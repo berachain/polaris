@@ -29,9 +29,9 @@ import (
 
 // GetHeader returns the header for the given hash or number. This is used by the `GetHashFn`.
 func (bc *blockchain) GetHeader(hash common.Hash, number uint64) *types.Header {
-	header, err := bc.GetHeaderByNumber(number)
-	if err != nil {
-		header, _ = bc.GetHeaderByHash(hash)
+	header := bc.GetHeaderByNumber(number)
+	if header == nil {
+		header = bc.GetHeaderByHash(hash)
 	}
 	return header
 }

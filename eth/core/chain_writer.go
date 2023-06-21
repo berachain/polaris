@@ -22,7 +22,6 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/consensus/misc"
@@ -66,11 +65,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	// Build the new block header.
 	parent := bc.CurrentFinalBlock()
 	if number >= 1 && parent == nil {
-		var err error
-		parent, err = bc.GetHeaderByNumber(number - 1)
-		if err != nil {
-			panic(fmt.Sprintf("Prepare: failed to get parent header %v", err))
-		}
+		parent = bc.GetHeaderByNumber(number - 1)
 	}
 
 	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
