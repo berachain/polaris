@@ -25,6 +25,7 @@ import "errors"
 var (
 	ErrBlockOutOfGas    = errors.New("block is out of gas")
 	ErrBlockNotFound    = errors.New("block not found")
+	ErrHeaderNotFound   = errors.New("header not found")
 	ErrReceiptsNotFound = errors.New("receipts not found")
 	ErrTxNotFound       = errors.New("transaction not found")
 )
