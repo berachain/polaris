@@ -271,6 +271,7 @@ func (bc *blockchain) GetTransactionLookup(
 	hash common.Hash,
 ) *types.TxLookupEntry {
 	// check the cache
+
 	if txLookupEntry, ok := bc.txLookupCache.Get(hash); ok {
 		return txLookupEntry
 	}
