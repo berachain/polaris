@@ -105,7 +105,7 @@ func (b *backend) CurrentHeader() *types.Header {
 
 // CurrentBlock returns the current block from the local chain.
 func (b *backend) CurrentBlock() *types.Header {
-	return b.polar.blockchain.CurrentBlock()
+	return b.polar.blockchain.CurrentHeader()
 }
 
 // SyncProgress returns the current progress of the sync algorithm.
@@ -180,34 +180,33 @@ func (b *backend) SetHead(_ uint64) {
 }
 
 func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*types.Header, error) {
-	// Pending block is only known by the miner
-	if number == rpc.PendingBlockNumber {
-		// TODO: handle "miner" stuff
+	switch number {
+	case rpc.PendingBlockNumber:
+		// TODO: handle "miner" stuff, Pending block is only known by the miner
 		// block := b.eth.miner.PendingBlock()
 		// TODO: this may be hiding a larger issue with the timing of the NewHead channel stuff.
 		// Investigate and hopefully remove this GTE.
 		header := b.polar.blockchain.CurrentHeader()
 		return header, nil
-	}
-	// Otherwise resolve and return the block
-	if number == rpc.LatestBlockNumber {
-		return b.polar.blockchain.CurrentBlock(), nil
-	}
-	if number == rpc.FinalizedBlockNumber {
+	case rpc.LatestBlockNumber:
+		return b.polar.blockchain.CurrentHeader(), nil
+	case rpc.FinalizedBlockNumber:
 		block := b.polar.blockchain.CurrentFinalBlock()
 		if block != nil {
 			return block, nil
 		}
 		return nil, errors.New("finalized block not found")
-	}
-	if number == rpc.SafeBlockNumber {
+	case rpc.SafeBlockNumber:
 		block := b.polar.blockchain.CurrentSafeBlock()
 		if block != nil {
 			return block, nil
 		}
 		return nil, errors.New("safe block not found")
+	case rpc.EarliestBlockNumber:
+		return b.polar.blockchain.GetHeaderByNumber(0), nil
+	default:
+		return b.polar.blockchain.GetHeaderByNumber(uint64(number)), nil
 	}
-	return b.polar.blockchain.GetHeaderByNumber(uint64(number)), nil
 }
 
 // HeaderByNumberOrHash returns the header identified by `number` or `hash`.
@@ -218,14 +217,7 @@ func (b *backend) HeaderByNumberOrHash(ctx context.Context,
 		return b.HeaderByNumber(ctx, blockNr)
 	}
 	if hash, ok := blockNrOrHash.Hash(); ok {
-		header := b.polar.blockchain.GetHeaderByHash(hash)
-		if header == nil {
-			return nil, errors.New("header for hash not found")
-		}
-		// if blockNrOrHash.RequireCanonical && b.eth.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
-		// 	return nil, errors.New("hash is not currently canonical")
-		// }
-		return header, nil
+		return b.HeaderByHash(ctx, hash)
 	}
 	return nil, errors.New("invalid arguments; neither block nor hash specified")
 }
@@ -238,27 +230,31 @@ func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Head
 // BlockByNumber returns the block with the given `number`.
 func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*types.Block, error) {
 	// Pending block is only known by the miner
-	if number == rpc.PendingBlockNumber {
+	switch number {
+	case rpc.PendingBlockNumber:
 		// 	block := b.eth.miner.PendingBlock()
 		// 	return block, nil
-		// todo: handling pending better.
+		//  TODO: handling pending in the miner.
 		header := b.polar.blockchain.CurrentBlock()
 		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
-	}
+
 	// Otherwise resolve and return the block
-	if number == rpc.LatestBlockNumber {
+	case rpc.LatestBlockNumber:
 		header := b.polar.blockchain.CurrentBlock()
 		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
-	}
-	if number == rpc.FinalizedBlockNumber {
+
+	case rpc.FinalizedBlockNumber:
 		header := b.polar.blockchain.CurrentFinalBlock()
 		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
-	}
-	if number == rpc.SafeBlockNumber {
+
+	case rpc.SafeBlockNumber:
 		header := b.polar.blockchain.CurrentSafeBlock()
 		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
+
+	case rpc.EarliestBlockNumber:
+		return b.polar.blockchain.GetBlockByNumber(0), nil
 	}
-	// safe to assume number >= 0
+	// safe to assume number > 0
 	return b.polar.blockchain.GetBlockByNumber(uint64(number)), nil
 }
 
@@ -312,7 +308,7 @@ func (b *backend) StateAndHeaderByNumber(
 		return nil, nil, err
 	}
 	if header == nil {
-		return nil, nil, errors.New("header not found")
+		return nil, nil, core.ErrHeaderNotFound
 	}
 	b.logger.Debug("called eth.rpc.backend.StateAndHeaderByNumber", "header", header)
 
@@ -357,7 +353,7 @@ func (b *backend) GetTransaction(
 	b.logger.Debug("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
 	txLookup := b.polar.blockchain.GetTransactionLookup(txHash)
 	if txLookup == nil {
-		return nil, common.Hash{}, 0, 0, nil
+		return nil, common.Hash{}, 0, 0, core.ErrTxNotFound
 	}
 	return txLookup.Tx, txLookup.BlockHash, txLookup.BlockNum, txLookup.TxIndex, nil
 }
