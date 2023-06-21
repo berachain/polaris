@@ -21,6 +21,7 @@
 package core
 
 import (
+	"fmt"
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -271,6 +272,8 @@ func (bc *blockchain) GetTransactionLookup(
 	hash common.Hash,
 ) *types.TxLookupEntry {
 	// check the cache
+
+	fmt.Println("chain_reader::GetTransactionLookup::hash", hash)
 	if txLookupEntry, ok := bc.txLookupCache.Get(hash); ok {
 		return txLookupEntry
 	}
@@ -283,6 +286,7 @@ func (bc *blockchain) GetTransactionLookup(
 
 	// check the historical plugin
 	txLookupEntry, err := bc.hp.GetTransactionByHash(hash)
+	fmt.Println("chain_reader::GetTransactionLookup-- txLookupEntry", txLookupEntry)
 	if err != nil {
 		bc.logger.Error("failed to get transaction by hash", "tx", hash, "err", err)
 		return nil

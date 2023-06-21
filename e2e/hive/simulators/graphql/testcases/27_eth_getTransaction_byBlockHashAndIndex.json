@@ -5,11 +5,10 @@
 
   "responses":[{
     "data" : {
-      "block" : {
-        "transactionAt" :null 
-      }
+      "block" : null 
+      
     }
   }],
  
-  "statusCode": 400
+  "statusCode": 200
 }
