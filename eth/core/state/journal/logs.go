@@ -81,7 +81,7 @@ func (l *logs) TxIndex() int {
 	return l.txIndex
 }
 
-// AddLog adds a log to the `Logs` journal.
+// AddLog adds a log to the `Logs` store.
 func (l *logs) AddLog(log *coretypes.Log) {
 	log.TxHash = l.txHash
 	log.TxIndex = uint(l.txIndex)
