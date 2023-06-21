@@ -133,11 +133,14 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	store := p.ctx.KVStore(p.storeKey)
 	numBz := prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
 	if numBz == nil {
-		fmt.Println("historical_data.go: core.ErrBlockNotFound", core.ErrBlockNotFound)
+		fmt.Println("historical_data.go::GetBlockByHash numbz nil", core.ErrBlockNotFound, "blockHash", blockHash.Hex())
 		return nil, core.ErrBlockNotFound
 	}
+
+	fmt.Println("historical_data.go::GetBlockByHash numBz not nil-- blockHash", blockHash.Hex())
 	blockBz := prefix.NewStore(store, []byte{types.BlockNumKeyToBlockPrefix}).Get(numBz)
 	block := &coretypes.Block{}
+
 	err := rlp.DecodeBytes(blockBz, block)
 	if err != nil {
 		return nil, err
