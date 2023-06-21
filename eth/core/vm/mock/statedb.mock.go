@@ -153,9 +153,6 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			SetNonceFunc: func(address common.Address, v uint64)  {
 //				panic("mock out the SetNonce method")
 //			},
-//			SetReadOnlyFunc: func(b bool)  {
-//				panic("mock out the SetReadOnly method")
-//			},
 //			SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash)  {
 //				panic("mock out the SetState method")
 //			},
@@ -330,9 +327,6 @@ type PolarisStateDBMock struct {
 
 	// SetNonceFunc mocks the SetNonce method.
 	SetNonceFunc func(address common.Address, v uint64)
-
-	// SetReadOnlyFunc mocks the SetReadOnly method.
-	SetReadOnlyFunc func(b bool)
 
 	// SetStateFunc mocks the SetState method.
 	SetStateFunc func(address common.Address, hash1 common.Hash, hash2 common.Hash)
@@ -614,11 +608,6 @@ type PolarisStateDBMock struct {
 			// V is the v argument value.
 			V uint64
 		}
-		// SetReadOnly holds details about calls to the SetReadOnly method.
-		SetReadOnly []struct {
-			// B is the b argument value.
-			B bool
-		}
 		// SetState holds details about calls to the SetState method.
 		SetState []struct {
 			// Address is the address argument value.
@@ -738,7 +727,6 @@ type PolarisStateDBMock struct {
 	lockSetBalance             sync.RWMutex
 	lockSetCode                sync.RWMutex
 	lockSetNonce               sync.RWMutex
-	lockSetReadOnly            sync.RWMutex
 	lockSetState               sync.RWMutex
 	lockSetStorage             sync.RWMutex
 	lockSetTransientState      sync.RWMutex
@@ -2168,38 +2156,6 @@ func (mock *PolarisStateDBMock) SetNonceCalls() []struct {
 	mock.lockSetNonce.RLock()
 	calls = mock.calls.SetNonce
 	mock.lockSetNonce.RUnlock()
-	return calls
-}
-
-// SetReadOnly calls SetReadOnlyFunc.
-func (mock *PolarisStateDBMock) SetReadOnly(b bool) {
-	if mock.SetReadOnlyFunc == nil {
-		panic("PolarisStateDBMock.SetReadOnlyFunc: method is nil but PolarisStateDB.SetReadOnly was just called")
-	}
-	callInfo := struct {
-		B bool
-	}{
-		B: b,
-	}
-	mock.lockSetReadOnly.Lock()
-	mock.calls.SetReadOnly = append(mock.calls.SetReadOnly, callInfo)
-	mock.lockSetReadOnly.Unlock()
-	mock.SetReadOnlyFunc(b)
-}
-
-// SetReadOnlyCalls gets all the calls that were made to SetReadOnly.
-// Check the length with:
-//
-//	len(mockedPolarisStateDB.SetReadOnlyCalls())
-func (mock *PolarisStateDBMock) SetReadOnlyCalls() []struct {
-	B bool
-} {
-	var calls []struct {
-		B bool
-	}
-	mock.lockSetReadOnly.RLock()
-	calls = mock.calls.SetReadOnly
-	mock.lockSetReadOnly.RUnlock()
 	return calls
 }
 

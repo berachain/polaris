@@ -89,6 +89,12 @@ func (sc *stateful) Run(
 		return nil, err
 	}
 
+	// Save the length of the StateDB's logs to ensure that no logs are emitted in read-only mode.
+	var logsLen int
+	if readonly {
+		logsLen = len(evm.GetStateDB().Logs())
+	}
+
 	// Execute the method registered with the given signature with the given args.
 	vals, err := method.Execute(
 		ctx,
@@ -100,7 +106,7 @@ func (sc *stateful) Run(
 	)
 
 	// Ensure that no logs were emitted during the execution of the precompile if in read-only mode.
-	if readonly && len(evm.GetStateDB().Logs()) > 0 {
+	if readonly && len(evm.GetStateDB().Logs()) > logsLen {
 		return nil, vm.ErrWriteProtection
 	}
 

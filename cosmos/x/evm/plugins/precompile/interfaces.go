@@ -29,6 +29,7 @@ type (
 
 	MultiStore interface {
 		storetypes.MultiStore
+		IsReadOnly() bool
 		SetReadOnly(bool)
 	}
 )

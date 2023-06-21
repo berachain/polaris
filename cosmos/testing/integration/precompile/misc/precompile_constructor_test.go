@@ -21,26 +21,42 @@
 package misc_test
 
 import (
+	"testing"
+
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
+func TestMiscellaneousPrecompile(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "cosmos/testing/integration/precompile/misc")
+}
+
+var tf *integration.TestFixture
+
+var _ = SynchronizedBeforeSuite(func() []byte {
+	// Setup the network and clients here.
+	tf = integration.NewTestFixture(GinkgoT())
+	return nil
+}, func(data []byte) {})
+
 var _ = Describe("Miscellaneous Precompile Tests", func() {
 	Describe("calling a precompile from the constructor", func() {
 		It("should successfully deploy", func() {
-			addr, tx, contract, err := tbindings.DeployPrecompileConstructor(
-				tf.GenerateTransactOpts("alice"), tf.EthClient,
-			)
+			txr := tf.GenerateTransactOpts("alice")
+			addr, tx, contract, err := tbindings.DeployPrecompileConstructor(txr, tf.EthClient)
 			Expect(err).NotTo(HaveOccurred())
-			ExpectSuccessReceipt(tf.EthClient, tx)
-			Expect(contract).ToNot(BeNil())
-			Expect(addr).ToNot(BeEmpty())
 
 			err = tf.Network.WaitForNextBlock()
 			Expect(err).NotTo(HaveOccurred())
+
+			ExpectSuccessReceipt(tf.EthClient, tx)
+			Expect(contract).ToNot(BeNil())
+			Expect(addr).ToNot(BeEmpty())
 
 			aberaAddr, err := contract.Abera(nil)
 			Expect(err).NotTo(HaveOccurred())

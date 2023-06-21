@@ -73,6 +73,10 @@ var _ = Describe("Snapmulti Store", func() {
 		evmStoreCache = cms.GetKVStore(evmStoreKey)
 	})
 
+	When("Read Only mode", func() {
+		
+	})
+
 	It("CorrectStoreType", func() {
 		// Test that the correct store type is returned
 		Expect(reflect.TypeOf(cms.GetKVStore(evmStoreKey))).To(Equal(reflect.TypeOf(&sdkcachekv.Store{})))

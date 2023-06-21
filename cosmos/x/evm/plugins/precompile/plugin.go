@@ -119,7 +119,7 @@ func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConf
 // Run implements core.PrecompilePlugin.
 func (p *plugin) Run(
 	evm ethprecompile.EVM, pc vm.PrecompileContainer, input []byte,
-	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
+	caller common.Address, value *big.Int, suppliedGas uint64, readOnly bool,
 ) ([]byte, uint64, error) {
 	// use a precompile-specific gas meter for dynamic consumption
 	gm := storetypes.NewInfiniteGasMeter()
@@ -129,7 +129,14 @@ func (p *plugin) Run(
 	// get native Cosmos SDK context from the Polaris StateDB
 	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
 	ctx := sdk.UnwrapSDKContext(sdb.GetContext())
-	utils.MustGetAs[MultiStore](ctx.MultiStore()).SetReadOnly(readonly)
+	ms := utils.MustGetAs[MultiStore](ctx.MultiStore())
+
+	// Make sure the readOnly is only set if we aren't in readOnly yet. This also makes sure that
+	// the readOnly flag isn't removed for child calls. Note: taken from geth core/vm/interepreter.
+	if readOnly && !ms.IsReadOnly() {
+		ms.SetReadOnly(true)
+		defer func() { ms.SetReadOnly(false) }()
+	}
 
 	// disable reentrancy into the EVM
 	p.disableReentrancy(sdb)
@@ -143,7 +150,7 @@ func (p *plugin) Run(
 		input,
 		caller,
 		value,
-		readonly,
+		readOnly,
 	)
 
 	// enable reentrancy into the EVM

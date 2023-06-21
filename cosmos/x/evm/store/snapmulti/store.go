@@ -67,7 +67,12 @@ func (s *Store) RegistryKey() string {
 	return storeRegistryKey
 }
 
-// SetReadOnly sets the store to the given readOnly mode.
+// IsReadOnly returns the current read-only mode.
+func (s *Store) IsReadOnly() bool {
+	return s.readOnly
+}
+
+// SetReadOnly sets the store to the given read-only mode.
 func (s *Store) SetReadOnly(readOnly bool) {
 	s.readOnly = readOnly
 }
