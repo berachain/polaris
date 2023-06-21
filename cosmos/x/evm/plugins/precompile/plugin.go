@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"errors"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -142,8 +143,14 @@ func (p *plugin) Run(
 		ms.SetReadOnly(true)
 		defer func() {
 			if panicked := recover(); panicked != nil {
-				// if an error is panicked, return it up the call stack to the EVM
-				err, _ = utils.GetAs[error](err)
+				// set the return error value for the EVM if it is of type ErrWriteProtection
+				panickedErr, ok := utils.GetAs[error](panicked)
+				if ok && errors.Is(panickedErr, vm.ErrWriteProtection) {
+					err = panickedErr
+				} else {
+					// continue panicking up the stack if any other panic occurred
+					panic(panicked)
+				}
 			}
 			ms.SetReadOnly(false)
 		}()
