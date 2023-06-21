@@ -199,6 +199,9 @@ contracts/out/
 */**/*.bin
 */**/*.json
 
+# e2e
+e2e/**/*.txt
+
 # hive
 !e2e/hive/**/*.json
 
