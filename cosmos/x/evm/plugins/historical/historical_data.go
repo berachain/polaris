@@ -133,11 +133,9 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	store := p.ctx.KVStore(p.storeKey)
 	numBz := prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
 	if numBz == nil {
-		fmt.Println("historical_data.go::GetBlockByHash numbz nil", core.ErrBlockNotFound, "blockHash", blockHash.Hex())
 		return nil, core.ErrBlockNotFound
 	}
 
-	fmt.Println("historical_data.go::GetBlockByHash numBz not nil-- blockHash", blockHash.Hex())
 	blockBz := prefix.NewStore(store, []byte{types.BlockNumKeyToBlockPrefix}).Get(numBz)
 	block := &coretypes.Block{}
 
@@ -151,10 +149,8 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 // GetTransactionByHash returns the transaction lookup entry with the given hash.
 func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEntry, error) {
 	// get tx from off chain.
-	fmt.Println("historical_data.go::GetTransactionByHash txHash", txHash.Hex())
 	tleBz := prefix.NewStore(p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
 	if tleBz == nil {
-		fmt.Println("historical_data.go -- tx not found")
 		return nil, core.ErrTxNotFound
 	}
 	tle := &coretypes.TxLookupEntry{}

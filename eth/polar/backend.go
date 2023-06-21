@@ -23,7 +23,6 @@ package polar
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 	"time"
 
@@ -356,10 +355,8 @@ func (b *backend) GetTransaction(
 	b.logger.Debug("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
 	txLookup := b.polar.blockchain.GetTransactionLookup(txHash)
 	if txLookup == nil {
-		fmt.Println("backend::GetTransaction -- returning tx not found")
 		return nil, common.Hash{}, 0, 0, nil
 	}
-	fmt.Println("backend::GetTransaction -- returning tx:", txLookup.Tx.Hash(), "block_hash:", txLookup.BlockHash)
 	return txLookup.Tx, txLookup.BlockHash, txLookup.BlockNum, txLookup.TxIndex, nil
 }
 
