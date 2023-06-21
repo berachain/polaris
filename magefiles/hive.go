@@ -87,30 +87,8 @@ func (h Hive) Setup() error {
 		}
 	}
 
-	LogGreen("Copying Polaris Hive setup files...")
-	if err := sh.RunV("mkdir", simulatorsPath); err != nil {
+	if err := h.copyFiles(); err != nil {
 		return err
-	}
-	if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"clients/polard", clientsPath); err != nil {
-		return err
-	}
-	for _, sim := range simulations {
-		if err := sh.RunV("cp", "-rf", clonePath+"simulators/ethereum/"+sim.Name, simulatorsPath+sim.Name); err != nil {
-			return err
-		}
-		for _, file := range sim.Files {
-			name := file
-			if ext := strings.Split(file, "."); len(ext) > 1 && ext[1] == "hive" {
-				name = strings.Split(file, ".")[0] + ".go"
-			}
-			if err := sh.RunV("rm", "-rf", simulatorsPath+sim.Name+"/"+name); err != nil {
-				return err
-			}
-			if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"simulators/"+sim.Name+
-				"/"+file, simulatorsPath+sim.Name+"/"+name); err != nil {
-				return err
-			}
-		}
 	}
 
 	return ExecuteInDirectory(clonePath, func(...string) error {
@@ -142,4 +120,33 @@ func (h Hive) View() error {
 		LogGreen("Serving HiveView...")
 		return sh.RunV("./hiveview", "--serve")
 	}, false)
+}
+
+func (h Hive) copyFiles() error {
+	LogGreen("Copying Polaris Hive setup files...")
+	if err := sh.RunV("mkdir", simulatorsPath); err != nil {
+		return err
+	}
+	if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"clients/polard", clientsPath); err != nil {
+		return err
+	}
+	for _, sim := range simulations {
+		if err := sh.RunV("cp", "-rf", clonePath+"simulators/ethereum/"+sim.Name, simulatorsPath+sim.Name); err != nil {
+			return err
+		}
+		for _, file := range sim.Files {
+			name := file
+			if ext := strings.Split(file, "."); len(ext) > 1 && ext[1] == "hive" {
+				name = strings.Split(file, ".")[0] + ".go"
+			}
+			if err := sh.RunV("rm", "-rf", simulatorsPath+sim.Name+"/"+name); err != nil {
+				return err
+			}
+			if err := sh.RunV("cp", "-rf", baseHiveDockerPath+"simulators/"+sim.Name+
+				"/"+file, simulatorsPath+sim.Name+"/"+name); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
