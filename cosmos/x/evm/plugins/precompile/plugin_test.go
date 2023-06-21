@@ -78,6 +78,10 @@ var _ = Describe("plugin", func() {
 		})
 		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(3)))
 	})
+
+	When("Read Only Modes", func() {
+
+	})
 })
 
 // MOCKS BELOW.

@@ -24,6 +24,7 @@ import (
 	"cosmossdk.io/store/cachekv"
 	storetypes "cosmossdk.io/store/types"
 
+	polarcachekv "pkg.berachain.dev/polaris/cosmos/x/evm/store/cachekv"
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -99,7 +100,11 @@ func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	}
 
 	// get kvstore from mapMultiStore and set cachekv to memory
-	cms[key] = cachekv.NewStore(s.GetCommittedKVStore(key))
+	if s.readOnly {
+		cms[key] = polarcachekv.NewReadOnlyStore(s.GetCommittedKVStore(key))
+	} else {
+		cms[key] = cachekv.NewStore(s.GetCommittedKVStore(key))
+	}
 	return cms[key]
 }
 
@@ -136,18 +141,14 @@ func (s *Store) Finalize() {
 	// Recursively pop the journal and write each cachekv store to its parent cachekv store.
 	for revision := s.journal.Pop(); revision != nil; revision = s.journal.Pop() {
 		for key, cacheKVStore := range revision {
-			if !s.readOnly {
-				cacheKVStore.Write()
-			}
+			cacheKVStore.Write()
 			delete(revision, key)
 		}
 	}
 
 	// We must handle the root separately.
 	for key, cacheKVStore := range s.root {
-		if !s.readOnly {
-			cacheKVStore.Write()
-		}
+		cacheKVStore.Write()
 		delete(s.root, key)
 	}
 }

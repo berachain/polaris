@@ -131,18 +131,29 @@ func (p *plugin) Run(
 	ctx := sdk.UnwrapSDKContext(sdb.GetContext())
 	ms := utils.MustGetAs[MultiStore](ctx.MultiStore())
 
+	var (
+		ret []byte
+		err error
+	)
+
 	// Make sure the readOnly is only set if we aren't in readOnly yet. This also makes sure that
-	// the readOnly flag isn't removed for child calls. Note: taken from geth core/vm/interepreter.
+	// the readOnly flag isn't removed for child calls. Taken from geth core/vm/interepreter.go.
 	if readOnly && !ms.IsReadOnly() {
 		ms.SetReadOnly(true)
-		defer func() { ms.SetReadOnly(false) }()
+		defer func() {
+			if panicked := recover(); panicked != nil {
+				// if an error is panicked, return it up the call stack to the EVM
+				err, _ = utils.GetAs[error](err)
+			}
+			ms.SetReadOnly(false)
+		}()
 	}
 
 	// disable reentrancy into the EVM
 	p.disableReentrancy(sdb)
 
 	// run precompile container
-	ret, err := pc.Run(
+	ret, err = pc.Run(
 		ctx.WithGasMeter(gm).
 			WithKVGasConfig(p.kvGasConfig).
 			WithTransientKVGasConfig(p.transientKVGasConfig),
