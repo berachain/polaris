@@ -22,13 +22,20 @@ package block
 
 import (
 	"errors"
+	"fmt"
+	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
+
+// prevHeaderHashes is the number of previous header hashes being stored on chain.
+const prevHeaderHashes = 256
 
 // ===========================================================================
 // Polaris Block Header Tracking
@@ -48,7 +55,7 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 		return nil, err
 	}
 	if bz == nil {
-		return nil, errors.New("GetHeader: polaris header not found in kvstore")
+		return nil, core.ErrHeaderNotFound
 	}
 
 	header, err := coretypes.UnmarshalHeader(bz)
@@ -56,33 +63,64 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 		return nil, errorslib.Wrap(err, "GetHeader: failed to unmarshal")
 	}
 
-	if header.Number.Uint64() != number {
-		return nil, errorslib.Wrapf(err,
-			"GetHeader: header number mismatch, got %d, expected %d",
-			header.Number.Uint64(), number)
+	if header.Number.Uint64() > number {
+		return nil, errorslib.Wrapf(
+			err,
+			"GetHeader: header number mismatch, requested %d, got %d ",
+			number, header.Number.Uint64(),
+		)
 	}
 
 	return header, nil
 }
 
+// GetHeaderByHash returns the header specified by the given block hash
+//
+// GetHeaderByHash implements core.BlockPlugin.
+func (p *plugin) GetHeaderByHash(hash common.Hash) (*coretypes.Header, error) {
+	numBz := p.ctx.KVStore(p.storekey).Get(hash.Bytes())
+	if numBz == nil {
+		return nil, core.ErrHeaderNotFound
+	}
+	return p.GetHeaderByNumber(new(big.Int).SetBytes(numBz).Uint64())
+}
+
 // StoreHeader implements core.BlockPlugin.
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
-	bz, err := coretypes.MarshalHeader(header)
+	headerBz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
 	}
-	p.ctx.KVStore(p.storekey).Set(p.getKeyForBlockNumber(header.Number.Uint64()), bz)
-	return nil
-}
 
-// getKeyForBlockNumber returns the genesis header key if the requested block number is 0. In all
-// other cases, the regular header key is returned.
-func (p *plugin) getKeyForBlockNumber(number uint64) []byte {
-	key := types.HeaderKey
-	if number == 0 {
-		key = types.GenesisHeaderKey
+	blockHeight := header.Number.Int64()
+	if blockHeight != p.ctx.BlockHeight() {
+		return fmt.Errorf(
+			"StoreHeader: block height mismatch, got %d, expected %d",
+			blockHeight, p.ctx.BlockHeight(),
+		)
 	}
-	return []byte{key}
+
+	// write genesis header
+	if blockHeight == 0 {
+		return p.writeGenesisHeaderBytes(header.Hash(), headerBz)
+	}
+
+	kvstore := p.ctx.KVStore(p.storekey)
+	// set header key
+	kvstore.Set([]byte{types.HeaderKey}, headerBz)
+
+	// rotate previous header hashes
+	if pruneHeight := blockHeight - prevHeaderHashes; pruneHeight > 0 {
+		var toRemove *coretypes.Header
+		toRemove, err = p.GetHeaderByNumber(uint64(pruneHeight))
+		if err != nil {
+			return err
+		}
+		kvstore.Delete(toRemove.Hash().Bytes())
+	}
+	kvstore.Set(header.Hash().Bytes(), header.Number.Bytes())
+
+	return nil
 }
 
 // readHeaderBytes reads the header at the given height, using the plugin's query context for
@@ -113,6 +151,16 @@ func (p *plugin) readHeaderBytes(number uint64) ([]byte, error) {
 
 	// Unmarshal the header at IAVL height from its context kv store.
 	return ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey}), nil
+}
+
+// writeGenesisHeaderBytes writes the genesis header to the kvstore.
+//
+//	GenesisHeaderKey --> Header bytes
+//	Header Hash      --> 0
+func (p *plugin) writeGenesisHeaderBytes(headerHash common.Hash, headerBz []byte) error {
+	p.ctx.KVStore(p.storekey).Set([]byte{types.GenesisHeaderKey}, headerBz)
+	p.ctx.KVStore(p.storekey).Set(headerHash.Bytes(), new(big.Int).Bytes())
+	return nil
 }
 
 // readGenesisHeaderBytes returns the header bytes at the genesis key.
