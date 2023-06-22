@@ -101,7 +101,6 @@ func (sc *stateful) Run(
 		evm,
 		caller,
 		value,
-		readonly,
 		unpackedArgs...,
 	)
 

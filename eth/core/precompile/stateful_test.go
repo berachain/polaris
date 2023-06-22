@@ -183,7 +183,6 @@ func getOutput(
 	evm precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	str, ok := utils.GetAs[string](args[0])
@@ -206,7 +205,6 @@ func getOutputPartial(
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	_ ...any,
 ) ([]any, error) {
 	return nil, errors.New("err during precompile execution")
@@ -217,7 +215,6 @@ func contractFuncAddrInput(
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	_, ok := utils.GetAs[common.Address](args[0])
@@ -232,7 +229,6 @@ func contractFuncStrInput(
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	addr, ok := utils.GetAs[string](args[0])

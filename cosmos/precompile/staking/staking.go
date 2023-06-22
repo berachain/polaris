@@ -149,7 +149,6 @@ func (c *Contract) GetDelegationAddrInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	del, ok := utils.GetAs[common.Address](args[0])
@@ -172,7 +171,6 @@ func (c *Contract) GetDelegationStringInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32DelAddr, ok := utils.GetAs[string](args[0])
@@ -201,7 +199,6 @@ func (c *Contract) GetUnbondingDelegationAddrInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	del, ok := utils.GetAs[common.Address](args[0])
@@ -224,7 +221,6 @@ func (c *Contract) GetUnbondingDelegationStringInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32DelAddr, ok := utils.GetAs[string](args[0])
@@ -253,7 +249,6 @@ func (c *Contract) GetRedelegationsAddrInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	del, ok := utils.GetAs[common.Address](args[0])
@@ -283,7 +278,6 @@ func (c *Contract) GetRedelegationsStringInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32DelAddr, ok := utils.GetAs[string](args[0])
@@ -320,7 +314,6 @@ func (c *Contract) DelegateAddrInput(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	val, ok := utils.GetAs[common.Address](args[0])
@@ -341,7 +334,6 @@ func (c *Contract) DelegateStringInput(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32Addr, ok := utils.GetAs[string](args[0])
@@ -367,7 +359,6 @@ func (c *Contract) UndelegateAddrInput(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	val, ok := utils.GetAs[common.Address](args[0])
@@ -388,7 +379,6 @@ func (c *Contract) UndelegateStringInput(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32Addr, ok := utils.GetAs[string](args[0])
@@ -414,7 +404,6 @@ func (c *Contract) BeginRedelegateAddrInput(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	srcVal, ok := utils.GetAs[common.Address](args[0])
@@ -445,7 +434,6 @@ func (c *Contract) BeginRedelegateStringInput(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	srcVal, ok := utils.GetAs[string](args[0])
@@ -479,7 +467,6 @@ func (c *Contract) CancelUnbondingDelegationAddrInput(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	val, ok := utils.GetAs[common.Address](args[0])
@@ -504,7 +491,6 @@ func (c *Contract) CancelUnbondingDelegationStringInput(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32Addr, ok := utils.GetAs[string](args[0])
@@ -534,7 +520,6 @@ func (c *Contract) GetActiveValidators(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	_ ...any,
 ) ([]any, error) {
 	return c.activeValidatorsHelper(ctx)
@@ -546,7 +531,6 @@ func (c *Contract) GetValidators(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	_ ...any,
 ) ([]any, error) {
 	return c.validatorsHelper(ctx)
@@ -558,7 +542,6 @@ func (c *Contract) GetValidatorAddrInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	val, ok := utils.GetAs[common.Address](args[0])
@@ -575,7 +558,6 @@ func (c *Contract) GetValidatorStringInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	valBech32, ok := utils.GetAs[string](args[0])
@@ -592,7 +574,6 @@ func (c *Contract) GetDelegatorValidatorsAddrInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	del, ok := utils.GetAs[common.Address](args[0])
@@ -609,7 +590,6 @@ func (c *Contract) GetDelegatorValidatorsStringInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	delBech32, ok := utils.GetAs[string](args[0])

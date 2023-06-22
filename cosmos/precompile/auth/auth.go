@@ -106,7 +106,6 @@ func (c *Contract) ConvertHexToBech32(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	hexAddr, ok := utils.GetAs[common.Address](args[0])
@@ -135,7 +134,6 @@ func (c *Contract) ConvertBech32ToHexAddress(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	bech32Addr, ok := utils.GetAs[string](args[0])
@@ -164,7 +162,6 @@ func (c *Contract) SetSendAllowance(
 	evm ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	owner, ok := utils.GetAs[common.Address](args[0])
@@ -200,7 +197,6 @@ func (c *Contract) GetSendAllowance(
 	evm ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	owner, ok := utils.GetAs[common.Address](args[0])
@@ -247,7 +243,6 @@ func (c *Contract) GetAccountInfoAddrInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	acc, ok := utils.GetAs[common.Address](args[0])
@@ -263,7 +258,6 @@ func (c *Contract) GetAccountInfoStringInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	acc, ok := utils.GetAs[string](args[0])
