@@ -43,7 +43,6 @@ var _ = Describe("Stateful Container", func() {
 	var empty vm.PrecompileContainer
 	var ctx context.Context
 	var addr common.Address
-	var readonly bool
 	var value *big.Int
 	var blank []byte
 	var badInput = []byte{1, 2, 3, 4}
@@ -79,23 +78,23 @@ var _ = Describe("Stateful Container", func() {
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
 			// empty input
-			_, err := empty.Run(ctx, evm, blank, addr, value, readonly)
+			_, err := empty.Run(ctx, evm, blank, addr, value, false)
 			Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 
 			// invalid input
-			_, err = sc.Run(ctx, evm, blank, addr, value, readonly)
+			_, err = sc.Run(ctx, evm, blank, addr, value, false)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
 
 			// method not found
-			_, err = sc.Run(ctx, evm, badInput, addr, value, readonly)
+			_, err = sc.Run(ctx, evm, badInput, addr, value, false)
 			Expect(err).To(MatchError("precompile method not found in contract ABI"))
 
 			// geth unpacking error
-			_, err = sc.Run(ctx, evm, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
+			_, err = sc.Run(ctx, evm, append(getOutputABI.ID, byte(1), byte(2)), addr, value, false)
 			Expect(err).To(HaveOccurred())
 
 			// precompile exec error
-			_, err = sc.Run(ctx, evm, getOutputPartialABI.ID, addr, value, readonly)
+			_, err = sc.Run(ctx, evm, getOutputPartialABI.ID, addr, value, false)
 			Expect(err.Error()).To(Equal(
 				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]", //nolint:lll // test.
 			))
@@ -103,35 +102,35 @@ var _ = Describe("Stateful Container", func() {
 			// precompile returns vals when none expected
 			inputs, err := contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, evm, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, evm, append(contractFuncStrABI.ID, inputs...), addr, value, false)
 			Expect(err).To(HaveOccurred())
 
 			// geth output packing error
 			inputs, err = contractFuncAddrABI.Inputs.Pack(addr)
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, evm, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, evm, append(contractFuncAddrABI.ID, inputs...), addr, value, false)
 			Expect(err).To(HaveOccurred())
 		})
 
 		It("should return properly for valid method calls", func() {
 			inputs, err := getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			ret, err := sc.Run(ctx, evm, append(getOutputABI.ID, inputs...), addr, value, readonly)
+			ret, err := sc.Run(ctx, evm, append(getOutputABI.ID, inputs...), addr, value, false)
 			Expect(err).ToNot(HaveOccurred())
 			outputs, err := getOutputABI.Outputs.Unpack(ret)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(outputs).To(HaveLen(1))
 			Expect(
-				reflect.ValueOf(outputs[0]).Index(0).FieldByName("CreationHeight").
-					Interface().(*big.Int)).To(Equal(big.NewInt(1)))
-			Expect(reflect.ValueOf(outputs[0]).Index(0).FieldByName("TimeStamp").
-				Interface().(string)).To(Equal("string"))
+				reflect.ValueOf(outputs[0]).Index(0).FieldByName("CreationHeight").Interface().(*big.Int),
+			).To(Equal(big.NewInt(1)))
+			Expect(
+				reflect.ValueOf(outputs[0]).Index(0).FieldByName("TimeStamp").Interface().(string),
+			).To(Equal("string"))
 		})
 
 		It("should error if logs are emitted in read-only mode", func() {
-			readonly = true
 			inputs, _ := getOutputABI.Inputs.Pack("string")
-			ret, err := sc.Run(ctx, evm, append(getOutputABI.ID, inputs...), addr, value, readonly)
+			ret, err := sc.Run(ctx, evm, append(getOutputABI.ID, inputs...), addr, value, true)
 			Expect(ret).To(BeNil())
 			Expect(err).To(MatchError(vm.ErrWriteProtection))
 		})
