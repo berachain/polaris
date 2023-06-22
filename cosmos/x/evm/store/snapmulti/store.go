@@ -24,7 +24,7 @@ import (
 	"cosmossdk.io/store/cachekv"
 	storetypes "cosmossdk.io/store/types"
 
-	polarcachekv "pkg.berachain.dev/polaris/cosmos/x/evm/store/cachekv"
+	polariscachekv "pkg.berachain.dev/polaris/cosmos/x/evm/store/cachekv"
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -94,17 +94,16 @@ func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 		cms = s.root
 	}
 
-	// check if cache kv store already used
-	if cacheKVStore, found := cms[key]; found {
-		return cacheKVStore
-	}
-
-	// get kvstore from mapMultiStore and set cachekv to memory
-	if s.readOnly {
-		cms[key] = polarcachekv.NewReadOnlyStore(s.GetCommittedKVStore(key))
-	} else {
+	// if the map multistore does not have the given storekey, get from the underlying multistore
+	if cms[key] == nil {
 		cms[key] = cachekv.NewStore(s.GetCommittedKVStore(key))
 	}
+
+	// if the store is in read-only mode, return a read-only store
+	if s.readOnly {
+		return polariscachekv.NewReadOnlyStore(cms[key])
+	}
+
 	return cms[key]
 }
 

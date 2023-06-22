@@ -23,8 +23,11 @@ package cachekv
 import (
 	"cosmossdk.io/store/cachekv"
 	storetypes "cosmossdk.io/store/types"
+
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
+
+var _ storetypes.CacheKVStore = (*ReadOnlyStore)(nil)
 
 // ReadOnlyStore is a wrapper around cachekv.Store that panics on any write operation.
 type ReadOnlyStore struct {
@@ -36,10 +39,10 @@ func NewReadOnlyStore(parent storetypes.KVStore) *ReadOnlyStore {
 	return &ReadOnlyStore{cachekv}
 }
 
-func (s *ReadOnlyStore) Set(key, value []byte) {
+func (s *ReadOnlyStore) Set(_, _ []byte) {
 	panic(vm.ErrWriteProtection)
 }
 
-func (s *ReadOnlyStore) Delete(key []byte) {
+func (s *ReadOnlyStore) Delete(_ []byte) {
 	panic(vm.ErrWriteProtection)
 }

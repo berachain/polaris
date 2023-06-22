@@ -127,39 +127,38 @@ func (p *plugin) Run(
 	// consume static gas from RequiredGas
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
-	// get native Cosmos SDK context from the Polaris StateDB
+	// get native Cosmos SDK context and MultiStore from the Polaris StateDB
 	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
 	ctx := sdk.UnwrapSDKContext(sdb.GetContext())
 	ms := utils.MustGetAs[MultiStore](ctx.MultiStore())
 
-	var (
-		ret []byte
-		err error
-	)
-
-	// Make sure the readOnly is only set if we aren't in readOnly yet. This also makes sure that
-	// the readOnly flag isn't removed for child calls. Taken from geth core/vm/interepreter.go.
+	// make sure the readOnly is only set if we aren't in readOnly yet, which also makes sure that
+	// the readOnly flag isn't removed for child calls (taken from geth core/vm/interepreter.go)
 	if readOnly && !ms.IsReadOnly() {
 		ms.SetReadOnly(true)
-		defer func() {
-			if panicked := recover(); panicked != nil {
-				// set the return error value for the EVM if it is of type ErrWriteProtection
-				panickedErr, ok := utils.GetAs[error](panicked)
-				if ok && errors.Is(panickedErr, vm.ErrWriteProtection) {
-					err = panickedErr
-				} else {
-					// continue panicking up the stack if any other panic occurred
-					panic(panicked)
-				}
-			}
-			ms.SetReadOnly(false)
-		}()
+		defer func() { ms.SetReadOnly(false) }()
 	}
 
 	// disable reentrancy into the EVM
 	p.disableReentrancy(sdb)
 
-	// run precompile container
+	// recover from any panic during precompile execution for the EVM to handle as a vm error
+	var err error
+	defer func() {
+		if panicked := recover(); panicked != nil {
+			// NOTE: this only propagates an error back to the EVM if the type of the given panic
+			// value is error or string (any other type of panic value is ignored)
+			var isError bool
+			if err, isError = utils.GetAs[error](panicked); !isError {
+				if strErr, isString := utils.GetAs[string](panicked); isString {
+					err = errors.New(strErr)
+				}
+			}
+		}
+	}()
+
+	// run the precompile container
+	var ret []byte
 	ret, err = pc.Run(
 		ctx.WithGasMeter(gm).
 			WithKVGasConfig(p.kvGasConfig).
@@ -179,7 +178,7 @@ func (p *plugin) Run(
 		return nil, 0, vm.ErrOutOfGas
 	}
 
-	// valid precompile gas consumption => return supplied gas
+	// valid precompile gas consumption => return remaining gas
 	return ret, suppliedGas - gm.GasConsumed(), err
 }
 

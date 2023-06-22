@@ -45,6 +45,7 @@ func TestSnapMulti(t *testing.T) {
 var _ = Describe("Snapmulti Store", func() {
 	var (
 		byte1          = []byte{1}
+		byte2          = []byte{2}
 		cms            *snapmulti.Store
 		ms             storetypes.MultiStore
 		accStoreParent storetypes.KVStore
@@ -119,8 +120,8 @@ var _ = Describe("Snapmulti Store", func() {
 		})
 
 		It("should correctly revert", func() {
-			cms.GetKVStore(accStoreKey).Set(byte1, []byte{2})
-			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal([]byte{2}))
+			cms.GetKVStore(accStoreKey).Set(byte1, byte2)
+			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal(byte2))
 
 			cms.RevertToSnapshot(snapshot1)
 			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal(byte1))
@@ -136,25 +137,39 @@ var _ = Describe("Snapmulti Store", func() {
 		})
 
 		It("should finalize properly", func() {
-			cms.GetKVStore(accStoreKey).Set(byte1, []byte{2})
-			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal([]byte{2}))
+			cms.GetKVStore(accStoreKey).Set(byte1, byte2)
+			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal(byte2))
 
 			cms.Finalize()
-			Expect(accStoreParent.Get(byte1)).To(Equal([]byte{2}))
+			Expect(accStoreParent.Get(byte1)).To(Equal(byte2))
 		})
 
-		When("Read Only mode", func() {
-			// entering a static call
-			// cms.Snapshot()
-			// cms.SetReadOnly(true)
+		It("should handle read only mode", func() {
+			// `snapshot1` is equivalent to entering a static call
+			cms.GetKVStore(evmStoreKey).Set(byte1, byte1) // equivalent to core/vm/evm.go:382
+			cms.SetReadOnly(true)                         // entering the precompile plugin
 
-			// // reads and writes still work during execution
-			// cms.GetKVStore(accStoreKey).Set(byte1, []byte{2})
-			// Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal([]byte{2}))
+			// only reads and writes should panic during execution
+			Expect(func() {
+				Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal(byte1))
+				Expect(cms.GetKVStore(accStoreKey).Has(byte2)).To(BeFalse())
+			}).NotTo(Panic())
+			Expect(func() {
+				cms.GetKVStore(accStoreKey).Set(byte1, byte2)
+			}).To(Panic())
+			Expect(func() {
+				cms.GetKVStore(accStoreKey).Delete(byte1)
+			}).To(Panic())
 
-			// // tx over and no longer
-			// cms.Finalize()
-			// Expect(accStoreParent.Get(byte1)).To(Equal(byte1))
+			// tx over and no longer read only
+			cms.SetReadOnly(false)
+
+			// another call happens later in this tx and modifying is now allowed
+			snap2 := cms.Snapshot()
+			cms.GetKVStore(accStoreKey).Set(byte1, byte2)
+			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal(byte2))
+			cms.RevertToSnapshot(snap2)
+			Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal(byte1))
 		})
 	})
 })

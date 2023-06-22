@@ -23,6 +23,11 @@ package cachekv_test
 import (
 	"testing"
 
+	storetypes "cosmossdk.io/store/types"
+
+	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/store/cachekv"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -33,5 +38,31 @@ func TestCacheKV(t *testing.T) {
 }
 
 var _ = Describe("ReadOnly Store", func() {
+	var readOnlyStore *cachekv.ReadOnlyStore
 
+	BeforeEach(func() {
+		ms := mock.NewMultiStore()
+		kv := ms.GetKVStore(storetypes.NewKVStoreKey("test"))
+		kv.Set([]byte("key"), []byte("value"))
+		readOnlyStore = cachekv.NewReadOnlyStore(kv)
+	})
+
+	It("should panic only on writes", func() {
+		Expect(func() {
+			Expect(readOnlyStore.Get([]byte("key"))).To(Equal([]byte("value")))
+			Expect(readOnlyStore.Has([]byte("KEY"))).To(BeFalse())
+		}).NotTo(Panic())
+
+		Expect(func() {
+			readOnlyStore.Set([]byte("key"), []byte("new value"))
+		}).To(Panic())
+
+		Expect(func() {
+			readOnlyStore.Set([]byte("new key"), []byte("value"))
+		}).To(Panic())
+
+		Expect(func() {
+			readOnlyStore.Delete([]byte("key"))
+		}).To(Panic())
+	})
 })
