@@ -25,6 +25,7 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
@@ -211,9 +212,9 @@ var _ = Describe("ERC20", func() {
 				// NOTE: if a high gas limit is provided and the estimate gas routine is skipped,
 				// the tx executes without returning an error (i.e. reverting), but the state
 				// changes (for the transfer) are not persisted, as expected.
-				ExpectFailedReceipt(tf.EthClient, tx)
-
-				Expect(tf.Network.WaitForNextBlock()).ToNot(HaveOccurred())
+				Expect(tf.Network.WaitForNextBlock()).To(Succeed())
+				_, err = tf.EthClient.TransactionReceipt(context.Background(), tx.Hash())
+				Expect(err).To(MatchError(ethereum.NotFound))
 
 				// verify the transfer did not work
 				bal, err = contract.BalanceOf(nil, tf.Address("alice"))
