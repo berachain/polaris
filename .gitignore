@@ -191,13 +191,10 @@ pkg/**/.*.yaml
 
 # forge
 */**/solidity-files-cache.json
-contracts/out/**/*.bin
-contracts/out/**/*.json
-contracts/out/lib/
 contracts/out/
 */**/broadcast
 */**/*.bin
-*/**/*.json
+# */**/*.json
 
 # e2e
 e2e/**/*.txt
@@ -224,3 +221,6 @@ out
 
 # docker test
 **/temp/
+
+# hardhat
+**/cache/
