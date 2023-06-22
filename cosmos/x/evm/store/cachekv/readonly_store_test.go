@@ -23,6 +23,7 @@ package cachekv_test
 import (
 	"testing"
 
+	sdkcachekv "cosmossdk.io/store/cachekv"
 	storetypes "cosmossdk.io/store/types"
 
 	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
@@ -44,7 +45,7 @@ var _ = Describe("ReadOnly Store", func() {
 		ms := mock.NewMultiStore()
 		kv := ms.GetKVStore(storetypes.NewKVStoreKey("test"))
 		kv.Set([]byte("key"), []byte("value"))
-		readOnlyStore = cachekv.NewReadOnlyStore(kv)
+		readOnlyStore = cachekv.NewReadOnlyStoreFor(sdkcachekv.NewStore(kv))
 	})
 
 	It("should panic only on writes", func() {

@@ -101,7 +101,7 @@ func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 
 	// if the store is in read-only mode, return a read-only store
 	if s.readOnly {
-		return polariscachekv.NewReadOnlyStore(cms[key])
+		return polariscachekv.NewReadOnlyStoreFor(cms[key])
 	}
 
 	return cms[key]
