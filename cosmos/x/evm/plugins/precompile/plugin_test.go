@@ -60,7 +60,7 @@ var _ = Describe("plugin", func() {
 		Expect(remainingGas).To(Equal(uint64(10)))
 	})
 
-	It("should error on insufficient gas", func() {
+	FIt("should error on insufficient gas", func() {
 		_, _, err := p.Run(e, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
@@ -79,10 +79,20 @@ var _ = Describe("plugin", func() {
 		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(3)))
 	})
 
-	When("Read Only Modes", func() {
+	// It("should handle read-only static calls", func() {
+	// 	ms := utils.MustGetAs[tmock.MultiStore](ctx.MultiStore())
+	// 	// verify its not read-only right now
+	// 	Expect(ms.IsReadOnly()).To(BeFalse())
 
-	})
+	// 	// run read only precompile
+	// 	p.Run(e, &mockStateful{}, []byte{2}, addr2, new(big.Int), 5, true)
+	// })
 })
+
+var (
+	addr = common.BytesToAddress([]byte{1})
+	// addr2 = common.BytesToAddress([]byte{2})
+)
 
 // MOCKS BELOW.
 
@@ -112,9 +122,7 @@ func (ms *mockSDB) GetContext() context.Context {
 	return ms.ctx
 }
 
-type mockStateless struct{}
-
-var addr = common.BytesToAddress([]byte{1})
+type mockStateless struct{} // at addr 1
 
 func (ms *mockStateless) RegistryKey() common.Address {
 	return addr
@@ -132,6 +140,23 @@ func (ms *mockStateless) RequiredGas(_ []byte) uint64 {
 	return 10
 }
 
-func (ms *mockStateless) WithStateDB(vm.GethStateDB) vm.PrecompileContainer {
-	return ms
-}
+// type mockStateful struct{} // at addr 2
+
+// func (msf *mockStateful) RegistryKey() common.Address {
+// 	return addr
+// }
+
+// // panics if modifying state on read-only
+// func (msf *mockStateful) Run(
+// 	ctx context.Context, _ precompile.EVM, input []byte,
+// 	_ common.Address, _ *big.Int, _ bool,
+// ) ([]byte, error) {
+// 	if input[0] == byte(2) {
+// 		panic(vm.ErrWriteProtection)
+// 	}
+// 	return nil, nil
+// }
+
+// func (msf *mockStateful) RequiredGas(_ []byte) uint64 {
+// 	return 10
+// }

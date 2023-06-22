@@ -122,11 +122,6 @@ func (p *plugin) Run(
 	evm ethprecompile.EVM, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readOnly bool,
 ) ([]byte, uint64, error) {
-	// use a precompile-specific gas meter for dynamic consumption
-	gm := storetypes.NewInfiniteGasMeter()
-	// consume static gas from RequiredGas
-	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
-
 	// get native Cosmos SDK context and MultiStore from the Polaris StateDB
 	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
 	ctx := sdk.UnwrapSDKContext(sdb.GetContext())
@@ -147,15 +142,25 @@ func (p *plugin) Run(
 	defer func() {
 		if panicked := recover(); panicked != nil {
 			// NOTE: this only propagates an error back to the EVM if the type of the given panic
-			// value is error or string (any other type of panic value is ignored)
-			var isError bool
-			if err, isError = utils.GetAs[error](panicked); !isError {
-				if strErr, isString := utils.GetAs[string](panicked); isString {
+			// value is error, string, Cosmos ErrorOutOfGas, or Cosmos ErrorGasOverflow (any other
+			// type of panic value is ignored)
+			var ok bool
+			if err, ok = utils.GetAs[error](panicked); !ok {
+				if strErr, ok := utils.GetAs[string](panicked); ok {
 					err = errors.New(strErr)
+				} else {
+					if utils.Implements[storetypes.ErrorOutOfGas](panicked) ||
+						utils.Implements[storetypes.ErrorGasOverflow](panicked) {
+						err = vm.ErrOutOfGas
+					}
 				}
 			}
 		}
 	}()
+
+	// use a precompile-specific gas meter for dynamic consumption, which will panic if gas is
+	// consumed over limit
+	gm := storetypes.NewGasMeter(suppliedGas)
 
 	// run the precompile container
 	var ret []byte
@@ -173,18 +178,11 @@ func (p *plugin) Run(
 	// enable reentrancy into the EVM
 	p.enableReentrancy(sdb)
 
-	// handle overconsumption of gas
-	gasConsumed := gm.GasConsumed()
-	if gasConsumed > suppliedGas {
-		suppliedGas = gasConsumed // ensures 0 gas remaining if gas was overconsumed
-		if err == nil {
-			// only return out of gas error if no other error occurred
-			err = vm.ErrOutOfGas
-		}
-	}
+	// consume static gas from RequiredGas
+	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
 	// valid precompile gas consumption => return remaining gas
-	return ret, suppliedGas - gasConsumed, err
+	return ret, gm.GasRemaining(), err
 }
 
 // EnableReentrancy sets the state so that execution can enter the EVM again.
