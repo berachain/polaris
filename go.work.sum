@@ -434,6 +434,7 @@ github.com/eapache/go-resiliency v1.1.0 h1:1NtRmCAqadE2FN4ZcN6g90TP3uk8cg9rn9eNK
 github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 h1:YEetp8/yCZMuEPMUDHG0CW/brkkEp8mzqk2+ODEitlw=
 github.com/eapache/queue v1.1.0 h1:YOEu7KNc61ntiQlcEeUIoDTJ2o8mQznoNvUhiigpIqc=
 github.com/edsrzf/mmap-go v1.1.0 h1:6EUwBLQ/Mcr1EYLE4Tn1VdW1A4ckqCQWZBw8Hr0kjpQ=
+github.com/edsrzf/mmap-go v1.1.0/go.mod h1:19H/e8pUPLicwkyNgOykDXkJ9F0MHE+Z52B8EIth78Q=
 github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385 h1:clC1lXBpe2kTj2VHdaIu9ajZQe4kcEY9j0NsnDDBZ3o=
 github.com/elazarl/goproxy v0.0.0-20221015165544-a0805db90819/go.mod h1:Ro8st/ElPeALwNFlcTpWmkr6IoMFfkjXAvTHpevnDsM=
 github.com/elazarl/goproxy/ext v0.0.0-20190711103511-473e67f1d7d2/go.mod h1:gNh8nYJoAm43RfaxurUnxr+N1PwuFV3ZMl/efxlIlY8=
@@ -604,6 +605,7 @@ github.com/imdario/mergo v0.3.15/go.mod h1:WBLT9ZmE3lPoWsEzCh9LPo3TiwVN+ZKEjmz+h
 github.com/imkira/go-interpol v1.1.0 h1:KIiKr0VSG2CUW1hl1jpiyuzuJeKUUpC8iM1AIE7N1Vk=
 github.com/inconshreveable/mousetrap v1.0.1/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/influxdata/influxdb v1.8.3 h1:WEypI1BQFTT4teLM+1qkEcvUi0dAvopAI/ir0vAiBg8=
+github.com/influxdata/influxdb v1.8.3/go.mod h1:JugdFhsvvI8gadxOI6noqNeeBHvWNTbfYGtiAn+2jhI=
 github.com/informalsystems/tm-load-test v1.3.0 h1:FGjKy7vBw6mXNakt+wmNWKggQZRsKkEYpaFk/zR64VA=
 github.com/informalsystems/tm-load-test v1.3.0/go.mod h1:OQ5AQ9TbT5hKWBNIwsMjn6Bf4O0U4b1kRc+0qZlQJKw=
 github.com/iris-contrib/blackfriday v2.0.0+incompatible h1:o5sHQHHm0ToHUlAJSTjW9UWicjJSDDauOOQ2AHuIVp4=
@@ -820,12 +822,8 @@ github.com/rogpeppe/go-charset v0.0.0-20180617210344-2471d30d28b4/go.mod h1:qgYe
 github.com/rogpeppe/go-internal v1.8.0/go.mod h1:WmiCO8CzOY8rg0OYDC4/i/2WRWAB6poM+XZ2dLUbcbE=
 github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230615215434-7f213565b33f h1:UdCmCIXz9n2iL+FchlhuJ25SCyfn5lkyxcDj8uJDUus=
 github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230615215434-7f213565b33f/go.mod h1:lcR4PWzVBEVjd8OjAnConIiM5gKTmqZYSW98dfKcT6w=
-github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230616213058-08fe487dda77 h1:k97Ub7WY78hyLYdgOEGwrfUSoZX/Ya8LWC8yVuoGpOc=
-github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230616213058-08fe487dda77/go.mod h1:aZVlWRGF25J2CAoz/npWKhQBpR6gOm27NdSjfPa/evg=
 github.com/rollkit/rollkit v0.8.2-0.20230614163753-453e39f9a24f h1:NS13cY/5SjbjdDYFlMvj7g/0/EhtHKlDfReVx3sHJhU=
 github.com/rollkit/rollkit v0.8.2-0.20230614163753-453e39f9a24f/go.mod h1:B/KOikuWDXu5JZLXwJsmraVDfwFg4yAsn4DuuHDg3Qw=
-github.com/rollkit/rollkit v0.8.2-0.20230616212804-5e2a12d38cf3 h1:XsPpRYBScFwv5y588NW6nmZmrzTTDYlEOHCpxDl1+ME=
-github.com/rollkit/rollkit v0.8.2-0.20230616212804-5e2a12d38cf3/go.mod h1:B/KOikuWDXu5JZLXwJsmraVDfwFg4yAsn4DuuHDg3Qw=
 github.com/rs/xid v1.4.0 h1:qd7wPTDkN6KQx2VmMBLrpHkiyQwgFXRnkOLacUiaSNY=
 github.com/rs/zerolog v1.29.0/go.mod h1:NILgTygv/Uej1ra5XxGf82ZFSLk58MFGAUS2o6usyD0=
 github.com/russross/blackfriday v1.6.0 h1:KqfZb0pUVN2lYqZUYRddxF4OR8ZMURnJIG5Y3VRLtww=
