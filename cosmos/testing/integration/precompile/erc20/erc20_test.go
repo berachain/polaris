@@ -120,10 +120,8 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(123456789),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(tf.Network.WaitForNextBlock()).To(Succeed())
 				_, err = tf.EthClient.TransactionReceipt(context.Background(), tx.Hash())
-				// Expect(err).To(MatchError("not found")) // err: ERC20 token contract does not exist
-				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("not found")) // err: ERC20 token contract does not exist
 			})
 
 			It("should handle a IBC-originated SDK coin", func() {
