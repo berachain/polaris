@@ -145,7 +145,7 @@ var _ = Describe("Snapmulti Store", func() {
 		})
 
 		It("should handle read only mode", func() {
-			// `snapshot1` is equivalent to entering a static call
+			// `snapshot1` is equivalent to entering a StaticCall
 			cms.GetKVStore(evmStoreKey).Set(byte1, byte1) // equivalent to core/vm/evm.go:382
 			cms.SetReadOnly(true)                         // entering the precompile plugin
 
@@ -159,6 +159,15 @@ var _ = Describe("Snapmulti Store", func() {
 			}).To(Panic())
 			Expect(func() {
 				cms.GetKVStore(accStoreKey).Delete(byte1)
+			}).To(Panic())
+
+			// another nested StaticCall happens
+			cms.Snapshot()
+			Expect(func() {
+				Expect(cms.GetKVStore(accStoreKey).Get(byte1)).To(Equal(byte1))
+			}).NotTo(Panic())
+			Expect(func() {
+				cms.GetKVStore(accStoreKey).Set(byte1, byte2)
 			}).To(Panic())
 
 			// tx over and no longer read only
