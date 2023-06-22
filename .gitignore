@@ -194,7 +194,6 @@ pkg/**/.*.yaml
 contracts/out/
 */**/broadcast
 */**/*.bin
-# */**/*.json
 
 # e2e
 e2e/**/*.txt
