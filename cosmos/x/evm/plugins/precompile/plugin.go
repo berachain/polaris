@@ -175,7 +175,11 @@ func (p *plugin) Run(
 
 	// handle overconsumption of gas
 	if gm.GasConsumed() > suppliedGas {
-		return nil, 0, vm.ErrOutOfGas
+		suppliedGas = gm.GasConsumed() // ensures 0 gas remaining if gas was overconsumed
+		if err == nil {
+			// only return out of gas error if no other error occurred
+			err = vm.ErrOutOfGas
+		}
 	}
 
 	// valid precompile gas consumption => return remaining gas
