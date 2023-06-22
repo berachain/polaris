@@ -174,8 +174,9 @@ func (p *plugin) Run(
 	p.enableReentrancy(sdb)
 
 	// handle overconsumption of gas
-	if gm.GasConsumed() > suppliedGas {
-		suppliedGas = gm.GasConsumed() // ensures 0 gas remaining if gas was overconsumed
+	gasConsumed := gm.GasConsumed()
+	if gasConsumed > suppliedGas {
+		suppliedGas = gasConsumed // ensures 0 gas remaining if gas was overconsumed
 		if err == nil {
 			// only return out of gas error if no other error occurred
 			err = vm.ErrOutOfGas
@@ -183,7 +184,7 @@ func (p *plugin) Run(
 	}
 
 	// valid precompile gas consumption => return remaining gas
-	return ret, suppliedGas - gm.GasConsumed(), err
+	return ret, suppliedGas - gasConsumed, err
 }
 
 // EnableReentrancy sets the state so that execution can enter the EVM again.
