@@ -120,6 +120,7 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(123456789),
 				)
 				Expect(err).ToNot(HaveOccurred())
+				Expect(tf.Network.WaitForNextBlock()).To(Succeed())
 				_, err = tf.EthClient.TransactionReceipt(context.Background(), tx.Hash())
 				Expect(err).To(MatchError("not found")) // err: ERC20 token contract does not exist
 			})
@@ -134,6 +135,7 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(12345),
 				)
 				Expect(err).ToNot(HaveOccurred())
+				Expect(tf.Network.WaitForNextBlock()).To(Succeed())
 				ExpectSuccessReceipt(tf.EthClient, tx)
 
 				// check that the new ERC20 is minted to TestAddress
@@ -199,17 +201,17 @@ var _ = Describe("ERC20", func() {
 				Expect(bal).To(Equal(big.NewInt(123456789)))
 
 				// token already exists, create new Polaris denom
-				_, err = erc20Precompile.TransferERC20ToCoin(
+				tx, err = erc20Precompile.TransferERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					token,
 					big.NewInt(6789),
 				)
-				Expect(err).To(HaveOccurred())
-				// doesn't work because owner did not approve caller to spend tokens, so estimate gas fails
+				Expect(err).ToNot(HaveOccurred())
+				// doesn't work because owner did not approve caller to spend tokens, so tx fails
 				// NOTE: if a high gas limit is provided and the estimate gas routine is skipped,
 				// the tx executes without returning an error (i.e. reverting), but the state
 				// changes (for the transfer) are not persisted, as expected.
-				Expect(err.Error()).To(ContainSubstring("method handler crashed"))
+				ExpectFailedReceipt(tf.EthClient, tx)
 
 				Expect(tf.Network.WaitForNextBlock()).ToNot(HaveOccurred())
 
