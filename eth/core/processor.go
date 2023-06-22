@@ -182,9 +182,10 @@ func (sp *StateProcessor) Finalize(
 	var (
 		// "FinalizeAndAssemble" the block with the txs and receipts (sets the TxHash, ReceiptHash,
 		// and Bloom).
-		block = types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
-		hash  = block.Hash()
-		logs  []*types.Log
+		block    = types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
+		hash     = block.Hash()
+		logs     []*types.Log
+		logIndex uint
 	)
 
 	// Update the block hash in all logs since it is now available and not when the receipt/log of
@@ -193,6 +194,8 @@ func (sp *StateProcessor) Finalize(
 		receipt.BlockHash = hash
 		for _, log := range receipt.Logs {
 			log.BlockHash = hash
+			log.Index = logIndex
+			logIndex++
 		}
 		logs = append(logs, receipt.Logs...)
 	}

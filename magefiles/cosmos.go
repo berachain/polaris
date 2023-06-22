@@ -221,6 +221,11 @@ func (c Cosmos) TestHive(sim string) error {
 	if err := c.DockerBuildHive(); err != nil {
 		return err
 	}
+
+	if err := (Hive{}).Setup(); err != nil {
+		return err
+	}
+
 	return Hive{}.TestV(sim, "polard")
 }
 
