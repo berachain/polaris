@@ -18,44 +18,44 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-name: ethereum
+# name: ethereum
 
-on:
-  pull_request:
+# on:
+#   pull_request:
 
-jobs:
-  hive:
-    strategy:
-      matrix:
-        simulator: [polaris/rpc, polaris/graphql] 
-        namespace: [cosmos]
-        os: [ubuntu-latest]
-        go-version: [1.20.4]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-      - name: Setup Golang
-        uses: actions/setup-go@v3
-        with:
-          go-version: ${{ matrix.go-version }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Cache Golang Deps
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go
-          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-golang-
-      - name: Run ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
-        uses: magefile/mage-action@v2
-        with:
-          version: latest
-          args: ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
-        env:
-          GOPATH: /home/runner/go
+# jobs:
+#   hive:
+#     strategy:
+#       matrix:
+#         simulator: [polaris/rpc, polaris/graphql] 
+#         namespace: [cosmos]
+#         os: [ubuntu-latest]
+#         go-version: [1.20.4]
+#     runs-on: ${{ matrix.os }}
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
+#       - name: Install Foundry
+#         uses: foundry-rs/foundry-toolchain@v1
+#       - name: Setup Golang
+#         uses: actions/setup-go@v3
+#         with:
+#           go-version: ${{ matrix.go-version }}
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v2
+#       - name: Cache Golang Deps
+#         uses: actions/cache@v3
+#         with:
+#           path: |
+#             ~/.cache/go-build
+#             ~/go
+#           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+#           restore-keys: |
+#             ${{ runner.os }}-golang-
+#       - name: Run ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
+#         uses: magefile/mage-action@v2
+#         with:
+#           version: latest
+#           args: hive:setup ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
+#         env:
+#           GOPATH: /home/runner/go

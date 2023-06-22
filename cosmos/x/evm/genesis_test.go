@@ -61,7 +61,6 @@ var _ = Describe("", func() {
 	BeforeEach(func() {
 		ethGen = core.DefaultGenesis
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
-		ctx = ctx.WithBlockHeight(0)
 		sc = staking.NewPrecompileContract(&sk)
 		k = keeper.NewKeeper(
 			ak, sk,

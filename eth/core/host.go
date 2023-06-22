@@ -69,8 +69,6 @@ type (
 		GetNewBlockMetadata(uint64) (common.Address, uint64)
 		// GetHeaderByNumber returns the block header at the given block number.
 		GetHeaderByNumber(uint64) (*types.Header, error)
-		// GetHeaderByHash returns the block header with the given block hash.
-		GetHeaderByHash(common.Hash) (*types.Header, error)
 		// StoreHeader stores the block header at the given block number.
 		StoreHeader(*types.Header) error
 		// BaseFee returns the base fee of the current block.

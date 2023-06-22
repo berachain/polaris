@@ -18,13 +18,11 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package core
+package block
 
-import "errors"
-
-var (
-	ErrBlockOutOfGas    = errors.New("block is out of gas")
-	ErrBlockNotFound    = errors.New("block not found")
-	ErrReceiptsNotFound = errors.New("receipts not found")
-	ErrTxNotFound       = errors.New("transaction not found")
+import (
+	. "github.com/onsi/ginkgo/v2"
+	// . "github.com/onsi/gomega".
 )
+
+var _ = Describe("Block Plugin", func() {})

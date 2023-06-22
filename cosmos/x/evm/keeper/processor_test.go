@@ -96,7 +96,6 @@ var _ = Describe("Processor", func() {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
-		ctx = ctx.WithBlockHeight(0)
 		for _, plugin := range k.GetHost().GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
 			if hasInitGenesis {

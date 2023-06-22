@@ -270,7 +270,7 @@ func (p *plugin) AddBalance(addr common.Address, amount *big.Int) {
 	if amount.Sign() == 0 {
 		return
 	}
-	p.SetBalance(addr, new(big.Int).Add(p.GetBalance(addr), amount))
+	p.ctx.KVStore(p.storeKey).Set(BalanceKeyFor(addr), new(big.Int).Add(p.GetBalance(addr), amount).Bytes())
 }
 
 // SubBalance implements the `StatePlugin` interface by subtracting the given amount
@@ -279,7 +279,7 @@ func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
 	if amount.Sign() == 0 {
 		return
 	}
-	p.SetBalance(addr, new(big.Int).Sub(p.GetBalance(addr), amount))
+	p.ctx.KVStore(p.storeKey).Set(BalanceKeyFor(addr), new(big.Int).Sub(p.GetBalance(addr), amount).Bytes())
 }
 
 // =============================================================================
