@@ -4,7 +4,7 @@ The RPC Hive directory runs the tests specified by the `ethereum/rpc` simluation
 
 These tests are run as go functions, and required a few changes to comply with Polaris logic.
 
-For example, the estimateGas test needed to be changed to account for the intended overestimation by 1.20 percent.
+For example, the estimateGas test needed to be changed to account for the intended overestimation by 20%.
 
 ## Files Changed
 
