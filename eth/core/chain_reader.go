@@ -179,7 +179,7 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 	// check the historical plugin
 	block, err := bc.hp.GetBlockByHash(hash)
 	if block == nil || err != nil {
-		bc.logger.Debug("failed to get block from historical plugin", "block", block, "err", err)
+		bc.logger.Warn("failed to get block from historical plugin", "block", block, "err", err)
 		return nil
 	}
 
@@ -248,7 +248,7 @@ func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 	// check the historical plugin
 	receipts, err := bc.hp.GetReceiptsByHash(blockHash)
 	if receipts == nil || err != nil {
-		bc.logger.Debug("failed to get receipts from historical plugin", "receipts", receipts, "err", err)
+		bc.logger.Warn("failed to get receipts from historical plugin", "receipts", receipts, "err", err)
 		return nil
 	}
 
@@ -284,7 +284,7 @@ func (bc *blockchain) GetTransactionLookup(
 	// check the historical plugin
 	txLookupEntry, err := bc.hp.GetTransactionByHash(hash)
 	if err != nil {
-		bc.logger.Debug("failed to get transaction by hash", "tx", hash, "err", err)
+		bc.logger.Warn("failed to get transaction by hash", "tx", hash, "err", err)
 		return nil
 	}
 
