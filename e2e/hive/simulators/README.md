@@ -1,4 +1,32 @@
-# .hive file extension
+# Hive Simulators
+
+Each Hive simulator maintained in the Polaris repo is a subset of the respective Hive simulator maintained in the Hive repo. The goal internally is to maintain the minimum number of files necessary to run the Hive simulator in Polaris.
+
+## Usage
+
+Since we do not maintain the whole directory, there is no way (at the moment) to run the Hive simulator directly. Instead, to run it locally, the `hive` mage namespace must be invoked.
+
+Note: Hive requires a custom base image of polard, build this with `mage cosmos:dockerbuildhive`
+
+### Steps
+1. run `mage hive:setup` to generate the hive clone and creates the polaris namespace simulations
+2. run `mage cosmos:dockerbuildhive` to build the polard base image
+3. run `mage hive:test <simulation> <client>` to run the simulation on the given client
+
+Alternatively, use `mage cosmos:testhive <simulation>` to build the base-image and run the simulation on the polard client.
+
+Note: polaris namespace simulations are called `polaris/<name>`, for the sake of maintaining consistency with `ethereum/<name>` simulations.
+
+## Adding simulations
+
+Currently, the existing magefile setup only supports maintaining simulations which are forks of an existing simulation in the Hive repo.
+
+### Dev UX
+1. Add the simulation to the CI.
+2. Add a new entry to the list of simulations in the `hive.go` magefile, specifying the name and which files to replace.
+
+
+## .hive file extension
 
 The `.hive` file extension used in the rpc simulation is the local replacement file for it's respective copy in the standard ethereum simulation folder.
 
