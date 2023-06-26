@@ -61,7 +61,7 @@ func DefaultGethNodeConfig() *node.Config {
 	nodeCfg.P2P.NoDiscovery = true
 	nodeCfg.P2P.MaxPeers = 0
 	nodeCfg.Name = clientIdentifier
-	nodeCfg.HTTPModules = append(nodeCfg.HTTPModules, "eth", "web3", "net")
+	nodeCfg.HTTPModules = append(nodeCfg.HTTPModules, "eth", "web3", "net", "txpool", "debug")
 	nodeCfg.WSModules = append(nodeCfg.WSModules, "eth")
 	nodeCfg.HTTPHost = "0.0.0.0"
 	nodeCfg.WSHost = "0.0.0.0"
