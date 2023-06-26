@@ -28,6 +28,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	tmock "pkg.berachain.dev/polaris/cosmos/testing/types/mock"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
@@ -62,7 +63,7 @@ var _ = Describe("plugin", func() {
 
 	It("should error on insufficient gas", func() {
 		_, _, err := p.Run(e, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
-		Expect(err.Error()).To(Equal("out of gas"))
+		Expect(err).To(MatchError("out of gas"))
 	})
 
 	It("should plug in custom gas configs", func() {
@@ -79,19 +80,23 @@ var _ = Describe("plugin", func() {
 		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(3)))
 	})
 
-	// It("should handle read-only static calls", func() {
-	// 	ms := utils.MustGetAs[tmock.MultiStore](ctx.MultiStore())
-	// 	// verify its not read-only right now
-	// 	Expect(ms.IsReadOnly()).To(BeFalse())
+	It("should handle read-only static calls", func() {
+		ms := utils.MustGetAs[tmock.MultiStore](ctx.MultiStore())
+		// verify its not read-only right now
+		Expect(ms.IsReadOnly()).To(BeFalse())
 
-	// 	// run read only precompile
-	// 	p.Run(e, &mockStateful{}, []byte{2}, addr2, new(big.Int), 5, true)
-	// })
+		// run read only precompile
+		_, _, err := p.Run(e, &mockStateful{}, []byte{2}, addr2, new(big.Int), 5, true)
+		Expect(err.Error()).To(ContainSubstring(vm.ErrWriteProtection.Error()))
+
+		// check that the multistore is set back to read-only false
+		Expect(ms.IsReadOnly()).To(BeFalse())
+	})
 })
 
 var (
-	addr = common.BytesToAddress([]byte{1})
-	// addr2 = common.BytesToAddress([]byte{2}).
+	addr  = common.BytesToAddress([]byte{1})
+	addr2 = common.BytesToAddress([]byte{2})
 )
 
 // MOCKS BELOW.
@@ -140,23 +145,23 @@ func (ms *mockStateless) RequiredGas(_ []byte) uint64 {
 	return 10
 }
 
-// type mockStateful struct{} // at addr 2
+type mockStateful struct{} // at addr 2
 
-// func (msf *mockStateful) RegistryKey() common.Address {
-// 	return addr
-// }
+func (msf *mockStateful) RegistryKey() common.Address {
+	return addr
+}
 
-// // panics if modifying state on read-only
-// func (msf *mockStateful) Run(
-// 	ctx context.Context, _ precompile.EVM, input []byte,
-// 	_ common.Address, _ *big.Int, _ bool,
-// ) ([]byte, error) {
-// 	if input[0] == byte(2) {
-// 		panic(vm.ErrWriteProtection)
-// 	}
-// 	return nil, nil
-// }
+// panics if modifying state on read-only
+func (msf *mockStateful) Run(
+	ctx context.Context, _ precompile.EVM, input []byte,
+	_ common.Address, _ *big.Int, _ bool,
+) ([]byte, error) {
+	if input[0] == byte(2) {
+		panic(vm.ErrWriteProtection)
+	}
+	return nil, nil
+}
 
-// func (msf *mockStateful) RequiredGas(_ []byte) uint64 {
-// 	return 10
-// }
+func (msf *mockStateful) RequiredGas(_ []byte) uint64 {
+	return 1
+}
