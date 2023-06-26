@@ -188,15 +188,11 @@ func (p *plugin) EnableReentrancy(evm ethprecompile.EVM) {
 func (p *plugin) enableReentrancy(sdb vm.PolarisStateDB) {
 	sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
 
-	// pause precompile execution => stop emitting Cosmos event as Eth logs for now
+	// end precompile execution => stop emitting Cosmos event as Eth logs for now
 	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager())
 	cem.EndPrecompileExecution()
 
-	// We remove the KVStore gas metering from the context prior to entering the EVM state
-	// transition. This is because the EVM is not aware of the Cosmos SDK's gas metering and is
-	// designed to be used in a standalone manner, as each of the EVM's opcodes are priced
-	// individually. By setting the gas configs to empty structs, we ensure that SLOADS and SSTORES
-	// in the EVM are not being charged additional gas unknowingly.
+	// remove Cosmos gas consumption so gas is consumed only per OPCODE
 	p.sp.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
 }
 
