@@ -91,7 +91,7 @@ var _ = Describe("plugin", func() {
 
 var (
 	addr = common.BytesToAddress([]byte{1})
-	// addr2 = common.BytesToAddress([]byte{2})
+	// addr2 = common.BytesToAddress([]byte{2}).
 )
 
 // MOCKS BELOW.
