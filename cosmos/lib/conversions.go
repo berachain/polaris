@@ -68,7 +68,9 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 
 	sdkCoins := sdk.Coins{}
 	for _, evmCoin := range amounts {
-		sdkCoins = append(sdkCoins, sdk.Coin{evmCoin.Denom, sdkmath.NewIntFromBigInt(evmCoin.Amount)})
+		sdkCoins = append(sdkCoins, sdk.Coin{
+			Denom: evmCoin.Denom, Amount: sdkmath.NewIntFromBigInt(evmCoin.Amount),
+		})
 	}
 	// sort the coins by denom, as Cosmos expects.
 	sdkCoins = sdkCoins.Sort()

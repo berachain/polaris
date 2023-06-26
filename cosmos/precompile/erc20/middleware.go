@@ -74,7 +74,7 @@ func (c *Contract) transferCoinToERC20(
 			sdkCtx,
 			cosmlib.AddressToAccAddress(owner),
 			cosmlib.AddressToAccAddress(recipient),
-			sdk.Coins{{denom, sdkmath.NewIntFromBigInt(amount)}},
+			sdk.Coins{{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)}},
 		); err != nil {
 			return err
 		}
@@ -229,7 +229,7 @@ func (c *Contract) transferERC20ToCoin(
 			sdkCtx,
 			cosmlib.AddressToAccAddress(owner),
 			cosmlib.AddressToAccAddress(recipient),
-			sdk.Coins{{denom, sdkmath.NewIntFromBigInt(amount)}},
+			sdk.Coins{{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)}},
 		); err != nil {
 			return err
 		}
