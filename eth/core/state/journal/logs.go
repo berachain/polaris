@@ -69,6 +69,10 @@ func (l *logs) RegistryKey() string {
 
 // SetTxContext sets the transaction hash and index for the current transaction.
 func (l *logs) SetTxContext(thash common.Hash, ti int) {
+	// Reset the journal for a new transaction.
+	*l = *utils.MustGetAs[*logs](NewLogs())
+
+	// Set the transaction hash and index.
 	l.txHash = thash
 	l.txIndex = ti
 }
@@ -95,7 +99,7 @@ func (l *logs) Logs() []*coretypes.Log {
 	return buf
 }
 
-// GetLogs returns the logs for the tx with the given metadata and resets the journal for a new tx.
+// GetLogs returns the logs for the tx with the given metadata.
 func (l *logs) GetLogs(_ common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log {
 	size := l.Size()
 	buf := make([]*coretypes.Log, size)
@@ -104,9 +108,6 @@ func (l *logs) GetLogs(_ common.Hash, blockNumber uint64, blockHash common.Hash)
 		buf[i].BlockHash = blockHash
 		buf[i].BlockNumber = blockNumber
 	}
-
-	*l = *utils.MustGetAs[*logs](NewLogs())
-
 	return buf
 }
 
