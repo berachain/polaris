@@ -21,7 +21,6 @@
 package precompile
 
 import (
-	"errors"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -35,6 +34,7 @@ import (
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/params"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/registry"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -134,8 +134,9 @@ func (p *plugin) Run(
 		defer func() { ms.SetReadOnly(false) }()
 	}
 
-	// disable reentrancy into the EVM
+	// disable reentrancy into the EVM during precompile execution
 	p.disableReentrancy(sdb)
+	defer p.enableReentrancy(sdb)
 
 	// recover from any panic during precompile execution for the EVM to handle as a vm error
 	defer func() {
@@ -143,16 +144,15 @@ func (p *plugin) Run(
 			// NOTE: this only propagates an error back to the EVM if the type of the given panic
 			// value is error, string, Cosmos ErrorOutOfGas, or Cosmos ErrorGasOverflow (any other
 			// type of panic value is ignored)
-			var ok bool
-			if err, ok = utils.GetAs[error](panicked); !ok {
-				if strErr, ok := utils.GetAs[string](panicked); ok {
-					err = errors.New(strErr)
-				} else {
-					if utils.Implements[storetypes.ErrorOutOfGas](panicked) ||
-						utils.Implements[storetypes.ErrorGasOverflow](panicked) {
-						err = vm.ErrOutOfGas
-					}
-				}
+			switch {
+			case utils.Implements[error](panicked):
+				err = errorslib.Wrap(ethprecompile.ErrPanic, utils.MustGetAs[error](panicked).Error())
+			case utils.Implements[string](panicked):
+				err = errorslib.Wrap(ethprecompile.ErrPanic, utils.MustGetAs[string](panicked))
+			case utils.Implements[storetypes.ErrorGasOverflow](panicked):
+				fallthrough
+			case utils.Implements[storetypes.ErrorOutOfGas](panicked):
+				err = vm.ErrOutOfGas
 			}
 		}
 	}()
@@ -160,6 +160,7 @@ func (p *plugin) Run(
 	// use a precompile-specific gas meter for dynamic consumption, which will panic if gas is
 	// consumed over limit
 	gm := storetypes.NewGasMeter(suppliedGas)
+	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
 	// run the precompile container
 	ret, err = pc.Run(
@@ -172,13 +173,8 @@ func (p *plugin) Run(
 		value,
 		readOnly,
 	)
-
-	// enable reentrancy into the EVM
-	p.enableReentrancy(sdb)
-
-	// consume static gas from RequiredGas
-	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 	gasRemaining = gm.GasRemaining()
+
 	return
 }
 

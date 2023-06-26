@@ -60,7 +60,7 @@ var _ = Describe("plugin", func() {
 		Expect(remainingGas).To(Equal(uint64(10)))
 	})
 
-	FIt("should error on insufficient gas", func() {
+	It("should error on insufficient gas", func() {
 		_, _, err := p.Run(e, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
