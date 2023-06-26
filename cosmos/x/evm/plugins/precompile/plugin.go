@@ -121,7 +121,7 @@ func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConf
 func (p *plugin) Run(
 	evm ethprecompile.EVM, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readOnly bool,
-) ([]byte, uint64, error) {
+) (ret []byte, gasRemaining uint64, err error) {
 	// get native Cosmos SDK context and MultiStore from the Polaris StateDB
 	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
 	ctx := sdk.UnwrapSDKContext(sdb.GetContext())
@@ -138,7 +138,6 @@ func (p *plugin) Run(
 	p.disableReentrancy(sdb)
 
 	// recover from any panic during precompile execution for the EVM to handle as a vm error
-	var err error
 	defer func() {
 		if panicked := recover(); panicked != nil {
 			// NOTE: this only propagates an error back to the EVM if the type of the given panic
@@ -163,7 +162,6 @@ func (p *plugin) Run(
 	gm := storetypes.NewGasMeter(suppliedGas)
 
 	// run the precompile container
-	var ret []byte
 	ret, err = pc.Run(
 		ctx.WithGasMeter(gm).
 			WithKVGasConfig(p.kvGasConfig).
@@ -180,9 +178,8 @@ func (p *plugin) Run(
 
 	// consume static gas from RequiredGas
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
-
-	// valid precompile gas consumption => return remaining gas
-	return ret, gm.GasRemaining(), err
+	gasRemaining = gm.GasRemaining()
+	return
 }
 
 // EnableReentrancy sets the state so that execution can enter the EVM again.
