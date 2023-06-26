@@ -21,7 +21,12 @@
 package precompile
 
 import (
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"fmt"
+	"reflect"
+	"strings"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -149,4 +154,61 @@ func (sf *StatefulFactory) buildIdsToMethods(
 		idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = precompileMethod
 	}
 	return idsToMethods, nil
+}
+
+// GeneratePrecompileMethods generates the methods for the given Precompile's ABI.
+
+func GeneratePrecompileMethods(abiStr string, rcvr any) Methods {
+	var precompileMethods Methods
+
+	reflectedContract := reflect.TypeOf(rcvr)
+	abiParsed, _ := abi.JSON(strings.NewReader(abiStr))
+	abiMethods := abiParsed.Methods
+
+	if len(abiMethods) != reflectedContract.NumMethod() {
+		panic("did not implement all of the abi methods")
+	}
+
+	fmt.Println("reflectedContract.NumMethod()", reflectedContract.NumMethod())
+	for i := 0; i < reflectedContract.NumMethod(); i++ {
+
+		execute := reflectedContract.Method(i)
+		formatted := formatExecuteToAbiSig(execute.Name) // lowercase the first letter
+
+		abiMethod := abiMethods[formatted]
+		abisig := abiMethod.Sig
+
+		// get go function params
+		goParams := GoParamsToAbiParams(execute)
+
+		fmt.Println("formattedExecute:", formatted, goParams, " | abiSig: ", abisig)
+		methodExecute, _ := utils.GetAs[Executable](execute)
+		fmt.Println("methodExecute", methodExecute)
+		//	if !ok {
+		//		return Methods{} // 1) what
+		//	}
+		precompileMethods = append(precompileMethods, &Method{AbiSig: abisig, Execute: methodExecute})
+	}
+
+	return precompileMethods
+}
+
+func GoParamsToAbiParams(goParams reflect.Method) []reflect.Type {
+	m := map[any]any{}
+	m[reflect.TypeOf(common.Address{})] = "address"
+	paramTypes := make([]reflect.Type, 0, goParams.Type.NumIn())
+	for j := 1; j < goParams.Type.NumIn(); j++ {
+		paramType := goParams.Type.In(j)
+		paramTypes = append(paramTypes, paramType)
+	}
+	return paramTypes
+}
+
+func formatExecuteToAbiSig(execute string) string {
+	firstChar := []rune(execute)[:1]
+	firstCharLower := strings.ToLower(string(firstChar))
+
+	// Replace the first character in the string
+	result := firstCharLower + execute[1:]
+	return result
 }

@@ -21,11 +21,7 @@
 package precompile
 
 import (
-	"context"
-	"math/big"
-
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
 )
 
 /**
@@ -44,14 +40,7 @@ import (
 
 // Executable is a type of function that stateful precompiled contract will implement. Each
 // Executable should directly correspond to an ABI method.
-type Executable func(
-	ctx context.Context,
-	evm EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
-	args ...any,
-) (ret []any, err error)
+type Executable func(args ...any) (ret []any, err error)
 
 // Method is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
