@@ -101,7 +101,6 @@ var _ = Describe("Address Precompile", func() {
 				nil,
 				common.Address{},
 				new(big.Int),
-				false,
 				"invalid",
 			)
 			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
@@ -114,7 +113,6 @@ var _ = Describe("Address Precompile", func() {
 				nil,
 				common.Address{},
 				new(big.Int),
-				false,
 				common.BytesToAddress([]byte("test")),
 			)
 			Expect(err).To(HaveOccurred())
@@ -128,7 +126,6 @@ var _ = Describe("Address Precompile", func() {
 				nil,
 				common.Address{},
 				new(big.Int),
-				false,
 				common.BytesToAddress([]byte("invalid")),
 			)
 			Expect(err).To(MatchError(precompile.ErrInvalidString))
@@ -141,7 +138,6 @@ var _ = Describe("Address Precompile", func() {
 				nil,
 				common.Address{},
 				new(big.Int),
-				false,
 				"0xxxxx",
 			)
 			Expect(err).To(HaveOccurred())
@@ -154,7 +150,6 @@ var _ = Describe("Address Precompile", func() {
 				nil,
 				common.Address{},
 				new(big.Int),
-				false,
 				cosmlib.AddressToAccAddress(common.BytesToAddress([]byte("test"))).String(),
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -198,7 +193,6 @@ var _ = Describe("Address Precompile", func() {
 				evm,
 				common.Address{},
 				new(big.Int),
-				false,
 				"invalid address",
 				grantee,
 				sdkCoinsToEvmCoins(limit),
@@ -213,7 +207,6 @@ var _ = Describe("Address Precompile", func() {
 				evm,
 				common.Address{},
 				new(big.Int),
-				false,
 				granter,
 				"invalid address",
 				sdkCoinsToEvmCoins(limit),
@@ -228,7 +221,6 @@ var _ = Describe("Address Precompile", func() {
 				evm,
 				common.Address{},
 				new(big.Int),
-				false,
 				granter,
 				grantee,
 				"invalid limit",
@@ -243,7 +235,6 @@ var _ = Describe("Address Precompile", func() {
 				evm,
 				common.Address{},
 				new(big.Int),
-				false,
 				granter,
 				grantee,
 				sdkCoinsToEvmCoins(limit),
@@ -258,7 +249,6 @@ var _ = Describe("Address Precompile", func() {
 				evm,
 				common.Address{},
 				new(big.Int),
-				false,
 				granter,
 				grantee,
 				sdkCoinsToEvmCoins(limit),
@@ -273,7 +263,6 @@ var _ = Describe("Address Precompile", func() {
 				evm,
 				common.Address{},
 				new(big.Int),
-				false,
 				granter,
 				grantee,
 				sdkCoinsToEvmCoins(limit),
@@ -288,7 +277,6 @@ var _ = Describe("Address Precompile", func() {
 				evm,
 				common.Address{},
 				new(big.Int),
-				false,
 				granter,
 				grantee,
 				sdkCoinsToEvmCoins(limit),
@@ -305,7 +293,6 @@ var _ = Describe("Address Precompile", func() {
 					evm,
 					common.Address{},
 					new(big.Int),
-					false,
 					granter,
 					grantee,
 					sdkCoinsToEvmCoins(limit),
@@ -334,7 +321,6 @@ var _ = Describe("Address Precompile", func() {
 					evm,
 					common.Address{},
 					new(big.Int),
-					true,
 					granter,
 					"invalid address",
 					"test",
@@ -348,7 +334,6 @@ var _ = Describe("Address Precompile", func() {
 					evm,
 					common.Address{},
 					new(big.Int),
-					true,
 					granter,
 					grantee,
 					1,
@@ -362,7 +347,6 @@ var _ = Describe("Address Precompile", func() {
 					evm,
 					common.Address{},
 					new(big.Int),
-					true,
 					granter,
 					grantee,
 					"test",
