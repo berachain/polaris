@@ -52,6 +52,8 @@ var (
 )
 
 // transferCoinToERC20 transfers SDK/Polaris coins to ERC20 tokens for an owner.
+//
+//nolint:funlen // okay.
 func (c *Contract) transferCoinToERC20(
 	ctx context.Context,
 	evm ethprecompile.EVM,
