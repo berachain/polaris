@@ -134,7 +134,7 @@ func (p *plugin) Run(
 		defer func() { ms.SetReadOnly(false) }()
 	}
 
-	// disable reentrancy into the EVM during precompile execution
+	// disable reentrancy into the EVM only during precompile execution
 	p.disableReentrancy(sdb)
 	defer p.enableReentrancy(sdb)
 

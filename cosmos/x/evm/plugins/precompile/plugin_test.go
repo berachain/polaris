@@ -62,7 +62,7 @@ var _ = Describe("plugin", func() {
 	})
 
 	It("should error on insufficient gas", func() {
-		_, _, err := p.Run(e, &mockStateless{}, []byte{}, addr, new(big.Int), 5, true)
+		_, _, err := p.Run(e, &mockStateless{}, []byte{}, addr, new(big.Int), 5, false)
 		Expect(err).To(MatchError("out of gas"))
 	})
 
@@ -154,9 +154,9 @@ func (msf *mockStateful) RegistryKey() common.Address {
 // panics if modifying state on read-only
 func (msf *mockStateful) Run(
 	ctx context.Context, _ precompile.EVM, input []byte,
-	_ common.Address, _ *big.Int, _ bool,
+	_ common.Address, _ *big.Int, readOnly bool,
 ) ([]byte, error) {
-	if input[0] == byte(2) {
+	if readOnly && input[0] == byte(2) {
 		panic(vm.ErrWriteProtection)
 	}
 	return nil, nil
