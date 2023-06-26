@@ -44,8 +44,12 @@ const (
 	transferFrom = `transferFrom`
 )
 
-// ErrTokenDoesNotExist is returned when a token contract does not exist.
-var ErrTokenDoesNotExist = errors.New("ERC20 token contract does not exist")
+var (
+	// ErrTokenDoesNotExist is returned when a token contract does not exist.
+	ErrTokenDoesNotExist = errors.New("ERC20 token contract does not exist")
+	// ErrInvalidAmount is returned when an amount is invalid.
+	ErrInvalidAmount = errors.New("amount is negative or 0")
+)
 
 // transferCoinToERC20 transfers SDK/Polaris coins to ERC20 tokens for an owner.
 func (c *Contract) transferCoinToERC20(
@@ -57,6 +61,10 @@ func (c *Contract) transferCoinToERC20(
 	recipient common.Address,
 	amount *big.Int,
 ) error {
+	if amount.Cmp(new(big.Int)) <= 0 {
+		return ErrInvalidAmount
+	}
+
 	var (
 		sdkCtx         = sdk.UnwrapSDKContext(ctx)
 		isPolarisDenom = erc20types.IsPolarisDenom(denom)
@@ -161,6 +169,10 @@ func (c *Contract) transferERC20ToCoin(
 	recipient common.Address,
 	amount *big.Int,
 ) error {
+	if amount.Cmp(new(big.Int)) <= 0 {
+		return ErrInvalidAmount
+	}
+
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// get SDK/Polaris coin denomination pairing with ERC20 token
