@@ -25,20 +25,17 @@ type LocalnetClient struct {
 	container tc.Container
 }
 
-func NewLocalnetClient(ctx context.Context, genesis, httpAddress, wsAddress string) (*LocalnetClient, error) {
+func NewLocalnetClient(ctx context.Context, imageName, genesis, httpAddress, wsAddress string) (*LocalnetClient, error) {
 	if genesis == "" {
 		return nil, fmt.Errorf("genesis cannot be empty")
 	}
 
 	req := tc.GenericContainerRequest{
 		ContainerRequest: tc.ContainerRequest{
-			Image:        "polaris",
+			Image:        imageName,
 			ExposedPorts: []string{"8545/tcp", "8546/tcp"},
 		},
 	}
-
-	// defaultHttpPort = "8545/tcp"
-	// defaultWsPort   = "8546/tcp"
 
 	container, err := tc.GenericContainer(ctx, req)
 	if err != nil {

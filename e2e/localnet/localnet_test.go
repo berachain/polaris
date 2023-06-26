@@ -16,26 +16,55 @@ package localnet
 
 import (
 	"context"
-	gotesting "testing"
+	"testing"
+
+	tc "github.com/testcontainers/testcontainers-go"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-func TestPolarisChain(t *gotesting.T) {
+func TestLocalnet(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "testing:integration")
 }
 
 var _ = Describe("Fixture", func() {
 	var (
-		// ctx context.Context
-		c *LocalnetClient
+		c         *LocalnetClient
+		ctx       context.Context
+		container tc.Container
 	)
 
-	// BeforeEach(func() {
-	// 	ctx = context.Background()
-	// })
+	BeforeEach(func() {
+		ctx = context.Background()
+
+		baseImage := tc.ContainerRequest{
+			FromDockerfile: tc.FromDockerfile{
+				Context:    "../../cosmos/docker/",
+				Dockerfile: "../../cosmos/docker/base.Dockerfile",
+			},
+		}
+
+		_, err := tc.GenericContainer(ctx, tc.GenericContainerRequest{
+			ContainerRequest: baseImage,
+			Started:          false,
+		})
+		Expect(err).ToNot(HaveOccurred())
+
+		localnetImage := tc.ContainerRequest{
+			FromDockerfile: tc.FromDockerfile{
+				Context:    "./",
+				Dockerfile: "Dockerfile",
+			},
+		}
+		localnetContainer, err := tc.GenericContainer(ctx, tc.GenericContainerRequest{
+			ContainerRequest: localnetImage,
+			Started:          false,
+		})
+		Expect(err).ToNot(HaveOccurred())
+		container = localnetContainer
+	})
 
 	AfterEach(func() {
 		if c != nil {
@@ -45,11 +74,11 @@ var _ = Describe("Fixture", func() {
 
 	It("should create a container", func() {
 		var err error
-		c, err := NewLocalnetClient(context.Background(), "something", "localhost:8545", "localhost:8546")
+		c, err := NewLocalnetClient(ctx, container.GetContainerID(), "something", "localhost:8545", "localhost:8546")
 		Expect(err).ToNot(HaveOccurred())
 		Expect(c).ToNot(BeNil())
 
-		err = c.container.Start(context.Background())
+		err = c.Start(context.Background())
 		Expect(err).ToNot(HaveOccurred())
 	})
 })
