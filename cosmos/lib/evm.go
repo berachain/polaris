@@ -25,10 +25,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // DeployOnEVMFromPrecompile deploys an EVM contract from a precompile contract.
@@ -42,6 +44,10 @@ func DeployOnEVMFromPrecompile(
 	contractCode string, // hex-encoded string
 	constructorArgs ...any,
 ) (common.Address, []byte, error) {
+	if utils.MustGetAs[precompile.MultiStore](ctx.MultiStore()).IsReadOnly() {
+		return common.Address{}, nil, vm.ErrWriteProtection
+	}
+
 	plugin.EnableReentrancy(evm)
 	defer plugin.DisableReentrancy(evm)
 
@@ -72,6 +78,10 @@ func CallEVMFromPrecompile(
 	methodName string,
 	args ...any,
 ) ([]byte, error) {
+	if utils.MustGetAs[precompile.MultiStore](ctx.MultiStore()).IsReadOnly() {
+		return nil, vm.ErrWriteProtection
+	}
+
 	plugin.EnableReentrancy(evm)
 	defer plugin.DisableReentrancy(evm)
 
