@@ -172,6 +172,10 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 	for m := 0; m < contractImplType.NumMethod(); m++ { // iterate through all of the impl's methods
 		implMethod := contractImplType.Method(m) // grab the Impl's current method
 		implMethodName := formatName(implMethod.Name)
+
+		if unicode.IsDigit(rune(implMethodName[len(implMethodName)-1])) { // its a god damn overloaded function FUCK
+
+		}
 		if implMethod.PkgPath != "" {
 			continue // skip methods that are not exported
 		}
@@ -181,7 +185,12 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 			} else if err := basicValidation(implMethod, abiMethod); err != nil {
 				panic(err)
 			}
-
+			for i := 2; i < implMethod.Type.NumIn(); i++ { // start at 2 as 0th params should be a context, and 1 is the receiver
+				if implMethod.Type.In(i) != abiMethod.Inputs[i].Type.GetType() {
+					// hold on, this doesn't indicate a failure due to overloaded functions
+					return nil
+				}
+			}
 			toExecute := newExecute(implMethod) // grab the actual function
 			fmt.Println("AbiMethod:", abiMethod, "AbiSig:", abiMethod.Sig, "toExecute:", implMethod.Name)
 			methods = append(methods,
@@ -218,12 +227,6 @@ func basicValidation(implMethod reflect.Method, abiMethod abi.Method) error {
 	} else if implMethod.Type.NumIn()-1 != len(abiMethod.Inputs) {
 		// return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
 		fmt.Println("TODO: fix later")
-	} else { // check if method arg types match
-		for i := 2; i < implMethod.Type.NumIn(); i++ { // start at 2 as 0th params should be a context, and 1 is the receiver
-			if implMethod.Type.In(i) != abiMethod.Inputs[i].Type.GetType() {
-				return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
-			}
-		}
 	}
 	return nil
 }
@@ -239,5 +242,6 @@ func formatName(name string) string {
 	if len(ret) > 0 {
 		ret[0] = unicode.ToLower(ret[0])
 	}
+
 	return string(ret)
 }
