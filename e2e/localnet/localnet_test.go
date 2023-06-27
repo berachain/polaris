@@ -16,6 +16,7 @@ package localnet
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	tc "github.com/testcontainers/testcontainers-go"
@@ -29,6 +30,13 @@ func TestLocalnet(t *testing.T) {
 	RunSpecs(t, "testing:integration")
 }
 
+var (
+	contractsDir = "./contracts"
+	goVersion    = "1.20.4"
+	goOS         = "linux"
+	goArch       = "arm64"
+)
+
 var _ = Describe("Fixture", func() {
 	var (
 		c         *LocalnetClient
@@ -39,19 +47,29 @@ var _ = Describe("Fixture", func() {
 	BeforeEach(func() {
 		ctx = context.Background()
 
+		fmt.Println("Started 1")
 		baseImage := tc.ContainerRequest{
 			FromDockerfile: tc.FromDockerfile{
-				Context:    "../../cosmos/docker/",
-				Dockerfile: "../../cosmos/docker/base.Dockerfile",
+				Context:    "../../",
+				Dockerfile: "./cosmos/docker/base.Dockerfile",
+				BuildArgs: map[string]*string{
+					"GO_VERSION":               &goVersion,
+					"PRECOMPILE_CONTRACTS_DIR": &contractsDir,
+					"GOOS":                     &goOS,
+					"GOARCH":                   &goArch,
+				},
 			},
 		}
 
-		_, err := tc.GenericContainer(ctx, tc.GenericContainerRequest{
-			ContainerRequest: baseImage,
-			Started:          false,
-		})
+		_, err := tc.GenericContainer(ctx,
+			tc.GenericContainerRequest{
+				ContainerRequest: baseImage,
+				Started:          false,
+				Reuse:            false,
+			})
 		Expect(err).ToNot(HaveOccurred())
 
+		fmt.Println("Started 2")
 		localnetImage := tc.ContainerRequest{
 			FromDockerfile: tc.FromDockerfile{
 				Context:    "./",
@@ -61,9 +79,11 @@ var _ = Describe("Fixture", func() {
 		localnetContainer, err := tc.GenericContainer(ctx, tc.GenericContainerRequest{
 			ContainerRequest: localnetImage,
 			Started:          false,
+			Reuse:            false,
 		})
 		Expect(err).ToNot(HaveOccurred())
 		container = localnetContainer
+		fmt.Println("Started 3")
 	})
 
 	AfterEach(func() {
@@ -74,7 +94,11 @@ var _ = Describe("Fixture", func() {
 
 	It("should create a container", func() {
 		var err error
-		c, err := NewLocalnetClient(ctx, container.GetContainerID(), "something", "localhost:8545", "localhost:8546")
+		name, err := container.Name(ctx)
+		Expect(err).ToNot(HaveOccurred())
+		fmt.Println("name: ", name)
+		fmt.Println("Started 4")
+		c, err := NewLocalnetClient(ctx, name[1:], "something", "localhost:8545", "localhost:8546")
 		Expect(err).ToNot(HaveOccurred())
 		Expect(c).ToNot(BeNil())
 
