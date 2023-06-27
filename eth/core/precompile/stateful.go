@@ -64,7 +64,9 @@ func NewStateful(
 // Run implements `PrecompileContainer`.
 func (sc *stateful) Run(
 	ctx context.Context,
-	evm EVM, input []byte, caller common.Address,
+	evm EVM,
+	input []byte,
+	caller common.Address,
 	value *big.Int,
 	readonly bool,
 ) ([]byte, error) {
@@ -88,13 +90,13 @@ func (sc *stateful) Run(
 	}
 
 	// Execute the method registered with the given signature with the given args.
-	vals, err := method.Execute([]interface{}{
+	vals := method.Execute.Call(
 		ctx,
 		evm,
 		caller,
 		value,
 		readonly,
-		unpackedArgs}...,
+		unpackedArgs...,
 	)
 
 	// If the precompile returned an error, the error is returned to the caller.

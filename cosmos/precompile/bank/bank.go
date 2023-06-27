@@ -23,10 +23,14 @@ package bank
 import (
 	"context"
 	"math/big"
+	"reflect"
+	"strings"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -57,44 +61,12 @@ func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) *Co
 
 // PrecompileMethods implements StatefulImpl.
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{
-		{
-			AbiSig:  "getBalance(address,string)",
-			Execute: c.GetBalance,
-		},
-		{
-			AbiSig:  "getAllBalances(address)",
-			Execute: c.GetAllBalances,
-		},
-		{
-			AbiSig:  "getSpendableBalance(address,string)",
-			Execute: c.GetSpendableBalanceByDenom,
-		},
-		{
-			AbiSig:  "getAllSpendableBalances(address)",
-			Execute: c.GetSpendableBalances,
-		},
-		{
-			AbiSig:  "getSupply(string)",
-			Execute: c.GetSupplyOf,
-		},
-		{
-			AbiSig:  "getAllSupply()",
-			Execute: c.GetTotalSupply,
-		},
-		{
-			AbiSig:  "getDenomMetadata(string)",
-			Execute: c.GetDenomMetadata,
-		},
-		{
-			AbiSig:  "getSendEnabled(string)",
-			Execute: c.GetSendEnabled,
-		},
-		{
-			AbiSig:  "send(address,address,(uint256,string)[])",
-			Execute: c.Send,
-		},
-	}
+
+	contractVal := reflect.ValueOf(c)
+	bankABI, _ := abi.JSON(strings.NewReader(bank.BankModuleABI))
+	bankABIMethods := bankABI.Methods // get the respective ABI's methods
+
+	return ethprecompile.GeneratePrecompileMethod(bankABIMethods, contractVal)
 }
 
 // GetBalance implements `getBalance(address,string)` method.

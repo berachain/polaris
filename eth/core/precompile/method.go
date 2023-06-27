@@ -21,6 +21,8 @@
 package precompile
 
 import (
+	"reflect"
+
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 )
 
@@ -38,9 +40,7 @@ import (
  *          this field will be automatically populated.
  **/
 
-// Executable is a type of function that stateful precompiled contract will implement. Each
-// Executable should directly correspond to an ABI method.
-type Executable func(args ...any) (ret []any, err error)
+type Executable reflect.Value
 
 // Method is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
@@ -58,7 +58,7 @@ type Method struct {
 
 	// Execute is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
-	Execute Executable
+	Execute reflect.Value
 
 	// RequiredGas is the amount of gas (as a `uint64`) used up by the execution of `Execute`.
 	// This field is optional; if left empty, the precompile's executable should consume gas using
@@ -69,7 +69,7 @@ type Method struct {
 // ValidateBasic returns an error if this a precompile `Method` has invalid fields.
 func (m *Method) ValidateBasic() error {
 	// ensure all required fields are nonempty
-	if len(m.AbiSig) == 0 || m.AbiMethod != nil || m.Execute == nil {
+	if len(m.AbiSig) == 0 || m.AbiMethod != nil || m.Execute.IsNil() {
 		return ErrIncompleteMethod
 	}
 

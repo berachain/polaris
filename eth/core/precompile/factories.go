@@ -21,12 +21,9 @@
 package precompile
 
 import (
-	"fmt"
 	"reflect"
-	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -157,58 +154,42 @@ func (sf *StatefulFactory) buildIdsToMethods(
 }
 
 // GeneratePrecompileMethods generates the methods for the given Precompile's ABI.
-
-func GeneratePrecompileMethods(abiStr string, rcvr any) Methods {
-	var precompileMethods Methods
-
-	reflectedContract := reflect.TypeOf(rcvr)
-	abiParsed, _ := abi.JSON(strings.NewReader(abiStr))
-	abiMethods := abiParsed.Methods
-
-	if len(abiMethods) != reflectedContract.NumMethod() {
-		panic("did not implement all of the abi methods")
-	}
-
-	fmt.Println("reflectedContract.NumMethod()", reflectedContract.NumMethod())
-	for i := 0; i < reflectedContract.NumMethod(); i++ {
-
-		execute := reflectedContract.Method(i)
-		formatted := formatExecuteToAbiSig(execute.Name) // lowercase the first letter
-
-		abiMethod := abiMethods[formatted]
-		abisig := abiMethod.Sig
-
-		// get go function params
-		goParams := GoParamsToAbiParams(execute)
-
-		fmt.Println("formattedExecute:", formatted, goParams, " | abiSig: ", abisig)
-		methodExecute, _ := utils.GetAs[Executable](execute)
-		fmt.Println("methodExecute", methodExecute)
-		//	if !ok {
-		//		return Methods{} // 1) what
-		//	}
-		precompileMethods = append(precompileMethods, &Method{AbiSig: abisig, Execute: methodExecute})
-	}
-
-	return precompileMethods
+func GeneratePrecompileMethod(ABI map[string]abi.Method, contractImpl reflect.Value) Methods {
+	return suitableMethods(ABI, contractImpl)
 }
 
-func GoParamsToAbiParams(goParams reflect.Method) []reflect.Type {
-	m := map[any]any{}
-	m[reflect.TypeOf(common.Address{})] = "address"
-	paramTypes := make([]reflect.Type, 0, goParams.Type.NumIn())
-	for j := 1; j < goParams.Type.NumIn(); j++ {
-		paramType := goParams.Type.In(j)
-		paramTypes = append(paramTypes, paramType)
+// this searches for the function that implements the given ABI
+// and maps each abi sig to the method
+func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Methods {
+
+	contractImplType := contractImpl.Type()
+	var methods Methods
+
+	for m := 0; m < contractImplType.NumMethod(); m++ {
+		implMethod := contractImplType.Method(m) // grab the Impl's method
+		if implMethod.PkgPath != "" {
+			continue // skip methods that are not exported
+		}
+		for _, abiMethod := range ABI { // go through the ABI
+			if implMethod.Name != abiMethod.Name {
+				continue // skip if the method names do not match
+			}
+			toExecute := newExecute(implMethod) // if they do, then grab the function
+			methods = append(methods,
+				&Method{
+					AbiMethod: &abiMethod,
+					AbiSig:    abiMethod.Sig,
+					Execute:   toExecute,
+				}) // if so, then add to the map
+		}
+
 	}
-	return paramTypes
+	if len(methods) != len(ABI) {
+		panic("not all ABI methods were found in the contract implementation")
+	}
+	return methods
 }
 
-func formatExecuteToAbiSig(execute string) string {
-	firstChar := []rune(execute)[:1]
-	firstCharLower := strings.ToLower(string(firstChar))
-
-	// Replace the first character in the string
-	result := firstCharLower + execute[1:]
-	return result
+func newExecute(fn reflect.Method) reflect.Value {
+	return fn.Func
 }
