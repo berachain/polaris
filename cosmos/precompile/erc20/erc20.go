@@ -24,13 +24,11 @@ import (
 	"context"
 	"math/big"
 	"reflect"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
-	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/erc20"
 	cpbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/erc20"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -83,10 +81,7 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 // PrecompileMethods implements StatefulImpl.
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	contractVal := reflect.ValueOf(c)
-	erc20ABI, _ := abi.JSON(strings.NewReader(erc20.ERC20ModuleABI))
-	erc20ABIMethods := erc20ABI.Methods
-
-	return ethprecompile.GeneratePrecompileMethod(erc20ABIMethods, contractVal)
+	return ethprecompile.GeneratePrecompileMethod(c.ABIMethods(), contractVal)
 }
 
 // CoinDenomForERC20AddressAddrInput returns the SDK coin denomination for the given ERC20 address.

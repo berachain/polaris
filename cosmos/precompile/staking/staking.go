@@ -24,15 +24,12 @@ import (
 	"context"
 	"math/big"
 	"reflect"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 
-	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -64,10 +61,7 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 // PrecompileMethods implements StatefulImpl.
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	contractVal := reflect.ValueOf(c)
-	stakingABI, _ := abi.JSON(strings.NewReader(staking.StakingModuleABI))
-	stakingABIMethods := stakingABI.Methods
-
-	return ethprecompile.GeneratePrecompileMethod(stakingABIMethods, contractVal)
+	return ethprecompile.GeneratePrecompileMethod(c.ABIMethods(), contractVal)
 }
 
 // GetDelegationAddrInput implements `getDelegation(address)` method.

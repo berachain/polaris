@@ -24,7 +24,6 @@ import (
 	"context"
 	"math/big"
 	"reflect"
-	"strings"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,9 +31,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 
-	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -68,10 +65,7 @@ func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
 // PrecompileMethods implements the `ethprecompile.StatefulImpl` interface.
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	contractVal := reflect.ValueOf(c)
-	govABI, _ := abi.JSON(strings.NewReader(governance.GovernanceModuleABI))
-	govABIMethods := govABI.Methods
-
-	return ethprecompile.GeneratePrecompileMethod(govABIMethods, contractVal)
+	return ethprecompile.GeneratePrecompileMethod(c.ABIMethods(), contractVal)
 }
 
 // CustomValueDecoders implements the `ethprecompile.StatefulImpl` interface.

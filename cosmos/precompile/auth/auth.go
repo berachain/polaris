@@ -24,16 +24,13 @@ import (
 	"context"
 	"math/big"
 	"reflect"
-	"strings"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 
-	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -75,10 +72,7 @@ func NewPrecompileContract(
 // PrecompileMethods implements StatefulImpl.
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	contractVal := reflect.ValueOf(c)
-	authABI, _ := abi.JSON(strings.NewReader(auth.AuthModuleABI))
-	authABIMethods := authABI.Methods
-
-	return ethprecompile.GeneratePrecompileMethod(authABIMethods, contractVal)
+	return ethprecompile.GeneratePrecompileMethod(c.ABIMethods(), contractVal)
 }
 
 // ConvertHexToBech32 converts a common.Address to a bech32 string.
