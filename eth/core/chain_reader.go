@@ -252,19 +252,6 @@ func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 		return nil
 	}
 
-	// get the block to derive the receipts
-	block, err := bc.GetBlockByHash(blockHash)
-	if err != nil {
-		return nil, ErrBlockNotFound
-	}
-
-	// Derive receipts from block.
-	if err = receipts.DeriveFields(
-		bc.ChainConfig(), block.Hash(), block.Number().Uint64(), block.BaseFee(), block.Transactions(),
-	); err != nil {
-		return nil, err
-	}
-
 	// cache the found receipts for next time and return
 	bc.receiptsCache.Add(blockHash, receipts)
 	derived, err := bc.deriveReceipts(receipts, blockHash)

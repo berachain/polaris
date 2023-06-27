@@ -2,7 +2,6 @@
 
 # Stage 1: Clone repos
 cd ~/
-rm -rf op-stack-deployment 
 mkdir op-stack-deployment
 cd op-stack-deployment
 git clone https://github.com/ethereum-optimism/optimism.git --depth=1

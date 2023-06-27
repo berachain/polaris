@@ -214,6 +214,10 @@ func (sdb *stateDB) GetStorageProof(_ common.Address, _ common.Hash) ([][]byte, 
 	return nil, nil
 }
 
+func (sdb *stateDB) GetProof(_ common.Address) ([][]byte, error) {
+	return nil, nil
+}
+
 func (sdb *stateDB) GetOrNewStateObject(_ common.Address) *StateObject {
 	return nil
 }
