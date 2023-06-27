@@ -72,8 +72,11 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 			Denom: evmCoin.Denom, Amount: sdkmath.NewIntFromBigInt(evmCoin.Amount),
 		})
 	}
-	// sort the coins by denom, as Cosmos expects.
-	sdkCoins = sdkCoins.Sort()
+	// sort the coins by denom, as Cosmos expects and remove any 0 amounts.
+	sdkCoins = sdk.NewCoins(sdkCoins...)
+	if len(sdkCoins) == 0 {
+		return nil, precompile.ErrInvalidCoin
+	}
 
 	return sdkCoins, nil
 }
