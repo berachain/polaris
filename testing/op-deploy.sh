@@ -2,12 +2,11 @@
 
 # Step 3: Fill out environment variables in .env file
 L1_RPC_URL="http://localhost:8545"  # Replace with your L1 node URL
-L1_CHAINID=69420
+L1_CHAINID=2061
 L2_CHAINID=69421
 
 # Step 0: Copy the examples to the contracts-bedrock
-cp example.deployer ~/op-stack-deployment/optimism/packages/contracts-bedrock/deploy-config/deployer.json
-cp example.deployer.ts ~/op-stack-deployment/optimism/packages/contracts-bedrock/deploy-config/deployer.ts
+cp example.deployer ~/op-stack-deployment/optimism/packages/contracts-bedrock/deploy-config/getting-started.json
 cd ~/op-stack-deployment/optimism/packages/contracts-bedrock
 
 # Step 1: Generate some Keys
@@ -39,24 +38,17 @@ echo "Sequencer Address: $sequencer_address"
 echo "Sequencer Private Key: $sequencer_private_key"
 
 # Step 2: Copy .env.example to .env
-cp .envrc.example .env
-brew install direnv
-direnv allow .
+cp .envrc.example .envrc
 
 # Replace the values in .env file
 PRIVATE_KEY_DEPLOYER="$admin_private_key"  # Replace with the private key of the Admin account
-DISABLE_LIVE_DEPLOYER=false
-ETH_RPC_URL="http://localhost:8545"
-rm .env.bak
-sed -i.bak "s|^ETH_RPC_URL=.*|ETH_RPC_URL=$ETH_RPC_URL|g" .env && rm .env.bak
-sed -i.bak "s|^L1_RPC=.*|L1_RPC=$L1_RPC_URL|g" .env && rm .env.bak
-sed -i.bak "s|^PRIVATE_KEY=.*|PRIVATE_KEY=$PRIVATE_KEY_DEPLOYER|g" .env && rm .env.bak
-sed -i.bak "s|^DISABLE_LIVE_DEPLOYER=.*|DISABLE_LIVE_DEPLOYER=$DISABLE_LIVE_DEPLOYER|g" .env && rm .env.bak
-# Add CHAIN_ID to .env file
-echo "" >> .env
-echo "# Set the L1 ChainID" >> .env
-echo "CHAIN_ID=$L1_CHAINID" >> .env
-cat .env
+ETH_RPC_URL=$L1_RPC_URL
+awk -v var="$ETH_RPC_URL" '/^export ETH_RPC_URL=/{$0="export ETH_RPC_URL=" var}1' .envrc > temp && mv temp .envrc
+awk -v var="$PRIVATE_KEY_DEPLOYER" '/^export PRIVATE_KEY=/{$0="export PRIVATE_KEY=" var}1' .envrc > temp && mv temp .envrc
+cat .envrc
+source .envrc
+
+direnv allow .
 
 echo "Sending 100 ether to all addresses..."
 cast send --private-key=fffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306 $admin_address --value 100ether
@@ -64,24 +56,23 @@ cast send --private-key=fffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac98
 cast send --private-key=fffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306 $batcher_address --value 100ether
 cast send --private-key=fffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306 $sequencer_address --value 100ether
 
-# Update deploy-config/deployer.json with addresses from reky
-sed -i.bak "s|\"finalSystemOwner\": \"ADMIN\"|\"finalSystemOwner\": \"$admin_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"portalGuardian\": \"ADMIN\"|\"portalGuardian\": \"$admin_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"controller\": \"ADMIN\"|\"controller\": \"$admin_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"p2pSequencerAddress\": \"SEQUENCER\"|\"p2pSequencerAddress\": \"$sequencer_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"batchInboxAddress\": \"0xff00000000000000000000000000000000042069\"|\"batchInboxAddress\": \"$batcher_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"batchSenderAddress\": \"BATCHER\"|\"batchSenderAddress\": \"$batcher_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"l2OutputOracleProposer\": \"PROPOSER\"|\"l2OutputOracleProposer\": \"$proposer_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"l2OutputOracleChallenger\": \"ADMIN\"|\"l2OutputOracleChallenger\": \"$admin_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"proxyAdminOwner\": \"ADMIN\"|\"proxyAdminOwner\": \"$admin_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"baseFeeVaultRecipient\": \"ADMIN\"|\"baseFeeVaultRecipient\": \"$admin_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"l1FeeVaultRecipient\": \"ADMIN\"|\"l1FeeVaultRecipient\": \"$admin_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"sequencerFeeVaultRecipient\": \"ADMIN\"|\"sequencerFeeVaultRecipient\": \"$admin_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"governanceTokenOwner\": \"ADMIN\"|\"governanceTokenOwner\": \"$admin_address\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
+# Update deploy-config/getting-started.json with addresses from reky
+awk -v admin_address="$admin_address" '/"finalSystemOwner": "ADMIN"/{$0="    \"finalSystemOwner\": \"" admin_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v admin_address="$admin_address" '/"portalGuardian": "ADMIN"/{$0="    \"portalGuardian\": \"" admin_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v admin_address="$admin_address" '/"controller": "ADMIN"/{$0="    \"controller\": \"" admin_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v sequencer_address="$sequencer_address" '/"p2pSequencerAddress": "SEQUENCER"/{$0="    \"p2pSequencerAddress\": \"" sequencer_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v batcher_address="$batcher_address" '/"batchInboxAddress": "0xff00000000000000000000000000000000042069"/{$0="    \"batchInboxAddress\": \"" batcher_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v batcher_address="$batcher_address" '/"batchSenderAddress": "BATCHER"/{$0="    \"batchSenderAddress\": \"" batcher_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v proposer_address="$proposer_address" '/"l2OutputOracleProposer": "PROPOSER"/{$0="    \"l2OutputOracleProposer\": \"" proposer_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v admin_address="$admin_address" '/"l2OutputOracleChallenger": "ADMIN"/{$0="    \"l2OutputOracleChallenger\": \"" admin_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v admin_address="$admin_address" '/"proxyAdminOwner": "ADMIN"/{$0="    \"proxyAdminOwner\": \"" admin_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v admin_address="$admin_address" '/"baseFeeVaultRecipient": "ADMIN"/{$0="    \"baseFeeVaultRecipient\": \"" admin_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v admin_address="$admin_address" '/"l1FeeVaultRecipient": "ADMIN"/{$0="    \"l1FeeVaultRecipient\": \"" admin_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v admin_address="$admin_address" '/"sequencerFeeVaultRecipient": "ADMIN"/{$0="    \"sequencerFeeVaultRecipient\": \"" admin_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v admin_address="$admin_address" '/"governanceTokenOwner": "ADMIN"/{$0="    \"governanceTokenOwner\": \"" admin_address "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
 
 # Get L1 Info
 output=$(cast block finalized | grep -E "(timestamp|hash|number)")
-
 # Parse the output using awk and store the values in variables
 hash=$(echo "$output" | awk '/hash/ { print $2 }')
 number=$(echo "$output" | awk '/number/ { print $2 }')
@@ -92,19 +83,17 @@ echo "Hash: $hash"
 echo "Number: $number"
 echo "Timestamp: $timestamp"
 
-# Update deploy-config/deployer.json file with the values
-sed -i.bak "s|\"l1StartingBlockTag\": \"BLOCKHASH\"|\"l1StartingBlockTag\": \"$hash\"|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"l2OutputOracleStartingTimestamp\": TIMESTAMP|\"l2OutputOracleStartingTimestamp\": $timestamp|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"l1ChainID\": L1_CHAINID|\"l1ChainID\": $L1_CHAINID|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
-sed -i.bak "s|\"l2ChainID\": L2_CHAINID|\"l2ChainID\": $L2_CHAINID|g" deploy-config/deployer.json && rm deploy-config/deployer.json.bak
+# Update deploy-config/getting-started.json file with the values
+awk -v hash="$hash" '/"l1StartingBlockTag": "BLOCKHASH"/{$0="    \"l1StartingBlockTag\": \"" hash "\", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v timestamp="$timestamp" '/"l2OutputOracleStartingTimestamp": TIMESTAMP/{$0="    \"l2OutputOracleStartingTimestamp\": " timestamp ", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v L1_CHAINID="$L1_CHAINID" '/"l1ChainID": L1_CHAINID/{$0="    \"l1ChainID\": " L1_CHAINID ", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
+awk -v L2_CHAINID="$L2_CHAINID" '/"l2ChainID": L2_CHAINID/{$0="    \"l2ChainID\": " L2_CHAINID ", "}1' deploy-config/getting-started.json > temp && mv temp deploy-config/getting-started.json
 
 # Print the updated JSON file
-cat deploy-config/deployer.json
-cat .env
-source .env
-
-export DISABLE_LIVE_DEPLOYER=false
+echo "deploy-config/getting-started.json"
+cat deploy-config/getting-started.json
 
 # Step 4: Deploy L1 smart contracts
-npx hardhat deploy --network deployer --tags l1 --reset
-echo "L1 smart contract deployment completed."
+mkdir deployments/getting-started
+forge script scripts/Deploy.s.sol:Deploy --private-key $PRIVATE_KEY_DEPLOYER --broadcast --rpc-url $ETH_RPC_URL
+forge script scripts/Deploy.s.sol:Deploy --sig 'sync()' --private-key $PRIVATE_KEY_DEPLOYER --broadcast --rpc-url $ETH_RPC_URL
