@@ -11,21 +11,24 @@ cp example.deployer.ts ~/op-stack-deployment/optimism/packages/contracts-bedrock
 cd ~/op-stack-deployment/optimism/packages/contracts-bedrock
 
 # Step 1: Generate some Keys
-output=$(npx hardhat rekey)
-
+output=$(cast wallet new)
 # Parse the output using awk and store the values in variables
-mnemonic=$(echo "$output" | awk '/Mnemonic:/ { print $2, $3, $4, $5, $6, $7, $8, $9 }')
-admin_address=$(echo "$output" | awk '/Admin:/ { print $2 }')
-admin_private_key=$(echo "$output" | awk '/Admin:/ { getline; print $3 }')
-proposer_address=$(echo "$output" | awk '/Proposer:/ { print $2 }')
-proposer_private_key=$(echo "$output" | awk '/Proposer:/ { getline; print $3 }')
-batcher_address=$(echo "$output" | awk '/Batcher:/ { print $2 }')
-batcher_private_key=$(echo "$output" | awk '/Batcher:/ { getline; print $3 }')
-sequencer_address=$(echo "$output" | awk '/Sequencer:/ { print $2 }')
-sequencer_private_key=$(echo "$output" | awk '/Sequencer:/ { getline; print $3 }')
+admin_address=$(echo "$output" | awk '/Address:/ { print $2 }')
+admin_private_key=$(echo "$output" | awk '/Private key:/ { getline; print $3 }')
+
+output=$(cast wallet new)
+proposer_address=$(echo "$output" | awk '/Address:/ { print $2 }')
+proposer_private_key=$(echo "$output" | awk '/Private key:/ { getline; print $3 }')
+
+output=$(cast wallet new)
+batcher_address=$(echo "$output" | awk '/Address:/ { print $2 }')
+batcher_private_key=$(echo "$output" | awk '/Private key:/ { getline; print $3 }')
+
+output=$(cast wallet new)
+sequencer_address=$(echo "$output" | awk '/Address:/ { print $2 }')
+sequencer_private_key=$(echo "$output" | awk '/Private key:/ { getline; print $3 }')
 
 # Print the variables
-echo "Mnemonic: $mnemonic"
 echo "Admin Address: $admin_address"
 echo "Admin Private Key: $admin_private_key"
 echo "Proposer Address: $proposer_address"
@@ -36,13 +39,18 @@ echo "Sequencer Address: $sequencer_address"
 echo "Sequencer Private Key: $sequencer_private_key"
 
 # Step 2: Copy .env.example to .env
-cp .env.example .env
+cp .envrc.example .env
+brew install direnv
+direnv allow .
 
 # Replace the values in .env file
 PRIVATE_KEY_DEPLOYER="$admin_private_key"  # Replace with the private key of the Admin account
 DISABLE_LIVE_DEPLOYER=false
+ETH_RPC_URL="http://localhost:8545"
+rm .env.bak
+sed -i.bak "s|^ETH_RPC_URL=.*|ETH_RPC_URL=$ETH_RPC_URL|g" .env && rm .env.bak
 sed -i.bak "s|^L1_RPC=.*|L1_RPC=$L1_RPC_URL|g" .env && rm .env.bak
-sed -i.bak "s|^PRIVATE_KEY_DEPLOYER=.*|PRIVATE_KEY_DEPLOYER=$PRIVATE_KEY_DEPLOYER|g" .env && rm .env.bak
+sed -i.bak "s|^PRIVATE_KEY=.*|PRIVATE_KEY=$PRIVATE_KEY_DEPLOYER|g" .env && rm .env.bak
 sed -i.bak "s|^DISABLE_LIVE_DEPLOYER=.*|DISABLE_LIVE_DEPLOYER=$DISABLE_LIVE_DEPLOYER|g" .env && rm .env.bak
 # Add CHAIN_ID to .env file
 echo "" >> .env
