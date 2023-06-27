@@ -23,6 +23,7 @@ package precompile_test
 import (
 	"context"
 	"math/big"
+	"reflect"
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -134,7 +135,7 @@ func (ms *mockStateful) PrecompileMethods() precompile.Methods {
 	return precompile.Methods{
 		{
 			AbiSig:      "getOutput(string)",
-			Execute:     getOutput,
+			Execute:     reflect.ValueOf(getOutput),
 			RequiredGas: 1,
 		},
 	}

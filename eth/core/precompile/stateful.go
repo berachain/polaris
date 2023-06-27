@@ -23,6 +23,7 @@ package precompile
 import (
 	"context"
 	"math/big"
+	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -89,15 +90,13 @@ func (sc *stateful) Run(
 		return nil, err
 	}
 
+	fullargs := make([]reflect.Value, 0, len(unpackedArgs))
+	for _, arg := range unpackedArgs {
+		fullargs = append(fullargs, reflect.ValueOf(arg))
+	}
+
 	// Execute the method registered with the given signature with the given args.
-	vals := method.Execute.Call(
-		ctx,
-		evm,
-		caller,
-		value,
-		readonly,
-		unpackedArgs...,
-	)
+	vals := method.Execute.Call(fullargs)
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if err != nil {
@@ -109,7 +108,12 @@ func (sc *stateful) Run(
 	}
 
 	// Pack the return values and return, if any exist.
-	ret, err := method.AbiMethod.Outputs.Pack(vals...)
+	fullvals := make([]interface{}, 0, len(vals))
+	for _, val := range vals {
+		fullvals = append(fullvals, val.Interface())
+	}
+
+	ret, err := method.AbiMethod.Outputs.Pack(fullvals)
 	if err != nil {
 		return nil, err
 	}

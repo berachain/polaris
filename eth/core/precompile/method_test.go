@@ -23,6 +23,7 @@ package precompile_test
 import (
 	"context"
 	"math/big"
+	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -36,7 +37,7 @@ var _ = Describe("Method", func() {
 	Context("Basic - ValidateBasic Tests", func() {
 		It("should error on missing Abi function signature", func() {
 			methodMissingSig := &precompile.Method{
-				Execute:     mockExecutable,
+				Execute:     reflect.ValueOf(mockExecutable),
 				RequiredGas: 10,
 			}
 			err := methodMissingSig.ValidateBasic()
@@ -56,7 +57,7 @@ var _ = Describe("Method", func() {
 			methodMissingFunc := &precompile.Method{
 				AbiSig:      "contractFunc(address)",
 				RequiredGas: 10,
-				Execute:     mockExecutable,
+				Execute:     reflect.ValueOf(mockExecutable),
 				AbiMethod:   &abi.Method{},
 			}
 			err := methodMissingFunc.ValidateBasic()

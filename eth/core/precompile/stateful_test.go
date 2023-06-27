@@ -139,25 +139,25 @@ var (
 		utils.UnsafeBytesToStr(getOutputABI.ID): {
 			AbiSig:      getOutputABI.Sig,
 			AbiMethod:   &getOutputABI,
-			Execute:     getOutput,
+			Execute:     reflect.ValueOf(getOutput),
 			RequiredGas: 1,
 		},
 		utils.UnsafeBytesToStr(getOutputPartialABI.ID): {
 			AbiSig:      getOutputPartialABI.Sig,
 			AbiMethod:   &getOutputPartialABI,
-			Execute:     getOutputPartial,
+			Execute:     reflect.ValueOf(getOutputPartial),
 			RequiredGas: 10,
 		},
 		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): {
 			AbiSig:      contractFuncAddrABI.Sig,
 			AbiMethod:   &contractFuncAddrABI,
-			Execute:     contractFuncAddrInput,
+			Execute:     reflect.ValueOf(contractFuncAddrInput),
 			RequiredGas: 100,
 		},
 		utils.UnsafeBytesToStr(contractFuncStrABI.ID): {
 			AbiSig:      contractFuncStrABI.Sig,
 			AbiMethod:   &contractFuncStrABI,
-			Execute:     contractFuncStrInput,
+			Execute:     reflect.ValueOf(contractFuncStrInput),
 			RequiredGas: 1000,
 		},
 	}
