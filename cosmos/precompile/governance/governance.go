@@ -23,6 +23,8 @@ package governance
 import (
 	"context"
 	"math/big"
+	"reflect"
+	"strings"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -30,7 +32,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -63,32 +67,11 @@ func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
 
 // PrecompileMethods implements the `ethprecompile.StatefulImpl` interface.
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{
-		{
-			AbiSig:  "submitProposal(bytes,bytes)",
-			Execute: c.SubmitProposal,
-		},
-		{
-			AbiSig:  "cancelProposal(uint64)",
-			Execute: c.CancelProposal,
-		},
-		{
-			AbiSig:  "vote(uint64,int32,string)",
-			Execute: c.Vote,
-		},
-		{
-			AbiSig:  "voteWeighted(uint64,(int32,string)[],string)",
-			Execute: c.VoteWeighted,
-		},
-		{
-			AbiSig:  "getProposal(uint64)",
-			Execute: c.GetProposal,
-		},
-		{
-			AbiSig:  "getProposals(int32)",
-			Execute: c.GetProposals,
-		},
-	}
+	contractVal := reflect.ValueOf(c)
+	govABI, _ := abi.JSON(strings.NewReader(governance.GovernanceModuleABI))
+	govABIMethods := govABI.Methods
+
+	return ethprecompile.GeneratePrecompileMethod(govABIMethods, contractVal)
 }
 
 // CustomValueDecoders implements the `ethprecompile.StatefulImpl` interface.

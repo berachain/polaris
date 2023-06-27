@@ -22,6 +22,10 @@ package abi
 
 import "github.com/ethereum/go-ethereum/accounts/abi"
 
+var (
+	JSON = abi.JSON
+)
+
 // MustUnmarshalJSON is a helper function that wraps abi.ABI.UnmarshalJSON and panics on error.
 func MustUnmarshalJSON(bz string) abi.ABI {
 	var ret abi.ABI

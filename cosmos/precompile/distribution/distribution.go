@@ -23,10 +23,14 @@ package distribution
 import (
 	"context"
 	"math/big"
+	"reflect"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/distribution"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/distribution"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
@@ -66,28 +70,11 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 
 // PrecompileMethods implements the `coreprecompile.StatefulImpl` interface.
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{
-		{
-			AbiSig:  "setWithdrawAddress(address)",
-			Execute: c.SetWithdrawAddress,
-		},
-		{
-			AbiSig:  "setWithdrawAddress(string)",
-			Execute: c.SetWithdrawAddressBech32,
-		},
-		{
-			AbiSig:  "withdrawDelegatorReward(address,address)",
-			Execute: c.WithdrawDelegatorReward,
-		},
-		{
-			AbiSig:  "withdrawDelegatorReward(string,string)",
-			Execute: c.SetWithdrawAddressBech32,
-		},
-		{
-			AbiSig:  "getWithdrawEnabled()",
-			Execute: c.GetWithdrawAddrEnabled,
-		},
-	}
+	contractVal := reflect.ValueOf(c)
+	distributionABI, _ := abi.JSON(strings.NewReader(distribution.DistributionModuleABI))
+	distributionABIMethods := distributionABI.Methods
+
+	return ethprecompile.GeneratePrecompileMethod(distributionABIMethods, contractVal)
 }
 
 // SetWithdrawAddress is the precompile contract method for the `setWithdrawAddress(address)` method.

@@ -61,10 +61,9 @@ func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) *Co
 
 // PrecompileMethods implements StatefulImpl.
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-
 	contractVal := reflect.ValueOf(c)
 	bankABI, _ := abi.JSON(strings.NewReader(bank.BankModuleABI))
-	bankABIMethods := bankABI.Methods // get the respective ABI's methods
+	bankABIMethods := bankABI.Methods
 
 	return ethprecompile.GeneratePrecompileMethod(bankABIMethods, contractVal)
 }

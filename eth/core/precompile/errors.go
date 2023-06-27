@@ -49,4 +49,6 @@ var (
 	// ErrNoPrecompileMethodForABIMethod is returned when no precompile method is provided for a
 	// corresponding ABI method.
 	ErrNoPrecompileMethodForABIMethod = errors.New("this ABI method does not have a corresponding precompile method")
+
+	ErrNoContext = errors.New("this precompile method implementation requires a context but none was provided")
 )

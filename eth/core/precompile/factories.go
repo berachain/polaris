@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -158,23 +159,37 @@ func GeneratePrecompileMethod(ABI map[string]abi.Method, contractImpl reflect.Va
 	return suitableMethods(ABI, contractImpl)
 }
 
-// this searches for the function that implements the given ABI
-// and maps each abi sig to the method
+// This function matches each Go implementation of the Precompile
+// to the ABI's respective function.
+// It first searches for the ABI function in the Go implementation. If no find, then panic.
+// If it finds that function, we check if the first param is a Polar context, if not, then panic.
+// Then, any subsequent arguments after are type checked to ensure that the argument types match.
 func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Methods {
 
 	contractImplType := contractImpl.Type()
 	var methods Methods
 
-	for m := 0; m < contractImplType.NumMethod(); m++ {
-		implMethod := contractImplType.Method(m) // grab the Impl's method
+	for m := 0; m < contractImplType.NumMethod(); m++ { // iterate through all of the impl's methods
+		implMethod := contractImplType.Method(m) // grab the Impl's current method
 		if implMethod.PkgPath != "" {
 			continue // skip methods that are not exported
 		}
 		for _, abiMethod := range ABI { // go through the ABI
-			if implMethod.Name != abiMethod.Name {
-				continue // skip if the method names do not match
+			if implMethod.Name != abiMethod.Name { // skip if the method names do not match
+				continue
 			}
-			toExecute := newExecute(implMethod) // if they do, then grab the function
+			err := basicValidation(implMethod, abiMethod)
+			if err != nil {
+				panic(err)
+			}
+
+			// we're good
+			for i := 1; i < implMethod.Type.NumIn(); i++ {
+				if implMethod.Type.In(i) != abiMethod.Inputs[i].Type.GetType() {
+					panic("does not match")
+				}
+			}
+			toExecute := newExecute(implMethod) // turn it into an Executable function
 			methods = append(methods,
 				&Method{
 					AbiMethod: &abiMethod,
@@ -182,12 +197,23 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 					Execute:   toExecute,
 				}) // if so, then add to the map
 		}
-
 	}
 	if len(methods) != len(ABI) {
 		panic("not all ABI methods were found in the contract implementation")
 	}
 	return methods
+}
+
+// this is a helper function that checks two things:
+// 1. the first parameter is a context.Context
+// 2. the number of arguments match
+func basicValidation(implMethod reflect.Method, abiMethod abi.Method) error {
+	if implMethod.Type.In(0) != reflect.TypeOf((*context.Context)(nil)).Elem() {
+		return errors.Wrap(ErrNoContext, abiMethod.Sig)
+	} else if implMethod.Type.NumIn()-1 != len(abiMethod.Inputs) {
+		return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
+	}
+	return nil
 }
 
 func newExecute(fn reflect.Method) reflect.Value {

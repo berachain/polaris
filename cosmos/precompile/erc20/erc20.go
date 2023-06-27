@@ -23,11 +23,14 @@ package erc20
 import (
 	"context"
 	"math/big"
+	"reflect"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/erc20"
 	cpbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/erc20"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -79,60 +82,11 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 
 // PrecompileMethods implements StatefulImpl.
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{
-		{
-			AbiSig:  "coinDenomForERC20Address(address)",
-			Execute: c.CoinDenomForERC20AddressAddrInput,
-		},
-		{
-			AbiSig:  "coinDenomForERC20Address(string)",
-			Execute: c.CoinDenomForERC20AddressStringInput,
-		},
-		{
-			AbiSig:  "erc20AddressForCoinDenom(string)",
-			Execute: c.ERC20AddressForCoinDenom,
-		},
-		{
-			AbiSig:  "transferCoinToERC20(string,uint256)",
-			Execute: c.TransferCoinToERC20,
-		},
-		{
-			AbiSig:  "transferCoinToERC20From(string,address,address,uint256)",
-			Execute: c.TransferCoinToERC20FromAddrInput,
-		},
-		{
-			AbiSig:  "transferCoinToERC20From(string,string,string,uint256)",
-			Execute: c.TransferCoinToERC20FromStringInput,
-		},
-		{
-			AbiSig:  "transferCoinToERC20To(string,address,uint256)",
-			Execute: c.TransferCoinToERC20ToAddrInput,
-		},
-		{
-			AbiSig:  "transferCoinToERC20To(string,string,uint256)",
-			Execute: c.TransferCoinToERC20ToStringInput,
-		},
-		{
-			AbiSig:  "transferERC20ToCoin(address,uint256)",
-			Execute: c.TransferERC20ToCoin,
-		},
-		{
-			AbiSig:  "transferERC20ToCoinFrom(address,address,address,uint256)",
-			Execute: c.TransferERC20ToCoinFromAddrInput,
-		},
-		{
-			AbiSig:  "transferERC20ToCoinFrom(address,string,string,uint256)",
-			Execute: c.TransferERC20ToCoinFromStringInput,
-		},
-		{
-			AbiSig:  "transferERC20ToCoinTo(address,address,uint256)",
-			Execute: c.TransferERC20ToCoinToAddrInput,
-		},
-		{
-			AbiSig:  "transferERC20ToCoinTo(address,string,uint256)",
-			Execute: c.TransferERC20ToCoinToStringInput,
-		},
-	}
+	contractVal := reflect.ValueOf(c)
+	erc20ABI, _ := abi.JSON(strings.NewReader(erc20.ERC20ModuleABI))
+	erc20ABIMethods := erc20ABI.Methods
+
+	return ethprecompile.GeneratePrecompileMethod(erc20ABIMethods, contractVal)
 }
 
 // CoinDenomForERC20AddressAddrInput returns the SDK coin denomination for the given ERC20 address.

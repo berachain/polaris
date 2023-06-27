@@ -23,12 +23,16 @@ package staking
 import (
 	"context"
 	"math/big"
+	"reflect"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -59,88 +63,11 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 
 // PrecompileMethods implements StatefulImpl.
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{
-		{
-			AbiSig:  "getDelegation(address,address)",
-			Execute: c.GetDelegationAddrInput,
-		},
-		{
-			AbiSig:  "getDelegation(string,string)",
-			Execute: c.GetDelegationStringInput,
-		},
-		{
-			AbiSig:  "getUnbondingDelegation(address,address)",
-			Execute: c.GetUnbondingDelegationAddrInput,
-		},
-		{
-			AbiSig:  "getUnbondingDelegation(string,string)",
-			Execute: c.GetUnbondingDelegationStringInput,
-		},
-		{
-			AbiSig:  "getRedelegations(address,address,address)",
-			Execute: c.GetRedelegationsAddrInput,
-		},
-		{
-			AbiSig:  "getRedelegations(string,string,string)",
-			Execute: c.GetRedelegationsStringInput,
-		},
-		{
-			AbiSig:  "delegate(address,uint256)",
-			Execute: c.DelegateAddrInput,
-		},
-		{
-			AbiSig:  "delegate(string,uint256)",
-			Execute: c.DelegateStringInput,
-		},
-		{
-			AbiSig:  "undelegate(address,uint256)",
-			Execute: c.UndelegateAddrInput,
-		},
-		{
-			AbiSig:  "undelegate(string,uint256)",
-			Execute: c.UndelegateStringInput,
-		},
-		{
-			AbiSig:  "beginRedelegate(address,address,uint256)",
-			Execute: c.BeginRedelegateAddrInput,
-		},
-		{
-			AbiSig:  "beginRedelegate(string,string,uint256)",
-			Execute: c.BeginRedelegateStringInput,
-		},
-		{
-			AbiSig:  "cancelUnbondingDelegation(address,uint256,int64)",
-			Execute: c.CancelUnbondingDelegationAddrInput,
-		},
-		{
-			AbiSig:  "cancelUnbondingDelegation(string,uint256,int64)",
-			Execute: c.CancelUnbondingDelegationStringInput,
-		},
-		{
-			AbiSig:  "getActiveValidators()",
-			Execute: c.GetActiveValidators,
-		},
-		{
-			AbiSig:  "getValidators()",
-			Execute: c.GetValidators,
-		},
-		{
-			AbiSig:  "getValidator(address)",
-			Execute: c.GetValidatorAddrInput,
-		},
-		{
-			AbiSig:  "getValidator(string)",
-			Execute: c.GetValidatorStringInput,
-		},
-		{
-			AbiSig:  "getDelegatorValidators(address)",
-			Execute: c.GetDelegatorValidatorsAddrInput,
-		},
-		{
-			AbiSig:  "getDelegatorValidators(string)",
-			Execute: c.GetDelegatorValidatorsStringInput,
-		},
-	}
+	contractVal := reflect.ValueOf(c)
+	stakingABI, _ := abi.JSON(strings.NewReader(staking.StakingModuleABI))
+	stakingABIMethods := stakingABI.Methods
+
+	return ethprecompile.GeneratePrecompileMethod(stakingABIMethods, contractVal)
 }
 
 // GetDelegationAddrInput implements `getDelegation(address)` method.
