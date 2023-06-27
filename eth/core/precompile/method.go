@@ -40,8 +40,6 @@ import (
  *          this field will be automatically populated.
  **/
 
-type Executable reflect.Value
-
 // Method is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
 type Method struct {

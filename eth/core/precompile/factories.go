@@ -162,8 +162,8 @@ func GeneratePrecompileMethod(ABI map[string]abi.Method, contractImpl reflect.Va
 // This function matches each Go implementation of the Precompile
 // to the ABI's respective function.
 // It first searches for the ABI function in the Go implementation. If no find, then panic.
-// If it finds that function, we check if the first param is a Polar context, if not, then panic.
-// Then, any subsequent arguments after are type checked to ensure that the argument types match.
+// It then performs some basic validation on the implemented function
+// Then, the implemented function's arguments are checked against the ABI's arguments' types.
 func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Methods {
 
 	contractImplType := contractImpl.Type()
@@ -189,13 +189,13 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 					panic("does not match")
 				}
 			}
-			toExecute := newExecute(implMethod) // turn it into an Executable function
+			toExecute := newExecute(implMethod) // grab the actual function
 			methods = append(methods,
 				&Method{
 					AbiMethod: &abiMethod,
 					AbiSig:    abiMethod.Sig,
 					Execute:   toExecute,
-				}) // if so, then add to the map
+				}) // add it to the list of methods
 		}
 	}
 	if len(methods) != len(ABI) {
