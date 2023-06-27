@@ -54,7 +54,6 @@ var _ = Describe("Tx Pool", func() {
 		aliceCurrNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(aliceCurrNonce).To(BeNumerically(">=", 2))
-
 		Expect(tf.Network.WaitForNextBlock()).To(Succeed())
 
 		// send a transaction and make sure pending nonce is incremented

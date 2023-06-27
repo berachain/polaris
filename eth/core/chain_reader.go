@@ -75,10 +75,12 @@ func (bc *blockchain) CurrentHeader() *types.Header {
 	if block == nil || !ok {
 		return nil
 	}
+	bc.blockNumCache.Add(block.Number().Uint64(), block)
+	bc.blockHashCache.Add(block.Hash(), block)
 	return block.Header()
 }
 
-// CurrentHeader returns the current header of the blockchain.
+// CurrentBlock returns the current header of the blockchain.
 func (bc *blockchain) CurrentBlock() *types.Header {
 	block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
 	if block == nil || !ok {
@@ -113,17 +115,8 @@ func (bc *blockchain) CurrentSafeBlock() *types.Header {
 	return bc.CurrentFinalBlock()
 }
 
-// GetHeaderByHash retrieves a block header from the database by hash, caching it if
-// found.
-func (bc *blockchain) GetHeaderByHash(hash common.Hash) *types.Header {
-	block := bc.GetBlockByHash(hash)
-	if block == nil {
-		return nil
-	}
-	return block.Header()
-}
-
-// CurrentReceipts returns the current receipts of the blockchain.
+// PendingBlockAndReceipts returns the pending block and receipts of the blockchain.
+// TODO: move to the miner. Currently returns the "current" finalized block and receipts.
 func (bc *blockchain) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 	var err error
 
@@ -162,31 +155,11 @@ func (bc *blockchain) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 
 // GetBlock returns a block by its hash or number.
 func (bc *blockchain) GetBlock(hash common.Hash, number uint64) *types.Block {
-	// check the cache
-	if block, ok := bc.blockHashCache.Get(hash); ok {
+	if block := bc.GetBlockByHash(hash); block != nil {
 		return block
 	}
 
-	// check if historical plugin is supported by host chain
-	if bc.hp == nil {
-		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil
-	}
-
-	// Try by Hash
-	block, err := bc.hp.GetBlockByHash(hash)
-	if block == nil || err != nil {
-		block, err = bc.hp.GetBlockByNumber(number)
-		if block == nil || err != nil {
-			bc.logger.Debug("failed to get block from historical plugin", "err", err)
-			return nil
-		}
-	}
-
-	// Cache the found block for next time and return
-	bc.blockHashCache.Add(hash, block)
-	bc.blockNumCache.Add(block.Number().Uint64(), block)
-	return block
+	return bc.GetBlockByNumber(number)
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
@@ -199,14 +172,14 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
-		bc.logger.Error("historical plugin not supported by host chain")
+		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil
 	}
 
 	// check the historical plugin
 	block, err := bc.hp.GetBlockByHash(hash)
 	if block == nil || err != nil {
-		bc.logger.Debug("failed to get receipts from historical plugin", "block", block, "err", err)
+		bc.logger.Warn("failed to get block from historical plugin", "block", block, "err", err)
 		return nil
 	}
 
@@ -224,16 +197,27 @@ func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 		return block
 	}
 
-	// check if historical plugin is supported by host chain
-	if bc.hp == nil {
-		bc.logger.Debug("historical plugin not supported by host chain")
-		return nil
-	}
+	var block *types.Block
+	if number == 0 {
+		// get the genesis block header
+		header, err := bc.bp.GetHeaderByNumber(number)
+		if header == nil || err != nil {
+			return nil
+		}
+		block = types.NewBlockWithHeader(header)
+	} else {
+		var err error
+		// check if historical plugin is supported by host chain
+		if bc.hp == nil {
+			bc.logger.Debug("historical plugin not supported by host chain")
+			return nil
+		}
 
-	// check the historical plugin
-	block, err := bc.hp.GetBlockByNumber(number)
-	if block == nil || err != nil {
-		return nil
+		// check the historical plugin
+		block, err = bc.hp.GetBlockByNumber(number)
+		if block == nil || err != nil {
+			return nil
+		}
 	}
 
 	// Cache the found block for next time and return
@@ -257,14 +241,14 @@ func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 
 	// check if historical plugin is supported by host chain
 	if bc.hp == nil {
-		bc.logger.Error("historical plugin not supported by host chain")
+		bc.logger.Debug("historical plugin not supported by host chain")
 		return nil
 	}
 
 	// check the historical plugin
 	receipts, err := bc.hp.GetReceiptsByHash(blockHash)
 	if receipts == nil || err != nil {
-		bc.logger.Debug("failed to get receipts from historical plugin", "receipts", receipts, "err", err)
+		bc.logger.Warn("failed to get receipts from historical plugin", "receipts", receipts, "err", err)
 		return nil
 	}
 
@@ -313,6 +297,7 @@ func (bc *blockchain) GetTransactionLookup(
 	// check the historical plugin
 	txLookupEntry, err := bc.hp.GetTransactionByHash(hash)
 	if err != nil {
+		bc.logger.Warn("failed to get transaction by hash", "tx", hash, "err", err)
 		return nil
 	}
 
@@ -323,11 +308,24 @@ func (bc *blockchain) GetTransactionLookup(
 
 // GetHeaderByNumber retrieves a header from the blockchain.
 func (bc *blockchain) GetHeaderByNumber(number uint64) *types.Header {
-	block := bc.GetBlockByNumber(number)
-	if block == nil {
-		return nil
+	header, _ := bc.bp.GetHeaderByNumber(number)
+	return header
+}
+
+// GetHeaderByHash retrieves a block header from the database by hash, caching it if
+// found.
+func (bc *blockchain) GetHeaderByHash(hash common.Hash) *types.Header {
+	header, err := bc.bp.GetHeaderByHash(hash)
+	if err != nil && bc.hp != nil {
+		// try searching the historical plugin if the block plugin does not have the header
+		var block *types.Block
+		block, err = bc.hp.GetBlockByHash(hash)
+		if err != nil {
+			return nil
+		}
+		header = block.Header()
 	}
-	return block.Header()
+	return header
 }
 
 // GetTd retrieves a block's total difficulty in the canonical chain from the

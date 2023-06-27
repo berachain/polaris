@@ -42,6 +42,7 @@ import (
 var _ = Describe("Attributes", func() {
 	Describe("Test Default Attribute Value Decoder Functions", func() {
 		It("should correctly convert sdk coin strings to evm coins", func() {
+			// 1 coin
 			denom10 := sdk.NewCoin("denom", sdkmath.NewInt(10))
 			coins, err := ConvertSdkCoins(denom10.String())
 			Expect(err).ToNot(HaveOccurred())
@@ -52,6 +53,41 @@ var _ = Describe("Attributes", func() {
 				},
 			}
 			Expect(coins).To(Equal(expectedEvmCoins))
+
+			// many coins
+			manyCoins := sdk.NewCoins(
+				sdk.NewCoin("abgt", sdkmath.NewInt(1)),
+				sdk.NewCoin("abera", sdkmath.NewInt(2)),
+				sdk.NewCoin("ahoney", sdkmath.NewInt(3)),
+			)
+			coins, err = ConvertSdkCoins(manyCoins.String())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(coins).To(Equal(
+				[]libgenerated.CosmosCoin{
+					{
+						Amount: big.NewInt(2),
+						Denom:  "abera",
+					},
+					{
+						Amount: big.NewInt(1),
+						Denom:  "abgt",
+					},
+					{
+						Amount: big.NewInt(3),
+						Denom:  "ahoney",
+					},
+				},
+			))
+
+			// empty string
+			coins, err = ConvertSdkCoins(sdk.NewCoins().String())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(coins).To(Equal([]libgenerated.CosmosCoin{}))
+
+			// 0 amount coins
+			coins, err = ConvertSdkCoins(sdk.NewCoins(sdk.NewCoin("denom", sdk.NewInt(0))).String())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(coins).To(Equal([]libgenerated.CosmosCoin{}))
 		})
 
 		It("should correctly convert creation height to int64", func() {

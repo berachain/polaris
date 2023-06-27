@@ -191,16 +191,15 @@ pkg/**/.*.yaml
 
 # forge
 */**/solidity-files-cache.json
-contracts/out/**/*.bin
-contracts/out/**/*.json
-contracts/out/lib/
 contracts/out/
 */**/broadcast
 */**/*.bin
-*/**/*.json
+
+# e2e
+e2e/**/*.txt
 
 # hive
-!e2e/hive/**/genesis.json
+!e2e/hive/**/*.json
 
 # geth
 *.rlp
@@ -218,3 +217,9 @@ node_modules
 next-env.d.ts
 .env
 out
+
+# docker test
+**/temp/
+
+# hardhat
+**/cache/

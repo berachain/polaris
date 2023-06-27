@@ -35,28 +35,33 @@ import (
 type Plugin interface {
 	plugins.Base
 	core.HistoricalPlugin
+	plugins.HasGenesis
 }
 
 // plugin keeps track of polaris blocks via headers.
 type plugin struct {
 	// ctx is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
+	// cp is used to get the current chain config.
+	cp core.ConfigurationPlugin
 	// bp represents the block plugin, used for accessing historical block headers.
 	bp core.BlockPlugin
 	// storekey is the store key for the header store.
-	storekey storetypes.StoreKey
+	storeKey storetypes.StoreKey
+	// TODO: reenable offchain
 	//  `offchainStore` is the offchain store, used for accessing offchain data.
-	offchainStoreKey storetypes.StoreKey
+	// offchainStoreKey storetypes.StoreKey
 }
 
 // NewPlugin creates a new instance of the block plugin from the given context.
 func NewPlugin(
-	bp core.BlockPlugin, offchainStoreKey storetypes.StoreKey, storekey storetypes.StoreKey,
+	cp core.ConfigurationPlugin, bp core.BlockPlugin,
+	_ storetypes.StoreKey, storekey storetypes.StoreKey,
 ) Plugin {
 	return &plugin{
-		bp:               bp,
-		offchainStoreKey: offchainStoreKey,
-		storekey:         storekey,
+		cp:       cp,
+		bp:       bp,
+		storeKey: storekey,
 	}
 }
 

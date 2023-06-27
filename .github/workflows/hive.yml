@@ -27,7 +27,7 @@ jobs:
   hive:
     strategy:
       matrix:
-        simulator: [polaris/rpc]
+        simulator: [polaris/rpc, polaris/graphql] 
         namespace: [cosmos]
         os: [ubuntu-latest]
         go-version: [1.20.4]
@@ -56,6 +56,6 @@ jobs:
         uses: magefile/mage-action@v2
         with:
           version: latest
-          args: hive:setup ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
+          args: ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
         env:
           GOPATH: /home/runner/go

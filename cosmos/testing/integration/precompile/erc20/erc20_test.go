@@ -21,6 +21,7 @@
 package erc20_test
 
 import (
+	"context"
 	"math/big"
 	"testing"
 
@@ -104,22 +105,25 @@ var _ = Describe("ERC20", func() {
 		When("calling write methods", func() {
 			It("should error on non-existent denoms/tokens", func() {
 				// user does not have balance of bOSMO
-				_, err := erc20Precompile.TransferCoinToERC20(
+				tx, err := erc20Precompile.TransferCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
 					"bOSMO",
 					big.NewInt(123456789),
 				)
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("insufficient funds"))
+				Expect(err).ToNot(HaveOccurred())
+				ExpectFailedReceipt(tf.EthClient, tx)
 
 				// token doesn't exist, user does not have balance of token
-				_, err = erc20Precompile.TransferERC20ToCoin(
+				tx, err = erc20Precompile.TransferERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					common.HexToAddress("0x432423432489230"),
 					big.NewInt(123456789),
 				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(tf.Network.WaitForNextBlock()).To(Succeed())
+				_, err = tf.EthClient.TransactionReceipt(context.Background(), tx.Hash())
+				// Expect(err).To(MatchError("not found")) // err: ERC20 token contract does not exist
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("ERC20 token contract does not exist"))
 			})
 
 			It("should handle a IBC-originated SDK coin", func() {
@@ -172,13 +176,13 @@ var _ = Describe("ERC20", func() {
 				Expect(balance).To(Equal(big.NewInt(12345 * 2)))
 
 				// convert illegal amount back to SDK coin
-				_, err = erc20Precompile.TransferERC20ToCoin(
+				tx, err = erc20Precompile.TransferERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					tokenAddr,
 					big.NewInt(12345*2+1),
 				)
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("insufficient funds"))
+				Expect(err).ToNot(HaveOccurred())
+				ExpectFailedReceipt(tf.EthClient, tx)
 			})
 
 			It("should handle a ERC20 originated token", func() {
@@ -261,12 +265,13 @@ var _ = Describe("ERC20", func() {
 				Expect(bankBal.Cmp(big.NewInt(6789))).To(Equal(0))
 
 				// convert back to ERC20 token
-				_, err = erc20Precompile.TransferCoinToERC20(
+				tx, err = erc20Precompile.TransferCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
 					denom,
 					big.NewInt(6790),
 				)
-				Expect(err).To(HaveOccurred()) // not enough funds
+				Expect(err).ToNot(HaveOccurred())
+				ExpectFailedReceipt(tf.EthClient, tx) // not enough funds
 
 				// convert back to ERC20 token
 				tx, err = erc20Precompile.TransferCoinToERC20(

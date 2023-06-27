@@ -24,9 +24,9 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/consensus/misc"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
@@ -61,37 +61,26 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	}
 
 	coinbase, timestamp := bc.bp.GetNewBlockMetadata(number)
-	bc.logger.Info("Preparing block", "number", number, "coinbase", coinbase.Hex(), "timestamp", timestamp)
 
 	// Build the new block header.
-	var parentHash common.Hash
-	if number > 1 {
-		parent, err := bc.bp.GetHeaderByNumber(number - 1)
-		if err != nil {
-			panic(err)
-		}
-		parentHash = parent.Hash()
+	parent := bc.CurrentFinalBlock()
+	if number >= 1 && parent == nil {
+		parent = bc.GetHeaderByNumber(number - 1)
 	}
 
 	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
 	// and block nonce (Nonce) on the new header.
 	header := &types.Header{
 		// Used in Polaris.
-		ParentHash: parentHash,
+		ParentHash: parent.Hash(),
 		Coinbase:   coinbase,
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
-		BaseFee:    bc.CalculateNextBaseFee(),
-
-		// Not used in Polaris at the moment, but we set them to prevent nil ptr panic.
-		Difficulty: new(big.Int),
-		UncleHash:  types.EmptyUncleHash,
-		Root:       types.EmptyRootHash,
-		Extra:      []byte{},
-		MixDigest:  common.Hash{},
-		Nonce:      types.BlockNonce{},
+		BaseFee:    misc.CalcBaseFee(bc.Config(), parent),
 	}
+
+	bc.logger.Info("preparing evm block", "seal_hash", header.Hash())
 
 	// We update the base fee in the txpool to the next base fee.
 	bc.tp.SetBaseFee(header.BaseFee)
@@ -105,7 +94,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 
 // ProcessTransaction processes the given transaction and returns the receipt.
 func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
-	bc.logger.Info("Processing transaction", "tx hash", tx.Hash().Hex())
+	bc.logger.Debug("processing evm transaction", "tx_hash", tx.Hash())
 
 	// Reset the Gas and State plugins for the tx.
 	bc.gp.Reset(ctx) // TODO: may not need this.
@@ -122,23 +111,27 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	}
 
 	blockHash, blockNum := block.Hash(), block.Number().Uint64()
-	bc.logger.Info("Finalizing block", "block", blockHash.Hex(), "num txs", len(receipts))
+	bc.logger.Info("finalizing evm block", "block_hash", blockHash.Hex(), "num_txs", len(receipts))
 
 	// store the block header on the host chain
 	err = bc.bp.StoreHeader(block.Header())
 	if err != nil {
+		bc.logger.Error("failed to store block header", "err", err)
 		return err
 	}
 
 	// store the block, receipts, and txs on the host chain if historical plugin is supported
 	if bc.hp != nil {
 		if err = bc.hp.StoreBlock(block); err != nil {
+			bc.logger.Error("failed to store block", "err", err)
 			return err
 		}
 		if err = bc.hp.StoreReceipts(blockHash, receipts); err != nil {
+			bc.logger.Error("failed to store receipts", "err", err)
 			return err
 		}
 		if err = bc.hp.StoreTransactions(blockNum, blockHash, block.Transactions()); err != nil {
+			bc.logger.Error("failed to store transactions", "err", err)
 			return err
 		}
 	}

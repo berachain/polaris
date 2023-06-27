@@ -24,6 +24,8 @@ import (
 	"context"
 	"math/big"
 
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -38,19 +40,18 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var ctx sdk.Context
-
 var _ = Describe("plugin", func() {
 	var p *plugin
 	var e precompile.EVM
+	var ctx sdk.Context
 
 	BeforeEach(func() {
 		ctx = testutil.NewContext()
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
-		p = utils.MustGetAs[*plugin](NewPlugin(nil, nil))
-		e = &mockEVM{}
+		p = utils.MustGetAs[*plugin](NewPlugin(nil, &mockSP{ctx}))
+		e = &mockEVM{nil, ctx}
 	})
 
 	It("should use correctly consume gas", func() {
@@ -64,34 +65,47 @@ var _ = Describe("plugin", func() {
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
 
-	// TODO: re-enable once dynamic gas config is implemented.
-	// It("should plug in custom gas configs", func() {
-	// 	Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(0)))
-	// 	Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(0)))
+	It("should plug in custom gas configs", func() {
+		Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
+		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
 
-	// 	p.SetKVGasConfig(storetypes.KVGasConfig())
-	// 	Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
-	// 	p.SetTransientKVGasConfig(storetypes.TransientGasConfig())
-	// 	Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
-	// })
+		p.SetKVGasConfig(storetypes.GasConfig{
+			DeleteCost: 2,
+		})
+		Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(2)))
+		p.SetTransientKVGasConfig(storetypes.GasConfig{
+			DeleteCost: 3,
+		})
+		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(3)))
+	})
 })
 
 // MOCKS BELOW.
 
+type mockSP struct {
+	ctx sdk.Context
+}
+
+func (msp *mockSP) SetGasConfig(kvg storetypes.GasConfig, tkvg storetypes.GasConfig) {
+	msp.ctx = msp.ctx.WithKVGasConfig(kvg).WithTransientKVGasConfig(tkvg)
+}
+
 type mockEVM struct {
 	precompile.EVM
+	ctx sdk.Context
 }
 
 func (me *mockEVM) GetStateDB() vm.GethStateDB {
-	return &mockSDB{}
+	return &mockSDB{nil, me.ctx}
 }
 
 type mockSDB struct {
 	vm.PolarisStateDB
+	ctx sdk.Context
 }
 
 func (ms *mockSDB) GetContext() context.Context {
-	return ctx
+	return ms.ctx
 }
 
 type mockStateless struct{}

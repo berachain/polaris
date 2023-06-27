@@ -1,0 +1,28 @@
+{
+  "request": "{blocks (from : 1, to: 2) { number gasUsed gasLimit nonce receiptsRoot transactionCount }} ",
+  "responses": [
+    {
+      "data": {
+        "blocks": [
+          {
+            "gasLimit": "0x1c9c380",
+            "gasUsed": "0x0",
+            "nonce": "0x0000000000000000",
+            "number": "0x1",
+            "receiptsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "transactionCount": "0x0"
+          },
+          {
+            "gasLimit": "0x1c9c380",
+            "gasUsed": "0x0",
+            "nonce": "0x0000000000000000",
+            "number": "0x2",
+            "receiptsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+            "transactionCount": "0x0"
+          }
+        ]
+      }
+    }
+  ],
+  "statusCode": 200
+}

@@ -26,11 +26,12 @@ const (
 	StorageKeyPrefix
 	CodeHashKeyPrefix
 	BlockHashKeyToNumPrefix
+	BlockNumKeyToBlockPrefix
 	BlockHashKeyToReceiptsPrefix
 	TxHashKeyToTxPrefix
 	VersionKey
 	HeaderKey
+	GenesisHeaderKey
 	ParamsKey
 	ChainConfigPrefix
-	GenesisBlockPrefix
 )

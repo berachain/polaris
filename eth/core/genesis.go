@@ -27,6 +27,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/common/hexutil"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
@@ -49,12 +50,29 @@ var DefaultGenesis = &core.Genesis{
 	Difficulty: big.NewInt(0),
 	Mixhash:    common.Hash{},
 	Coinbase:   common.Address{},
+	BaseFee:    big.NewInt(int64(params.InitialBaseFee)),
 
 	// Genesis Accounts
 	Alloc: core.GenesisAlloc{
 		// 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
 		common.HexToAddress("0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4"): {
-			Balance: big.NewInt(5e18), //nolint:gomnd // its okay.
+			Balance: big.NewInt(0).Mul(big.NewInt(5e18), big.NewInt(100)), //nolint:gomnd // its okay.
 		},
 	},
+}
+
+// UnmarshalGenesisHeader sets the fields of the given header into the Genesis struct.
+func UnmarshalGenesisHeader(header *types.Header, gen *Genesis) {
+	// Note: cannot set the state root on the genesis.
+	gen.Number = header.Number.Uint64()
+	gen.Nonce = header.Nonce.Uint64()
+	gen.Timestamp = header.Time
+	gen.ParentHash = header.ParentHash
+	gen.ExtraData = header.Extra
+	gen.GasLimit = header.GasLimit
+	gen.GasUsed = header.GasUsed
+	gen.BaseFee = header.BaseFee
+	gen.Difficulty = header.Difficulty
+	gen.Mixhash = header.MixDigest
+	gen.Coinbase = header.Coinbase
 }

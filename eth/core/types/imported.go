@@ -50,6 +50,7 @@ var (
 	BytesToBloom           = types.BytesToBloom
 	CreateBloom            = types.CreateBloom
 	MakeSigner             = types.MakeSigner
+	CopyHeader             = types.CopyHeader
 	LogsBloom              = types.LogsBloom
 	LegacyTxType           = types.LegacyTxType
 	DynamicFeeTxType       = types.DynamicFeeTxType
@@ -62,11 +63,13 @@ var (
 	SignTx                 = types.SignTx
 	Sender                 = types.Sender
 	NewTx                  = types.NewTx
+	NewTransaction         = types.NewTransaction
 	NewEIP2930Signer       = types.NewEIP2930Signer
 	LatestSignerForChainID = types.LatestSignerForChainID
 	SignNewTx              = types.SignNewTx
 	MustSignNewTx          = types.MustSignNewTx
 	NewBlock               = types.NewBlock
+	NewBlockWithHeader     = types.NewBlockWithHeader
 	ErrInvalidSig          = types.ErrInvalidSig
 )
 

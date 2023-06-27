@@ -34,7 +34,7 @@ import (
 
 var (
 	protoImageName    = "ghcr.io/cosmos/proto-builder"
-	protoImageVersion = "0.13.1"
+	protoImageVersion = "0.13.2"
 	protoDir          = "cosmos/proto"
 
 	bufCommand = sh.RunCmd("buf")
@@ -58,7 +58,7 @@ func (Proto) Gen() error {
 		"run", "--rm", "-v", dir + ":/workspace",
 		"--workdir", "/workspace",
 		protoImageName + ":" + protoImageVersion,
-		"sh", "./cosmos/build/scripts/proto_generate.sh",
+		"sh", "./cosmos/proto/scripts/proto_generate.sh",
 	}
 
 	return sh.Run("docker", dockerArgs...)

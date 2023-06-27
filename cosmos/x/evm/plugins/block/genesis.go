@@ -24,23 +24,41 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// InitGenesis performs genesis initialization for the evm module. It returns
-// no validator updates.
-func (p *plugin) InitGenesis(ctx sdk.Context, _ *core.Genesis) {
-	// TODO: IMPLEMENT
+// InitGenesis stores the genesis block header in the KVStore under its own genesis key.
+func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 	p.Prepare(ctx)
-	// p.StoreHeader(ethGen.ToBlock().Header())
+
+	// Writing genesis block 0 to disk, available to query from any future IAVL height
+	if err := p.StoreHeader(ethGen.ToBlock().Header()); err != nil {
+		panic(err)
+	}
 }
 
-// ExportGenesis returns the exported genesis state as raw bytes for the evm
-// module.
-func (p *plugin) ExportGenesis(ctx sdk.Context, _ *core.Genesis) {
-	// TODO: IMPLEMENT
+// Export genesis modifies a pointer to a genesis state object and populates it.
+func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 	p.Prepare(ctx)
-	// head, err := p.GetHeaderByNumber(0)
-	// if err != nil {
-	// 	panic(err)
-	// }
+
+	header, err := p.getGenesisHeader()
+	if err != nil {
+		panic(err)
+	}
+
+	core.UnmarshalGenesisHeader(header, ethGen)
+}
+
+// getGenesisHeader returns the block header at height 0 and does a sanity check.
+func (p *plugin) getGenesisHeader() (*types.Header, error) {
+	header, err := p.GetHeaderByNumber(0)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = header.SanityCheck(); err != nil {
+		return nil, err
+	}
+
+	return header, nil
 }

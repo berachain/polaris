@@ -1,0 +1,11 @@
+{
+  "request": "{block (hash : \"0x123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0\") {number } }",
+  "responses": [
+    {
+      "data": {
+        "block": null
+      }
+    }
+  ],
+  "statusCode": 200
+}

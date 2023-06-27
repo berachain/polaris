@@ -27,10 +27,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/trie"
+	"github.com/ethereum/go-ethereum/rlp"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
@@ -43,12 +44,28 @@ func (p *plugin) StoreBlock(block *coretypes.Block) error {
 
 	// store block hash to block number.
 	numBz := sdk.Uint64ToBigEndian(blockNum)
-	store := p.ctx.KVStore(p.offchainStoreKey)
+	store := p.ctx.KVStore(p.storeKey)
+
+	// store block num to block
+	blockBz, err := rlp.EncodeToBytes(block)
+	if err != nil {
+		return err
+	}
+	prefix.NewStore(store, []byte{types.BlockNumKeyToBlockPrefix}).Set(numBz, blockBz)
+
+	// store block hash to block number.
 	prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).Set(block.Hash().Bytes(), numBz)
 
 	// store the version offchain for consistency.
-	if sdk.BigEndianToUint64(store.Get([]byte{types.VersionKey})) != blockNum-1 {
-		panic("off-chain store's latest block number is not synced")
+	offChainNum := sdk.BigEndianToUint64(store.Get([]byte{types.VersionKey}))
+	if blockNum > 0 && offChainNum != blockNum-1 {
+		panic(
+			fmt.Errorf(
+				"off-chain store's latest block number %d is not synced with previous block number %d",
+				offChainNum,
+				blockNum-1,
+			),
+		)
 	}
 	store.Set([]byte{types.VersionKey}, numBz)
 	return nil
@@ -64,7 +81,7 @@ func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipt
 		)
 		return err
 	}
-	prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
+	prefix.NewStore(p.ctx.KVStore(p.storeKey),
 		[]byte{types.BlockHashKeyToReceiptsPrefix}).Set(blockHash.Bytes(), receiptsBz)
 
 	return nil
@@ -75,7 +92,7 @@ func (p *plugin) StoreTransactions(
 	blockNum uint64, blockHash common.Hash, txs coretypes.Transactions,
 ) error {
 	// store all txns in the block.
-	txStore := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
+	txStore := prefix.NewStore(p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix})
 	for txIndex, tx := range txs {
 		txLookupEntry := &coretypes.TxLookupEntry{
 			Tx:        tx,
@@ -100,100 +117,43 @@ func (p *plugin) StoreTransactions(
 
 // GetBlockByNumber returns the block at the given height.
 func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
-	// get header from on chain.
-	header, err := p.bp.GetHeaderByNumber(number)
+	store := p.ctx.KVStore(p.storeKey)
+	numBz := sdk.Uint64ToBigEndian(number)
+	blockBz := prefix.NewStore(store, []byte{types.BlockNumKeyToBlockPrefix}).Get(numBz)
+	block := &coretypes.Block{}
+	err := rlp.DecodeBytes(blockBz, block)
 	if err != nil {
 		return nil, err
 	}
-
-	// get receipts from off chain.
-	blockHash := header.Hash()
-	receiptsBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
-		[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
-	if receiptsBz == nil {
-		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
-	}
-	receipts, err := coretypes.UnmarshalReceipts(receiptsBz)
-	if err != nil {
-		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
-	}
-
-	// get txns from off chain.
-	txStore := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
-	txs := make(coretypes.Transactions, len(receipts))
-	for _, receipt := range receipts {
-		tleBz := txStore.Get(receipt.TxHash.Bytes())
-		if tleBz == nil {
-			return nil, fmt.Errorf("failed to find tx %s", receipt.TxHash.Hex())
-		}
-		tle := &coretypes.TxLookupEntry{}
-		err = tle.UnmarshalBinary(tleBz)
-		if err != nil {
-			return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", receipt.TxHash.Hex())
-		}
-		txs = append(txs, tle.Tx)
-	}
-
-	// build the block.
-	return coretypes.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil)), nil
+	return block, nil
 }
 
 // GetBlockByHash returns the block at the given hash.
 func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error) {
-	// get block number from off chain.
-	numBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
-		[]byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
+	store := p.ctx.KVStore(p.storeKey)
+	numBz := prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
 	if numBz == nil {
-		return nil, fmt.Errorf("failed to find block number for block hash %s", blockHash.Hex())
+		return nil, core.ErrBlockNotFound
 	}
-	number := sdk.BigEndianToUint64(numBz)
-	header, err := p.bp.GetHeaderByNumber(number)
+
+	blockBz := prefix.NewStore(store, []byte{types.BlockNumKeyToBlockPrefix}).Get(numBz)
+	block := &coretypes.Block{}
+
+	err := rlp.DecodeBytes(blockBz, block)
 	if err != nil {
 		return nil, err
 	}
-	if header.Number.Uint64() != number || header.Hash() != blockHash {
-		panic("header number or hash is not equal to the given number or hash")
-	}
-
-	// get receipts from off chain.
-	receiptsBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
-		[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
-	if receiptsBz == nil {
-		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
-	}
-	receipts, err := coretypes.UnmarshalReceipts(receiptsBz)
-	if err != nil {
-		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
-	}
-
-	// get txns from off chain.
-	txStore := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix})
-	txs := make(coretypes.Transactions, len(receipts))
-	for _, receipt := range receipts {
-		tleBz := txStore.Get(receipt.TxHash.Bytes())
-		if tleBz == nil {
-			return nil, fmt.Errorf("failed to find tx %s", receipt.TxHash.Hex())
-		}
-		tle := &coretypes.TxLookupEntry{}
-		err = tle.UnmarshalBinary(tleBz)
-		if err != nil {
-			return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", receipt.TxHash.Hex())
-		}
-		txs = append(txs, tle.Tx)
-	}
-
-	// build the block.
-	return coretypes.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil)), nil
+	return block, nil
 }
 
 // GetTransactionByHash returns the transaction lookup entry with the given hash.
 func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEntry, error) {
 	// get tx from off chain.
-	tleBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey), []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
+	tleBz := prefix.NewStore(p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
 	if tleBz == nil {
-		return nil, fmt.Errorf("failed to find tx %s", txHash.Hex())
+		return nil, core.ErrTxNotFound
 	}
-	var tle *coretypes.TxLookupEntry
+	tle := &coretypes.TxLookupEntry{}
 	err := tle.UnmarshalBinary(tleBz)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "failed to unmarshal tx %s", txHash.Hex())
@@ -204,7 +164,7 @@ func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEn
 // GetReceiptsByHash returns the receipts with the given block hash.
 func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, error) {
 	// get receipts from off chain.
-	receiptsBz := prefix.NewStore(p.ctx.KVStore(p.offchainStoreKey),
+	receiptsBz := prefix.NewStore(p.ctx.KVStore(p.storeKey),
 		[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())
@@ -213,5 +173,17 @@ func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, e
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
 	}
+
+	// get block to derive fields on receipts
+	block, err := p.GetBlockByHash(blockHash)
+	if err != nil {
+		return nil, err
+	}
+	if err = receipts.DeriveFields(
+		p.cp.ChainConfig(), blockHash, block.NumberU64(), block.Time(), block.BaseFee(), block.Transactions(),
+	); err != nil {
+		return nil, err
+	}
+
 	return receipts, nil
 }

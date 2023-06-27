@@ -28,12 +28,14 @@ import (
 	"sync"
 	"testing"
 
+	"google.golang.org/protobuf/reflect/protoreflect"
+
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -52,16 +54,17 @@ func TestEthPool(t *testing.T) {
 	RunSpecs(t, "cosmos/x/evm/plugins/txpool/mempool")
 }
 
+var (
+	ctx     sdk.Context
+	sp      core.StatePlugin
+	etp     *EthTxPool
+	key1, _ = crypto.GenerateEthKey()
+	addr1   = crypto.PubkeyToAddress(key1.PublicKey)
+	key2, _ = crypto.GenerateEthKey()
+	addr2   = crypto.PubkeyToAddress(key2.PublicKey)
+)
+
 var _ = Describe("EthTxPool", func() {
-	var (
-		ctx     sdk.Context
-		sp      core.StatePlugin
-		etp     *EthTxPool
-		key1, _ = crypto.GenerateEthKey()
-		addr1   = crypto.PubkeyToAddress(key1.PublicKey)
-		key2, _ = crypto.GenerateEthKey()
-		addr2   = crypto.PubkeyToAddress(key2.PublicKey)
-	)
 
 	BeforeEach(func() {
 		sCtx, ak, _, _ := testutil.SetupMinimalKeepers()
@@ -254,70 +257,42 @@ var _ = Describe("EthTxPool", func() {
 			Expect(pending).To(Equal(0))
 			Expect(queued).To(Equal(2))
 		})
-		It("should handle concurrent additions", func() {
 
-			// apologies in advance for this test, it's not great.
+		It("should handle concurrent reads", func() {
+			readsFromA := 0
+			readsFromB := 0
+			{
+				// fill mempoopl with transactions
+				var wg sync.WaitGroup
 
-			var wg sync.WaitGroup
-
-			wg.Add(1)
-			go func(etp *EthTxPool) {
-				defer wg.Done()
-				for i := 1; i <= 10; i++ {
+				for i := 1; i < 10; i++ {
 					_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
 					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
 				}
-			}(etp)
 
-			wg.Add(1)
-			go func(etp *EthTxPool) {
-				defer wg.Done()
-				for i := 2; i <= 11; i++ {
-					_, tx := buildTx(key2, &coretypes.LegacyTx{Nonce: uint64(i)})
-					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
-				}
-			}(etp)
+				// concurrently read mempool from Peer A ...
+				wg.Add(1)
+				go func(etp *EthTxPool) {
+					defer wg.Done()
+					for _, txs := range etp.Pending(false) {
+						for range txs {
+							readsFromA++
+						}
+					}
+				}(etp)
 
-			wg.Wait()
-			lenPending, _ := etp.Stats()
-			Expect(lenPending).To(BeEquivalentTo(20))
-		})
-		It("should handle concurrent reads", func() {
-
-			readsFromA := 0
-			readsFromB := 0
-
-			// fill mempoopl with transactions
-			var wg sync.WaitGroup
-
-			for i := 1; i < 10; i++ {
-				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
-				Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+				// ... and peer B
+				wg.Add(1)
+				go func(etp *EthTxPool) {
+					defer wg.Done()
+					for _, txs := range etp.Pending(false) {
+						for range txs {
+							readsFromB++
+						}
+					}
+				}(etp)
+				wg.Wait()
 			}
-
-			// concurrently read mempool from Peer A ...
-			wg.Add(1)
-			go func(etp *EthTxPool) {
-				defer wg.Done()
-				for _, txs := range etp.Pending(false) {
-					for range txs {
-						readsFromA++
-					}
-				}
-			}(etp)
-
-			// ... and peer B
-			wg.Add(1)
-			go func(etp *EthTxPool) {
-				defer wg.Done()
-				for _, txs := range etp.Pending(false) {
-					for range txs {
-						readsFromB++
-					}
-				}
-			}(etp)
-
-			wg.Wait()
 			Expect(readsFromA).To(BeEquivalentTo(readsFromB))
 		})
 		It("should be able to return the transaction priority for a Cosmos tx and effective gas tip value", func() {
@@ -391,6 +366,36 @@ var _ = Describe("EthTxPool", func() {
 		})
 
 	})
+	Describe("Race Cases", func() {
+		It("should handle concurrent additions", func() {
+
+			// apologies in advance for this test, it's not great.
+
+			var wg sync.WaitGroup
+
+			wg.Add(1)
+			go func(etp *EthTxPool) {
+				defer wg.Done()
+				for i := 1; i <= 10; i++ {
+					_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+				}
+			}(etp)
+
+			wg.Add(1)
+			go func(etp *EthTxPool) {
+				defer wg.Done()
+				for i := 2; i <= 11; i++ {
+					_, tx := buildTx(key2, &coretypes.LegacyTx{Nonce: uint64(i)})
+					Expect(etp.Insert(ctx, tx)).ToNot(HaveOccurred())
+				}
+			}(etp)
+
+			wg.Wait()
+			lenPending, _ := etp.Stats()
+			Expect(lenPending).To(BeEquivalentTo(20))
+		})
+	})
 })
 
 // MOCKS BELOW.
@@ -433,7 +438,7 @@ func buildSdkTx(from *ecdsa.PrivateKey, nonce uint64) sdk.Tx {
 	pubKey := &ethsecp256k1.PubKey{Key: crypto.CompressPubkey(&from.PublicKey)}
 	signer := crypto.PubkeyToAddress(from.PublicKey)
 	return &mockSdkTx{
-		signers: []sdk.AccAddress{cosmlib.AddressToAccAddress(signer)},
+		signers: [][]byte{signer.Bytes()},
 		msgs:    []sdk.Msg{},
 		pubKeys: []cryptotypes.PubKey{pubKey},
 		signatures: []signing.SignatureV2{
@@ -455,7 +460,7 @@ func buildTx(from *ecdsa.PrivateKey, txData coretypes.TxData) (*coretypes.Transa
 	}
 	pubKey := &ethsecp256k1.PubKey{Key: crypto.CompressPubkey(&from.PublicKey)}
 	return signedEthTx, &mockSdkTx{
-		signers: []sdk.AccAddress{cosmlib.AddressToAccAddress(addr)},
+		signers: [][]byte{addr.Bytes()},
 		msgs:    []sdk.Msg{evmtypes.NewFromTransaction(signedEthTx)},
 		pubKeys: []cryptotypes.PubKey{pubKey},
 		signatures: []signing.SignatureV2{
@@ -468,8 +473,10 @@ func buildTx(from *ecdsa.PrivateKey, txData coretypes.TxData) (*coretypes.Transa
 	}
 }
 
+var _ authsigning.SigVerifiableTx = (*mockSdkTx)(nil)
+
 type mockSdkTx struct {
-	signers    []sdk.AccAddress
+	signers    [][]byte
 	msgs       []sdk.Msg
 	pubKeys    []cryptotypes.PubKey
 	signatures []signing.SignatureV2
@@ -477,9 +484,9 @@ type mockSdkTx struct {
 
 func (m *mockSdkTx) ValidateBasic() error { return nil }
 
-func (m *mockSdkTx) GetMsgs() []sdk.Msg { return m.msgs }
-
-func (m *mockSdkTx) GetSigners() []sdk.AccAddress { return m.signers }
+func (m *mockSdkTx) GetMsgs() []sdk.Msg                             { return m.msgs }
+func (m mockSdkTx) GetMsgsV2() ([]protoreflect.ProtoMessage, error) { return nil, nil }
+func (m *mockSdkTx) GetSigners() ([][]byte, error)                  { return m.signers, nil }
 
 func (m *mockSdkTx) GetPubKeys() ([]cryptotypes.PubKey, error) { return m.pubKeys, nil }
 
