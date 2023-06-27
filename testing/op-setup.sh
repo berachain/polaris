@@ -2,10 +2,11 @@
 
 # Stage 1: Clone repos
 cd ~/
+rm -rf op-stack-deployment 
 mkdir op-stack-deployment
 cd op-stack-deployment
-git clone https://github.com/ethereum-optimism/optimism.git
-git clone https://github.com/ethereum-optimism/op-geth.git
+git clone https://github.com/ethereum-optimism/optimism.git --depth=1
+git clone https://github.com/ethereum-optimism/op-geth.git --depth=1
 
 # Stage 2: Setup nvm
 brew install nvm
@@ -23,7 +24,7 @@ nvm use 16
 
 # Stage 3: Install op-node op-batcher op-proposer
 cd optimism
-git checkout v1.0.6
+git checkout v1.1.0
 yarn install
 make op-node op-batcher op-proposer
 yarn build
@@ -31,6 +32,6 @@ cd ..
 
 # Stage 4: Install op-geth
 cd op-geth
-git checkout v1.101105.1
+git checkout v1.101105.3
 make geth
 cd ..
