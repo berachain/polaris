@@ -16,15 +16,11 @@ package localnet
 
 import (
 	"context"
-	"fmt"
-	"os"
 	"testing"
-
-	dt "github.com/ory/dockertest"
-	"github.com/ory/dockertest/docker"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	dt "github.com/ory/dockertest"
 )
 
 func TestLocalnet(t *testing.T) {
@@ -34,70 +30,19 @@ func TestLocalnet(t *testing.T) {
 
 var _ = Describe("Fixture", func() {
 	var (
-		c          *LocalnetClient
-		ctx        context.Context
-		localImage string
+		c   *LocalnetClient
+		ctx context.Context
 	)
 
-	BeforeEach(func() {
+	BeforeAll(func() {
 		ctx = context.Background()
-
-		fmt.Println("Started 1")
-
 		pool, err := dt.NewPool("")
 		Expect(err).ToNot(HaveOccurred())
 
 		err = pool.Client.Ping()
 		Expect(err).ToNot(HaveOccurred())
 
-		baseBuildArgs := []docker.BuildArg{
-			{
-				Name:  "GO_VERSION",
-				Value: "1.20.4",
-			},
-			{
-				Name:  "PRECOMPILE_CONTRACTS_DIR",
-				Value: "./contracts",
-			},
-			{
-				Name:  "GOOS",
-				Value: "linux",
-			},
-			{
-				Name:  "GOARCH",
-				Value: "arm64",
-			},
-		}
-		baseImageName := "polard/base:v0.0.0"
-
-		baseBuildOpts := docker.BuildImageOptions{
-			Name:         baseImageName,
-			ContextDir:   "../../",
-			Dockerfile:   "./cosmos/docker/base.Dockerfile",
-			BuildArgs:    baseBuildArgs,
-			OutputStream: os.Stdout,
-		}
-
-		err = pool.Client.BuildImage(baseBuildOpts)
-		Expect(err).ToNot(HaveOccurred())
-
-		fmt.Println("Started 2")
-
-		localBuildArgs := []docker.BuildArg{
-			{
-				Name:  "BASE_IMAGE",
-				Value: baseImageName,
-			},
-		}
-		localImage = "polard/localnet:v0.0.0"
-		localBuildOpts := docker.BuildImageOptions{
-			Name:         localImage,
-			ContextDir:   "./",
-			Dockerfile:   "Dockerfile",
-			BuildArgs:    localBuildArgs,
-			OutputStream: os.Stdout,
-		}
-		err = pool.Client.BuildImage(localBuildOpts)
+		err = buildDefault(pool)
 		Expect(err).ToNot(HaveOccurred())
 	})
 
@@ -108,8 +53,7 @@ var _ = Describe("Fixture", func() {
 	})
 
 	It("should create a container", func() {
-		fmt.Println("Started 4")
-		c, err := NewLocalnetClient(ctx, localImage, "something", "localhost:8545", "localhost:8546")
+		c, err := NewLocalnetClient(ctx, "polard/localnet:v0.0.0", "something", "8545/tcp", "8546/tcp")
 		Expect(err).ToNot(HaveOccurred())
 		Expect(c).ToNot(BeNil())
 
