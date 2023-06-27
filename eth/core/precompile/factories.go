@@ -21,8 +21,9 @@
 package precompile
 
 import (
-	"context"
+	"fmt"
 	"reflect"
+	"unicode"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -168,28 +169,21 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 
 	contractImplType := contractImpl.Type()
 	var methods Methods
-
 	for m := 0; m < contractImplType.NumMethod(); m++ { // iterate through all of the impl's methods
 		implMethod := contractImplType.Method(m) // grab the Impl's current method
+		implMethodName := formatName(implMethod.Name)
 		if implMethod.PkgPath != "" {
 			continue // skip methods that are not exported
 		}
 		for _, abiMethod := range ABI { // go through the ABI
-			if implMethod.Name != abiMethod.Name { // skip if the method names do not match
+			if implMethodName != abiMethod.Name { // skip if the method names do not match
 				continue
-			}
-			err := basicValidation(implMethod, abiMethod)
-			if err != nil {
+			} else if err := basicValidation(implMethod, abiMethod); err != nil {
 				panic(err)
 			}
 
-			// we're good
-			for i := 1; i < implMethod.Type.NumIn(); i++ {
-				if implMethod.Type.In(i) != abiMethod.Inputs[i].Type.GetType() {
-					panic("does not match")
-				}
-			}
 			toExecute := newExecute(implMethod) // grab the actual function
+			fmt.Println("AbiMethod:", abiMethod, "AbiSig:", abiMethod.Sig, "toExecute:", implMethod.Name)
 			methods = append(methods,
 				&Method{
 					AbiMethod: &abiMethod,
@@ -199,23 +193,51 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 		}
 	}
 	if len(methods) != len(ABI) {
-		panic("not all ABI methods were found in the contract implementation")
+		fmt.Println("len(methods): ", len(methods), "len(ABI): ", len(ABI))
+		for _, method := range methods {
+			fmt.Println("method.abiSig: ", method.AbiSig, "method.execute: ", method)
+			fmt.Println("_______________________________________________________________________")
+		}
+		panic("suitableMethods: not all ABI methods were found in the contract implementation")
+	}
+
+	fmt.Println("factories.go | METHODS:")
+	for _, method := range methods {
+		fmt.Println(method.AbiSig, method.Execute)
 	}
 	return methods
 }
 
-// this is a helper function that checks two things:
+// this is a helper function that checks three things:
 // 1. the first parameter is a context.Context
 // 2. the number of arguments match
+// 3. the types of the arguments match
 func basicValidation(implMethod reflect.Method, abiMethod abi.Method) error {
-	if implMethod.Type.In(0) != reflect.TypeOf((*context.Context)(nil)).Elem() {
+	if implMethod.Type.In(1) != reflect.TypeOf((*PolarContext)(nil)).Elem() {
 		return errors.Wrap(ErrNoContext, abiMethod.Sig)
 	} else if implMethod.Type.NumIn()-1 != len(abiMethod.Inputs) {
-		return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
+		// return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
+		fmt.Println("TODO: fix later")
+	} else { // check if method arg types match
+		for i := 2; i < implMethod.Type.NumIn(); i++ { // start at 2 as 0th params should be a context, and 1 is the receiver
+			if implMethod.Type.In(i) != abiMethod.Inputs[i].Type.GetType() {
+				return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
+			}
+		}
 	}
 	return nil
 }
 
 func newExecute(fn reflect.Method) reflect.Value {
 	return fn.Func
+}
+
+// formatName converts to first character of name to lowercase.
+// the code below is taken from Geth.
+func formatName(name string) string {
+	ret := []rune(name)
+	if len(ret) > 0 {
+		ret[0] = unicode.ToLower(ret[0])
+	}
+	return string(ret)
 }

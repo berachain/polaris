@@ -50,5 +50,5 @@ var (
 	// corresponding ABI method.
 	ErrNoPrecompileMethodForABIMethod = errors.New("this ABI method does not have a corresponding precompile method")
 
-	ErrNoContext = errors.New("this precompile method implementation requires a context but none was provided")
+	ErrNoContext = errors.New("this precompile method implementation requires a PolarContext but none was provided")
 )
