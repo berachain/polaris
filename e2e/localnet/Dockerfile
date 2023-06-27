@@ -16,10 +16,10 @@
 ARG GO_VERSION
 ARG GOARCH=arm64
 ARG GOOS=darwin
-ARG POLARD_VERSION=v0.0.0
+ARG BASE_IMAGE
 
 # Use the latest foundry image
-FROM polard/base:${POLARD_VERSION} as localpolard
+FROM ${BASE_IMAGE} as localpolard
 
 RUN apk add --no-cache bash jq
 

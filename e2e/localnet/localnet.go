@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	tc "github.com/testcontainers/testcontainers-go"
+	docker "github.com/fsouza/go-dockerclient"
+	dt "github.com/ory/dockertest"
 )
 
 type Localnet interface {
@@ -22,7 +23,7 @@ type LocalnetClient struct {
 	httpAddress string
 	wsAddress   string
 
-	container tc.Container
+	container dt.Pool
 }
 
 func NewLocalnetClient(ctx context.Context, imageName, genesis, httpAddress, wsAddress string) (*LocalnetClient, error) {
@@ -30,21 +31,39 @@ func NewLocalnetClient(ctx context.Context, imageName, genesis, httpAddress, wsA
 		return nil, fmt.Errorf("genesis cannot be empty")
 	}
 
-	req := tc.GenericContainerRequest{
-		ContainerRequest: tc.ContainerRequest{
-			Image:        imageName,
-			ExposedPorts: []string{"8545/tcp", "8546/tcp"},
-		},
-	}
+	pool, err := dt.NewPool("")
 
-	container, err := tc.GenericContainer(ctx, req)
+	err = pool.Client.Ping()
 	if err != nil {
 		return nil, err
 	}
 
+	container = pool.Client.CreateContainer(docker.CreateContainerOptions{
+		Name: "localnet",
+		Config: &docker.Config{
+			Image: imageName,
+			ExposedPorts: map[docker.Port]struct{}{
+				"8545/tcp": {},
+				"8546/tcp": {},
+			},
+		},
+	})
+
+	// req := tc.GenericContainerRequest{
+	// 	ContainerRequest: tc.ContainerRequest{
+	// 		Image:        imageName,
+	// 		ExposedPorts: []string{"8545/tcp", "8546/tcp"},
+	// 	},
+	// }
+
+	// container, err := tc.GenericContainer(ctx, req)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
 	return &LocalnetClient{
-		container:   container,
 		genesis:     genesis,
+		container:   container,
 		httpAddress: httpAddress,
 		wsAddress:   wsAddress,
 	}, nil

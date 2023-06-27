@@ -17,9 +17,11 @@ package localnet
 import (
 	"context"
 	"fmt"
+	"os"
 	"testing"
 
-	tc "github.com/testcontainers/testcontainers-go"
+	dt "github.com/ory/dockertest"
+	"github.com/ory/dockertest/docker"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -30,60 +32,73 @@ func TestLocalnet(t *testing.T) {
 	RunSpecs(t, "testing:integration")
 }
 
-var (
-	contractsDir = "./contracts"
-	goVersion    = "1.20.4"
-	goOS         = "linux"
-	goArch       = "arm64"
-)
-
 var _ = Describe("Fixture", func() {
 	var (
-		c         *LocalnetClient
-		ctx       context.Context
-		container tc.Container
+		c          *LocalnetClient
+		ctx        context.Context
+		localImage string
 	)
 
 	BeforeEach(func() {
 		ctx = context.Background()
 
 		fmt.Println("Started 1")
-		baseImage := tc.ContainerRequest{
-			FromDockerfile: tc.FromDockerfile{
-				Context:    "../../",
-				Dockerfile: "./cosmos/docker/base.Dockerfile",
-				BuildArgs: map[string]*string{
-					"GO_VERSION":               &goVersion,
-					"PRECOMPILE_CONTRACTS_DIR": &contractsDir,
-					"GOOS":                     &goOS,
-					"GOARCH":                   &goArch,
-				},
+
+		pool, err := dt.NewPool("")
+		Expect(err).ToNot(HaveOccurred())
+
+		err = pool.Client.Ping()
+		Expect(err).ToNot(HaveOccurred())
+
+		baseBuildArgs := []docker.BuildArg{
+			{
+				Name:  "GO_VERSION",
+				Value: "1.20.4",
+			},
+			{
+				Name:  "PRECOMPILE_CONTRACTS_DIR",
+				Value: "./contracts",
+			},
+			{
+				Name:  "GOOS",
+				Value: "linux",
+			},
+			{
+				Name:  "GOARCH",
+				Value: "arm64",
 			},
 		}
+		baseImageName := "polard/base:v0.0.0"
 
-		_, err := tc.GenericContainer(ctx,
-			tc.GenericContainerRequest{
-				ContainerRequest: baseImage,
-				Started:          false,
-				Reuse:            false,
-			})
+		baseBuildOpts := docker.BuildImageOptions{
+			Name:         baseImageName,
+			ContextDir:   "../../",
+			Dockerfile:   "./cosmos/docker/base.Dockerfile",
+			BuildArgs:    baseBuildArgs,
+			OutputStream: os.Stdout,
+		}
+
+		err = pool.Client.BuildImage(baseBuildOpts)
 		Expect(err).ToNot(HaveOccurred())
 
 		fmt.Println("Started 2")
-		localnetImage := tc.ContainerRequest{
-			FromDockerfile: tc.FromDockerfile{
-				Context:    "./",
-				Dockerfile: "Dockerfile",
+
+		localBuildArgs := []docker.BuildArg{
+			{
+				Name:  "BASE_IMAGE",
+				Value: baseImageName,
 			},
 		}
-		localnetContainer, err := tc.GenericContainer(ctx, tc.GenericContainerRequest{
-			ContainerRequest: localnetImage,
-			Started:          false,
-			Reuse:            false,
-		})
+		localImage = "polard/localnet:v0.0.0"
+		localBuildOpts := docker.BuildImageOptions{
+			Name:         localImage,
+			ContextDir:   "./",
+			Dockerfile:   "Dockerfile",
+			BuildArgs:    localBuildArgs,
+			OutputStream: os.Stdout,
+		}
+		err = pool.Client.BuildImage(localBuildOpts)
 		Expect(err).ToNot(HaveOccurred())
-		container = localnetContainer
-		fmt.Println("Started 3")
 	})
 
 	AfterEach(func() {
@@ -93,12 +108,8 @@ var _ = Describe("Fixture", func() {
 	})
 
 	It("should create a container", func() {
-		var err error
-		name, err := container.Name(ctx)
-		Expect(err).ToNot(HaveOccurred())
-		fmt.Println("name: ", name)
 		fmt.Println("Started 4")
-		c, err := NewLocalnetClient(ctx, name[1:], "something", "localhost:8545", "localhost:8546")
+		c, err := NewLocalnetClient(ctx, localImage, "something", "localhost:8545", "localhost:8546")
 		Expect(err).ToNot(HaveOccurred())
 		Expect(c).ToNot(BeNil())
 
