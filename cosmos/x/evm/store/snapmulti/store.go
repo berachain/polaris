@@ -43,7 +43,7 @@ type mapMultiStore map[storetypes.StoreKey]storetypes.CacheKVStore
 // It journals revisions by cache-wrapping the cachekv stores on a call to `Snapshot`. In this
 // store's lifecycle, any operations done before the first call to snapshot will be enforced on the
 // root `mapMultiStore`.
-type Store struct {
+type store struct {
 	// MultiStore is the underlying multistore
 	storetypes.MultiStore
 	// root is the mapMultiStore used before the first snapshot is called
@@ -55,8 +55,8 @@ type Store struct {
 }
 
 // NewStoreFrom creates and returns a new `store` from a given Multistore `ms`.
-func NewStoreFrom(ms storetypes.MultiStore) *Store {
-	return &Store{
+func NewStoreFrom(ms storetypes.MultiStore) *store {
+	return &store{
 		MultiStore: ms,
 		root:       make(mapMultiStore),
 		journal:    stack.New[mapMultiStore](initJournalCapacity),
@@ -64,30 +64,30 @@ func NewStoreFrom(ms storetypes.MultiStore) *Store {
 }
 
 // RegistryKey implements `libtypes.Registrable`.
-func (s *Store) RegistryKey() string {
+func (s *store) RegistryKey() string {
 	return storeRegistryKey
 }
 
 // IsReadOnly returns the current read-only mode.
-func (s *Store) IsReadOnly() bool {
+func (s *store) IsReadOnly() bool {
 	return s.readOnly
 }
 
 // SetReadOnly sets the store to the given read-only mode.
-func (s *Store) SetReadOnly(readOnly bool) {
+func (s *store) SetReadOnly(readOnly bool) {
 	s.readOnly = readOnly
 }
 
 // GetCommittedKVStore returns the KV Store from the given Multistore. This function follows
 // the Multistore's normal `GetKVStore` code path.
-func (s *Store) GetCommittedKVStore(key storetypes.StoreKey) storetypes.KVStore {
+func (s *store) GetCommittedKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	return s.MultiStore.GetKVStore(key)
 }
 
 // GetKVStore shadows the SDK's `storetypes.MultiStore` function. Routes native module calls to
 // read the dirty state during an eth tx. Any state that is modified by evm statedb, and using the
 // context passed in to StateDB, will be routed to a tx-specific cache kv store.
-func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
+func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 	var cms mapMultiStore
 	if cms = s.journal.Peek(); cms == nil {
 		// use root if the journal is empty
@@ -108,7 +108,7 @@ func (s *Store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 }
 
 // Snapshot implements `libtypes.Snapshottable`.
-func (s *Store) Snapshot() int {
+func (s *store) Snapshot() int {
 	var cms mapMultiStore
 	if cms = s.journal.Peek(); cms == nil {
 		// use root if the journal is empty
@@ -126,7 +126,7 @@ func (s *Store) Snapshot() int {
 }
 
 // Revert implements `libtypes.Snapshottable`.
-func (s *Store) RevertToSnapshot(id int) {
+func (s *store) RevertToSnapshot(id int) {
 	// id is the new size of the journal we want to maintain.
 	s.journal.PopToSize(id)
 }
@@ -136,7 +136,7 @@ func (s *Store) RevertToSnapshot(id int) {
 // underlying multistore if in read-only mode.
 //
 // Finalize implements `libtypes.Controllable`.
-func (s *Store) Finalize() {
+func (s *store) Finalize() {
 	// Recursively pop the journal and write each cachekv store to its parent cachekv store.
 	for revision := s.journal.Pop(); revision != nil; revision = s.journal.Pop() {
 		for key, cacheKVStore := range revision {
