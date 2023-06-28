@@ -90,30 +90,40 @@ func (sc *stateful) Run(
 		return nil, err
 	}
 
-	fullargs := make([]reflect.Value, 0, len(unpackedArgs))
-	for _, arg := range unpackedArgs {
-		fullargs = append(fullargs, reflect.ValueOf(arg))
+	fullargs := make([]reflect.Value, 0, 5+len(unpackedArgs))
+	// fullargs = append(fullargs, reflect.ValueOf(sc.Registrable))
+	fullargs = append(fullargs, reflect.ValueOf(ctx))
+	fullargs = append(fullargs, reflect.ValueOf(evm))
+	fullargs = append(fullargs, reflect.ValueOf(caller))
+	fullargs = append(fullargs, reflect.ValueOf(value))
+	fullargs = append(fullargs, reflect.ValueOf(readonly))
+
+	var shit []reflect.Value
+	for _, unpackedArg := range unpackedArgs {
+		shit = append(shit, reflect.ValueOf(unpackedArg))
 	}
 
+	fullargs = append(fullargs, shit...)
+
 	// Execute the method registered with the given signature with the given args.
+	// methodInterface := method.Execute.Interface()
+	// execute := methodInterface.(func(*staking.Contract, context.Context, EVM, common.Address, *big.Int, bool, []reflect.Value) ([]reflect.Value, error))
+	// vals, err := execute(ctx, evm, caller, value, readonly, fullargs)
 	vals := method.Execute.Call(fullargs)
 
 	// If the precompile returned an error, the error is returned to the caller.
-	if err != nil {
-		return nil, errors.Wrapf(
-			vm.ErrExecutionReverted,
-			"vm error [%v] occurred during precompile execution of [%s]",
-			err, debug.GetFnName(method.Execute),
-		)
+	if !vals[1].IsNil() {
+		if err = vals[1].Interface().(error); err != nil {
+			return nil, errors.Wrapf(
+				vm.ErrExecutionReverted,
+				"vm error [%v] occurred during precompile execution of [%s]",
+				err, debug.GetFnName(method.Execute),
+			)
+		}
 	}
 
 	// Pack the return values and return, if any exist.
-	fullvals := make([]interface{}, 0, len(vals))
-	for _, val := range vals {
-		fullvals = append(fullvals, val.Interface())
-	}
-
-	ret, err := method.AbiMethod.Outputs.Pack(fullvals)
+	ret, err := method.AbiMethod.Outputs.Pack(vals[0].Interface().([]any))
 	if err != nil {
 		return nil, err
 	}

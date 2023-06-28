@@ -157,6 +157,8 @@ func (sf *StatefulFactory) buildIdsToMethods(
 
 // GeneratePrecompileMethods generates the methods for the given Precompile's ABI.
 func GeneratePrecompileMethod(ABI map[string]abi.Method, contractImpl reflect.Value) Methods {
+	fmt.Println("Beginning\n_______________________________________________________________________")
+	fmt.Println(contractImpl.Type().Name())
 	return suitableMethods(ABI, contractImpl)
 }
 
@@ -170,29 +172,36 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 	contractImplType := contractImpl.Type()
 	var methods Methods
 	for m := 0; m < contractImplType.NumMethod(); m++ { // iterate through all of the impl's methods
-		implMethod := contractImplType.Method(m) // grab the Impl's current method
-		implMethodName := formatName(implMethod.Name)
+		implMethod := contractImplType.Method(m)      // grab the Impl's current method
+		implMethodName := formatName(implMethod.Name) // make the first letter lowercase
 
-		if unicode.IsDigit(rune(implMethodName[len(implMethodName)-1])) { // its a god damn overloaded function FUCK
-
-		}
 		if implMethod.PkgPath != "" {
 			continue // skip methods that are not exported
 		}
+
 		for _, abiMethod := range ABI { // go through the ABI
+			fmt.Println("implMethodName: ", implMethodName, "<>", abiMethod.Name)
 			if implMethodName != abiMethod.Name { // skip if the method names do not match
+				//	fmt.Println("implMethodName: ", implMethodName, "DOES NOT MATCH abiMethod.Name: ", abiMethod.Name)
 				continue
 			} else if err := basicValidation(implMethod, abiMethod); err != nil {
 				panic(err)
 			}
-			for i := 2; i < implMethod.Type.NumIn(); i++ { // start at 2 as 0th params should be a context, and 1 is the receiver
-				if implMethod.Type.In(i) != abiMethod.Inputs[i].Type.GetType() {
-					// hold on, this doesn't indicate a failure due to overloaded functions
-					return nil
-				}
-			}
+			fmt.Println("implMethodName: ", implMethodName, "MATCH MATCH abiMethod.Name: ", abiMethod.Name)
+
+			// uncomment when we change all the function signatures to match the abi method params
+			// 			implMethodIdx := 2 // start at 2 as 0th params should be a receiver, and 1 is the PolarContext
+			// 			for i := 0; i < len(abiMethod.Inputs); i++ {
+			// 				if implMethod.Type.In(implMethodIdx) != abiMethod.Inputs[i].Type.GetType() {
+			// 					// hold on, this doesn't indicate a failure due to overloaded functions
+			// 					fmt.Println("implMethod.Type.In(implMethodIdx): ", implMethod.Type.In(implMethodIdx), "abiMethod.Inputs[i].Type.GetType(): ", abiMethod.Inputs[i].Type.GetType())
+			// 					panic("does not match types")
+			// 				}
+			// 				implMethodIdx++
+			// 			}
+			//
+
 			toExecute := newExecute(implMethod) // grab the actual function
-			fmt.Println("AbiMethod:", abiMethod, "AbiSig:", abiMethod.Sig, "toExecute:", implMethod.Name)
 			methods = append(methods,
 				&Method{
 					AbiMethod: &abiMethod,
@@ -214,6 +223,7 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 	for _, method := range methods {
 		fmt.Println(method.AbiSig, method.Execute)
 	}
+	fmt.Println("_______________________________________________________________________")
 	return methods
 }
 
@@ -222,12 +232,12 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 // 2. the number of arguments match
 // 3. the types of the arguments match
 func basicValidation(implMethod reflect.Method, abiMethod abi.Method) error {
-	if implMethod.Type.In(1) != reflect.TypeOf((*PolarContext)(nil)).Elem() {
-		return errors.Wrap(ErrNoContext, abiMethod.Sig)
-	} else if implMethod.Type.NumIn()-1 != len(abiMethod.Inputs) {
-		// return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
-		fmt.Println("TODO: fix later")
-	}
+	// if implMethod.Type.In(1) != reflect.TypeOf((*PolarContext)(nil)).Elem() {
+	// return errors.Wrap(ErrNoContext, abiMethod.Sig)
+	// } else if implMethod.Type.NumIn()-1 != len(abiMethod.Inputs) {
+	// // return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
+	// fmt.Println("TODO: fix later")
+	// }
 	return nil
 }
 
@@ -239,7 +249,11 @@ func newExecute(fn reflect.Method) reflect.Value {
 // the code below is taken from Geth.
 func formatName(name string) string {
 	ret := []rune(name)
-	if len(ret) > 0 {
+	if name[:3] == "ERC" { // special case for ERC20
+		ret[0] = unicode.ToLower(ret[0])
+		ret[1] = unicode.ToLower(ret[1])
+		ret[2] = unicode.ToLower(ret[2])
+	} else if len(ret) > 0 {
 		ret[0] = unicode.ToLower(ret[0])
 	}
 

@@ -84,8 +84,8 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	return ethprecompile.GeneratePrecompileMethod(c.ABIMethods(), contractVal)
 }
 
-// CoinDenomForERC20AddressAddrInput returns the SDK coin denomination for the given ERC20 address.
-func (c *Contract) CoinDenomForERC20AddressAddrInput(
+// CoinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address.
+func (c *Contract) CoinDenomForERC20Address(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -111,8 +111,8 @@ func (c *Contract) CoinDenomForERC20AddressAddrInput(
 	return []any{resp.Denom}, nil
 }
 
-// CoinDenomForERC20AddressStringInput returns the SDK coin denomination for the given ERC20 address.
-func (c *Contract) CoinDenomForERC20AddressStringInput(
+// CoinDenomForERC20Address0 returns the SDK coin denomination for the given ERC20 address.
+func (c *Contract) CoinDenomForERC20Address0(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -196,8 +196,8 @@ func (c *Contract) TransferCoinToERC20(
 	return []any{err == nil}, err
 }
 
-// TransferCoinToERC20FromAddrInput transfers SDK coins to ERC20 tokens from owner to recipient.
-func (c *Contract) TransferCoinToERC20FromAddrInput(
+// TransferCoinToERC20From transfers SDK coins to ERC20 tokens from owner to recipient.
+func (c *Contract) TransferCoinToERC20From(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	_ common.Address,
@@ -226,8 +226,8 @@ func (c *Contract) TransferCoinToERC20FromAddrInput(
 	return []any{err == nil}, err
 }
 
-// TransferCoinToERC20FromStringInput transfers SDK coins to ERC20 tokens from owner to recipient.
-func (c *Contract) TransferCoinToERC20FromStringInput(
+// TransferCoinToERC20From0 transfers SDK coins to ERC20 tokens from owner to recipient.
+func (c *Contract) TransferCoinToERC20From0(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	_ common.Address,
@@ -269,8 +269,8 @@ func (c *Contract) TransferCoinToERC20FromStringInput(
 	return []any{err == nil}, err
 }
 
-// TransferCoinToERC20ToAddrInput transfers SDK coins to ERC20 tokens from msg.sender to recipient.
-func (c *Contract) TransferCoinToERC20ToAddrInput(
+// TransferCoinToERC20To transfers SDK coins to ERC20 tokens from msg.sender to recipient.
+func (c *Contract) TransferCoinToERC20To(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -295,8 +295,8 @@ func (c *Contract) TransferCoinToERC20ToAddrInput(
 	return []any{err == nil}, err
 }
 
-// TransferCoinToERC20ToStringInput transfers SDK coins to ERC20 tokens from msg.sender to recipient.
-func (c *Contract) TransferCoinToERC20ToStringInput(
+// TransferCoinToERC20To0 transfers SDK coins to ERC20 tokens from msg.sender to recipient.
+func (c *Contract) TransferCoinToERC20To0(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -352,8 +352,8 @@ func (c *Contract) TransferERC20ToCoin(
 	return []any{err == nil}, err
 }
 
-// TransferERC20ToCoinFromAddrInput transfers ERC20 tokens to SDK coins from owner to recipient.
-func (c *Contract) TransferERC20ToCoinFromAddrInput(
+// TransferERC20ToCoinFrom transfers ERC20 tokens to SDK coins from owner to recipient.
+func (c *Contract) TransferERC20ToCoinFrom(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -382,8 +382,8 @@ func (c *Contract) TransferERC20ToCoinFromAddrInput(
 	return []any{err == nil}, err
 }
 
-// TransferERC20ToCoinFromStringInput transfers ERC20 tokens to SDK coins from owner to recipient.
-func (c *Contract) TransferERC20ToCoinFromStringInput(
+// TransferERC20ToCoinFrom0 transfers ERC20 tokens to SDK coins from owner to recipient.
+func (c *Contract) TransferERC20ToCoinFrom0(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -425,8 +425,8 @@ func (c *Contract) TransferERC20ToCoinFromStringInput(
 	return []any{err == nil}, err
 }
 
-// TransferERC20ToCoinToAddrInput transfers ERC20 tokens to SDK coins from msg.sender to recipient.
-func (c *Contract) TransferERC20ToCoinToAddrInput(
+// TransferERC20ToCoinTo transfers ERC20 tokens to SDK coins from msg.sender to recipient.
+func (c *Contract) TransferERC20ToCoinTo(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
@@ -451,8 +451,8 @@ func (c *Contract) TransferERC20ToCoinToAddrInput(
 	return []any{err == nil}, err
 }
 
-// TransferERC20ToCoinToStringInput transfers ERC20 tokens to SDK coins from msg.sender to recipient.
-func (c *Contract) TransferERC20ToCoinToStringInput(
+// TransferERC20ToCoinTo0 transfers ERC20 tokens to SDK coins from msg.sender to recipient.
+func (c *Contract) TransferERC20ToCoinTo0(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,

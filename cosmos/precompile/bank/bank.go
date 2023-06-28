@@ -118,7 +118,7 @@ func (c *Contract) GetAllBalances(
 }
 
 // GetSpendableBalanceByDenom implements `getSpendableBalanceByDenom(address,string)` method.
-func (c *Contract) GetSpendableBalanceByDenom(
+func (c *Contract) GetSpendableBalance(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -147,8 +147,8 @@ func (c *Contract) GetSpendableBalanceByDenom(
 	return []any{balance.BigInt()}, nil
 }
 
-// GetSpendableBalances implements `getSpendableBalances(address)` method.
-func (c *Contract) GetSpendableBalances(
+// GetSpendableBalances implements `getAllSpendableBalances(address)` method.
+func (c *Contract) GetAllSpendableBalances(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -171,8 +171,8 @@ func (c *Contract) GetSpendableBalances(
 	return []any{cosmlib.SdkCoinsToEvmCoins(res.Balances)}, nil
 }
 
-// GetSupplyOf implements `GetSupplyOf(string)` method.
-func (c *Contract) GetSupplyOf(
+// GetSupplyOf implements `getSupply(string)` method.
+func (c *Contract) GetSupply(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -196,8 +196,8 @@ func (c *Contract) GetSupplyOf(
 	return []any{supply.BigInt()}, nil
 }
 
-// GetTotalSupply implements `getTotalSupply()` method.
-func (c *Contract) GetTotalSupply(
+// GetTotalSupply implements `getAllSupply()` method.
+func (c *Contract) GetAllSupply(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,

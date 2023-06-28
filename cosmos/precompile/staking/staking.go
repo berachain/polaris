@@ -64,8 +64,8 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	return ethprecompile.GeneratePrecompileMethod(c.ABIMethods(), contractVal)
 }
 
-// GetDelegationAddrInput implements `getDelegation(address)` method.
-func (c *Contract) GetDelegationAddrInput(
+// GetDelegation implements `getDelegation(address)` method.
+func (c *Contract) GetDelegation(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -87,8 +87,8 @@ func (c *Contract) GetDelegationAddrInput(
 	)
 }
 
-// GetDelegationStringInput implements `getDelegation(string)` method.
-func (c *Contract) GetDelegationStringInput(
+// GetDelegation0 implements `getDelegation(string)` method.
+func (c *Contract) GetDelegation0(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -116,8 +116,8 @@ func (c *Contract) GetDelegationStringInput(
 	return c.getDelegationHelper(ctx, del, val)
 }
 
-// GetUnbondingDelegationAddrInput implements the `getUnbondingDelegation(address)` method.
-func (c *Contract) GetUnbondingDelegationAddrInput(
+// GetUnbondingDelegation implements the `getUnbondingDelegation(address)` method.
+func (c *Contract) GetUnbondingDelegation(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -139,8 +139,8 @@ func (c *Contract) GetUnbondingDelegationAddrInput(
 	)
 }
 
-// GetUnbondingDelegationStringInput implements the `getUnbondingDelegation(string)` method.
-func (c *Contract) GetUnbondingDelegationStringInput(
+// GetUnbondingDelegation0 implements the `getUnbondingDelegation(string)` method.
+func (c *Contract) GetUnbondingDelegation0(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -168,8 +168,8 @@ func (c *Contract) GetUnbondingDelegationStringInput(
 	return c.getUnbondingDelegationHelper(ctx, del, val)
 }
 
-// GetRedelegationsAddrInput implements the `getRedelegations(address,address)` method.
-func (c *Contract) GetRedelegationsAddrInput(
+// GetRedelegations implements the `getRedelegations(address,address)` method.
+func (c *Contract) GetRedelegations(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -198,8 +198,8 @@ func (c *Contract) GetRedelegationsAddrInput(
 	)
 }
 
-// GetRedelegationsStringInput implements the `getRedelegations(string,string)` method.
-func (c *Contract) GetRedelegationsStringInput(
+// GetRedelegations0 implements the `getRedelegations(string,string)` method.
+func (c *Contract) GetRedelegations0(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -235,8 +235,8 @@ func (c *Contract) GetRedelegationsStringInput(
 	return c.getRedelegationsHelper(ctx, del, src, dst)
 }
 
-// DelegateAddrInput implements the `delegate(address,uint256)` method.
-func (c *Contract) DelegateAddrInput(
+// Delegate implements the `delegate(address,uint256)` method.
+func (c *Contract) Delegate(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
@@ -256,8 +256,8 @@ func (c *Contract) DelegateAddrInput(
 	return c.delegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
 }
 
-// DelegateStringInput implements the `delegate(string,uint256)` method.
-func (c *Contract) DelegateStringInput(
+// Delegate0 implements the `delegate(string,uint256)` method.
+func (c *Contract) Delegate0(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
@@ -282,8 +282,8 @@ func (c *Contract) DelegateStringInput(
 	return c.delegateHelper(ctx, caller, amount, val)
 }
 
-// UndelegateAddrInput implements the `undelegate(address,uint256)` method.
-func (c *Contract) UndelegateAddrInput(
+// Undelegate implements the `undelegate(address,uint256)` method.
+func (c *Contract) Undelegate(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
@@ -303,8 +303,8 @@ func (c *Contract) UndelegateAddrInput(
 	return c.undelegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
 }
 
-// UndelegateStringInput implements the `undelegate(string,uint256)` method.
-func (c *Contract) UndelegateStringInput(
+// Undelegate0 implements the `undelegate(string,uint256)` method.
+func (c *Contract) Undelegate0(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
@@ -329,8 +329,8 @@ func (c *Contract) UndelegateStringInput(
 	return c.undelegateHelper(ctx, caller, amount, val)
 }
 
-// BeginRedelegateAddrInput implements the `beginRedelegate(address,address,uint256)` method.
-func (c *Contract) BeginRedelegateAddrInput(
+// BeginRedelegate implements the `beginRedelegate(address,address,uint256)` method.
+func (c *Contract) BeginRedelegate(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
@@ -360,8 +360,8 @@ func (c *Contract) BeginRedelegateAddrInput(
 	)
 }
 
-// BeginRedelegateStringInput implements the `beginRedelegate(string,string,uint256)` method.
-func (c *Contract) BeginRedelegateStringInput(
+// BeginRedelegate0 implements the `beginRedelegate(string,string,uint256)` method.
+func (c *Contract) BeginRedelegate0(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
@@ -394,8 +394,8 @@ func (c *Contract) BeginRedelegateStringInput(
 	return c.beginRedelegateHelper(ctx, caller, amount, src, dst)
 }
 
-// CancelRedelegateAddrInput implements the `cancelRedelegate(address,address,uint256,int64)` method.
-func (c *Contract) CancelUnbondingDelegationAddrInput(
+// CancelRedelegate implements the `cancelRedelegate(address,address,uint256,int64)` method.
+func (c *Contract) CancelUnbondingDelegation(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
@@ -419,8 +419,8 @@ func (c *Contract) CancelUnbondingDelegationAddrInput(
 	return c.cancelUnbondingDelegationHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val), creationHeight)
 }
 
-// CancelRedelegateStringInput implements the `cancelRedelegate(string,string,uint256,int64)` method.
-func (c *Contract) CancelUnbondingDelegationStringInput(
+// CancelRedelegate0 implements the `cancelRedelegate(string,string,uint256,int64)` method.
+func (c *Contract) CancelUnbondingDelegation0(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
@@ -474,7 +474,7 @@ func (c *Contract) GetValidators(
 }
 
 // GetValidators implements the `getValidator(address)` method.
-func (c *Contract) GetValidatorAddrInput(
+func (c *Contract) GetValidator(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -491,7 +491,7 @@ func (c *Contract) GetValidatorAddrInput(
 }
 
 // GetValidators implements the `getValidator(string)` method.
-func (c *Contract) GetValidatorStringInput(
+func (c *Contract) GetValidator0(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -507,8 +507,8 @@ func (c *Contract) GetValidatorStringInput(
 	return c.validatorHelper(ctx, valBech32)
 }
 
-// GetDelegatorValidatorsAddrInput implements the `getDelegatorValidators(address)` method.
-func (c *Contract) GetDelegatorValidatorsAddrInput(
+// GetDelegatorValidators implements the `getDelegatorValidators(address)` method.
+func (c *Contract) GetDelegatorValidators(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -524,8 +524,8 @@ func (c *Contract) GetDelegatorValidatorsAddrInput(
 	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(del))
 }
 
-// GetDelegatorValidatorsStringInput implements the `getDelegatorValidators(string)` method.
-func (c *Contract) GetDelegatorValidatorsStringInput(
+// GetDelegatorValidators0 implements the `getDelegatorValidators(string)` method.
+func (c *Contract) GetDelegatorValidators0(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,

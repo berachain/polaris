@@ -109,11 +109,11 @@ var _ = Describe("Stateful Container", func() {
 			Expect(err).To(HaveOccurred())
 		})
 
-		It("should return properly for valid method calls", func() {
+		FIt("should return properly for valid method calls", func() {
 			// sc.WithStateDB(sdb)
 			inputs, err := getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			ret, err := sc.Run(ctx, nil, append(getOutputABI.ID, inputs...), addr, value, readonly)
+			ret, err := sc.Run(ctx, &mockEVM{}, append(getOutputABI.ID, inputs...), addr, value, readonly)
 			Expect(err).ToNot(HaveOccurred())
 			outputs, err := getOutputABI.Outputs.Unpack(ret)
 			Expect(err).ToNot(HaveOccurred())
@@ -128,6 +128,10 @@ var _ = Describe("Stateful Container", func() {
 })
 
 // MOCKS BELOW.
+
+type mockEVM struct {
+	precompile.EVM
+}
 
 var (
 	mock, _             = solidity.MockPrecompileMetaData.GetAbi()
