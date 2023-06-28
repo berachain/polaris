@@ -55,7 +55,7 @@ type store struct {
 }
 
 // NewStoreFrom creates and returns a new `store` from a given Multistore `ms`.
-func NewStoreFrom(ms storetypes.MultiStore) *store {
+func NewStoreFrom(ms storetypes.MultiStore) *store { //nolint:revive // its okay.
 	return &store{
 		MultiStore: ms,
 		root:       make(mapMultiStore),
