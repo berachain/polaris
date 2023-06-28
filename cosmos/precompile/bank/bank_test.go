@@ -719,7 +719,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					cosmlib.AccAddressToEthAddress(fromAcc),
 					cosmlib.AccAddressToEthAddress(toAcc),
 					sdkCoinsToEvmCoins(coinsToSend),
