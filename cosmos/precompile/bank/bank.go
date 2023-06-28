@@ -339,6 +339,12 @@ func (c *Contract) Send(
 		return nil, err
 	}
 
+	// To prevent "arbitrary theft of coins", require either:
+	//  1) tx.origin == fromAddr or
+	//  2) tx.origin set the send allowance for `coins` for fromAddr
+	// Need the TxContext (for tx.origin) exposed from EVM for all precompiles and authz query
+	// server in this precompile contract
+
 	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
 		FromAddress: cosmlib.Bech32FromEthAddress(fromAddr),
 		ToAddress:   cosmlib.Bech32FromEthAddress(toAddr),
