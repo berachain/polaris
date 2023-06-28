@@ -46,7 +46,7 @@ func NewDockerizedNetwork(
 	httpAddress string,
 	wsAddress string,
 	buildArgs map[string]string,
-) (*dockerizedNetwork, error) {
+) (Localnet, error) {
 	if context == "" {
 		return nil, ErrEmptyContext
 	}
@@ -76,10 +76,10 @@ func NewDockerizedNetwork(
 	}
 
 	return &dockerizedNetwork{
+		Container:   container,
 		httpAddress: httpAddress,
 		wsAddress:   wsAddress,
 		imageConfig: imageConfig,
-		Container:   container,
 	}, nil
 }
 

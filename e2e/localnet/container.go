@@ -45,7 +45,7 @@ func NewContainerClient(config ContainerConfig, imageConfig ImageBuildConfig) (*
 		return nil, err
 	}
 
-	if err := BuildImage(pool, imageConfig); err != nil {
+	if err = BuildImage(pool, imageConfig); err != nil {
 		return nil, err
 	}
 
