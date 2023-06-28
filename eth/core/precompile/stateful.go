@@ -22,6 +22,7 @@ package precompile
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"reflect"
 
@@ -109,11 +110,11 @@ func (sc *stateful) Run(
 	// methodInterface := method.Execute.Interface()
 	// execute := methodInterface.(func(*staking.Contract, context.Context, EVM, common.Address, *big.Int, bool, []reflect.Value) ([]reflect.Value, error))
 	// vals, err := execute(ctx, evm, caller, value, readonly, fullargs)
-	vals := method.Execute.Call(fullargs)
+	results := method.Execute.Call(fullargs)
 
 	// If the precompile returned an error, the error is returned to the caller.
-	if !vals[1].IsNil() {
-		if err = vals[1].Interface().(error); err != nil {
+	if !results[1].IsNil() {
+		if err = results[1].Interface().(error); err != nil {
 			return nil, errors.Wrapf(
 				vm.ErrExecutionReverted,
 				"vm error [%v] occurred during precompile execution of [%s]",
@@ -123,7 +124,9 @@ func (sc *stateful) Run(
 	}
 
 	// Pack the return values and return, if any exist.
-	ret, err := method.AbiMethod.Outputs.Pack(vals[0].Interface().([]any))
+	retVal := results[0]
+	fmt.Println("retval:", retVal)
+	ret, err := method.AbiMethod.Outputs.PackValues(retVal.Interface().([]interface{})) // 1) What
 	if err != nil {
 		return nil, err
 	}
