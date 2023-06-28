@@ -39,14 +39,16 @@ import (
 // set of precompiles.
 func PrecompilesToInject(app *SimApp, customPcs ...ethprecompile.Registrable) func() *ethprecompile.Injector {
 	return func() *ethprecompile.Injector {
+		apc := authprecompile.NewPrecompileContract(
+			authkeeper.NewQueryServer(app.AccountKeeper), app.AuthzKeeper, app.AuthzKeeper,
+		)
 		// Create the precompile injector with the standard precompiles.
 		pcs := ethprecompile.NewPrecompiles([]ethprecompile.Registrable{
-			authprecompile.NewPrecompileContract(
-				authkeeper.NewQueryServer(app.AccountKeeper), app.AuthzKeeper, app.AuthzKeeper,
-			),
+			apc,
 			bankprecompile.NewPrecompileContract(
 				bankkeeper.NewMsgServerImpl(app.BankKeeper),
 				app.BankKeeper,
+				apc,
 			),
 			distrprecompile.NewPrecompileContract(
 				distrkeeper.NewMsgServerImpl(app.DistrKeeper),

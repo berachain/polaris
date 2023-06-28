@@ -22,6 +22,7 @@ package bank
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -41,10 +42,14 @@ type Contract struct {
 
 	msgServer banktypes.MsgServer
 	querier   banktypes.QueryServer
+
+	sendAllowanceHelper SendAllowanceHelper
 }
 
 // NewPrecompileContract returns a new instance of the bank precompile contract.
-func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) *Contract {
+func NewPrecompileContract(
+	ms banktypes.MsgServer, qs banktypes.QueryServer, s SendAllowanceHelper,
+) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.BankModuleMetaData.ABI,
@@ -320,10 +325,10 @@ func (c *Contract) GetSendEnabled(
 // Send implements `send(address,address,(uint256,string))` method.
 func (c *Contract) Send(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	value *big.Int,
+	readOnly bool,
 	args ...any,
 ) ([]any, error) {
 	fromAddr, ok := utils.GetAs[common.Address](args[0])
@@ -339,11 +344,22 @@ func (c *Contract) Send(
 		return nil, err
 	}
 
-	// To prevent "arbitrary theft of coins", require either:
-	//  1) tx.origin == fromAddr or
-	//  2) tx.origin set the send allowance for `coins` for fromAddr
-	// Need the TxContext (for tx.origin) exposed from EVM for all precompiles and authz query
-	// server in this precompile contract
+	// require caller is allowed to move fromAddr's coins
+	for _, coin := range coins {
+		sendAllowance, err := c.sendAllowanceHelper.GetSendAllowance(
+			ctx, evm, caller, value, readOnly, fromAddr, caller, coin.Denom,
+		)
+		if err != nil {
+			return nil, err
+		}
+		approvedAmt, ok := utils.GetAs[*big.Int](sendAllowance[0])
+		if !ok {
+			return nil, precompile.ErrInvalidBigInt
+		}
+		if approvedAmt.Cmp(coin.Amount.BigInt()) < 0 {
+			return nil, errors.New("insufficient approval")
+		}
+	}
 
 	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
 		FromAddress: cosmlib.Bech32FromEthAddress(fromAddr),

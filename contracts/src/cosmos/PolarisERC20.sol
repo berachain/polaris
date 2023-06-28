@@ -122,6 +122,10 @@ contract PolarisERC20 is IERC20 {
      * @return bool true if the transfer was successful.
      */
     function transfer(address to, uint256 amount) public virtual returns (bool) {
+        require(
+            authz().setSendAllowance(msg.sender, address(this), amountToCoins(amount), 0),
+            "PolarisERC20: failed to approve spend"
+        );
         require(bank().send(msg.sender, to, amountToCoins(amount)), "PolarisERC20: failed to send tokens");
 
         emit Transfer(msg.sender, to, amount);
@@ -136,7 +140,6 @@ contract PolarisERC20 is IERC20 {
      * @return bool true if the transfer was successful.
      */
     function transferFrom(address from, address to, uint256 amount) public virtual returns (bool) {
-        require(amount <= authz().getSendAllowance(from, msg.sender, denom), "PolarisERC20: insufficient approval");
         require(bank().send(from, to, amountToCoins(amount)), "PolarisERC20: failed to send bank tokens");
 
         emit Transfer(from, to, amount);

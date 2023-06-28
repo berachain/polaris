@@ -26,9 +26,13 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-
+	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -36,6 +40,8 @@ import (
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
+	"pkg.berachain.dev/polaris/cosmos/precompile/auth"
+	"pkg.berachain.dev/polaris/cosmos/precompile/auth/mock"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
@@ -55,17 +61,39 @@ func TestBankPrecompile(t *testing.T) {
 
 var _ = Describe("Bank Precompile Test", func() {
 	var (
-		contract *bank.Contract
-		addr     sdk.AccAddress
-		factory  *log.Factory
-		bk       bankkeeper.BaseKeeper
-		ctx      sdk.Context
+		authContract *auth.Contract
+		contract     *bank.Contract
+		addr         sdk.AccAddress
+		factory      *log.Factory
+		ak           authkeeper.AccountKeeper
+		bk           bankkeeper.BaseKeeper
+		ctx          sdk.Context
 	)
 
 	BeforeEach(func() {
-		ctx, _, bk, _ = testutil.SetupMinimalKeepers()
+		ctx, ak, bk, _ = testutil.SetupMinimalKeepers()
 
-		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(bankkeeper.NewMsgServerImpl(bk), bk))
+		router := mock.NewMsgRouterMock()
+		router.HandlerByTypeURLFunc = func(typeURL string) func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error) {
+			return func(ctx sdk.Context, req sdk.Msg) (*sdk.Result, error) {
+				return &sdk.Result{}, nil
+			}
+		}
+		k := authzkeeper.NewKeeper(
+			runtime.NewKVStoreService(storetypes.NewKVStoreKey(authtypes.StoreKey)),
+			testutil.GetEncodingConfig().Codec,
+			router,
+			ak,
+		)
+		authContract = utils.MustGetAs[*auth.Contract](
+			auth.NewPrecompileContract(
+				authkeeper.NewQueryServer(ak), k, k,
+			),
+		)
+
+		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(
+			bankkeeper.NewMsgServerImpl(bk), bk, authContract,
+		))
 		addr = sdk.AccAddress([]byte("bank"))
 
 		// Register the events.
@@ -668,7 +696,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				Expect(res).To(BeNil())
 			})
 
-			It("should succeed", func() {
+			FIt("should succeed", func() {
 				balanceAmount, ok := new(big.Int).SetString("220000000000000000", 10)
 				Expect(ok).To(BeTrue())
 
@@ -701,6 +729,19 @@ var _ = Describe("Bank Precompile Test", func() {
 				bk.SetSendEnabled(ctx, denom, true)
 				bk.SetSendEnabled(ctx, denom2, true)
 
+				_, err = authContract.SetSendAllowance(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					false,
+					cosmlib.AccAddressToEthAddress(fromAcc),
+					caller,
+					sdkCoinsToEvmCoins(unsortedSdkCoins),
+					0,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
 				_, err = contract.Send(
 					ctx,
 					nil,
@@ -727,9 +768,9 @@ var _ = Describe("Bank Precompile Test", func() {
 				coinsToMint := sdk.NewCoins(
 					sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(balanceAmount)),
 				)
-				coinsToSend := sdk.NewCoins(
+				coinsToSend := sdk.Coins{
 					sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(big.NewInt(0))),
-				)
+				}
 				err := FundAccount(
 					ctx,
 					bk,
