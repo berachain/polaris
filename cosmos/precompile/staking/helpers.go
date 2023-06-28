@@ -136,7 +136,7 @@ func (c *Contract) delegateHelper(
 	_, err = c.msgServer.Delegate(ctx, stakingtypes.NewMsgDelegate(
 		cosmlib.AddressToAccAddress(caller),
 		validatorAddress,
-		sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(amount)),
+		sdk.Coin{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)},
 	))
 	return []any{err == nil}, err
 }
@@ -156,7 +156,7 @@ func (c *Contract) undelegateHelper(
 	_, err = c.msgServer.Undelegate(ctx, stakingtypes.NewMsgUndelegate(
 		cosmlib.AddressToAccAddress(caller),
 		val,
-		sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(amount)),
+		sdk.Coin{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)},
 	))
 	return []any{err == nil}, err
 }
@@ -179,7 +179,7 @@ func (c *Contract) beginRedelegateHelper(
 			cosmlib.AddressToAccAddress(caller),
 			srcVal,
 			dstVal,
-			sdk.NewCoin(bondDenom, sdkmath.NewIntFromBigInt(amount)),
+			sdk.Coin{Denom: bondDenom, Amount: sdkmath.NewIntFromBigInt(amount)},
 		),
 	)
 	return []any{err == nil}, err
@@ -204,7 +204,7 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 			cosmlib.AddressToAccAddress(caller),
 			val,
 			creationHeight,
-			sdk.NewCoin(bondDenom, sdkmath.NewIntFromBigInt(amount)),
+			sdk.Coin{Denom: bondDenom, Amount: sdkmath.NewIntFromBigInt(amount)},
 		),
 	)
 	return []any{err != nil}, err
