@@ -230,10 +230,11 @@ func newExecute(fn reflect.Method) reflect.Value {
 }
 
 // formatName converts to first character of name to lowercase.
-// the code below is taken from Geth.
+// If the first three characters are "ERC" (which is p common), then it converts all three to lowercase.
+// the code below has been inspired by Geth
 func formatName(name string) string {
 	ret := []rune(name)
-	if name[:3] == "ERC" { // special case for ERC20
+	if name[:3] == "ERC" { // special case for ERC20, ERC721, etc.
 		ret[0] = unicode.ToLower(ret[0])
 		ret[1] = unicode.ToLower(ret[1])
 		ret[2] = unicode.ToLower(ret[2])
