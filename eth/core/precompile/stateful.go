@@ -22,6 +22,7 @@ package precompile
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"reflect"
 
@@ -91,7 +92,7 @@ func (sc *stateful) Run(
 	}
 
 	// Get args ready for precompile call.
-	// TODO, remove most of these args. In the future future, we should only need the arguments from the method according to the ABI and a context rather than all of these.
+	// TODO, remove most of these args. In the future , we should only need the arguments from the method according to the ABI and a context rather than all of these.
 	var fullargs []reflect.Value
 	if reflect.ValueOf(sc.Registrable).IsValid() {
 		fullargs = append(fullargs, reflect.ValueOf(sc.Registrable))
@@ -106,30 +107,33 @@ func (sc *stateful) Run(
 
 	for _, unpacked := range unpackedArgs {
 		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
+		fmt.Println("type of unpacked", reflect.TypeOf(unpacked).String())
 	}
 	fullargs = append(fullargs, reflectedUnpackedArgs...)
 
 	// Execute the method registered with the given signature with the given args.
 	results := method.Execute.Call(fullargs)
-
+	fmt.Println("results: ", results)
 	// If the precompile returned an error, the error is returned to the caller.
 	if !results[1].IsNil() {
 		if err = results[1].Interface().(error); err != nil {
+			fmt.Println("errored: ", err)
 			return nil, errors.Wrapf(
 				vm.ErrExecutionReverted,
 				"vm error [%v] occurred during precompile execution of [%s]",
-				err, debug.GetFnName(method.Execute),
+				err, debug.GetFnName(method.Execute.Interface()),
 			)
 		}
 	}
 
 	// Pack the return values and return, if any exist.
 	retVal := results[0]
+	fmt.Println("retVal: ", retVal)
 	ret, err := method.AbiMethod.Outputs.PackValues(retVal.Interface().([]interface{})) // 1) What
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println("ret: ", ret)
 	return ret, nil
 }
 

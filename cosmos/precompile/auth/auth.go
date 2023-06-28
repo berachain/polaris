@@ -21,6 +21,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"reflect"
 	"time"
@@ -81,26 +82,17 @@ func (c *Contract) ConvertHexToBech32(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	account common.Address,
 ) ([]any, error) {
-	hexAddr, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
+	fmt.Println("account:", account)
 	// try val address first
-	valAddr, err := sdk.ValAddressFromHex(hexAddr.String())
+	valAddr, err := sdk.ValAddressFromHex(account.Hex())
 	if err == nil {
 		return []any{valAddr.String()}, nil
 	}
 
 	// try account address
-	accAddr, err := sdk.AccAddressFromHexUnsafe(hexAddr.String())
-	if err == nil {
-		return []any{accAddr.String()}, nil
-	}
-
-	return nil, precompile.ErrInvalidHexAddress
+	return []any{cosmlib.AddressToAccAddress(account).String()}, nil
 }
 
 // ConvertBech32ToHexAddress converts a bech32 string to a common.Address.
