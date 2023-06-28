@@ -1,18 +1,14 @@
 package localnet
 
 import (
-	"context"
 	"fmt"
-	"os"
-
-	dt "github.com/ory/dockertest"
-	dc "github.com/ory/dockertest/docker"
 )
 
 type Localnet interface {
-	Start(context.Context) error
+	Build() error
+	Start() error
 	Stop() error
-	Reset(context.Context) error
+	Reset() error
 	SetGenesis(string) error
 	GetGenesis() string
 	GetHTTPAddress() string
@@ -24,54 +20,60 @@ type LocalnetClient struct {
 	httpAddress string
 	wsAddress   string
 
-	pool      *dt.Pool
-	container *dc.Container
+	imageConfig ImageBuildConfig
+	container   Container
 }
 
-func NewLocalnetClient(ctx context.Context, imageName, genesis, httpAddress, wsAddress string) (*LocalnetClient, error) {
+// NewLocalnetClient creates a new localnet client.
+func NewLocalnetClient(name, imageName, genesis, httpAddress, wsAddress string) (*LocalnetClient, error) {
+	// Check for a genesis file.
 	if genesis == "" {
 		return nil, fmt.Errorf("genesis cannot be empty")
 	}
 
-	pool, err := dt.NewPool("")
-	err = pool.Client.Ping()
-	if err != nil {
-		return nil, err
+	// Create the container config using the given input args.
+	config := ContainerConfig{
+		Name:        name,
+		ImageName:   imageName,
+		HTTPAddress: httpAddress,
+		WSAddress:   wsAddress,
 	}
 
-	container, err := pool.Client.CreateContainer(dc.CreateContainerOptions{
-		Name: "localnet",
-		Config: &dc.Config{
-			Image: imageName,
-			ExposedPorts: map[dc.Port]struct{}{
-				dc.Port(httpAddress): {},
-				dc.Port(wsAddress):   {},
-			},
+	// Create the container client.
+	imageConfig := ImageBuildConfig{
+		ImageName:  localnetImageName,
+		Context:    localnetContext,
+		Dockerfile: localnetDockerfile,
+		BuildArgs: map[string]string{
+			"BASE_IMAGE": baseImageName,
 		},
-	})
+	}
+	container, err := NewDefaultContainerClient(config, imageConfig)
 	if err != nil {
 		return nil, err
 	}
 
 	return &LocalnetClient{
 		genesis:     genesis,
-		pool:        pool,
-		container:   container,
 		httpAddress: httpAddress,
 		wsAddress:   wsAddress,
+		imageConfig: imageConfig,
+		container:   container,
 	}, nil
 }
 
-func (c *LocalnetClient) Start(ctx context.Context) error {
-	return c.pool.Client.StartContainer(c.container.ID, nil)
+func (c *LocalnetClient) Build() error {
+	return c.container.Build(c.imageConfig)
 }
 
-func (c *LocalnetClient) Stop() error {
-	return c.pool.Client.StopContainer(c.container.ID, 0)
-}
-
-func (c *LocalnetClient) Reset(ctx context.Context) error {
-	return nil
+func (c *LocalnetClient) Reset() error {
+	if err := c.container.Stop(); err != nil {
+		return err
+	}
+	if err := c.container.Build(c.imageConfig); err != nil {
+		return err
+	}
+	return c.container.Start()
 }
 
 func (c *LocalnetClient) SetGenesis(genesis string) error {
@@ -89,60 +91,4 @@ func (c *LocalnetClient) GetHTTPAddress() string {
 
 func (c *LocalnetClient) GetWSAddress() string {
 	return c.wsAddress
-}
-
-//
-
-const (
-	baseImageName  = "polard/base:v0.0.0"
-	baseContext    = "../../"
-	baseDockerfile = "./cosmos/docker/base.Dockerfile"
-
-	localnetImageName  = "polard/localnet:v0.0.0"
-	localnetContext    = "./"
-	localnetDockerfile = "Dockerfile"
-)
-
-func buildImage(pool *dt.Pool, buildArgs []dc.BuildArg, image, context, dockerfile string) error {
-	baseBuildOpts := dc.BuildImageOptions{
-		Name:         image,
-		ContextDir:   context,
-		Dockerfile:   dockerfile,
-		BuildArgs:    buildArgs,
-		OutputStream: os.Stdout,
-	}
-
-	return pool.Client.BuildImage(baseBuildOpts)
-}
-
-func buildDefault(pool *dt.Pool) error {
-	baseBuildArgs := []dc.BuildArg{
-		{
-			Name:  "GO_VERSION",
-			Value: "1.20.4",
-		},
-		{
-			Name:  "PRECOMPILE_CONTRACTS_DIR",
-			Value: "./contracts",
-		},
-		{
-			Name:  "GOOS",
-			Value: "linux",
-		},
-		{
-			Name:  "GOARCH",
-			Value: "arm64",
-		},
-	}
-	if err := buildImage(pool, baseBuildArgs, baseImageName, baseContext, baseDockerfile); err != nil {
-		return err
-	}
-
-	localnetBuildArgs := []dc.BuildArg{
-		{
-			Name:  "BASE_IMAGE",
-			Value: baseImageName,
-		},
-	}
-	return buildImage(pool, localnetBuildArgs, localnetImageName, localnetContext, localnetDockerfile)
 }

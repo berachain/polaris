@@ -37,9 +37,6 @@ HOMEDIR="/"
 TRACE=""
 
 # Path variables
-CONFIG_TOML=$HOMEDIR/config/config.toml
-APP_TOML=$HOMEDIR/config/app.toml
-POLARIS_TOML=$HOMEDIR/config/polaris.toml
 GENESIS=$HOMEDIR/config/genesis.json
 TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 
