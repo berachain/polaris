@@ -91,15 +91,19 @@ func (sc *stateful) Run(
 	}
 
 	fullargs := make([]reflect.Value, 0, 5+len(unpackedArgs))
-	if reflect.ValueOf(sc.Registrable).IsValid() {
-		fullargs = append(fullargs, reflect.ValueOf(sc.Registrable))
-	}
+	fullargs = append(fullargs, reflect.ValueOf(sc.Registrable))
 	fullargs = append(fullargs, reflect.ValueOf(ctx))
 	fullargs = append(fullargs, reflect.ValueOf(evm))
 	fullargs = append(fullargs, reflect.ValueOf(caller))
 	fullargs = append(fullargs, reflect.ValueOf(value))
 	fullargs = append(fullargs, reflect.ValueOf(readonly))
-	fullargs = append(fullargs, reflect.ValueOf(unpackedArgs))
+
+	var shit []reflect.Value
+
+	for _, unpacked := range unpackedArgs {
+		shit = append(shit, reflect.ValueOf(unpacked))
+	}
+	fullargs = append(fullargs, shit...)
 
 	// Execute the method registered with the given signature with the given args.
 	results := method.Execute.Call(fullargs)
