@@ -415,7 +415,11 @@ func (p *plugin) IterateState(cb func(addr common.Address, key, value common.Has
 		p.cms.GetCommittedKVStore(p.storeKey),
 		[]byte{types.StorageKeyPrefix},
 	)
-	defer it.Close()
+	defer func() {
+		if err := it.Close(); err != nil {
+			p.savedErr = err
+		}
+	}()
 
 	for ; it.Valid(); it.Next() {
 		k, v := it.Key(), it.Value()
@@ -440,7 +444,9 @@ func (p *plugin) ForEachStorage(
 		p.cms.GetKVStore(p.storeKey),
 		StorageKeyFor(addr),
 	)
-	defer it.Close()
+	if err := it.Close(); err != nil {
+		return err
+	}
 
 	for ; it.Valid(); it.Next() {
 		committedValue := it.Value()
@@ -470,7 +476,11 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 		p.cms.GetKVStore(p.storeKey),
 		[]byte{types.BalanceKeyPrefix},
 	)
-	defer it.Close()
+	defer func() {
+		if err := it.Close(); err != nil {
+			p.savedErr = err
+		}
+	}()
 
 	for ; it.Valid(); it.Next() {
 		addr := AddressFromBalanceKey(it.Key())
