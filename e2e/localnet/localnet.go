@@ -37,6 +37,7 @@ type dockerizedNetwork struct {
 	imageConfig ImageBuildConfig
 }
 
+// NewDockerizedNetwork creates an implementation of Localnet using Docker.
 func NewDockerizedNetwork(
 	name string,
 	imageName string,
