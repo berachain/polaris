@@ -21,7 +21,6 @@
 package precompile
 
 import (
-	"fmt"
 	"reflect"
 	"unicode"
 
@@ -157,8 +156,6 @@ func (sf *StatefulFactory) buildIdsToMethods(
 
 // GeneratePrecompileMethods generates the methods for the given Precompile's ABI.
 func GeneratePrecompileMethod(ABI map[string]abi.Method, contractImpl reflect.Value) Methods {
-	fmt.Println("Beginning\n_______________________________________________________________________")
-	fmt.Println(contractImpl.Type().Name())
 	return suitableMethods(ABI, contractImpl)
 }
 
@@ -180,14 +177,11 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 		}
 
 		for _, abiMethod := range ABI { // go through the ABI
-			fmt.Println("implMethodName: ", implMethodName, "<>", abiMethod.Name)
 			if implMethodName != abiMethod.Name { // skip if the method names do not match
-				//	fmt.Println("implMethodName: ", implMethodName, "DOES NOT MATCH abiMethod.Name: ", abiMethod.Name)
 				continue
 			} else if err := basicValidation(implMethod, abiMethod); err != nil {
 				panic(err)
 			}
-			fmt.Println("implMethodName: ", implMethodName, "MATCH MATCH abiMethod.Name: ", abiMethod.Name)
 
 			// uncomment when we change all the function signatures to match the abi method params
 			// 			implMethodIdx := 2 // start at 2 as 0th params should be a receiver, and 1 is the PolarContext
@@ -211,19 +205,9 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 		}
 	}
 	if len(methods) != len(ABI) {
-		fmt.Println("len(methods): ", len(methods), "len(ABI): ", len(ABI))
-		for _, method := range methods {
-			fmt.Println("method.abiSig: ", method.AbiSig, "method.execute: ", method)
-			fmt.Println("_______________________________________________________________________")
-		}
 		panic("suitableMethods: not all ABI methods were found in the contract implementation")
 	}
 
-	fmt.Println("factories.go | METHODS:")
-	for _, method := range methods {
-		fmt.Println(method.AbiSig, method.Execute)
-	}
-	fmt.Println("_______________________________________________________________________")
 	return methods
 }
 

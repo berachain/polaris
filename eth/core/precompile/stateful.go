@@ -90,20 +90,24 @@ func (sc *stateful) Run(
 		return nil, err
 	}
 
-	fullargs := make([]reflect.Value, 0, 5+len(unpackedArgs))
-	fullargs = append(fullargs, reflect.ValueOf(sc.Registrable))
+	// Get args ready for precompile call.
+	// TODO, remove most of these args. In the future future, we should only need the arguments from the method according to the ABI and a context rather than all of these.
+	var fullargs []reflect.Value
+	if reflect.ValueOf(sc.Registrable).IsValid() {
+		fullargs = append(fullargs, reflect.ValueOf(sc.Registrable))
+	}
 	fullargs = append(fullargs, reflect.ValueOf(ctx))
 	fullargs = append(fullargs, reflect.ValueOf(evm))
 	fullargs = append(fullargs, reflect.ValueOf(caller))
 	fullargs = append(fullargs, reflect.ValueOf(value))
 	fullargs = append(fullargs, reflect.ValueOf(readonly))
 
-	var shit []reflect.Value
+	var reflectedUnpackedArgs []reflect.Value // needed for .Call(...)
 
 	for _, unpacked := range unpackedArgs {
-		shit = append(shit, reflect.ValueOf(unpacked))
+		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
 	}
-	fullargs = append(fullargs, shit...)
+	fullargs = append(fullargs, reflectedUnpackedArgs...)
 
 	// Execute the method registered with the given signature with the given args.
 	results := method.Execute.Call(fullargs)
