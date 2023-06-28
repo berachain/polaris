@@ -17,9 +17,12 @@ ARG GO_VERSION
 ARG GOARCH=arm64
 ARG GOOS=darwin
 ARG BASE_IMAGE
+ARG GENESIS_PATH
 
 # Use the latest foundry image
 FROM ${BASE_IMAGE} as localpolard
+
+ENV GENESIS_PATH=${GENESIS_PATH}
 
 RUN apk add --no-cache bash jq
 

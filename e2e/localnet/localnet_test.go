@@ -39,15 +39,42 @@ var _ = Describe("Fixture", func() {
 	)
 
 	BeforeEach(func() {
-		c, err = NewDockerizedNetwork("localnet1", "polard/localnet:v0.0.0", "something", "8545/tcp", "8546/tcp")
+		_, err = NewDockerizedNetwork(
+			"base",
+			baseImageName,
+			baseContext,
+			baseDockerfile,
+			"8545/tcp",
+			"8546/tcp",
+			map[string]string{
+				"GO_VERSION":               "1.20.4",
+				"PRECOMPILE_CONTRACTS_DIR": "./contracts",
+				"GOOS":                     "linux",
+				"GOARCH":                   "arm64",
+			},
+		)
+		Expect(err).ToNot(HaveOccurred())
+
+		c, err = NewDockerizedNetwork(
+			"localnet1",
+			localnetImageName,
+			localnetContext,
+			localnetDockerfile,
+			"8545/tcp",
+			"8546/tcp",
+			map[string]string{
+				"GO_VERSION":   "1.20.4",
+				"BASE_IMAGE":   baseImageName,
+				"GENESIS_PATH": "config",
+			},
+		)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(c).ToNot(BeNil())
 	})
 
 	AfterEach(func() {
-		if c != nil {
-			Expect(c.Stop()).To(Succeed())
-		}
+		Expect(c.Stop()).To(Succeed())
+
 	})
 
 	It("should create a container", func() {

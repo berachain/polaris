@@ -38,45 +38,13 @@ type ContainerClient struct {
 	container *dc.Container
 }
 
-type ContainerConfig struct {
-	Name        string
-	ImageName   string
-	HTTPAddress string
-	WSAddress   string
-}
-
-type ImageBuildConfig struct {
-	ImageName  string
-	Context    string
-	Dockerfile string
-	BuildArgs  map[string]string
-}
-
-// NewDefaultContainerClient builds a container with the base image.
-func NewDefaultContainerClient(config ContainerConfig, imageConfig ImageBuildConfig) (*ContainerClient, error) {
+func NewContainerClient(config ContainerConfig, imageConfig ImageBuildConfig) (*ContainerClient, error) {
 	pool, err := dt.NewPool("")
 	if err != nil {
 		return nil, err
 	}
 
-	baseBuildArgs := map[string]string{
-		"GO_VERSION":               "1.20.4",
-		"PRECOMPILE_CONTRACTS_DIR": "./contracts",
-		"GOOS":                     "linux",
-		"GOARCH":                   "arm64",
-	}
-
-	baseImageConfig := ImageBuildConfig{
-		ImageName:  baseImageName,
-		Context:    baseContext,
-		Dockerfile: baseDockerfile,
-		BuildArgs:  baseBuildArgs,
-	}
-
-	if err = BuildImage(pool, baseImageConfig); err != nil {
-		return nil, err
-	}
-	if err = BuildImage(pool, imageConfig); err != nil {
+	if err := BuildImage(pool, imageConfig); err != nil {
 		return nil, err
 	}
 

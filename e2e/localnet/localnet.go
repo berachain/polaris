@@ -20,35 +20,39 @@
 
 package localnet
 
-import (
-	"fmt"
-)
-
 type Localnet interface {
 	Build() error
 	Start() error
 	Stop() error
 	Reset() error
-	SetGenesis(string) error
-	GetGenesis() string
+	// SetGenesis(string) error
+	// GetGenesis() string
 	GetHTTPAddress() string
 	GetWSAddress() string
 }
 
 type dockerizedNetwork struct {
 	Container
-	genesis     string
 	httpAddress string
 	wsAddress   string
 
 	imageConfig ImageBuildConfig
 }
 
-// NewDockerizedNetwork creates a new localnet client.
-func NewDockerizedNetwork(name, imageName, genesis, httpAddress, wsAddress string) (*dockerizedNetwork, error) {
-	// Check for a genesis file.
-	if genesis == "" {
-		return nil, fmt.Errorf("genesis cannot be empty")
+func NewDockerizedNetwork(
+	name string,
+	imageName string,
+	context string,
+	dockerfile string,
+	httpAddress string,
+	wsAddress string,
+	buildArgs map[string]string,
+) (*dockerizedNetwork, error) {
+	if context == "" {
+		return nil, EmptyContextError
+	}
+	if dockerfile == "" {
+		return nil, EmptyDockerfileError
 	}
 
 	// Create the container config using the given input args.
@@ -59,22 +63,20 @@ func NewDockerizedNetwork(name, imageName, genesis, httpAddress, wsAddress strin
 		WSAddress:   wsAddress,
 	}
 
-	// Create the container client.
+	// Create the image config using the given input args.
 	imageConfig := ImageBuildConfig{
-		ImageName:  localnetImageName,
-		Context:    localnetContext,
-		Dockerfile: localnetDockerfile,
-		BuildArgs: map[string]string{
-			"BASE_IMAGE": baseImageName,
-		},
+		ImageName:  imageName,
+		Context:    context,
+		Dockerfile: dockerfile,
+		BuildArgs:  buildArgs,
 	}
-	container, err := NewDefaultContainerClient(config, imageConfig)
+
+	container, err := NewContainerClient(config, imageConfig)
 	if err != nil {
 		return nil, err
 	}
 
 	return &dockerizedNetwork{
-		genesis:     genesis,
 		httpAddress: httpAddress,
 		wsAddress:   wsAddress,
 		imageConfig: imageConfig,
@@ -96,14 +98,14 @@ func (c *dockerizedNetwork) Reset() error {
 	return c.Start()
 }
 
-func (c *dockerizedNetwork) SetGenesis(genesis string) error {
-	// override a config file/set one
-	return nil
-}
+// func (c *dockerizedNetwork) SetGenesis(genesis string) error {
+// 	// override a config file/set one
+// 	return nil
+// }
 
-func (c *dockerizedNetwork) GetGenesis() string {
-	return c.genesis
-}
+// func (c *dockerizedNetwork) GetGenesis() string {
+// 	return c.genesis
+// }
 
 func (c *dockerizedNetwork) GetHTTPAddress() string {
 	return c.httpAddress

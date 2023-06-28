@@ -37,8 +37,8 @@ HOMEDIR="/"
 TRACE=""
 
 # Path variables
-GENESIS=$HOMEDIR/config/genesis.json
-TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
+GENESIS=$HOMEDIR/$GENESIS_PATH/genesis.json
+TMP_GENESIS=$HOMEDIR/$GENESIS_PATH/tmp_genesis.json
 
 # used to exit on first error (any non-zero exit code)
 set -e
