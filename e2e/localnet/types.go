@@ -42,9 +42,8 @@ type ImageBuildConfig struct {
 
 // Errors returned by the localnet package.
 var (
-	EmptyGenesisError    = errors.New("genesis cannot be empty")
-	EmptyContextError    = errors.New("context cannot be empty")
-	EmptyDockerfileError = errors.New("dockerfile cannot be empty")
+	ErrEmptyContext    = errors.New("context cannot be empty")
+	ErrEmptyDockerfile = errors.New("dockerfile cannot be empty")
 )
 
 // TODO: Move this into new test fixture, when we have one.

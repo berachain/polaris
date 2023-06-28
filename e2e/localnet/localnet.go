@@ -25,8 +25,6 @@ type Localnet interface {
 	Start() error
 	Stop() error
 	Reset() error
-	// SetGenesis(string) error
-	// GetGenesis() string
 	GetHTTPAddress() string
 	GetWSAddress() string
 }
@@ -49,10 +47,10 @@ func NewDockerizedNetwork(
 	buildArgs map[string]string,
 ) (*dockerizedNetwork, error) {
 	if context == "" {
-		return nil, EmptyContextError
+		return nil, ErrEmptyContext
 	}
 	if dockerfile == "" {
-		return nil, EmptyDockerfileError
+		return nil, ErrEmptyDockerfile
 	}
 
 	// Create the container config using the given input args.
@@ -97,15 +95,6 @@ func (c *dockerizedNetwork) Reset() error {
 	}
 	return c.Start()
 }
-
-// func (c *dockerizedNetwork) SetGenesis(genesis string) error {
-// 	// override a config file/set one
-// 	return nil
-// }
-
-// func (c *dockerizedNetwork) GetGenesis() string {
-// 	return c.genesis
-// }
 
 func (c *dockerizedNetwork) GetHTTPAddress() string {
 	return c.httpAddress

@@ -42,13 +42,9 @@ TMP_GENESIS=$HOMEDIR/$GENESIS_PATH/tmp_genesis.json
 
 # used to exit on first error (any non-zero exit code)
 set -e
-
-# Reinstall daemon
-# mage build
-
 # Remove the previous folder
 
- # Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
+# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
 polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
 # Set client config
 polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
