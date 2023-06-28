@@ -121,7 +121,7 @@ func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConf
 func (p *plugin) Run(
 	evm ethprecompile.EVM, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readOnly bool,
-) (ret []byte, gasRemaining uint64, err error) {
+) (ret []byte, gasRemaining uint64, err error) { //nolint:nonamedreturns // panic recovery.
 	// get native Cosmos SDK context and MultiStore from the Polaris StateDB
 	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
 	ctx := sdk.UnwrapSDKContext(sdb.GetContext())
