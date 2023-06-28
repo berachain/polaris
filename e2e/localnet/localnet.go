@@ -15,17 +15,17 @@ type Localnet interface {
 	GetWSAddress() string
 }
 
-type LocalnetClient struct {
+type dockerizedNetwork struct {
+	Container
 	genesis     string
 	httpAddress string
 	wsAddress   string
 
 	imageConfig ImageBuildConfig
-	container   Container
 }
 
-// NewLocalnetClient creates a new localnet client.
-func NewLocalnetClient(name, imageName, genesis, httpAddress, wsAddress string) (*LocalnetClient, error) {
+// NewDockerizedNetwork creates a new localnet client.
+func NewDockerizedNetwork(name, imageName, genesis, httpAddress, wsAddress string) (*dockerizedNetwork, error) {
 	// Check for a genesis file.
 	if genesis == "" {
 		return nil, fmt.Errorf("genesis cannot be empty")
@@ -53,42 +53,42 @@ func NewLocalnetClient(name, imageName, genesis, httpAddress, wsAddress string) 
 		return nil, err
 	}
 
-	return &LocalnetClient{
+	return &dockerizedNetwork{
 		genesis:     genesis,
 		httpAddress: httpAddress,
 		wsAddress:   wsAddress,
 		imageConfig: imageConfig,
-		container:   container,
+		Container:   container,
 	}, nil
 }
 
-func (c *LocalnetClient) Build() error {
-	return c.container.Build(c.imageConfig)
+func (c *dockerizedNetwork) Build() error {
+	return c.Container.Build(c.imageConfig)
 }
 
-func (c *LocalnetClient) Reset() error {
-	if err := c.container.Stop(); err != nil {
+func (c *dockerizedNetwork) Reset() error {
+	if err := c.Stop(); err != nil {
 		return err
 	}
-	if err := c.container.Build(c.imageConfig); err != nil {
+	if err := c.Build(); err != nil {
 		return err
 	}
-	return c.container.Start()
+	return c.Start()
 }
 
-func (c *LocalnetClient) SetGenesis(genesis string) error {
+func (c *dockerizedNetwork) SetGenesis(genesis string) error {
 	// override a config file/set one
 	return nil
 }
 
-func (c *LocalnetClient) GetGenesis() string {
+func (c *dockerizedNetwork) GetGenesis() string {
 	return c.genesis
 }
 
-func (c *LocalnetClient) GetHTTPAddress() string {
+func (c *dockerizedNetwork) GetHTTPAddress() string {
 	return c.httpAddress
 }
 
-func (c *LocalnetClient) GetWSAddress() string {
+func (c *dockerizedNetwork) GetWSAddress() string {
 	return c.wsAddress
 }

@@ -15,12 +15,10 @@
 package localnet
 
 import (
-	"context"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	dt "github.com/ory/dockertest"
 )
 
 func TestLocalnet(t *testing.T) {
@@ -30,20 +28,14 @@ func TestLocalnet(t *testing.T) {
 
 var _ = Describe("Fixture", func() {
 	var (
-		c   *LocalnetClient
-		ctx context.Context
+		c   Localnet
+		err error
 	)
 
-	BeforeAll(func() {
-		ctx = context.Background()
-		pool, err := dt.NewPool("")
+	BeforeEach(func() {
+		c, err = NewDockerizedNetwork("localnet1", "polard/localnet:v0.0.0", "something", "8545/tcp", "8546/tcp")
 		Expect(err).ToNot(HaveOccurred())
-
-		err = pool.Client.Ping()
-		Expect(err).ToNot(HaveOccurred())
-
-		err = buildDefault(pool)
-		Expect(err).ToNot(HaveOccurred())
+		Expect(c).ToNot(BeNil())
 	})
 
 	AfterEach(func() {
@@ -53,11 +45,7 @@ var _ = Describe("Fixture", func() {
 	})
 
 	It("should create a container", func() {
-		c, err := NewLocalnetClient(ctx, "polard/localnet:v0.0.0", "something", "8545/tcp", "8546/tcp")
-		Expect(err).ToNot(HaveOccurred())
-		Expect(c).ToNot(BeNil())
-
-		err = c.Start(context.Background())
+		err = c.Start()
 		Expect(err).ToNot(HaveOccurred())
 	})
 })
