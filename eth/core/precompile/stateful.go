@@ -22,7 +22,6 @@ package precompile
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 	"reflect"
 
@@ -92,24 +91,17 @@ func (sc *stateful) Run(
 	}
 
 	fullargs := make([]reflect.Value, 0, 5+len(unpackedArgs))
-	// fullargs = append(fullargs, reflect.ValueOf(sc.Registrable))
+	if reflect.ValueOf(sc.Registrable).IsValid() {
+		fullargs = append(fullargs, reflect.ValueOf(sc.Registrable))
+	}
 	fullargs = append(fullargs, reflect.ValueOf(ctx))
 	fullargs = append(fullargs, reflect.ValueOf(evm))
 	fullargs = append(fullargs, reflect.ValueOf(caller))
 	fullargs = append(fullargs, reflect.ValueOf(value))
 	fullargs = append(fullargs, reflect.ValueOf(readonly))
-
-	var shit []reflect.Value
-	for _, unpackedArg := range unpackedArgs {
-		shit = append(shit, reflect.ValueOf(unpackedArg))
-	}
-
-	fullargs = append(fullargs, shit...)
+	fullargs = append(fullargs, reflect.ValueOf(unpackedArgs))
 
 	// Execute the method registered with the given signature with the given args.
-	// methodInterface := method.Execute.Interface()
-	// execute := methodInterface.(func(*staking.Contract, context.Context, EVM, common.Address, *big.Int, bool, []reflect.Value) ([]reflect.Value, error))
-	// vals, err := execute(ctx, evm, caller, value, readonly, fullargs)
 	results := method.Execute.Call(fullargs)
 
 	// If the precompile returned an error, the error is returned to the caller.
@@ -125,7 +117,6 @@ func (sc *stateful) Run(
 
 	// Pack the return values and return, if any exist.
 	retVal := results[0]
-	fmt.Println("retval:", retVal)
 	ret, err := method.AbiMethod.Outputs.PackValues(retVal.Interface().([]interface{})) // 1) What
 	if err != nil {
 		return nil, err

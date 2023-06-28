@@ -22,6 +22,7 @@ package precompile_test
 
 import (
 	"context"
+	"errors"
 	"math/big"
 	"reflect"
 
@@ -30,6 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -135,10 +137,32 @@ func (ms *mockStateful) PrecompileMethods() precompile.Methods {
 	return precompile.Methods{
 		{
 			AbiSig:      "getOutput(string)",
-			Execute:     reflect.ValueOf(getOutput),
+			Execute:     reflect.ValueOf(ms.getOutput),
 			RequiredGas: 1,
 		},
 	}
+}
+
+func (ms *mockStateful) getOutput(
+	_ context.Context,
+	_ precompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	str, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, errors.New("cast error")
+	}
+	return []any{
+		[]mockObject{
+			{
+				CreationHeight: big.NewInt(1),
+				TimeStamp:      str,
+			},
+		},
+	}, nil
 }
 
 func (ms *mockStateful) ABIEvents() map[string]abi.Event {
