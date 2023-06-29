@@ -61,6 +61,8 @@ type plugin struct {
 	transientKVGasConfig storetypes.GasConfig
 	// sp allows resetting the context for the reentrancy into the EVM.
 	sp StatePlugin
+	// readOnly is true iff the EVM is in readOnly mode.
+	readOnly bool
 }
 
 // NewPlugin creates and returns a plugin with the default KV store gas configs.
@@ -130,9 +132,13 @@ func (p *plugin) Run(
 
 	// make sure the readOnly is only set if we aren't in readOnly yet, which also makes sure that
 	// the readOnly flag isn't removed for child calls (taken from geth core/vm/interepreter.go)
-	if readOnly && !ms.IsReadOnly() {
+	if readOnly && !p.readOnly {
+		p.readOnly = true
 		ms.SetReadOnly(true)
-		defer func() { ms.SetReadOnly(false) }()
+		defer func() {
+			p.readOnly = false
+			ms.SetReadOnly(false)
+		}()
 	}
 
 	// disable reentrancy into the EVM only during precompile execution
@@ -156,7 +162,6 @@ func (p *plugin) Run(
 		input,
 		caller,
 		value,
-		readOnly,
 	)
 	gasRemaining = gm.GasRemaining()
 
@@ -175,7 +180,7 @@ func (p *plugin) enableReentrancy(sdb vm.PolarisStateDB) {
 
 	// end precompile execution => stop emitting Cosmos event as Eth logs for now
 	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager())
-	cem.EndPrecompileExecution()
+	cem.DisableEthLogging()
 
 	// remove Cosmos gas consumption so gas is consumed only per OPCODE
 	p.sp.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
@@ -189,11 +194,12 @@ func (p *plugin) DisableReentrancy(evm ethprecompile.EVM) {
 }
 
 func (p *plugin) disableReentrancy(sdb vm.PolarisStateDB) {
-	sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
-
-	// resume precompile execution => begin emitting Cosmos event as Eth logs again
-	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager())
-	cem.BeginPrecompileExecution(sdb)
+	if !p.readOnly {
+		// resume precompile execution => begin emitting Cosmos event as Eth logs again
+		sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
+		cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager())
+		cem.EnableEthLogging(sdb)
+	}
 
 	// restore ctx gas configs for continuing precompile execution
 	p.sp.SetGasConfig(p.kvGasConfig, p.transientKVGasConfig)

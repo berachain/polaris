@@ -135,7 +135,7 @@ func (ms *mockStateless) RegistryKey() common.Address {
 
 func (ms *mockStateless) Run(
 	ctx context.Context, _ precompile.EVM, _ []byte,
-	_ common.Address, _ *big.Int, _ bool,
+	_ common.Address, _ *big.Int,
 ) ([]byte, error) {
 	sdk.UnwrapSDKContext(ctx).GasMeter().ConsumeGas(10, "")
 	return nil, nil
@@ -154,9 +154,9 @@ func (msf *mockStateful) RegistryKey() common.Address {
 // panics if modifying state on read-only.
 func (msf *mockStateful) Run(
 	_ context.Context, _ precompile.EVM, input []byte,
-	_ common.Address, _ *big.Int, readOnly bool,
+	_ common.Address, _ *big.Int,
 ) ([]byte, error) {
-	if readOnly && input[0] == byte(2) {
+	if input[0] == byte(2) {
 		panic(vm.ErrWriteProtection)
 	}
 	return nil, nil

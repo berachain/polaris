@@ -54,17 +54,17 @@ func NewManagerFrom(em sdk.EventManagerI, plf PrecompileLogFactory) *manager {
 	}
 }
 
-// BeginPrecompileExecution is called when a precompile is about to be executed. This function
-// sets the `LogsDB` to the given `ldb` so that the `EmitEvent` and `EmitEvents` methods can
-// add logs to the journal.
-func (m *manager) BeginPrecompileExecution(ldb LogsDB) {
+// EnableEthLogging is called when Cosmos events from precompiles should be emitted as Eth logs. 
+// This function sets the `LogsDB` to the given `ldb` so that the `EmitEvent` and `EmitEvents` 
+// methods can add logs to the journal.
+func (m *manager) EnableEthLogging(ldb LogsDB) {
 	m.ldb = ldb
 }
 
-// EndPrecompileExecution is called when a precompile has finished executing. This function
-// sets the `LogsDB` to nil so that the `EmitEvent` and `EmitEvents` methods don't add logs
-// to the journal.
-func (m *manager) EndPrecompileExecution() {
+// DisableEthLogging is called when Cosmos events from precompiles should be emitted as Eth logs. 
+// This function sets the `LogsDB` to nil so that the `EmitEvent` and `EmitEvents` methods don't 
+// add logs to the journal.
+func (m *manager) DisableEthLogging() {
 	m.ldb = nil
 }
 

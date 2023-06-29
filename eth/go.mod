@@ -3,11 +3,12 @@ module pkg.berachain.dev/polaris/eth
 go 1.20
 
 // Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230609180942-c6acc930b404
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230629154458-90866dc0cf0a
 
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/ethereum/go-ethereum v1.12.0
+	github.com/holiman/uint256 v1.2.2
 	github.com/onsi/ginkgo/v2 v2.9.5
 	github.com/onsi/gomega v1.27.6
 	golang.org/x/text v0.9.0
@@ -57,7 +58,6 @@ require (
 	github.com/graph-gophers/graphql-go v1.3.0 // indirect
 	github.com/hashicorp/go-bexpr v0.1.11 // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
-	github.com/holiman/uint256 v1.2.2 // indirect
 	github.com/huin/goupnp v1.1.0 // indirect
 	github.com/influxdata/influxdb-client-go/v2 v2.4.0 // indirect
 	github.com/influxdata/influxdb1-client v0.0.0-20220302092344-a9ab5670611c // indirect
