@@ -21,7 +21,9 @@
 package precompile
 
 import (
+	"fmt"
 	"reflect"
+	"strings"
 	"unicode"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -156,7 +158,7 @@ func (sf *StatefulFactory) buildIdsToMethods(
 
 // GeneratePrecompileMethods generates the methods for the given Precompile's ABI.
 func GeneratePrecompileMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Methods {
-	return suitableMethods(ABI, contractImpl)
+	return suitableMethods(ABI, contractImpl.Type())
 }
 
 // This function matches each Go implementation of the Precompile
@@ -164,54 +166,70 @@ func GeneratePrecompileMethods(ABI map[string]abi.Method, contractImpl reflect.V
 // It first searches for the ABI function in the Go implementation. If no find, then panic.
 // It then performs some basic validation on the implemented function
 // Then, the implemented function's arguments are checked against the ABI's arguments' types.
-func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) Methods {
+func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Type) Methods {
+	var output Methods
 
-	contractImplType := contractImpl.Type()
-	var methods Methods
-	for m := 0; m < contractImplType.NumMethod(); m++ { // iterate through all of the impl's methods
-		implMethod := contractImplType.Method(m)      // grab the Impl's current method
-		implMethodName := formatName(implMethod.Name) // make the first letter lowercase
-
-		if implMethod.PkgPath != "" {
-			continue // skip methods that are not exported
-		}
-
-		for _, abiMethod := range pcABI { // go through the ABI
-
-			abiMethod := abiMethod // linter...
-
-			if implMethodName != abiMethod.Name { // skip if the method names do not match
-				continue
-			} else if err := basicValidation(implMethod, abiMethod); err != nil {
-				panic(err)
-			}
-
-			// uncomment when we change all the function signatures to match the abi method params
-			// 			implMethodIdx := 2 // start at 2 as 0th params should be a receiver, and 1 is the PolarContext
-			// 			for i := 0; i < len(abiMethod.Inputs); i++ {
-			// 				if implMethod.Type.In(implMethodIdx) != abiMethod.Inputs[i].Type.GetType() {
-			// 					// hold on, this doesn't indicate a failure due to overloaded functions
-			// 					fmt.Println("implMethod.Type.In(implMethodIdx): ", implMethod.Type.In(implMethodIdx), "abiMethod.Inputs[i].Type.GetType(): ", abiMethod.Inputs[i].Type.GetType())
-			// 					panic("does not match types")
-			// 				}
-			// 				implMethodIdx++
-			// 			}
-			//
-
-			toExecute := newExecute(implMethod) // grab the actual function
-			methods = append(methods,
-				&Method{
-					AbiMethod: &abiMethod,
-					AbiSig:    abiMethod.Sig,
-					Execute:   toExecute,
-				}) // add it to the list of methods
-		}
-	}
-	if len(methods) != len(pcABI) {
-		panic("suitableMethods: not all ABI methods were found in the contract implementation")
+	// populate allMethods with all of the contract implementation's methods
+	allMethods := make([]reflect.Method, 0, contractImpl.NumMethod())
+	for m := 0; m < contractImpl.NumMethod(); m++ {
+		allMethods[m] = contractImpl.Method(m)
 	}
 
-	return methods
+	// match every method from ABI to allMethods
+	for _, abiMethod := range pcABI {
+		method, err := matchMethod(abiMethod, allMethods)
+		if err != nil {
+			panic(err)
+		}
+		output = append(output,
+			&Method{
+				AbiMethod: &abiMethod,
+				AbiSig:    abiMethod.Sig,
+				Execute:   method,
+			})
+	}
+	return nil
+}
+
+// matchMethod matches the given ABI method to the corresponding method in the given list of methods.
+// This function will return an error if the given ABI method does not have a corresponding method
+// in the given list of methods.
+func matchMethod(toCheck abi.Method, allMethods []reflect.Method) (reflect.Value, error) {
+	name := formatName(toCheck.Name)
+
+	// create methods subset by prefix matching
+	var matchedMethods []reflect.Method
+	for _, method := range allMethods {
+		if strings.HasPrefix(method.Name, name) {
+			matchedMethods = append(matchedMethods, method)
+		}
+	}
+
+	// for method in subset, check if params match
+	for _, method := range matchedMethods {
+		if matchParams(toCheck, method) {
+			return method.Func, nil
+		}
+	}
+	return reflect.Value{}, errors.Wrap(ErrNoPrecompileMethodForABIMethod, toCheck.Sig)
+}
+
+// matchParams matches the given ABI method's parameters to the given method's parameters.
+// This function will return true if the given ABI method's parameters match the given method's
+// parameters and false otherwise.
+func matchParams(abiMethod abi.Method, implMethod reflect.Method) bool {
+	// uncomment when we change all the function signatures to match the abi method params
+	implMethodIdx := 2 // start at 2 as 0th params should be a receiver, and 1 is the PolarContext
+	for i := 0; i < len(abiMethod.Inputs); i++ {
+		if implMethod.Type.In(implMethodIdx) != abiMethod.Inputs[i].Type.GetType() {
+			// hold on, this doesn't indicate a failure due to overloaded functions
+			fmt.Println("implMethod.Type.In(implMethodIdx): ", implMethod.Type.In(implMethodIdx), "abiMethod.Inputs[i].Type.GetType(): ", abiMethod.Inputs[i].Type.GetType())
+			// panic("does not match types")
+			return false
+		}
+		implMethodIdx++
+	}
+	return true
 }
 
 // this is a helper function that checks three things:
@@ -232,17 +250,17 @@ func newExecute(fn reflect.Method) reflect.Value {
 	return fn.Func
 }
 
-// formatName converts to first character of name to lowercase.
-// If the first three characters are "ERC" (which is p common), then it converts all three to lowercase.
+// formatName converts to first character of name to uppercase.
+// If the first three characters are "erc" (which is p common), then it converts all three to uppercase.
 // the code below has been inspired by Geth.
 func formatName(name string) string {
 	ret := []rune(name)
-	if name[:3] == "ERC" { // special case for ERC20, ERC721, etc.
-		ret[0] = unicode.ToLower(ret[0])
-		ret[1] = unicode.ToLower(ret[1])
-		ret[2] = unicode.ToLower(ret[2])
+	if name[:3] == "erc" { // special case for erc20, erc721, etc.
+		ret[0] = unicode.ToUpper(ret[0])
+		ret[1] = unicode.ToUpper(ret[1])
+		ret[2] = unicode.ToUpper(ret[2])
 	} else if len(ret) > 0 {
-		ret[0] = unicode.ToLower(ret[0])
+		ret[0] = unicode.ToUpper(ret[0])
 	}
 
 	return string(ret)
