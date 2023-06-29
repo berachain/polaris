@@ -65,7 +65,6 @@ func NewContainerizedNetwork(
 	wsAddress string,
 	buildArgs map[string]string,
 ) (ContainerizedNetwork, error) {
-
 	// Create the container config using the given input args.
 	config := container.Config{
 		Name:        name,
@@ -87,7 +86,7 @@ func NewContainerizedNetwork(
 		return nil, err
 	}
 
-	if err := containerClient.Build(imageConfig); err != nil {
+	if err = containerClient.Build(imageConfig); err != nil {
 		return nil, err
 	}
 
