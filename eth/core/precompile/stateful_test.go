@@ -75,23 +75,23 @@ var _ = Describe("Stateful Container", func() {
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
 			// empty input
-			_, err := empty.Run(ctx, nil, blank, addr, value, readonly)
+			_, err := empty.Run(ctx, &mockEVM{}, blank, addr, value, readonly)
 			Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 
 			// invalid input
-			_, err = sc.Run(ctx, nil, blank, addr, value, readonly)
+			_, err = sc.Run(ctx, &mockEVM{}, blank, addr, value, readonly)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
 
 			// method not found
-			_, err = sc.Run(ctx, nil, badInput, addr, value, readonly)
+			_, err = sc.Run(ctx, &mockEVM{}, badInput, addr, value, readonly)
 			Expect(err).To(MatchError("precompile method not found in contract ABI"))
 
 			// geth unpacking error
-			_, err = sc.Run(ctx, nil, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
+			_, err = sc.Run(ctx, &mockEVM{}, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
 			Expect(err).To(HaveOccurred())
 
 			// precompile exec error
-			_, err = sc.Run(ctx, nil, getOutputPartialABI.ID, addr, value, readonly)
+			_, err = sc.Run(ctx, &mockEVM{}, getOutputPartialABI.ID, addr, value, readonly)
 			Expect(err.Error()).To(Equal(
 				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]", //nolint:lll // test.
 			))
@@ -99,17 +99,17 @@ var _ = Describe("Stateful Container", func() {
 			// precompile returns vals when none expected
 			inputs, err := contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, nil, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, &mockEVM{}, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
 			Expect(err).To(HaveOccurred())
 
 			// geth output packing error
 			inputs, err = contractFuncAddrABI.Inputs.Pack(addr)
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, nil, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, &mockEVM{}, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
 			Expect(err).To(HaveOccurred())
 		})
 
-		FIt("should return properly for valid method calls", func() {
+		It("should return properly for valid method calls", func() {
 			// sc.WithStateDB(sdb)
 			inputs, err := getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())

@@ -74,7 +74,7 @@ type Method struct {
 // ValidateBasic returns an error if this a precompile `Method` has invalid fields.
 func (m *Method) ValidateBasic() error {
 	// ensure all required fields are nonempty
-	if len(m.AbiSig) == 0 || m.Execute.IsNil() {
+	if len(m.AbiSig) == 0 || !m.Execute.IsValid() || m.Execute.IsNil() {
 		return ErrIncompleteMethod
 	}
 

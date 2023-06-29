@@ -24,7 +24,6 @@ import (
 	"context"
 	"errors"
 	"math/big"
-	"reflect"
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -88,11 +87,6 @@ var _ = Describe("Container Factories", func() {
 			_, err := scf.Build(&badMockStateful{&mockStateful{&mockBase{}}}, nil)
 			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial()"))
 		})
-
-		It("should error on invalid precompile methods", func() {
-			_, err := scf.Build(&invalidMockStateful{&mockStateful{&mockBase{}}}, nil)
-			Expect(err.Error()).To(Equal("incomplete precompile Method"))
-		})
 	})
 })
 
@@ -133,17 +127,7 @@ func (ms *mockStateful) ABIMethods() map[string]abi.Method {
 	}
 }
 
-func (ms *mockStateful) PrecompileMethods() precompile.Methods {
-	return precompile.Methods{
-		{
-			AbiSig:      "getOutput(string)",
-			Execute:     reflect.ValueOf(ms.getOutput),
-			RequiredGas: 1,
-		},
-	}
-}
-
-func (ms *mockStateful) getOutput(
+func (ms *mockStateful) GetOutput(
 	_ context.Context,
 	_ precompile.EVM,
 	_ common.Address,
@@ -190,11 +174,24 @@ type invalidMockStateful struct {
 	*mockStateful
 }
 
-func (ims *invalidMockStateful) PrecompileMethods() precompile.Methods {
-	return precompile.Methods{
-		{
-			AbiSig:      "getOutput(string)",
-			RequiredGas: 1,
-		},
+func (ims *invalidMockStateful) GetOutput(
+	_ context.Context,
+	_ precompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	str, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, errors.New("cast error")
 	}
+	return []any{
+		[]mockObject{
+			{
+				CreationHeight: big.NewInt(1),
+				TimeStamp:      str,
+			},
+		},
+	}, nil
 }

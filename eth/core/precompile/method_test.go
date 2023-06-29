@@ -25,7 +25,6 @@ import (
 	"math/big"
 	"reflect"
 
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 
@@ -48,17 +47,6 @@ var _ = Describe("Method", func() {
 			methodMissingFunc := &precompile.Method{
 				AbiSig:      "contractFunc(address)",
 				RequiredGas: 10,
-			}
-			err := methodMissingFunc.ValidateBasic()
-			Expect(err).To(HaveOccurred())
-		})
-
-		It("should error on given abi method", func() {
-			methodMissingFunc := &precompile.Method{
-				AbiSig:      "contractFunc(address)",
-				RequiredGas: 10,
-				Execute:     reflect.ValueOf(mockExecutable),
-				AbiMethod:   &abi.Method{},
 			}
 			err := methodMissingFunc.ValidateBasic()
 			Expect(err).To(HaveOccurred())

@@ -101,11 +101,9 @@ func (sf *StatefulFactory) Build(
 	// attach the precompile plugin to the stateful contract
 	sci.SetPlugin(p)
 
-	var err error
-
 	// add precompile methods to stateful container, if any exist
 	var idsToMethods map[string]*Method
-	if precompileMethods := GeneratePrecompileMethods(sci.ABIMethods(), reflect.ValueOf(sci)); precompileMethods != nil {
+	if precompileMethods, err := GeneratePrecompileMethods(sci.ABIMethods(), reflect.ValueOf(sci)); err == nil {
 		idsToMethods, err = sf.buildIdsToMethods(precompileMethods, sci.ABIMethods())
 		if err != nil {
 			return nil, err
@@ -155,7 +153,7 @@ func (sf *StatefulFactory) buildIdsToMethods(
 }
 
 // GeneratePrecompileMethods generates the methods for the given Precompile's ABI.
-func GeneratePrecompileMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Methods {
+func GeneratePrecompileMethods(ABI map[string]abi.Method, contractImpl reflect.Value) (Methods, error) {
 	return suitableMethods(ABI, contractImpl)
 }
 
@@ -164,7 +162,7 @@ func GeneratePrecompileMethods(ABI map[string]abi.Method, contractImpl reflect.V
 // It first searches for the ABI function in the Go implementation. If no find, then panic.
 // It then performs some basic validation on the implemented function
 // Then, the implemented function's arguments are checked against the ABI's arguments' types.
-func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) Methods {
+func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (Methods, error) {
 
 	contractImplType := contractImpl.Type()
 	var methods Methods
@@ -208,10 +206,10 @@ func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) Me
 		}
 	}
 	if len(methods) != len(pcABI) {
-		panic("suitableMethods: not all ABI methods were found in the contract implementation")
+		return nil, errors.Wrap(ErrNoPrecompileMethodForABIMethod, "not all ABI methods have a corresponding Go implementation")
 	}
 
-	return methods
+	return methods, nil
 }
 
 // this is a helper function that checks three things:

@@ -173,7 +173,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 	When("SetWithdrawAddressBech32", func() {
 		It("should fail if not string", func() {
-			res, err := contract.SetWithdrawAddress(
+			res, err := contract.SetWithdrawAddress0(
 				ctx,
 				nil,
 				testutil.Alice,
