@@ -293,7 +293,6 @@ func (c *Contract) Send(
 		return nil, precompile.ErrInvalidHexAddress
 	}
 	coins, err := cosmlib.ExtractCoinsFromInput(args[2])
-
 	if err != nil {
 		return nil, err
 	}

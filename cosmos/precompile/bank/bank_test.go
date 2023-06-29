@@ -718,6 +718,38 @@ var _ = Describe("Bank Precompile Test", func() {
 
 				Expect(balances.Balances).To(Equal(sortedSdkCoins))
 			})
+
+			It("should error when sending 0 coins", func() {
+				balanceAmount, ok := new(big.Int).SetString("22000000000000000000", 10)
+				Expect(ok).To(BeTrue())
+				accs := simtestutil.CreateRandomAccounts(2)
+				fromAcc, toAcc := accs[0], accs[1]
+				coinsToMint := sdk.NewCoins(
+					sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(balanceAmount)),
+				)
+				coinsToSend := sdk.NewCoins(
+					sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(big.NewInt(0))),
+				)
+				err := FundAccount(
+					ctx,
+					bk,
+					fromAcc,
+					coinsToMint,
+				)
+				Expect(err).ToNot(HaveOccurred())
+				bk.SetSendEnabled(ctx, denom, true)
+				_, err = contract.Send(
+					ctx,
+					nil,
+					caller,
+					big.NewInt(0),
+					true,
+					cosmlib.AccAddressToEthAddress(fromAcc),
+					cosmlib.AccAddressToEthAddress(toAcc),
+					sdkCoinsToEvmCoins(coinsToSend),
+				)
+				Expect(err).To(MatchError(precompile.ErrInvalidCoin))
+			})
 		})
 	})
 })
