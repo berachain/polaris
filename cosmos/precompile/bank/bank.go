@@ -23,7 +23,6 @@ package bank
 import (
 	"context"
 	"math/big"
-	"reflect"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -54,12 +53,6 @@ func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) *Co
 		msgServer: ms,
 		querier:   qs,
 	}
-}
-
-// PrecompileMethods implements StatefulImpl.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	contractVal := reflect.ValueOf(c)
-	return ethprecompile.GeneratePrecompileMethod(c.ABIMethods(), contractVal)
 }
 
 // GetBalance implements `getBalance(address,string)` method.

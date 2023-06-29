@@ -77,10 +77,6 @@ type (
 		// struct, which can be built for a solidity interface or contract.
 		ABIMethods() map[string]abi.Method
 
-		// PrecompileMethods should return all the stateful precompile's functions (and each of
-		// their required gas).
-		PrecompileMethods() Methods
-
 		// ABIEvents() should return a map of Ethereum event names to Go-Ethereum abi `Event`.
 		// NOTE: this can be directly loaded from the `Events` field of a Go-Ethereum ABI struct,
 		// which can be built for a solidity library, interface, or contract.

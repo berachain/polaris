@@ -23,7 +23,6 @@ package staking
 import (
 	"context"
 	"math/big"
-	"reflect"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -56,12 +55,6 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 		msgServer: stakingkeeper.NewMsgServerImpl(sk),
 		querier:   stakingkeeper.Querier{Keeper: sk},
 	}
-}
-
-// PrecompileMethods implements StatefulImpl.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	contractVal := reflect.ValueOf(c)
-	return ethprecompile.GeneratePrecompileMethod(c.ABIMethods(), contractVal)
 }
 
 // GetDelegation implements `getDelegation(address)` method.
@@ -456,6 +449,7 @@ func (c *Contract) GetActiveValidators(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
+	_ ...any,
 ) ([]any, error) {
 	return c.activeValidatorsHelper(ctx)
 }
@@ -467,6 +461,7 @@ func (c *Contract) GetValidators(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
+	_ ...any,
 ) ([]any, error) {
 	return c.validatorsHelper(ctx)
 }

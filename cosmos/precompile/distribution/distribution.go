@@ -23,7 +23,6 @@ package distribution
 import (
 	"context"
 	"math/big"
-	"reflect"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -63,12 +62,6 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
 		distributiontypes.AttributeKeyWithdrawAddress: log.ConvertAccAddressFromBech32,
 	}
-}
-
-// PrecompileMethods implements the `coreprecompile.StatefulImpl` interface.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	contractVal := reflect.ValueOf(c)
-	return ethprecompile.GeneratePrecompileMethod(c.ABIMethods(), contractVal)
 }
 
 // SetWithdrawAddress is the precompile contract method for the `setWithdrawAddress(address)` method.

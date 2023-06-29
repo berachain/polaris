@@ -23,7 +23,6 @@ package governance
 import (
 	"context"
 	"math/big"
-	"reflect"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -60,12 +59,6 @@ func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
 		msgServer: m,
 		querier:   q,
 	}
-}
-
-// PrecompileMethods implements the `ethprecompile.StatefulImpl` interface.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	contractVal := reflect.ValueOf(c)
-	return ethprecompile.GeneratePrecompileMethod(c.ABIMethods(), contractVal)
 }
 
 // CustomValueDecoders implements the `ethprecompile.StatefulImpl` interface.

@@ -23,7 +23,6 @@ package erc20
 import (
 	"context"
 	"math/big"
-	"reflect"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -76,12 +75,6 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 		erc20types.AttributeKeyOwner:     TransferCommonHexAddress,
 		erc20types.AttributeKeyRecipient: TransferCommonHexAddress,
 	}
-}
-
-// PrecompileMethods implements StatefulImpl.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	contractVal := reflect.ValueOf(c)
-	return ethprecompile.GeneratePrecompileMethod(c.ABIMethods(), contractVal)
 }
 
 // CoinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address.

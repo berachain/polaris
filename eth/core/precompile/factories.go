@@ -105,7 +105,7 @@ func (sf *StatefulFactory) Build(
 
 	// add precompile methods to stateful container, if any exist
 	var idsToMethods map[string]*Method
-	if precompileMethods := sci.PrecompileMethods(); precompileMethods != nil {
+	if precompileMethods := GeneratePrecompileMethods(sci.ABIMethods(), reflect.ValueOf(sci)); precompileMethods != nil {
 		idsToMethods, err = sf.buildIdsToMethods(precompileMethods, sci.ABIMethods())
 		if err != nil {
 			return nil, err
@@ -155,7 +155,7 @@ func (sf *StatefulFactory) buildIdsToMethods(
 }
 
 // GeneratePrecompileMethods generates the methods for the given Precompile's ABI.
-func GeneratePrecompileMethod(ABI map[string]abi.Method, contractImpl reflect.Value) Methods {
+func GeneratePrecompileMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Methods {
 	return suitableMethods(ABI, contractImpl)
 }
 

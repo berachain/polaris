@@ -23,7 +23,6 @@ import (
 	"context"
 	"fmt"
 	"math/big"
-	"reflect"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -67,12 +66,6 @@ func NewPrecompileContract(
 		msgServer:       authzMsgServer,
 		queryServer:     authzQueryServer,
 	}
-}
-
-// PrecompileMethods implements StatefulImpl.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	contractVal := reflect.ValueOf(c)
-	return ethprecompile.GeneratePrecompileMethod(c.ABIMethods(), contractVal)
 }
 
 // ConvertHexToBech32 converts a common.Address to a bech32 string.
