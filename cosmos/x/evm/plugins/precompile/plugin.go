@@ -34,7 +34,6 @@ import (
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/params"
-	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/registry"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -141,23 +140,7 @@ func (p *plugin) Run(
 	defer p.enableReentrancy(sdb)
 
 	// recover from any panic during precompile execution for the EVM to handle as a vm error
-	defer func() {
-		if panicked := recover(); panicked != nil {
-			// NOTE: this only propagates an error back to the EVM if the type of the given panic
-			// value is error, string, Cosmos ErrorOutOfGas, or Cosmos ErrorGasOverflow (any other
-			// type of panic value is ignored)
-			switch {
-			case utils.Implements[error](panicked):
-				err = errorslib.Wrap(ethprecompile.ErrPanic, utils.MustGetAs[error](panicked).Error())
-			case utils.Implements[string](panicked):
-				err = errorslib.Wrap(ethprecompile.ErrPanic, utils.MustGetAs[string](panicked))
-			case utils.Implements[storetypes.ErrorGasOverflow](panicked):
-				fallthrough
-			case utils.Implements[storetypes.ErrorOutOfGas](panicked):
-				err = vm.ErrOutOfGas
-			}
-		}
-	}()
+	defer RecoveryHandler(&err)
 
 	// use a precompile-specific gas meter for dynamic consumption, which will panic if gas is
 	// consumed over limit
