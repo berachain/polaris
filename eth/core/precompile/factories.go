@@ -23,7 +23,6 @@ package precompile
 import (
 	"fmt"
 	"reflect"
-	"strings"
 	"unicode"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -169,46 +168,49 @@ func GeneratePrecompileMethods(ABI map[string]abi.Method, contractImpl reflect.V
 func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Type) Methods {
 	var output Methods
 
-	// populate allMethods with all of the contract implementation's methods
-	allMethods := make([]reflect.Method, 0, contractImpl.NumMethod())
-	for m := 0; m < contractImpl.NumMethod(); m++ {
-		allMethods[m] = contractImpl.Method(m)
-	}
-
-	// match every method from ABI to allMethods
-	for _, abiMethod := range pcABI {
-		method, err := matchMethod(abiMethod, allMethods)
+	for i := 0; i < contractImpl.NumMethod(); i++ {
+		abiMethod, err := matchMethod(pcABI, contractImpl.Method(i))
 		if err != nil {
 			panic(err)
 		}
 		output = append(output,
 			&Method{
-				AbiMethod: &abiMethod,
+				AbiMethod: abiMethod,
 				AbiSig:    abiMethod.Sig,
-				Execute:   method,
+				Execute:   contractImpl.Method(i).Func,
 			})
 	}
-	return nil
+
+	if len(output) != len(pcABI) {
+		panic("some ABI methods are missing from the Go implementation")
+	}
+	return output
 }
 
-// matchMethod matches the given ABI method to the corresponding method in the given list of methods.
+// matchMethod matches the given method to the given list of ABI methods.
 // This function will return an error if the given ABI method does not have a corresponding method
 // in the given list of methods.
-func matchMethod(toCheck abi.Method, allMethods []reflect.Method) (reflect.Value, error) {
-	name := formatName(toCheck.Name)
+func matchMethod(ABI map[string]abi.Method, method reflect.Method) (*abi.Method, error) {
+	name := formatName(method.Name)
 
-	// create methods subset by prefix matching
-
-	// TODO: FIX THIS BUG THIS IS NO BUENO
-	// if the prefix matches but it is also a prefix of another abi method with same param types, this will break
-	for _, method := range allMethods {
-		if strings.HasPrefix(method.Name, name) {
-			if matchParams(toCheck, method) {
-				return method.Func, nil
+	for name != "" {
+		matched := false
+		for _, abiMethod := range ABI {
+			if method.Name == abiMethod.RawName {
+				if matchParams(abiMethod, method) {
+					return &abiMethod, nil
+				}
+				matched = true
 			}
 		}
+		// used to catch any substrings that match
+		if matched {
+			break
+		}
+		name = name[:len(name)-1] // pop last character
 	}
-	return reflect.Value{}, errors.Wrap(ErrNoPrecompileMethodForABIMethod, toCheck.Sig)
+	// kinda wrong error cause its backwards
+	return nil, errors.Wrap(ErrNoPrecompileMethodForABIMethod, method.Name)
 }
 
 // matchParams matches the given ABI method's parameters to the given method's parameters.
@@ -221,7 +223,6 @@ func matchParams(abiMethod abi.Method, implMethod reflect.Method) bool {
 		if implMethod.Type.In(implMethodIdx) != abiMethod.Inputs[i].Type.GetType() {
 			// hold on, this doesn't indicate a failure due to overloaded functions
 			fmt.Println("implMethod.Type.In(implMethodIdx): ", implMethod.Type.In(implMethodIdx), "abiMethod.Inputs[i].Type.GetType(): ", abiMethod.Inputs[i].Type.GetType())
-			// panic("does not match types")
 			return false
 		}
 		implMethodIdx++
@@ -248,16 +249,16 @@ func newExecute(fn reflect.Method) reflect.Value {
 }
 
 // formatName converts to first character of name to uppercase.
-// If the first three characters are "erc" (which is p common), then it converts all three to uppercase.
+// If the first three characters are "ERC" (which is p common), then it converts all three to uppercase.
 // the code below has been inspired by Geth.
 func formatName(name string) string {
 	ret := []rune(name)
-	if name[:3] == "erc" { // special case for erc20, erc721, etc.
-		ret[0] = unicode.ToUpper(ret[0])
-		ret[1] = unicode.ToUpper(ret[1])
-		ret[2] = unicode.ToUpper(ret[2])
+	if name[:3] == "ERC" { // special case for ERC20, ERC721, etc.
+		ret[0] = unicode.ToLower(ret[0])
+		ret[1] = unicode.ToLower(ret[1])
+		ret[2] = unicode.ToLower(ret[2])
 	} else if len(ret) > 0 {
-		ret[0] = unicode.ToUpper(ret[0])
+		ret[0] = unicode.ToLower(ret[0])
 	}
 
 	return string(ret)
