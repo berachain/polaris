@@ -23,6 +23,7 @@ package distribution
 import (
 	"fmt"
 	"math/big"
+	"reflect"
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
@@ -138,7 +139,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 	When("PrecompileMethods", func() {
 		It("should return the correct methods", func() {
-			Expect(contract.PrecompileMethods()).To(HaveLen(5))
+			Expect(ethprecompile.GeneratePrecompileMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(5))
 		})
 	})
 
@@ -172,7 +173,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 	When("SetWithdrawAddressBech32", func() {
 		It("should fail if not string", func() {
-			res, err := contract.SetWithdrawAddressBech32(
+			res, err := contract.SetWithdrawAddress(
 				ctx,
 				nil,
 				testutil.Alice,
@@ -185,7 +186,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		})
 
 		It("should fail if not bech32 string", func() {
-			res, err := contract.SetWithdrawAddressBech32(
+			res, err := contract.SetWithdrawAddress0(
 				ctx,
 				nil,
 				testutil.Alice,
@@ -198,7 +199,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		})
 
 		It("should succeed", func() {
-			res, err := contract.SetWithdrawAddressBech32(
+			res, err := contract.SetWithdrawAddress0(
 				ctx,
 				nil,
 				testutil.Alice,
@@ -316,7 +317,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 		When("Withdraw Delegator Rewards bech32 address", func() {
 			It("should fail if delegator address not string", func() {
-				res, err := contract.WithdrawDelegatorRewardBech32(
+				res, err := contract.WithdrawDelegatorReward0(
 					ctx,
 					nil,
 					testutil.Alice,
@@ -330,7 +331,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			})
 
 			It("should fail if validator address not string", func() {
-				res, err := contract.WithdrawDelegatorRewardBech32(
+				res, err := contract.WithdrawDelegatorReward0(
 					ctx,
 					nil,
 					testutil.Alice,
@@ -344,7 +345,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			})
 
 			It("should fail if delegator address not bech32", func() {
-				res, err := contract.WithdrawDelegatorRewardBech32(
+				res, err := contract.WithdrawDelegatorReward0(
 					ctx,
 					nil,
 					testutil.Alice,
@@ -358,7 +359,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			})
 
 			It("should fail if validator address not bech32", func() {
-				res, err := contract.WithdrawDelegatorRewardBech32(
+				res, err := contract.WithdrawDelegatorReward0(
 					ctx,
 					nil,
 					testutil.Alice,
@@ -372,7 +373,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			})
 
 			It("should fail if delegator address not found", func() {
-				res, err := contract.WithdrawDelegatorRewardBech32(
+				res, err := contract.WithdrawDelegatorReward0(
 					ctx,
 					nil,
 					testutil.Alice,
@@ -386,7 +387,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			})
 
 			It("Success", func() {
-				res, err := contract.WithdrawDelegatorRewardBech32(
+				res, err := contract.WithdrawDelegatorReward0(
 					ctx,
 					nil,
 					testutil.Alice,
@@ -405,7 +406,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		})
 		When("Reading Params", func() {
 			It("Should get if withdraw forwarding is enabled", func() {
-				res, err := contract.GetWithdrawAddrEnabled(ctx, nil, testutil.Alice, big.NewInt(0), true)
+				res, err := contract.GetWithdrawEnabled(ctx, nil, testutil.Alice, big.NewInt(0), true)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(Equal([]any{true}))
 			})
@@ -415,7 +416,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 				Expect(contract.CustomValueDecoders()).ToNot(BeNil())
 			})
 			It("Should have correct amount of precompile methods", func() {
-				Expect(contract.PrecompileMethods()).To(HaveLen(5))
+				Expect(ethprecompile.GeneratePrecompileMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(5))
 			})
 		})
 	})

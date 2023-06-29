@@ -275,7 +275,7 @@ var _ = Describe("Bank Precompile Test", func() {
 
 		When("GetSpendableBalanceByDenom", func() {
 			It("should fail if input address is not a common.Address", func() {
-				res, err := contract.GetSpendableBalanceByDenom(
+				res, err := contract.GetSpendableBalance(
 					ctx,
 					nil,
 					caller,
@@ -289,7 +289,7 @@ var _ = Describe("Bank Precompile Test", func() {
 			})
 
 			It("should fail if input denom is not a valid string", func() {
-				res, err := contract.GetSpendableBalanceByDenom(
+				res, err := contract.GetSpendableBalance(
 					ctx,
 					nil,
 					caller,
@@ -303,7 +303,7 @@ var _ = Describe("Bank Precompile Test", func() {
 			})
 
 			It("should fail if input denom is not a valid denom", func() {
-				res, err := contract.GetSpendableBalanceByDenom(
+				res, err := contract.GetSpendableBalance(
 					ctx,
 					nil,
 					caller,
@@ -336,7 +336,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				res, err := contract.GetSpendableBalanceByDenom(
+				res, err := contract.GetSpendableBalance(
 					ctx,
 					nil,
 					caller,
@@ -352,7 +352,7 @@ var _ = Describe("Bank Precompile Test", func() {
 
 		When("GetSpendableBalances", func() {
 			It("should fail if input address is not a common.Address", func() {
-				res, err := contract.GetSpendableBalances(
+				res, err := contract.GetAllSpendableBalances(
 					ctx,
 					nil,
 					caller,
@@ -387,7 +387,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					Expect(err).ToNot(HaveOccurred())
 				}
 
-				res, err := contract.GetSpendableBalances(
+				res, err := contract.GetAllSpendableBalances(
 					ctx,
 					nil,
 					caller,
@@ -413,7 +413,7 @@ var _ = Describe("Bank Precompile Test", func() {
 
 		When("GetSupplyOf", func() {
 			It("should fail if input denom is not a valid string", func() {
-				res, err := contract.GetSupplyOf(
+				res, err := contract.GetSupply(
 					ctx,
 					nil,
 					caller,
@@ -426,7 +426,7 @@ var _ = Describe("Bank Precompile Test", func() {
 			})
 
 			It("should fail if input denom is not a valid Denom", func() {
-				res, err := contract.GetSupplyOf(
+				res, err := contract.GetSupply(
 					ctx,
 					nil,
 					caller,
@@ -462,7 +462,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					Expect(err).ToNot(HaveOccurred())
 				}
 
-				res, err := contract.GetSupplyOf(
+				res, err := contract.GetSupply(
 					ctx,
 					nil,
 					caller,
@@ -500,7 +500,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					}
 				}
 
-				res, err := contract.GetTotalSupply(
+				res, err := contract.GetAllSupply(
 					ctx,
 					nil,
 					caller,

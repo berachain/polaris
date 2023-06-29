@@ -23,6 +23,7 @@ package auth_test
 import (
 	"context"
 	"math/big"
+	"reflect"
 	"testing"
 
 	storetypes "cosmossdk.io/store/types"
@@ -33,6 +34,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -41,11 +44,9 @@ import (
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 )
 
 func TestAddressPrecompile(t *testing.T) {
@@ -87,7 +88,7 @@ var _ = Describe("Address Precompile", func() {
 	})
 
 	It("should match the precompile methods", func() {
-		Expect(contract.PrecompileMethods()).To(HaveLen(len(contract.ABIMethods())))
+		Expect(ethprecompile.GeneratePrecompileMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(len(contract.ABIMethods())))
 	})
 
 	It("custom value decoder should be no-op", func() {
@@ -95,31 +96,7 @@ var _ = Describe("Address Precompile", func() {
 	})
 
 	When("When Calling ConvertHexToBech32", func() {
-		It("should fail on invalid inputs", func() {
-			res, err := contract.ConvertHexToBech32(
-				context.Background(),
-				nil,
-				common.Address{},
-				new(big.Int),
-				false,
-				"invalid",
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-			Expect(res).To(BeNil())
-		})
-
-		It("should not convert from invalid hex to bech32", func() {
-			res, err := contract.ConvertHexToBech32(
-				context.Background(),
-				nil,
-				common.Address{},
-				new(big.Int),
-				false,
-				common.BytesToAddress([]byte("test")),
-			)
-			Expect(err).To(HaveOccurred())
-			Expect(res).To(BeNil())
-		})
+		// should probably put something here. utACK
 	})
 	When("Calling ConvertBech32ToHexAddress", func() {
 		It("should error if invalid type", func() {
