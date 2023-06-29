@@ -22,7 +22,6 @@ package core
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 
@@ -155,12 +154,6 @@ func (sp *StateProcessor) ProcessTransaction(
 	)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
-	}
-
-	// If the vm error is from a precompile panic, we do not include the tx in the block and do not
-	// consume gas for it.
-	if errors.Is(result.Err, precompile.ErrPanic) {
-		return nil, errorslib.Wrapf(result.Err, "could not apply transaction [%s]", tx.Hash().Hex())
 	}
 
 	// Consume the gas used by the state transition. In both the out of block gas as well as out of

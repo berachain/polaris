@@ -25,7 +25,6 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
@@ -202,19 +201,18 @@ var _ = Describe("ERC20", func() {
 				Expect(bal).To(Equal(big.NewInt(123456789)))
 
 				// token already exists, create new Polaris denom
-				tx, err = erc20Precompile.TransferERC20ToCoin(
+				_, err = erc20Precompile.TransferERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					token,
 					big.NewInt(6789),
 				)
-				Expect(err).ToNot(HaveOccurred())
+				Expect(err).To(HaveOccurred())
 				// doesn't work because owner did not approve caller to spend tokens, so tx fails
 				// NOTE: if a high gas limit is provided and the estimate gas routine is skipped,
 				// the tx executes without returning an error (i.e. reverting), but the state
 				// changes (for the transfer) are not persisted, as expected.
-				Expect(tf.Network.WaitForNextBlock()).To(Succeed())
-				_, err = tf.EthClient.TransactionReceipt(context.Background(), tx.Hash())
-				Expect(err).To(MatchError(ethereum.NotFound))
+				Expect(err.Error()).To(ContainSubstring("method handler crashed"))
+				Expect(tf.Network.WaitForNextBlock()).ToNot(HaveOccurred())
 
 				// verify the transfer did not work
 				bal, err = contract.BalanceOf(nil, tf.Address("alice"))
