@@ -198,17 +198,14 @@ func matchMethod(toCheck abi.Method, allMethods []reflect.Method) (reflect.Value
 	name := formatName(toCheck.Name)
 
 	// create methods subset by prefix matching
-	var matchedMethods []reflect.Method
+
+	// TODO: FIX THIS BUG THIS IS NO BUENO
+	// if the prefix matches but it is also a prefix of another abi method with same param types, this will break
 	for _, method := range allMethods {
 		if strings.HasPrefix(method.Name, name) {
-			matchedMethods = append(matchedMethods, method)
-		}
-	}
-
-	// for method in subset, check if params match
-	for _, method := range matchedMethods {
-		if matchParams(toCheck, method) {
-			return method.Func, nil
+			if matchParams(toCheck, method) {
+				return method.Func, nil
+			}
 		}
 	}
 	return reflect.Value{}, errors.Wrap(ErrNoPrecompileMethodForABIMethod, toCheck.Sig)
