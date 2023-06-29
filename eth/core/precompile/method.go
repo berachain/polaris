@@ -100,7 +100,7 @@ func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 
 	// If the precompile returns something wrong (e.g. wrong number of results), the error is
 	// returned to the caller.
-	if len(results) != 2 {
+	if len(results) != 2 { //nolint:gomnd // its okay.
 		return nil, errors.Wrapf(
 			vm.ErrExecutionReverted,
 			"vm error: precompile [%s] returned [%d] results, expected 2",

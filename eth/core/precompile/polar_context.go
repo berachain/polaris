@@ -12,7 +12,7 @@ type (
 	// It contains a context,
 	// an EVM to execute,
 	// an Address for msg.sender,
-	// and a *big.Int for msg.value
+	// and a *big.Int for msg.value.
 	PolarContext struct {
 		Ctx       context.Context
 		Evm       EVM

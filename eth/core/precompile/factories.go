@@ -164,7 +164,7 @@ func GeneratePrecompileMethods(ABI map[string]abi.Method, contractImpl reflect.V
 // It first searches for the ABI function in the Go implementation. If no find, then panic.
 // It then performs some basic validation on the implemented function
 // Then, the implemented function's arguments are checked against the ABI's arguments' types.
-func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Methods {
+func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) Methods {
 
 	contractImplType := contractImpl.Type()
 	var methods Methods
@@ -176,7 +176,10 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 			continue // skip methods that are not exported
 		}
 
-		for _, abiMethod := range ABI { // go through the ABI
+		for _, abiMethod := range pcABI { // go through the ABI
+
+			abiMethod := abiMethod // linter...
+
 			if implMethodName != abiMethod.Name { // skip if the method names do not match
 				continue
 			} else if err := basicValidation(implMethod, abiMethod); err != nil {
@@ -204,7 +207,7 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 				}) // add it to the list of methods
 		}
 	}
-	if len(methods) != len(ABI) {
+	if len(methods) != len(pcABI) {
 		panic("suitableMethods: not all ABI methods were found in the contract implementation")
 	}
 
@@ -212,10 +215,10 @@ func suitableMethods(ABI map[string]abi.Method, contractImpl reflect.Value) Meth
 }
 
 // this is a helper function that checks three things:
-// 1. the first parameter is a context.Context
-// 2. the number of arguments match
-// 3. the types of the arguments match
-func basicValidation(implMethod reflect.Method, abiMethod abi.Method) error {
+// 1. the first parameter is a context.Context.
+// 2. the number of arguments match.
+// 3. the types of the arguments match.
+func basicValidation(_ reflect.Method, _ abi.Method) error {
 	// if implMethod.Type.In(1) != reflect.TypeOf((*PolarContext)(nil)).Elem() {
 	// return errors.Wrap(ErrNoContext, abiMethod.Sig)
 	// } else if implMethod.Type.NumIn()-1 != len(abiMethod.Inputs) {
@@ -231,7 +234,7 @@ func newExecute(fn reflect.Method) reflect.Value {
 
 // formatName converts to first character of name to lowercase.
 // If the first three characters are "ERC" (which is p common), then it converts all three to lowercase.
-// the code below has been inspired by Geth
+// the code below has been inspired by Geth.
 func formatName(name string) string {
 	ret := []rune(name)
 	if name[:3] == "ERC" { // special case for ERC20, ERC721, etc.
