@@ -30,10 +30,12 @@ import (
 
 	tmock "pkg.berachain.dev/polaris/cosmos/testing/types/mock"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -52,7 +54,7 @@ var _ = Describe("plugin", func() {
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
 		p = utils.MustGetAs[*plugin](NewPlugin(nil, &mockSP{ctx}))
-		e = &mockEVM{nil, ctx}
+		e = &mockEVM{nil, ctx, &mockSDB{nil, ctx, 0}}
 	})
 
 	It("should use correctly consume gas", func() {
@@ -82,15 +84,20 @@ var _ = Describe("plugin", func() {
 
 	It("should handle read-only static calls", func() {
 		ms := utils.MustGetAs[tmock.MultiStore](ctx.MultiStore())
+		cem := utils.MustGetAs[state.ControllableEventManager](ctx.EventManager())
 		// verify its not read-only right now
 		Expect(ms.IsReadOnly()).To(BeFalse())
+		Expect(cem.IsReadOnly()).To(BeFalse())
 
 		// run read only precompile
 		_, _, err := p.Run(e, &mockStateful{}, []byte{2}, addr2, new(big.Int), 5, true)
 		Expect(err.Error()).To(ContainSubstring(vm.ErrWriteProtection.Error()))
+		_, _, err = p.Run(e, &mockStateful{}, []byte{3}, addr2, new(big.Int), 5, true)
+		Expect(err.Error()).To(ContainSubstring(vm.ErrWriteProtection.Error()))
 
-		// check that the multistore is set back to read-only false
+		// check that the multistore and event manager is set back to read-only false
 		Expect(ms.IsReadOnly()).To(BeFalse())
+		Expect(cem.IsReadOnly()).To(BeFalse())
 	})
 })
 
@@ -112,19 +119,25 @@ func (msp *mockSP) SetGasConfig(kvg storetypes.GasConfig, tkvg storetypes.GasCon
 type mockEVM struct {
 	precompile.EVM
 	ctx sdk.Context
+	ms  *mockSDB
 }
 
 func (me *mockEVM) GetStateDB() vm.GethStateDB {
-	return &mockSDB{nil, me.ctx}
+	return me.ms
 }
 
 type mockSDB struct {
 	vm.PolarisStateDB
-	ctx sdk.Context
+	ctx  sdk.Context
+	logs int
 }
 
 func (ms *mockSDB) GetContext() context.Context {
 	return ms.ctx
+}
+
+func (ms *mockSDB) AddLog(*coretypes.Log) {
+	ms.logs++
 }
 
 type mockStateless struct{} // at addr 1
@@ -153,11 +166,14 @@ func (msf *mockStateful) RegistryKey() common.Address {
 
 // panics if modifying state on read-only.
 func (msf *mockStateful) Run(
-	_ context.Context, _ precompile.EVM, input []byte,
-	_ common.Address, _ *big.Int,
+	ctx context.Context, _ precompile.EVM, input []byte,
+	caller common.Address, _ *big.Int,
 ) ([]byte, error) {
 	if input[0] == byte(2) {
 		panic(vm.ErrWriteProtection)
+	} else if input[0] == byte(3) {
+		sdkCtx := sdk.UnwrapSDKContext(ctx)
+		sdkCtx.EventManager().EmitEvent(sdk.NewEvent("test"))
 	}
 	return nil, nil
 }

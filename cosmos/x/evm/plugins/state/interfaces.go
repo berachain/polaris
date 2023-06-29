@@ -42,6 +42,11 @@ type ControllableEventManager interface {
 	EnableEthLogging(events.LogsDB)
 	// DisableEthLogging resets the logs DB to nil to stop emitting Cosmos events as Eth logs.
 	DisableEthLogging()
+
+	// IsReadOnly returns true if the EventManager is read-only.
+	IsReadOnly() bool
+	// SetReadOnly sets the EventManager to the given read-only mode.
+	SetReadOnly(bool)
 }
 
 // ControllableMultiStore defines a cache MultiStore that is controllable (snapshottable and
