@@ -75,7 +75,7 @@ var _ = Describe("Manager", func() {
 	})
 
 	It("should panic when building eth logs fails", func() {
-		cem.EnableEthLogging(ldb)
+		cem.BeginPrecompileExecution(ldb)
 
 		Expect(func() {
 			ctx.EventManager().EmitEvent(sdk.NewEvent("non-eth-event"))
@@ -83,7 +83,7 @@ var _ = Describe("Manager", func() {
 	})
 
 	It("should build eth logs from cosmos events during precompile", func() {
-		cem.EnableEthLogging(ldb)
+		cem.BeginPrecompileExecution(ldb)
 
 		ctx.EventManager().EmitEvent(sdk.NewEvent("2"))
 		Expect(ctx.EventManager().Events()).To(HaveLen(2))
@@ -96,7 +96,7 @@ var _ = Describe("Manager", func() {
 		Expect(ctx.EventManager().Events()).To(HaveLen(4))
 		Expect(ldb.AddLogCalls()).To(HaveLen(3))
 
-		cem.DisableEthLogging()
+		cem.EndPrecompileExecution()
 
 		Expect(func() { cem.Finalize() }).ToNot(Panic())
 	})

@@ -167,7 +167,7 @@ func (msf *mockStateful) RegistryKey() common.Address {
 // panics if modifying state on read-only.
 func (msf *mockStateful) Run(
 	ctx context.Context, _ precompile.EVM, input []byte,
-	caller common.Address, _ *big.Int,
+	_ common.Address, _ *big.Int,
 ) ([]byte, error) {
 	if input[0] == byte(2) {
 		panic(vm.ErrWriteProtection)

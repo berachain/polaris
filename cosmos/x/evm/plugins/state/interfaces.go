@@ -38,10 +38,10 @@ type ControllableEventManager interface {
 	libtypes.Controllable[string]
 	sdk.EventManagerI
 
-	// EnableEthLogging sets the logs DB to begin emitting Cosmos events as Eth logs.
-	EnableEthLogging(events.LogsDB)
-	// DisableEthLogging resets the logs DB to nil to stop emitting Cosmos events as Eth logs.
-	DisableEthLogging()
+	// BeginPrecompileExecution begins a precompile execution by setting the logs DB.
+	BeginPrecompileExecution(events.LogsDB)
+	// EndPrecompileExecution ends a precompile execution by resetting the logs DB to nil.
+	EndPrecompileExecution()
 
 	// IsReadOnly returns true if the EventManager is read-only.
 	IsReadOnly() bool

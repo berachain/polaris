@@ -179,7 +179,7 @@ func (p *plugin) enableReentrancy(sdb vm.PolarisStateDB) {
 
 	// end precompile execution => stop emitting Cosmos event as Eth logs for now
 	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager())
-	cem.DisableEthLogging()
+	cem.EndPrecompileExecution()
 
 	// remove Cosmos gas consumption so gas is consumed only per OPCODE
 	p.sp.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
@@ -197,7 +197,7 @@ func (p *plugin) disableReentrancy(sdb vm.PolarisStateDB) {
 
 	// resume precompile execution => begin emitting Cosmos event as Eth logs again
 	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager())
-	cem.EnableEthLogging(sdb)
+	cem.BeginPrecompileExecution(sdb)
 
 	// restore ctx gas configs for continuing precompile execution
 	p.sp.SetGasConfig(p.kvGasConfig, p.transientKVGasConfig)

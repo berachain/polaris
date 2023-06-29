@@ -67,17 +67,17 @@ func (m *manager) SetReadOnly(readOnly bool) {
 	m.readOnly = readOnly
 }
 
-// EnableEthLogging is called when Cosmos events from precompiles should be emitted as Eth logs.
-// This function sets the `LogsDB` to the given `ldb` so that the `EmitEvent` and `EmitEvents`
-// methods can add logs to the journal.
-func (m *manager) EnableEthLogging(ldb LogsDB) {
+// BeginPrecompileExecution is called when a precompile is about to be executed. This function
+// sets the `LogsDB` to the given `ldb` so that the `EmitEvent` and `EmitEvents` methods can
+// add logs to the journal.
+func (m *manager) BeginPrecompileExecution(ldb LogsDB) {
 	m.ldb = ldb
 }
 
-// DisableEthLogging is called when Cosmos events from precompiles should be emitted as Eth logs.
-// This function sets the `LogsDB` to nil so that the `EmitEvent` and `EmitEvents` methods don't
-// add logs to the journal.
-func (m *manager) DisableEthLogging() {
+// EndPrecompileExecution is called when a precompile has finished executing. This function
+// sets the `LogsDB` to nil so that the `EmitEvent` and `EmitEvents` methods don't add logs
+// to the journal.
+func (m *manager) EndPrecompileExecution() {
 	m.ldb = nil
 }
 
