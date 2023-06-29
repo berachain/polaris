@@ -24,6 +24,9 @@ import (
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/lib/errors"
+	"pkg.berachain.dev/polaris/lib/errors/debug"
 )
 
 /**
@@ -76,6 +79,54 @@ func (m *Method) ValidateBasic() error {
 	}
 
 	return nil
+}
+
+// Call executes the precompile's executable with the given context and input arguments.
+func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
+	// Unpack the args from the input, if any exist.
+	unpackedArgs, err := m.AbiMethod.Inputs.Unpack(input[NumBytesMethodID:])
+	if err != nil {
+		return nil, err
+	}
+
+	// Build argument list
+	var reflectedUnpackedArgs []reflect.Value // needed for .Call(...)
+	for _, unpacked := range unpackedArgs {
+		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
+	}
+
+	// Call the executable
+	results := m.Execute.Call(append(ctx, reflectedUnpackedArgs...))
+
+	// If the precompile returns something wrong (e.g. wrong number of results), the error is
+	// returned to the caller.
+	if len(results) != 2 {
+		return nil, errors.Wrapf(
+			vm.ErrExecutionReverted,
+			"vm error: precompile [%s] returned [%d] results, expected 2",
+			debug.GetFnName(m.Execute.Interface()), len(results),
+		)
+	}
+
+	// If the precompile returned an error, the error is returned to the caller.
+	if !results[1].IsNil() {
+		if err = results[1].Interface().(error); err != nil {
+			return nil, errors.Wrapf(
+				vm.ErrExecutionReverted,
+				"vm error [%v] occurred during precompile execution of [%s]",
+				err, debug.GetFnName(m.Execute.Interface()),
+			)
+		}
+	}
+
+	// Pack the return values and return, if any exist.
+	retVal := results[0]
+	ret, err := m.AbiMethod.Outputs.PackValues(retVal.Interface().([]interface{})) // 1) What
+	if err != nil {
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 // Methods is a type that represents a list of precompile methods. This is what a stateful

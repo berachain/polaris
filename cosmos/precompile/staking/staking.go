@@ -456,7 +456,6 @@ func (c *Contract) GetActiveValidators(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	_ ...any,
 ) ([]any, error) {
 	return c.activeValidatorsHelper(ctx)
 }
@@ -468,7 +467,6 @@ func (c *Contract) GetValidators(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	_ ...any,
 ) ([]any, error) {
 	return c.validatorsHelper(ctx)
 }

@@ -22,14 +22,11 @@ package precompile
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/errors"
-	"pkg.berachain.dev/polaris/lib/errors/debug"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -85,56 +82,17 @@ func (sc *stateful) Run(
 		return nil, ErrMethodNotFound
 	}
 
-	// Unpack the args from the input, if any exist.
-	unpackedArgs, err := method.AbiMethod.Inputs.Unpack(input[NumBytesMethodID:])
-	if err != nil {
-		return nil, err
-	}
-
 	// Get args ready for precompile call.
 	// TODO, remove most of these args. In the future , we should only need the arguments from the method according to the ABI and a context rather than all of these.
-	var fullargs []reflect.Value
-	if reflect.ValueOf(sc.Registrable).IsValid() {
-		fullargs = append(fullargs, reflect.ValueOf(sc.Registrable))
-	}
-	fullargs = append(fullargs, reflect.ValueOf(ctx))
-	fullargs = append(fullargs, reflect.ValueOf(evm))
-	fullargs = append(fullargs, reflect.ValueOf(caller))
-	fullargs = append(fullargs, reflect.ValueOf(value))
-	fullargs = append(fullargs, reflect.ValueOf(readonly))
-
-	var reflectedUnpackedArgs []reflect.Value // needed for .Call(...)
-
-	for _, unpacked := range unpackedArgs {
-		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
-		fmt.Println("type of unpacked", reflect.TypeOf(unpacked).String())
-	}
-	fullargs = append(fullargs, reflectedUnpackedArgs...)
-
-	// Execute the method registered with the given signature with the given args.
-	results := method.Execute.Call(fullargs)
-	fmt.Println("results: ", results)
-	// If the precompile returned an error, the error is returned to the caller.
-	if !results[1].IsNil() {
-		if err = results[1].Interface().(error); err != nil {
-			fmt.Println("errored: ", err)
-			return nil, errors.Wrapf(
-				vm.ErrExecutionReverted,
-				"vm error [%v] occurred during precompile execution of [%s]",
-				err, debug.GetFnName(method.Execute.Interface()),
-			)
-		}
-	}
-
-	// Pack the return values and return, if any exist.
-	retVal := results[0]
-	fmt.Println("retVal: ", retVal)
-	ret, err := method.AbiMethod.Outputs.PackValues(retVal.Interface().([]interface{})) // 1) What
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("ret: ", ret)
-	return ret, nil
+	return method.Call(
+		[]reflect.Value{
+			reflect.ValueOf(sc.Registrable),
+			reflect.ValueOf(ctx),
+			reflect.ValueOf(evm),
+			reflect.ValueOf(caller),
+			reflect.ValueOf(value),
+			reflect.ValueOf(readonly),
+		}, input)
 }
 
 // RequiredGas checks the Method corresponding to input for the required gas amount.
