@@ -147,8 +147,7 @@ func (p *plugin) Run(
 	// recover from any WriteProtection panic for the EVM to handle as a vm error
 	defer WriteRecoveryHandler(&err)
 
-	// use a precompile-specific gas meter for dynamic consumption, which will panic if gas is
-	// consumed over limit
+	// use a precompile-specific gas meter for dynamic consumption
 	gm := storetypes.NewInfiniteGasMeter()
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
@@ -171,7 +170,7 @@ func (p *plugin) Run(
 		gasRemaining = suppliedGas - gm.GasConsumed()
 	}
 
-	return
+	return //nolint:nakedret // named returns.
 }
 
 // EnableReentrancy sets the state so that execution can enter the EVM again.
