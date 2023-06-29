@@ -39,7 +39,7 @@ const (
 // corresponding cache kv store currently being used.
 type mapMultiStore map[storetypes.StoreKey]storetypes.CacheKVStore
 
-// Store is a wrapper around the Cosmos SDK `MultiStore` which supports snapshots and reverts.
+// store is a wrapper around the Cosmos SDK `MultiStore` which supports snapshots and reverts.
 // It journals revisions by cache-wrapping the cachekv stores on a call to `Snapshot`. In this
 // store's lifecycle, any operations done before the first call to snapshot will be enforced on the
 // root `mapMultiStore`.
