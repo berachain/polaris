@@ -30,7 +30,7 @@ import "pkg.berachain.dev/polaris/e2e/localnet/container"
 // TODO: Move this into new test fixture, when we have one.
 const (
 	baseImageName  = "polard/base:v0.0.0"
-	baseContext    = "../../"
+	baseContext    = "../../../"
 	baseDockerfile = "./cosmos/docker/base.Dockerfile"
 
 	localnetImageName  = "polard/localnet:v0.0.0"
