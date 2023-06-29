@@ -26,6 +26,7 @@
 package localnet
 
 import (
+	"runtime"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -39,12 +40,12 @@ func TestLocalnet(t *testing.T) {
 
 var _ = Describe("Fixture", func() {
 	var (
-		c   Localnet
+		c   ContainerizedNetwork
 		err error
 	)
 
 	BeforeEach(func() {
-		_, err = NewDockerizedNetwork(
+		_, err = NewContainerizedNetwork(
 			"base",
 			baseImageName,
 			baseContext,
@@ -55,12 +56,12 @@ var _ = Describe("Fixture", func() {
 				"GO_VERSION":               "1.20.4",
 				"PRECOMPILE_CONTRACTS_DIR": "./contracts",
 				"GOOS":                     "linux",
-				"GOARCH":                   "arm64",
+				"GOARCH":                   runtime.GOARCH,
 			},
 		)
 		Expect(err).ToNot(HaveOccurred())
 
-		c, err = NewDockerizedNetwork(
+		c, err = NewContainerizedNetwork(
 			"localnet1",
 			localnetImageName,
 			localnetContext,

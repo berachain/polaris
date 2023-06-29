@@ -23,7 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package localnet
+package container
 
 import (
 	"os"
@@ -32,19 +32,27 @@ import (
 	dc "github.com/ory/dockertest/docker"
 )
 
-type Container interface {
+type Client interface {
 	Start() error
 	Stop() error
 	Build(ImageBuildConfig) error
 }
 
-type ContainerClient struct {
+type client struct {
 	pool      *dt.Pool
 	container *dc.Container
 }
 
-// NewContainerClient creates a new ContainerClient which implements Container.
-func NewContainerClient(config ContainerConfig, imageConfig ImageBuildConfig) (*ContainerClient, error) {
+// NewClient creates a new ContainerClient which implements Container.
+func NewClient(cfg Config, imageConfig ImageBuildConfig) (Client, error) {
+	if err := cfg.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
+	if err := imageConfig.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
 	pool, err := dt.NewPool("")
 	if err != nil {
 		return nil, err
@@ -55,36 +63,37 @@ func NewContainerClient(config ContainerConfig, imageConfig ImageBuildConfig) (*
 	}
 
 	container, err := pool.Client.CreateContainer(dc.CreateContainerOptions{
-		Name: config.Name,
+		Name: cfg.Name,
 		Config: &dc.Config{
-			Image: config.ImageName,
+			Image: cfg.ImageName,
 			ExposedPorts: map[dc.Port]struct{}{
-				dc.Port(config.HTTPAddress): {},
-				dc.Port(config.WSAddress):   {},
+				dc.Port(cfg.HTTPAddress): {},
+				dc.Port(cfg.WSAddress):   {},
 			},
 		},
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &ContainerClient{
+
+	return &client{
 		pool:      pool,
 		container: container,
 	}, nil
 }
 
 // Start starts the container.
-func (c *ContainerClient) Start() error {
+func (c *client) Start() error {
 	return c.pool.Client.StartContainer(c.container.ID, nil)
 }
 
 // Stop stops the container.
-func (c *ContainerClient) Stop() error {
+func (c *client) Stop() error {
 	return c.pool.Client.StopContainer(c.container.ID, 0)
 }
 
 // Build builds the container image.
-func (c *ContainerClient) Build(config ImageBuildConfig) error {
+func (c *client) Build(config ImageBuildConfig) error {
 	return BuildImage(c.pool, config)
 }
 

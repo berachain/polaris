@@ -23,18 +23,31 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package localnet
+package container
 
-import (
-	"errors"
-)
-
-// ContainerConfig is a configuration struct for a container.
-type ContainerConfig struct {
+// Config is a configuration struct for a container.
+type Config struct {
 	Name        string
 	ImageName   string
 	HTTPAddress string
 	WSAddress   string
+}
+
+// ValidateBasic checks if the Config is valid.
+func (c Config) ValidateBasic() error {
+	if c.Name == "" {
+		return ErrEmptyName
+	}
+	if c.ImageName == "" {
+		return ErrEmptyImageName
+	}
+	if c.HTTPAddress == "" {
+		return ErrEmptyHTTPAddress
+	}
+	if c.WSAddress == "" {
+		return ErrEmptyWSAddress
+	}
+	return nil
 }
 
 // ImageBuildConfig is a configuration struct for an image build.
@@ -45,19 +58,16 @@ type ImageBuildConfig struct {
 	BuildArgs  map[string]string
 }
 
-// Errors returned by the localnet package.
-var (
-	ErrEmptyContext    = errors.New("context cannot be empty")
-	ErrEmptyDockerfile = errors.New("dockerfile cannot be empty")
-)
-
-// TODO: Move this into new test fixture, when we have one.
-const (
-	baseImageName  = "polard/base:v0.0.0"
-	baseContext    = "../../"
-	baseDockerfile = "./cosmos/docker/base.Dockerfile"
-
-	localnetImageName  = "polard/localnet:v0.0.0"
-	localnetContext    = "./"
-	localnetDockerfile = "Dockerfile"
-)
+// ValidateBasic checks if the ImageBuildConfig is valid.
+func (ibc ImageBuildConfig) ValidateBasic() error {
+	if ibc.ImageName == "" {
+		return ErrEmptyImageName
+	}
+	if ibc.Context == "" {
+		return ErrEmptyContext
+	}
+	if ibc.Dockerfile == "" {
+		return ErrEmptyDockerfile
+	}
+	return nil
+}

@@ -25,8 +25,21 @@
 
 package localnet
 
-type Localnet interface {
-	Build() error
+import "pkg.berachain.dev/polaris/e2e/localnet/container"
+
+// TODO: Move this into new test fixture, when we have one.
+const (
+	baseImageName  = "polard/base:v0.0.0"
+	baseContext    = "../../"
+	baseDockerfile = "./cosmos/docker/base.Dockerfile"
+
+	localnetImageName  = "polard/localnet:v0.0.0"
+	localnetContext    = "./"
+	localnetDockerfile = "Dockerfile"
+)
+
+// ContainerizedNetwork is an interface for a containerized network.
+type ContainerizedNetwork interface {
 	Start() error
 	Stop() error
 	Reset() error
@@ -34,16 +47,16 @@ type Localnet interface {
 	GetWSAddress() string
 }
 
-type dockerizedNetwork struct {
-	Container
-	httpAddress string
-	wsAddress   string
-
-	imageConfig ImageBuildConfig
+// containerizedNetwork implements ContainerizedNetwork.
+type containerizedNetwork struct {
+	containerClient container.Client
+	httpAddress     string
+	wsAddress       string
+	imageConfig     container.ImageBuildConfig
 }
 
 // NewDockerizedNetwork creates an implementation of Localnet using Docker.
-func NewDockerizedNetwork(
+func NewContainerizedNetwork(
 	name string,
 	imageName string,
 	context string,
@@ -51,16 +64,10 @@ func NewDockerizedNetwork(
 	httpAddress string,
 	wsAddress string,
 	buildArgs map[string]string,
-) (Localnet, error) {
-	if context == "" {
-		return nil, ErrEmptyContext
-	}
-	if dockerfile == "" {
-		return nil, ErrEmptyDockerfile
-	}
+) (ContainerizedNetwork, error) {
 
 	// Create the container config using the given input args.
-	config := ContainerConfig{
+	config := container.Config{
 		Name:        name,
 		ImageName:   imageName,
 		HTTPAddress: httpAddress,
@@ -68,44 +75,56 @@ func NewDockerizedNetwork(
 	}
 
 	// Create the image config using the given input args.
-	imageConfig := ImageBuildConfig{
+	imageConfig := container.ImageBuildConfig{
 		ImageName:  imageName,
 		Context:    context,
 		Dockerfile: dockerfile,
 		BuildArgs:  buildArgs,
 	}
 
-	container, err := NewContainerClient(config, imageConfig)
+	containerClient, err := container.NewClient(config, imageConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dockerizedNetwork{
-		Container:   container,
-		httpAddress: httpAddress,
-		wsAddress:   wsAddress,
-		imageConfig: imageConfig,
+	if err := containerClient.Build(imageConfig); err != nil {
+		return nil, err
+	}
+
+	return &containerizedNetwork{
+		containerClient: containerClient,
+		httpAddress:     httpAddress,
+		wsAddress:       wsAddress,
+		imageConfig:     imageConfig,
 	}, nil
 }
 
-func (c *dockerizedNetwork) Build() error {
-	return c.Container.Build(c.imageConfig)
+// Start starts the network.
+func (c *containerizedNetwork) Start() error {
+	return c.containerClient.Start()
 }
 
-func (c *dockerizedNetwork) Reset() error {
-	if err := c.Stop(); err != nil {
-		return err
-	}
-	if err := c.Build(); err != nil {
-		return err
-	}
-	return c.Start()
+// Stop stops the network.
+func (c *containerizedNetwork) Stop() error {
+	return c.containerClient.Stop()
 }
 
-func (c *dockerizedNetwork) GetHTTPAddress() string {
+// Reset stops the network, clears the database, and restarts the network.
+func (c *containerizedNetwork) Reset() error {
+	if err := c.containerClient.Stop(); err != nil {
+		return err
+	}
+
+	// TODO: clear genesis / reset genesis state.
+	return c.containerClient.Start()
+}
+
+// GetHTTPAddress returns the HTTP address of the network.
+func (c *containerizedNetwork) GetHTTPAddress() string {
 	return c.httpAddress
 }
 
-func (c *dockerizedNetwork) GetWSAddress() string {
+// GetWSAddress returns the WS address of the network.
+func (c *containerizedNetwork) GetWSAddress() string {
 	return c.wsAddress
 }
