@@ -22,6 +22,7 @@ package precompile
 
 import (
 	storetypes "cosmossdk.io/store/types"
+
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
