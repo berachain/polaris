@@ -144,12 +144,12 @@ func (p *plugin) Run(
 	p.disableReentrancy(sdb)
 	defer p.enableReentrancy(sdb)
 
-	// recover from any panic during precompile execution for the EVM to handle as a vm error
-	defer RecoveryHandler(&err)
+	// recover from any WriteProtection panic for the EVM to handle as a vm error
+	defer WriteRecoveryHandler(&err)
 
 	// use a precompile-specific gas meter for dynamic consumption, which will panic if gas is
 	// consumed over limit
-	gm := storetypes.NewGasMeter(suppliedGas)
+	gm := storetypes.NewInfiniteGasMeter()
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
 	// run the precompile container
@@ -162,7 +162,14 @@ func (p *plugin) Run(
 		caller,
 		value,
 	)
-	gasRemaining = gm.GasRemaining()
+
+	// handle overconsumption of gas
+	if gm.GasConsumed() > suppliedGas {
+		gasRemaining = 0
+		err = vm.ErrOutOfGas
+	} else {
+		gasRemaining = suppliedGas - gm.GasConsumed()
+	}
 
 	return
 }

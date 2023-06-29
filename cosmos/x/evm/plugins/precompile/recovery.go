@@ -21,30 +21,23 @@
 package precompile
 
 import (
-	storetypes "cosmossdk.io/store/types"
+	"errors"
 
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	errorslib "pkg.berachain.dev/polaris/lib/errors"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// RecoveryHandler is used to recover from any panics that occur during precompile execution. The
-// handler modifies the given error to be returned to the caller.
-func RecoveryHandler(err *error) {
+// WriteRecoveryHandler is used to recover from any WriteProtection panics that occur during
+// precompile execution; the handler modifies the given error to be returned to the caller. For any
+// other panic value, the panic is propogated up to the caller.
+func WriteRecoveryHandler(err *error) {
 	if panicked := recover(); panicked != nil {
 		// NOTE: this only propagates an error back to the EVM if the type of the given panic
-		// value is error, string, Cosmos ErrorOutOfGas, or Cosmos ErrorGasOverflow (any other
-		// type of panic value is ignored)
-		switch {
-		case utils.Implements[error](panicked):
-			*err = errorslib.Wrap(ethprecompile.ErrPanic, utils.MustGetAs[error](panicked).Error())
-		case utils.Implements[string](panicked):
-			*err = errorslib.Wrap(ethprecompile.ErrPanic, utils.MustGetAs[string](panicked))
-		case utils.Implements[storetypes.ErrorGasOverflow](panicked):
-			fallthrough
-		case utils.Implements[storetypes.ErrorOutOfGas](panicked):
-			*err = vm.ErrOutOfGas
+		// value is error and type ErrWriteProtection (any other type of panic value is ignored and
+		// passed up the call stack).
+		if panickedErr, ok := panicked.(error); ok && errors.Is(panickedErr, vm.ErrWriteProtection) {
+			*err = vm.ErrWriteProtection
+			return
 		}
+		panic(panicked)
 	}
 }
