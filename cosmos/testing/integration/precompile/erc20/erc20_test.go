@@ -207,11 +207,12 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(6789),
 				)
 				Expect(err).To(HaveOccurred())
-				// doesn't work because owner did not approve caller to spend tokens, so tx fails
+				// doesn't work because owner did not approve caller to spend tokens, so estimate gas fails
 				// NOTE: if a high gas limit is provided and the estimate gas routine is skipped,
 				// the tx executes without returning an error (i.e. reverting), but the state
 				// changes (for the transfer) are not persisted, as expected.
 				Expect(err.Error()).To(ContainSubstring("method handler crashed"))
+
 				Expect(tf.Network.WaitForNextBlock()).ToNot(HaveOccurred())
 
 				// verify the transfer did not work
