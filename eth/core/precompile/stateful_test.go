@@ -173,6 +173,7 @@ type mockObject struct {
 }
 
 func getOutput(
+	_ *mockStateful,
 	_ context.Context,
 	_ precompile.EVM,
 	_ common.Address,
@@ -195,6 +196,7 @@ func getOutput(
 }
 
 func getOutputPartial(
+	_ *mockStateful,
 	_ context.Context,
 	_ precompile.EVM,
 	_ common.Address,
@@ -206,6 +208,7 @@ func getOutputPartial(
 }
 
 func contractFuncAddrInput(
+	_ *mockStateful,
 	_ context.Context,
 	_ precompile.EVM,
 	_ common.Address,
@@ -221,6 +224,7 @@ func contractFuncAddrInput(
 }
 
 func contractFuncStrInput(
+	_ *mockStateful,
 	_ context.Context,
 	_ precompile.EVM,
 	_ common.Address,

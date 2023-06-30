@@ -108,6 +108,8 @@ func (sf *StatefulFactory) Build(
 		if err != nil {
 			return nil, err
 		}
+	} else {
+		return nil, err
 	}
 
 	return NewStateful(rp, idsToMethods), nil
@@ -167,49 +169,39 @@ func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (M
 	contractImplType := contractImpl.Type()
 	var methods Methods
 	for m := 0; m < contractImplType.NumMethod(); m++ { // iterate through all of the impl's methods
-		implMethod := contractImplType.Method(m)      // grab the Impl's current method
+		implMethod := contractImplType.Method(m) // grab the Impl's current method
+
+		if isBaseContractMethodOrUnexported(implMethod) {
+			continue // ignore BaseContract's methods, they clearly won't be in the abi
+			// also ignore methods that are not exported
+		}
+
 		implMethodName := formatName(implMethod.Name) // make the first letter lowercase
 
-		if implMethod.PkgPath != "" {
-			continue // skip methods that are not exported
-		}
-
-		for _, abiMethod := range pcABI { // go through the ABI
-
-			abiMethod := abiMethod // linter...
-
-			if implMethodName != abiMethod.Name { // skip if the method names do not match
-				continue
-			} else if err := basicValidation(implMethod, abiMethod); err != nil {
-				panic(err)
+		if abiMethod, found := pcABI[implMethodName]; found { // if the method is found in the ABI
+			if err := basicValidation(implMethod, abiMethod); err != nil {
+				return nil, err
 			}
-
-			// uncomment when we change all the function signatures to match the abi method params
-			// 			implMethodIdx := 2 // start at 2 as 0th params should be a receiver, and 1 is the PolarContext
-			// 			for i := 0; i < len(abiMethod.Inputs); i++ {
-			// 				if implMethod.Type.In(implMethodIdx) != abiMethod.Inputs[i].Type.GetType() {
-			// 					// hold on, this doesn't indicate a failure due to overloaded functions
-			// 					fmt.Println("implMethod.Type.In(implMethodIdx): ", implMethod.Type.In(implMethodIdx), "abiMethod.Inputs[i].Type.GetType(): ", abiMethod.Inputs[i].Type.GetType())
-			// 					panic("does not match types")
-			// 				}
-			// 				implMethodIdx++
-			// 			}
-			//
-
 			toExecute := newExecute(implMethod) // grab the actual function
-			methods = append(methods,
-				&Method{
-					AbiMethod: &abiMethod,
-					AbiSig:    abiMethod.Sig,
-					Execute:   toExecute,
-				}) // add it to the list of methods
+			methods = append(methods, &Method{
+				AbiMethod: &abiMethod,
+				AbiSig:    abiMethod.Sig,
+				Execute:   toExecute,
+			}) // add it to the list of methods
+		} else {
+			return nil, errors.Wrap(ErrNoPrecompileMethodForABIMethod, implMethodName)
 		}
-	}
-	if len(methods) != len(pcABI) {
-		return nil, errors.Wrap(ErrNoPrecompileMethodForABIMethod, "not all ABI methods have a corresponding Go implementation")
 	}
 
 	return methods, nil
+}
+
+// As each contractImpl is also  BaseContract, we need to ignore the methods that are in the BaseContract.
+// since we only care about the implementation methods, not any underlying methods from inheritence/composition.
+// We also need to ignore the methods that are not exported.
+// TODO: there has to be a cleaner way
+func isBaseContractMethodOrUnexported(implMethod reflect.Method) bool {
+	return implMethod.Name == "RegistryKey" || implMethod.Name == "ABIMethods" || implMethod.Name == "ABIEvents" || implMethod.Name == "CustomValueDecoders" || implMethod.Name == "PrecompileMethods" || implMethod.Name == "SetPlugin" || implMethod.Name == "GetPlugin" || implMethod.PkgPath != ""
 }
 
 // this is a helper function that checks three things:
@@ -235,7 +227,7 @@ func newExecute(fn reflect.Method) reflect.Value {
 // the code below has been inspired by Geth.
 func formatName(name string) string {
 	ret := []rune(name)
-	if name[:3] == "ERC" { // special case for ERC20, ERC721, etc.
+	if name[:3] == "ERC" || name[:3] == "ABI" { // special case for ERC20, ERC721, etc.
 		ret[0] = unicode.ToLower(ret[0])
 		ret[1] = unicode.ToLower(ret[1])
 		ret[2] = unicode.ToLower(ret[2])
