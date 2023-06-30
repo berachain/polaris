@@ -31,27 +31,27 @@ ARG FOUNDRY_DIR=contracts
 ###       Stage 1 - Build Solidity Bindings         ###
 #######################################################
 
-# Use the latest foundry image
-FROM ghcr.io/foundry-rs/foundry:nightly as foundry
+# # Use the latest foundry image
+# FROM ghcr.io/foundry-rs/foundry:nightly as foundry
 
-# Set working directory
-WORKDIR /workdir
+# # Set working directory
+# WORKDIR /workdir
 
-# Required for forge install.
-COPY .git/ .git/
+# # Required for forge install.
+# COPY .git/ .git/
 
-# Copy over all the solidity code.
-ARG FOUNDRY_DIR
-COPY ${FOUNDRY_DIR} ${FOUNDRY_DIR}
+# # Copy over all the solidity code.
+# ARG FOUNDRY_DIR
+# COPY ${FOUNDRY_DIR} ${FOUNDRY_DIR}
 
-# Move into the forge repo for building.
-WORKDIR /workdir/${FOUNDRY_DIR}
+# # Move into the forge repo for building.
+# WORKDIR /workdir/${FOUNDRY_DIR}
 
-# Install dependecies for solidity contracts.
-RUN forge install --no-commit
+# # Install dependecies for solidity contracts.
+# RUN forge install --no-commit
 
-# Build the contracts using special flags required for abigen.
-RUN forge build --extra-output-files bin --extra-output-files abi
+# # Build the contracts using special flags required for abigen.
+# RUN forge build --extra-output-files bin --extra-output-files abi
 
 #######################################################
 ###         Stage 2 - Build the Application         ###
@@ -77,8 +77,8 @@ RUN go mod download
 COPY . .
 
 # Copy the forge output
-ARG FOUNDRY_DIR
-COPY --from=foundry /workdir/${FOUNDRY_DIR}/out /workdir/${FOUNDRY_DIR}/out
+# ARG FOUNDRY_DIR
+# COPY --from=foundry /workdir/${FOUNDRY_DIR}/out /workdir/${FOUNDRY_DIR}/out
 
 # Build args
 ARG NAME
