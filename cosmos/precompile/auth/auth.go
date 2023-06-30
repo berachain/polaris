@@ -200,7 +200,7 @@ func getHighestAllowance(sendAuths []*banktypes.SendAuthorization, coinDenom str
 	return max
 }
 
-// GetAccountInfoAddrInput implements `getAccountInfo(address)`.
+// GetAccountInfoAddrInput implements `getAccountInfo(string)`.
 func (c *Contract) GetAccountInfo(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -209,14 +209,15 @@ func (c *Contract) GetAccountInfo(
 	_ bool,
 	args ...any,
 ) ([]any, error) {
-	acc, ok := utils.GetAs[common.Address](args[0])
+
+	acc, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
-	return c.accountInfoHelper(ctx, cosmlib.Bech32FromEthAddress(acc))
+	return c.accountInfoHelper(ctx, acc)
 }
 
-// GetAccountInfoStringInput implements `getAccountInfo(string)`.
+// GetAccountInfoStringInput implements `getAccountInfo(address)`.
 func (c *Contract) GetAccountInfo0(
 	ctx context.Context,
 	_ ethprecompile.EVM,
@@ -225,9 +226,10 @@ func (c *Contract) GetAccountInfo0(
 	_ bool,
 	args ...any,
 ) ([]any, error) {
-	acc, ok := utils.GetAs[string](args[0])
+
+	acc, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
 		return nil, precompile.ErrInvalidString
 	}
-	return c.accountInfoHelper(ctx, acc)
+	return c.accountInfoHelper(ctx, cosmlib.Bech32FromEthAddress(acc))
 }
