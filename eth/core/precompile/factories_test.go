@@ -169,29 +169,3 @@ func (bms *badMockStateful) ABIMethods() map[string]abi.Method {
 		"getOutputPartial": mock.Methods["getOutputPartial"],
 	}
 }
-
-type invalidMockStateful struct {
-	*mockStateful
-}
-
-func (ims *invalidMockStateful) GetOutput(
-	_ context.Context,
-	_ precompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	str, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, errors.New("cast error")
-	}
-	return []any{
-		[]mockObject{
-			{
-				CreationHeight: big.NewInt(1),
-				TimeStamp:      str,
-			},
-		},
-	}, nil
-}
