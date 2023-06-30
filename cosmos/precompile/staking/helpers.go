@@ -31,8 +31,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 
+	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
 )
@@ -240,7 +240,7 @@ func (c *Contract) validatorsHelper(ctx context.Context) ([]any, error) {
 		Status: stakingtypes.BondStatusBonded,
 	})
 	if status.Code(err) == codes.NotFound {
-		// handle the case where the validators does not exist
+		// handle the case where the validators do not exist
 		return []any{[]generated.IStakingModuleValidator{}}, nil
 	} else if err != nil {
 		return nil, err
@@ -281,7 +281,7 @@ func (c *Contract) delegatorValidatorsHelper(ctx context.Context, accAddr string
 		DelegatorAddr: accAddr,
 	})
 	if status.Code(err) == codes.NotFound {
-		// handle the case where the delegator validator does not exist
+		// handle the case where the delegator validators do not exist
 		return []any{[]generated.IStakingModuleValidator{}}, nil
 	} else if err != nil {
 		return nil, err
