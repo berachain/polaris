@@ -14,20 +14,16 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Use the latest foundry image
-FROM polard-base:test-hive as polaris-hive
+FROM polard/base:v0.0.0 as polaris-hive
 
 RUN apk add --no-cache bash jq
 
 WORKDIR /
 
 # Add a default genesis file + Inject the startup script
-ADD build_eth_genesis.sh /build_eth_genesis.sh
 ADD version.txt /version.txt
 ADD hive-init.sh /hive-init.sh
 ADD config /config
-
-# Build the ethereum style genesis from the cosmos genesis.
-RUN ./build_eth_genesis.sh
 
 RUN export HIVE_CHAIN_ID=2061
 RUN export HIVE_NETWORK_ID=2061
