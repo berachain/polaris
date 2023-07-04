@@ -31,10 +31,8 @@ import (
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Contract is the precompile contract for the staking module.
@@ -134,19 +132,11 @@ func (c *Contract) GetDelegation(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	delegatorAddress common.Address,
+	validatorAddress common.Address,
 ) ([]any, error) {
-	del, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	val, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
 	return c.getDelegationHelper(
-		ctx, cosmlib.AddressToAccAddress(del), cosmlib.AddressToValAddress(val),
+		ctx, cosmlib.AddressToAccAddress(delegatorAddress), cosmlib.AddressToValAddress(validatorAddress),
 	)
 }
 

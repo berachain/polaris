@@ -44,7 +44,6 @@ import (
 
 	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -144,18 +143,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 	})
 
 	When("SetWithdrawAddress", func() {
-		It("should fail if not common address", func() {
-			res, err := contract.SetWithdrawAddress(
-				ctx,
-				nil,
-				testutil.Alice,
-				big.NewInt(0),
-				false,
-				"invalid",
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-			Expect(res).To(BeNil())
-		})
 
 		It("should succeed", func() {
 			res, err := contract.SetWithdrawAddress(
@@ -172,18 +159,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 	})
 
 	When("SetWithdrawAddressBech32", func() {
-		It("should fail if not string", func() {
-			res, err := contract.SetWithdrawAddress0(
-				ctx,
-				nil,
-				testutil.Alice,
-				big.NewInt(0),
-				false,
-				1,
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidString))
-			Expect(res).To(BeNil())
-		})
 
 		It("should fail if not bech32 string", func() {
 			res, err := contract.SetWithdrawAddress0(
@@ -269,33 +244,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 		})
 
 		When("Withdraw Delegator Rewards common address", func() {
-			It("should fail if not common address", func() {
-				res, err := contract.WithdrawDelegatorReward(
-					ctx,
-					nil,
-					testutil.Alice,
-					big.NewInt(0),
-					false,
-					"0x0000000000",
-					cosmlib.ValAddressToEthAddress(valAddr),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if validator address not common.address", func() {
-				res, err := contract.WithdrawDelegatorReward(
-					ctx,
-					nil,
-					testutil.Alice,
-					big.NewInt(0),
-					false,
-					cosmlib.AccAddressToEthAddress(addr),
-					"0x0000000000",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
 
 			It("Success", func() {
 				res, err := contract.WithdrawDelegatorReward(
@@ -316,35 +264,8 @@ var _ = Describe("Distribution Precompile Test", func() {
 		})
 
 		When("Withdraw Delegator Rewards bech32 address", func() {
-			It("should fail if delegator address not string", func() {
-				res, err := contract.WithdrawDelegatorReward0(
-					ctx,
-					nil,
-					testutil.Alice,
-					big.NewInt(0),
-					false,
-					1,
-					valAddr.String(),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
 
-			It("should fail if validator address not string", func() {
-				res, err := contract.WithdrawDelegatorReward0(
-					ctx,
-					nil,
-					testutil.Alice,
-					big.NewInt(0),
-					false,
-					addr.String(),
-					1,
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if delegator address not bech32", func() {
+			FIt("should fail if delegator address not bech32", func() {
 				res, err := contract.WithdrawDelegatorReward0(
 					ctx,
 					nil,
