@@ -34,7 +34,7 @@ const (
 	baseDockerfile = "./cosmos/docker/base.Dockerfile"
 
 	localnetImageName  = "polard/localnet:v0.0.0"
-	localnetContext    = "./"
+	localnetContext    = "../"
 	localnetDockerfile = "Dockerfile"
 )
 
