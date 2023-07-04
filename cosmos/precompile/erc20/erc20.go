@@ -30,13 +30,11 @@ import (
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
 	cpbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/erc20"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Contract is the precompile contract for the auth module.
@@ -84,17 +82,13 @@ func (c *Contract) CoinDenomForERC20Address(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	token common.Address,
 ) ([]any, error) {
-	addr, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
 
 	resp, err := c.em.CoinDenomForERC20Address(
 		ctx,
 		&erc20types.CoinDenomForERC20AddressRequest{
-			Token: cosmlib.Bech32FromEthAddress(addr),
+			Token: cosmlib.Bech32FromEthAddress(token),
 		},
 	)
 	if err != nil {
@@ -111,17 +105,13 @@ func (c *Contract) CoinDenomForERC20Address0(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	token string,
 ) ([]any, error) {
-	addr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
 
 	resp, err := c.em.CoinDenomForERC20Address(
 		ctx,
 		&erc20types.CoinDenomForERC20AddressRequest{
-			Token: addr,
+			Token: token,
 		},
 	)
 	if err != nil {
@@ -138,12 +128,8 @@ func (c *Contract) ERC20AddressForCoinDenom(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	denom string,
 ) ([]any, error) {
-	denom, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
 
 	resp, err := c.em.ERC20AddressForCoinDenom(
 		ctx,
@@ -174,16 +160,9 @@ func (c *Contract) TransferCoinToERC20(
 	caller common.Address,
 	value *big.Int,
 	_ bool,
-	args ...any,
+	denom string,
+	amount *big.Int,
 ) ([]any, error) {
-	denom, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	amount, ok := utils.GetAs[*big.Int](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
 
 	err := c.transferCoinToERC20(ctx, evm, value, denom, caller, caller, amount)
 	return []any{err == nil}, err
@@ -196,25 +175,11 @@ func (c *Contract) TransferCoinToERC20From(
 	_ common.Address,
 	value *big.Int,
 	_ bool,
-	args ...any,
+	denom string,
+	owner common.Address,
+	recipient common.Address,
+	amount *big.Int,
 ) ([]any, error) {
-	denom, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	owner, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	recipient, ok := utils.GetAs[common.Address](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[3])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
 	err := c.transferCoinToERC20(ctx, evm, value, denom, owner, recipient, amount)
 	return []any{err == nil}, err
 }
@@ -226,24 +191,11 @@ func (c *Contract) TransferCoinToERC20From0(
 	_ common.Address,
 	value *big.Int,
 	_ bool,
-	args ...any,
+	denom string,
+	ownerBech32 string,
+	recipientBech32 string,
+	amount *big.Int,
 ) ([]any, error) {
-	denom, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	ownerBech32, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	recipientBech32, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	amount, ok := utils.GetAs[*big.Int](args[3])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
 
 	owner, err := sdk.AccAddressFromBech32(ownerBech32)
 	if err != nil {
@@ -269,21 +221,10 @@ func (c *Contract) TransferCoinToERC20To(
 	caller common.Address,
 	value *big.Int,
 	_ bool,
-	args ...any,
+	denom string,
+	recipient common.Address,
+	amount *big.Int,
 ) ([]any, error) {
-	denom, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	recipient, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
 	err := c.transferCoinToERC20(ctx, evm, value, denom, caller, recipient, amount)
 	return []any{err == nil}, err
 }
@@ -295,21 +236,10 @@ func (c *Contract) TransferCoinToERC20To0(
 	caller common.Address,
 	value *big.Int,
 	_ bool,
-	args ...any,
+	denom string,
+	recipientBech32 string,
+	amount *big.Int,
 ) ([]any, error) {
-	denom, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	recipientBech32, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
 	recipient, err := sdk.AccAddressFromBech32(recipientBech32)
 	if err != nil {
 		return nil, err
@@ -330,77 +260,41 @@ func (c *Contract) TransferERC20ToCoin(
 	caller common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	token common.Address,
+	amount *big.Int,
 ) ([]any, error) {
-	token, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
 	err := c.transferERC20ToCoin(ctx, caller, evm, token, caller, caller, amount)
 	return []any{err == nil}, err
 }
 
 // TransferERC20ToCoinFrom transfers ERC20 tokens to SDK coins from owner to recipient.
-func (c *Contract) TransferERC20ToCoinFrom(
-	ctx context.Context,
-	evm ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	token, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	owner, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	recipient, ok := utils.GetAs[common.Address](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[3])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
-	err := c.transferERC20ToCoin(ctx, caller, evm, token, owner, recipient, amount)
-	return []any{err == nil}, err
-}
-
-// TransferERC20ToCoinFrom0 transfers ERC20 tokens to SDK coins from owner to recipient.
 func (c *Contract) TransferERC20ToCoinFrom0(
 	ctx context.Context,
 	evm ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	token common.Address,
+	owner common.Address,
+	recipient common.Address,
+	amount *big.Int,
 ) ([]any, error) {
-	token, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	ownerBech32, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	recipientBech32, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	amount, ok := utils.GetAs[*big.Int](args[3])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
+	err := c.transferERC20ToCoin(ctx, caller, evm, token, owner, recipient, amount)
+	return []any{err == nil}, err
+}
 
+// TransferERC20ToCoinFrom0 transfers ERC20 tokens to SDK coins from owner to recipient.
+func (c *Contract) TransferERC20ToCoinFrom(
+	ctx context.Context,
+	evm ethprecompile.EVM,
+	caller common.Address,
+	_ *big.Int,
+	_ bool,
+	token common.Address,
+	ownerBech32 string,
+	recipientBech32 string,
+	amount *big.Int,
+) ([]any, error) {
 	owner, err := sdk.AccAddressFromBech32(ownerBech32)
 	if err != nil {
 		return nil, err
@@ -425,21 +319,10 @@ func (c *Contract) TransferERC20ToCoinTo(
 	caller common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	token common.Address,
+	recipient common.Address,
+	amount *big.Int,
 ) ([]any, error) {
-	token, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	recipient, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
 	err := c.transferERC20ToCoin(ctx, caller, evm, token, caller, recipient, amount)
 	return []any{err == nil}, err
 }
@@ -451,21 +334,10 @@ func (c *Contract) TransferERC20ToCoinTo0(
 	caller common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	token common.Address,
+	recipientBech32 string,
+	amount *big.Int,
 ) ([]any, error) {
-	token, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	recipientBech32, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
 	recipient, err := sdk.AccAddressFromBech32(recipientBech32)
 	if err != nil {
 		return nil, err

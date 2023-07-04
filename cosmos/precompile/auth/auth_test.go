@@ -38,7 +38,6 @@ import (
 	. "github.com/onsi/gomega"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	"pkg.berachain.dev/polaris/cosmos/precompile/auth/mock"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -99,19 +98,6 @@ var _ = Describe("Address Precompile", func() {
 		// should probably put something here. utACK
 	})
 	When("Calling ConvertBech32ToHexAddress", func() {
-		It("should error if invalid type", func() {
-			res, err := contract.ConvertBech32ToHexAddress(
-				context.Background(),
-				nil,
-				common.Address{},
-				new(big.Int),
-				false,
-				common.BytesToAddress([]byte("invalid")),
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidString))
-			Expect(res).To(BeNil())
-		})
-
 		It("should error if invalid bech32 address", func() {
 			res, err := contract.ConvertBech32ToHexAddress(
 				context.Background(),
@@ -143,7 +129,6 @@ var _ = Describe("Address Precompile", func() {
 			evm              *mock.PrecompileEVMMock
 			granter, grantee common.Address
 			limit            sdk.Coins
-			nonExpiredTime   *big.Int
 		)
 
 		BeforeEach(func() {
@@ -164,69 +149,7 @@ var _ = Describe("Address Precompile", func() {
 			// Generate a limit.
 			limit = sdk.NewCoins(sdk.NewInt64Coin("test", 100))
 
-			// Set the expired/non-expired time.
-			nonExpiredTime = big.NewInt(50)
 			// expiredTime = big.NewInt(200)
-		})
-
-		It("should error if invalid granter", func() {
-			_, err := contract.SetSendAllowance(
-				context.Background(),
-				evm,
-				common.Address{},
-				new(big.Int),
-				false,
-				"invalid address",
-				grantee,
-				sdkCoinsToEvmCoins(limit),
-				nonExpiredTime,
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-		})
-
-		It("should error if invalid grantee", func() {
-			_, err := contract.SetSendAllowance(
-				context.Background(),
-				evm,
-				common.Address{},
-				new(big.Int),
-				false,
-				granter,
-				"invalid address",
-				sdkCoinsToEvmCoins(limit),
-				nonExpiredTime,
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-		})
-
-		It("should error if the limit is invalid", func() {
-			_, err := contract.SetSendAllowance(
-				context.Background(),
-				evm,
-				common.Address{},
-				new(big.Int),
-				false,
-				granter,
-				grantee,
-				"invalid limit",
-				nonExpiredTime,
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidCoin))
-		})
-
-		It("should error if the expiration is invalid", func() {
-			_, err := contract.SetSendAllowance(
-				context.Background(),
-				evm,
-				common.Address{},
-				new(big.Int),
-				false,
-				granter,
-				grantee,
-				sdkCoinsToEvmCoins(limit),
-				"invalid expiration",
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
 		})
 
 		It("should error if the expiration is before the current block time", func() {
@@ -238,7 +161,7 @@ var _ = Describe("Address Precompile", func() {
 				false,
 				granter,
 				grantee,
-				sdkCoinsToEvmCoins(limit),
+				(limit),
 				big.NewInt(1),
 			)
 			Expect(err).To(HaveOccurred())
@@ -253,7 +176,7 @@ var _ = Describe("Address Precompile", func() {
 				false,
 				granter,
 				grantee,
-				sdkCoinsToEvmCoins(limit),
+				(limit),
 				big.NewInt(110),
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -268,7 +191,7 @@ var _ = Describe("Address Precompile", func() {
 				false,
 				granter,
 				grantee,
-				sdkCoinsToEvmCoins(limit),
+				(limit),
 				new(big.Int),
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -285,54 +208,11 @@ var _ = Describe("Address Precompile", func() {
 					false,
 					granter,
 					grantee,
-					sdkCoinsToEvmCoins(limit),
+					(limit),
 					new(big.Int),
 				)
 				Expect(err).ToNot(HaveOccurred())
 			})
-
-			It("should error if invalid owner", func() {
-				_, err := contract.GetSendAllowance(
-					ctx,
-					evm,
-					common.Address{},
-					new(big.Int),
-					true,
-					"invalid address",
-					grantee,
-					"test",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-			})
-
-			It("should error if invalid spender", func() {
-				_, err := contract.GetSendAllowance(
-					ctx,
-					evm,
-					common.Address{},
-					new(big.Int),
-					true,
-					granter,
-					"invalid address",
-					"test",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-			})
-
-			It("should error if invalid denom string", func() {
-				_, err := contract.GetSendAllowance(
-					ctx,
-					evm,
-					common.Address{},
-					new(big.Int),
-					true,
-					granter,
-					grantee,
-					1,
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-			})
-
 			It("should get the spend allowance", func() {
 				res, err := contract.GetSendAllowance(
 					ctx,
@@ -353,7 +233,7 @@ var _ = Describe("Address Precompile", func() {
 })
 
 // TODO: move to utils since also used by bank.
-func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
+func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
 	Amount *big.Int `json:"amount"`
 	Denom  string   `json:"denom"`
 } {

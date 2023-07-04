@@ -35,7 +35,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // requiredGas is the amount required to convert between eth addresses and bech32 cosmos addresses.
@@ -95,26 +94,46 @@ func (c *Contract) ConvertBech32ToHexAddress(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	account string,
 ) ([]any, error) {
-	bech32Addr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
 
 	// try account address first
-	accAddr, err := sdk.AccAddressFromBech32(bech32Addr)
+	accAddr, err := sdk.AccAddressFromBech32(account)
 	if err == nil {
 		return []any{cosmlib.AccAddressToEthAddress(accAddr)}, nil
 	}
 
 	// try validator address
-	valAddr, err := sdk.ValAddressFromBech32(bech32Addr)
+	valAddr, err := sdk.ValAddressFromBech32(account)
 	if err == nil {
 		return []any{cosmlib.ValAddressToEthAddress(valAddr)}, nil
 	}
 
 	return nil, precompile.ErrInvalidBech32Address
+}
+
+// GetAccountInfoAddrInput implements `getAccountInfo(string)`.
+func (c *Contract) GetAccountInfo(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	address string,
+) ([]any, error) {
+	return c.accountInfoHelper(ctx, address)
+}
+
+// GetAccountInfoStringInput implements `getAccountInfo(address)`.
+func (c *Contract) GetAccountInfo0(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	account common.Address,
+) ([]any, error) {
+	return c.accountInfoHelper(ctx, cosmlib.Bech32FromEthAddress(account))
 }
 
 // SetSendAllowance sends a send authorization message to the authz module.
@@ -124,24 +143,11 @@ func (c *Contract) SetSendAllowance(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	owner common.Address,
+	spender common.Address,
+	amount sdk.Coins,
+	expiration *big.Int,
 ) ([]any, error) {
-	owner, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	spender, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, err := cosmlib.ExtractCoinsFromInput(args[2])
-	if err != nil {
-		return nil, err
-	}
-	expiration, ok := utils.GetAs[*big.Int](args[3])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
 
 	return c.setSendAllowanceHelper(
 		ctx,
@@ -160,21 +166,10 @@ func (c *Contract) GetSendAllowance(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	owner common.Address,
+	spender common.Address,
+	denom string,
 ) ([]any, error) {
-	owner, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	spender, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	denom, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-
 	return c.getSendAllownaceHelper(
 		ctx,
 		time.Unix(int64(evm.GetContext().Time), 0),
@@ -198,38 +193,4 @@ func getHighestAllowance(sendAuths []*banktypes.SendAuthorization, coinDenom str
 		}
 	}
 	return max
-}
-
-// GetAccountInfoAddrInput implements `getAccountInfo(string)`.
-func (c *Contract) GetAccountInfo(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-
-	acc, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	return c.accountInfoHelper(ctx, acc)
-}
-
-// GetAccountInfoStringInput implements `getAccountInfo(address)`.
-func (c *Contract) GetAccountInfo0(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-
-	acc, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	return c.accountInfoHelper(ctx, cosmlib.Bech32FromEthAddress(acc))
 }

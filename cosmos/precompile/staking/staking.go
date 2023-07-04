@@ -57,6 +57,76 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 	}
 }
 
+// GetActiveValidators implements the `getActiveValidators()` method.
+func (c *Contract) GetActiveValidators(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+) ([]any, error) {
+	return c.activeValidatorsHelper(ctx)
+}
+
+// GetValidators implements the `getValidators()` method.
+func (c *Contract) GetValidators(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+) ([]any, error) {
+	return c.validatorsHelper(ctx)
+}
+
+// GetValidators implements the `getValidator(address)` method.
+func (c *Contract) GetValidator(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	validatorAddr []byte,
+) ([]any, error) {
+	return c.validatorHelper(ctx, sdk.ValAddress(validatorAddr[:]).String())
+}
+
+// GetValidators implements the `getValidator(string)` method.
+func (c *Contract) GetValidator0(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	validatorAddressBech32 string,
+) ([]any, error) {
+	return c.validatorHelper(ctx, validatorAddressBech32)
+}
+
+// GetDelegatorValidators implements the `getDelegatorValidators(address)` method.
+func (c *Contract) GetDelegatorValidators(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	delegatorAddr common.Address,
+) ([]any, error) {
+	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr))
+}
+
+// GetDelegatorValidators0 implements the `getDelegatorValidators(string)` method.
+func (c *Contract) GetDelegatorValidators0(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	delAddrBech32 string,
+) ([]any, error) {
+	return c.delegatorValidatorsHelper(ctx, delAddrBech32)
+}
+
 // GetDelegation implements `getDelegation(address)` method.
 func (c *Contract) GetDelegation(
 	ctx context.Context,
@@ -87,73 +157,51 @@ func (c *Contract) GetDelegation0(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	delegatorAddressBech32 string,
+	validatorAddressBech32 string,
 ) ([]any, error) {
-	bech32DelAddr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	del, err := sdk.AccAddressFromBech32(bech32DelAddr)
+	delegator, err := sdk.AccAddressFromBech32(delegatorAddressBech32)
 	if err != nil {
 		return nil, err
 	}
-	bech32ValAddr, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	val, err := sdk.ValAddressFromBech32(bech32ValAddr)
+	validator, err := sdk.ValAddressFromBech32(validatorAddressBech32)
 	if err != nil {
 		return nil, err
 	}
 
-	return c.getDelegationHelper(ctx, del, val)
+	return c.getDelegationHelper(ctx, delegator, validator)
 }
 
-// GetUnbondingDelegation implements the `getUnbondingDelegation(address)` method.
+// GetUnbondingDelegation implements the `getUnbondingDelegation(address,address)` method.
 func (c *Contract) GetUnbondingDelegation(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	delegatorAddress common.Address,
+	validatorAddress common.Address,
 ) ([]any, error) {
-	del, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	val, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
 	return c.getUnbondingDelegationHelper(
-		ctx, cosmlib.AddressToAccAddress(del), cosmlib.AddressToValAddress(val),
+		ctx, cosmlib.AddressToAccAddress(delegatorAddress), cosmlib.AddressToValAddress(validatorAddress),
 	)
 }
 
-// GetUnbondingDelegation0 implements the `getUnbondingDelegation(string)` method.
+// GetUnbondingDelegation0 implements the `getUnbondingDelegation(string,string)` method.
 func (c *Contract) GetUnbondingDelegation0(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	delegatorAddressBech32 string,
+	validatorAddressBech32 string,
 ) ([]any, error) {
-	bech32DelAddr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	del, err := sdk.AccAddressFromBech32(bech32DelAddr)
+	del, err := sdk.AccAddressFromBech32(delegatorAddressBech32)
 	if err != nil {
 		return nil, err
 	}
-	bech32ValAddr, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	val, err := sdk.ValAddressFromBech32(bech32ValAddr)
+	val, err := sdk.ValAddressFromBech32(validatorAddressBech32)
 	if err != nil {
 		return nil, err
 	}
@@ -168,26 +216,15 @@ func (c *Contract) GetRedelegations(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	delegatorAddress common.Address,
+	srcValidator common.Address,
+	dstValidator common.Address,
 ) ([]any, error) {
-	del, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	srcVal, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	dstVal, ok := utils.GetAs[common.Address](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
 	return c.getRedelegationsHelper(
 		ctx,
-		cosmlib.AddressToAccAddress(del),
-		cosmlib.AddressToValAddress(srcVal),
-		cosmlib.AddressToValAddress(dstVal),
+		cosmlib.AddressToAccAddress(delegatorAddress),
+		cosmlib.AddressToValAddress(srcValidator),
+		cosmlib.AddressToValAddress(dstValidator),
 	)
 }
 
@@ -198,29 +235,19 @@ func (c *Contract) GetRedelegations0(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	delegatorAddressBech32 string,
+	srcValidatorAddressBech32 string,
+	dstValidatorAddressBech32 string,
 ) ([]any, error) {
-	bech32DelAddr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	srcVal, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	dstVal, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	del, err := sdk.AccAddressFromBech32(bech32DelAddr)
+	del, err := sdk.AccAddressFromBech32(delegatorAddressBech32)
 	if err != nil {
 		return nil, err
 	}
-	src, err := sdk.ValAddressFromBech32(srcVal)
+	src, err := sdk.ValAddressFromBech32(srcValidatorAddressBech32)
 	if err != nil {
 		return nil, err
 	}
-	dst, err := sdk.ValAddressFromBech32(dstVal)
+	dst, err := sdk.ValAddressFromBech32(dstValidatorAddressBech32)
 	if err != nil {
 		return nil, err
 	}
@@ -235,18 +262,10 @@ func (c *Contract) Delegate(
 	caller common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	validatorAddress common.Address,
+	amount *big.Int,
 ) ([]any, error) {
-	val, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
-	return c.delegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
+	return c.delegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(validatorAddress))
 }
 
 // Delegate0 implements the `delegate(string,uint256)` method.
@@ -256,18 +275,10 @@ func (c *Contract) Delegate0(
 	caller common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	validatorAddressBech32 string,
+	amount *big.Int,
 ) ([]any, error) {
-	bech32Addr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	amount, ok := utils.GetAs[*big.Int](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
-	val, err := sdk.ValAddressFromBech32(bech32Addr)
+	val, err := sdk.ValAddressFromBech32(validatorAddressBech32)
 	if err != nil {
 		return nil, err
 	}
@@ -282,18 +293,10 @@ func (c *Contract) Undelegate(
 	caller common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	validatorAddress common.Address,
+	amount *big.Int,
 ) ([]any, error) {
-	val, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
-	return c.undelegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
+	return c.undelegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(validatorAddress))
 }
 
 // Undelegate0 implements the `undelegate(string,uint256)` method.
@@ -303,18 +306,10 @@ func (c *Contract) Undelegate0(
 	caller common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	validatorAddressBech32 string,
+	amount *big.Int,
 ) ([]any, error) {
-	bech32Addr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	amount, ok := utils.GetAs[*big.Int](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
-	val, err := sdk.ValAddressFromBech32(bech32Addr)
+	val, err := sdk.ValAddressFromBech32(validatorAddressBech32)
 	if err != nil {
 		return nil, err
 	}
@@ -329,27 +324,16 @@ func (c *Contract) BeginRedelegate(
 	caller common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	srcValidator common.Address,
+	dstValidator common.Address,
+	amount *big.Int,
 ) ([]any, error) {
-	srcVal, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	dstVal, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
 	return c.beginRedelegateHelper(
 		ctx,
 		caller,
 		amount,
-		cosmlib.AddressToValAddress(srcVal),
-		cosmlib.AddressToValAddress(dstVal),
+		cosmlib.AddressToValAddress(srcValidator),
+		cosmlib.AddressToValAddress(dstValidator),
 	)
 }
 
@@ -360,26 +344,15 @@ func (c *Contract) BeginRedelegate0(
 	caller common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	srcValidatorBech32 string,
+	dstValidatorBech32 string,
+	amount *big.Int,
 ) ([]any, error) {
-	srcVal, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	dstVal, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
-	src, err := sdk.ValAddressFromBech32(srcVal)
+	src, err := sdk.ValAddressFromBech32(srcValidatorBech32)
 	if err != nil {
 		return nil, err
 	}
-	dst, err := sdk.ValAddressFromBech32(dstVal)
+	dst, err := sdk.ValAddressFromBech32(dstValidatorBech32)
 	if err != nil {
 		return nil, err
 	}
@@ -394,22 +367,11 @@ func (c *Contract) CancelUnbondingDelegation(
 	caller common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	validatorAddress common.Address,
+	amount *big.Int,
+	creationHeight int64,
 ) ([]any, error) {
-	val, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-	creationHeight, ok := utils.GetAs[int64](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidInt64
-	}
-
-	return c.cancelUnbondingDelegationHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val), creationHeight)
+	return c.cancelUnbondingDelegationHelper(ctx, caller, amount, cosmlib.AddressToValAddress(validatorAddress), creationHeight)
 }
 
 // CancelRedelegate0 implements the `cancelRedelegate(string,string,uint256,int64)` method.
@@ -419,117 +381,13 @@ func (c *Contract) CancelUnbondingDelegation0(
 	caller common.Address,
 	_ *big.Int,
 	_ bool,
-	args ...any,
+	validatorAddressBech32 string,
+	amount *big.Int,
+	creationHeight int64,
 ) ([]any, error) {
-	bech32Addr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	amount, ok := utils.GetAs[*big.Int](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-	creationHeight, ok := utils.GetAs[int64](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidInt64
-	}
-
-	val, err := sdk.ValAddressFromBech32(bech32Addr)
+	val, err := sdk.ValAddressFromBech32(validatorAddressBech32)
 	if err != nil {
 		return nil, err
 	}
-
 	return c.cancelUnbondingDelegationHelper(ctx, caller, amount, val, creationHeight)
-}
-
-// GetActiveValidators implements the `getActiveValidators()` method.
-func (c *Contract) GetActiveValidators(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	_ ...any,
-) ([]any, error) {
-	return c.activeValidatorsHelper(ctx)
-}
-
-// GetValidators implements the `getValidators()` method.
-func (c *Contract) GetValidators(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	_ ...any,
-) ([]any, error) {
-	return c.validatorsHelper(ctx)
-}
-
-// GetValidators implements the `getValidator(address)` method.
-func (c *Contract) GetValidator(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	val, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
-	return c.validatorHelper(ctx, sdk.ValAddress(val[:]).String())
-}
-
-// GetValidators implements the `getValidator(string)` method.
-func (c *Contract) GetValidator0(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	valBech32, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-
-	return c.validatorHelper(ctx, valBech32)
-}
-
-// GetDelegatorValidators implements the `getDelegatorValidators(address)` method.
-func (c *Contract) GetDelegatorValidators(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	del, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
-	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(del))
-}
-
-// GetDelegatorValidators0 implements the `getDelegatorValidators(string)` method.
-func (c *Contract) GetDelegatorValidators0(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	delBech32, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-
-	return c.delegatorValidatorsHelper(ctx, delBech32)
 }
