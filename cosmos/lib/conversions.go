@@ -59,7 +59,7 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
 	// the any type input into IBankModuleCoin.
 	amounts, ok := utils.GetAs[[]struct {
-		Amount *big.Int `json:"amount"`
+		Amount *big .Int `json:"amount"`
 		Denom  string   `json:"denom"`
 	}](coins)
 	if !ok {
@@ -198,5 +198,36 @@ func SdkAccountToAuthAccount(acc sdk.AccountI) auth.IAuthModuleBaseAccount {
 		PubKey:        pubKey,
 		AccountNumber: acc.GetAccountNumber(),
 		Sequence:      acc.GetSequence(),
+	}
+}
+
+// EmptyValidator returns an empty validator.
+func EmptyValidator() staking.IStakingModuleValidator {
+	return staking.IStakingModuleValidator{
+		OperatorAddress: "",
+		ConsensusPubkey: []byte{},
+		Jailed:          false,
+		Status:          "",
+		Tokens:          new(big.Int),
+		DelegatorShares: new(big.Int),
+		Description: staking.IStakingModuleDescription{
+			Moniker:         "",
+			Identity:        "",
+			Website:         "",
+			SecurityContact: "",
+			Details:         "",
+		},
+		UnbondingHeight: 0,
+		UnbondingTime:   "",
+		Commission: staking.IStakingModuleCommission{
+			CommissionRates: staking.IStakingModuleCommissionRates{
+				Rate:          new(big.Int),
+				MaxRate:       new(big.Int),
+				MaxChangeRate: new(big.Int),
+			},
+		},
+		MinSelfDelegation:       new(big.Int),
+		UnbondingOnHoldRefCount: 0,
+		UnbondingIds:            []uint64{},
 	}
 }
