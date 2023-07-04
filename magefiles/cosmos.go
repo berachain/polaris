@@ -27,6 +27,7 @@ package main
 
 import (
 	"runtime"
+	"strings"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -132,12 +133,14 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 		"platform", "linux"+"/"+arch,
 		"tag", tag,
 	)
+
 	return dockerBuildFn(withX)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--platform", "linux/"+arch,
 		"--build-arg", "PRECOMPILE_CONTRACTS_DIR="+precompileContractsDir,
 		"--build-arg", "GOOS=linux",
 		"--build-arg", "GOARCH="+arch,
+		"--build-arg", "GO_WORK="+strings.Join(moduleDirs, " "),
 		"-f", dockerFilePath,
 		"-t", tag,
 		".",
@@ -218,8 +221,11 @@ func (c Cosmos) DockerBuildHive() error {
 }
 
 func (c Cosmos) TestHive(sim string) error {
-	if err := c.DockerBuildHive(); err != nil {
-		return err
+	if out, _ := sh.Output("docker", "images", "-q", "polard-base:test-hive"); out == "" {
+		LogGreen("No existing hive docker image found, building...")
+		if err := c.DockerBuildHive(); err != nil {
+			return err
+		}
 	}
 
 	if err := (Hive{}).Setup(); err != nil {
