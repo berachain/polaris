@@ -174,13 +174,14 @@ type mockObject struct {
 
 func getOutput(
 	_ *mockStateful,
-	_ context.Context,
+	ctx context.Context,
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
 	args ...any,
 ) ([]any, error) {
+	_ = ctx
 	str, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, errors.New("cast error")
@@ -197,25 +198,27 @@ func getOutput(
 
 func getOutputPartial(
 	_ *mockStateful,
-	_ context.Context,
+	ctx context.Context,
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
 	_ ...any,
 ) ([]any, error) {
+	_ = ctx
 	return nil, errors.New("err during precompile execution")
 }
 
 func contractFuncAddrInput(
 	_ *mockStateful,
-	_ context.Context,
+	ctx context.Context,
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
 	args ...any,
 ) ([]any, error) {
+	_ = ctx
 	_, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
 		return nil, errors.New("cast error")
@@ -225,13 +228,14 @@ func contractFuncAddrInput(
 
 func contractFuncStrInput(
 	_ *mockStateful,
-	_ context.Context,
+	ctx context.Context,
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
 	args ...any,
 ) ([]any, error) {
+	_ = ctx
 	addr, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, errors.New("cast error")

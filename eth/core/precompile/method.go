@@ -90,7 +90,7 @@ func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 	}
 
 	// Build argument list
-	var reflectedUnpackedArgs []reflect.Value // needed for .Call(...)
+	reflectedUnpackedArgs := make([]reflect.Value, 0, len(unpackedArgs))
 	for _, unpacked := range unpackedArgs {
 		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
 	}
@@ -110,7 +110,10 @@ func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if !results[1].IsNil() {
-		if err = results[1].Interface().(error); err != nil {
+		if errInterface := results[1].Interface(); errInterface != nil {
+			err, _ = errInterface.(error)
+		}
+		if err != nil {
 			return nil, errors.Wrapf(
 				vm.ErrExecutionReverted,
 				"vm error [%v] occurred during precompile execution of [%s]",

@@ -25,6 +25,7 @@ import (
 	"unicode"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
+
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -155,8 +156,8 @@ func (sf *StatefulFactory) buildIdsToMethods(
 }
 
 // GeneratePrecompileMethods generates the methods for the given Precompile's ABI.
-func GeneratePrecompileMethods(ABI map[string]abi.Method, contractImpl reflect.Value) (Methods, error) {
-	return suitableMethods(ABI, contractImpl)
+func GeneratePrecompileMethods(abiMethods map[string]abi.Method, contractImpl reflect.Value) (Methods, error) {
+	return suitableMethods(abiMethods, contractImpl)
 }
 
 // This function matches each Go implementation of the Precompile
@@ -165,7 +166,6 @@ func GeneratePrecompileMethods(ABI map[string]abi.Method, contractImpl reflect.V
 // It then performs some basic validation on the implemented function
 // Then, the implemented function's arguments are checked against the ABI's arguments' types.
 func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (Methods, error) {
-
 	contractImplType := contractImpl.Type()
 	var methods Methods
 	for m := 0; m < contractImplType.NumMethod(); m++ { // iterate through all of the impl's methods
@@ -197,11 +197,18 @@ func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (M
 }
 
 // As each contractImpl is also  BaseContract, we need to ignore the methods that are in the BaseContract.
-// since we only care about the implementation methods, not any underlying methods from inheritence/composition.
+// since we only care about the implementation methods, not any underlying methods from inheritance/composition.
 // We also need to ignore the methods that are not exported.
 // TODO: there has to be a cleaner way
 func isBaseContractMethodOrUnexported(implMethod reflect.Method) bool {
-	return implMethod.Name == "RegistryKey" || implMethod.Name == "ABIMethods" || implMethod.Name == "ABIEvents" || implMethod.Name == "CustomValueDecoders" || implMethod.Name == "PrecompileMethods" || implMethod.Name == "SetPlugin" || implMethod.Name == "GetPlugin" || implMethod.PkgPath != ""
+	return implMethod.Name == "RegistryKey" ||
+		implMethod.Name == "ABIMethods" ||
+		implMethod.Name == "ABIEvents" ||
+		implMethod.Name == "CustomValueDecoders" ||
+		implMethod.Name == "PrecompileMethods" ||
+		implMethod.Name == "SetPlugin" ||
+		implMethod.Name == "GetPlugin" ||
+		implMethod.PkgPath != ""
 }
 
 // this is a helper function that checks three things:

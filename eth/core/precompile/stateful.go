@@ -83,7 +83,9 @@ func (sc *stateful) Run(
 	}
 
 	// Get args ready for precompile call.
-	// TODO, remove most of these args. In the future , we should only need the arguments from the method according to the ABI and a context rather than all of these.
+	// TODO, remove most of these args.
+	// In the future , we should only need the arguments from the method according to the ABI
+	// and a context rather than all of these.
 	return method.Call(
 		[]reflect.Value{
 			reflect.ValueOf(sc.Registrable),
