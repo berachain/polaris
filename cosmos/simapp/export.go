@@ -75,7 +75,7 @@ func (app *SimApp) ExportAppStateAndValidators(forZeroHeight bool,
 //
 //	in favor of export at a block height
 //
-//nolint:funlen,gocognit,gocyclo // from sdk.
+//nolint:funlen,gocognit,gocyclo,cyclop // from sdk.
 func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
 	applyAllowedAddrs := false
 
