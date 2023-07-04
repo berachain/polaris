@@ -140,7 +140,7 @@ var _ = Describe("Staking", func() {
 			stakingkeeper.TestingUpdateValidator(&sk, ctx, otherValidator, true)
 
 			delegation := stakingtypes.NewDelegation(del, val, sdkmath.LegacyNewDec(9))
-			sk.SetDelegation(ctx, delegation)
+			Expect(sk.SetDelegation(ctx, delegation)).To(Succeed())
 
 			// Check that the delegation was created.
 			res, err := sk.GetDelegation(ctx, del, val)
