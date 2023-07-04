@@ -219,10 +219,10 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 	}
 
 	// Iterate over all validators and return their addresses.
-	var addrs []common.Address
-	for _, val := range res.GetValidators() {
+	addrs := make([]common.Address, len(res.Validators))
+	for i, val := range res.GetValidators() {
 		if val.OperatorAddress == "" {
-			addrs = append(addrs, common.Address{})
+			addrs[i] = common.Address{}
 			continue
 		}
 		var valAddr sdk.ValAddress
@@ -230,7 +230,7 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 		if err != nil {
 			return nil, err
 		}
-		addrs = append(addrs, cosmlib.ValAddressToEthAddress(valAddr))
+		addrs[i] = cosmlib.ValAddressToEthAddress(valAddr)
 	}
 	return []any{addrs}, nil
 }
