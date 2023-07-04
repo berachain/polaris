@@ -79,9 +79,9 @@ func (p *plugin) GetNewBlockMetadata(number uint64) (common.Address, uint64) {
 		panic(fmt.Errorf("block height mismatch. got: %d, expected %d", cometHeader.Height, number))
 	}
 
-	val, found := p.sk.GetValidatorByConsAddr(p.ctx, cometHeader.ProposerAddress)
-	if !found {
-		panic(fmt.Errorf("validator not found: %s", cometHeader.ProposerAddress))
+	val, err := p.sk.GetValidatorByConsAddr(p.ctx, cometHeader.ProposerAddress)
+	if err != nil {
+		panic(err)
 	}
 	return common.BytesToAddress(val.GetOperator()), uint64(cometHeader.Time.UTC().Unix())
 }

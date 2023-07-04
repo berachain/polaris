@@ -141,6 +141,8 @@ func SetupMinimalKeepers() (
 			govtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 			distrtypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		},
+		encodingConfig.InterfaceRegistry.SigningContext().AddressCodec(),
+		encodingConfig.InterfaceRegistry.SigningContext().ValidatorAddressCodec(),
 		types.Bech32Prefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
@@ -156,7 +158,7 @@ func SetupMinimalKeepers() (
 
 	sk := stakingkeeper.NewKeeper(
 		encodingConfig.Codec,
-		StakingKey,
+		runtime.NewKVStoreService(StakingKey),
 		ak,
 		bk,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
