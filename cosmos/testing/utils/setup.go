@@ -30,6 +30,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	codectestutil "github.com/cosmos/cosmos-sdk/codec/testutil"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -141,6 +142,9 @@ func SetupMinimalKeepers() (
 			govtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 			distrtypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		},
+		// TODO: switch to eip-55 fuck bech32.
+		addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
+		addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		types.Bech32Prefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
@@ -156,7 +160,7 @@ func SetupMinimalKeepers() (
 
 	sk := stakingkeeper.NewKeeper(
 		encodingConfig.Codec,
-		StakingKey,
+		runtime.NewKVStoreService(StakingKey),
 		ak,
 		bk,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
