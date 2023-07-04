@@ -59,7 +59,7 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
 	// the any type input into IBankModuleCoin.
 	amounts, ok := utils.GetAs[[]struct {
-		Amount *big .Int `json:"amount"`
+		Amount *big.Int `json:"amount"`
 		Denom  string   `json:"denom"`
 	}](coins)
 	if !ok {
