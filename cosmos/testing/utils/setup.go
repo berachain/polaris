@@ -25,8 +25,8 @@ import (
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-
 	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -141,8 +141,9 @@ func SetupMinimalKeepers() (
 			govtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 			distrtypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		},
-		encodingConfig.InterfaceRegistry.SigningContext().AddressCodec(),
-		encodingConfig.InterfaceRegistry.SigningContext().ValidatorAddressCodec(),
+		// TODO: switch to eip-55 fuck bech32.
+		addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
+		addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		types.Bech32Prefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
