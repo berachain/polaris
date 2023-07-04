@@ -18,6 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
+//nolint:errcheck // from sdk.
 package simapp
 
 import (
@@ -106,9 +107,9 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 	})
 
 	// withdraw all delegator rewards
-	dels, err := app.StakingKeeper.GetAllDelegations(ctx)
-	if err != nil {
-		log.Fatal(err)
+	dels, delErr := app.StakingKeeper.GetAllDelegations(ctx)
+	if delErr != nil {
+		log.Fatal(delErr)
 	}
 	for _, delegation := range dels {
 		valAddr, err := sdk.ValAddressFromBech32(delegation.ValidatorAddress)

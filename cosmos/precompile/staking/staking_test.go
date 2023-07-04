@@ -143,8 +143,8 @@ var _ = Describe("Staking", func() {
 			sk.SetDelegation(ctx, delegation)
 
 			// Check that the delegation was created.
-			res, found := sk.GetDelegation(ctx, del, val)
-			Expect(found).To(BeTrue())
+			res, err := sk.GetDelegation(ctx, del, val)
+			Expect(err).To(BeNil())
 			Expect(res).To(Equal(delegation))
 
 			// Set the denom.
