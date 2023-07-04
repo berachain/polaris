@@ -15,7 +15,7 @@
 
 ARG GO_VERSION
 ARG GOARCH=arm64
-ARG GOOS=darwin
+ARG GOOS=linux
 ARG BASE_IMAGE
 ARG GENESIS_PATH
 
@@ -31,6 +31,6 @@ WORKDIR /
 COPY . .
 
 # Export the usual networking ports to allow outside access to the node
-EXPOSE 8545 8546 8547 8551 30303 30303/udp
+EXPOSE 8545 8546 8547 8551
 
 CMD ["bash", "init.sh"]

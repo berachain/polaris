@@ -16,7 +16,7 @@
 
 ARG GO_VERSION
 ARG GOARCH=arm64
-ARG GOOS=darwin
+ARG GOOS=linux
 ARG POLARD_VERSION=v0.0.0
 
 #######################################################
