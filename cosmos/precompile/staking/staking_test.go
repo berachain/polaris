@@ -114,11 +114,12 @@ var _ = Describe("Staking", func() {
 
 	When("Calling Precompile Methods", func() {
 		var (
-			del       sdk.AccAddress
-			val       sdk.ValAddress
-			validator stakingtypes.Validator
-			otherVal  sdk.ValAddress
-			caller    common.Address
+			del            sdk.AccAddress
+			val            sdk.ValAddress
+			validator      stakingtypes.Validator
+			otherValidator stakingtypes.Validator
+			otherVal       sdk.ValAddress
+			caller         common.Address
 		)
 
 		BeforeEach(func() {
@@ -129,14 +130,18 @@ var _ = Describe("Staking", func() {
 			amount, ok := new(big.Int).SetString("22000000000000000000", 10) // 22 tokens.
 			Expect(ok).To(BeTrue())
 			var err error
+
 			validator, err = NewValidator(val, PKs[0])
 			Expect(err).ToNot(HaveOccurred())
-			otherValidator, err := NewValidator(otherVal, PKs[1])
+
+			otherValidator, err = NewValidator(otherVal, PKs[1])
 			Expect(err).ToNot(HaveOccurred())
+
 			validator, _ = validator.AddTokensFromDel(sdkmath.NewIntFromBigInt(amount))
 			otherValidator, _ = otherValidator.AddTokensFromDel(sdkmath.NewIntFromBigInt(amount))
+
 			validator = stakingkeeper.TestingUpdateValidator(&sk, ctx, validator, true)
-			stakingkeeper.TestingUpdateValidator(&sk, ctx, otherValidator, true)
+			otherValidator = stakingkeeper.TestingUpdateValidator(&sk, ctx, otherValidator, true)
 
 			delegation := stakingtypes.NewDelegation(del, val, sdkmath.LegacyNewDec(9))
 			sk.SetDelegation(ctx, delegation)
@@ -496,7 +501,7 @@ var _ = Describe("Staking", func() {
 		})
 
 		When("GetRedelegations", func() {
-			FIt("should succeed", func() {
+			It("should succeed", func() {
 
 				amount, ok := new(big.Int).SetString("220000000000000000000", 10)
 				Expect(ok).To(BeTrue())
@@ -524,6 +529,16 @@ var _ = Describe("Staking", func() {
 				Expect(utils.MustGetAs[bool](ret[0])).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 
+				ret, err = contract.GetDelegation(ctx, nil, caller,
+					big.NewInt(0),
+					true,
+					caller,
+					cosmlib.ValAddressToEthAddress(val),
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(utils.MustGetAs[*big.Int](ret[0]).Cmp(new(big.Int).Add(amount, big.NewInt(9)))).To(Equal(0))
+
 				ret, err = contract.BeginRedelegate(
 					ctx,
 					nil,
@@ -536,6 +551,15 @@ var _ = Describe("Staking", func() {
 				)
 				Expect(utils.MustGetAs[bool](ret[0])).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
+
+				ret, err = contract.GetDelegation(ctx, nil, caller,
+					big.NewInt(0),
+					true,
+					caller,
+					cosmlib.ValAddressToEthAddress(val),
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(utils.MustGetAs[*big.Int](ret[0]).Cmp(big.NewInt(9))).To(Equal(0))
 
 				ret, err = contract.GetDelegation(ctx, nil, caller,
 					big.NewInt(0),
