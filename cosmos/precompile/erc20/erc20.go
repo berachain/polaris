@@ -84,7 +84,6 @@ func (c *Contract) CoinDenomForERC20Address(
 	_ bool,
 	token common.Address,
 ) ([]any, error) {
-
 	resp, err := c.em.CoinDenomForERC20Address(
 		ctx,
 		&erc20types.CoinDenomForERC20AddressRequest{
@@ -107,7 +106,6 @@ func (c *Contract) CoinDenomForERC20Address0(
 	_ bool,
 	token string,
 ) ([]any, error) {
-
 	resp, err := c.em.CoinDenomForERC20Address(
 		ctx,
 		&erc20types.CoinDenomForERC20AddressRequest{
@@ -130,7 +128,6 @@ func (c *Contract) ERC20AddressForCoinDenom(
 	_ bool,
 	denom string,
 ) ([]any, error) {
-
 	resp, err := c.em.ERC20AddressForCoinDenom(
 		ctx,
 		&erc20types.ERC20AddressForCoinDenomRequest{
@@ -163,7 +160,6 @@ func (c *Contract) TransferCoinToERC20(
 	denom string,
 	amount *big.Int,
 ) ([]any, error) {
-
 	err := c.transferCoinToERC20(ctx, evm, value, denom, caller, caller, amount)
 	return []any{err == nil}, err
 }
@@ -196,7 +192,6 @@ func (c *Contract) TransferCoinToERC20From0(
 	recipientBech32 string,
 	amount *big.Int,
 ) ([]any, error) {
-
 	owner, err := sdk.AccAddressFromBech32(ownerBech32)
 	if err != nil {
 		return nil, err

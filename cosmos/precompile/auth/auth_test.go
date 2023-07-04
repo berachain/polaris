@@ -34,8 +34,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile/auth"
@@ -46,6 +44,9 @@ import (
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestAddressPrecompile(t *testing.T) {
@@ -87,7 +88,9 @@ var _ = Describe("Address Precompile", func() {
 	})
 
 	It("should match the precompile methods", func() {
-		Expect(ethprecompile.GeneratePrecompileMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(len(contract.ABIMethods())))
+		Expect(
+			ethprecompile.GeneratePrecompileMethods(contract.ABIMethods(), reflect.ValueOf(contract))).
+			To(HaveLen(len(contract.ABIMethods())))
 	})
 
 	It("custom value decoder should be no-op", func() {

@@ -102,7 +102,6 @@ func (c *Contract) WithdrawDelegatorReward(
 	delegator common.Address,
 	validator common.Address,
 ) ([]any, error) {
-
 	return c.withdrawDelegatorRewardsHelper(ctx, sdk.AccAddress(delegator.Bytes()), sdk.ValAddress(validator.Bytes()))
 }
 

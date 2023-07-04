@@ -139,7 +139,6 @@ func (c *Contract) GetProposal(
 	_ bool,
 	proposalID uint64,
 ) ([]any, error) {
-
 	return c.getProposalHelper(ctx, proposalID)
 }
 
@@ -152,7 +151,6 @@ func (c *Contract) GetProposals(
 	_ bool,
 	proposalStatus int32,
 ) ([]any, error) {
-
 	return c.getProposalsHelper(ctx, proposalStatus)
 }
 

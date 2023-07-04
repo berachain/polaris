@@ -64,7 +64,6 @@ func (c *Contract) GetBalance(
 	accountAddress common.Address,
 	denom string,
 ) ([]any, error) {
-
 	res, err := c.querier.Balance(ctx, &banktypes.QueryBalanceRequest{
 		Address: cosmlib.Bech32FromEthAddress(accountAddress),
 		Denom:   denom,
@@ -86,7 +85,6 @@ func (c *Contract) GetAllBalances(
 	_ bool,
 	accountAddress common.Address,
 ) ([]any, error) {
-
 	// todo: add pagination here
 	res, err := c.querier.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
 		Address: cosmlib.Bech32FromEthAddress(accountAddress),
@@ -108,7 +106,6 @@ func (c *Contract) GetSpendableBalance(
 	accountAddress common.Address,
 	denom string,
 ) ([]any, error) {
-
 	res, err := c.querier.SpendableBalanceByDenom(ctx, &banktypes.QuerySpendableBalanceByDenomRequest{
 		Address: cosmlib.Bech32FromEthAddress(accountAddress),
 		Denom:   denom,
@@ -130,7 +127,6 @@ func (c *Contract) GetAllSpendableBalances(
 	_ bool,
 	accountAddress common.Address,
 ) ([]any, error) {
-
 	res, err := c.querier.SpendableBalances(ctx, &banktypes.QuerySpendableBalancesRequest{
 		Address: cosmlib.Bech32FromEthAddress(accountAddress),
 	})
@@ -150,7 +146,6 @@ func (c *Contract) GetSupply(
 	_ bool,
 	denom string,
 ) ([]any, error) {
-
 	res, err := c.querier.SupplyOf(ctx, &banktypes.QuerySupplyOfRequest{
 		Denom: denom,
 	})
@@ -188,7 +183,6 @@ func (c *Contract) GetDenomMetadata(
 	_ bool,
 	denom string,
 ) ([]any, error) {
-
 	res, err := c.querier.DenomMetadata(ctx, &banktypes.QueryDenomMetadataRequest{
 		Denom: denom,
 	})
@@ -225,7 +219,6 @@ func (c *Contract) GetSendEnabled(
 	_ bool,
 	denom string,
 ) ([]any, error) {
-
 	res, err := c.querier.SendEnabled(ctx, &banktypes.QuerySendEnabledRequest{
 		Denoms: []string{denom},
 	})

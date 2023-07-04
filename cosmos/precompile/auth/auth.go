@@ -21,7 +21,6 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 	"time"
 
@@ -38,7 +37,7 @@ import (
 )
 
 // requiredGas is the amount required to convert between eth addresses and bech32 cosmos addresses.
-const requiredGas = 1000
+// const requiredGas = 1000
 
 // Contract is the precompile contract for the auth(z) module.
 type Contract struct {
@@ -76,7 +75,6 @@ func (c *Contract) ConvertHexToBech32(
 	_ bool,
 	account common.Address,
 ) ([]any, error) {
-	fmt.Println("account:", account)
 	// try val address first
 	valAddr, err := sdk.ValAddressFromHex(account.Hex())
 	if err == nil {
@@ -96,7 +94,6 @@ func (c *Contract) ConvertBech32ToHexAddress(
 	_ bool,
 	account string,
 ) ([]any, error) {
-
 	// try account address first
 	accAddr, err := sdk.AccAddressFromBech32(account)
 	if err == nil {

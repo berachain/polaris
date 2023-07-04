@@ -39,8 +39,6 @@ import (
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	precomtest "pkg.berachain.dev/polaris/cosmos/precompile/test"
@@ -49,6 +47,9 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestGovernancePrecompile(t *testing.T) {

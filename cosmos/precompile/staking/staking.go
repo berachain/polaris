@@ -361,7 +361,13 @@ func (c *Contract) CancelUnbondingDelegation(
 	amount *big.Int,
 	creationHeight int64,
 ) ([]any, error) {
-	return c.cancelUnbondingDelegationHelper(ctx, caller, amount, cosmlib.AddressToValAddress(validatorAddress), creationHeight)
+	return c.cancelUnbondingDelegationHelper(
+		ctx,
+		caller,
+		amount,
+		cosmlib.AddressToValAddress(validatorAddress),
+		creationHeight,
+	)
 }
 
 // CancelRedelegate0 implements the `cancelRedelegate(string,string,uint256,int64)` method.

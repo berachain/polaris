@@ -172,6 +172,7 @@ type mockObject struct {
 	TimeStamp      string
 }
 
+//revive:disable
 func getOutput(
 	_ *mockStateful,
 	ctx context.Context,

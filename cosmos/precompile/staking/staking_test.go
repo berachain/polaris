@@ -33,8 +33,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -42,6 +41,9 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func TestStakingPrecompile(t *testing.T) {
@@ -92,7 +94,9 @@ var _ = Describe("Staking", func() {
 
 	When("PrecompileMethods", func() {
 		It("should return the correct methods", func() {
-			Expect(ethprecompile.GeneratePrecompileMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(len(contract.ABIMethods())))
+			Expect(
+				ethprecompile.GeneratePrecompileMethods(contract.ABIMethods(), reflect.ValueOf(contract))).
+				To(HaveLen(len(contract.ABIMethods())))
 		})
 	})
 
