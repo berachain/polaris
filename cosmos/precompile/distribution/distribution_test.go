@@ -265,7 +265,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 		When("Withdraw Delegator Rewards bech32 address", func() {
 
-			FIt("should fail if delegator address not bech32", func() {
+			It("should fail if delegator address not bech32", func() {
 				res, err := contract.WithdrawDelegatorReward0(
 					ctx,
 					nil,
