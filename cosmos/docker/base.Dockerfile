@@ -26,7 +26,7 @@ ARG APP_NAME=polard
 ARG DB_BACKEND=pebbledb
 ARG CMD_PATH=./cosmos/simapp/polard
 ARG FOUNDRY_DIR=contracts
-ARG GO_WORK=""
+ARG GO_WORK="contracts eth cosmos magefiles lib e2e/localnet"
 
 #######################################################
 ###         Stage 1 - Build the Application         ###
@@ -42,15 +42,10 @@ RUN set -eux; \
 # Set the working directory
 WORKDIR /workdir
 
-RUN echo $GO_WORK
-
 # Copy go.mod and go.sum files (🔥 upgrade)
 COPY ./go.work ./go.work.sum ./
 
-# RUN for dir in $GO_WORK; do \
-#         cp ./$dir/go.mod ./$dir/go.sum ./$dir/; \
-#     done
-
+# Copy the go.mod and go.sum files for each module
 COPY ./contracts/go.sum ./contracts/go.mod ./contracts/
 COPY ./cosmos/go.sum ./cosmos/go.mod ./cosmos/
 COPY ./eth/go.sum ./eth/go.mod ./eth/
