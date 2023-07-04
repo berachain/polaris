@@ -145,16 +145,19 @@ func (c *Contract) SetSendAllowance(
 	_ bool,
 	owner common.Address,
 	spender common.Address,
-	amount sdk.Coins,
+	amount any,
 	expiration *big.Int,
 ) ([]any, error) {
-
+	amt, err := cosmlib.ExtractCoinsFromInput(amount)
+	if err != nil {
+		return nil, err
+	}
 	return c.setSendAllowanceHelper(
 		ctx,
 		time.Unix(int64(evm.GetContext().Time), 0),
 		cosmlib.AddressToAccAddress(owner),
 		cosmlib.AddressToAccAddress(spender),
-		amount,
+		amt,
 		expiration,
 	)
 }

@@ -84,7 +84,7 @@ func (c *Contract) GetValidator(
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	validatorAddr []byte,
+	validatorAddr common.Address,
 ) ([]any, error) {
 	return c.validatorHelper(ctx, sdk.ValAddress(validatorAddr[:]).String())
 }
@@ -101,20 +101,8 @@ func (c *Contract) GetValidator0(
 	return c.validatorHelper(ctx, validatorAddressBech32)
 }
 
-// GetDelegatorValidators implements the `getDelegatorValidators(address)` method.
-func (c *Contract) GetDelegatorValidators(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	delegatorAddr common.Address,
-) ([]any, error) {
-	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr))
-}
-
 // GetDelegatorValidators0 implements the `getDelegatorValidators(string)` method.
-func (c *Contract) GetDelegatorValidators0(
+func (c *Contract) GetDelegatorValidators(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -123,6 +111,18 @@ func (c *Contract) GetDelegatorValidators0(
 	delAddrBech32 string,
 ) ([]any, error) {
 	return c.delegatorValidatorsHelper(ctx, delAddrBech32)
+}
+
+// GetDelegatorValidators implements the `getDelegatorValidators(address)` method.
+func (c *Contract) GetDelegatorValidators0(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	delegatorAddr common.Address,
+) ([]any, error) {
+	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr))
 }
 
 // GetDelegation implements `getDelegation(address)` method.
