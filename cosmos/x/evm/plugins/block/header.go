@@ -111,14 +111,10 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 
 	// rotate previous header hashes
 	if pruneHeight := blockHeight - prevHeaderHashes; pruneHeight > 0 {
-		var toRemove *coretypes.Header
-		toRemove, err = p.GetHeaderByNumber(uint64(pruneHeight))
-		if err != nil {
-			return err
-		}
-		kvstore.Delete(toRemove.Hash().Bytes())
+		kvstore.Delete(headerHashKeyForPreviousBlock(uint64(pruneHeight)))
 	}
-	kvstore.Set(header.Hash().Bytes(), header.Number.Bytes())
+	// the current block now becomes the first previous block
+	kvstore.Set(headerHashKeyForPreviousBlock(uint64(1)), header.Hash().Bytes())
 
 	return nil
 }
@@ -166,4 +162,14 @@ func (p *plugin) writeGenesisHeaderBytes(headerHash common.Hash, headerBz []byte
 // readGenesisHeaderBytes returns the header bytes at the genesis key.
 func (p *plugin) readGenesisHeaderBytes() []byte {
 	return p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderKey})
+}
+
+// headerHashKeyForPreviousBlock returns the key for the header hash of the n-th previous block.
+// Supports previous blocks in the range [1, 2, ..., prevHeaderHashes].
+func headerHashKeyForPreviousBlock(n uint64) []byte {
+	numBz := sdk.Uint64ToBigEndian((prevHeaderHashes - n) % prevHeaderHashes)
+	bz := make([]byte, 1+len(numBz))
+	copy(bz, []byte{types.CodeHashKeyPrefix})
+	copy(bz[1:], numBz)
+	return bz
 }

@@ -31,6 +31,7 @@ const (
 	TxHashKeyToTxPrefix
 	VersionKey
 	HeaderKey
+	HeaderHashKeyPrefix
 	GenesisHeaderKey
 	ParamsKey
 	ChainConfigPrefix
