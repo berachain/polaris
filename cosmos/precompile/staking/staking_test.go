@@ -524,7 +524,7 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				validator.Status = stakingtypes.Bonded
-				sk.SetValidator(ctx, validator)
+				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
 
 				ret, err := contract.Delegate(
 					ctx, nil, caller,
@@ -547,7 +547,8 @@ var _ = Describe("Staking", func() {
 				Expect(utils.MustGetAs[*big.Int](ret[0]).Cmp(new(big.Int).Add(amount, big.NewInt(9)))).To(Equal(0))
 
 				otherValidator.Status = stakingtypes.Bonded
-				sk.SetValidator(ctx, otherValidator)
+
+				Expect(sk.SetValidator(ctx, otherValidator)).To(Succeed())
 
 				ret, err = contract.BeginRedelegate(
 					ctx,
