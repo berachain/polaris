@@ -40,7 +40,16 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v3
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: ${{ matrix.go-version }}\
+      - name: Cache Golang Deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go
+          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Run ${{ matrix.namespace }}:docker ${{ matrix.docker-version }} ${{ matrix.go-arch }}
@@ -76,6 +85,15 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
+      - name: Cache Golang Deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go
+          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Download image artifact
@@ -98,6 +116,7 @@ jobs:
           args: teste2e
         env:
           GOPATH: /home/runner/go
+
   hive:
     needs: build-base
     strategy:
