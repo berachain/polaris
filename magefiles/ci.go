@@ -50,11 +50,20 @@ func TestUnit() error {
 }
 
 func testUnit(path string) error {
-	return ginkgoTest("--skip", ".*integration.*", "./"+path+"/...")
+	return ginkgoTest(
+		"--skip", ".*integration.*",
+		"--skip", ".*e2e.*",
+		"./"+path+"/...",
+	)
 }
 
 func testUnitRace(path string) error {
-	return ginkgoTest("--race", "--skip", ".*integration.*", "./"+path+"/...")
+	return ginkgoTest(
+		"--race",
+		"--skip", ".*integration.*",
+		"--skip", ".*e2e.*",
+		"./"+path+"/...",
+	)
 }
 
 // Runs the unit tests with coverage.
@@ -75,7 +84,7 @@ func TestUnitRace() error {
 		return err
 	}
 	args := []string{
-		"--skip", ".*integration.*",
+		"--skip", ".*integration.*", "--skip", ".*e2e.*",
 	}
 	LogGreen("Running all unit tests with --race...")
 	return ginkgoTest(append(raceArgs, args...)...)
