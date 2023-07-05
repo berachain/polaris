@@ -148,11 +148,11 @@ var _ = Describe("Staking", func() {
 			otherValidator = stakingkeeper.TestingUpdateValidator(&sk, ctx, otherValidator, true)
 
 			delegation := stakingtypes.NewDelegation(del, val, sdkmath.LegacyNewDec(9))
-			sk.SetDelegation(ctx, delegation)
+			Expect(sk.SetDelegation(ctx, delegation)).To(Succeed())
 
 			// Check that the delegation was created.
-			res, found := sk.GetDelegation(ctx, del, val)
-			Expect(found).To(BeTrue())
+			res, err := sk.GetDelegation(ctx, del, val)
+			Expect(err).ToNot(HaveOccurred())
 			Expect(res).To(Equal(delegation))
 
 			// Set the denom.
@@ -723,7 +723,7 @@ var _ = Describe("Staking", func() {
 			It("gets active validators", func() {
 				// Set the validator to be bonded.
 				validator.Status = stakingtypes.Bonded
-				sk.SetValidator(ctx, validator)
+				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
 
 				// Get the active validators.
 				res, err := contract.GetActiveValidators(ctx, nil, caller, big.NewInt(0), true)

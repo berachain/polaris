@@ -32,7 +32,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
 )
@@ -215,22 +214,23 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 	res, err := c.querier.Validators(ctx, &stakingtypes.QueryValidatorsRequest{
 		Status: stakingtypes.BondStatusBonded,
 	})
-	if status.Code(err) == codes.NotFound {
-		// handle the case where the active validators do not exist
-		return []any{common.Address{}}, nil
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 
 	// Iterate over all validators and return their addresses.
-	addrs := make([]common.Address, 0, len(res.Validators))
-	for _, val := range res.Validators {
+	addrs := make([]common.Address, len(res.Validators))
+	for i, val := range res.GetValidators() {
+		if val.OperatorAddress == "" {
+			addrs[i] = common.Address{}
+			continue
+		}
 		var valAddr sdk.ValAddress
 		valAddr, err = sdk.ValAddressFromBech32(val.OperatorAddress)
 		if err != nil {
 			return nil, err
 		}
-		addrs = append(addrs, cosmlib.ValAddressToEthAddress(valAddr))
+		addrs[i] = cosmlib.ValAddressToEthAddress(valAddr)
 	}
 	return []any{addrs}, nil
 }
@@ -239,10 +239,7 @@ func (c *Contract) validatorsHelper(ctx context.Context) ([]any, error) {
 	res, err := c.querier.Validators(ctx, &stakingtypes.QueryValidatorsRequest{
 		Status: stakingtypes.BondStatusBonded,
 	})
-	if status.Code(err) == codes.NotFound {
-		// handle the case where the validators do not exist
-		return []any{[]generated.IStakingModuleValidator{}}, nil
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -261,7 +258,7 @@ func (c *Contract) validatorHelper(ctx context.Context, valAddr string) ([]any, 
 	})
 	if status.Code(err) == codes.NotFound {
 		// handle the case where the validator does not exist
-		return []any{generated.IStakingModuleValidator{}}, nil
+		return []any{cosmlib.EmptyValidator()}, nil
 	} else if err != nil {
 		return nil, err
 	}
@@ -280,10 +277,7 @@ func (c *Contract) delegatorValidatorsHelper(ctx context.Context, accAddr string
 	res, err := c.querier.DelegatorValidators(ctx, &stakingtypes.QueryDelegatorValidatorsRequest{
 		DelegatorAddr: accAddr,
 	})
-	if status.Code(err) == codes.NotFound {
-		// handle the case where the delegator validators do not exist
-		return []any{[]generated.IStakingModuleValidator{}}, nil
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 

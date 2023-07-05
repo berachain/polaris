@@ -3,8 +3,8 @@ module pkg.berachain.dev/polaris/cosmos
 go 1.20
 
 replace (
-	cosmossdk.io/x/evidence => github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230608151552-9b9e319d1abc
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230608151552-9b9e319d1abc
+	cosmossdk.io/x/evidence => github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230704160919-88f2c830b0ca
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.50.0-alpha.1
 
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230609180942-c6acc930b404
@@ -12,20 +12,20 @@ replace (
 )
 
 require (
-	cosmossdk.io/api v0.4.3-0.20230608151552-9b9e319d1abc
+	cosmossdk.io/api v0.5.0
 	cosmossdk.io/client/v2 v2.0.0-20230608151552-9b9e319d1abc
-	cosmossdk.io/collections v0.2.1-0.20230608151552-9b9e319d1abc // indirect
-	cosmossdk.io/core v0.8.1-0.20230608151552-9b9e319d1abc
+	cosmossdk.io/collections v0.3.0 // indirect
+	cosmossdk.io/core v0.9.0
 	cosmossdk.io/depinject v1.0.0-alpha.3.0.20230608151552-9b9e319d1abc
 	cosmossdk.io/log v1.1.0
 	cosmossdk.io/math v1.0.1
 	cosmossdk.io/store v0.1.0-alpha.1.0.20230608151552-9b9e319d1abc
 	cosmossdk.io/tools/confix v0.0.0-20230608151552-9b9e319d1abc
 	cosmossdk.io/x/evidence v0.1.0
-	cosmossdk.io/x/upgrade v0.0.0-20230608151552-9b9e319d1abc
+	cosmossdk.io/x/upgrade v0.0.0-20230704191127-8d80df8e3c5a
 	github.com/btcsuite/btcd v0.23.4
 	github.com/btcsuite/btcd/btcutil v1.1.3
-	github.com/cometbft/cometbft v0.38.0-rc1
+	github.com/cometbft/cometbft v0.38.0-rc2
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
 	// this version is not used as it is always replaced by the latest Cosmos SDK version
@@ -44,7 +44,7 @@ require (
 	github.com/spf13/viper v1.16.0
 	github.com/tidwall/btree v1.6.0
 	google.golang.org/genproto v0.0.0-20230525234025-438c736192d0 // indirect
-	google.golang.org/grpc v1.55.0
+	google.golang.org/grpc v1.56.1
 	google.golang.org/protobuf v1.31.0
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230522054826-1e34ff529c3e
 	pkg.berachain.dev/polaris/eth v0.0.0-20230529182942-8a54f2bce6b2
@@ -60,7 +60,7 @@ require (
 
 require (
 	cloud.google.com/go v0.110.0 // indirect
-	cloud.google.com/go/compute v1.19.0 // indirect
+	cloud.google.com/go/compute v1.19.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v0.13.0 // indirect
 	cloud.google.com/go/storage v1.30.0 // indirect
@@ -156,6 +156,7 @@ require (
 	github.com/hashicorp/go-getter v1.7.1 // indirect
 	github.com/hashicorp/go-hclog v1.5.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
+	github.com/hashicorp/go-metrics v0.5.1 // indirect
 	github.com/hashicorp/go-plugin v1.4.10 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
@@ -252,7 +253,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.122.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230629202037-9506855d4529 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
@@ -260,7 +261,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
-	pgregory.net/rapid v0.6.2 // indirect
+	pgregory.net/rapid v1.0.0 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )

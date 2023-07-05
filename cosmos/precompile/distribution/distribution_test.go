@@ -193,10 +193,10 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 		BeforeEach(func() {
 			// Set the previous proposer.
-			dk.SetPreviousProposerConsAddr(
+			Expect(dk.SetPreviousProposerConsAddr(
 				ctx,
 				sdk.ConsAddress(testutil.Alice.Bytes()),
-			)
+			)).To(Succeed())
 
 			PKS := simtestutil.CreateTestPubKeys(5)
 			valConsPk0 := PKS[0]
@@ -207,14 +207,14 @@ var _ = Describe("Distribution Precompile Test", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			// Set the validator.
-			sk.SetValidator(ctx, val)
+			Expect(sk.SetValidator(ctx, val)).To(Succeed())
 
 			// Create the delegation.
-			sk.SetDelegation(ctx, stakingtypes.Delegation{
+			Expect(sk.SetDelegation(ctx, stakingtypes.Delegation{
 				DelegatorAddress: addr.String(),
 				ValidatorAddress: valAddr.String(),
 				Shares:           val.DelegatorShares,
-			})
+			})).To(Succeed())
 
 			// Run the hooks.
 			err = dk.Hooks().AfterValidatorCreated(ctx, valAddr)
