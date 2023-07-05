@@ -23,48 +23,32 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package localnet
+package main
 
 import (
-	"testing"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"github.com/magefile/mage/mg"
 )
 
-func TestLocalnet(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "testing:e2e")
+const (
+	baseImage   = "polard/base:v0.0.0"
+	genesisPath = "config"
+
+	localnetDockerPath = "./e2e/localnet"
+	localnetRepository = "localnet"
+	localnetVersion    = "latest"
+)
+
+type Localnet mg.Namespace
+
+func (Localnet) Build() error {
+	return ExecuteInDirectory(localnetDockerPath,
+		func(...string) error {
+			return dockerBuildFn(false)(
+				"--build-arg", "GO_VERSION="+goVersion,
+				"--build-arg", "GENESIS_PATH="+genesisPath,
+				"--build-arg", "BASE_IMAGE="+baseImage,
+				"-t", localnetRepository+":"+localnetVersion,
+				".",
+			)
+		}, false)
 }
-
-var _ = Describe("Fixture", func() {
-	var (
-		c   ContainerizedNetwork
-		err error
-	)
-
-	BeforeEach(func() {
-		c, err = NewContainerizedNetwork(
-			"localnet",
-			"latest",
-			"goodcontainer",
-			"8545/tcp",
-			"8546/tcp",
-			[]string{
-				"GO_VERSION=1.20.4",
-				"GENESIS_PATH=config",
-				"BASE_IMAGE=polard/base:v0.0.0",
-			},
-		)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(c).ToNot(BeNil())
-	})
-
-	AfterEach(func() {
-		Expect(c.Remove()).To(Succeed())
-	})
-
-	It("should create a container", func() {
-		Expect(c.Stop()).To(Succeed())
-	})
-})
