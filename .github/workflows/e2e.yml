@@ -40,7 +40,7 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v3
         with:
-          go-version: ${{ matrix.go-version }}\
+          go-version: ${{ matrix.go-version }}
       - name: Cache Golang Deps
         uses: actions/cache@v3
         with:
@@ -94,6 +94,9 @@ jobs:
           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-
+      - name: Install Go Tools
+        run: |
+          go run magefiles/setup/setup.go ci
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Download image artifact
