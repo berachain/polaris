@@ -32,7 +32,7 @@ jobs:
         os: [ubuntu-latest]
         go-version: [1.20.4]
         go-arch: [amd64]
-        image-name: [polard/base:v0.0.0]
+        image-name: ["polard/base:v0.0.0"]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
