@@ -22,11 +22,12 @@ package precompile
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/errors"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/errors/debug"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -99,11 +100,14 @@ func (sc *stateful) Run(
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if err != nil {
-		return nil, errors.Wrapf(
-			vm.ErrExecutionReverted,
-			"vm error [%v] occurred during precompile execution of [%s]",
-			err, debug.GetFnName(method.Execute),
-		)
+		if !errors.Is(err, vm.ErrWriteProtection) {
+			err = errorslib.Wrapf(
+				vm.ErrExecutionReverted,
+				"vm error [%v] occurred during precompile execution of [%s]",
+				err, debug.GetFnName(method.Execute),
+			)
+		}
+		return nil, err
 	}
 
 	// Pack the return values and return, if any exist.
