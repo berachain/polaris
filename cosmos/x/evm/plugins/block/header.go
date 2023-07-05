@@ -170,7 +170,7 @@ func (p *plugin) readGenesisHeaderBytes() []byte {
 
 // headerHashKeyForHeight returns the key for the hash of the header at the given height.
 func headerHashKeyForHeight(number int64) []byte {
-	bz := make([]byte, 9) // 1 for the key prefix, 8 for the header number
+	bz := make([]byte, 9) //nolint:mnd // 1 for the key prefix, 8 for the header number.
 	copy(bz, []byte{types.HeaderHashKeyPrefix})
 	copy(bz[1:], sdk.Uint64ToBigEndian(uint64(number%prevHeaderHashes)))
 	return bz
