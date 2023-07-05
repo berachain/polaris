@@ -59,6 +59,7 @@ jobs:
         env:
           GOPATH: /home/runner/go
   localnet:
+    needs: build-base
     strategy:
       matrix:
         namespace: [localnet]
@@ -91,6 +92,7 @@ jobs:
         env:
           GOPATH: /home/runner/go
   hive:
+    needs: build-base
     strategy:
       matrix:
         simulator: [polaris/rpc, polaris/graphql] 
