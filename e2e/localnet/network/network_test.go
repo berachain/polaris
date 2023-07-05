@@ -51,7 +51,7 @@ var _ = Describe("Fixture", func() {
 			"8545/tcp",
 			"8546/tcp",
 			[]string{
-				"GO_VERSION=1.20.0",
+				"GO_VERSION=1.20.4",
 				"GENESIS_PATH=config",
 				"BASE_IMAGE=polard/base:v0.0.0",
 			},
