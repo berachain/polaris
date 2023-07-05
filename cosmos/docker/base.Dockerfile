@@ -41,7 +41,7 @@ RUN set -eux; \
 # Set the working directory
 WORKDIR /workdir
 
-# Copy go.mod and go.sum files (🔥 upgrade)
+# Copy go.work and go.work.sum files (🔥 upgrade)
 COPY ./go.work ./go.work.sum ./
 
 # Copy the go.mod and go.sum files for each module
