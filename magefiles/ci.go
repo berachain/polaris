@@ -63,7 +63,7 @@ func TestUnitCover() error {
 		return err
 	}
 	args := []string{
-		"--skip", ".*integration.*", ".*e2e.*",
+		"--skip", ".*integration.*",
 	}
 	LogGreen("Running all unit tests with coverage...")
 	return ginkgoTest(append(coverArgs, args...)...)

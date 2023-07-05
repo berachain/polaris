@@ -32,6 +32,7 @@ jobs:
         os: [ubuntu-latest]
         go-version: [1.20.4]
         go-arch: [amd64]
+        image-name: [polard/base:v0.0.0]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,15 +43,6 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Cache Golang Deps
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go
-          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-golang-
       - name: Run ${{ matrix.namespace }}:docker ${{ matrix.docker-version }} ${{ matrix.go-arch }}
         uses: magefile/mage-action@v2
         with:
@@ -58,6 +50,14 @@ jobs:
           args: ${{ matrix.namespace }}:docker base ${{ matrix.go-arch }}
         env:
           GOPATH: /home/runner/go
+      - name: Save base image
+        run: docker save ${{ matrix.image-name }} -o base-image.tar
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: base-image
+          path: base-image.tar
+  
   localnet:
     needs: build-base
     strategy:
@@ -65,6 +65,7 @@ jobs:
         namespace: [localnet]
         os: [ubuntu-latest]
         go-version: [1.20.4]
+        base-image: [base-image]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -77,6 +78,12 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+      - name: Download image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.base-image }}
+      - name: Load ${{ matrix.base-image }}
+        run: docker load -i ${{ matrix.base-image }}.tar
       - name: Run ${{ matrix.namespace }}:build
         uses: magefile/mage-action@v2
         with:
@@ -99,6 +106,7 @@ jobs:
         namespace: [cosmos]
         os: [ubuntu-latest]
         go-version: [1.20.4]
+        base-image: [base-image]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -111,6 +119,12 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+      - name: Download image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.base-image }}
+      - name: Load ${{ matrix.base-image }}
+        run: docker load -i ${{ matrix.base-image }}.tar
       - name: Cache Golang Deps
         uses: actions/cache@v3
         with:
