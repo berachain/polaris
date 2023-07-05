@@ -114,8 +114,8 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 	if pruneHeight := blockHeight - prevHeaderHashes; pruneHeight > 0 {
 		hashKey := headerHashKeyForHeight(pruneHeight)
 		pruneHash := kvstore.Get(hashKey)
-		kvstore.Delete(pruneHash)
 		kvstore.Delete(hashKey)
+		kvstore.Delete(pruneHash)
 	}
 	kvstore.Set(headerHashKeyForHeight(blockHeight), headerHash.Bytes())
 	kvstore.Set(headerHash.Bytes(), header.Number.Bytes())
