@@ -27,22 +27,12 @@ package localnet
 
 import "pkg.berachain.dev/polaris/e2e/localnet/container"
 
-// TODO: Move this into new test fixture, when we have one.
-const (
-	baseImageName  = "polard/base:v0.0.0"
-	baseContext    = "../../../"
-	baseDockerfile = "./cosmos/docker/base.Dockerfile"
-
-	localnetImageName  = "polard/localnet:v0.0.0"
-	localnetContext    = "../"
-	localnetDockerfile = "Dockerfile"
-)
-
 // ContainerizedNetwork is an interface for a containerized network.
 type ContainerizedNetwork interface {
 	Start() error
 	Stop() error
 	Reset() error
+	Remove() error
 	GetHTTPAddress() string
 	GetWSAddress() string
 }
@@ -52,41 +42,29 @@ type containerizedNetwork struct {
 	containerClient container.Client
 	httpAddress     string
 	wsAddress       string
-	imageConfig     container.ImageBuildConfig
 }
 
 // NewDockerizedNetwork creates an implementation of Localnet using Docker.
 func NewContainerizedNetwork(
+	repository string,
+	tag string,
 	name string,
-	imageName string,
-	context string,
-	dockerfile string,
 	httpAddress string,
 	wsAddress string,
-	buildArgs map[string]string,
+	env []string,
 ) (ContainerizedNetwork, error) {
 	// Create the container config using the given input args.
 	config := container.Config{
+		Repository:  repository,
+		Tag:         tag,
 		Name:        name,
-		ImageName:   imageName,
 		HTTPAddress: httpAddress,
 		WSAddress:   wsAddress,
+		Env:         env,
 	}
 
-	// Create the image config using the given input args.
-	imageConfig := container.ImageBuildConfig{
-		ImageName:  imageName,
-		Context:    context,
-		Dockerfile: dockerfile,
-		BuildArgs:  buildArgs,
-	}
-
-	containerClient, err := container.NewClient(config, imageConfig)
+	containerClient, err := container.NewClient(config)
 	if err != nil {
-		return nil, err
-	}
-
-	if err = containerClient.Build(imageConfig); err != nil {
 		return nil, err
 	}
 
@@ -94,7 +72,6 @@ func NewContainerizedNetwork(
 		containerClient: containerClient,
 		httpAddress:     httpAddress,
 		wsAddress:       wsAddress,
-		imageConfig:     imageConfig,
 	}, nil
 }
 
@@ -116,6 +93,11 @@ func (c *containerizedNetwork) Reset() error {
 
 	// TODO: clear genesis / reset genesis state.
 	return c.containerClient.Start()
+}
+
+// Remove removes the network.
+func (c *containerizedNetwork) Remove() error {
+	return c.containerClient.Remove()
 }
 
 // GetHTTPAddress returns the HTTP address of the network.
