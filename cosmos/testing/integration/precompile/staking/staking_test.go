@@ -21,7 +21,6 @@
 package staking_test
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 	"time"
@@ -69,30 +68,25 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 }, func(data []byte) {})
 
 var _ = Describe("Staking", func() {
-	FIt("should call functions on the precompile directly", func() {
-		fmt.Println(1)
+	It("should call functions on the precompile directly", func() {
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(validators).To(ContainElement(validator))
 
-		fmt.Println(2)
 		delegated, err := stakingPrecompile.GetDelegation(nil, tf.Address("alice"), validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
 
-		fmt.Println(3)
 		txr := tf.GenerateTransactOpts("alice")
 		txr.Value = delegateAmt
 		tx, err := stakingPrecompile.Delegate(txr, validator, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		fmt.Println(4)
 		delegated, err = stakingPrecompile.GetDelegation(nil, tf.Address("alice"), validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
 
-		fmt.Println(5)
 		delVals, err := stakingPrecompile.GetDelegatorValidators0(nil, tf.Address("alice"))
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delVals).To(HaveLen(1))
@@ -100,7 +94,6 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(cosmlib.ValAddressToEthAddress(delValAddr)).To(Equal(validator))
 
-		fmt.Println(6)
 		undelegateAmt := new(big.Int).Div(delegateAmt, big.NewInt(2))
 		tx, err = stakingPrecompile.Undelegate(
 			tf.GenerateTransactOpts("alice"),
@@ -110,7 +103,6 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		fmt.Println(7)
 		ude, err := stakingPrecompile.GetUnbondingDelegation(
 			nil,
 			tf.Address("alice"),
@@ -122,7 +114,6 @@ var _ = Describe("Staking", func() {
 		Expect(ude[0].CompletionTime).ToNot(BeEmpty())
 		Expect(ude[0].Balance.Cmp(undelegateAmt)).To(Equal(0))
 
-		fmt.Println(8)
 		vals, err := stakingPrecompile.GetValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(vals).To(HaveLen(1))
@@ -130,7 +121,6 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(cosmlib.ValAddressToEthAddress(valAddr)).To(Equal(validator))
 
-		fmt.Println(9)
 		val, err := stakingPrecompile.GetValidator(nil, validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(val.OperatorAddress).To(Equal(vals[0].OperatorAddress))
