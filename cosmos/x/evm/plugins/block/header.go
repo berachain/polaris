@@ -87,6 +87,7 @@ func (p *plugin) GetHeaderByHash(hash common.Hash) (*coretypes.Header, error) {
 
 // StoreHeader implements core.BlockPlugin.
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
+	headerHash := header.Hash()
 	headerBz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
@@ -102,7 +103,7 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 
 	// write genesis header
 	if blockHeight == 0 {
-		return p.writeGenesisHeaderBytes(header.Hash(), headerBz)
+		return p.writeGenesisHeaderBytes(headerHash, headerBz)
 	}
 
 	kvstore := p.ctx.KVStore(p.storekey)
@@ -111,10 +112,13 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 
 	// rotate previous header hashes
 	if pruneHeight := blockHeight - prevHeaderHashes; pruneHeight > 0 {
-		kvstore.Delete(headerHashKeyForPreviousBlock(uint64(pruneHeight)))
+		hashKey := headerHashKeyForHeight(pruneHeight)
+		pruneHash := kvstore.Get(hashKey)
+		kvstore.Delete(pruneHash)
+		kvstore.Delete(hashKey)
 	}
-	// the current block now becomes the first previous block
-	kvstore.Set(headerHashKeyForPreviousBlock(uint64(1)), header.Hash().Bytes())
+	kvstore.Set(headerHashKeyForHeight(blockHeight), headerHash.Bytes())
+	kvstore.Set(headerHash.Bytes(), header.Number.Bytes())
 
 	return nil
 }
@@ -164,12 +168,10 @@ func (p *plugin) readGenesisHeaderBytes() []byte {
 	return p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderKey})
 }
 
-// headerHashKeyForPreviousBlock returns the key for the header hash of the n-th previous block.
-// Supports previous blocks in the range [1, 2, ..., prevHeaderHashes].
-func headerHashKeyForPreviousBlock(n uint64) []byte {
-	numBz := sdk.Uint64ToBigEndian((prevHeaderHashes - n) % prevHeaderHashes)
-	bz := make([]byte, 1+len(numBz))
-	copy(bz, []byte{types.CodeHashKeyPrefix})
-	copy(bz[1:], numBz)
+// headerHashKeyForHeight returns the key for the hash of the header at the given height.
+func headerHashKeyForHeight(number int64) []byte {
+	bz := make([]byte, 9) // 1 for the key prefix, 8 for the header number
+	copy(bz, []byte{types.HeaderHashKeyPrefix})
+	copy(bz[1:], sdk.Uint64ToBigEndian(uint64(number%prevHeaderHashes)))
 	return bz
 }
