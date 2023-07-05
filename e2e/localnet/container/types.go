@@ -27,47 +27,30 @@ package container
 
 // Config is a configuration struct for a container.
 type Config struct {
+	Repository  string
+	Tag         string
 	Name        string
-	ImageName   string
 	HTTPAddress string
 	WSAddress   string
+	Env         []string
 }
 
 // ValidateBasic checks if the Config is valid.
 func (c Config) ValidateBasic() error {
+	if c.Repository == "" {
+		return ErrEmptyRepository
+	}
+	if c.Tag == "" {
+		return ErrEmptyTag
+	}
 	if c.Name == "" {
 		return ErrEmptyName
-	}
-	if c.ImageName == "" {
-		return ErrEmptyImageName
 	}
 	if c.HTTPAddress == "" {
 		return ErrEmptyHTTPAddress
 	}
 	if c.WSAddress == "" {
 		return ErrEmptyWSAddress
-	}
-	return nil
-}
-
-// ImageBuildConfig is a configuration struct for an image build.
-type ImageBuildConfig struct {
-	ImageName  string
-	Context    string
-	Dockerfile string
-	BuildArgs  map[string]string
-}
-
-// ValidateBasic checks if the ImageBuildConfig is valid.
-func (ibc ImageBuildConfig) ValidateBasic() error {
-	if ibc.ImageName == "" {
-		return ErrEmptyImageName
-	}
-	if ibc.Context == "" {
-		return ErrEmptyContext
-	}
-	if ibc.Dockerfile == "" {
-		return ErrEmptyDockerfile
 	}
 	return nil
 }

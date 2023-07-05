@@ -26,30 +26,23 @@
 package container
 
 import (
-	"os"
-
 	dt "github.com/ory/dockertest"
-	dc "github.com/ory/dockertest/docker"
 )
 
 type Client interface {
 	Start() error
 	Stop() error
-	Build(ImageBuildConfig) error
+	Remove() error
 }
 
 type client struct {
-	pool      *dt.Pool
-	container *dc.Container
+	pool     *dt.Pool
+	resource *dt.Resource
 }
 
 // NewClient creates a new ContainerClient which implements Container.
-func NewClient(cfg Config, imageConfig ImageBuildConfig) (Client, error) {
+func NewClient(cfg Config) (Client, error) {
 	if err := cfg.ValidateBasic(); err != nil {
-		return nil, err
-	}
-
-	if err := imageConfig.ValidateBasic(); err != nil {
 		return nil, err
 	}
 
@@ -58,63 +51,36 @@ func NewClient(cfg Config, imageConfig ImageBuildConfig) (Client, error) {
 		return nil, err
 	}
 
-	if err = BuildImage(pool, imageConfig); err != nil {
-		return nil, err
+	runOpts := &dt.RunOptions{
+		Name:         cfg.Name,
+		Repository:   cfg.Repository,
+		Tag:          cfg.Tag,
+		ExposedPorts: []string{cfg.HTTPAddress, cfg.WSAddress},
+		Env:          cfg.Env,
 	}
 
-	container, err := pool.Client.CreateContainer(dc.CreateContainerOptions{
-		Name: cfg.Name,
-		Config: &dc.Config{
-			Image: cfg.ImageName,
-			ExposedPorts: map[dc.Port]struct{}{
-				dc.Port(cfg.HTTPAddress): {},
-				dc.Port(cfg.WSAddress):   {},
-			},
-		},
-	})
+	resource, err := pool.RunWithOptions(runOpts)
 	if err != nil {
 		return nil, err
 	}
 
 	return &client{
-		pool:      pool,
-		container: container,
+		pool:     pool,
+		resource: resource,
 	}, nil
 }
 
 // Start starts the container.
 func (c *client) Start() error {
-	return c.pool.Client.StartContainer(c.container.ID, nil)
+	return c.pool.Client.StartContainer(c.resource.Container.ID, nil)
 }
 
 // Stop stops the container.
 func (c *client) Stop() error {
-	return c.pool.Client.StopContainer(c.container.ID, 0)
+	return c.pool.Client.StopContainer(c.resource.Container.ID, 0)
 }
 
-// Build builds the container image.
-func (c *client) Build(config ImageBuildConfig) error {
-	return BuildImage(c.pool, config)
-}
-
-// BuildImage is a helper function for building a container image.
-func BuildImage(pool *dt.Pool, config ImageBuildConfig) error {
-	containerBuildArgs := make([]dc.BuildArg, len(config.BuildArgs))
-	i := 0
-	for k, v := range config.BuildArgs {
-		containerBuildArgs[i] = dc.BuildArg{
-			Name:  k,
-			Value: v,
-		}
-		i++
-	}
-
-	baseBuildOpts := dc.BuildImageOptions{
-		Name:         config.ImageName,
-		ContextDir:   config.Context,
-		Dockerfile:   config.Dockerfile,
-		BuildArgs:    containerBuildArgs,
-		OutputStream: os.Stdout,
-	}
-	return pool.Client.BuildImage(baseBuildOpts)
+// Remove removes the container.
+func (c *client) Remove() error {
+	return c.resource.Close()
 }

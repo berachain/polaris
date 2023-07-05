@@ -26,7 +26,6 @@
 package localnet
 
 import (
-	"runtime"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -45,33 +44,16 @@ var _ = Describe("Fixture", func() {
 	)
 
 	BeforeEach(func() {
-		_, err = NewContainerizedNetwork(
-			"base",
-			baseImageName,
-			baseContext,
-			baseDockerfile,
-			"8545/tcp",
-			"8546/tcp",
-			map[string]string{
-				"GO_VERSION":               "1.20.4",
-				"PRECOMPILE_CONTRACTS_DIR": "./contracts",
-				"GOOS":                     "linux",
-				"GOARCH":                   runtime.GOARCH,
-			},
-		)
-		Expect(err).ToNot(HaveOccurred())
-
 		c, err = NewContainerizedNetwork(
-			"localnet1",
-			localnetImageName,
-			localnetContext,
-			localnetDockerfile,
+			"localnet",
+			"latest",
+			"goodcontainer",
 			"8545/tcp",
 			"8546/tcp",
-			map[string]string{
-				"GO_VERSION":   "1.20.4",
-				"BASE_IMAGE":   baseImageName,
-				"GENESIS_PATH": "config",
+			[]string{
+				"GO_VERSION=1.20.4",
+				"GENESIS_PATH=config",
+				"BASE_IMAGE=polard/base:v0.0.0",
 			},
 		)
 		Expect(err).ToNot(HaveOccurred())
@@ -79,12 +61,10 @@ var _ = Describe("Fixture", func() {
 	})
 
 	AfterEach(func() {
-		Expect(c.Stop()).To(Succeed())
-
+		Expect(c.Remove()).To(Succeed())
 	})
 
 	It("should create a container", func() {
-		err = c.Start()
-		Expect(err).ToNot(HaveOccurred())
+		Expect(c.Stop()).To(Succeed())
 	})
 })

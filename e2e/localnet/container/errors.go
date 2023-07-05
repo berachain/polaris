@@ -29,10 +29,10 @@ import "errors"
 
 // Errors returned by the localnet package.
 var (
+	ErrEmptyRepository  = errors.New("repository cannot be empty")
+	ErrEmptyTag         = errors.New("tag cannot be empty")
 	ErrEmptyName        = errors.New("name cannot be empty")
 	ErrEmptyImageName   = errors.New("image name cannot be empty")
-	ErrEmptyContext     = errors.New("context cannot be empty")
-	ErrEmptyDockerfile  = errors.New("dockerfile cannot be empty")
 	ErrEmptyHTTPAddress = errors.New("http address cannot be empty")
 	ErrEmptyWSAddress   = errors.New("ws address cannot be empty")
 )
