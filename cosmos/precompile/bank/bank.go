@@ -244,7 +244,6 @@ func (c *Contract) Send(
 	toAddress common.Address,
 	amount sdk.Coins,
 ) ([]any, error) {
-
 	if len(amount) == 0 {
 		return nil, precompile.ErrInvalidCoin
 	}

@@ -611,23 +611,3 @@ func getTestMetadata() []banktypes.Metadata {
 		},
 	}
 }
-
-func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
-	Amount *big.Int `json:"amount"`
-	Denom  string   `json:"denom"`
-} {
-	evmCoins := make([]struct {
-		Amount *big.Int `json:"amount"`
-		Denom  string   `json:"denom"`
-	}, len(sdkCoins))
-	for i, coin := range sdkCoins {
-		evmCoins[i] = struct {
-			Amount *big.Int `json:"amount"`
-			Denom  string   `json:"denom"`
-		}{
-			Amount: coin.Amount.BigInt(),
-			Denom:  coin.Denom,
-		}
-	}
-	return evmCoins
-}

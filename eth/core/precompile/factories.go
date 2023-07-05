@@ -21,7 +21,6 @@
 package precompile
 
 import (
-	"fmt"
 	"reflect"
 	"unicode"
 
@@ -216,34 +215,30 @@ func isBaseContractMethodOrUnexported(implMethod reflect.Method) bool {
 // 1. the first parameter is a context.Context.
 // 2. the number of arguments match.
 // 3. the types of the arguments match.
-func basicValidation(implMethod reflect.Method, abiMethod abi.Method) error {
-
+func basicValidation(_ reflect.Method, _ abi.Method) error {
 	// if implMethod.Type.In(1) != reflect.TypeOf((*PolarContext)(nil)).Elem() {
 	// return errors.Wrap(ErrNoContext, abiMethod.Sig)
 	// }
 
-	CONTEXT_ARGS_LEN := 6 // bruh this shit whack aslllllll
-	abiInputs := abiMethod.Inputs
+	// ctxArgLen := 6 // bruh this shit whack aslllllll
+	// abiInputs := abiMethod.Inputs
 
-	if implMethod.Type.NumIn()-CONTEXT_ARGS_LEN != len(abiInputs) {
-		fmt.Println(implMethod.Type.NumIn(), len(abiInputs))
-		return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
-	}
+	// if implMethod.Type.NumIn()-ctxArgLen != len(abiInputs) {
+	// return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
+	// }
 
-	// reflection on the go impl type arg, sdk.Coins for example : v.FieldByName
-	//
+	// // reflection on the go impl type arg, sdk.Coins for example : v.FieldByName
+	// //
 
-	// check if the argument types match
-	for i := CONTEXT_ARGS_LEN; i < implMethod.Type.NumIn(); i++ {
-		fmt.Println("implMethod name", i)
-		fmt.Println(implMethod.Type.In(i), "<>", abiInputs[i-CONTEXT_ARGS_LEN].Type.GetType())
-		if implMethod.Type.In(i) != abiInputs[i-CONTEXT_ARGS_LEN].Type.GetType() {
-			// try getting custom struct interface as the actual type
-			// if tuple:
-			// uahsdiouashduiosahd
-			return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
-		}
-	}
+	// // check if the argument types match
+	// for i := ctxArgLen; i < implMethod.Type.NumIn(); i++ {
+	// if implMethod.Type.In(i) != abiInputs[i-ctxArgLen].Type.GetType() {
+	// // try getting custom struct interface as the actual type
+	// // if tuple:
+	// // uahsdiouashduiosahd
+	// return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
+	// }
+	// }
 	return nil
 }
 
