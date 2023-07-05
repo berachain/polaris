@@ -52,5 +52,5 @@ type BankKeeper interface {
 }
 
 type StakingKeeper interface {
-	GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, found bool)
+	GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, err error)
 }

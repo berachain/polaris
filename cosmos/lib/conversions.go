@@ -200,3 +200,34 @@ func SdkAccountToAuthAccount(acc sdk.AccountI) auth.IAuthModuleBaseAccount {
 		Sequence:      acc.GetSequence(),
 	}
 }
+
+// EmptyValidator returns an empty validator.
+func EmptyValidator() staking.IStakingModuleValidator {
+	return staking.IStakingModuleValidator{
+		OperatorAddress: "",
+		ConsensusPubkey: []byte{},
+		Jailed:          false,
+		Status:          "",
+		Tokens:          new(big.Int),
+		DelegatorShares: new(big.Int),
+		Description: staking.IStakingModuleDescription{
+			Moniker:         "",
+			Identity:        "",
+			Website:         "",
+			SecurityContact: "",
+			Details:         "",
+		},
+		UnbondingHeight: 0,
+		UnbondingTime:   "",
+		Commission: staking.IStakingModuleCommission{
+			CommissionRates: staking.IStakingModuleCommissionRates{
+				Rate:          new(big.Int),
+				MaxRate:       new(big.Int),
+				MaxChangeRate: new(big.Int),
+			},
+		},
+		MinSelfDelegation:       new(big.Int),
+		UnbondingOnHoldRefCount: 0,
+		UnbondingIds:            []uint64{},
+	}
+}
