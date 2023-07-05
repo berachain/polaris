@@ -26,7 +26,6 @@ ARG APP_NAME=polard
 ARG DB_BACKEND=pebbledb
 ARG CMD_PATH=./cosmos/simapp/polard
 ARG FOUNDRY_DIR=contracts
-ARG GO_WORK="contracts eth cosmos magefiles lib e2e/localnet"
 
 #######################################################
 ###         Stage 1 - Build the Application         ###
