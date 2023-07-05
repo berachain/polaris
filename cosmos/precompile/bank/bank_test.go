@@ -506,20 +506,11 @@ var _ = Describe("Bank Precompile Test", func() {
 				accs := simtestutil.CreateRandomAccounts(2)
 				fromAcc, toAcc := accs[0], accs[1]
 
-				sortedSdkCoins := sdk.NewCoins(
-					sdk.NewCoin(
-						denom,
-						sdkmath.NewIntFromBigInt(balanceAmount),
-					),
-					sdk.NewCoin(
-						denom2,
-						sdkmath.NewIntFromBigInt(balanceAmount),
-					),
-				)
+				var unsortedSdkCoins []sdk.Coin
 
-				unsortedSdkCoins := sdk.NewCoins()
 				unsortedSdkCoins = append(unsortedSdkCoins, sdk.NewCoin(denom2, sdkmath.NewIntFromBigInt(balanceAmount)))
 				unsortedSdkCoins = append(unsortedSdkCoins, sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(balanceAmount)))
+				sortedSdkCoins := sdk.NewCoins(unsortedSdkCoins...)
 
 				err := FundAccount(
 					ctx,
@@ -540,7 +531,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					true,
 					cosmlib.AccAddressToEthAddress(fromAcc),
 					cosmlib.AccAddressToEthAddress(toAcc),
-					sdkCoinsToEvmCoins(unsortedSdkCoins),
+					(sortedSdkCoins),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -577,7 +568,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					true,
 					cosmlib.AccAddressToEthAddress(fromAcc),
 					cosmlib.AccAddressToEthAddress(toAcc),
-					sdkCoinsToEvmCoins(coinsToSend),
+					(coinsToSend),
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidCoin))
 			})

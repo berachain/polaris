@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"fmt"
 	"reflect"
 	"unicode"
 
@@ -199,7 +200,7 @@ func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (M
 // As each contractImpl is also  BaseContract, we need to ignore the methods that are in the BaseContract.
 // since we only care about the implementation methods, not any underlying methods from inheritance/composition.
 // We also need to ignore the methods that are not exported.
-// TODO: there has to be a cleaner way
+// TODO: we might not export all precompile implementation methods anyways.
 func isBaseContractMethodOrUnexported(implMethod reflect.Method) bool {
 	return implMethod.Name == "RegistryKey" ||
 		implMethod.Name == "ABIMethods" ||
@@ -215,13 +216,34 @@ func isBaseContractMethodOrUnexported(implMethod reflect.Method) bool {
 // 1. the first parameter is a context.Context.
 // 2. the number of arguments match.
 // 3. the types of the arguments match.
-func basicValidation(_ reflect.Method, _ abi.Method) error {
+func basicValidation(implMethod reflect.Method, abiMethod abi.Method) error {
+
 	// if implMethod.Type.In(1) != reflect.TypeOf((*PolarContext)(nil)).Elem() {
 	// return errors.Wrap(ErrNoContext, abiMethod.Sig)
-	// } else if implMethod.Type.NumIn()-1 != len(abiMethod.Inputs) {
-	// // return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
-	// fmt.Println("TODO: fix later")
 	// }
+
+	CONTEXT_ARGS_LEN := 6 // bruh this shit whack aslllllll
+	abiInputs := abiMethod.Inputs
+
+	if implMethod.Type.NumIn()-CONTEXT_ARGS_LEN != len(abiInputs) {
+		fmt.Println(implMethod.Type.NumIn(), len(abiInputs))
+		return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
+	}
+
+	// reflection on the go impl type arg, sdk.Coins for example : v.FieldByName
+	//
+
+	// check if the argument types match
+	for i := CONTEXT_ARGS_LEN; i < implMethod.Type.NumIn(); i++ {
+		fmt.Println("implMethod name", i)
+		fmt.Println(implMethod.Type.In(i), "<>", abiInputs[i-CONTEXT_ARGS_LEN].Type.GetType())
+		if implMethod.Type.In(i) != abiInputs[i-CONTEXT_ARGS_LEN].Type.GetType() {
+			// try getting custom struct interface as the actual type
+			// if tuple:
+			// uahsdiouashduiosahd
+			return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
+		}
+	}
 	return nil
 }
 

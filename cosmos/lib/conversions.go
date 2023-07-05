@@ -21,6 +21,7 @@
 package lib
 
 import (
+	"fmt"
 	"math/big"
 	"time"
 
@@ -75,6 +76,7 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	// sort the coins by denom, as Cosmos expects and remove any 0 amounts.
 	sdkCoins = sdk.NewCoins(sdkCoins...)
 	if len(sdkCoins) == 0 {
+		fmt.Println("WE ARE DOING THE RIGHT CHECK")
 		return nil, precompile.ErrInvalidCoin
 	}
 

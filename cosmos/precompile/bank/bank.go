@@ -24,6 +24,7 @@ import (
 	"context"
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -241,16 +242,16 @@ func (c *Contract) Send(
 	_ bool,
 	fromAddress common.Address,
 	toAddress common.Address,
-	args ...any,
+	amount sdk.Coins,
 ) ([]any, error) {
-	coins, err := cosmlib.ExtractCoinsFromInput(args[0])
-	if err != nil {
-		return nil, err
+
+	if len(amount) == 0 {
+		return nil, precompile.ErrInvalidCoin
 	}
-	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
+	_, err := c.msgServer.Send(ctx, &banktypes.MsgSend{
 		FromAddress: cosmlib.Bech32FromEthAddress(fromAddress),
 		ToAddress:   cosmlib.Bech32FromEthAddress(toAddress),
-		Amount:      coins,
+		Amount:      amount,
 	})
 	return []any{err == nil}, err
 }
