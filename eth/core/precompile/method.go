@@ -124,7 +124,7 @@ func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 
 	// Pack the return values and return, if any exist.
 	retVal := results[0]
-	ret, err := m.AbiMethod.Outputs.PackValues(retVal.Interface().([]interface{})) // 1) What
+	ret, err := m.AbiMethod.Outputs.PackValues(retVal.Interface().([]any)) // 1) What
 	if err != nil {
 		return nil, err
 	}

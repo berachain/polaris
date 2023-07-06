@@ -29,7 +29,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -140,7 +139,7 @@ func (c *Contract) SetSendAllowance(
 	_ bool,
 	owner common.Address,
 	spender common.Address,
-	amount []libgenerated.CosmosCoin,
+	amount any,
 	expiration *big.Int,
 ) ([]any, error) {
 	amt, err := cosmlib.ExtractCoinsFromInput(amount)

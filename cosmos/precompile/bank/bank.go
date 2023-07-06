@@ -27,7 +27,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	bankgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -242,7 +241,7 @@ func (c *Contract) Send(
 	_ bool,
 	fromAddress common.Address,
 	toAddress common.Address,
-	coins []libgenerated.CosmosCoin,
+	coins any,
 ) ([]any, error) {
 	amount, err := cosmlib.ExtractCoinsFromInput(coins)
 	if err != nil {

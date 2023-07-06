@@ -57,7 +57,7 @@ var _ = Describe("Bank", func() {
 	denom2 := "atoken"
 	denom3 := "stake"
 
-	FIt("should call functions on the precompile directly", func() {
+	It("should call functions on the precompile directly", func() {
 		numberOfDenoms := 8
 		coinsToBeSent := []bindings.CosmosCoin{
 			{
@@ -98,8 +98,10 @@ var _ = Describe("Bank", func() {
 		Expect(balance.Cmp(big.NewInt(1000000000000000000))).To(Equal(0))
 
 		// Send 1000 bera from alice to charlie
+		txr := tf.GenerateTransactOpts("alice")
+		// txr.GasLimit = 10000000
 		_, err = bankPrecompile.Send(
-			tf.GenerateTransactOpts("alice"),
+			txr,
 			tf.Address("alice"),
 			tf.Address("charlie"),
 			coinsToBeSent,
