@@ -72,16 +72,8 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			Execute: c.SetWithdrawAddress,
 		},
 		{
-			AbiSig:  "setWithdrawAddress(string)",
-			Execute: c.SetWithdrawAddressBech32,
-		},
-		{
 			AbiSig:  "withdrawDelegatorReward(address,address)",
 			Execute: c.WithdrawDelegatorReward,
-		},
-		{
-			AbiSig:  "withdrawDelegatorReward(string,string)",
-			Execute: c.SetWithdrawAddressBech32,
 		},
 		{
 			AbiSig:  "getWithdrawEnabled()",
@@ -107,27 +99,6 @@ func (c *Contract) SetWithdrawAddress(
 	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), sdk.AccAddress(withdrawAddr.Bytes()))
 }
 
-// SetWithdrawAddressBech32 is the precompile contract method for the `setWithdrawAddress(string)` method.
-func (c *Contract) SetWithdrawAddressBech32(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	withdrawAddr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	addr, err := sdk.AccAddressFromBech32(withdrawAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), addr)
-}
-
 // WithdrawDelegatorReward is the precompile contract method for the `withdrawDelegatorReward(address,address)`
 // method.
 func (c *Contract) WithdrawDelegatorReward(
@@ -148,35 +119,6 @@ func (c *Contract) WithdrawDelegatorReward(
 	}
 
 	return c.withdrawDelegatorRewardsHelper(ctx, sdk.AccAddress(delegator.Bytes()), sdk.ValAddress(validator.Bytes()))
-}
-
-// WithdrawDelegatorRewardBech32 is the precompile contract method for the `withdrawDelegatorReward(string,string)`.
-func (c *Contract) WithdrawDelegatorRewardBech32(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	delegator, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	validator, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	delegatorAddr, err := sdk.AccAddressFromBech32(delegator)
-	if err != nil {
-		return nil, err
-	}
-	validatorAddr, err := sdk.ValAddressFromBech32(validator)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.withdrawDelegatorRewardsHelper(ctx, delegatorAddr, validatorAddr)
 }
 
 // GetWithdrawAddrEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
