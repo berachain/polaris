@@ -517,8 +517,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					),
 				)
 
-				coins := sdkCoinsToEvmCoins(sortedSdkCoins)
-
 				err := FundAccount(
 					ctx,
 					bk,
@@ -538,7 +536,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					true,
 					cosmlib.AccAddressToEthAddress(fromAcc),
 					cosmlib.AccAddressToEthAddress(toAcc),
-					coins,
+					sdkCoinsToEvmCoins(sortedSdkCoins),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -619,10 +617,19 @@ func getTestMetadata() []banktypes.Metadata {
 	}
 }
 
-func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []libgenerated.CosmosCoin {
-	evmCoins := make([]libgenerated.CosmosCoin, len(sdkCoins))
+func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
+	Amount *big.Int `json:"amount"`
+	Denom  string   `json:"denom"`
+} {
+	evmCoins := make([]struct {
+		Amount *big.Int `json:"amount"`
+		Denom  string   `json:"denom"`
+	}, len(sdkCoins))
 	for i, coin := range sdkCoins {
-		evmCoins[i] = libgenerated.CosmosCoin{
+		evmCoins[i] = struct {
+			Amount *big.Int `json:"amount"`
+			Denom  string   `json:"denom"`
+		}{
 			Amount: coin.Amount.BigInt(),
 			Denom:  coin.Denom,
 		}

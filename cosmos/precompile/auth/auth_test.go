@@ -164,7 +164,7 @@ var _ = Describe("Address Precompile", func() {
 				false,
 				granter,
 				grantee,
-				cosmlib.SdkCoinsToEvmCoins(limit),
+				SdkCoinsToEvmCoins(limit),
 				big.NewInt(1),
 			)
 			Expect(err).To(HaveOccurred())
@@ -179,7 +179,7 @@ var _ = Describe("Address Precompile", func() {
 				false,
 				granter,
 				grantee,
-				cosmlib.SdkCoinsToEvmCoins(limit),
+				SdkCoinsToEvmCoins(limit),
 				big.NewInt(110),
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -194,7 +194,7 @@ var _ = Describe("Address Precompile", func() {
 				false,
 				granter,
 				grantee,
-				cosmlib.SdkCoinsToEvmCoins(limit),
+				SdkCoinsToEvmCoins(limit),
 				new(big.Int),
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -211,7 +211,7 @@ var _ = Describe("Address Precompile", func() {
 					false,
 					granter,
 					grantee,
-					cosmlib.SdkCoinsToEvmCoins(limit),
+					SdkCoinsToEvmCoins(limit),
 					new(big.Int),
 				)
 				Expect(err).ToNot(HaveOccurred())
