@@ -37,8 +37,9 @@ import (
 )
 
 const (
-	defaultTimeout = 30 * time.Second
-	nodeStartTime  = 10 * time.Second
+	defaultTimeout            = 30 * time.Second
+	nodeStartTime             = 10 * time.Second
+	initialBlockHeight uint64 = 2
 )
 
 // ContainerizedNode is an interface for a containerized network.
@@ -114,7 +115,7 @@ func NewContainerizedNode(
 		ethClient:       ethClient,
 	}
 	time.Sleep(nodeStartTime)
-	if err = node.WaitForBlock(2); err != nil {
+	if err = node.WaitForBlock(initialBlockHeight); err != nil {
 		return nil, err
 	}
 
@@ -130,17 +131,17 @@ func NewContainerizedNode(
 	return node, nil
 }
 
-// Start starts the network.
+// Start starts the node.
 func (c *containerizedNode) Start() error {
 	return c.containerClient.Start()
 }
 
-// Stop stops the network.
+// Stop stops the node.
 func (c *containerizedNode) Stop() error {
 	return c.containerClient.Stop()
 }
 
-// Reset stops the network, clears the database, and restarts the network.
+// Reset stops the node, clears the database, and restarts the node.
 func (c *containerizedNode) Reset() error {
 	if err := c.containerClient.Stop(); err != nil {
 		return err
@@ -150,27 +151,27 @@ func (c *containerizedNode) Reset() error {
 	return c.containerClient.Start()
 }
 
-// Remove removes the network.
+// Remove removes the node.
 func (c *containerizedNode) Remove() error {
 	return c.containerClient.Remove()
 }
 
-// GetHTTPAddress returns the HTTP address of the network.
+// GetHTTPAddress returns the HTTP address of the node.
 func (c *containerizedNode) GetHTTPAddress() string {
 	return c.httpAddress
 }
 
-// GetWSAddress returns the WS address of the network.
+// GetWSAddress returns the WS address of the node.
 func (c *containerizedNode) GetWSAddress() string {
 	return c.wsAddress
 }
 
-// EthClient returns an Ethereum client for the network.
+// EthClient returns an Ethereum client for the node.
 func (c *containerizedNode) EthClient() *ethclient.Client {
 	return c.ethClient
 }
 
-// EthWsClient returns an Ethereum client for the network.
+// EthWsClient returns an Ethereum client for the node.
 func (c *containerizedNode) EthWsClient() *ethclient.Client {
 	return c.ethWsClient
 }

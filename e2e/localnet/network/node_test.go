@@ -81,11 +81,11 @@ var _ = Describe("Fixture", func() {
 		Expect(err).ToNot(HaveOccurred())
 		GinkgoWriter.Println("Listening for blocks...")
 		select {
-		case err := <-sub.Err():
+		case err = <-sub.Err():
 			Fail(fmt.Sprintf("Error in subscription for recent blocks: %v", err))
 		case header := <-headers:
 			GinkgoWriter.Printf("New block: %v", header.Number.Uint64())
-			_, err := wsclient.BlockByNumber(
+			_, err = wsclient.BlockByNumber(
 				context.Background(), big.NewInt(header.Number.Int64()),
 			)
 			Expect(err).ToNot(HaveOccurred())
