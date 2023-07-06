@@ -31,6 +31,7 @@ import (
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -95,14 +96,14 @@ var _ = Describe("Header", func() {
 	})
 
 	It("should be able to prune headers", func() {
-		toAdd := int64(prevHeaderHashes + 5)
-		var deletedHash common.Hash
+		toAdd := int64(prevHeaderHashes + 5) // the first 5 hashes will eventually get deleted
+		var deletedHashes []common.Hash
 		for i := int64(1); i <= toAdd; i++ {
-			p.Prepare(ctx.WithBlockHeight(i))
 			ctx = ctx.WithBlockHeight(i)
+			p.Prepare(ctx)
 			header := generateHeaderAtHeight(i)
-			if i == 5 {
-				deletedHash = header.Hash()
+			if i <= 5 { // these hashes will be deleted
+				deletedHashes = append(deletedHashes, header.Hash())
 			}
 			err := p.StoreHeader(header)
 			Expect(err).ToNot(HaveOccurred())
@@ -116,12 +117,15 @@ var _ = Describe("Header", func() {
 		_, err = p.GetHeaderByNumber(uint64(toAdd))
 		Expect(err).ToNot(HaveOccurred())
 
-		// check to see that the hash is pruned
-		// this hash will not be found because we only store last 256
-		var deletedHeader *types.Header
-		deletedHeader, err = p.GetHeaderByHash(deletedHash)
-		Expect(err).To(HaveOccurred())
-		Expect(deletedHeader).To(BeNil())
+		// check to see that the hashes are actually pruned
+		// these 5 hashes will not be found because we only store last prevHeaderHashes (256)
+		for _, deletedHash := range deletedHashes {
+			var deletedHeader *types.Header
+			deletedHeader, err = p.GetHeaderByHash(deletedHash)
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(MatchError(core.ErrHeaderNotFound))
+			Expect(deletedHeader).To(BeNil())
+		}
 	})
 })
 

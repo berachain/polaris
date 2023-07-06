@@ -31,7 +31,6 @@ import (
 	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/erc20"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 
@@ -74,10 +73,6 @@ var _ = Describe("ERC20", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(denom).To(Equal(""))
 
-				// invalid address
-				_, err = erc20Precompile.CoinDenomForERC20Address0(nil, "")
-				Expect(err).To(HaveOccurred())
-
 				// nonexistent denom
 				token, err := erc20Precompile.Erc20AddressForCoinDenom(nil, "")
 				Expect(err).ToNot(HaveOccurred())
@@ -90,13 +85,8 @@ var _ = Describe("ERC20", func() {
 				Expect(token).To(Equal(common.Address{}))
 
 				tokenAddr := common.BytesToAddress([]byte("abera"))
-				tokenBech32 := cosmlib.AddressToAccAddress(tokenAddr).String()
 
 				denom, err := erc20Precompile.CoinDenomForERC20Address(nil, tokenAddr)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(denom).To(Equal(""))
-
-				denom, err = erc20Precompile.CoinDenomForERC20Address0(nil, tokenBech32)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(denom).To(Equal(""))
 			})
