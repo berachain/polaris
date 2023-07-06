@@ -31,7 +31,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
+	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -42,11 +42,11 @@ import (
  * This file contains conversions between native Cosmos SDK types and go-ethereum ABI types.
  */
 
-// SdkCoinsToEvmCoins converts sdk.Coins into []generated.CosmosCoin.
-func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.CosmosCoin {
-	evmCoins := make([]generated.CosmosCoin, len(sdkCoins))
+// SdkCoinsToEvmCoins converts sdk.Coins into []libgenerated.CosmosCoin.
+func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []libgenerated.CosmosCoin {
+	evmCoins := make([]libgenerated.CosmosCoin, len(sdkCoins))
 	for i, coin := range sdkCoins {
-		evmCoins[i] = generated.CosmosCoin{
+		evmCoins[i] = libgenerated.CosmosCoin{
 			Amount: coin.Amount.BigInt(),
 			Denom:  coin.Denom,
 		}
@@ -58,10 +58,7 @@ func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []generated.CosmosCoin {
 func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
 	// the any type input into IBankModuleCoin.
-	amounts, ok := utils.GetAs[[]struct {
-		Amount *big.Int `json:"amount"`
-		Denom  string   `json:"denom"`
-	}](coins)
+	amounts, ok := utils.GetAs[[]libgenerated.CosmosCoin](coins)
 	if !ok {
 		return nil, precompile.ErrInvalidCoin
 	}

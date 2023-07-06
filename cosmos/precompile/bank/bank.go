@@ -27,7 +27,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
+	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
+	bankgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -46,7 +47,7 @@ type Contract struct {
 func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
-			generated.BankModuleMetaData.ABI,
+			bankgenerated.BankModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 		),
 		msgServer: ms,
@@ -190,16 +191,16 @@ func (c *Contract) GetDenomMetadata(
 		return nil, err
 	}
 
-	denomUnits := make([]generated.IBankModuleDenomUnit, len(res.Metadata.DenomUnits))
+	denomUnits := make([]bankgenerated.IBankModuleDenomUnit, len(res.Metadata.DenomUnits))
 	for i, d := range res.Metadata.DenomUnits {
-		denomUnits[i] = generated.IBankModuleDenomUnit{
+		denomUnits[i] = bankgenerated.IBankModuleDenomUnit{
 			Denom:    d.Denom,
 			Aliases:  d.Aliases,
 			Exponent: d.Exponent,
 		}
 	}
 
-	result := generated.IBankModuleDenomMetadata{
+	result := bankgenerated.IBankModuleDenomMetadata{
 		Description: res.Metadata.Description,
 		DenomUnits:  denomUnits,
 		Base:        res.Metadata.Base,
@@ -241,16 +242,16 @@ func (c *Contract) Send(
 	_ bool,
 	fromAddress common.Address,
 	toAddress common.Address,
-	args ...any,
+	coins []libgenerated.CosmosCoin,
 ) ([]any, error) {
-	coins, err := cosmlib.ExtractCoinsFromInput(args[0])
+	amount, err := cosmlib.ExtractCoinsFromInput(coins)
 	if err != nil {
 		return nil, err
 	}
 	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
 		FromAddress: cosmlib.Bech32FromEthAddress(fromAddress),
 		ToAddress:   cosmlib.Bech32FromEthAddress(toAddress),
-		Amount:      coins,
+		Amount:      amount,
 	})
 	return []any{err == nil}, err
 }
