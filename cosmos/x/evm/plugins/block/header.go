@@ -34,8 +34,12 @@ import (
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
-// prevHeaderHashes is the number of previous header hashes being stored on chain.
-const prevHeaderHashes = 256
+const (
+	// prevHeaderHashes is the number of previous header hashes being stored on chain.
+	prevHeaderHashes = 256
+	// headerHashKeySize is the number of bytes in the header hash key: 1 (prefix) + 8 (block height).
+	headerHashKeySize = 9
+)
 
 // ===========================================================================
 // Polaris Block Header Tracking
@@ -170,7 +174,7 @@ func (p *plugin) readGenesisHeaderBytes() []byte {
 
 // headerHashKeyForHeight returns the key for the hash of the header at the given height.
 func headerHashKeyForHeight(number int64) []byte {
-	bz := make([]byte, 9) //nolint:mnd // 1 for the key prefix, 8 for the header number.
+	bz := make([]byte, headerHashKeySize)
 	copy(bz, []byte{types.HeaderHashKeyPrefix})
 	copy(bz[1:], sdk.Uint64ToBigEndian(uint64(number%prevHeaderHashes)))
 	return bz
