@@ -31,10 +31,10 @@ import (
 	"math/big"
 	"testing"
 
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 func TestLocalnet(t *testing.T) {
@@ -43,12 +43,10 @@ func TestLocalnet(t *testing.T) {
 }
 
 var _ = Describe("Fixture", func() {
-	var (
-		c   ContainerizedNode
-		err error
-	)
+	var c ContainerizedNode
 
 	BeforeEach(func() {
+		var err error
 		c, err = NewContainerizedNode(
 			"localnet",
 			"latest",

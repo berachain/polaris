@@ -28,15 +28,18 @@ package localnet
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
+
 	"pkg.berachain.dev/polaris/e2e/localnet/container"
 )
 
-const defaultTimeout = 30 * time.Second
+const (
+	defaultTimeout = 30 * time.Second
+	nodeStartTime  = 10 * time.Second
+)
 
 // ContainerizedNode is an interface for a containerized network.
 type ContainerizedNode interface {
@@ -62,6 +65,8 @@ type containerizedNode struct {
 
 // NewContainerizedNode creates an implementation of Localnet using Docker. The node will be past
 // block 2 by the time node is available.
+//
+//nolint:nonamedreturns // deferred error handling.
 func NewContainerizedNode(
 	repository string,
 	tag string,
@@ -89,8 +94,8 @@ func NewContainerizedNode(
 	// If we error out, make sure to stop and remove the container.
 	defer func() {
 		if err != nil {
-			containerClient.Stop()
-			containerClient.Remove()
+			_ = containerClient.Stop()
+			_ = containerClient.Remove()
 		}
 	}()
 
@@ -107,9 +112,8 @@ func NewContainerizedNode(
 		httpAddress:     httpAddress,
 		wsAddress:       wsAddress,
 		ethClient:       ethClient,
-		// ethWsClient:     ethclient.NewClient(ws),
 	}
-	time.Sleep(10 * time.Second)
+	time.Sleep(nodeStartTime)
 	if err = node.WaitForBlock(2); err != nil {
 		return nil, err
 	}
@@ -119,7 +123,6 @@ func NewContainerizedNode(
 		context.Background(), "ws://"+containerClient.GetEndpoint(wsAddress), "*",
 	)
 	if err != nil {
-		fmt.Println("ERR DIALING WS", err)
 		return nil, err
 	}
 	node.ethWsClient = ethclient.NewClient(ws)
@@ -172,7 +175,7 @@ func (c *containerizedNode) EthWsClient() *ethclient.Client {
 	return c.ethWsClient
 }
 
-// WaitForBlock waits for the chain to reach the given block height
+// WaitForBlock waits for the chain to reach the given block height.
 func (c *containerizedNode) WaitForBlock(number uint64) error {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
