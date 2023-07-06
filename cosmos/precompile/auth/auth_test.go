@@ -94,68 +94,6 @@ var _ = Describe("Address Precompile", func() {
 		Expect(contract.CustomValueDecoders()).To(BeNil())
 	})
 
-	When("When Calling ConvertHexToBech32", func() {
-		It("should fail on invalid inputs", func() {
-			res, err := contract.ConvertHexToBech32(
-				context.Background(),
-				nil,
-				common.Address{},
-				new(big.Int),
-				"invalid",
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-			Expect(res).To(BeNil())
-		})
-
-		It("should not convert from invalid hex to bech32", func() {
-			res, err := contract.ConvertHexToBech32(
-				context.Background(),
-				nil,
-				common.Address{},
-				new(big.Int),
-				common.BytesToAddress([]byte("test")),
-			)
-			Expect(err).To(HaveOccurred())
-			Expect(res).To(BeNil())
-		})
-	})
-	When("Calling ConvertBech32ToHexAddress", func() {
-		It("should error if invalid type", func() {
-			res, err := contract.ConvertBech32ToHexAddress(
-				context.Background(),
-				nil,
-				common.Address{},
-				new(big.Int),
-				common.BytesToAddress([]byte("invalid")),
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidString))
-			Expect(res).To(BeNil())
-		})
-
-		It("should error if invalid bech32 address", func() {
-			res, err := contract.ConvertBech32ToHexAddress(
-				context.Background(),
-				nil,
-				common.Address{},
-				new(big.Int),
-				"0xxxxx",
-			)
-			Expect(err).To(HaveOccurred())
-			Expect(res).To(BeNil())
-		})
-
-		It("should convert from bech32 to hex", func() {
-			res, err := contract.ConvertBech32ToHexAddress(
-				context.Background(),
-				nil,
-				common.Address{},
-				new(big.Int),
-				cosmlib.AddressToAccAddress(common.BytesToAddress([]byte("test"))).String(),
-			)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(res[0]).To(Equal(common.BytesToAddress([]byte("test"))))
-		})
-	})
 	When("SendGrant", func() {
 		var (
 			evm              *mock.PrecompileEVMMock

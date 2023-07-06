@@ -25,7 +25,6 @@ import (
 	"math/big"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -37,9 +36,6 @@ import (
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
-
-// requiredGas is the amount required to convert between eth addresses and bech32 cosmos addresses.
-const requiredGas = 1000
 
 // Contract is the precompile contract for the auth(z) module.
 type Contract struct {
@@ -72,16 +68,6 @@ func NewPrecompileContract(
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	return ethprecompile.Methods{
 		{
-			AbiSig:      "convertHexToBech32(address)",
-			Execute:     c.ConvertHexToBech32,
-			RequiredGas: requiredGas,
-		},
-		{
-			AbiSig:      "convertBech32ToHexAddress(string)",
-			Execute:     c.ConvertBech32ToHexAddress,
-			RequiredGas: requiredGas,
-		},
-		{
 			AbiSig:  "setSendAllowance(address,address,(uint256,string)[],uint256)",
 			Execute: c.SetSendAllowance,
 		},
@@ -93,67 +79,7 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			AbiSig:  "getAccountInfo(address)",
 			Execute: c.GetAccountInfoAddrInput,
 		},
-		{
-			AbiSig:  "getAccountInfo(string)",
-			Execute: c.GetAccountInfoStringInput,
-		},
 	}
-}
-
-// ConvertHexToBech32 converts a common.Address to a bech32 string.
-func (c *Contract) ConvertHexToBech32(
-	_ context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	hexAddr, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
-	// try val address first
-	valAddr, err := sdk.ValAddressFromHex(hexAddr.String())
-	if err == nil {
-		return []any{valAddr.String()}, nil
-	}
-
-	// try account address
-	accAddr, err := sdk.AccAddressFromHexUnsafe(hexAddr.String())
-	if err == nil {
-		return []any{accAddr.String()}, nil
-	}
-
-	return nil, precompile.ErrInvalidHexAddress
-}
-
-// ConvertBech32ToHexAddress converts a bech32 string to a common.Address.
-func (c *Contract) ConvertBech32ToHexAddress(
-	_ context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	bech32Addr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-
-	// try account address first
-	accAddr, err := sdk.AccAddressFromBech32(bech32Addr)
-	if err == nil {
-		return []any{cosmlib.AccAddressToEthAddress(accAddr)}, nil
-	}
-
-	// try validator address
-	valAddr, err := sdk.ValAddressFromBech32(bech32Addr)
-	if err == nil {
-		return []any{cosmlib.ValAddressToEthAddress(valAddr)}, nil
-	}
-
-	return nil, precompile.ErrInvalidBech32Address
 }
 
 // SetSendAllowance sends a send authorization message to the authz module.
@@ -250,19 +176,4 @@ func (c *Contract) GetAccountInfoAddrInput(
 		return nil, precompile.ErrInvalidString
 	}
 	return c.accountInfoHelper(ctx, cosmlib.Bech32FromEthAddress(acc))
-}
-
-// GetAccountInfoStringInput implements `getAccountInfo(string)`.
-func (c *Contract) GetAccountInfoStringInput(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	acc, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	return c.accountInfoHelper(ctx, acc)
 }

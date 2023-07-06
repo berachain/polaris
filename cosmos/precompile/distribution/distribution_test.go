@@ -136,12 +136,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 		Expect(log.Address).To(Equal(contract.RegistryKey()))
 	})
 
-	When("PrecompileMethods", func() {
-		It("should return the correct methods", func() {
-			Expect(contract.PrecompileMethods()).To(HaveLen(5))
-		})
-	})
-
 	When("SetWithdrawAddress", func() {
 		It("should fail if not common address", func() {
 			res, err := contract.SetWithdrawAddress(
@@ -163,44 +157,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 				testutil.Alice,
 				big.NewInt(0),
 				testutil.Bob,
-			)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(res).ToNot(BeNil())
-		})
-	})
-
-	When("SetWithdrawAddressBech32", func() {
-		It("should fail if not string", func() {
-			res, err := contract.SetWithdrawAddressBech32(
-				ctx,
-				nil,
-				testutil.Alice,
-				big.NewInt(0),
-				1,
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidString))
-			Expect(res).To(BeNil())
-		})
-
-		It("should fail if not bech32 string", func() {
-			res, err := contract.SetWithdrawAddressBech32(
-				ctx,
-				nil,
-				testutil.Alice,
-				big.NewInt(0),
-				"invalid",
-			)
-			Expect(err).To(HaveOccurred())
-			Expect(res).To(BeNil())
-		})
-
-		It("should succeed", func() {
-			res, err := contract.SetWithdrawAddressBech32(
-				ctx,
-				nil,
-				testutil.Alice,
-				big.NewInt(0),
-				cosmlib.AddressToAccAddress(testutil.Bob).String(),
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).ToNot(BeNil())
@@ -308,89 +264,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 			})
 		})
 
-		When("Withdraw Delegator Rewards bech32 address", func() {
-			It("should fail if delegator address not string", func() {
-				res, err := contract.WithdrawDelegatorRewardBech32(
-					ctx,
-					nil,
-					testutil.Alice,
-					big.NewInt(0),
-					1,
-					valAddr.String(),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if validator address not string", func() {
-				res, err := contract.WithdrawDelegatorRewardBech32(
-					ctx,
-					nil,
-					testutil.Alice,
-					big.NewInt(0),
-					addr.String(),
-					1,
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if delegator address not bech32", func() {
-				res, err := contract.WithdrawDelegatorRewardBech32(
-					ctx,
-					nil,
-					testutil.Alice,
-					big.NewInt(0),
-					"invalid",
-					valAddr.String(),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if validator address not bech32", func() {
-				res, err := contract.WithdrawDelegatorRewardBech32(
-					ctx,
-					nil,
-					testutil.Alice,
-					big.NewInt(0),
-					addr.String(),
-					"invalid",
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if delegator address not found", func() {
-				res, err := contract.WithdrawDelegatorRewardBech32(
-					ctx,
-					nil,
-					testutil.Alice,
-					big.NewInt(0),
-					testutil.Bob.String(),
-					valAddr.String(),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("Success", func() {
-				res, err := contract.WithdrawDelegatorRewardBech32(
-					ctx,
-					nil,
-					testutil.Alice,
-					big.NewInt(0),
-					addr.String(),
-					valAddr.String(),
-				)
-				Expect(err).ToNot(HaveOccurred())
-				resTyped := utils.MustGetAs[[]libgenerated.CosmosCoin](res[0])
-				Expect(resTyped[0].Denom).To(Equal(sdk.DefaultBondDenom))
-				rewards, _ := tokens.TruncateDecimal()
-				Expect(resTyped[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
-			})
-
-		})
 		When("Reading Params", func() {
 			It("Should get if withdraw forwarding is enabled", func() {
 				res, err := contract.GetWithdrawAddrEnabled(ctx, nil, testutil.Alice, big.NewInt(0))
@@ -403,7 +276,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 				Expect(contract.CustomValueDecoders()).ToNot(BeNil())
 			})
 			It("Should have correct amount of precompile methods", func() {
-				Expect(contract.PrecompileMethods()).To(HaveLen(5))
+				Expect(contract.PrecompileMethods()).To(HaveLen(3))
 			})
 		})
 	})
