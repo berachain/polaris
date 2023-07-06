@@ -73,32 +73,22 @@ interface IBankModule {
     /**
      * @dev Returns the `amount` of account balance by address for a given denomination.
      */
-    function getBalance(
-        address accountAddress,
-        string calldata denom
-    ) external view returns (uint256);
+    function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
 
     /**
      * @dev Returns account balance by address for all denominations.
      */
-    function getAllBalances(
-        address accountAddress
-    ) external view returns (Cosmos.Coin[] memory);
+    function getAllBalances(address accountAddress) external view returns (Cosmos.Coin[] memory);
 
     /**
      * @dev Returns the `amount` of account balance by address for a given denomination.
      */
-    function getSpendableBalance(
-        address accountAddress,
-        string calldata denom
-    ) external view returns (uint256);
+    function getSpendableBalance(address accountAddress, string calldata denom) external view returns (uint256);
 
     /**
      * @dev Returns account balance by address for all denominations.
      */
-    function getAllSpendableBalances(
-        address accountAddress
-    ) external view returns (Cosmos.Coin[] memory);
+    function getAllSpendableBalances(address accountAddress) external view returns (Cosmos.Coin[] memory);
 
     /**
      * @dev Returns the total supply of a single coin.
@@ -113,9 +103,7 @@ interface IBankModule {
     /**
      * @dev Returns the denomination's metadata.
      */
-    function getDenomMetadata(
-        string calldata denom
-    ) external view returns (DenomMetadata memory);
+    function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);
 
     /**
      * @dev Returns if the denom is enabled to send
@@ -127,11 +115,10 @@ interface IBankModule {
     /**
      * @dev Send coins from one address to another.
      */
-    function send(
-        address fromAddress,
-        address toAddress,
-        Cosmos.Coin[] calldata amount
-    ) external payable returns (bool);
+    function send(address fromAddress, address toAddress, Cosmos.Coin[] calldata amount)
+        external
+        payable
+        returns (bool);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 

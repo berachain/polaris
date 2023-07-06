@@ -34,9 +34,7 @@ interface IAuthModule {
     /**
      * @dev Returns the base account information for the given account address.
      */
-    function getAccountInfo(
-        address account
-    ) external view returns (BaseAccount memory);
+    function getAccountInfo(address account) external view returns (BaseAccount memory);
 
     /**
      * @dev setSendAllowance sets the send authorization (allowance) between owner and spender.
@@ -45,12 +43,9 @@ interface IAuthModule {
      * @param amount the Coins of the allowance
      * @param expiration the expiration time of the grant (0 means no expiration)
      */
-    function setSendAllowance(
-        address owner,
-        address spender,
-        Cosmos.Coin[] calldata amount,
-        uint256 expiration
-    ) external returns (bool);
+    function setSendAllowance(address owner, address spender, Cosmos.Coin[] calldata amount, uint256 expiration)
+        external
+        returns (bool);
 
     /**
      * @dev getSendAllowance returns the send authorization (allowance) amount between owner and
@@ -59,11 +54,7 @@ interface IAuthModule {
      * @param spender the account that was granted the allowance
      * @param denom the denomination of the Coin that was allowed
      */
-    function getSendAllowance(
-        address owner,
-        address spender,
-        string calldata denom
-    ) external view returns (uint256);
+    function getSendAllowance(address owner, address spender, string calldata denom) external view returns (uint256);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 

@@ -30,9 +30,7 @@ interface IDistributionModule {
      * @dev The caller (msg.sender) can set the address that will receive the deligation rewards.
      * @param withdrawAddress The address to set as the withdraw address.
      */
-    function setWithdrawAddress(
-        address withdrawAddress
-    ) external returns (bool);
+    function setWithdrawAddress(address withdrawAddress) external returns (bool);
 
     function getWithdrawEnabled() external view returns (bool);
 
@@ -41,10 +39,7 @@ interface IDistributionModule {
      * @param delegator The delegator to withdraw the rewards from.
      * @param validator The validator to withdraw the rewards from.
      */
-    function withdrawDelegatorReward(
-        address delegator,
-        address validator
-    ) external returns (Cosmos.Coin[] memory);
+    function withdrawDelegatorReward(address delegator, address validator) external returns (Cosmos.Coin[] memory);
 
     /**
      * @dev Emitted by the distribution module when `amount` is withdrawn from a delegation with

@@ -136,12 +136,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 		Expect(log.Address).To(Equal(contract.RegistryKey()))
 	})
 
-	When("PrecompileMethods", func() {
-		It("should return the correct methods", func() {
-			Expect(contract.PrecompileMethods()).To(HaveLen(5))
-		})
-	})
-
 	When("SetWithdrawAddress", func() {
 		It("should fail if not common address", func() {
 			res, err := contract.SetWithdrawAddress(
@@ -285,7 +279,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 				Expect(contract.CustomValueDecoders()).ToNot(BeNil())
 			})
 			It("Should have correct amount of precompile methods", func() {
-				Expect(contract.PrecompileMethods()).To(HaveLen(5))
+				Expect(contract.PrecompileMethods()).To(HaveLen(3))
 			})
 		})
 	})

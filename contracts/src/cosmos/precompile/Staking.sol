@@ -163,18 +163,6 @@ interface IStakingModule {
         int64 creationHeight
     ) external payable returns (bool);
 
-    /**
-     * @dev Cancels msg.sender's unbonding delegation with `validatorAddress` and delegates the
-     * `amount` of tokens back to `validatorAddress` (at hex bech32 addresses)
-     *
-     * Provide the `creationHeight` of the original unbonding delegation
-     */
-    function cancelUnbondingDelegation(
-        string calldata validatorAddress,
-        uint256 amount,
-        int64 creationHeight
-    ) external payable returns (bool);
-
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 
     /**

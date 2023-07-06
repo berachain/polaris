@@ -39,10 +39,7 @@ interface IERC20Module {
      * denomination `denom`) to an ERC20 token from `owner` to `recipient`.
      */
     event TransferCoinToErc20(
-        string indexed denom,
-        address indexed owner,
-        address indexed recipient,
-        Cosmos.Coin[] amount
+        string indexed denom, address indexed owner, address indexed recipient, Cosmos.Coin[] amount
     );
 
     /**
@@ -50,10 +47,7 @@ interface IERC20Module {
      * `token`) to an SDK coin from `owner` to `recipient`.
      */
     event TransferErc20ToCoin(
-        address indexed token,
-        address indexed owner,
-        address indexed recipient,
-        Cosmos.Coin[] amount
+        address indexed token, address indexed owner, address indexed recipient, Cosmos.Coin[] amount
     );
 
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
@@ -61,24 +55,18 @@ interface IERC20Module {
     /**
      * @dev coinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address.
      */
-    function coinDenomForERC20Address(
-        IERC20 token
-    ) external view returns (string memory);
+    function coinDenomForERC20Address(IERC20 token) external view returns (string memory);
 
     /**
      * @dev coinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address
      * `token` (in string bech32 format).
      */
-    function coinDenomForERC20Address(
-        string calldata token
-    ) external view returns (string memory);
+    function coinDenomForERC20Address(string calldata token) external view returns (string memory);
 
     /**
      * @dev erc20AddressForCoinDenom returns the ERC20 address for the given SDK coin denomination.
      */
-    function erc20AddressForCoinDenom(
-        string calldata denom
-    ) external view returns (IERC20);
+    function erc20AddressForCoinDenom(string calldata denom) external view returns (IERC20);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
@@ -87,10 +75,7 @@ interface IERC20Module {
      * @param denom the denomination of the SDK coin being transferred from
      * @param amount the amount of coins to transfer
      */
-    function transferCoinToERC20(
-        string calldata denom,
-        uint256 amount
-    ) external returns (bool);
+    function transferCoinToERC20(string calldata denom, uint256 amount) external returns (bool);
 
     /**
      * @dev transferCoinToERC20From transfers `amount` SDK coins to ERC20 tokens from `owner` to
@@ -100,12 +85,9 @@ interface IERC20Module {
      * @param recipient the address of the recipient of the tokens
      * @param amount the amount of coins to transfer
      */
-    function transferCoinToERC20From(
-        string calldata denom,
-        address owner,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
+    function transferCoinToERC20From(string calldata denom, address owner, address recipient, uint256 amount)
+        external
+        returns (bool);
 
     /**
      * @dev transferCoinToERC20To transfers `amount` SDK coins to ERC20 tokens from `msg.sender` to
@@ -114,21 +96,14 @@ interface IERC20Module {
      * @param recipient the address of the recipient of the tokens
      * @param amount the amount of coins to transfer
      */
-    function transferCoinToERC20To(
-        string calldata denom,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
+    function transferCoinToERC20To(string calldata denom, address recipient, uint256 amount) external returns (bool);
 
     /**
      * @dev transferERC20ToCoin transfers `amount` ERC20 tokens to SDK coins for `msg.sender`
      * @param token the ERC20 token being transferred from
      * @param amount the amount of tokens to transfer
      */
-    function transferERC20ToCoin(
-        IERC20 token,
-        uint256 amount
-    ) external returns (bool);
+    function transferERC20ToCoin(IERC20 token, uint256 amount) external returns (bool);
 
     /**
      * @dev transferERC20ToCoinFrom transfers `amount` ERC20 tokens to SDK coins from `owner` to
@@ -138,12 +113,9 @@ interface IERC20Module {
      * @param recipient the address of the recipient of the tokens
      * @param amount the amount of tokens to transfer
      */
-    function transferERC20ToCoinFrom(
-        IERC20 token,
-        address owner,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
+    function transferERC20ToCoinFrom(IERC20 token, address owner, address recipient, uint256 amount)
+        external
+        returns (bool);
 
     /**
      * @dev transferERC20ToCoinTo transfers `amount` ERC20 tokens to SDK coins from `msg.sender` to
@@ -152,9 +124,5 @@ interface IERC20Module {
      * @param recipient the address of the recipient of the tokens
      * @param amount the amount of tokens to transfer
      */
-    function transferERC20ToCoinTo(
-        IERC20 token,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
+    function transferERC20ToCoinTo(IERC20 token, address recipient, uint256 amount) external returns (bool);
 }

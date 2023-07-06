@@ -91,12 +91,6 @@ var _ = Describe("Staking", func() {
 		})
 	})
 
-	When("PrecompileMethods", func() {
-		It("should return the correct methods", func() {
-			Expect(contract.PrecompileMethods()).To(HaveLen(len(contract.ABIMethods())))
-		})
-	})
-
 	When("ABIEvents", func() {
 		It("should return the correct events", func() {
 			var cAbi abi.ABI

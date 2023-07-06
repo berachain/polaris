@@ -37,9 +37,6 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// requiredGas is the amount required to convert between eth addresses and bech32 cosmos addresses.
-const requiredGas = 1000
-
 // Contract is the precompile contract for the auth(z) module.
 type Contract struct {
 	ethprecompile.BaseContract

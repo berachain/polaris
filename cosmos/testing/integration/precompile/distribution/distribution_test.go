@@ -83,7 +83,7 @@ var _ = Describe("Distribution Precompile", func() {
 	It("should be able to set withdraw address with cosmos address", func() {
 		addr := sdk.AccAddress("addr")
 		txr := tf.GenerateTransactOpts("alice")
-		tx, err := precompile.SetWithdrawAddress0(txr, addr.String())
+		tx, err := precompile.SetWithdrawAddress(txr, common.BytesToAddress(addr))
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
