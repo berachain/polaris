@@ -100,7 +100,6 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			AbiSig:  "getValidator(address)",
 			Execute: c.GetValidatorAddrInput,
 		},
-
 		{
 			AbiSig:  "getDelegatorValidators(address)",
 			Execute: c.GetDelegatorValidatorsAddrInput,
