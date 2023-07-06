@@ -87,7 +87,7 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
 
-		delVals, err := stakingPrecompile.GetDelegatorValidators0(nil, tf.Address("alice"))
+		delVals, err := stakingPrecompile.GetDelegatorValidators(nil, tf.Address("alice"))
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delVals).To(HaveLen(1))
 		delValAddr, err := sdk.ValAddressFromBech32(delVals[0].OperatorAddress)
