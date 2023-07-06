@@ -34,8 +34,12 @@ import (
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
-// prevHeaderHashes is the number of previous header hashes being stored on chain.
-const prevHeaderHashes = 256
+const (
+	// prevHeaderHashes is the number of previous header hashes being stored on chain.
+	prevHeaderHashes = 256
+	// headerHashKeySize is the number of bytes in the header hash key: 1 (prefix) + 8 (block height).
+	headerHashKeySize = 9
+)
 
 // ===========================================================================
 // Polaris Block Header Tracking
@@ -87,6 +91,7 @@ func (p *plugin) GetHeaderByHash(hash common.Hash) (*coretypes.Header, error) {
 
 // StoreHeader implements core.BlockPlugin.
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
+	headerHash := header.Hash()
 	headerBz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
@@ -102,7 +107,7 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 
 	// write genesis header
 	if blockHeight == 0 {
-		return p.writeGenesisHeaderBytes(header.Hash(), headerBz)
+		return p.writeGenesisHeaderBytes(headerHash, headerBz)
 	}
 
 	kvstore := p.ctx.KVStore(p.storekey)
@@ -111,14 +116,13 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 
 	// rotate previous header hashes
 	if pruneHeight := blockHeight - prevHeaderHashes; pruneHeight > 0 {
-		var toRemove *coretypes.Header
-		toRemove, err = p.GetHeaderByNumber(uint64(pruneHeight))
-		if err != nil {
-			return err
-		}
-		kvstore.Delete(toRemove.Hash().Bytes())
+		hashKey := headerHashKeyForHeight(pruneHeight)
+		pruneHash := kvstore.Get(hashKey)
+		kvstore.Delete(hashKey)
+		kvstore.Delete(pruneHash)
 	}
-	kvstore.Set(header.Hash().Bytes(), header.Number.Bytes())
+	kvstore.Set(headerHashKeyForHeight(blockHeight), headerHash.Bytes())
+	kvstore.Set(headerHash.Bytes(), header.Number.Bytes())
 
 	return nil
 }
@@ -166,4 +170,12 @@ func (p *plugin) writeGenesisHeaderBytes(headerHash common.Hash, headerBz []byte
 // readGenesisHeaderBytes returns the header bytes at the genesis key.
 func (p *plugin) readGenesisHeaderBytes() []byte {
 	return p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderKey})
+}
+
+// headerHashKeyForHeight returns the key for the hash of the header at the given height.
+func headerHashKeyForHeight(number int64) []byte {
+	bz := make([]byte, headerHashKeySize)
+	copy(bz, []byte{types.HeaderHashKeyPrefix})
+	copy(bz[1:], sdk.Uint64ToBigEndian(uint64(number%prevHeaderHashes)))
+	return bz
 }
