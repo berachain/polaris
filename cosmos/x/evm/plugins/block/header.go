@@ -87,6 +87,7 @@ func (p *plugin) GetHeaderByHash(hash common.Hash) (*coretypes.Header, error) {
 
 // StoreHeader implements core.BlockPlugin.
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
+	headerHash := header.Hash()
 	headerBz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
@@ -102,7 +103,7 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 
 	// write genesis header
 	if blockHeight == 0 {
-		return p.writeGenesisHeaderBytes(header.Hash(), headerBz)
+		return p.writeGenesisHeaderBytes(headerHash, headerBz)
 	}
 
 	kvstore := p.ctx.KVStore(p.storekey)
@@ -111,14 +112,13 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 
 	// rotate previous header hashes
 	if pruneHeight := blockHeight - prevHeaderHashes; pruneHeight > 0 {
-		var toRemove *coretypes.Header
-		toRemove, err = p.GetHeaderByNumber(uint64(pruneHeight))
-		if err != nil {
-			return err
-		}
-		kvstore.Delete(toRemove.Hash().Bytes())
+		hashKey := headerHashKeyForHeight(pruneHeight)
+		pruneHash := kvstore.Get(hashKey)
+		kvstore.Delete(hashKey)
+		kvstore.Delete(pruneHash)
 	}
-	kvstore.Set(header.Hash().Bytes(), header.Number.Bytes())
+	kvstore.Set(headerHashKeyForHeight(blockHeight), headerHash.Bytes())
+	kvstore.Set(headerHash.Bytes(), header.Number.Bytes())
 
 	return nil
 }

@@ -18,21 +18,21 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package block
 
-const (
-	CodeKeyPrefix byte = iota
-	BalanceKeyPrefix
-	StorageKeyPrefix
-	CodeHashKeyPrefix
-	BlockHashKeyToNumPrefix
-	BlockNumKeyToBlockPrefix
-	BlockHashKeyToReceiptsPrefix
-	TxHashKeyToTxPrefix
-	VersionKey
-	HeaderKey
-	HeaderHashKeyPrefix
-	GenesisHeaderKey
-	ParamsKey
-	ChainConfigPrefix
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
+
+// headerHashKeySize is the number of bytes in the header hash key: 1 (prefix) + 8 (block height).
+const headerHashKeySize = 9
+
+// headerHashKeyForHeight returns the key for the hash of the header at the given height.
+func headerHashKeyForHeight(number int64) []byte {
+	bz := make([]byte, headerHashKeySize)
+	copy(bz, []byte{types.HeaderHashKeyPrefix})
+	copy(bz[1:], sdk.Uint64ToBigEndian(uint64(number%prevHeaderHashes)))
+	return bz
+}

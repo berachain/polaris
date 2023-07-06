@@ -56,7 +56,7 @@ var _ = Describe("Auth", func() {
 	})
 
 	It("should call functions on the precompile directly", func() {
-		acc, err := authPrecompile.GetAccountInfo0(nil, tf.Address("alice"))
+		acc, err := authPrecompile.GetAccountInfo(nil, tf.Address("alice"))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(acc.Addr).To(Equal(tf.Address("alice")))
 	})
