@@ -100,33 +100,7 @@ var _ = Describe("Address Precompile", func() {
 	When("When Calling ConvertHexToBech32", func() {
 		// should probably put something here. utACK
 	})
-	When("Calling ConvertBech32ToHexAddress", func() {
-		It("should error if invalid bech32 address", func() {
-			res, err := contract.ConvertBech32ToHexAddress(
-				context.Background(),
-				nil,
-				common.Address{},
-				new(big.Int),
-				false,
-				"0xxxxx",
-			)
-			Expect(err).To(HaveOccurred())
-			Expect(res).To(BeNil())
-		})
 
-		It("should convert from bech32 to hex", func() {
-			res, err := contract.ConvertBech32ToHexAddress(
-				context.Background(),
-				nil,
-				common.Address{},
-				new(big.Int),
-				false,
-				cosmlib.AddressToAccAddress(common.BytesToAddress([]byte("test"))).String(),
-			)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(res[0]).To(Equal(common.BytesToAddress([]byte("test"))))
-		})
-	})
 	When("SendGrant", func() {
 		var (
 			evm              *mock.PrecompileEVMMock

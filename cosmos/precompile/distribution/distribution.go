@@ -74,21 +74,15 @@ func (c *Contract) SetWithdrawAddress(
 	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), sdk.AccAddress(withdrawAddress.Bytes()))
 }
 
-// SetWithdrawAddress0 is the precompile contract method for the `setWithdrawAddress(string)` method.
-func (c *Contract) SetWithdrawAddress0(
+// GetWithdrawEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
+func (c *Contract) GetWithdrawEnabled(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	caller common.Address,
+	_ common.Address,
 	_ *big.Int,
 	_ bool,
-	withdrawAddress string,
 ) ([]any, error) {
-	addr, err := sdk.AccAddressFromBech32(withdrawAddress)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), addr)
+	return c.getWithdrawAddrEnabled(ctx)
 }
 
 // WithdrawDelegatorReward is the precompile contract method for the `withdrawDelegatorReward(address,address)`
@@ -103,37 +97,4 @@ func (c *Contract) WithdrawDelegatorReward(
 	validator common.Address,
 ) ([]any, error) {
 	return c.withdrawDelegatorRewardsHelper(ctx, sdk.AccAddress(delegator.Bytes()), sdk.ValAddress(validator.Bytes()))
-}
-
-// WithdrawDelegatorRewardBech32 is the precompile contract method for the `withdrawDelegatorReward(string,string)`.
-func (c *Contract) WithdrawDelegatorReward0(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	delegator string,
-	validator string,
-) ([]any, error) {
-	delegatorAddr, err := sdk.AccAddressFromBech32(delegator)
-	if err != nil {
-		return nil, err
-	}
-	validatorAddr, err := sdk.ValAddressFromBech32(validator)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.withdrawDelegatorRewardsHelper(ctx, delegatorAddr, validatorAddr)
-}
-
-// GetWithdrawEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
-func (c *Contract) GetWithdrawEnabled(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-) ([]any, error) {
-	return c.getWithdrawAddrEnabled(ctx)
 }

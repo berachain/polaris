@@ -176,8 +176,7 @@ func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (M
 			// also ignore methods that are not exported
 		}
 
-		implMethodName := formatName(implMethod.Name) // make the first letter lowercase
-
+		implMethodName := formatName(implMethod.Name)         // make the first letter lowercase
 		if abiMethod, found := pcABI[implMethodName]; found { // if the method is found in the ABI
 			if err := basicValidation(implMethod, abiMethod); err != nil {
 				return nil, err

@@ -24,14 +24,12 @@ import (
 	"math/big"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
@@ -63,63 +61,8 @@ func NewPrecompileContract(
 	}
 }
 
-// ConvertHexToBech32 converts a common.Address to a bech32 string.
-func (c *Contract) ConvertHexToBech32(
-	_ context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	account common.Address,
-) ([]any, error) {
-	// try val address first
-	valAddr, err := sdk.ValAddressFromHex(account.Hex())
-	if err == nil {
-		return []any{valAddr.String()}, nil
-	}
-
-	// try account address
-	return []any{cosmlib.AddressToAccAddress(account).String()}, nil
-}
-
-// ConvertBech32ToHexAddress converts a bech32 string to a common.Address.
-func (c *Contract) ConvertBech32ToHexAddress(
-	_ context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	account string,
-) ([]any, error) {
-	// try account address first
-	accAddr, err := sdk.AccAddressFromBech32(account)
-	if err == nil {
-		return []any{cosmlib.AccAddressToEthAddress(accAddr)}, nil
-	}
-
-	// try validator address
-	valAddr, err := sdk.ValAddressFromBech32(account)
-	if err == nil {
-		return []any{cosmlib.ValAddressToEthAddress(valAddr)}, nil
-	}
-
-	return nil, precompile.ErrInvalidBech32Address
-}
-
-// GetAccountInfoAddrInput implements `getAccountInfo(string)`.
-func (c *Contract) GetAccountInfo(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	address string,
-) ([]any, error) {
-	return c.accountInfoHelper(ctx, address)
-}
-
 // GetAccountInfoStringInput implements `getAccountInfo(address)`.
-func (c *Contract) GetAccountInfo0(
+func (c *Contract) GetAccountInfo(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,

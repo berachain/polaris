@@ -192,49 +192,6 @@ var _ = Describe("Staking", func() {
 			})
 		})
 
-		When("Delegate0", func() {
-
-			It("should fail if the string is not a valid address", func() {
-				res, err := contract.Delegate0(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					"invalid",
-					big.NewInt(0),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should succeed", func() {
-				amountToDelegate, ok := new(big.Int).SetString("22000000000000000000", 10)
-				Expect(ok).To(BeTrue())
-				err := FundAccount(
-					ctx,
-					bk,
-					del,
-					sdk.NewCoins(
-						sdk.NewCoin(
-							"stake",
-							sdkmath.NewIntFromBigInt(amountToDelegate),
-						),
-					),
-				)
-				Expect(err).ToNot(HaveOccurred())
-
-				_, err = contract.Delegate0(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					amountToDelegate,
-				)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
 		When("GetDelegation", func() {
 
 			It("should return the correct delegation", func() {
@@ -243,42 +200,6 @@ var _ = Describe("Staking", func() {
 					big.NewInt(0),
 					true,
 					cosmlib.AccAddressToEthAddress(del), cosmlib.ValAddressToEthAddress(val),
-				)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(res[0]).To(Equal(big.NewInt(9))) // should have correct shares
-			})
-		})
-
-		When("GetDelegation0", func() {
-
-			It("should error if del not bech32", func() {
-				res, err := contract.GetDelegation0(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					"0x", val.String(),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should return an error if the val is not bech32", func() {
-				res, err := contract.GetDelegation0(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					del.String(), "0x",
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should return the correct delegation", func() {
-				res, err := contract.GetDelegation0(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					del.String(), val.String(),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res[0]).To(Equal(big.NewInt(9))) // should have correct shares
@@ -299,31 +220,6 @@ var _ = Describe("Staking", func() {
 			})
 		})
 
-		When("Undelegate0", func() {
-			It("should fail if the address is not of type bech32", func() {
-				res, err := contract.Undelegate0(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					"0x",
-					big.NewInt(0),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should succeed", func() {
-				_, err := contract.Undelegate0(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					val.String(),
-					big.NewInt(1),
-				)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
 		When("BeginRedelegations", func() {
 
 			It("should succeed", func() {
@@ -333,47 +229,6 @@ var _ = Describe("Staking", func() {
 					false,
 					cosmlib.ValAddressToEthAddress(val),
 					cosmlib.ValAddressToEthAddress(otherVal),
-					big.NewInt(1),
-				)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
-		When("BeginRedelegations0", func() {
-
-			It("should fail if the srcValue is not of type bech32", func() {
-				res, err := contract.BeginRedelegate0(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					"0x",
-					val.String(),
-					big.NewInt(1),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the dstValue is not of type bech32", func() {
-				res, err := contract.BeginRedelegate0(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					"0x",
-					big.NewInt(1),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should succeed", func() {
-				_, err := contract.BeginRedelegate0(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					otherVal.String(),
 					big.NewInt(1),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -408,48 +263,6 @@ var _ = Describe("Staking", func() {
 			})
 		})
 
-		When("CancelUnbondingDelegation0", func() {
-
-			It("should fail if the address is not a bech32 address", func() {
-				res, err := contract.CancelUnbondingDelegation0(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					"0x",
-					big.NewInt(1),
-					int64(1),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should succeed", func() {
-				creationHeight := ctx.BlockHeight()
-				amount, ok := new(big.Int).SetString("1", 10)
-				Expect(ok).To(BeTrue())
-
-				// Undelegate.
-				_, err := contract.Undelegate(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					cosmlib.ValAddressToEthAddress(val),
-					amount,
-				)
-				Expect(err).ToNot(HaveOccurred())
-
-				_, err = contract.CancelUnbondingDelegation0(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					amount,
-					creationHeight,
-				)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
 		When("GetUnbondingDelegation", func() {
 
 			It("should succeed", func() {
@@ -471,33 +284,6 @@ var _ = Describe("Staking", func() {
 					true,
 					caller,
 					cosmlib.ValAddressToEthAddress(val),
-				)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(res).ToNot(BeNil())
-			})
-		})
-
-		When("GetUnbondingDelegation0", func() {
-
-			It("should succeed", func() {
-				// Undelegate.
-				amount, ok := new(big.Int).SetString("1", 10)
-				Expect(ok).To(BeTrue())
-				_, err := contract.Undelegate(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					cosmlib.ValAddressToEthAddress(val),
-					amount,
-				)
-				Expect(err).ToNot(HaveOccurred())
-
-				res, err := contract.GetUnbondingDelegation0(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					cosmlib.AddressToAccAddress(caller).String(),
-					val.String(),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).ToNot(BeNil())
