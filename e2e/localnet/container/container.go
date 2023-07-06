@@ -33,6 +33,7 @@ type Client interface {
 	Start() error
 	Stop() error
 	Remove() error
+	GetEndpoint(string) string
 }
 
 type client struct {
@@ -83,4 +84,9 @@ func (c *client) Stop() error {
 // Remove removes the container.
 func (c *client) Remove() error {
 	return c.resource.Close()
+}
+
+// GetEndpoint returns the endpoint for the given id of the container.
+func (c *client) GetEndpoint(id string) string {
+	return c.resource.GetHostPort(id)
 }

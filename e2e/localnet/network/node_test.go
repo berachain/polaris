@@ -39,12 +39,12 @@ func TestLocalnet(t *testing.T) {
 
 var _ = Describe("Fixture", func() {
 	var (
-		c   ContainerizedNetwork
+		c   ContainerizedNode
 		err error
 	)
 
 	BeforeEach(func() {
-		c, err = NewContainerizedNetwork(
+		c, err = NewContainerizedNode(
 			"localnet",
 			"latest",
 			"goodcontainer",
@@ -61,10 +61,11 @@ var _ = Describe("Fixture", func() {
 	})
 
 	AfterEach(func() {
+		Expect(c.Stop()).To(Succeed())
 		Expect(c.Remove()).To(Succeed())
 	})
 
-	It("should create a container", func() {
-		Expect(c.Stop()).To(Succeed())
+	It("should wait for a certain block height", func() {
+		Expect(c.WaitForBlock(5)).To(Succeed())
 	})
 })
