@@ -531,7 +531,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					true,
 					cosmlib.AccAddressToEthAddress(fromAcc),
 					cosmlib.AccAddressToEthAddress(toAcc),
-					(sortedSdkCoins),
+					cosmlib.SdkCoinsToEvmCoins(sortedSdkCoins),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -568,7 +568,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					true,
 					cosmlib.AccAddressToEthAddress(fromAcc),
 					cosmlib.AccAddressToEthAddress(toAcc),
-					(coinsToSend),
+					cosmlib.SdkCoinsToEvmCoins(coinsToSend),
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidCoin))
 			})

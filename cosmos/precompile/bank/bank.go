@@ -24,11 +24,11 @@ import (
 	"context"
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
+	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -47,7 +47,7 @@ type Contract struct {
 func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
-			generated.BankModuleMetaData.ABI,
+			bindings.BankModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 		),
 		msgServer: ms,
@@ -191,16 +191,16 @@ func (c *Contract) GetDenomMetadata(
 		return nil, err
 	}
 
-	denomUnits := make([]generated.IBankModuleDenomUnit, len(res.Metadata.DenomUnits))
+	denomUnits := make([]bindings.IBankModuleDenomUnit, len(res.Metadata.DenomUnits))
 	for i, d := range res.Metadata.DenomUnits {
-		denomUnits[i] = generated.IBankModuleDenomUnit{
+		denomUnits[i] = bindings.IBankModuleDenomUnit{
 			Denom:    d.Denom,
 			Aliases:  d.Aliases,
 			Exponent: d.Exponent,
 		}
 	}
 
-	result := generated.IBankModuleDenomMetadata{
+	result := bindings.IBankModuleDenomMetadata{
 		Description: res.Metadata.Description,
 		DenomUnits:  denomUnits,
 		Base:        res.Metadata.Base,
@@ -242,15 +242,21 @@ func (c *Contract) Send(
 	_ bool,
 	fromAddress common.Address,
 	toAddress common.Address,
-	amount sdk.Coins,
+	amount []libgenerated.CosmosCoin,
 ) ([]any, error) {
 	if len(amount) == 0 {
 		return nil, precompile.ErrInvalidCoin
 	}
-	_, err := c.msgServer.Send(ctx, &banktypes.MsgSend{
+
+	coinsToSend, err := cosmlib.ExtractCoinsFromInput(amount)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
 		FromAddress: cosmlib.Bech32FromEthAddress(fromAddress),
 		ToAddress:   cosmlib.Bech32FromEthAddress(toAddress),
-		Amount:      amount,
+		Amount:      coinsToSend,
 	})
 	return []any{err == nil}, err
 }
