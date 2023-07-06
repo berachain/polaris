@@ -28,9 +28,11 @@ package localnet
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
+	gethrpc "github.com/ethereum/go-ethereum/rpc"
 	"pkg.berachain.dev/polaris/e2e/localnet/container"
 )
 
@@ -68,18 +70,18 @@ func NewContainerizedNode(
 	wsAddress string,
 	env []string,
 ) (c ContainerizedNode, err error) {
-	// Create the container config using the given input args.
-	config := container.Config{
-		Repository:  repository,
-		Tag:         tag,
-		Name:        name,
-		HTTPAddress: httpAddress,
-		WSAddress:   wsAddress,
-		Env:         env,
-	}
-
+	// Create the container using the given input args for config.
 	var containerClient container.Client
-	containerClient, err = container.NewClient(config)
+	containerClient, err = container.NewClient(
+		container.Config{
+			Repository:  repository,
+			Tag:         tag,
+			Name:        name,
+			HTTPAddress: httpAddress,
+			WSAddress:   wsAddress,
+			Env:         env,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -92,31 +94,37 @@ func NewContainerizedNode(
 		}
 	}()
 
+	// Set up the http eth client.
 	var ethClient *ethclient.Client
 	ethClient, err = ethclient.Dial("http://" + containerClient.GetEndpoint(httpAddress))
 	if err != nil {
 		return nil, err
 	}
-	// ethWsClient, err := ethclient.Dial("ws://" + containerClient.GetEndpoint(wsAddress))
-	// if err != nil {
-	// 	return nil, err
-	// }
 
-	c = &containerizedNode{
+	// Create the containerized node object and wait for the chain to be past block 2.
+	node := &containerizedNode{
 		containerClient: containerClient,
 		httpAddress:     httpAddress,
 		wsAddress:       wsAddress,
 		ethClient:       ethClient,
-		// ethWsClient:     ethWsClient,
+		// ethWsClient:     ethclient.NewClient(ws),
 	}
-
-	// wait for the node to start up
 	time.Sleep(10 * time.Second)
-	if err = c.WaitForBlock(2); err != nil {
+	if err = node.WaitForBlock(2); err != nil {
 		return nil, err
 	}
 
-	return c, nil
+	// Set up the websocket eth client.
+	ws, err := gethrpc.DialWebsocket(
+		context.Background(), "ws://"+containerClient.GetEndpoint(wsAddress), "*",
+	)
+	if err != nil {
+		fmt.Println("ERR DIALING WS", err)
+		return nil, err
+	}
+	node.ethWsClient = ethclient.NewClient(ws)
+
+	return node, nil
 }
 
 // Start starts the network.

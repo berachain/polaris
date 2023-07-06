@@ -26,10 +26,15 @@
 package localnet
 
 import (
+	"context"
+	"fmt"
+	"math/big"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 func TestLocalnet(t *testing.T) {
@@ -58,6 +63,7 @@ var _ = Describe("Fixture", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(c).ToNot(BeNil())
+
 	})
 
 	AfterEach(func() {
@@ -66,6 +72,25 @@ var _ = Describe("Fixture", func() {
 	})
 
 	It("should wait for a certain block height", func() {
+		Expect(c.WaitForBlock(1)).To(MatchError("block height already passed"))
 		Expect(c.WaitForBlock(5)).To(Succeed())
+	})
+
+	It("should get recent blocks with websockets", func() {
+		wsclient := c.EthWsClient()
+		headers := make(chan *coretypes.Header)
+		sub, err := wsclient.SubscribeNewHead(context.Background(), headers)
+		Expect(err).ToNot(HaveOccurred())
+		GinkgoWriter.Println("Listening for blocks...")
+		select {
+		case err := <-sub.Err():
+			Fail(fmt.Sprintf("Error in subscription for recent blocks: %v", err))
+		case header := <-headers:
+			GinkgoWriter.Printf("New block: %v", header.Number.Uint64())
+			_, err := wsclient.BlockByNumber(
+				context.Background(), big.NewInt(header.Number.Int64()),
+			)
+			Expect(err).ToNot(HaveOccurred())
+		}
 	})
 })
