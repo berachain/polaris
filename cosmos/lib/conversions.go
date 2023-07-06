@@ -42,7 +42,7 @@ import (
  * This file contains conversions between native Cosmos SDK types and go-ethereum ABI types.
  */
 
-// SdkCoinsToEvmCoins converts sdk.Coins into []generated.CosmosCoin.
+// SdkCoinsToEvmCoins converts sdk.Coins into []libgenerated.CosmosCoin.
 func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []libgenerated.CosmosCoin {
 	evmCoins := make([]libgenerated.CosmosCoin, len(sdkCoins))
 	for i, coin := range sdkCoins {
@@ -54,10 +54,17 @@ func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []libgenerated.CosmosCoin {
 	return evmCoins
 }
 
-// ExtractCoinsFromInput converts coins from input (of type []generated.CosmosCoin) into sdk.Coins.
-func ExtractCoinsFromInput(coins []libgenerated.CosmosCoin) (sdk.Coins, error) {
+// ExtractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
+func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
+	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
+	// the any type input into IBankModuleCoin.
+	amounts, ok := utils.GetAs[[]libgenerated.CosmosCoin](coins)
+	if !ok {
+		return nil, precompile.ErrInvalidCoin
+	}
+
 	sdkCoins := sdk.Coins{}
-	for _, evmCoin := range coins {
+	for _, evmCoin := range amounts {
 		sdkCoins = append(sdkCoins, sdk.Coin{
 			Denom: evmCoin.Denom, Amount: sdkmath.NewIntFromBigInt(evmCoin.Amount),
 		})
