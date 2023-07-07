@@ -138,7 +138,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 	When("PrecompileMethods", func() {
 		It("should return the correct methods", func() {
-			Expect(ethprecompile.GeneratePrecompileMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(3))
+			Expect(ethprecompile.BuildIdsToMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(3))
 		})
 	})
 
@@ -245,7 +245,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 				Expect(contract.CustomValueDecoders()).ToNot(BeNil())
 			})
 			It("Should have correct amount of precompile methods", func() {
-				Expect(ethprecompile.GeneratePrecompileMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(3))
+				Expect(ethprecompile.BuildIdsToMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(3))
 			})
 		})
 	})

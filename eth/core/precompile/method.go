@@ -71,16 +71,6 @@ type Method struct {
 	RequiredGas uint64
 }
 
-// ValidateBasic returns an error if this a precompile `Method` has invalid fields.
-func (m *Method) ValidateBasic() error {
-	// ensure all required fields are nonempty
-	if len(m.AbiSig) == 0 || !m.Execute.IsValid() || m.Execute.IsNil() {
-		return ErrIncompleteMethod
-	}
-
-	return nil
-}
-
 // Call executes the precompile's executable with the given context and input arguments.
 func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 	// Unpack the args from the input, if any exist.

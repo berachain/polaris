@@ -25,31 +25,32 @@ import (
 	"math/big"
 	"reflect"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
 var _ = Describe("Method", func() {
-	Context("Basic - ValidateBasic Tests", func() {
-		It("should error on missing Abi function signature", func() {
-			methodMissingSig := &precompile.Method{
+	Context("Calling the method", func() {
+		It("should be able to call the Method's executable", func() {
+			method := &precompile.Method{
+				AbiMethod:   &abi.Method{},
+				AbiSig:      "mockExecutable()",
 				Execute:     reflect.ValueOf(mockExecutable),
 				RequiredGas: 10,
 			}
-			err := methodMissingSig.ValidateBasic()
-			Expect(err).To(HaveOccurred())
-		})
-
-		It("should error on missing precompile executable", func() {
-			methodMissingFunc := &precompile.Method{
-				AbiSig:      "contractFunc(address)",
-				RequiredGas: 10,
-			}
-			err := methodMissingFunc.ValidateBasic()
-			Expect(err).To(HaveOccurred())
+			res := method.Execute.Call(
+				[]reflect.Value{
+					reflect.ValueOf(context.Background()),
+					reflect.ValueOf(mockEVM{}),
+					reflect.ValueOf(common.Address{}),
+					reflect.ValueOf(big.NewInt(0)),
+					reflect.ValueOf(false),
+					reflect.ValueOf([]byte{}),
+				})
+			Expect(res[0].IsNil()).To(BeTrue())
 		})
 	})
 })

@@ -95,7 +95,7 @@ var _ = Describe("Staking", func() {
 	When("PrecompileMethods", func() {
 		It("should return the correct methods", func() {
 			Expect(
-				ethprecompile.GeneratePrecompileMethods(contract.ABIMethods(), reflect.ValueOf(contract))).
+				ethprecompile.BuildIdsToMethods(contract.ABIMethods(), reflect.ValueOf(contract))).
 				To(HaveLen(len(contract.ABIMethods())))
 		})
 	})

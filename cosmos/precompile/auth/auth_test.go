@@ -89,7 +89,7 @@ var _ = Describe("Address Precompile", func() {
 
 	It("should match the precompile methods", func() {
 		Expect(
-			ethprecompile.GeneratePrecompileMethods(contract.ABIMethods(), reflect.ValueOf(contract))).
+			ethprecompile.BuildIdsToMethods(contract.ABIMethods(), reflect.ValueOf(contract))).
 			To(HaveLen(len(contract.ABIMethods())))
 	})
 

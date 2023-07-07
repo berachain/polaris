@@ -104,60 +104,12 @@ func (sf *StatefulFactory) Build(
 
 	// add precompile methods to stateful container, if any exist
 	var idsToMethods map[string]*Method
-	if precompileMethods, err := GeneratePrecompileMethods(sci.ABIMethods(), reflect.ValueOf(sci)); err == nil {
-		idsToMethods, err = sf.buildIdsToMethods(precompileMethods, sci.ABIMethods())
-		if err != nil {
-			return nil, err
-		}
-	} else {
+	idsToMethods, err := BuildIdsToMethods(sci.ABIMethods(), reflect.ValueOf(sci))
+	if err != nil {
 		return nil, err
 	}
 
 	return NewStateful(rp, idsToMethods), nil
-}
-
-// buildIdsToMethods builds the stateful precompile container for the given `precompileMethods`
-// and `abiMethods`. This function will return an error if every method in `abiMethods` does not
-// have a valid, corresponding `Method`.
-func (sf *StatefulFactory) buildIdsToMethods(
-	precompileMethods Methods,
-	abiMethods map[string]abi.Method,
-) (map[string]*Method, error) {
-	// validate precompile methods
-	for _, pm := range precompileMethods {
-		if err := pm.ValidateBasic(); err != nil {
-			return nil, err
-		}
-	}
-
-	// match every ABI method to corresponding precompile method
-	idsToMethods := make(map[string]*Method)
-	for name := range abiMethods {
-		abiMethod := abiMethods[name]
-
-		// find the corresponding precompile method for abiMethod based on signature
-		var precompileMethod *Method
-		i := 0
-		for ; i < len(precompileMethods); i++ {
-			if precompileMethods[i].AbiSig == abiMethod.Sig {
-				precompileMethod = precompileMethods[i]
-				break
-			}
-		}
-		if i == len(precompileMethods) {
-			return nil, errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
-		}
-
-		// attach the ABI method to the precompile method for stateful container to handle
-		precompileMethod.AbiMethod = &abiMethod
-		idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = precompileMethod
-	}
-	return idsToMethods, nil
-}
-
-// GeneratePrecompileMethods generates the methods for the given Precompile's ABI.
-func GeneratePrecompileMethods(abiMethods map[string]abi.Method, contractImpl reflect.Value) (Methods, error) {
-	return suitableMethods(abiMethods, contractImpl)
 }
 
 // This function matches each Go implementation of the Precompile
@@ -165,84 +117,30 @@ func GeneratePrecompileMethods(abiMethods map[string]abi.Method, contractImpl re
 // It first searches for the ABI function in the Go implementation. If no find, then panic.
 // It then performs some basic validation on the implemented function
 // Then, the implemented function's arguments are checked against the ABI's arguments' types.
-func suitableMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (Methods, error) {
+func BuildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (map[string]*Method, error) {
 	contractImplType := contractImpl.Type()
-	var methods Methods
+	idsToMethods := make(map[string]*Method)
 	for m := 0; m < contractImplType.NumMethod(); m++ { // iterate through all of the impl's methods
-		implMethod := contractImplType.Method(m) // grab the Impl's current method
 
-		if isBaseContractMethodOrUnexported(implMethod) {
-			continue // ignore BaseContract's methods, they clearly won't be in the abi
-			// also ignore methods that are not exported
-		}
+		implMethod := contractImplType.Method(m)      // grab the Impl's current method
+		implMethodName := formatName(implMethod.Name) // make the first letter lowercase
 
-		implMethodName := formatName(implMethod.Name)         // make the first letter lowercase
 		if abiMethod, found := pcABI[implMethodName]; found { // if the method is found in the ABI
-			if err := basicValidation(implMethod, abiMethod); err != nil {
-				return nil, err
-			}
-			toExecute := newExecute(implMethod) // grab the actual function
-			methods = append(methods, &Method{
+			idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = &Method{
 				AbiMethod: &abiMethod,
 				AbiSig:    abiMethod.Sig,
-				Execute:   toExecute,
-			}) // add it to the list of methods
-		} else {
-			return nil, errors.Wrap(ErrNoPrecompileMethodForABIMethod, implMethodName)
+				Execute:   implMethod.Func,
+			} // add it to the list of methods
 		}
 	}
 
-	return methods, nil
-}
+	for _, abiMethod := range pcABI { // iterate through all of the ABI's methods
+		if _, found := idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)]; !found { // if the method is not found in the ABI
+			return nil, errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Name)
+		}
+	}
 
-// As each contractImpl is also  BaseContract, we need to ignore the methods that are in the BaseContract.
-// since we only care about the implementation methods, not any underlying methods from inheritance/composition.
-// We also need to ignore the methods that are not exported.
-// TODO: we might not export all precompile implementation methods anyways.
-func isBaseContractMethodOrUnexported(implMethod reflect.Method) bool {
-	return implMethod.Name == "RegistryKey" ||
-		implMethod.Name == "ABIMethods" ||
-		implMethod.Name == "ABIEvents" ||
-		implMethod.Name == "CustomValueDecoders" ||
-		implMethod.Name == "PrecompileMethods" ||
-		implMethod.Name == "SetPlugin" ||
-		implMethod.Name == "GetPlugin" ||
-		implMethod.PkgPath != ""
-}
-
-// this is a helper function that checks three things:
-// 1. the first parameter is a context.Context.
-// 2. the number of arguments match.
-// 3. the types of the arguments match.
-func basicValidation(_ reflect.Method, _ abi.Method) error {
-	// if implMethod.Type.In(1) != reflect.TypeOf((*PolarContext)(nil)).Elem() {
-	// return errors.Wrap(ErrNoContext, abiMethod.Sig)
-	// }
-
-	// ctxArgLen := 6 // bruh this shit whack aslllllll
-	// abiInputs := abiMethod.Inputs
-
-	// if implMethod.Type.NumIn()-ctxArgLen != len(abiInputs) {
-	// return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
-	// }
-
-	// // reflection on the go impl type arg, sdk.Coins for example : v.FieldByName
-	// //
-
-	// // check if the argument types match
-	// for i := ctxArgLen; i < implMethod.Type.NumIn(); i++ {
-	// if implMethod.Type.In(i) != abiInputs[i-ctxArgLen].Type.GetType() {
-	// // try getting custom struct interface as the actual type
-	// // if tuple:
-	// // uahsdiouashduiosahd
-	// return errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
-	// }
-	// }
-	return nil
-}
-
-func newExecute(fn reflect.Method) reflect.Value {
-	return fn.Func
+	return idsToMethods, nil
 }
 
 // formatName converts to first character of name to lowercase.

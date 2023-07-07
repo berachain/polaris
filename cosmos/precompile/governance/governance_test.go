@@ -85,7 +85,7 @@ var _ = Describe("Governance Precompile", func() {
 	})
 
 	It("Should have precompile tests and custom value decoders", func() {
-		Expect(ethprecompile.GeneratePrecompileMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(6))
+		Expect(ethprecompile.BuildIdsToMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(6))
 		Expect(contract.CustomValueDecoders()).ToNot(BeNil())
 	})
 
