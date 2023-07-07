@@ -121,7 +121,6 @@ func BuildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) 
 	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*Method)
 	for m := 0; m < contractImplType.NumMethod(); m++ { // iterate through all of the impl's methods
-
 		implMethod := contractImplType.Method(m)      // grab the Impl's current method
 		implMethodName := formatName(implMethod.Name) // make the first letter lowercase
 
