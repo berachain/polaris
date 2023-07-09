@@ -35,7 +35,7 @@ import (
 )
 
 // By default we are storing up to 256 items in each cache.
-const defaultCacheSize = 256
+const defaultCacheSize = 1024
 
 // Compile-time check to ensure that `blockchain` implements the `Blockchain` api.
 var _ Blockchain = (*blockchain)(nil)
