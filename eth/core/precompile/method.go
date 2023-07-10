@@ -66,6 +66,7 @@ type Method struct {
 	execute reflect.Value
 }
 
+// NewMethod creates and returns a new `Method` with the given abiMethod, abiSig, and executable.
 func NewMethod(
 	abiMethod *abi.Method, abiSig string, execute reflect.Value,
 ) *Method {
