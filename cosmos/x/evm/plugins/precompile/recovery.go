@@ -37,10 +37,8 @@ func RecoveryHandler(err *error) {
 		// NOTE: this only propagates an error back to the EVM if the type of the given panic
 		// is ErrWriteProtection, Cosmos ErrorOutOfGas, or Cosmos ErrorGasOverflow
 		switch {
-		case utils.Implements[error](panicked):
-			if errors.Is(utils.MustGetAs[error](panicked), vm.ErrWriteProtection) {
-				*err = vm.ErrWriteProtection
-			}
+		case utils.Implements[error](panicked) && errors.Is(utils.MustGetAs[error](panicked), vm.ErrWriteProtection):
+			*err = vm.ErrWriteProtection
 		case utils.Implements[storetypes.ErrorGasOverflow](panicked):
 			fallthrough
 		case utils.Implements[storetypes.ErrorOutOfGas](panicked):
