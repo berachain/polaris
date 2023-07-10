@@ -290,3 +290,5 @@ func getCoinsForAccount(name string) sdk.Coins {
 		return sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(examoney)))
 	}
 }
+
+

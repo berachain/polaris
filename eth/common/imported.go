@@ -41,4 +41,5 @@ var (
 	Hex2Bytes      = common.Hex2Bytes
 	HexToHash      = common.HexToHash
 	LeftPadBytes   = common.LeftPadBytes
+	Big0           = common.Big0
 )

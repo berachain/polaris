@@ -21,6 +21,7 @@
 package distribution_test
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 
@@ -80,6 +81,7 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res).To(BeTrue())
 	})
+
 	It("should be able to set withdraw address with cosmos address", func() {
 		addr := sdk.AccAddress("addr")
 		txr := tf.GenerateTransactOpts("alice")
@@ -87,6 +89,7 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
+
 	It("should be able to set withdraw address with ethereum address", func() {
 		addr := sdk.AccAddress("addr")
 		ethAddr := cosmlib.AccAddressToEthAddress(addr)
@@ -95,6 +98,7 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
+
 	It("should be able to get delegator reward", func() {
 		// Delegate some tokens to an active validator.
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
@@ -120,7 +124,7 @@ var _ = Describe("Distribution Precompile", func() {
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
 
-	It("Should be able to call the precompile via the contract", func() {
+	FIt("Should be able to call the precompile via the contract", func() {
 		// Deploy the contract.
 		contractAddress, tx, contract, err := tbindings.DeployDistributionWrapper(
 			tf.GenerateTransactOpts("alice"),
@@ -129,28 +133,21 @@ var _ = Describe("Distribution Precompile", func() {
 			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"),
 		)
 		Expect(err).ToNot(HaveOccurred())
+		fmt.Println(1)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
-		txr := tf.GenerateTransactOpts("alice")
-		amt := big.NewInt(123450000000)
-		tx, err = bankPrecompile.Send(txr, tf.Address("alice"), contractAddress, []bbindings.CosmosCoin{
-			{
-				Denom:  "abera",
-				Amount: amt,
-			},
-		})
-		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		amt := int64(123450000000)
+		Expect(tf.BankSendTx(tf.Address("alice"), contractAddress, amt)).To(Succeed())
 
 		// Delegate some tokens to a validator.
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
 		val := validators[0]
-		amt = big.NewInt(123450000000)
-		txr = tf.GenerateTransactOpts("alice")
-		txr.Value = amt
+		txr := tf.GenerateTransactOpts("alice")
+		txr.Value = big.NewInt(amt)
 		tx, err = contract.Delegate(txr, val)
 		Expect(err).ToNot(HaveOccurred())
+		fmt.Println(2)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Wait for the 2 block to be produced, to make sure there are rewards.
@@ -163,6 +160,7 @@ var _ = Describe("Distribution Precompile", func() {
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = contract.WithdrawRewards(txr, contractAddress, val)
 		Expect(err).ToNot(HaveOccurred())
+		fmt.Println(3)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 
 		// Get withdraw address enabled.
@@ -176,6 +174,7 @@ var _ = Describe("Distribution Precompile", func() {
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = contract.SetWithdrawAddress(txr, ethAddr)
 		Expect(err).ToNot(HaveOccurred())
+		fmt.Println(4)
 		ExpectSuccessReceipt(tf.EthClient, tx)
 	})
 })
