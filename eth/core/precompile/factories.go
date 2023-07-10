@@ -105,7 +105,7 @@ func (sf *StatefulFactory) Build(
 
 	// add precompile methods to stateful container, if any exist
 	var idsToMethods map[string]*Method
-	idsToMethods, err := BuildIdsToMethods(sci.ABIMethods(), reflect.ValueOf(sci))
+	idsToMethods, err := buildIdsToMethods(sci.ABIMethods(), reflect.ValueOf(sci))
 	if err != nil {
 		return nil, err
 	}
@@ -113,16 +113,14 @@ func (sf *StatefulFactory) Build(
 	return NewStateful(rp, idsToMethods)
 }
 
-// This function matches each Go implementation of the Precompile to the ABI's respective function.
-// It first searches for the ABI function in the Go implementation. If no find, then panic.
-// It then performs some basic validation on the implemented function. Then, the implemented
-// function's arguments are checked against the ABI's arguments' types.
-func BuildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (map[string]*Method, error) {
+// This function matches each Go implementation of the precompile to the ABI's respective function.
+// It searches for the ABI function in the Go precompile contract and performs basic validation on
+// the implemented function.
+func buildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (map[string]*Method, error) {
 	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*Method)
 	for m := 0; m < contractImplType.NumMethod(); m++ {
-		implMethod := contractImplType.Method(m) // grab the Impl's current method
-
+		implMethod := contractImplType.Method(m)
 		implMethodName := formatName(implMethod.Name)
 
 		if abiMethod, found := pcABI[implMethodName]; found {
