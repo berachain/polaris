@@ -113,11 +113,10 @@ func (sf *StatefulFactory) Build(
 	return NewStateful(rp, idsToMethods)
 }
 
-// This function matches each Go implementation of the Precompile
-// to the ABI's respective function.
+// This function matches each Go implementation of the Precompile to the ABI's respective function.
 // It first searches for the ABI function in the Go implementation. If no find, then panic.
-// It then performs some basic validation on the implemented function
-// Then, the implemented function's arguments are checked against the ABI's arguments' types.
+// It then performs some basic validation on the implemented function. Then, the implemented
+// function's arguments are checked against the ABI's arguments' types.
 func BuildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (map[string]*Method, error) {
 	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*Method)
