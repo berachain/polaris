@@ -216,7 +216,7 @@ func (c Cosmos) TestIntegration() error {
 }
 
 func (c Cosmos) TestHive(sim string) error {
-	if out, _ := sh.Output("docker", "images", "-q", "polard/base:v0.0.0"); out == "" {
+	if out, _ := sh.Output("docker", "images", "-q", baseImageVersion); out == "" {
 		LogGreen("No existing base docker image found, building...")
 		if err := c.Docker("base", runtime.GOARCH); err != nil {
 			return err
