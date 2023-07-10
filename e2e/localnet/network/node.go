@@ -48,8 +48,8 @@ type ContainerizedNode interface {
 	Stop() error
 	Reset() error
 	Remove() error
-	GetHTTPAddress() string
-	GetWSAddress() string
+	GetHTTPEndpoint() string
+	GetWSEndpoint() string
 	EthClient() *ethclient.Client
 	EthWsClient() *ethclient.Client
 	WaitForBlock(number uint64) error
@@ -58,8 +58,8 @@ type ContainerizedNode interface {
 // containerizedNode implements ContainerizedNode.
 type containerizedNode struct {
 	containerClient container.Client
-	httpAddress     string
-	wsAddress       string
+	httpEndpoint    string
+	wsEndpoint      string
 	ethClient       *ethclient.Client
 	ethWsClient     *ethclient.Client
 }
@@ -100,20 +100,20 @@ func NewContainerizedNode(
 		}
 	}()
 
+	// Create the containerized node object.
+	node := &containerizedNode{
+		containerClient: containerClient,
+		httpEndpoint:    "http://" + containerClient.GetEndpoint(httpAddress),
+		wsEndpoint:      "ws://" + containerClient.GetEndpoint(wsAddress),
+	}
+
 	// Set up the http eth client.
-	var ethClient *ethclient.Client
-	ethClient, err = ethclient.Dial("http://" + containerClient.GetEndpoint(httpAddress))
+	node.ethClient, err = ethclient.Dial(node.httpEndpoint)
 	if err != nil {
 		return nil, err
 	}
 
-	// Create the containerized node object and wait for the chain to be past block 2.
-	node := &containerizedNode{
-		containerClient: containerClient,
-		httpAddress:     httpAddress,
-		wsAddress:       wsAddress,
-		ethClient:       ethClient,
-	}
+	// Wait for the chain to start and be past block 2.
 	time.Sleep(nodeStartTime)
 	if err = node.WaitForBlock(initialBlockHeight); err != nil {
 		return nil, err
@@ -121,7 +121,7 @@ func NewContainerizedNode(
 
 	// Set up the websocket eth client.
 	ws, err := gethrpc.DialWebsocket(
-		context.Background(), "ws://"+containerClient.GetEndpoint(wsAddress), "*",
+		context.Background(), node.wsEndpoint, "*",
 	)
 	if err != nil {
 		return nil, err
@@ -156,14 +156,14 @@ func (c *containerizedNode) Remove() error {
 	return c.containerClient.Remove()
 }
 
-// GetHTTPAddress returns the HTTP address of the node.
-func (c *containerizedNode) GetHTTPAddress() string {
-	return c.httpAddress
+// GetHTTPEndpoint returns the HTTP endpoint of the node.
+func (c *containerizedNode) GetHTTPEndpoint() string {
+	return c.httpEndpoint
 }
 
-// GetWSAddress returns the WS address of the node.
-func (c *containerizedNode) GetWSAddress() string {
-	return c.wsAddress
+// GetWSEndpoint returns the WS endpoint of the node.
+func (c *containerizedNode) GetWSEndpoint() string {
+	return c.wsEndpoint
 }
 
 // EthClient returns an Ethereum client for the node.
