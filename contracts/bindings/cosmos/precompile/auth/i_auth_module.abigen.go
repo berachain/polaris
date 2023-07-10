@@ -29,12 +29,6 @@ var (
 	_ = abi.ConvertType
 )
 
-// CosmosCoin is an auto generated low-level Go binding around an user-defined struct.
-type CosmosCoin struct {
-	Amount *big.Int
-	Denom  string
-}
-
 // IAuthModuleBaseAccount is an auto generated low-level Go binding around an user-defined struct.
 type IAuthModuleBaseAccount struct {
 	Addr          common.Address
@@ -45,7 +39,7 @@ type IAuthModuleBaseAccount struct {
 
 // AuthModuleMetaData contains all meta data concerning the AuthModule contract.
 var AuthModuleMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"getAccountInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"pubKey\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"accountNumber\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"sequence\",\"type\":\"uint64\"}],\"internalType\":\"structIAuthModule.BaseAccount\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSendAllowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"expiration\",\"type\":\"uint256\"}],\"name\":\"setSendAllowance\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"getAccountInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"pubKey\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"accountNumber\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"sequence\",\"type\":\"uint64\"}],\"internalType\":\"structIAuthModule.BaseAccount\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"name\":\"getSendAllowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 }
 
 // AuthModuleABI is the input ABI used to generate the binding from.
@@ -254,25 +248,4 @@ func (_AuthModule *AuthModuleSession) GetSendAllowance(owner common.Address, spe
 // Solidity: function getSendAllowance(address owner, address spender, string denom) view returns(uint256)
 func (_AuthModule *AuthModuleCallerSession) GetSendAllowance(owner common.Address, spender common.Address, denom string) (*big.Int, error) {
 	return _AuthModule.Contract.GetSendAllowance(&_AuthModule.CallOpts, owner, spender, denom)
-}
-
-// SetSendAllowance is a paid mutator transaction binding the contract method 0x2b6b7ab5.
-//
-// Solidity: function setSendAllowance(address owner, address spender, (uint256,string)[] amount, uint256 expiration) returns(bool)
-func (_AuthModule *AuthModuleTransactor) SetSendAllowance(opts *bind.TransactOpts, owner common.Address, spender common.Address, amount []CosmosCoin, expiration *big.Int) (*types.Transaction, error) {
-	return _AuthModule.contract.Transact(opts, "setSendAllowance", owner, spender, amount, expiration)
-}
-
-// SetSendAllowance is a paid mutator transaction binding the contract method 0x2b6b7ab5.
-//
-// Solidity: function setSendAllowance(address owner, address spender, (uint256,string)[] amount, uint256 expiration) returns(bool)
-func (_AuthModule *AuthModuleSession) SetSendAllowance(owner common.Address, spender common.Address, amount []CosmosCoin, expiration *big.Int) (*types.Transaction, error) {
-	return _AuthModule.Contract.SetSendAllowance(&_AuthModule.TransactOpts, owner, spender, amount, expiration)
-}
-
-// SetSendAllowance is a paid mutator transaction binding the contract method 0x2b6b7ab5.
-//
-// Solidity: function setSendAllowance(address owner, address spender, (uint256,string)[] amount, uint256 expiration) returns(bool)
-func (_AuthModule *AuthModuleTransactorSession) SetSendAllowance(owner common.Address, spender common.Address, amount []CosmosCoin, expiration *big.Int) (*types.Transaction, error) {
-	return _AuthModule.Contract.SetSendAllowance(&_AuthModule.TransactOpts, owner, spender, amount, expiration)
 }

@@ -21,9 +21,9 @@
 package auth_test
 
 import (
-	"context"
 	"math/big"
 	"testing"
+	"time"
 
 	storetypes "cosmossdk.io/store/types"
 
@@ -31,7 +31,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
@@ -56,11 +58,12 @@ func TestAddressPrecompile(t *testing.T) {
 var _ = Describe("Address Precompile", func() {
 	var contract *auth.Contract
 	var ctx sdk.Context
+	var k authzkeeper.Keeper
 
 	BeforeEach(func() {
 		sdkctx, ak, _, _ := testutil.SetupMinimalKeepers()
 		ctx = sdkctx
-		k := authzkeeper.NewKeeper(
+		k = authzkeeper.NewKeeper(
 			runtime.NewKVStoreService(storetypes.NewKVStoreKey(authtypes.StoreKey)),
 			testutil.GetEncodingConfig().Codec,
 			MsgRouterMockWithSend(),
@@ -99,7 +102,6 @@ var _ = Describe("Address Precompile", func() {
 			evm              *mock.PrecompileEVMMock
 			granter, grantee common.Address
 			limit            sdk.Coins
-			nonExpiredTime   *big.Int
 		)
 
 		BeforeEach(func() {
@@ -119,131 +121,21 @@ var _ = Describe("Address Precompile", func() {
 
 			// Generate a limit.
 			limit = sdk.NewCoins(sdk.NewInt64Coin("test", 100))
-
-			// Set the expired/non-expired time.
-			nonExpiredTime = big.NewInt(50)
-			// expiredTime = big.NewInt(200)
-		})
-
-		It("should error if invalid granter", func() {
-			_, err := contract.SetSendAllowance(
-				context.Background(),
-				evm,
-				common.Address{},
-				new(big.Int),
-				false,
-				"invalid address",
-				grantee,
-				sdkCoinsToEvmCoins(limit),
-				nonExpiredTime,
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-		})
-
-		It("should error if invalid grantee", func() {
-			_, err := contract.SetSendAllowance(
-				context.Background(),
-				evm,
-				common.Address{},
-				new(big.Int),
-				false,
-				granter,
-				"invalid address",
-				sdkCoinsToEvmCoins(limit),
-				nonExpiredTime,
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-		})
-
-		It("should error if the limit is invalid", func() {
-			_, err := contract.SetSendAllowance(
-				context.Background(),
-				evm,
-				common.Address{},
-				new(big.Int),
-				false,
-				granter,
-				grantee,
-				"invalid limit",
-				nonExpiredTime,
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidCoin))
-		})
-
-		It("should error if the expiration is invalid", func() {
-			_, err := contract.SetSendAllowance(
-				context.Background(),
-				evm,
-				common.Address{},
-				new(big.Int),
-				false,
-				granter,
-				grantee,
-				sdkCoinsToEvmCoins(limit),
-				"invalid expiration",
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
-		})
-
-		It("should error if the expiration is before the current block time", func() {
-			_, err := contract.SetSendAllowance(
-				context.Background(),
-				evm,
-				common.Address{},
-				new(big.Int),
-				false,
-				granter,
-				grantee,
-				sdkCoinsToEvmCoins(limit),
-				big.NewInt(1),
-			)
-			Expect(err).To(HaveOccurred())
-		})
-
-		It("should succeed with expiration", func() {
-			_, err := contract.SetSendAllowance(
-				ctx,
-				evm,
-				common.Address{},
-				new(big.Int),
-				false,
-				granter,
-				grantee,
-				sdkCoinsToEvmCoins(limit),
-				big.NewInt(110),
-			)
-			Expect(err).ToNot(HaveOccurred())
-		})
-
-		It("should succeed without expiration", func() {
-			_, err := contract.SetSendAllowance(
-				ctx,
-				evm,
-				common.Address{},
-				new(big.Int),
-				false,
-				granter,
-				grantee,
-				sdkCoinsToEvmCoins(limit),
-				new(big.Int),
-			)
-			Expect(err).ToNot(HaveOccurred())
 		})
 
 		When("Get Send Allowance: ", func() {
 			BeforeEach(func() {
 				// Set up a spend limit grant.
-				_, err := contract.SetSendAllowance(
-					ctx,
-					evm,
-					common.Address{},
-					new(big.Int),
-					false,
-					granter,
-					grantee,
-					sdkCoinsToEvmCoins(limit),
-					new(big.Int),
+				sendAuth := banktypes.NewSendAuthorization(
+					limit, []sdk.AccAddress{cosmlib.AddressToAccAddress(grantee)},
 				)
+				grant, err := authz.NewGrant(time.Now(), sendAuth, nil)
+				Expect(err).ToNot(HaveOccurred())
+				_, err = k.Grant(ctx, &authz.MsgGrant{
+					Granter: cosmlib.Bech32FromEthAddress(granter),
+					Grantee: cosmlib.Bech32FromEthAddress(grantee),
+					Grant:   grant,
+				})
 				Expect(err).ToNot(HaveOccurred())
 			})
 
@@ -307,27 +199,6 @@ var _ = Describe("Address Precompile", func() {
 	})
 
 })
-
-// TODO: move to utils since also used by bank.
-func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
-	Amount *big.Int `json:"amount"`
-	Denom  string   `json:"denom"`
-} {
-	evmCoins := make([]struct {
-		Amount *big.Int `json:"amount"`
-		Denom  string   `json:"denom"`
-	}, len(sdkCoins))
-	for i, coin := range sdkCoins {
-		evmCoins[i] = struct {
-			Amount *big.Int `json:"amount"`
-			Denom  string   `json:"denom"`
-		}{
-			Amount: coin.Amount.BigInt(),
-			Denom:  coin.Denom,
-		}
-	}
-	return evmCoins
-}
 
 func MsgRouterMockWithSend() *mock.MessageRouterMock {
 	router := mock.NewMsgRouterMock()

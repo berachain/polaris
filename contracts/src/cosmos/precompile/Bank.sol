@@ -110,16 +110,6 @@ interface IBankModule {
      */
     function getSendEnabled(string calldata denom) external view returns (bool);
 
-    ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
-
-    /**
-     * @dev Send coins from one address to another.
-     */
-    function send(address fromAddress, address toAddress, Cosmos.Coin[] calldata amount)
-        external
-        payable
-        returns (bool);
-
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 
     /**

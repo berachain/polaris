@@ -68,10 +68,6 @@ func NewPrecompileContract(
 func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 	return ethprecompile.Methods{
 		{
-			AbiSig:  "setSendAllowance(address,address,(uint256,string)[],uint256)",
-			Execute: c.SetSendAllowance,
-		},
-		{
 			AbiSig:  "getSendAllowance(address,address,string)",
 			Execute: c.GetSendAllowance,
 		},
@@ -80,42 +76,6 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			Execute: c.GetAccountInfoAddrInput,
 		},
 	}
-}
-
-// SetSendAllowance sends a send authorization message to the authz module.
-func (c *Contract) SetSendAllowance(
-	ctx context.Context,
-	evm ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	owner, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	spender, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, err := cosmlib.ExtractCoinsFromInput(args[2])
-	if err != nil {
-		return nil, err
-	}
-	expiration, ok := utils.GetAs[*big.Int](args[3])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
-	return c.setSendAllowanceHelper(
-		ctx,
-		time.Unix(int64(evm.GetContext().Time), 0),
-		cosmlib.AddressToAccAddress(owner),
-		cosmlib.AddressToAccAddress(spender),
-		amount,
-		expiration,
-	)
 }
 
 // GetSendAllowance returns the amount of tokens that the spender is allowd to spend.

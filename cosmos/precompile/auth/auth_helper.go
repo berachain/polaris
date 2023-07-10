@@ -35,46 +35,6 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// setSendAllowanceHelper is the helper method to call the grant method on the msgServer, with a
-// send authorization.
-func (c *Contract) setSendAllowanceHelper(
-	ctx context.Context,
-	blocktime time.Time,
-	granter, grantee sdk.AccAddress,
-	limit sdk.Coins,
-	expiration *big.Int,
-) ([]any, error) {
-	var (
-		grant authz.Grant
-		err   error
-	)
-
-	// Create the send authorization via bank module.
-	sendAuth := banktypes.NewSendAuthorization(limit, []sdk.AccAddress{grantee})
-
-	// If the expiration is 0, then the grant is valid forever, and can be nil.
-	if expiration.Cmp(big.NewInt(0)) == 0 {
-		grant, err = authz.NewGrant(blocktime, sendAuth, nil)
-	} else {
-		expirationTime := time.Unix(expiration.Int64(), 0)
-		grant, err = authz.NewGrant(blocktime, sendAuth, &expirationTime)
-	}
-
-	// Assert that the grant is valid.
-	if err != nil {
-		return nil, err
-	}
-
-	// Send the grant via the authz module.
-	_, err = c.msgServer.Grant(ctx, &authz.MsgGrant{
-		Granter: granter.String(),
-		Grantee: grantee.String(),
-		Grant:   grant,
-	})
-
-	return []any{err == nil}, err
-}
-
 // getSendAllownace returns the highest allowance for a given coin denom.
 func (c *Contract) getSendAllownaceHelper(
 	ctx context.Context,

@@ -90,10 +90,6 @@ func (c *Contract) PrecompileMethods() ethprecompile.Methods {
 			AbiSig:  "getSendEnabled(string)",
 			Execute: c.GetSendEnabled,
 		},
-		{
-			AbiSig:  "send(address,address,(uint256,string)[])",
-			Execute: c.Send,
-		},
 	}
 }
 
@@ -315,34 +311,4 @@ func (c *Contract) GetSendEnabled(
 	}
 
 	return []any{res.SendEnabled[0].Enabled}, nil
-}
-
-// Send implements `send(address,address,(uint256,string))` method.
-func (c *Contract) Send(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	fromAddr, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	toAddr, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	coins, err := cosmlib.ExtractCoinsFromInput(args[2])
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
-		FromAddress: cosmlib.Bech32FromEthAddress(fromAddr),
-		ToAddress:   cosmlib.Bech32FromEthAddress(toAddr),
-		Amount:      coins,
-	})
-	return []any{err == nil}, err
 }
