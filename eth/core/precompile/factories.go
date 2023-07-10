@@ -110,7 +110,7 @@ func (sf *StatefulFactory) Build(
 		return nil, err
 	}
 
-	return NewStateful(rp, idsToMethods), nil
+	return NewStateful(rp, idsToMethods)
 }
 
 // This function matches each Go implementation of the Precompile
@@ -121,18 +121,12 @@ func (sf *StatefulFactory) Build(
 func BuildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (map[string]*Method, error) {
 	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*Method)
-	for m := 0; m < contractImplType.NumMethod(); m++ { // iterate through all of the impl's methods
+	for m := 0; m < contractImplType.NumMethod(); m++ {
 		implMethod := contractImplType.Method(m) // grab the Impl's current method
 
-		// write me some logic that checks if the second return value of the implmethod is an error.
-		// if it is, then return an error. if it isn't, then return nil.
-		// this is because the ABI methods are not allowed to return an error.
-		// if the impl method returns an error, then it is not a valid precompile method.
-		// if the impl method does not return an error, then it is a valid precompile method.
+		implMethodName := formatName(implMethod.Name)
 
-		implMethodName := formatName(implMethod.Name) // make the first letter lowercase
-
-		if abiMethod, found := pcABI[implMethodName]; found { // if the method is found in the ABI
+		if abiMethod, found := pcABI[implMethodName]; found {
 			if err := checkReturnTypes(implMethod); err != nil {
 				return nil, errorslib.Wrap(err, implMethodName)
 			}
@@ -140,12 +134,12 @@ func BuildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) 
 				AbiMethod: &abiMethod,
 				AbiSig:    abiMethod.Sig,
 				Execute:   implMethod.Func,
-			} // add it to the list of methods
+			}
 		}
 	}
 
-	for _, abiMethod := range pcABI { // iterate through all of the ABI's methods
-		if _, found := idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)]; !found { // if the method is not found in the ABI
+	for _, abiMethod := range pcABI {
+		if _, found := idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)]; !found { // if we missed an ABI method's implementation
 			return nil, errorslib.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Name)
 		}
 	}
@@ -153,9 +147,9 @@ func BuildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) 
 	return idsToMethods, nil
 }
 
-// formatName converts to first character of name to lowercase.
-// If the first three characters are "ERC" (which is p common), then it converts all three to lowercase.
-// the code below has been inspired by Geth.
+// formatName converts to first character of name to lowercase. If the first
+// three characters are "ERC" or "ABI" (which is p common), then it converts all
+// three to lowercase.
 func formatName(name string) string {
 	ret := []rune(name)
 	if name[:3] == "ERC" || name[:3] == "ABI" { // special case for ERC20, ERC721, etc.
@@ -182,7 +176,7 @@ func checkReturnTypes(implMethod reflect.Method) error {
 	if firstReturnType.Kind() != reflect.Slice { // check if the first return type is a []any
 		return errors.New("first parameter should be []any, but found " +
 			firstReturnType.String() + " for precompile method: " + implMethod.Name)
-	} else if firstReturnType.Elem().Kind() != reflect.Interface { // if it is but it is not an interface...
+	} else if firstReturnType.Elem().Kind() != reflect.Interface { // if it is but it is not an any...
 		return errors.New("first parameter should be []any, but found " +
 			firstReturnType.String() + " for precompile method: " + implMethod.Name)
 	}

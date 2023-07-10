@@ -45,11 +45,12 @@ var _ = Describe("Stateful Container", func() {
 	var value *big.Int
 	var blank []byte
 	var badInput = []byte{1, 2, 3, 4}
-
+	var err error
 	BeforeEach(func() {
 		ctx = context.Background()
-		sc = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
-		empty = precompile.NewStateful(nil, nil)
+		sc, err = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
+		Expect(err).ToNot(HaveOccurred())
+		empty, err = precompile.NewStateful(nil, nil)
 	})
 
 	Describe("Test Required Gas", func() {
@@ -141,28 +142,24 @@ var (
 	contractFuncStrABI  = mock.Methods["contractFuncStr"]
 	mockIdsToMethods    = map[string]*precompile.Method{
 		utils.UnsafeBytesToStr(getOutputABI.ID): {
-			AbiSig:      getOutputABI.Sig,
-			AbiMethod:   &getOutputABI,
-			Execute:     reflect.ValueOf(getOutput),
-			RequiredGas: 1,
+			AbiSig:    getOutputABI.Sig,
+			AbiMethod: &getOutputABI,
+			Execute:   reflect.ValueOf(getOutput),
 		},
 		utils.UnsafeBytesToStr(getOutputPartialABI.ID): {
-			AbiSig:      getOutputPartialABI.Sig,
-			AbiMethod:   &getOutputPartialABI,
-			Execute:     reflect.ValueOf(getOutputPartial),
-			RequiredGas: 10,
+			AbiSig:    getOutputPartialABI.Sig,
+			AbiMethod: &getOutputPartialABI,
+			Execute:   reflect.ValueOf(getOutputPartial),
 		},
 		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): {
-			AbiSig:      contractFuncAddrABI.Sig,
-			AbiMethod:   &contractFuncAddrABI,
-			Execute:     reflect.ValueOf(contractFuncAddrInput),
-			RequiredGas: 100,
+			AbiSig:    contractFuncAddrABI.Sig,
+			AbiMethod: &contractFuncAddrABI,
+			Execute:   reflect.ValueOf(contractFuncAddrInput),
 		},
 		utils.UnsafeBytesToStr(contractFuncStrABI.ID): {
-			AbiSig:      contractFuncStrABI.Sig,
-			AbiMethod:   &contractFuncStrABI,
-			Execute:     reflect.ValueOf(contractFuncStrInput),
-			RequiredGas: 1000,
+			AbiSig:    contractFuncStrABI.Sig,
+			AbiMethod: &contractFuncStrABI,
+			Execute:   reflect.ValueOf(contractFuncStrInput),
 		},
 	}
 )

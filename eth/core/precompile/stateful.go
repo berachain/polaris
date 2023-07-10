@@ -50,11 +50,14 @@ type stateful struct {
 // NewStateful creates and returns a new `stateful` with the given method ids precompile functions map.
 func NewStateful(
 	rp Registrable, idsToMethods map[string]*Method,
-) vm.PrecompileContainer {
+) (vm.PrecompileContainer, error) {
+	if idsToMethods == nil {
+		return nil, ErrContainerHasNoMethods
+	}
 	return &stateful{
 		Registrable:  rp,
 		idsToMethods: idsToMethods,
-	}
+	}, nil
 }
 
 // Run loads the corresponding precompile method for given input, executes it, and handles
@@ -69,9 +72,7 @@ func (sc *stateful) Run(
 	value *big.Int,
 	readonly bool,
 ) ([]byte, error) {
-	if sc.idsToMethods == nil {
-		return nil, ErrContainerHasNoMethods
-	}
+
 	if len(input) < NumBytesMethodID {
 		return nil, ErrInvalidInputToPrecompile
 	}
@@ -99,15 +100,5 @@ func (sc *stateful) Run(
 //
 // RequiredGas implements PrecompileContainer.
 func (sc *stateful) RequiredGas(input []byte) uint64 {
-	if sc.idsToMethods == nil || len(input) < NumBytesMethodID {
-		return 0
-	}
-
-	// Extract the method ID from the input and load the method.
-	method, found := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
-	if !found {
-		return 0
-	}
-
-	return method.RequiredGas
+	return 0
 }

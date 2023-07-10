@@ -64,11 +64,6 @@ type Method struct {
 	// Execute is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
 	Execute reflect.Value
-
-	// RequiredGas is the amount of gas (as a `uint64`) used up by the execution of `Execute`.
-	// This field is optional; if left empty, the precompile's executable should consume gas using
-	// the native gas meter.
-	RequiredGas uint64
 }
 
 // Call executes the precompile's executable with the given context and input arguments.

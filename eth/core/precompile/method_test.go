@@ -37,10 +37,9 @@ var _ = Describe("Method", func() {
 	Context("Calling the method", func() {
 		It("should be able to call the Method's executable", func() {
 			method := &precompile.Method{
-				AbiMethod:   &abi.Method{},
-				AbiSig:      "mockExecutable()",
-				Execute:     reflect.ValueOf(mockExecutable),
-				RequiredGas: 10,
+				AbiMethod: &abi.Method{},
+				AbiSig:    "mockExecutable()",
+				Execute:   reflect.ValueOf(mockExecutable),
 			}
 			res := method.Execute.Call(
 				[]reflect.Value{
