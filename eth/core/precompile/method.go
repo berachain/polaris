@@ -88,28 +88,13 @@ func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 	// Call the executable
 	results := m.Execute.Call(append(ctx, reflectedUnpackedArgs...))
 
-	// If the precompile returns something wrong (e.g. wrong number of results), the error is
-	// returned to the caller.
-	if len(results) != 2 { //nolint:gomnd // its okay.
-		return nil, errors.Wrapf(
-			vm.ErrExecutionReverted,
-			"vm error: precompile [%s] returned [%d] results, expected 2",
-			debug.GetFnName(m.Execute.Interface()), len(results),
-		)
-	}
-
 	// If the precompile returned an error, the error is returned to the caller.
 	if !results[1].IsNil() {
-		if errInterface := results[1].Interface(); errInterface != nil {
-			err, _ = errInterface.(error)
-		}
-		if err != nil {
-			return nil, errors.Wrapf(
-				vm.ErrExecutionReverted,
-				"vm error [%v] occurred during precompile execution of [%s]",
-				err, debug.GetFnName(m.Execute.Interface()),
-			)
-		}
+		return nil, errors.Wrapf(
+			vm.ErrExecutionReverted,
+			"vm error [%v] occurred during precompile execution of [%s]",
+			results[1].Interface().(error), debug.GetFnName(m.Execute.Interface()),
+		)
 	}
 
 	// Pack the return values and return, if any exist.
