@@ -53,6 +53,7 @@ type ContainerizedNode interface {
 	EthClient() *ethclient.Client
 	EthWsClient() *ethclient.Client
 	WaitForBlock(number uint64) error
+	WaitForNextBlock() error
 }
 
 // containerizedNode implements ContainerizedNode.
@@ -195,6 +196,40 @@ func (c *containerizedNode) WaitForBlock(number uint64) error {
 			}
 
 			if currHeight == number {
+				return nil
+			}
+		}
+	}
+}
+
+// WaitForNextBlock waits for the chain to reach the next block.
+func (c *containerizedNode) WaitForNextBlock() error {
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	defer cancel()
+
+	var currHeight uint64
+	var currDone bool
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			if !currDone {
+				var err error
+				currHeight, err = c.ethClient.BlockNumber(ctx)
+				if err != nil {
+					return err
+				}
+				currDone = true
+				continue
+			}
+
+			newHeight, err := c.ethClient.BlockNumber(ctx)
+			if err != nil {
+				return err
+			}
+
+			if newHeight == currHeight+1 {
 				return nil
 			}
 		}

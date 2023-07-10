@@ -61,7 +61,6 @@ var _ = Describe("Fixture", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(c).ToNot(BeNil())
-
 	})
 
 	AfterEach(func() {
@@ -72,6 +71,7 @@ var _ = Describe("Fixture", func() {
 	It("should wait for a certain block height", func() {
 		Expect(c.WaitForBlock(1)).To(MatchError("block height already passed"))
 		Expect(c.WaitForBlock(5)).To(Succeed())
+		Expect(c.WaitForNextBlock()).To(Succeed())
 	})
 
 	It("should get recent blocks with websockets", func() {
