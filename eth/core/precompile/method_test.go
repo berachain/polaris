@@ -49,9 +49,9 @@ var _ = Describe("Method", func() {
 					reflect.ValueOf(big.NewInt(0)),
 					reflect.ValueOf(false),
 					reflect.ValueOf([]byte{}),
-				}, []byte{})
+				}, []byte{0, 0, 0, 0})
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res[0]).To(BeNil())
+			Expect(res).To(BeNil())
 		})
 	})
 })

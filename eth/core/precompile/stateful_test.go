@@ -51,13 +51,12 @@ var _ = Describe("Stateful Container", func() {
 		sc, err = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
 		Expect(err).ToNot(HaveOccurred())
 		empty, err = precompile.NewStateful(nil, nil)
+		Expect(empty).To(BeNil())
+		Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 	})
 
 	Describe("Test Required Gas", func() {
-		It("should return 0 for invalid cases", func() {
-			// empty input
-			Expect(empty.RequiredGas(blank)).To(Equal(uint64(0)))
-
+		It("should return 0 in all cases", func() {
 			// method not found
 			Expect(sc.RequiredGas(badInput)).To(Equal(uint64(0)))
 
@@ -65,19 +64,10 @@ var _ = Describe("Stateful Container", func() {
 			Expect(sc.RequiredGas(blank)).To(Equal(uint64(0)))
 		})
 
-		It("should properly return the required gas for valid methods", func() {
-			Expect(sc.RequiredGas(getOutputABI.ID)).To(Equal(uint64(1)))
-			Expect(sc.RequiredGas(getOutputPartialABI.ID)).To(Equal(uint64(10)))
-			Expect(sc.RequiredGas(contractFuncAddrABI.ID)).To(Equal(uint64(100)))
-			Expect(sc.RequiredGas(contractFuncStrABI.ID)).To(Equal(uint64(1000)))
-		})
 	})
 
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
-			// empty input
-			_, err = empty.Run(ctx, &mockEVM{}, blank, addr, value, readonly)
-			Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 
 			// invalid input
 			_, err = sc.Run(ctx, &mockEVM{}, blank, addr, value, readonly)
