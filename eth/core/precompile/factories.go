@@ -139,7 +139,7 @@ func BuildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) 
 	}
 
 	for _, abiMethod := range pcABI {
-		if _, found := idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)]; !found { // if we missed an ABI method's implementation
+		if _, found := idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)]; !found {
 			return nil, errorslib.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Name)
 		}
 	}

@@ -72,7 +72,6 @@ func (sc *stateful) Run(
 	value *big.Int,
 	readonly bool,
 ) ([]byte, error) {
-
 	if len(input) < NumBytesMethodID {
 		return nil, ErrInvalidInputToPrecompile
 	}
@@ -99,6 +98,6 @@ func (sc *stateful) Run(
 // RequiredGas checks the Method corresponding to input for the required gas amount.
 //
 // RequiredGas implements PrecompileContainer.
-func (sc *stateful) RequiredGas(input []byte) uint64 {
+func (sc *stateful) RequiredGas(_ []byte) uint64 {
 	return 0
 }

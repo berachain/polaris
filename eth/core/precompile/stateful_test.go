@@ -76,7 +76,7 @@ var _ = Describe("Stateful Container", func() {
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
 			// empty input
-			_, err := empty.Run(ctx, &mockEVM{}, blank, addr, value, readonly)
+			_, err = empty.Run(ctx, &mockEVM{}, blank, addr, value, readonly)
 			Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 
 			// invalid input
@@ -98,7 +98,8 @@ var _ = Describe("Stateful Container", func() {
 			))
 
 			// precompile returns vals when none expected
-			inputs, err := contractFuncStrABI.Inputs.Pack("string")
+			var inputs []byte
+			inputs, err = contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
 			_, err = sc.Run(ctx, &mockEVM{}, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
 			Expect(err).To(HaveOccurred())
@@ -112,11 +113,14 @@ var _ = Describe("Stateful Container", func() {
 
 		It("should return properly for valid method calls", func() {
 			// sc.WithStateDB(sdb)
-			inputs, err := getOutputABI.Inputs.Pack("string")
+			var inputs []byte
+			inputs, err = getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			ret, err := sc.Run(ctx, &mockEVM{}, append(getOutputABI.ID, inputs...), addr, value, readonly)
+			var ret []byte
+			ret, err = sc.Run(ctx, &mockEVM{}, append(getOutputABI.ID, inputs...), addr, value, readonly)
 			Expect(err).ToNot(HaveOccurred())
-			outputs, err := getOutputABI.Outputs.Unpack(ret)
+			var outputs []interface{}
+			outputs, err = getOutputABI.Outputs.Unpack(ret)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(outputs).To(HaveLen(1))
 			Expect(
