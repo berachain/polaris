@@ -131,9 +131,9 @@ func BuildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) 
 				return nil, errorslib.Wrap(err, implMethodName)
 			}
 			idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = &Method{
-				AbiMethod: &abiMethod,
-				AbiSig:    abiMethod.Sig,
-				Execute:   implMethod.Func,
+				abiMethod: &abiMethod,
+				abiSig:    abiMethod.Sig,
+				execute:   implMethod.Func,
 			}
 		}
 	}

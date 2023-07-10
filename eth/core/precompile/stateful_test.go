@@ -145,26 +145,26 @@ var (
 	contractFuncAddrABI = mock.Methods["contractFunc"]
 	contractFuncStrABI  = mock.Methods["contractFuncStr"]
 	mockIdsToMethods    = map[string]*precompile.Method{
-		utils.UnsafeBytesToStr(getOutputABI.ID): {
-			AbiSig:    getOutputABI.Sig,
-			AbiMethod: &getOutputABI,
-			Execute:   reflect.ValueOf(getOutput),
-		},
-		utils.UnsafeBytesToStr(getOutputPartialABI.ID): {
-			AbiSig:    getOutputPartialABI.Sig,
-			AbiMethod: &getOutputPartialABI,
-			Execute:   reflect.ValueOf(getOutputPartial),
-		},
-		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): {
-			AbiSig:    contractFuncAddrABI.Sig,
-			AbiMethod: &contractFuncAddrABI,
-			Execute:   reflect.ValueOf(contractFuncAddrInput),
-		},
-		utils.UnsafeBytesToStr(contractFuncStrABI.ID): {
-			AbiSig:    contractFuncStrABI.Sig,
-			AbiMethod: &contractFuncStrABI,
-			Execute:   reflect.ValueOf(contractFuncStrInput),
-		},
+		utils.UnsafeBytesToStr(getOutputABI.ID): precompile.NewMethod(
+			&getOutputABI,
+			getOutputABI.Sig,
+			reflect.ValueOf(getOutput),
+		),
+		utils.UnsafeBytesToStr(getOutputPartialABI.ID): precompile.NewMethod(
+			&getOutputPartialABI,
+			getOutputPartialABI.Sig,
+			reflect.ValueOf(getOutputPartial),
+		),
+		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): precompile.NewMethod(
+			&contractFuncAddrABI,
+			contractFuncAddrABI.Sig,
+			reflect.ValueOf(contractFuncAddrInput),
+		),
+		utils.UnsafeBytesToStr(contractFuncStrABI.ID): precompile.NewMethod(
+			&contractFuncStrABI,
+			contractFuncStrABI.Sig,
+			reflect.ValueOf(contractFuncStrInput),
+		),
 	}
 )
 

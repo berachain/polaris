@@ -36,12 +36,12 @@ import (
 var _ = Describe("Method", func() {
 	Context("Calling the method", func() {
 		It("should be able to call the Method's executable", func() {
-			method := &precompile.Method{
-				AbiMethod: &abi.Method{},
-				AbiSig:    "mockExecutable()",
-				Execute:   reflect.ValueOf(mockExecutable),
-			}
-			res := method.Execute.Call(
+			method := precompile.NewMethod(
+				&abi.Method{},
+				"mockExecutable()",
+				reflect.ValueOf(mockExecutable),
+			)
+			res, err := method.Call(
 				[]reflect.Value{
 					reflect.ValueOf(context.Background()),
 					reflect.ValueOf(mockEVM{}),
@@ -49,8 +49,9 @@ var _ = Describe("Method", func() {
 					reflect.ValueOf(big.NewInt(0)),
 					reflect.ValueOf(false),
 					reflect.ValueOf([]byte{}),
-				})
-			Expect(res[0].IsNil()).To(BeTrue())
+				}, []byte{})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res[0]).To(BeNil())
 		})
 	})
 })

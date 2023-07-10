@@ -25,7 +25,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/errors"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/errors/debug"
 )
 
@@ -53,23 +53,33 @@ type Method struct {
 	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable. NOTE:
 	// this field should be left empty (as nil) as this will automatically be populated by the
 	// corresponding interface's ABI.
-	AbiMethod *abi.Method
+	abiMethod *abi.Method
 
 	// AbiSig returns the method's string signature according to the ABI spec.
 	// e.g.		function foo(uint32 a, int b) = "foo(uint32,int256)"
 	// Note that there are no spaces and variable names in the signature.
 	// Also note that "int" is substitute for its canonical representation "int256".
-	AbiSig string
+	abiSig string
 
 	// Execute is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
-	Execute reflect.Value
+	execute reflect.Value
+}
+
+func NewMethod(
+	abiMethod *abi.Method, abiSig string, execute reflect.Value,
+) *Method {
+	return &Method{
+		abiMethod: abiMethod,
+		abiSig:    abiSig,
+		execute:   execute,
+	}
 }
 
 // Call executes the precompile's executable with the given context and input arguments.
 func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 	// Unpack the args from the input, if any exist.
-	unpackedArgs, err := m.AbiMethod.Inputs.Unpack(input[NumBytesMethodID:])
+	unpackedArgs, err := m.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])
 	if err != nil {
 		return nil, err
 	}
@@ -81,20 +91,20 @@ func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 	}
 
 	// Call the executable
-	results := m.Execute.Call(append(ctx, reflectedUnpackedArgs...))
+	results := m.execute.Call(append(ctx, reflectedUnpackedArgs...))
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if !results[1].IsNil() {
-		return nil, errors.Wrapf(
+		return nil, errorslib.Wrapf(
 			vm.ErrExecutionReverted,
 			"vm error [%v] occurred during precompile execution of [%s]",
-			results[1].Interface().(error), debug.GetFnName(m.Execute.Interface()),
+			results[1].Interface().(error), debug.GetFnName(m.execute.Interface()),
 		)
 	}
 
 	// Pack the return values and return, if any exist.
 	retVal := results[0]
-	ret, err := m.AbiMethod.Outputs.PackValues(retVal.Interface().([]any)) // 1) What
+	ret, err := m.abiMethod.Outputs.PackValues(retVal.Interface().([]any)) // 1) What
 	if err != nil {
 		return nil, err
 	}
