@@ -37,11 +37,7 @@ import (
  *	  2) Build a Go precompile contract, which implements the interface's methods.
  *       A) This precompile contract should expose the ABI's `Methods`, which can be generated via
  *          Go-Ethereum's abi package. These methods are of type `abi.Method`.
- *   	 B) This precompile contract should also expose the `Method`s. A `Method` includes the
- *          `executable`, which is the direct implementation of a corresponding ABI method, the
- *          `executable`'s `RequiredGas`, and the ABI signature. Do NOT provide the `AbiMethod` as
- *          this field will be automatically populated.
- * 		 C) If implementing an overloaded function, suffix the overloaded methods' names with starting with
+ * 		 B) If implementing an overloaded function, suffix the overloaded methods' names with starting with
  *  		0, then 1, 2, etc.  for every overloaded function. For example, if you have two functions named `foo` in
  *			your smart contract, then name the first function `foo` and the second `foo0`.
  *			This is because Go does not allow overloaded functions, and is very similar to how Geth handles it.
