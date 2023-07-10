@@ -29,16 +29,25 @@ import (
 	dt "github.com/ory/dockertest"
 )
 
+// Client is an interface for a container client.
 type Client interface {
+	// Start starts the container.
 	Start() error
+
+	// Stop stops the container.
 	Stop() error
+
+	// Remove removes the container.
 	Remove() error
+
+	// GetEndpoint returns the endpoint for the given id of the container.
 	GetEndpoint(string) string
 }
 
+// client implements the Client interface using the dockertest library.
 type client struct {
-	pool     *dt.Pool
-	resource *dt.Resource
+	pool     *dt.Pool     // pool is a docker resource pool
+	resource *dt.Resource // resource points to a docker container resource
 }
 
 // NewClient creates a new ContainerClient which implements Container.
