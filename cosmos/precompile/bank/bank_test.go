@@ -137,31 +137,6 @@ var _ = Describe("Bank Precompile Test", func() {
 		denom2 := "atoken"
 
 		When("GetBalance", func() {
-			It("should fail if input address is not a common.Address", func() {
-				res, err := contract.GetBalance(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					"0x",
-					"stake",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if input denom is not a valid string", func() {
-				res, err := contract.GetBalance(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					cosmlib.AccAddressToEthAddress(acc),
-					666,
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
 
 			It("should fail if input denom is not a valid denom", func() {
 				res, err := contract.GetBalance(
@@ -210,17 +185,6 @@ var _ = Describe("Bank Precompile Test", func() {
 		})
 
 		When("GetAllBalance", func() {
-			It("should fail if input address is not a common.Address", func() {
-				res, err := contract.GetBalance(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					"0x",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
 
 			It("should succeed", func() {
 				numOfDenoms := 3
@@ -268,34 +232,9 @@ var _ = Describe("Bank Precompile Test", func() {
 		})
 
 		When("GetSpendableBalanceByDenom", func() {
-			It("should fail if input address is not a common.Address", func() {
-				res, err := contract.GetSpendableBalanceByDenom(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					"0x",
-					"stake",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if input denom is not a valid string", func() {
-				res, err := contract.GetSpendableBalanceByDenom(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					cosmlib.AccAddressToEthAddress(acc),
-					666,
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
 
 			It("should fail if input denom is not a valid denom", func() {
-				res, err := contract.GetSpendableBalanceByDenom(
+				res, err := contract.GetSpendableBalance(
 					ctx,
 					nil,
 					caller,
@@ -327,7 +266,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				res, err := contract.GetSpendableBalanceByDenom(
+				res, err := contract.GetSpendableBalance(
 					ctx,
 					nil,
 					caller,
@@ -341,17 +280,6 @@ var _ = Describe("Bank Precompile Test", func() {
 		})
 
 		When("GetSpendableBalances", func() {
-			It("should fail if input address is not a common.Address", func() {
-				res, err := contract.GetSpendableBalances(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					"0x",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
 
 			It("should succeed", func() {
 				numOfDenoms := 3
@@ -376,7 +304,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					Expect(err).ToNot(HaveOccurred())
 				}
 
-				res, err := contract.GetSpendableBalances(
+				res, err := contract.GetAllSpendableBalances(
 					ctx,
 					nil,
 					caller,
@@ -400,20 +328,9 @@ var _ = Describe("Bank Precompile Test", func() {
 		})
 
 		When("GetSupplyOf", func() {
-			It("should fail if input denom is not a valid string", func() {
-				res, err := contract.GetSupplyOf(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					666,
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
 
 			It("should fail if input denom is not a valid Denom", func() {
-				res, err := contract.GetSupplyOf(
+				res, err := contract.GetSupply(
 					ctx,
 					nil,
 					caller,
@@ -448,7 +365,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					Expect(err).ToNot(HaveOccurred())
 				}
 
-				res, err := contract.GetSupplyOf(
+				res, err := contract.GetSupply(
 					ctx,
 					nil,
 					caller,
@@ -485,7 +402,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					}
 				}
 
-				res, err := contract.GetTotalSupply(
+				res, err := contract.GetAllSupply(
 					ctx,
 					nil,
 					caller,
@@ -505,17 +422,6 @@ var _ = Describe("Bank Precompile Test", func() {
 		})
 
 		When("GetDenomMetadata", func() {
-			It("should fail if input denom is not a valid string", func() {
-				res, err := contract.GetDenomMetadata(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					666,
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
 
 			It("should fail if input denom is not a valid Denom", func() {
 				res, err := contract.GetDenomMetadata(
@@ -580,70 +486,6 @@ var _ = Describe("Bank Precompile Test", func() {
 		})
 
 		When("Send", func() {
-			It("should fail if from address is not a common.Address", func() {
-				balanceAmount, ok := new(big.Int).SetString("22000000000000000000", 10)
-				Expect(ok).To(BeTrue())
-
-				acc = simtestutil.CreateRandomAccounts(1)[0]
-
-				res, err := contract.Send(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					"0x",
-					cosmlib.AccAddressToEthAddress(acc),
-					sdk.NewCoins(
-						sdk.NewCoin(
-							denom,
-							sdkmath.NewIntFromBigInt(balanceAmount),
-						),
-					),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if to address is not a common.Address", func() {
-				balanceAmount, ok := new(big.Int).SetString("22000000000000000000", 10)
-				Expect(ok).To(BeTrue())
-
-				acc = simtestutil.CreateRandomAccounts(1)[0]
-
-				res, err := contract.Send(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					cosmlib.AccAddressToEthAddress(acc),
-					"0x",
-					sdk.NewCoins(
-						sdk.NewCoin(
-							denom,
-							sdkmath.NewIntFromBigInt(balanceAmount),
-						),
-					),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if amount is not sdk.Coins", func() {
-				accs := simtestutil.CreateRandomAccounts(2)
-				fromAcc, toAcc := accs[0], accs[1]
-
-				res, err := contract.Send(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					cosmlib.AccAddressToEthAddress(fromAcc),
-					cosmlib.AccAddressToEthAddress(toAcc),
-					"wrong type input",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidCoin))
-				Expect(res).To(BeNil())
-			})
 
 			It("should succeed", func() {
 				balanceAmount, ok := new(big.Int).SetString("220000000000000000", 10)
@@ -663,10 +505,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					),
 				)
 
-				unsortedSdkCoins := sdk.NewCoins()
-				unsortedSdkCoins = append(unsortedSdkCoins, sdk.NewCoin(denom2, sdkmath.NewIntFromBigInt(balanceAmount)))
-				unsortedSdkCoins = append(unsortedSdkCoins, sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(balanceAmount)))
-
 				err := FundAccount(
 					ctx,
 					bk,
@@ -685,7 +523,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(fromAcc),
 					cosmlib.AccAddressToEthAddress(toAcc),
-					sdkCoinsToEvmCoins(unsortedSdkCoins),
+					sdkCoinsToEvmCoins(sortedSdkCoins),
 				)
 				Expect(err).ToNot(HaveOccurred())
 

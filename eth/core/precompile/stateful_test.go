@@ -46,20 +46,21 @@ var _ = Describe("Stateful Container", func() {
 	var value *big.Int
 	var blank []byte
 	var badInput = []byte{1, 2, 3, 4}
+	var err error
 	var evm precompile.EVM
 
 	BeforeEach(func() {
 		evm = pmock.NewEVM()
 		ctx = context.Background()
-		sc = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
-		empty = precompile.NewStateful(nil, nil)
+		sc, err = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
+		Expect(err).ToNot(HaveOccurred())
+		empty, err = precompile.NewStateful(nil, nil)
+		Expect(empty).To(BeNil())
+		Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 	})
 
 	Describe("Test Required Gas", func() {
-		It("should return 0 for invalid cases", func() {
-			// empty input
-			Expect(empty.RequiredGas(blank)).To(Equal(uint64(0)))
-
+		It("should return 0 in all cases", func() {
 			// method not found
 			Expect(sc.RequiredGas(badInput)).To(Equal(uint64(0)))
 
@@ -67,20 +68,10 @@ var _ = Describe("Stateful Container", func() {
 			Expect(sc.RequiredGas(blank)).To(Equal(uint64(0)))
 		})
 
-		It("should properly return the required gas for valid methods", func() {
-			Expect(sc.RequiredGas(getOutputABI.ID)).To(Equal(uint64(1)))
-			Expect(sc.RequiredGas(getOutputPartialABI.ID)).To(Equal(uint64(10)))
-			Expect(sc.RequiredGas(contractFuncAddrABI.ID)).To(Equal(uint64(100)))
-			Expect(sc.RequiredGas(contractFuncStrABI.ID)).To(Equal(uint64(1000)))
-		})
 	})
 
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
-			// empty input
-			_, err := empty.Run(ctx, evm, blank, addr, value)
-			Expect(err).To(MatchError("the stateful precompile has no methods to run"))
-
 			// invalid input
 			_, err = sc.Run(ctx, evm, blank, addr, value)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
@@ -100,7 +91,8 @@ var _ = Describe("Stateful Container", func() {
 			))
 
 			// precompile returns vals when none expected
-			inputs, err := contractFuncStrABI.Inputs.Pack("string")
+			var inputs []byte
+			inputs, err = contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
 			_, err = sc.Run(ctx, evm, append(contractFuncStrABI.ID, inputs...), addr, value)
 			Expect(err).To(HaveOccurred())
@@ -113,11 +105,14 @@ var _ = Describe("Stateful Container", func() {
 		})
 
 		It("should return properly for valid method calls", func() {
-			inputs, err := getOutputABI.Inputs.Pack("string")
+			var inputs []byte
+			inputs, err = getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			ret, err := sc.Run(ctx, evm, append(getOutputABI.ID, inputs...), addr, value)
+			var ret []byte
+			ret, err = sc.Run(ctx, evm, append(getOutputABI.ID, inputs...), addr, value)
 			Expect(err).ToNot(HaveOccurred())
-			outputs, err := getOutputABI.Outputs.Unpack(ret)
+			var outputs []interface{}
+			outputs, err = getOutputABI.Outputs.Unpack(ret)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(outputs).To(HaveLen(1))
 			Expect(
@@ -132,6 +127,10 @@ var _ = Describe("Stateful Container", func() {
 
 // MOCKS BELOW.
 
+type mockEVM struct {
+	precompile.EVM
+}
+
 var (
 	mock, _             = solidity.MockPrecompileMetaData.GetAbi()
 	getOutputABI        = mock.Methods["getOutput"]
@@ -139,30 +138,26 @@ var (
 	contractFuncAddrABI = mock.Methods["contractFunc"]
 	contractFuncStrABI  = mock.Methods["contractFuncStr"]
 	mockIdsToMethods    = map[string]*precompile.Method{
-		utils.UnsafeBytesToStr(getOutputABI.ID): {
-			AbiSig:      getOutputABI.Sig,
-			AbiMethod:   &getOutputABI,
-			Execute:     getOutput,
-			RequiredGas: 1,
-		},
-		utils.UnsafeBytesToStr(getOutputPartialABI.ID): {
-			AbiSig:      getOutputPartialABI.Sig,
-			AbiMethod:   &getOutputPartialABI,
-			Execute:     getOutputPartial,
-			RequiredGas: 10,
-		},
-		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): {
-			AbiSig:      contractFuncAddrABI.Sig,
-			AbiMethod:   &contractFuncAddrABI,
-			Execute:     contractFuncAddrInput,
-			RequiredGas: 100,
-		},
-		utils.UnsafeBytesToStr(contractFuncStrABI.ID): {
-			AbiSig:      contractFuncStrABI.Sig,
-			AbiMethod:   &contractFuncStrABI,
-			Execute:     contractFuncStrInput,
-			RequiredGas: 1000,
-		},
+		utils.UnsafeBytesToStr(getOutputABI.ID): precompile.NewMethod(
+			&getOutputABI,
+			getOutputABI.Sig,
+			reflect.ValueOf(getOutput),
+		),
+		utils.UnsafeBytesToStr(getOutputPartialABI.ID): precompile.NewMethod(
+			&getOutputPartialABI,
+			getOutputPartialABI.Sig,
+			reflect.ValueOf(getOutputPartial),
+		),
+		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): precompile.NewMethod(
+			&contractFuncAddrABI,
+			contractFuncAddrABI.Sig,
+			reflect.ValueOf(contractFuncAddrInput),
+		),
+		utils.UnsafeBytesToStr(contractFuncStrABI.ID): precompile.NewMethod(
+			&contractFuncStrABI,
+			contractFuncStrABI.Sig,
+			reflect.ValueOf(contractFuncStrInput),
+		),
 	}
 )
 
@@ -171,7 +166,9 @@ type mockObject struct {
 	TimeStamp      string
 }
 
+//revive:disable
 func getOutput(
+	_ *mockStateful,
 	_ context.Context,
 	evm precompile.EVM,
 	_ common.Address,
@@ -194,6 +191,7 @@ func getOutput(
 }
 
 func getOutputPartial(
+	_ *mockStateful,
 	_ context.Context,
 	_ precompile.EVM,
 	_ common.Address,
@@ -204,12 +202,14 @@ func getOutputPartial(
 }
 
 func contractFuncAddrInput(
-	_ context.Context,
+	_ *mockStateful,
+	ctx context.Context,
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
 	args ...any,
 ) ([]any, error) {
+	_ = ctx
 	_, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
 		return nil, errors.New("cast error")
@@ -218,12 +218,14 @@ func contractFuncAddrInput(
 }
 
 func contractFuncStrInput(
-	_ context.Context,
+	_ *mockStateful,
+	ctx context.Context,
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
 	args ...any,
 ) ([]any, error) {
+	_ = ctx
 	addr, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, errors.New("cast error")

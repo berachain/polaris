@@ -19,7 +19,6 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-
 KEYS[0]="dev0"
 KEYS[1]="dev1"
 KEYS[2]="dev2"
@@ -59,13 +58,12 @@ mage build
 overwrite="Y"
 # fi
 
-
 # Setup local node if overwrite is set to Yes, otherwise skip setup
 if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Remove the previous folder
 	rm -rf "$HOMEDIR"
 
-    	# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
+	# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
 	./bin/polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
 
 	cp ./cosmos/docker/local/config/app.toml "$APP_TOML"
