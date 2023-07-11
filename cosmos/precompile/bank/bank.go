@@ -60,7 +60,6 @@ func (c *Contract) GetBalance(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	accountAddress common.Address,
 	denom string,
 ) ([]any, error) {
@@ -82,7 +81,6 @@ func (c *Contract) GetAllBalances(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	accountAddress common.Address,
 ) ([]any, error) {
 	// todo: add pagination here
@@ -102,7 +100,6 @@ func (c *Contract) GetSpendableBalance(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	accountAddress common.Address,
 	denom string,
 ) ([]any, error) {
@@ -124,7 +121,6 @@ func (c *Contract) GetAllSpendableBalances(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	accountAddress common.Address,
 ) ([]any, error) {
 	res, err := c.querier.SpendableBalances(ctx, &banktypes.QuerySpendableBalancesRequest{
@@ -143,7 +139,6 @@ func (c *Contract) GetSupply(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	denom string,
 ) ([]any, error) {
 	res, err := c.querier.SupplyOf(ctx, &banktypes.QuerySupplyOfRequest{
@@ -163,7 +158,6 @@ func (c *Contract) GetAllSupply(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 ) ([]any, error) {
 	// todo: add pagination here
 	res, err := c.querier.TotalSupply(ctx, &banktypes.QueryTotalSupplyRequest{})
@@ -180,7 +174,6 @@ func (c *Contract) GetDenomMetadata(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	denom string,
 ) ([]any, error) {
 	res, err := c.querier.DenomMetadata(ctx, &banktypes.QueryDenomMetadataRequest{
@@ -216,7 +209,6 @@ func (c *Contract) GetSendEnabled(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	denom string,
 ) ([]any, error) {
 	res, err := c.querier.SendEnabled(ctx, &banktypes.QuerySendEnabledRequest{
@@ -238,7 +230,6 @@ func (c *Contract) Send(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	fromAddress common.Address,
 	toAddress common.Address,
 	coins any,

@@ -44,6 +44,7 @@ var (
 	NewGethEVMWithPrecompiles     = vm.NewEVMWithPrecompiles
 	ErrOutOfGas                   = vm.ErrOutOfGas
 	ErrExecutionReverted          = vm.ErrExecutionReverted
+	ErrWriteProtection            = vm.ErrWriteProtection
 	PrecompiledContractsBerlin    = vm.PrecompiledContractsBerlin
 	PrecompiledContractsByzantium = vm.PrecompiledContractsByzantium
 	PrecompiledContractsHomestead = vm.PrecompiledContractsHomestead

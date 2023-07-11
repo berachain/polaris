@@ -74,7 +74,6 @@ func (c *Contract) SubmitProposal(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	proposalBz []byte,
 	messageBz []byte,
 ) ([]any, error) {
@@ -91,7 +90,6 @@ func (c *Contract) CancelProposal(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	id uint64,
 ) ([]any, error) {
 	proposer := sdk.AccAddress(caller.Bytes())
@@ -105,7 +103,6 @@ func (c *Contract) Vote(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	proposalID uint64,
 	options int32,
 	metadata string,
@@ -121,7 +118,6 @@ func (c *Contract) VoteWeighted(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	proposalID uint64,
 	options []generated.IGovernanceModuleWeightedVoteOption,
 	metadata string,
@@ -136,7 +132,6 @@ func (c *Contract) GetProposal(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	proposalID uint64,
 ) ([]any, error) {
 	return c.getProposalHelper(ctx, proposalID)
@@ -148,7 +143,6 @@ func (c *Contract) GetProposals(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	proposalStatus int32,
 ) ([]any, error) {
 	return c.getProposalsHelper(ctx, proposalStatus)

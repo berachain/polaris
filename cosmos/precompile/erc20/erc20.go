@@ -81,7 +81,6 @@ func (c *Contract) CoinDenomForERC20Address(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	token common.Address,
 ) ([]any, error) {
 	resp, err := c.em.CoinDenomForERC20Address(
@@ -103,7 +102,6 @@ func (c *Contract) ERC20AddressForCoinDenom(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	denom string,
 ) ([]any, error) {
 	resp, err := c.em.ERC20AddressForCoinDenom(
@@ -134,7 +132,6 @@ func (c *Contract) TransferCoinToERC20(
 	evm ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
-	_ bool,
 	denom string,
 	amount *big.Int,
 ) ([]any, error) {
@@ -148,7 +145,6 @@ func (c *Contract) TransferCoinToERC20From(
 	evm ethprecompile.EVM,
 	_ common.Address,
 	value *big.Int,
-	_ bool,
 	denom string,
 	owner common.Address,
 	recipient common.Address,
@@ -164,7 +160,6 @@ func (c *Contract) TransferCoinToERC20To(
 	evm ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
-	_ bool,
 	denom string,
 	recipient common.Address,
 	amount *big.Int,
@@ -179,7 +174,6 @@ func (c *Contract) TransferERC20ToCoin(
 	evm ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	token common.Address,
 	amount *big.Int,
 ) ([]any, error) {
@@ -193,7 +187,6 @@ func (c *Contract) TransferERC20ToCoinFrom(
 	evm ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	token common.Address,
 	owner common.Address,
 	recipient common.Address,
@@ -209,7 +202,6 @@ func (c *Contract) TransferERC20ToCoinTo(
 	evm ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	token common.Address,
 	recipient common.Address,
 	amount *big.Int,

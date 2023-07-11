@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"errors"
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -92,11 +93,14 @@ func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if !results[1].IsNil() {
-		return nil, errorslib.Wrapf(
-			vm.ErrExecutionReverted,
-			"vm error [%v] occurred during precompile execution of [%s]",
-			results[1].Interface().(error), debug.GetFnName(m.execute.Interface()),
-		)
+		if !errors.Is(err, vm.ErrWriteProtection) {
+			err = errorslib.Wrapf(
+				vm.ErrExecutionReverted,
+				"vm error [%v] occurred during precompile execution of [%s]",
+				err, debug.GetFnName(m.execute),
+			)
+		}
+		return nil, err
 	}
 
 	// Pack the return values and return, if any exist.

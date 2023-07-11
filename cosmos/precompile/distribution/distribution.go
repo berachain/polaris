@@ -68,7 +68,6 @@ func (c *Contract) SetWithdrawAddress(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	withdrawAddress common.Address,
 ) ([]any, error) {
 	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), sdk.AccAddress(withdrawAddress.Bytes()))
@@ -80,7 +79,6 @@ func (c *Contract) GetWithdrawEnabled(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 ) ([]any, error) {
 	return c.getWithdrawAddrEnabled(ctx)
 }
@@ -92,7 +90,6 @@ func (c *Contract) WithdrawDelegatorReward(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	delegator common.Address,
 	validator common.Address,
 ) ([]any, error) {

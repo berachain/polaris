@@ -29,6 +29,8 @@ import (
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
+	pmock "pkg.berachain.dev/polaris/eth/core/precompile/mock"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -41,12 +43,14 @@ var _ = Describe("Stateful Container", func() {
 	var empty vm.PrecompileContainer
 	var ctx context.Context
 	var addr common.Address
-	var readonly bool
 	var value *big.Int
 	var blank []byte
 	var badInput = []byte{1, 2, 3, 4}
 	var err error
+	var evm precompile.EVM
+
 	BeforeEach(func() {
+		evm = pmock.NewEVM()
 		ctx = context.Background()
 		sc, err = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
 		Expect(err).ToNot(HaveOccurred())
@@ -68,21 +72,20 @@ var _ = Describe("Stateful Container", func() {
 
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
-
 			// invalid input
-			_, err = sc.Run(ctx, &mockEVM{}, blank, addr, value, readonly)
+			_, err = sc.Run(ctx, evm, blank, addr, value)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
 
 			// method not found
-			_, err = sc.Run(ctx, &mockEVM{}, badInput, addr, value, readonly)
+			_, err = sc.Run(ctx, evm, badInput, addr, value)
 			Expect(err).To(MatchError("precompile method not found in contract ABI"))
 
 			// geth unpacking error
-			_, err = sc.Run(ctx, &mockEVM{}, append(getOutputABI.ID, byte(1), byte(2)), addr, value, readonly)
+			_, err = sc.Run(ctx, evm, append(getOutputABI.ID, byte(1), byte(2)), addr, value)
 			Expect(err).To(HaveOccurred())
 
 			// precompile exec error
-			_, err = sc.Run(ctx, &mockEVM{}, getOutputPartialABI.ID, addr, value, readonly)
+			_, err = sc.Run(ctx, evm, getOutputPartialABI.ID, addr, value)
 			Expect(err.Error()).To(Equal(
 				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]", //nolint:lll // test.
 			))
@@ -91,33 +94,31 @@ var _ = Describe("Stateful Container", func() {
 			var inputs []byte
 			inputs, err = contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, &mockEVM{}, append(contractFuncStrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, evm, append(contractFuncStrABI.ID, inputs...), addr, value)
 			Expect(err).To(HaveOccurred())
 
 			// geth output packing error
 			inputs, err = contractFuncAddrABI.Inputs.Pack(addr)
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, &mockEVM{}, append(contractFuncAddrABI.ID, inputs...), addr, value, readonly)
+			_, err = sc.Run(ctx, evm, append(contractFuncAddrABI.ID, inputs...), addr, value)
 			Expect(err).To(HaveOccurred())
 		})
 
 		It("should return properly for valid method calls", func() {
-			// sc.WithStateDB(sdb)
-			var inputs []byte
-			inputs, err = getOutputABI.Inputs.Pack("string")
+			inputs, err := getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			var ret []byte
-			ret, err = sc.Run(ctx, &mockEVM{}, append(getOutputABI.ID, inputs...), addr, value, readonly)
+			ret, err := sc.Run(ctx, evm, append(getOutputABI.ID, inputs...), addr, value)
 			Expect(err).ToNot(HaveOccurred())
 			var outputs []interface{}
 			outputs, err = getOutputABI.Outputs.Unpack(ret)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(outputs).To(HaveLen(1))
 			Expect(
-				reflect.ValueOf(outputs[0]).Index(0).FieldByName("CreationHeight").
-					Interface().(*big.Int)).To(Equal(big.NewInt(1)))
-			Expect(reflect.ValueOf(outputs[0]).Index(0).FieldByName("TimeStamp").
-				Interface().(string)).To(Equal("string"))
+				reflect.ValueOf(outputs[0]).Index(0).FieldByName("CreationHeight").Interface().(*big.Int),
+			).To(Equal(big.NewInt(1)))
+			Expect(
+				reflect.ValueOf(outputs[0]).Index(0).FieldByName("TimeStamp").Interface().(string),
+			).To(Equal("string"))
 		})
 	})
 })
@@ -166,18 +167,17 @@ type mockObject struct {
 //revive:disable
 func getOutput(
 	_ *mockStateful,
-	ctx context.Context,
-	_ precompile.EVM,
+	_ context.Context,
+	evm precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
-	_ = ctx
 	str, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, errors.New("cast error")
 	}
+	evm.GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
 	return []any{
 		[]mockObject{
 			{
@@ -194,7 +194,6 @@ func getOutputPartial(
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	_ ...any,
 ) ([]any, error) {
 	_ = ctx
@@ -207,7 +206,6 @@ func contractFuncAddrInput(
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	_ = ctx
@@ -224,7 +222,6 @@ func contractFuncStrInput(
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	_ = ctx

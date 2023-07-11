@@ -31,7 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/errors"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -153,14 +153,16 @@ func (sp *StateProcessor) ProcessTransaction(
 		sp.header.Number, sp.sealhash, sp.header.Time, tx, &sp.header.GasUsed,
 	)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
+		return nil, errorslib.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
 	}
 
 	// Consume the gas used by the state transition. In both the out of block gas as well as out of
 	// gas on the plugin cases, the line below will consume the remaining gas for the block and
 	// transaction respectively.
 	if err = sp.gp.ConsumeGas(receipt.GasUsed); err != nil {
-		return nil, errors.Wrapf(err, "could not consume gas used %d [%s]", len(sp.txs), tx.Hash().Hex())
+		return nil, errorslib.Wrapf(
+			err, "could not consume gas used %d [%s]", len(sp.txs), tx.Hash().Hex(),
+		)
 	}
 
 	// Update the block information.

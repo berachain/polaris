@@ -185,7 +185,6 @@ var _ = Describe("Staking", func() {
 				_, err = contract.Delegate(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					cosmlib.ValAddressToEthAddress(val),
 					amountToDelegate,
 				)
@@ -199,7 +198,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.GetDelegation(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					cosmlib.AccAddressToEthAddress(del), cosmlib.ValAddressToEthAddress(val),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -213,7 +211,6 @@ var _ = Describe("Staking", func() {
 				_, err := contract.Undelegate(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					cosmlib.ValAddressToEthAddress(val),
 					big.NewInt(1),
 				)
@@ -227,7 +224,6 @@ var _ = Describe("Staking", func() {
 				_, err := contract.BeginRedelegate(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					cosmlib.ValAddressToEthAddress(otherVal),
 					big.NewInt(1),
@@ -246,7 +242,6 @@ var _ = Describe("Staking", func() {
 				_, err := contract.Undelegate(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					amount,
 				)
@@ -255,7 +250,6 @@ var _ = Describe("Staking", func() {
 				_, err = contract.CancelUnbondingDelegation(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					amount,
 					creationHeight,
@@ -273,7 +267,6 @@ var _ = Describe("Staking", func() {
 				_, err := contract.Undelegate(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					amount,
 				)
@@ -282,7 +275,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.GetUnbondingDelegation(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					caller,
 					cosmlib.ValAddressToEthAddress(val),
 				)
@@ -316,7 +308,6 @@ var _ = Describe("Staking", func() {
 				ret, err := contract.Delegate(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					cosmlib.ValAddressToEthAddress(val),
 					amount,
 				)
@@ -325,7 +316,6 @@ var _ = Describe("Staking", func() {
 
 				ret, err = contract.GetDelegation(ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					caller,
 					cosmlib.ValAddressToEthAddress(val),
 				)
@@ -342,7 +332,6 @@ var _ = Describe("Staking", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					cosmlib.ValAddressToEthAddress(otherVal),
 					amount,
@@ -352,7 +341,6 @@ var _ = Describe("Staking", func() {
 
 				ret, err = contract.GetDelegation(ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					caller,
 					cosmlib.ValAddressToEthAddress(val),
 				)
@@ -361,7 +349,6 @@ var _ = Describe("Staking", func() {
 
 				ret, err = contract.GetDelegation(ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					caller,
 					cosmlib.ValAddressToEthAddress(otherVal),
 				)
@@ -371,7 +358,6 @@ var _ = Describe("Staking", func() {
 				ret, err = contract.GetRedelegations(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					caller,
 					cosmlib.ValAddressToEthAddress(val),
 					cosmlib.ValAddressToEthAddress(otherVal),
@@ -450,7 +436,6 @@ var _ = Describe("Staking", func() {
 							nil,
 							caller,
 							big.NewInt(0),
-							false,
 							cosmlib.ValAddressToEthAddress(val),
 							amount,
 						)
@@ -496,7 +481,6 @@ var _ = Describe("Staking", func() {
 							nil,
 							caller,
 							big.NewInt(0),
-							false,
 							cosmlib.ValAddressToEthAddress(val),
 							cosmlib.ValAddressToEthAddress(otherVal),
 							amount,
@@ -514,7 +498,7 @@ var _ = Describe("Staking", func() {
 				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
 
 				// Get the active validators.
-				res, err := contract.GetActiveValidators(ctx, nil, caller, big.NewInt(0), true)
+				res, err := contract.GetActiveValidators(ctx, nil, caller, big.NewInt(0))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
 				addrs := utils.MustGetAs[[]common.Address](res[0])

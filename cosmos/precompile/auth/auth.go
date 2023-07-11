@@ -67,7 +67,6 @@ func (c *Contract) GetAccountInfo(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	account common.Address,
 ) ([]any, error) {
 	return c.accountInfoHelper(ctx, cosmlib.Bech32FromEthAddress(account))
@@ -79,7 +78,6 @@ func (c *Contract) SetSendAllowance(
 	evm ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	owner common.Address,
 	spender common.Address,
 	amount any,
@@ -105,7 +103,6 @@ func (c *Contract) GetSendAllowance(
 	evm ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	owner common.Address,
 	spender common.Address,
 	denom string,

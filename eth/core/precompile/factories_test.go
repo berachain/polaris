@@ -108,7 +108,7 @@ func (ms *mockStateless) RequiredGas(_ []byte) uint64 {
 
 func (ms *mockStateless) Run(
 	_ context.Context, _ precompile.EVM, _ []byte,
-	_ common.Address, _ *big.Int, _ bool,
+	_ common.Address, _ *big.Int,
 ) ([]byte, error) {
 	return nil, nil
 }

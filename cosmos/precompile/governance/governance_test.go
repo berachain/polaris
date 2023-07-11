@@ -161,7 +161,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				proposalBz,
 				msgBz,
 			)
@@ -184,7 +183,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				uint64(1),
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -210,7 +208,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				uint64(1000),
 				int32(1),
 				"metadata",
@@ -224,7 +221,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				uint64(1),
 				int32(1),
 				"metadata",
@@ -241,7 +237,6 @@ var _ = Describe("Governance Precompile", func() {
 					nil,
 					cosmlib.AccAddressToEthAddress(caller),
 					big.NewInt(0),
-					false,
 					uint64(1000),
 					[]generated.IGovernanceModuleWeightedVoteOption{},
 					"metadata",
@@ -263,7 +258,6 @@ var _ = Describe("Governance Precompile", func() {
 					nil,
 					cosmlib.AccAddressToEthAddress(caller),
 					big.NewInt(0),
-					false,
 					uint64(1),
 					options,
 					"metadata",
@@ -318,7 +312,6 @@ var _ = Describe("Governance Precompile", func() {
 						nil,
 						cosmlib.AccAddressToEthAddress(caller),
 						big.NewInt(0),
-						false,
 						uint64(2),
 					)
 					Expect(err).ToNot(HaveOccurred())
@@ -329,7 +322,7 @@ var _ = Describe("Governance Precompile", func() {
 			When("GetProposals", func() {
 				BeforeEach(func() {
 					// Not filled proposal, hence will panic the parser.
-					_, err := contract.CancelProposal(ctx, nil, common.Address(caller), big.NewInt(0), false, uint64(1))
+					_, err := contract.CancelProposal(ctx, nil, common.Address(caller), big.NewInt(0), uint64(1))
 					Expect(err).ToNot(HaveOccurred())
 				})
 				It("should get the proposals", func() {
@@ -338,7 +331,6 @@ var _ = Describe("Governance Precompile", func() {
 						nil,
 						cosmlib.AccAddressToEthAddress(caller),
 						big.NewInt(0),
-						false,
 						int32(0),
 					)
 					Expect(err).ToNot(HaveOccurred())

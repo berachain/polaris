@@ -23,6 +23,7 @@ package events
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -42,6 +43,8 @@ type manager struct {
 	ldb LogsDB
 	// plf is used to build Eth logs from Cosmos events.
 	plf PrecompileLogFactory
+	// readOnly is true if the EVM is in read-only mode
+	readOnly bool
 }
 
 // NewManager creates and returns a controllable event manager from the given Cosmos SDK context.
@@ -52,6 +55,16 @@ func NewManagerFrom(em sdk.EventManagerI, plf PrecompileLogFactory) *manager {
 		EventManager: utils.MustGetAs[*sdk.EventManager](em),
 		plf:          plf,
 	}
+}
+
+// IsReadOnly returns the current read-only mode.
+func (m *manager) IsReadOnly() bool {
+	return m.readOnly
+}
+
+// SetReadOnly sets the store to the given read-only mode.
+func (m *manager) SetReadOnly(readOnly bool) {
+	m.readOnly = readOnly
 }
 
 // BeginPrecompileExecution is called when a precompile is about to be executed. This function
@@ -75,6 +88,9 @@ func (m *manager) EmitEvent(event sdk.Event) {
 
 	// add the event to the logs journal if in precompile execution
 	if m.ldb != nil {
+		if m.readOnly {
+			panic(vm.ErrWriteProtection)
+		}
 		m.convertToLog(&event)
 	}
 }
@@ -86,6 +102,9 @@ func (m *manager) EmitEvents(events sdk.Events) {
 
 	// add the events to the logs journal if in precompile execution
 	if m.ldb != nil {
+		if m.readOnly {
+			panic(vm.ErrWriteProtection)
+		}
 		for i := range events {
 			m.convertToLog(&events[i])
 		}

@@ -65,7 +65,7 @@ func (dp *defaultPlugin) GetActive(rules *params.Rules) []common.Address {
 // Run implements core.PrecompilePlugin.
 func (dp *defaultPlugin) Run(
 	evm EVM, pc vm.PrecompileContainer, input []byte,
-	caller common.Address, value *big.Int, suppliedGas uint64, readonly bool,
+	caller common.Address, value *big.Int, suppliedGas uint64, _ bool,
 ) ([]byte, uint64, error) {
 	gasCost := pc.RequiredGas(input)
 	if gasCost > suppliedGas {
@@ -73,7 +73,7 @@ func (dp *defaultPlugin) Run(
 	}
 
 	suppliedGas -= gasCost
-	output, err := pc.Run(context.Background(), evm, input, caller, value, readonly)
+	output, err := pc.Run(context.Background(), evm, input, caller, value)
 
 	return output, suppliedGas, err
 }

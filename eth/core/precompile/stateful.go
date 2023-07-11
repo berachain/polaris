@@ -70,7 +70,6 @@ func (sc *stateful) Run(
 	input []byte,
 	caller common.Address,
 	value *big.Int,
-	readonly bool,
 ) ([]byte, error) {
 	if len(input) < NumBytesMethodID {
 		return nil, ErrInvalidInputToPrecompile
@@ -91,7 +90,6 @@ func (sc *stateful) Run(
 			reflect.ValueOf(evm),
 			reflect.ValueOf(caller),
 			reflect.ValueOf(value),
-			reflect.ValueOf(readonly),
 		}, input)
 }
 

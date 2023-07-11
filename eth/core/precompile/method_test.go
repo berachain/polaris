@@ -63,7 +63,6 @@ func mockExecutable(
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	_ ...any,
 ) ([]any, error) {
 	return nil, nil
