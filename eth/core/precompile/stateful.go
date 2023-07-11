@@ -81,7 +81,7 @@ func (sc *stateful) Run(
 		return nil, ErrMethodNotFound
 	}
 
-	// Get args ready for precompile call.
+	// Execute the method with the reflected ctx and raw input
 	// TODO: use PolarContext
 	return method.Call(
 		[]reflect.Value{
@@ -90,7 +90,9 @@ func (sc *stateful) Run(
 			reflect.ValueOf(evm),
 			reflect.ValueOf(caller),
 			reflect.ValueOf(value),
-		}, input)
+		},
+		input,
+	)
 }
 
 // RequiredGas checks the Method corresponding to input for the required gas amount.
