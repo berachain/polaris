@@ -37,9 +37,8 @@ import (
 )
 
 const (
-	defaultTimeout            = 30 * time.Second
-	nodeStartTime             = 10 * time.Second
-	initialBlockHeight uint64 = 2
+	defaultTimeout = 30 * time.Second
+	nodeStartTime  = 10 * time.Second
 )
 
 // ContainerizedNode is an interface for a containerized network.
@@ -65,8 +64,7 @@ type containerizedNode struct {
 	ethWsClient     *ethclient.Client
 }
 
-// NewContainerizedNode creates an implementation of Localnet using Docker. The node will be past
-// block 2 by the time node is available.
+// NewContainerizedNode creates an implementation of Localnet using Docker.
 //
 //nolint:nonamedreturns // deferred error handling.
 func NewContainerizedNode(
@@ -114,9 +112,9 @@ func NewContainerizedNode(
 		return nil, err
 	}
 
-	// Wait for the chain to start and be past block 2.
+	// Wait for the chain to start.
 	time.Sleep(nodeStartTime)
-	if err = node.WaitForBlock(initialBlockHeight); err != nil {
+	if err = node.WaitForNextBlock(); err != nil {
 		return nil, err
 	}
 
