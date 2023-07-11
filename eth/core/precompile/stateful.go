@@ -98,6 +98,7 @@ func (sc *stateful) Run(
 // RequiredGas checks the Method corresponding to input for the required gas amount.
 //
 // RequiredGas implements PrecompileContainer.
+// TODO: remove in a later PR
 func (sc *stateful) RequiredGas(_ []byte) uint64 {
 	return 0
 }
