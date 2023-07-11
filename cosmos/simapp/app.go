@@ -27,6 +27,7 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 
+	"cosmossdk.io/core/address"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -63,6 +64,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
+	polarcodec "pkg.berachain.dev/polaris/cosmos/lib/codec"
 	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -134,6 +136,7 @@ func NewPolarisApp(
 	var (
 		app          = &SimApp{}
 		appBuilder   *runtime.AppBuilder
+		addrCodec    = polarcodec.EIP55Address{}
 		ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
@@ -147,6 +150,10 @@ func NewPolarisApp(
 				ethTxMempool,
 				// ADVANCED CONFIGURATION
 				PrecompilesToInject(app),
+
+				// REQUIRED FOR EIP-55 ADDRESSES
+				func() address.Codec { return addrCodec },
+				func() authtypes.ValidatorAddressCodec { return addrCodec },
 				//
 				// AUTH
 				//

@@ -4,7 +4,7 @@ go 1.20
 
 replace (
 	cosmossdk.io/x/evidence => github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230704160919-88f2c830b0ca
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.50.0-alpha.1
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.50.0-alpha.1.0.20230711190746-d3229bf60088
 
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230629154458-90866dc0cf0a
@@ -17,10 +17,10 @@ require (
 	cosmossdk.io/collections v0.3.0 // indirect
 	cosmossdk.io/core v0.9.0
 	cosmossdk.io/depinject v1.0.0-alpha.3.0.20230608151552-9b9e319d1abc
-	cosmossdk.io/log v1.1.0
+	cosmossdk.io/log v1.1.1-0.20230704160919-88f2c830b0ca
 	cosmossdk.io/math v1.0.1
 	cosmossdk.io/store v1.0.0-alpha.1
-	cosmossdk.io/tools/confix v0.0.0-20230608151552-9b9e319d1abc
+	cosmossdk.io/tools/confix v0.0.0-20230613133644-0a778132a60f
 	cosmossdk.io/x/evidence v0.1.0
 	cosmossdk.io/x/upgrade v0.0.0-20230704191127-8d80df8e3c5a
 	github.com/btcsuite/btcd v0.23.4
@@ -29,7 +29,7 @@ require (
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
 	// this version is not used as it is always replaced by the latest Cosmos SDK version
-	github.com/cosmos/cosmos-sdk v0.50.0
+	github.com/cosmos/cosmos-sdk v0.51.0
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.10
 	github.com/ethereum/go-ethereum v1.12.0
@@ -53,7 +53,7 @@ require (
 
 require (
 	cosmossdk.io/errors v1.0.0
-	cosmossdk.io/simapp v0.0.0-20230525153548-b6613f9163f8
+	cosmossdk.io/simapp v0.0.0-20230711172342-1b0fcdc9f059
 	cosmossdk.io/x/tx v0.8.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529
 )

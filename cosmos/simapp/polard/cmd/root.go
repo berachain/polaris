@@ -31,10 +31,12 @@ import (
 	"github.com/spf13/viper"
 
 	"cosmossdk.io/client/v2/autocli"
+	"cosmossdk.io/core/address"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
 	"cosmossdk.io/x/tx/signing"
+	txsigning "cosmossdk.io/x/tx/signing"
 
 	cmtcfg "github.com/cometbft/cometbft/config"
 
@@ -62,6 +64,7 @@ import (
 
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
+	polarcodec "pkg.berachain.dev/polaris/cosmos/lib/codec"
 	"pkg.berachain.dev/polaris/cosmos/simapp"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmepool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
@@ -78,9 +81,14 @@ func NewRootCmd() *cobra.Command {
 		legacyAmino        *codec.LegacyAmino
 		autoCliOpts        autocli.AppOptions
 		moduleBasicManager module.BasicManager
+		addrCodec          = polarcodec.EIP55Address{}
 	)
-	if err := depinject.Inject(depinject.Configs(simapp.AppConfig, depinject.Supply(
-		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
+	if err := depinject.Inject(
+		depinject.Configs(
+			simapp.AppConfig, depinject.Supply(
+				func() address.Codec { return addrCodec },
+				func() types.ValidatorAddressCodec { return addrCodec },
+				evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,
@@ -130,10 +138,15 @@ func NewRootCmd() *cobra.Command {
 
 			// Add a custom sign mode handler for ethereum transactions.
 			txConfigOpts.CustomSignModes = []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
+			txConfigOpts.SigningOptions = &txsigning.Options{
+				AddressCodec:          addrCodec,
+				ValidatorAddressCodec: addrCodec,
+			}
 			txConfigWithTextual, err := tx.NewTxConfigWithOptions(
 				codec.NewProtoCodec(interfaceRegistry),
 				txConfigOpts,
 			)
+
 			if err != nil {
 				return err
 			}
@@ -242,7 +255,7 @@ func initRootCmd(
 		genutilcli.InitCmd(basicManager, simapp.DefaultNodeHome),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
-		pruning.Cmd(newApp),
+		pruning.Cmd(newApp, simapp.DefaultNodeHome),
 		snapshot.Cmd(newApp),
 	)
 

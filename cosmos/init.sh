@@ -20,9 +20,10 @@
 # TITLE.
 
 
-KEYS[0]="dev0"
-KEYS[1]="dev1"
-KEYS[2]="dev2"
+# KEY="dev0"
+KEY="dev0"
+# KEYS[1]="dev1"
+# KEYS[2]="dev2"
 CHAINID="polaris-2061"
 MONIKER="localtestnet"
 # Remember to change to other types of keyring like 'file' in-case exposing to outside world,
@@ -77,9 +78,9 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	./bin/polard config set client chain-id "$CHAINID" --home "$HOMEDIR"
 
 	# If keys exist they should be deleted
-	for KEY in "${KEYS[@]}"; do
-		./bin/polard keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
-	done
+	# for KEY in "${KEYS[@]}"; do
+	./bin/polard keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
+	# done
 
 	# Change parameter token denominations to abera
 	jq '.app_state["staking"]["params"]["bond_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -89,17 +90,17 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	jq '.consensus["params"]["block"]["max_gas"]="30000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Allocate genesis accounts (cosmos formatted addresses)
-	for KEY in "${KEYS[@]}"; do
-		./bin/polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
-	done
+	# for KEY in "${KEYS[@]}"; do
+	./bin/polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+	# done
 
 	# Test Account
 	# absurd surge gather author blanket acquire proof struggle runway attract cereal quiz tattoo shed almost sudden survey boring film memory picnic favorite verb tank
 	# 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
-	./bin/polard genesis add-genesis-account polar1yrene6g2zwjttemf0c65fscg8w8c55w5vhc9hd 69000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+	# ./bin/polard genesis add-genesis-account 0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4 69000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 
 	# Sign genesis transaction
-	./bin/polard genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
+	./bin/polard genesis gentx $KEY 10000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
 	## In case you want to create multiple validators at genesis
 	## 1. Back to `./bin/polard keys add` step, init more keys
 	## 2. Back to `./bin/polard add-genesis-account` step, add balance for those
