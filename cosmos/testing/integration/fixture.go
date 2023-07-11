@@ -21,10 +21,8 @@
 package integration
 
 import (
-	"bytes"
 	"context"
 	"crypto/ecdsa"
-	"errors"
 	"fmt"
 	"math/big"
 	"strings"
@@ -156,7 +154,8 @@ func setupTestAccounts(keysMap map[string]*ethsecp256k1.PrivKey) {
 
 func (tf *TestFixture) BankSendTx(from, to common.Address, amount int64) error {
 	val := tf.Network.Validators[0]
-	txBuilder := val.ClientCtx.TxConfig.NewTxBuilder()
+
+	txBuilder := tf.Network.Config.TxConfig.NewTxBuilder()
 	txBuilder.SetMsgs(&banktypes.MsgSend{
 		FromAddress: cosmlib.Bech32FromEthAddress(from),
 		ToAddress:   cosmlib.Bech32FromEthAddress(to),
@@ -165,31 +164,25 @@ func (tf *TestFixture) BankSendTx(from, to common.Address, amount int64) error {
 	txBuilder.SetFeeAmount(sdk.Coins{sdk.NewInt64Coin(tf.Network.Config.BondDenom, 10)})
 	txBuilder.SetGasLimit(testdata.NewTestGasLimit())
 	txBuilder.SetMemo("memo")
-	signers, err := txBuilder.GetTx().GetSigners()
-	if err != nil {
-		fmt.Println("get signers error")
-		return err
-	}
-	if !bytes.Equal(signers[0], from[:]) {
-		return errors.New("invalid signer")
-	}
+
 	txFactory := clienttx.Factory{}.
 		WithChainID(val.ClientCtx.ChainID).
 		WithKeybase(val.ClientCtx.Keyring).
-		WithTxConfig(val.ClientCtx.TxConfig).
+		WithTxConfig(tf.Network.Config.TxConfig).
 		WithSignMode(signing.SignMode_SIGN_MODE_DIRECT)
 
-	err = authclient.SignTx(txFactory, val.ClientCtx, val.Moniker, txBuilder, false, true)
+	err := authclient.SignTx(txFactory, val.ClientCtx, val.Moniker, txBuilder, false, true)
 	if err != nil {
 		fmt.Println("sign tx error")
 		return err
 	}
 
-	txBytes, err := val.ClientCtx.TxConfig.TxEncoder()(txBuilder.GetTx())
+	txBytes, err := tf.Network.Config.TxConfig.TxEncoder()(txBuilder.GetTx())
 	if err != nil {
 		fmt.Println("tx encoding error")
 		return err
 	}
+
 	res, err := val.ClientCtx.
 		WithBroadcastMode(tx.BroadcastMode_BROADCAST_MODE_SYNC.String()).
 		BroadcastTx(txBytes)
@@ -197,9 +190,9 @@ func (tf *TestFixture) BankSendTx(from, to common.Address, amount int64) error {
 		fmt.Println("tx broadcast error")
 		return err
 	}
-	if res.Code != 0 {
-		return errors.New("tx not successful")
-	}
 
+	if res.Code != 0 {
+		return fmt.Errorf("tx not successful: %s", res.RawLog)
+	}
 	return nil
 }

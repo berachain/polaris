@@ -24,6 +24,7 @@ package network
 import (
 	simappparams "cosmossdk.io/simapp/params"
 	"cosmossdk.io/x/evidence"
+	"cosmossdk.io/x/tx/signing"
 	"cosmossdk.io/x/upgrade"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -55,6 +56,7 @@ import (
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 
 	_ "embed"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 )
 
@@ -100,11 +102,21 @@ func BuildPolarisEncodingConfig(mb module.BasicManager) simappparams.EncodingCon
 	cryptocodec.RegisterInterfaces(interfaceRegistry)
 	ethcryptocodec.RegisterInterfaces(interfaceRegistry)
 
-	txConfig := tx.NewTxConfig(
+	opts, err := tx.NewDefaultSigningOptions()
+	if err != nil {
+		panic(err)
+	}
+	txConfig, err := tx.NewTxConfigWithOptions(
 		codec,
-		tx.DefaultSignModes,
-		evmante.SignModeEthTxHandler{},
+		tx.ConfigOptions{
+			EnabledSignModes: tx.DefaultSignModes,
+			CustomSignModes:  []signing.SignModeHandler{evmante.SignModeEthTxHandler{}},
+			SigningOptions:   opts,
+		},
 	)
+	if err != nil {
+		panic(err)
+	}
 	mb.RegisterLegacyAminoCodec(cdc)
 	mb.RegisterInterfaces(interfaceRegistry)
 

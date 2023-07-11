@@ -29,6 +29,7 @@ import (
 	cdb "github.com/cosmos/cosmos-db"
 
 	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/simapp/params"
 	pruningtypes "cosmossdk.io/store/pruning/types"
 
 	baseapp "github.com/cosmos/cosmos-sdk/baseapp"
@@ -118,7 +119,7 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 				baseapp.SetChainID("polaris-2061"),
 			)
 		},
-		GenesisState:    BuildGenesisState(keysMap),
+		GenesisState:    BuildGenesisState(encoding, keysMap),
 		TimeoutCommit:   time.Second,
 		ChainID:         "polaris-2061",
 		NumValidators:   1,
@@ -136,8 +137,7 @@ func DefaultConfig(keysMap map[string]*ethsecp256k1.PrivKey) network.Config {
 	return cfg
 }
 
-func BuildGenesisState(keysMap map[string]*ethsecp256k1.PrivKey) map[string]json.RawMessage {
-	encoding := BuildPolarisEncodingConfig(ModuleBasics)
+func BuildGenesisState(encoding params.EncodingConfig, keysMap map[string]*ethsecp256k1.PrivKey) map[string]json.RawMessage {
 	genState := ModuleBasics.DefaultGenesis(encoding.Codec)
 
 	// Auth, Bank, EVM module
@@ -290,5 +290,3 @@ func getCoinsForAccount(name string) sdk.Coins {
 		return sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(examoney)))
 	}
 }
-
-
