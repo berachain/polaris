@@ -105,9 +105,11 @@ var _ = Describe("Stateful Container", func() {
 		})
 
 		It("should return properly for valid method calls", func() {
-			inputs, err := getOutputABI.Inputs.Pack("string")
+			var inputs []byte
+			inputs, err = getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			ret, err := sc.Run(ctx, evm, append(getOutputABI.ID, inputs...), addr, value)
+			var ret []byte
+			ret, err = sc.Run(ctx, evm, append(getOutputABI.ID, inputs...), addr, value)
 			Expect(err).ToNot(HaveOccurred())
 			var outputs []interface{}
 			outputs, err = getOutputABI.Outputs.Unpack(ret)

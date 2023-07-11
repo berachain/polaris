@@ -178,7 +178,8 @@ func (c *Contract) CancelUnbondingDelegation(
 	amount *big.Int,
 	creationHeight int64,
 ) ([]any, error) {
-	return c.cancelUnbondingDelegationHelper(ctx, caller, amount, cosmlib.AddressToValAddress(validatorAddress), creationHeight)
+	return c.cancelUnbondingDelegationHelper(
+		ctx, caller, amount, cosmlib.AddressToValAddress(validatorAddress), creationHeight)
 }
 
 // GetActiveValidators implements the `getActiveValidators()` method.
