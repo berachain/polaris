@@ -49,7 +49,6 @@ type Executable func(
 	evm EVM,
 	caller common.Address,
 	value *big.Int,
-	readonly bool,
 	args ...any,
 ) (ret []any, err error)
 

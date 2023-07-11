@@ -156,7 +156,6 @@ var _ = Describe("Staking", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					"0x",
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
@@ -169,7 +168,6 @@ var _ = Describe("Staking", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					cosmlib.ValAddressToEthAddress(val),
 					"amount",
 				)
@@ -196,7 +194,6 @@ var _ = Describe("Staking", func() {
 				_, err = contract.DelegateAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					cosmlib.ValAddressToEthAddress(val),
 					amountToDelegate,
 				)
@@ -208,7 +205,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.GetDelegationAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					"0x", cosmlib.ValAddressToEthAddress(val),
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
@@ -219,7 +215,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.GetDelegationAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					cosmlib.AccAddressToEthAddress(del), "0x",
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
@@ -230,7 +225,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.GetDelegationAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					cosmlib.AccAddressToEthAddress(del), cosmlib.ValAddressToEthAddress(val),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -243,7 +237,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.UndelegateAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					"0x",
 					big.NewInt(0),
 				)
@@ -255,7 +248,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.UndelegateAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					cosmlib.ValAddressToEthAddress(val),
 					"amount",
 				)
@@ -267,7 +259,6 @@ var _ = Describe("Staking", func() {
 				_, err := contract.UndelegateAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					cosmlib.ValAddressToEthAddress(val),
 					big.NewInt(1),
 				)
@@ -280,7 +271,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.BeginRedelegateAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					10,
 					cosmlib.ValAddressToEthAddress(val),
 					big.NewInt(1),
@@ -293,7 +283,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.BeginRedelegateAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					10,
 					big.NewInt(1),
@@ -306,7 +295,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.BeginRedelegateAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					cosmlib.ValAddressToEthAddress(val),
 					"amount",
@@ -319,7 +307,6 @@ var _ = Describe("Staking", func() {
 				_, err := contract.BeginRedelegateAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					cosmlib.ValAddressToEthAddress(otherVal),
 					big.NewInt(1),
@@ -333,7 +320,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.CancelUnbondingDelegationAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					"cosmlib.ValAddressToEthAddress(val)",
 					big.NewInt(1),
 					int64(1),
@@ -346,7 +332,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.CancelUnbondingDelegationAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					"amount",
 					int64(1),
@@ -359,7 +344,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.CancelUnbondingDelegationAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					big.NewInt(1),
 					"height",
@@ -377,7 +361,6 @@ var _ = Describe("Staking", func() {
 				_, err := contract.UndelegateAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					amount,
 				)
@@ -386,7 +369,6 @@ var _ = Describe("Staking", func() {
 				_, err = contract.CancelUnbondingDelegationAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					amount,
 					creationHeight,
@@ -400,7 +382,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.GetUnbondingDelegationAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					caller,
 					"cosmlib.ValAddressToEthAddress(val)",
 				)
@@ -415,7 +396,6 @@ var _ = Describe("Staking", func() {
 				_, err := contract.UndelegateAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					false,
 					cosmlib.ValAddressToEthAddress(val),
 					amount,
 				)
@@ -424,7 +404,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.GetUnbondingDelegationAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					caller,
 					cosmlib.ValAddressToEthAddress(val),
 				)
@@ -438,7 +417,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.GetRedelegationsAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					caller,
 					"cosmlib.ValAddressToEthAddress(val)",
 					cosmlib.ValAddressToEthAddress(val),
@@ -451,7 +429,6 @@ var _ = Describe("Staking", func() {
 				res, err := contract.GetRedelegationsAddrInput(
 					ctx, nil, caller,
 					big.NewInt(0),
-					true,
 					cosmlib.ValAddressToEthAddress(val),
 					"cosmlib.ValAddressToEthAddress(val)",
 				)
@@ -529,7 +506,6 @@ var _ = Describe("Staking", func() {
 							nil,
 							caller,
 							big.NewInt(0),
-							false,
 							cosmlib.ValAddressToEthAddress(val),
 							amount,
 						)
@@ -575,7 +551,6 @@ var _ = Describe("Staking", func() {
 							nil,
 							caller,
 							big.NewInt(0),
-							false,
 							cosmlib.ValAddressToEthAddress(val),
 							cosmlib.ValAddressToEthAddress(otherVal),
 							amount,
@@ -593,7 +568,7 @@ var _ = Describe("Staking", func() {
 				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
 
 				// Get the active validators.
-				res, err := contract.GetActiveValidators(ctx, nil, caller, big.NewInt(0), true)
+				res, err := contract.GetActiveValidators(ctx, nil, caller, big.NewInt(0))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
 				addrs := utils.MustGetAs[[]common.Address](res[0])

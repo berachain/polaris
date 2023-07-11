@@ -88,7 +88,6 @@ func (c *Contract) SetSendAllowance(
 	evm ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	owner, ok := utils.GetAs[common.Address](args[0])
@@ -124,7 +123,6 @@ func (c *Contract) GetSendAllowance(
 	evm ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	owner, ok := utils.GetAs[common.Address](args[0])
@@ -171,7 +169,6 @@ func (c *Contract) GetAccountInfoAddrInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	acc, ok := utils.GetAs[common.Address](args[0])

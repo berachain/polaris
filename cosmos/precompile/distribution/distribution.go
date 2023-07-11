@@ -88,7 +88,6 @@ func (c *Contract) SetWithdrawAddress(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	withdrawAddr, ok := utils.GetAs[common.Address](args[0])
@@ -106,7 +105,6 @@ func (c *Contract) WithdrawDelegatorReward(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	delegator, ok := utils.GetAs[common.Address](args[0])
@@ -127,7 +125,6 @@ func (c *Contract) GetWithdrawAddrEnabled(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	_ ...any,
 ) ([]any, error) {
 	return c.getWithdrawAddrEnabled(ctx)
