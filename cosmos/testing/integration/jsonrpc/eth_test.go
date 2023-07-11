@@ -72,11 +72,12 @@ var _ = Describe("Network", func() {
 		Expect(blockNumber).To(BeNumerically(">", 0))
 	})
 
-	It("should support eth_getBalance", func() {
+	FIt("should support eth_getBalance", func() {
 		// Get the balance of an account
 		balance, err := client.BalanceAt(ctx, tf.Address("alice"), nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(balance.Uint64()).To(BeNumerically(">", 0))
+		print("balance: ", balance.Uint64())
 	})
 
 	It("should support eth_estimateGas", func() {

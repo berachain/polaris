@@ -71,6 +71,8 @@ for KEY in "${KEYS[@]}"; do
     polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 done
 
+polard genesis add-genesis-account "$ALICE" 100000000000000000000000000abera --home "$HOMEDIR"
+
 # Sign genesis transaction
 polard genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
 ## In case you want to create multiple validators at genesis
