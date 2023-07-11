@@ -1,0 +1,79 @@
+[
+   {
+      "name": "alice",
+      "bech32Address": "polar14x2rad29umavm6pneaaeu8u89tfv0pwjgnrt97",
+      "ethAddress": "A9943eb545e6fAcDe833cF7B9E1F872Ad2c785d2",
+      "coins": [
+         {
+            "denom": "abera",
+            "amount": "1000000000000000000"
+         },
+         {
+            "denom": "asupply",
+            "amount": "1000000000000000000"
+         },
+         {
+            "denom": "atoken",
+            "amount": "1000000000000000000"
+         },
+         {
+            "denom": "bAKT",
+            "amount": "12345"
+         },
+         {
+            "denom": "bATOM",
+            "amount": "1000000000000000000"
+         },
+         {
+            "denom": "bOSMO",
+            "amount": "24690"
+         },
+         {
+            "denom": "eth",
+            "amount": "1000000000000000000"
+         },
+         {
+            "denom": "stake",
+            "amount": "1000000000000000000"
+         }
+      ]
+   },
+   {
+      "name": "bob",
+      "bech32Address": "polar14ctpk0qp5m5qh72sskcs3pq2azmjy8hpwx83n6",
+      "ethAddress": "aE161B3C01A6e80BF95085b108840ae8b7221eE1",
+      "coins": [
+         {
+            "denom": "abera",
+            "amount": "100"
+         },
+         {
+            "denom": "atoken",
+            "amount": "100"
+         },
+         {
+            "denom": "eth",
+            "amount": "1000000000000000000"
+         },
+         {
+            "denom": "stake",
+            "amount": "1000000000000000000"
+         }
+      ]
+   },
+   {
+      "name": "charlie",
+      "bech32Address": "polar1j53m9r8kvxu2kvnj624t2scyc5maws5nmwug28",
+      "ethAddress": "9523b28CF661B8ab3272d2aAb54304C537d74293",
+      "coins": [
+         {
+            "denom": "abera",
+            "amount": "1000000000000000000"
+         },
+         {
+            "denom": "eth",
+            "amount": "1000000000000000000"
+         }
+      ]
+   }
+]

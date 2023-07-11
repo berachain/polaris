@@ -23,13 +23,16 @@ package localnet
 import (
 	"context"
 	"crypto/ecdsa"
-	"fmt"
+	"encoding/json"
 	"math/big"
+	"os"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/types"
 
+	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
@@ -40,6 +43,11 @@ const (
 	fiveHundredError        = 500
 	defaultNumberOfAccounts = 3
 	defaultWaitForHeight    = 5
+
+	onehundred = 100
+	examoney   = 1000000000000000000
+
+	defaultAccountsFile = "default_accounts.json"
 )
 
 var defaultAccountNames = []string{"alice", "bob", "charlie"}
@@ -66,12 +74,8 @@ func NewTestFixture(t TestingT) *TestFixture {
 
 	// Always setup numberOfAccounts accounts.
 	keysMap := make(map[string]*ethsecp256k1.PrivKey)
-	defaultAccountSdkAddresses := setupTestAccounts(keysMap)
-	fmt.Println(defaultAccountSdkAddresses)
-	alicePrivKey, _ := keysMap["alice"].ToECDSA()
+	setupTestAccounts(keysMap)
 
-	aliceHex := crypto.PubkeyToAddress(alicePrivKey.PublicKey).Hex()
-	fmt.Println(aliceHex)
 	containerizedNode, err := NewContainerizedNode(
 		"localnet",
 		"latest",
@@ -82,10 +86,7 @@ func NewTestFixture(t TestingT) *TestFixture {
 			"GO_VERSION=1.20.4",
 			"GENESIS_PATH=config",
 			"BASE_IMAGE=polard/base:v0.0.0",
-			"ALICE=" + defaultAccountSdkAddresses[0],
-			"BOB=" + defaultAccountSdkAddresses[1],
-			"CHARLIE=" + defaultAccountSdkAddresses[2],
-			"ALICE_HEX=" + aliceHex[2:],
+			"DEFAULT_ACCOUNTS=" + defaultAccountsFile,
 		},
 	)
 	if err != nil {
@@ -138,20 +139,64 @@ func (tf *TestFixture) CreateKeyWithName(name string) {
 	tf.keysMap[name] = newKey
 }
 
-// setupTestAccounts sets a map of names to eth private keys and
-// returns a list of bech32 sdk addresses for the accounts.
-func setupTestAccounts(keysMap map[string]*ethsecp256k1.PrivKey) []string {
-	var defaultAccountSdkAddresses []string
-	for i := 0; i < defaultNumberOfAccounts; i++ {
-		newKey, _ := ethsecp256k1.GenPrivKey()
-		keysMap[defaultAccountNames[i]] = newKey
+type AccountInfo struct {
+	Name          string    `json:"name"`
+	Bech32Address string    `json:"bech32Address"`
+	EthAddress    string    `json:"ethAddress"`
+	Coins         sdk.Coins `json:"coins"`
+}
 
-		privateKey, _ := keysMap[defaultAccountNames[i]].ToECDSA()
-		defaultAccountSdkAddresses = append(
-			defaultAccountSdkAddresses,
-			cosmlib.Bech32FromEthAddress((crypto.PubkeyToAddress(privateKey.PublicKey))),
+func setupTestAccounts(keysMap map[string]*ethsecp256k1.PrivKey) {
+	var accounts []AccountInfo
+	for _, name := range defaultAccountNames {
+		newKey, _ := ethsecp256k1.GenPrivKey()
+		keysMap[name] = newKey
+		privateKey, _ := newKey.ToECDSA()
+
+		accounts = append(
+			accounts,
+			AccountInfo{
+				Name:          name,
+				Bech32Address: cosmlib.Bech32FromEthAddress((crypto.PubkeyToAddress(privateKey.PublicKey))),
+				EthAddress:    crypto.PubkeyToAddress(privateKey.PublicKey).Hex()[2:],
+				Coins:         getCoinsForAccount(name),
+			},
 		)
 	}
 
-	return defaultAccountSdkAddresses
+	jsonBytes, _ := json.MarshalIndent(accounts, "", "   ")
+	if err := os.WriteFile(defaultAccountsFile, jsonBytes, 0644); err != nil {
+		panic(err)
+	}
+}
+
+func getCoinsForAccount(name string) sdk.Coins {
+	switch name {
+	case "alice":
+		return sdk.NewCoins(
+			sdk.NewCoin("abera", sdkmath.NewInt(examoney)),
+			sdk.NewCoin("bATOM", sdkmath.NewInt(examoney)),
+			sdk.NewCoin("bAKT", sdkmath.NewInt(12345)), //nolint:gomnd // its okay.
+			sdk.NewCoin("stake", sdkmath.NewInt(examoney)),
+			sdk.NewCoin("bOSMO", sdkmath.NewInt(12345*2)), //nolint:gomnd // its okay.
+			sdk.NewCoin("atoken", sdkmath.NewInt(examoney)),
+			sdk.NewCoin("eth", sdkmath.NewInt(examoney)),
+			// do not change the supply of this coin
+			sdk.NewCoin("asupply", sdkmath.NewInt(examoney)),
+		)
+	case "bob":
+		return sdk.NewCoins(
+			sdk.NewCoin("abera", sdkmath.NewInt(onehundred)),
+			sdk.NewCoin("atoken", sdkmath.NewInt(onehundred)),
+			sdk.NewCoin("stake", sdkmath.NewInt(examoney)),
+			sdk.NewCoin("eth", sdkmath.NewInt(examoney)),
+		)
+	case "charlie":
+		return sdk.NewCoins(
+			sdk.NewCoin("abera", sdkmath.NewInt(examoney)),
+			sdk.NewCoin("eth", sdkmath.NewInt(examoney)),
+		)
+	default:
+		return sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(examoney)))
+	}
 }
