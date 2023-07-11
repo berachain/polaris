@@ -23,7 +23,6 @@ package auth_test
 import (
 	"context"
 	"math/big"
-	"reflect"
 	"testing"
 
 	storetypes "cosmossdk.io/store/types"
@@ -57,7 +56,7 @@ func TestAddressPrecompile(t *testing.T) {
 var _ = Describe("Address Precompile", func() {
 	var contract *auth.Contract
 	var ctx sdk.Context
-
+	var sf *ethprecompile.StatefulFactory
 	BeforeEach(func() {
 		sdkctx, ak, _, _ := testutil.SetupMinimalKeepers()
 		ctx = sdkctx
@@ -72,6 +71,7 @@ var _ = Describe("Address Precompile", func() {
 				authkeeper.NewQueryServer(ak), k, k,
 			),
 		)
+		sf = ethprecompile.NewStatefulFactory()
 	})
 
 	It("should have static registry key", func() {
@@ -88,9 +88,8 @@ var _ = Describe("Address Precompile", func() {
 	})
 
 	It("should match the precompile methods", func() {
-		Expect(
-			ethprecompile.BuildIdsToMethods(contract.ABIMethods(), reflect.ValueOf(contract))).
-			To(HaveLen(len(contract.ABIMethods())))
+		_, err := sf.Build(contract, nil)
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	It("custom value decoder should be no-op", func() {

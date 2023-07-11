@@ -22,7 +22,6 @@ package staking
 
 import (
 	"math/big"
-	"reflect"
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
@@ -74,12 +73,15 @@ var _ = Describe("Staking", func() {
 		ctx sdk.Context
 
 		contract *Contract
+
+		sf *ethprecompile.StatefulFactory
 	)
 
 	BeforeEach(func() {
 		ctx, _, bk, sk = testutil.SetupMinimalKeepers()
 		skPtr := &sk
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(skPtr))
+		sf = ethprecompile.NewStatefulFactory()
 	})
 
 	When("AbiMethods", func() {
@@ -94,9 +96,8 @@ var _ = Describe("Staking", func() {
 
 	When("PrecompileMethods", func() {
 		It("should return the correct methods", func() {
-			Expect(
-				ethprecompile.BuildIdsToMethods(contract.ABIMethods(), reflect.ValueOf(contract))).
-				To(HaveLen(len(contract.ABIMethods())))
+			_, err := sf.Build(contract, nil)
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 

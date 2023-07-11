@@ -23,7 +23,6 @@ package governance
 import (
 	"context"
 	"math/big"
-	"reflect"
 	"testing"
 	"time"
 
@@ -65,6 +64,7 @@ var _ = Describe("Governance Precompile", func() {
 		caller   sdk.AccAddress
 		mockCtrl *gomock.Controller
 		contract *Contract
+		sf       *ethprecompile.StatefulFactory
 	)
 
 	BeforeEach(func() {
@@ -78,6 +78,7 @@ var _ = Describe("Governance Precompile", func() {
 			governancekeeper.NewQueryServer(gk),
 		))
 		types.SetupCosmosConfig()
+		sf = ethprecompile.NewStatefulFactory()
 	})
 
 	AfterEach(func() {
@@ -85,7 +86,8 @@ var _ = Describe("Governance Precompile", func() {
 	})
 
 	It("Should have precompile tests and custom value decoders", func() {
-		Expect(ethprecompile.BuildIdsToMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(6))
+		_, err := sf.Build(contract, nil)
+		Expect(err).ToNot(HaveOccurred())
 		Expect(contract.CustomValueDecoders()).ToNot(BeNil())
 	})
 

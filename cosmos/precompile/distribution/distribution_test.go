@@ -23,7 +23,6 @@ package distribution
 import (
 	"fmt"
 	"math/big"
-	"reflect"
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
@@ -107,6 +106,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		dk  *distrkeeper.Keeper
 		sk  *stakingkeeper.Keeper
 		bk  *bankkeeper.BaseKeeper
+		sf  *ethprecompile.StatefulFactory
 	)
 
 	BeforeEach(func() {
@@ -122,6 +122,9 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 		// Register the events.
 		f = log.NewFactory([]ethprecompile.Registrable{contract})
+
+		// Set up the stateful factory.
+		sf = ethprecompile.NewStatefulFactory()
 	})
 
 	It("should register the withdraw event", func() {
@@ -138,7 +141,8 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 	When("PrecompileMethods", func() {
 		It("should return the correct methods", func() {
-			Expect(ethprecompile.BuildIdsToMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(3))
+			_, err := sf.Build(contract, nil)
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 
@@ -244,9 +248,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			It("Should have custom value decoders", func() {
 				Expect(contract.CustomValueDecoders()).ToNot(BeNil())
 			})
-			It("Should have correct amount of precompile methods", func() {
-				Expect(ethprecompile.BuildIdsToMethods(contract.ABIMethods(), reflect.ValueOf(contract))).To(HaveLen(3))
-			})
+
 		})
 	})
 })

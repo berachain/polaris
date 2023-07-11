@@ -21,7 +21,7 @@
 package precompile
 
 import (
-	"errors"
+	"fmt"
 	"reflect"
 	"unicode"
 
@@ -164,23 +164,23 @@ func formatName(name string) string {
 // If it does not, then an error is returned.
 func checkReturnTypes(implMethod reflect.Method) error {
 	if implMethod.Type.NumOut() != 2 { //nolint:gomnd // it's okay.
-		return errors.New("precompile methods must return ([]any, error), but found wrong number of return types for precompile method: " + //nolint:lll // it's okay.
+		return fmt.Errorf("precompile methods must return ([]any, error), but found wrong number of return types for precompile method: %s", //nolint:lll // it's okay.
 			implMethod.Name)
 	}
 	firstReturnType := implMethod.Type.Out(0)
 	secondReturnType := implMethod.Type.Out(1)
 
 	if firstReturnType.Kind() != reflect.Slice { // check if the first return type is a []any
-		return errors.New("first parameter should be []any, but found " +
-			firstReturnType.String() + " for precompile method: " + implMethod.Name)
+		return fmt.Errorf("first parameter should be []any, but found %s for precompile method: %s",
+			firstReturnType.String(), implMethod.Name)
 	} else if firstReturnType.Elem().Kind() != reflect.Interface { // if it is but it is not an any...
-		return errors.New("first parameter should be []any, but found " +
-			firstReturnType.String() + " for precompile method: " + implMethod.Name)
+		return fmt.Errorf("first parameter should be []any, but found %s for precompile method: %s",
+			firstReturnType.String(), implMethod.Name)
 	}
 
 	if secondReturnType.Name() != "error" { // if the second return value is not an error
-		return errors.New("second parameter should be error, but found " +
-			secondReturnType.String() + " for precompile method: " + implMethod.Name)
+		return fmt.Errorf("second parameter should be error, but found %s for precompile method %s",
+			secondReturnType.String(), implMethod.Name)
 	}
 	return nil
 }
