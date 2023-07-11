@@ -42,6 +42,11 @@ type ControllableEventManager interface {
 	BeginPrecompileExecution(events.LogsDB)
 	// EndPrecompileExecution ends a precompile execution by resetting the logs DB to nil.
 	EndPrecompileExecution()
+
+	// IsReadOnly returns true if the EventManager is read-only.
+	IsReadOnly() bool
+	// SetReadOnly sets the EventManager to the given read-only mode.
+	SetReadOnly(bool)
 }
 
 // ControllableMultiStore defines a cache MultiStore that is controllable (snapshottable and

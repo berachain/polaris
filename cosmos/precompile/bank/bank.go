@@ -99,7 +99,6 @@ func (c *Contract) GetBalance(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	addr, ok := utils.GetAs[common.Address](args[0])
@@ -129,7 +128,6 @@ func (c *Contract) GetAllBalances(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	addr, ok := utils.GetAs[common.Address](args[0])
@@ -154,7 +152,6 @@ func (c *Contract) GetSpendableBalanceByDenom(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	addr, ok := utils.GetAs[common.Address](args[0])
@@ -184,7 +181,6 @@ func (c *Contract) GetSpendableBalances(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	addr, ok := utils.GetAs[common.Address](args[0])
@@ -208,7 +204,6 @@ func (c *Contract) GetSupplyOf(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	denom, ok := utils.GetAs[string](args[0])
@@ -233,7 +228,6 @@ func (c *Contract) GetTotalSupply(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	_ ...any,
 ) ([]any, error) {
 	// todo: add pagination here
@@ -251,7 +245,6 @@ func (c *Contract) GetDenomMetadata(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	denom, ok := utils.GetAs[string](args[0])
@@ -292,7 +285,6 @@ func (c *Contract) GetSendEnabled(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	denom, ok := utils.GetAs[string](args[0])

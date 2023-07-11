@@ -142,7 +142,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					"0x",
 					"stake",
 				)
@@ -156,7 +155,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					cosmlib.AccAddressToEthAddress(acc),
 					666,
 				)
@@ -170,7 +168,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					cosmlib.AccAddressToEthAddress(acc),
 					"_invalid_denom",
 				)
@@ -203,7 +200,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					cosmlib.AccAddressToEthAddress(acc),
 					denom,
 				)
@@ -219,7 +215,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					"0x",
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
@@ -253,7 +248,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					cosmlib.AccAddressToEthAddress(acc),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -279,7 +273,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					"0x",
 					"stake",
 				)
@@ -293,7 +286,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					cosmlib.AccAddressToEthAddress(acc),
 					666,
 				)
@@ -307,7 +299,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					cosmlib.AccAddressToEthAddress(acc),
 					"_invalid_denom",
 				)
@@ -340,7 +331,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					cosmlib.AccAddressToEthAddress(acc),
 					denom,
 				)
@@ -356,7 +346,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					"0x",
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
@@ -391,7 +380,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					cosmlib.AccAddressToEthAddress(acc),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -417,7 +405,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					666,
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidString))
@@ -430,7 +417,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					"_invalid_denom",
 				)
 				// fmt.Errorf("invalid denom: %s", denom)
@@ -466,7 +452,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					denom,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -504,7 +489,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 				)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -526,7 +510,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					666,
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidString))
@@ -539,7 +522,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					"_invalid_denom",
 				)
 
@@ -569,7 +551,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					metadata[0].Base,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -589,7 +570,6 @@ var _ = Describe("Bank Precompile Test", func() {
 					nil,
 					caller,
 					big.NewInt(0),
-					true,
 					enabledDenom,
 				)
 				Expect(err).ToNot(HaveOccurred())

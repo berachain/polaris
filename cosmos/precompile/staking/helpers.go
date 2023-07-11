@@ -219,18 +219,14 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]any, error) {
 	}
 
 	// Iterate over all validators and return their addresses.
-	addrs := make([]common.Address, len(res.Validators))
-	for i, val := range res.GetValidators() {
-		if val.OperatorAddress == "" {
-			addrs[i] = common.Address{}
-			continue
-		}
+	addrs := make([]common.Address, 0, len(res.Validators))
+	for _, val := range res.Validators {
 		var valAddr sdk.ValAddress
 		valAddr, err = sdk.ValAddressFromBech32(val.OperatorAddress)
 		if err != nil {
 			return nil, err
 		}
-		addrs[i] = cosmlib.ValAddressToEthAddress(valAddr)
+		addrs = append(addrs, cosmlib.ValAddressToEthAddress(valAddr))
 	}
 	return []any{addrs}, nil
 }
@@ -256,10 +252,7 @@ func (c *Contract) validatorHelper(ctx context.Context, valAddr string) ([]any, 
 	res, err := c.querier.Validator(ctx, &stakingtypes.QueryValidatorRequest{
 		ValidatorAddr: valAddr,
 	})
-	if status.Code(err) == codes.NotFound {
-		// handle the case where the validator does not exist
-		return []any{cosmlib.EmptyValidator()}, nil
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 
