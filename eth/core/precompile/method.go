@@ -27,6 +27,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 /**
@@ -92,7 +93,7 @@ func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if !results[1].IsNil() {
-		err, _ = results[1].Interface().(error)
+		err = utils.MustGetAs[error](results[1].Interface())
 		if !errors.Is(err, vm.ErrWriteProtection) {
 			err = errorslib.Wrapf(
 				vm.ErrExecutionReverted,
@@ -104,8 +105,7 @@ func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 	}
 
 	// Pack the return values and return, if any exist.
-	retVal := results[0]
-	ret, err := m.abiMethod.Outputs.PackValues(retVal.Interface().([]any)) // 1) What
+	ret, err := m.abiMethod.Outputs.PackValues(utils.MustGetAs[[]any](results[0].Interface())) // 1) What
 	if err != nil {
 		return nil, err
 	}
