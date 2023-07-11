@@ -18,18 +18,29 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile
+package cachekv
 
-import storetypes "cosmossdk.io/store/types"
+import (
+	storetypes "cosmossdk.io/store/types"
 
-type (
-	StatePlugin interface {
-		SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
-	}
-
-	MultiStore interface {
-		storetypes.MultiStore
-		IsReadOnly() bool
-		SetReadOnly(bool)
-	}
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
+
+var _ storetypes.CacheKVStore = (*ReadOnlyStore)(nil)
+
+// ReadOnlyStore is a wrapper around cachekv.Store that panics on any write operation.
+type ReadOnlyStore struct {
+	storetypes.CacheKVStore
+}
+
+func NewReadOnlyStoreFor(cacheKVStore storetypes.CacheKVStore) *ReadOnlyStore {
+	return &ReadOnlyStore{cacheKVStore}
+}
+
+func (s *ReadOnlyStore) Set(_, _ []byte) {
+	panic(vm.ErrWriteProtection)
+}
+
+func (s *ReadOnlyStore) Delete(_ []byte) {
+	panic(vm.ErrWriteProtection)
+}

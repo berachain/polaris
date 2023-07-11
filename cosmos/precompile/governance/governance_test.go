@@ -128,7 +128,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				"invalid",
 			)
 			Expect(err).To(MatchError(precompile.ErrInvalidBytes))
@@ -140,7 +139,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				[]byte{},
 				"invalid",
 			)
@@ -182,7 +180,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				proposalBz,
 				msgBz,
 			)
@@ -198,7 +195,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				"invalid",
 			)
 			Expect(err).To(MatchError(precompile.ErrInvalidUint64))
@@ -210,7 +206,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				big.NewInt(1),
 			)
 			Expect(err).To(HaveOccurred())
@@ -229,7 +224,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				uint64(1),
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -254,7 +248,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				"invalid",
 				int32(1),
 				"metadata",
@@ -268,7 +261,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				uint64(1),
 				"invalid",
 				"metadata",
@@ -282,7 +274,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				uint64(1),
 				int32(1),
 				123,
@@ -296,7 +287,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				uint64(1000),
 				int32(1),
 				"metadata",
@@ -310,7 +300,6 @@ var _ = Describe("Governance Precompile", func() {
 				nil,
 				cosmlib.AccAddressToEthAddress(caller),
 				big.NewInt(0),
-				false,
 				uint64(1),
 				int32(1),
 				"metadata",
@@ -326,7 +315,6 @@ var _ = Describe("Governance Precompile", func() {
 					nil,
 					cosmlib.AccAddressToEthAddress(caller),
 					big.NewInt(0),
-					false,
 					"invalid",
 					[]generated.IGovernanceModuleWeightedVoteOption{},
 					"metadata",
@@ -340,7 +328,6 @@ var _ = Describe("Governance Precompile", func() {
 					nil,
 					cosmlib.AccAddressToEthAddress(caller),
 					big.NewInt(0),
-					false,
 					uint64(1),
 					12,
 					"metadata",
@@ -354,7 +341,6 @@ var _ = Describe("Governance Precompile", func() {
 					nil,
 					cosmlib.AccAddressToEthAddress(caller),
 					big.NewInt(0),
-					false,
 					uint64(1),
 					[]generated.IGovernanceModuleWeightedVoteOption{},
 					123,
@@ -368,7 +354,6 @@ var _ = Describe("Governance Precompile", func() {
 					nil,
 					cosmlib.AccAddressToEthAddress(caller),
 					big.NewInt(0),
-					false,
 					uint64(1000),
 					[]generated.IGovernanceModuleWeightedVoteOption{},
 					"metadata",
@@ -390,7 +375,6 @@ var _ = Describe("Governance Precompile", func() {
 					nil,
 					cosmlib.AccAddressToEthAddress(caller),
 					big.NewInt(0),
-					false,
 					uint64(1),
 					options,
 					"metadata",
@@ -445,7 +429,6 @@ var _ = Describe("Governance Precompile", func() {
 						nil,
 						cosmlib.AccAddressToEthAddress(caller),
 						big.NewInt(0),
-						false,
 						"invalid",
 					)
 					Expect(err).To(MatchError(precompile.ErrInvalidUint64))
@@ -457,7 +440,6 @@ var _ = Describe("Governance Precompile", func() {
 						nil,
 						cosmlib.AccAddressToEthAddress(caller),
 						big.NewInt(0),
-						false,
 						uint64(2),
 					)
 					Expect(err).ToNot(HaveOccurred())
@@ -468,7 +450,7 @@ var _ = Describe("Governance Precompile", func() {
 			When("GetProposals", func() {
 				BeforeEach(func() {
 					// Not filled proposal, hence will panic the parser.
-					_, err := contract.CancelProposal(ctx, nil, common.Address(caller), big.NewInt(0), false, uint64(1))
+					_, err := contract.CancelProposal(ctx, nil, common.Address(caller), big.NewInt(0), uint64(1))
 					Expect(err).ToNot(HaveOccurred())
 				})
 				It("should fail if the status is of invalid type", func() {
@@ -477,7 +459,6 @@ var _ = Describe("Governance Precompile", func() {
 						nil,
 						cosmlib.AccAddressToEthAddress(caller),
 						big.NewInt(0),
-						false,
 						"",
 					)
 					Expect(err).To(MatchError(precompile.ErrInvalidInt32))
@@ -489,7 +470,6 @@ var _ = Describe("Governance Precompile", func() {
 						nil,
 						cosmlib.AccAddressToEthAddress(caller),
 						big.NewInt(0),
-						false,
 						int32(0),
 					)
 					Expect(err).ToNot(HaveOccurred())

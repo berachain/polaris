@@ -121,7 +121,6 @@ func (c *Contract) CoinDenomForERC20AddressAddrInput(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	addr, ok := utils.GetAs[common.Address](args[0])
@@ -148,7 +147,6 @@ func (c *Contract) ERC20AddressForCoinDenom(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	denom, ok := utils.GetAs[string](args[0])
@@ -184,7 +182,6 @@ func (c *Contract) TransferCoinToERC20(
 	evm ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	denom, ok := utils.GetAs[string](args[0])
@@ -206,7 +203,6 @@ func (c *Contract) TransferCoinToERC20FromAddrInput(
 	evm ethprecompile.EVM,
 	_ common.Address,
 	value *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	denom, ok := utils.GetAs[string](args[0])
@@ -236,7 +232,6 @@ func (c *Contract) TransferCoinToERC20ToAddrInput(
 	evm ethprecompile.EVM,
 	caller common.Address,
 	value *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	denom, ok := utils.GetAs[string](args[0])
@@ -262,7 +257,6 @@ func (c *Contract) TransferERC20ToCoin(
 	evm ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	token, ok := utils.GetAs[common.Address](args[0])
@@ -284,7 +278,6 @@ func (c *Contract) TransferERC20ToCoinFromAddrInput(
 	evm ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	token, ok := utils.GetAs[common.Address](args[0])
@@ -314,7 +307,6 @@ func (c *Contract) TransferERC20ToCoinToAddrInput(
 	evm ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	token, ok := utils.GetAs[common.Address](args[0])

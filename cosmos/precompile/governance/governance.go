@@ -106,7 +106,6 @@ func (c *Contract) SubmitProposal(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	proposalBz, ok := utils.GetAs[[]byte](args[0])
@@ -130,7 +129,6 @@ func (c *Contract) CancelProposal(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	id, ok := utils.GetAs[uint64](args[0])
@@ -148,7 +146,6 @@ func (c *Contract) Vote(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	proposalID, ok := utils.GetAs[uint64](args[0])
@@ -174,7 +171,6 @@ func (c *Contract) VoteWeighted(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	proposalID, ok := utils.GetAs[uint64](args[0])
@@ -199,7 +195,6 @@ func (c *Contract) GetProposal(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	proposalID, ok := utils.GetAs[uint64](args[0])
@@ -216,7 +211,6 @@ func (c *Contract) GetProposals(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	args ...any,
 ) ([]any, error) {
 	proposalStatus, ok := utils.GetAs[int32](args[0])

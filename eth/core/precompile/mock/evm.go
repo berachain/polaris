@@ -18,26 +18,21 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package misc_test
+package mock
 
 import (
-	"testing"
+	"github.com/ethereum/go-ethereum/core/state"
 
-	"pkg.berachain.dev/polaris/cosmos/testing/integration"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"pkg.berachain.dev/polaris/eth/core/vm/mock"
 )
 
-func TestMiscellaneousPrecompile(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/misc")
+//go:generate moq -out ./evm.mock.go -skip-ensure -pkg mock ../ EVM
+
+func NewEVM() *EVMMock {
+	mockSDB := mock.NewEmptyStateDB()
+	return &EVMMock{
+		GetStateDBFunc: func() state.StateDBI {
+			return mockSDB
+		},
+	}
 }
-
-var tf *integration.TestFixture
-
-var _ = SynchronizedBeforeSuite(func() []byte {
-	// Setup the network and clients here.
-	tf = integration.NewTestFixture(GinkgoT())
-	return nil
-}, func(data []byte) {})

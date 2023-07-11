@@ -39,6 +39,12 @@ type MultiStore struct {
 	*mock.MultiStoreMock
 }
 
+// MultiStore implements precompile.MultiStore.
+func (m MultiStore) SetReadOnly(bool) {}
+
+// MultiStore implements precompile.MultiStore.
+func (m MultiStore) IsReadOnly() bool { return false }
+
 // CachedMultiStore is a simple chached multistore for testing.
 type CachedMultiStore struct {
 	kvstore map[string]interfaces.KVStore

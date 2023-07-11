@@ -156,7 +156,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 				nil,
 				testutil.Alice,
 				big.NewInt(0),
-				false,
 				testutil.Bob,
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -227,7 +226,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 					nil,
 					testutil.Alice,
 					big.NewInt(0),
-					false,
 					"0x0000000000",
 					cosmlib.ValAddressToEthAddress(valAddr),
 				)
@@ -255,7 +253,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 					nil,
 					testutil.Alice,
 					big.NewInt(0),
-					false,
 					cosmlib.AccAddressToEthAddress(addr),
 					cosmlib.ValAddressToEthAddress(valAddr),
 				)
@@ -269,7 +266,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 		When("Reading Params", func() {
 			It("Should get if withdraw forwarding is enabled", func() {
-				res, err := contract.GetWithdrawAddrEnabled(ctx, nil, testutil.Alice, big.NewInt(0), true)
+				res, err := contract.GetWithdrawAddrEnabled(ctx, nil, testutil.Alice, big.NewInt(0))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(Equal([]any{true}))
 			})
