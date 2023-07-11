@@ -18,46 +18,52 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package auth_test
+package cachekv_test
 
 import (
 	"testing"
 
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
-	"pkg.berachain.dev/polaris/cosmos/testing/integration"
-	"pkg.berachain.dev/polaris/eth/common"
+	sdkcachekv "cosmossdk.io/store/cachekv"
+	storetypes "cosmossdk.io/store/types"
+
+	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/store/cachekv"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-func TestCosmosPrecompiles(t *testing.T) {
+func TestCacheKV(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/auth")
+	RunSpecs(t, "cosmos/store/cachekv")
 }
 
-var (
-	tf             *integration.TestFixture
-	authPrecompile *bindings.AuthModule
-)
+var _ = Describe("ReadOnly Store", func() {
+	var readOnlyStore *cachekv.ReadOnlyStore
 
-var _ = SynchronizedBeforeSuite(func() []byte {
-	// Setup the network and clients here.
-	tf = integration.NewTestFixture(GinkgoT())
-	authPrecompile, _ = bindings.NewAuthModule(
-		common.HexToAddress("0xBDF49C3C3882102fc017FFb661108c63a836D065"), tf.EthClient)
-	return nil
-}, func(data []byte) {})
-
-var _ = Describe("Auth", func() {
 	BeforeEach(func() {
-		_, err := tf.Network.WaitForHeight(1)
-		Expect(err).NotTo(HaveOccurred())
+		ms := mock.NewMultiStore()
+		kv := ms.GetKVStore(storetypes.NewKVStoreKey("test"))
+		kv.Set([]byte("key"), []byte("value"))
+		readOnlyStore = cachekv.NewReadOnlyStoreFor(sdkcachekv.NewStore(kv))
 	})
 
-	It("should call functions on the precompile directly", func() {
-		acc, err := authPrecompile.GetAccountInfo(nil, tf.Address("alice"))
-		Expect(err).NotTo(HaveOccurred())
-		Expect(acc.Addr).To(Equal(tf.Address("alice")))
+	It("should panic only on writes", func() {
+		Expect(func() {
+			Expect(readOnlyStore.Get([]byte("key"))).To(Equal([]byte("value")))
+			Expect(readOnlyStore.Has([]byte("KEY"))).To(BeFalse())
+		}).NotTo(Panic())
+
+		Expect(func() {
+			readOnlyStore.Set([]byte("key"), []byte("new value"))
+		}).To(Panic())
+
+		Expect(func() {
+			readOnlyStore.Set([]byte("new key"), []byte("value"))
+		}).To(Panic())
+
+		Expect(func() {
+			readOnlyStore.Delete([]byte("key"))
+		}).To(Panic())
 	})
 })

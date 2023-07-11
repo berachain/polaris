@@ -34,8 +34,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
-// By default we are storing up to 64mb of historical data for each cache.
-const defaultCacheSizeBytes = 1024 * 1024 * 64
+// By default we are storing up to 1024 items in each cache.
+const defaultCacheSize = 1024
 
 // Compile-time check to ensure that `blockchain` implements the `Blockchain` api.
 var _ Blockchain = (*blockchain)(nil)
@@ -113,10 +113,10 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		sp:             host.GetStatePlugin(),
 		tp:             host.GetTxPoolPlugin(),
 		vmConfig:       &vm.Config{},
-		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSizeBytes),
-		blockNumCache:  lru.NewCache[uint64, *types.Block](defaultCacheSizeBytes),
-		blockHashCache: lru.NewCache[common.Hash, *types.Block](defaultCacheSizeBytes),
-		txLookupCache:  lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSizeBytes),
+		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSize),
+		blockNumCache:  lru.NewCache[uint64, *types.Block](defaultCacheSize),
+		blockHashCache: lru.NewCache[common.Hash, *types.Block](defaultCacheSize),
+		txLookupCache:  lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSize),
 		chainHeadFeed:  event.Feed{},
 		scope:          event.SubscriptionScope{},
 		logger:         log.Root(),

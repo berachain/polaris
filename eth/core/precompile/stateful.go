@@ -23,11 +23,10 @@ package precompile
 import (
 	"context"
 	"math/big"
+	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/errors"
-	"pkg.berachain.dev/polaris/lib/errors/debug"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -51,11 +50,14 @@ type stateful struct {
 // NewStateful creates and returns a new `stateful` with the given method ids precompile functions map.
 func NewStateful(
 	rp Registrable, idsToMethods map[string]*Method,
-) vm.PrecompileContainer {
+) (vm.PrecompileContainer, error) {
+	if idsToMethods == nil {
+		return nil, ErrContainerHasNoMethods
+	}
 	return &stateful{
 		Registrable:  rp,
 		idsToMethods: idsToMethods,
-	}
+	}, nil
 }
 
 // Run loads the corresponding precompile method for given input, executes it, and handles
@@ -68,11 +70,7 @@ func (sc *stateful) Run(
 	input []byte,
 	caller common.Address,
 	value *big.Int,
-	readonly bool,
 ) ([]byte, error) {
-	if sc.idsToMethods == nil {
-		return nil, ErrContainerHasNoMethods
-	}
 	if len(input) < NumBytesMethodID {
 		return nil, ErrInvalidInputToPrecompile
 	}
@@ -83,53 +81,24 @@ func (sc *stateful) Run(
 		return nil, ErrMethodNotFound
 	}
 
-	// Unpack the args from the input, if any exist.
-	unpackedArgs, err := method.AbiMethod.Inputs.Unpack(input[NumBytesMethodID:])
-	if err != nil {
-		return nil, err
-	}
-
-	// Execute the method registered with the given signature with the given args.
-	vals, err := method.Execute(
-		ctx,
-		evm,
-		caller,
-		value,
-		readonly,
-		unpackedArgs...,
+	// Execute the method with the reflected ctx and raw input
+	// TODO: use PolarContext
+	return method.Call(
+		[]reflect.Value{
+			reflect.ValueOf(sc.Registrable),
+			reflect.ValueOf(ctx),
+			reflect.ValueOf(evm),
+			reflect.ValueOf(caller),
+			reflect.ValueOf(value),
+		},
+		input,
 	)
-
-	// If the precompile returned an error, the error is returned to the caller.
-	if err != nil {
-		return nil, errors.Wrapf(
-			vm.ErrExecutionReverted,
-			"vm error [%v] occurred during precompile execution of [%s]",
-			err, debug.GetFnName(method.Execute),
-		)
-	}
-
-	// Pack the return values and return, if any exist.
-	ret, err := method.AbiMethod.Outputs.Pack(vals...)
-	if err != nil {
-		return nil, err
-	}
-
-	return ret, nil
 }
 
 // RequiredGas checks the Method corresponding to input for the required gas amount.
 //
 // RequiredGas implements PrecompileContainer.
-func (sc *stateful) RequiredGas(input []byte) uint64 {
-	if sc.idsToMethods == nil || len(input) < NumBytesMethodID {
-		return 0
-	}
-
-	// Extract the method ID from the input and load the method.
-	method, found := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
-	if !found {
-		return 0
-	}
-
-	return method.RequiredGas
+// TODO: remove in a later PR
+func (sc *stateful) RequiredGas(_ []byte) uint64 {
+	return 0
 }

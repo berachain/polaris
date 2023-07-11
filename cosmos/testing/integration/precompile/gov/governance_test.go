@@ -53,7 +53,7 @@ var (
 
 func TestGovernancePrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/governance:integration")
+	RunSpecs(t, "cosmos/testing/integration/precompile/governance")
 }
 
 var _ = SynchronizedBeforeSuite(func() []byte {

@@ -18,19 +18,29 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package block
+package cachekv
 
 import (
-	"context"
+	storetypes "cosmossdk.io/store/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
-type StakingKeeper interface {
-	GetValidatorByConsAddr(ctx context.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, err error)
+var _ storetypes.CacheKVStore = (*ReadOnlyStore)(nil)
+
+// ReadOnlyStore is a wrapper around cachekv.Store that panics on any write operation.
+type ReadOnlyStore struct {
+	storetypes.CacheKVStore
 }
 
-type Validator interface {
-	GetOperator() sdk.ValAddress // operator address to receive/return validators coins
+func NewReadOnlyStoreFor(cacheKVStore storetypes.CacheKVStore) *ReadOnlyStore {
+	return &ReadOnlyStore{cacheKVStore}
+}
+
+func (s *ReadOnlyStore) Set(_, _ []byte) {
+	panic(vm.ErrWriteProtection)
+}
+
+func (s *ReadOnlyStore) Delete(_ []byte) {
+	panic(vm.ErrWriteProtection)
 }

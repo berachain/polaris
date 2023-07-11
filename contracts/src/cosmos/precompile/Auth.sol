@@ -32,24 +32,9 @@ import {Cosmos} from "../CosmosTypes.sol";
  */
 interface IAuthModule {
     /**
-     * @dev Returns the bech32 representation of the given address.
-     */
-    function convertHexToBech32(address account) external view returns (string memory);
-
-    /**
-     * @dev Returns the hex representation of the given bech32 address.
-     */
-    function convertBech32ToHexAddress(string calldata account) external view returns (address);
-
-    /**
      * @dev Returns the base account information for the given account address.
      */
     function getAccountInfo(address account) external view returns (BaseAccount memory);
-
-    /**
-     * @dev Returns the base account information for the given account address (bech32 encoded).
-     */
-    function getAccountInfo(string calldata account) external view returns (BaseAccount memory);
 
     /**
      * @dev setSendAllowance sets the send authorization (allowance) between owner and spender.

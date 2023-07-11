@@ -23,6 +23,7 @@ package precompile_test
 import (
 	"context"
 	"math/big"
+	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -33,34 +34,24 @@ import (
 )
 
 var _ = Describe("Method", func() {
-	Context("Basic - ValidateBasic Tests", func() {
-		It("should error on missing Abi function signature", func() {
-			methodMissingSig := &precompile.Method{
-				Execute:     mockExecutable,
-				RequiredGas: 10,
-			}
-			err := methodMissingSig.ValidateBasic()
-			Expect(err).To(HaveOccurred())
-		})
-
-		It("should error on missing precompile executable", func() {
-			methodMissingFunc := &precompile.Method{
-				AbiSig:      "contractFunc(address)",
-				RequiredGas: 10,
-			}
-			err := methodMissingFunc.ValidateBasic()
-			Expect(err).To(HaveOccurred())
-		})
-
-		It("should error on given abi method", func() {
-			methodMissingFunc := &precompile.Method{
-				AbiSig:      "contractFunc(address)",
-				RequiredGas: 10,
-				Execute:     mockExecutable,
-				AbiMethod:   &abi.Method{},
-			}
-			err := methodMissingFunc.ValidateBasic()
-			Expect(err).To(HaveOccurred())
+	Context("Calling the method", func() {
+		It("should be able to call the Method's executable", func() {
+			method := precompile.NewMethod(
+				&abi.Method{},
+				"mockExecutable()",
+				reflect.ValueOf(mockExecutable),
+			)
+			res, err := method.Call(
+				[]reflect.Value{
+					reflect.ValueOf(context.Background()),
+					reflect.ValueOf(mockEVM{}),
+					reflect.ValueOf(common.Address{}),
+					reflect.ValueOf(big.NewInt(0)),
+					reflect.ValueOf(false),
+					reflect.ValueOf([]byte{}),
+				}, []byte{0, 0, 0, 0})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res).To(BeNil())
 		})
 	})
 })
@@ -72,7 +63,6 @@ func mockExecutable(
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
 	_ ...any,
 ) ([]any, error) {
 	return nil, nil

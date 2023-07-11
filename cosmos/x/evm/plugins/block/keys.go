@@ -21,16 +21,18 @@
 package block
 
 import (
-	"context"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
-type StakingKeeper interface {
-	GetValidatorByConsAddr(ctx context.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, err error)
-}
+// headerHashKeySize is the number of bytes in the header hash key: 1 (prefix) + 8 (block height).
+const headerHashKeySize = 9
 
-type Validator interface {
-	GetOperator() sdk.ValAddress // operator address to receive/return validators coins
+// headerHashKeyForHeight returns the key for the hash of the header at the given height.
+func headerHashKeyForHeight(number int64) []byte {
+	bz := make([]byte, headerHashKeySize)
+	copy(bz, []byte{types.HeaderHashKeyPrefix})
+	copy(bz[1:], sdk.Uint64ToBigEndian(uint64(number%prevHeaderHashes)))
+	return bz
 }

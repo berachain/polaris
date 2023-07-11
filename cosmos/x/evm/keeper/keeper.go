@@ -96,8 +96,9 @@ func (k *Keeper) Setup(
 
 	// Build the Polaris EVM Provider
 	cfg, err := polar.LoadConfigFromFilePath(polarisConfigPath)
-	// TODO: fix properly
+	// TODO: fix properly.
 	if err != nil || cfg.GPO == nil {
+		// TODO: log warning for this case.
 		logger.Error("failed to load polaris config", "falling back to defaults")
 		cfg = polar.DefaultConfig()
 	}

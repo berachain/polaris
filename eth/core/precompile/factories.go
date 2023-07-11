@@ -21,9 +21,15 @@
 package precompile
 
 import (
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"errors"
+	"fmt"
+	"reflect"
+	"unicode"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
+
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/errors"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -66,7 +72,7 @@ func (sf *StatelessFactory) Build(
 ) (vm.PrecompileContainer, error) {
 	pc, ok := utils.GetAs[StatelessImpl](rp)
 	if !ok {
-		return nil, errors.Wrap(ErrWrongContainerFactory, statelessContainerName)
+		return nil, errorslib.Wrap(ErrWrongContainerFactory, statelessContainerName)
 	}
 	return pc, nil
 }
@@ -83,8 +89,8 @@ func NewStatefulFactory() *StatefulFactory {
 	return &StatefulFactory{}
 }
 
-// Build returns a stateful precompile container for the given base contract implementation.
-// This function will return an error if the given contract is not a stateful implementation.
+// Build returns a stateful precompile container for the given base contract implementation. This
+// function will return an error if the given contract is not a stateful implementation.
 //
 // Build implements `AbstractFactory`.
 func (sf *StatefulFactory) Build(
@@ -92,61 +98,90 @@ func (sf *StatefulFactory) Build(
 ) (vm.PrecompileContainer, error) {
 	sci, ok := utils.GetAs[StatefulImpl](rp)
 	if !ok {
-		return nil, errors.Wrap(ErrWrongContainerFactory, statefulContainerName)
+		return nil, errorslib.Wrap(ErrWrongContainerFactory, statefulContainerName)
 	}
 
 	// attach the precompile plugin to the stateful contract
 	sci.SetPlugin(p)
 
-	var err error
-
 	// add precompile methods to stateful container, if any exist
-	var idsToMethods map[string]*Method
-	if precompileMethods := sci.PrecompileMethods(); precompileMethods != nil {
-		idsToMethods, err = sf.buildIdsToMethods(precompileMethods, sci.ABIMethods())
-		if err != nil {
-			return nil, err
-		}
+	idsToMethods, err := buildIdsToMethods(sci.ABIMethods(), reflect.ValueOf(sci))
+	if err != nil {
+		return nil, err
 	}
 
-	return NewStateful(rp, idsToMethods), nil
+	return NewStateful(rp, idsToMethods)
 }
 
-// buildIdsToMethods builds the stateful precompile container for the given `precompileMethods`
-// and `abiMethods`. This function will return an error if every method in `abiMethods` does not
-// have a valid, corresponding `Method`.
-func (sf *StatefulFactory) buildIdsToMethods(
-	precompileMethods Methods,
-	abiMethods map[string]abi.Method,
-) (map[string]*Method, error) {
-	// validate precompile methods
-	for _, pm := range precompileMethods {
-		if err := pm.ValidateBasic(); err != nil {
-			return nil, err
-		}
-	}
-
-	// match every ABI method to corresponding precompile method
+// This function matches each Go implementation of the precompile to the ABI's respective function.
+// It searches for the ABI function in the Go precompile contract and performs basic validation on
+// the implemented function.
+func buildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (map[string]*Method, error) {
+	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*Method)
-	for name := range abiMethods {
-		abiMethod := abiMethods[name]
+	for m := 0; m < contractImplType.NumMethod(); m++ {
+		implMethod := contractImplType.Method(m)
+		implMethodName := formatName(implMethod.Name)
 
-		// find the corresponding precompile method for abiMethod based on signature
-		var precompileMethod *Method
-		i := 0
-		for ; i < len(precompileMethods); i++ {
-			if precompileMethods[i].AbiSig == abiMethod.Sig {
-				precompileMethod = precompileMethods[i]
-				break
+		if abiMethod, found := pcABI[implMethodName]; found {
+			if err := validateReturnTypes(implMethod); err != nil {
+				return nil, errorslib.Wrap(err, implMethodName)
 			}
+			idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = NewMethod(
+				&abiMethod,
+				abiMethod.Sig,
+				implMethod.Func,
+			)
 		}
-		if i == len(precompileMethods) {
-			return nil, errors.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Sig)
-		}
-
-		// attach the ABI method to the precompile method for stateful container to handle
-		precompileMethod.AbiMethod = &abiMethod
-		idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = precompileMethod
 	}
+
+	// verify that every abi method has a corresponding precompile implementation
+	for _, abiMethod := range pcABI {
+		if _, found := idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)]; !found {
+			return nil, errorslib.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Name)
+		}
+	}
+
 	return idsToMethods, nil
+}
+
+// formatName converts to first character of name to lowercase.
+func formatName(name string) string {
+	if len(name) == 0 {
+		return name
+	}
+
+	ret := []rune(name)
+	ret[0] = unicode.ToLower(ret[0])
+	return string(ret)
+}
+
+// validateReturnTypes checks if the precompile method returns a []any and an error. Returns an
+// error otherwise.
+func validateReturnTypes(implMethod reflect.Method) error {
+	if implMethod.Type.NumOut() != 2 { //nolint:gomnd // always expect 2 return values.
+		return errors.New(
+			"precompile methods must return ([]any, error), but found wrong number of return types for precompile method", //nolint:lll // it's okay.
+		)
+	}
+
+	// check if the first return type is of type []any
+	firstReturnType := implMethod.Type.Out(0)
+	if firstReturnType.Kind() != reflect.Slice && firstReturnType.Elem().Kind() != reflect.Interface {
+		return fmt.Errorf(
+			"first parameter should be []any, but found %s for precompile method",
+			firstReturnType.String(),
+		)
+	}
+
+	// check that the second return value is an error
+	secondReturnType := implMethod.Type.Out(1)
+	if secondReturnType.Name() != "error" {
+		return fmt.Errorf(
+			"second parameter should be error, but found %s for precompile method",
+			secondReturnType.String(),
+		)
+	}
+
+	return nil
 }

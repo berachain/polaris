@@ -19,7 +19,6 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-
 KEYS[0]="dev0"
 KEYS[1]="dev1"
 KEYS[2]="dev2"
@@ -59,13 +58,12 @@ mage build
 overwrite="Y"
 # fi
 
-
 # Setup local node if overwrite is set to Yes, otherwise skip setup
 if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Remove the previous folder
 	rm -rf "$HOMEDIR"
 
-    	# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
+	# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
 	./bin/polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
 
 	cp ./cosmos/docker/local/config/app.toml "$APP_TOML"
@@ -93,6 +91,10 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 		./bin/polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 	done
 
+	# Test Account
+	# absurd surge gather author blanket acquire proof struggle runway attract cereal quiz tattoo shed almost sudden survey boring film memory picnic favorite verb tank
+	# 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
+	./bin/polard genesis add-genesis-account polar1yrene6g2zwjttemf0c65fscg8w8c55w5vhc9hd 69000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 
 	# Sign genesis transaction
 	./bin/polard genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"

@@ -24,6 +24,7 @@ import (
 	"cosmossdk.io/store/cachekv"
 	storetypes "cosmossdk.io/store/types"
 
+	polariscachekv "pkg.berachain.dev/polaris/cosmos/x/evm/store/cachekv"
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -49,6 +50,8 @@ type store struct {
 	root mapMultiStore
 	// journal holds the snapshots of cachemultistores
 	journal ds.Stack[mapMultiStore]
+	// readOnly is true if the store is in read-only mode
+	readOnly bool
 }
 
 // NewStoreFrom creates and returns a new `store` from a given Multistore `ms`.
@@ -63,6 +66,16 @@ func NewStoreFrom(ms storetypes.MultiStore) *store { //nolint:revive // its okay
 // RegistryKey implements `libtypes.Registrable`.
 func (s *store) RegistryKey() string {
 	return storeRegistryKey
+}
+
+// IsReadOnly returns the current read-only mode.
+func (s *store) IsReadOnly() bool {
+	return s.readOnly
+}
+
+// SetReadOnly sets the store to the given read-only mode.
+func (s *store) SetReadOnly(readOnly bool) {
+	s.readOnly = readOnly
 }
 
 // GetCommittedKVStore returns the KV Store from the given Multistore. This function follows
@@ -81,20 +94,23 @@ func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 		cms = s.root
 	}
 
-	// check if cache kv store already used
-	if cacheKVStore, found := cms[key]; found {
-		return cacheKVStore
+	// if the map multistore does not have the given storekey, get from the underlying multistore
+	if cms[key] == nil {
+		cms[key] = cachekv.NewStore(s.GetCommittedKVStore(key))
 	}
 
-	// get kvstore from mapMultiStore and set cachekv to memory
-	cms[key] = cachekv.NewStore(s.GetCommittedKVStore(key))
+	// if the store is in read-only mode, return a read-only store
+	if s.readOnly {
+		return polariscachekv.NewReadOnlyStoreFor(cms[key])
+	}
+
 	return cms[key]
 }
 
 // Snapshot implements `libtypes.Snapshottable`.
 func (s *store) Snapshot() int {
-	cms := s.journal.Peek()
-	if cms == nil {
+	var cms mapMultiStore
+	if cms = s.journal.Peek(); cms == nil {
 		// use root if the journal is empty
 		cms = s.root
 	}
@@ -116,7 +132,8 @@ func (s *store) RevertToSnapshot(id int) {
 }
 
 // Finalize commits each of the individual cachekv stores to its corresponding parent cachekv stores
-// in the journal. Finally it commits the root cachekv stores.
+// in the journal. Finally it commits the root cachekv stores. Skip committing writes to the
+// underlying multistore if in read-only mode.
 //
 // Finalize implements `libtypes.Controllable`.
 func (s *store) Finalize() {

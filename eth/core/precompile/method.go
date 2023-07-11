@@ -21,11 +21,13 @@
 package precompile
 
 import (
-	"context"
-	"math/big"
+	"errors"
+	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 /**
@@ -36,57 +38,75 @@ import (
  *	  2) Build a Go precompile contract, which implements the interface's methods.
  *       A) This precompile contract should expose the ABI's `Methods`, which can be generated via
  *          Go-Ethereum's abi package. These methods are of type `abi.Method`.
- *   	 B) This precompile contract should also expose the `Method`s. A `Method` includes the
- *          `executable`, which is the direct implementation of a corresponding ABI method, the
- *          `executable`'s `RequiredGas`, and the ABI signature. Do NOT provide the `AbiMethod` as
- *          this field will be automatically populated.
+ * 		 B) If implementing an overloaded function, suffix the overloaded methods' names starting
+ *          with 0, 1, 2, ... for every overloaded function. For example, if you have two functions
+ *          named `foo` in your smart contract, then name the first function `foo` and the second
+ *          `foo0`. We enforce the same overloading scheme that geth's abi package uses.
  **/
-
-// Executable is a type of function that stateful precompiled contract will implement. Each
-// Executable should directly correspond to an ABI method.
-type Executable func(
-	ctx context.Context,
-	evm EVM,
-	caller common.Address,
-	value *big.Int,
-	readonly bool,
-	args ...any,
-) (ret []any, err error)
 
 // Method is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
 type Method struct {
-	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable. NOTE:
-	// this field should be left empty (as nil) as this will automatically be populated by the
-	// corresponding interface's ABI.
-	AbiMethod *abi.Method
+	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
+	abiMethod *abi.Method
 
 	// AbiSig returns the method's string signature according to the ABI spec.
 	// e.g.		function foo(uint32 a, int b) = "foo(uint32,int256)"
 	// Note that there are no spaces and variable names in the signature.
 	// Also note that "int" is substitute for its canonical representation "int256".
-	AbiSig string
+	abiSig string
 
 	// Execute is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
-	Execute Executable
-
-	// RequiredGas is the amount of gas (as a `uint64`) used up by the execution of `Execute`.
-	// This field is optional; if left empty, the precompile's executable should consume gas using
-	// the native gas meter.
-	RequiredGas uint64
+	execute reflect.Value
 }
 
-// ValidateBasic returns an error if this a precompile `Method` has invalid fields.
-func (m *Method) ValidateBasic() error {
-	// ensure all required fields are nonempty
-	if len(m.AbiSig) == 0 || m.AbiMethod != nil || m.Execute == nil {
-		return ErrIncompleteMethod
+// NewMethod creates and returns a new `Method` with the given abiMethod, abiSig, and executable.
+func NewMethod(
+	abiMethod *abi.Method, abiSig string, execute reflect.Value,
+) *Method {
+	return &Method{
+		abiMethod: abiMethod,
+		abiSig:    abiSig,
+		execute:   execute,
+	}
+}
+
+// Call executes the precompile's executable with the given context and input arguments.
+func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
+	// Unpack the args from the input, if any exist.
+	unpackedArgs, err := m.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
-}
+	// Build argument list
+	reflectedUnpackedArgs := make([]reflect.Value, 0, len(unpackedArgs))
+	for _, unpacked := range unpackedArgs {
+		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
+	}
 
-// Methods is a type that represents a list of precompile methods. This is what a stateful
-// precompiled contract implementation should expose.
-type Methods []*Method
+	// Call the executable
+	results := m.execute.Call(append(ctx, reflectedUnpackedArgs...))
+
+	// If the precompile returned an error, the error is returned to the caller.
+	if !results[1].IsNil() {
+		err = utils.MustGetAs[error](results[1].Interface())
+		if !errors.Is(err, vm.ErrWriteProtection) {
+			err = errorslib.Wrapf(
+				vm.ErrExecutionReverted,
+				"vm error [%v] occurred during precompile execution of [%s]",
+				err, m.abiMethod.Name,
+			)
+		}
+		return nil, err
+	}
+
+	// Pack the return values and return, if any exist.
+	ret, err := m.abiMethod.Outputs.PackValues(utils.MustGetAs[[]any](results[0].Interface()))
+	if err != nil {
+		return nil, err
+	}
+
+	return ret, nil
+}

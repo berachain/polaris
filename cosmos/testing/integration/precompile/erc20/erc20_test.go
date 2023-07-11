@@ -31,7 +31,6 @@ import (
 	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/erc20"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 
@@ -74,10 +73,6 @@ var _ = Describe("ERC20", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(denom).To(Equal(""))
 
-				// invalid address
-				_, err = erc20Precompile.CoinDenomForERC20Address0(nil, "")
-				Expect(err).To(HaveOccurred())
-
 				// nonexistent denom
 				token, err := erc20Precompile.Erc20AddressForCoinDenom(nil, "")
 				Expect(err).ToNot(HaveOccurred())
@@ -90,13 +85,8 @@ var _ = Describe("ERC20", func() {
 				Expect(token).To(Equal(common.Address{}))
 
 				tokenAddr := common.BytesToAddress([]byte("abera"))
-				tokenBech32 := cosmlib.AddressToAccAddress(tokenAddr).String()
 
 				denom, err := erc20Precompile.CoinDenomForERC20Address(nil, tokenAddr)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(denom).To(Equal(""))
-
-				denom, err = erc20Precompile.CoinDenomForERC20Address0(nil, tokenBech32)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(denom).To(Equal(""))
 			})
@@ -122,8 +112,7 @@ var _ = Describe("ERC20", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(tf.Network.WaitForNextBlock()).To(Succeed())
 				_, err = tf.EthClient.TransactionReceipt(context.Background(), tx.Hash())
-				// Expect(err).To(MatchError("not found")) // err: ERC20 token contract does not exist
-				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("not found")) // err: ERC20 token contract does not exist
 			})
 
 			It("should handle a IBC-originated SDK coin", func() {
@@ -136,6 +125,7 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(12345),
 				)
 				Expect(err).ToNot(HaveOccurred())
+				Expect(tf.Network.WaitForNextBlock()).To(Succeed())
 				ExpectSuccessReceipt(tf.EthClient, tx)
 
 				// check that the new ERC20 is minted to TestAddress
@@ -206,14 +196,12 @@ var _ = Describe("ERC20", func() {
 					token,
 					big.NewInt(6789),
 				)
-				Expect(err).To(HaveOccurred())
-				// doesn't work because owner did not approve caller to spend tokens, so estimate gas fails
+				Expect(err).ToNot(HaveOccurred())
+				// doesn't work because owner did not approve caller to spend tokens
 				// NOTE: if a high gas limit is provided and the estimate gas routine is skipped,
 				// the tx executes without returning an error (i.e. reverting), but the state
 				// changes (for the transfer) are not persisted, as expected.
-				Expect(err.Error()).To(ContainSubstring("method handler crashed"))
-
-				Expect(tf.Network.WaitForNextBlock()).ToNot(HaveOccurred())
+				Expect(tf.Network.WaitForNextBlock()).To(Succeed())
 
 				// verify the transfer did not work
 				bal, err = contract.BalanceOf(nil, tf.Address("alice"))

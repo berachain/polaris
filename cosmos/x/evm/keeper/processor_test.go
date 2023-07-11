@@ -106,7 +106,7 @@ var _ = Describe("Processor", func() {
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
-		sk.SetValidator(ctx, validator)
+		Expect(sk.SetValidator(ctx, validator)).To(Succeed())
 		sc = staking.NewPrecompileContract(&sk)
 		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger())
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())

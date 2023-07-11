@@ -33,11 +33,9 @@ import (
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Contract is the precompile contract for the governance module.
@@ -61,36 +59,6 @@ func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
 	}
 }
 
-// PrecompileMethods implements the `ethprecompile.StatefulImpl` interface.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{
-		{
-			AbiSig:  "submitProposal(bytes,bytes)",
-			Execute: c.SubmitProposal,
-		},
-		{
-			AbiSig:  "cancelProposal(uint64)",
-			Execute: c.CancelProposal,
-		},
-		{
-			AbiSig:  "vote(uint64,int32,string)",
-			Execute: c.Vote,
-		},
-		{
-			AbiSig:  "voteWeighted(uint64,(int32,string)[],string)",
-			Execute: c.VoteWeighted,
-		},
-		{
-			AbiSig:  "getProposal(uint64)",
-			Execute: c.GetProposal,
-		},
-		{
-			AbiSig:  "getProposals(int32)",
-			Execute: c.GetProposals,
-		},
-	}
-}
-
 // CustomValueDecoders implements the `ethprecompile.StatefulImpl` interface.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
@@ -106,17 +74,9 @@ func (c *Contract) SubmitProposal(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
-	args ...any,
+	proposalBz []byte,
+	messageBz []byte,
 ) ([]any, error) {
-	proposalBz, ok := utils.GetAs[[]byte](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidBytes
-	}
-	messageBz, ok := utils.GetAs[[]byte](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBytes
-	}
 	message, err := unmarshalMsgAndReturnAny(messageBz)
 	if err != nil {
 		return nil, err
@@ -130,13 +90,8 @@ func (c *Contract) CancelProposal(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
-	args ...any,
+	id uint64,
 ) ([]any, error) {
-	id, ok := utils.GetAs[uint64](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidUint64
-	}
 	proposer := sdk.AccAddress(caller.Bytes())
 
 	return c.cancelProposalHelper(ctx, proposer, id)
@@ -148,21 +103,10 @@ func (c *Contract) Vote(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
-	args ...any,
+	proposalID uint64,
+	options int32,
+	metadata string,
 ) ([]any, error) {
-	proposalID, ok := utils.GetAs[uint64](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidUint64
-	}
-	options, ok := utils.GetAs[int32](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidInt32
-	}
-	metadata, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
 	voter := sdk.AccAddress(caller.Bytes())
 
 	return c.voteHelper(ctx, voter, proposalID, options, metadata)
@@ -174,21 +118,10 @@ func (c *Contract) VoteWeighted(
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	_ bool,
-	args ...any,
+	proposalID uint64,
+	options []generated.IGovernanceModuleWeightedVoteOption,
+	metadata string,
 ) ([]any, error) {
-	proposalID, ok := utils.GetAs[uint64](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-	options, ok := utils.GetAs[[]generated.IGovernanceModuleWeightedVoteOption](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidOptions
-	}
-	metadata, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
 	voter := sdk.AccAddress(caller.Bytes())
 	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
 }
@@ -199,14 +132,8 @@ func (c *Contract) GetProposal(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
-	args ...any,
+	proposalID uint64,
 ) ([]any, error) {
-	proposalID, ok := utils.GetAs[uint64](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidUint64
-	}
-
 	return c.getProposalHelper(ctx, proposalID)
 }
 
@@ -216,14 +143,8 @@ func (c *Contract) GetProposals(
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	_ bool,
-	args ...any,
+	proposalStatus int32,
 ) ([]any, error) {
-	proposalStatus, ok := utils.GetAs[int32](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidInt32
-	}
-
 	return c.getProposalsHelper(ctx, proposalStatus)
 }
 
