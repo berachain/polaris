@@ -151,7 +151,7 @@ func BuildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) 
 // three to lowercase.
 func formatName(name string) string {
 	ret := []rune(name)
-	if name[:3] == "ERC" || name[:3] == "ABI" { // special case for ERC20, ERC721, etc.
+	if len(name) >= 3 && (name[:3] == "ERC" || name[:3] == "ABI") { // special case for ERC20, ERC721, etc.
 		ret[0] = unicode.ToLower(ret[0])
 		ret[1] = unicode.ToLower(ret[1])
 		ret[2] = unicode.ToLower(ret[2])
