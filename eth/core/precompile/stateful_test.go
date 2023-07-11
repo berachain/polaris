@@ -192,13 +192,12 @@ func getOutput(
 
 func getOutputPartial(
 	_ *mockStateful,
-	ctx context.Context,
+	_ context.Context,
 	_ precompile.EVM,
 	_ common.Address,
 	_ *big.Int,
 	_ ...any,
 ) ([]any, error) {
-	_ = ctx
 	return nil, errors.New("err during precompile execution")
 }
 

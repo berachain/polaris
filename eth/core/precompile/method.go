@@ -27,7 +27,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
-	"pkg.berachain.dev/polaris/lib/errors/debug"
 )
 
 /**
@@ -93,11 +92,12 @@ func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if !results[1].IsNil() {
+		err, _ = results[1].Interface().(error)
 		if !errors.Is(err, vm.ErrWriteProtection) {
 			err = errorslib.Wrapf(
 				vm.ErrExecutionReverted,
 				"vm error [%v] occurred during precompile execution of [%s]",
-				err, debug.GetFnName(m.execute),
+				err, m.abiMethod.Name,
 			)
 		}
 		return nil, err
