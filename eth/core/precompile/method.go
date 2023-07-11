@@ -38,18 +38,16 @@ import (
  *	  2) Build a Go precompile contract, which implements the interface's methods.
  *       A) This precompile contract should expose the ABI's `Methods`, which can be generated via
  *          Go-Ethereum's abi package. These methods are of type `abi.Method`.
- * 		 B) If implementing an overloaded function, suffix the overloaded methods' names with starting with
- *  		0, then 1, 2, etc.  for every overloaded function. For example, if you have two functions named `foo` in
- *			your smart contract, then name the first function `foo` and the second `foo0`.
- *			This is because Go does not allow overloaded functions, and is very similar to how Geth handles it.
+ * 		 B) If implementing an overloaded function, suffix the overloaded methods' names starting
+ *          with 0, 1, 2, ... for every overloaded function. For example, if you have two functions
+ *          named `foo` in your smart contract, then name the first function `foo` and the second
+ *          `foo0`. We enforce the same overloading scheme that geth's abi package uses.
  **/
 
 // Method is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
 type Method struct {
-	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable. NOTE:
-	// this field should be left empty (as nil) as this will automatically be populated by the
-	// corresponding interface's ABI.
+	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
 	abiMethod *abi.Method
 
 	// AbiSig returns the method's string signature according to the ABI spec.
@@ -105,14 +103,10 @@ func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 	}
 
 	// Pack the return values and return, if any exist.
-	ret, err := m.abiMethod.Outputs.PackValues(utils.MustGetAs[[]any](results[0].Interface())) // 1) What
+	ret, err := m.abiMethod.Outputs.PackValues(utils.MustGetAs[[]any](results[0].Interface()))
 	if err != nil {
 		return nil, err
 	}
 
 	return ret, nil
 }
-
-// Methods is a type that represents a list of precompile methods. This is what a stateful
-// precompiled contract implementation should expose.
-type Methods []*Method

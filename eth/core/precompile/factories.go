@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"unicode"
@@ -88,8 +89,8 @@ func NewStatefulFactory() *StatefulFactory {
 	return &StatefulFactory{}
 }
 
-// Build returns a stateful precompile container for the given base contract implementation.
-// This function will return an error if the given contract is not a stateful implementation.
+// Build returns a stateful precompile container for the given base contract implementation. This
+// function will return an error if the given contract is not a stateful implementation.
 //
 // Build implements `AbstractFactory`.
 func (sf *StatefulFactory) Build(
@@ -104,7 +105,6 @@ func (sf *StatefulFactory) Build(
 	sci.SetPlugin(p)
 
 	// add precompile methods to stateful container, if any exist
-	var idsToMethods map[string]*Method
 	idsToMethods, err := buildIdsToMethods(sci.ABIMethods(), reflect.ValueOf(sci))
 	if err != nil {
 		return nil, err
@@ -124,7 +124,7 @@ func buildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) 
 		implMethodName := formatName(implMethod.Name)
 
 		if abiMethod, found := pcABI[implMethodName]; found {
-			if err := checkReturnTypes(implMethod); err != nil {
+			if err := validateReturnTypes(implMethod); err != nil {
 				return nil, errorslib.Wrap(err, implMethodName)
 			}
 			idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = NewMethod(
@@ -135,6 +135,7 @@ func buildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) 
 		}
 	}
 
+	// verify that every abi method has a corresponding precompile implementation
 	for _, abiMethod := range pcABI {
 		if _, found := idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)]; !found {
 			return nil, errorslib.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Name)
@@ -144,43 +145,43 @@ func buildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) 
 	return idsToMethods, nil
 }
 
-// formatName converts to first character of name to lowercase. If the first
-// three characters are "ERC" or "ABI" (which is p common), then it converts all
-// three to lowercase.
+// formatName converts to first character of name to lowercase.
 func formatName(name string) string {
-	ret := []rune(name)
-	if len(name) >= 3 && (name[:3] == "ERC" || name[:3] == "ABI") { // special case for ERC20, ERC721, etc.
-		ret[0] = unicode.ToLower(ret[0])
-		ret[1] = unicode.ToLower(ret[1])
-		ret[2] = unicode.ToLower(ret[2])
-	} else if len(ret) > 0 {
-		ret[0] = unicode.ToLower(ret[0])
+	if len(name) == 0 {
+		return name
 	}
 
+	ret := []rune(name)
+	ret[0] = unicode.ToLower(ret[0])
 	return string(ret)
 }
 
-// checkReturnTypes checks if the precompile method returns a []any and an error.
-// If it does not, then an error is returned.
-func checkReturnTypes(implMethod reflect.Method) error {
-	if implMethod.Type.NumOut() != 2 { //nolint:gomnd // it's okay.
-		return fmt.Errorf("precompile methods must return ([]any, error), but found wrong number of return types for precompile method: %s", //nolint:lll // it's okay.
-			implMethod.Name)
+// validateReturnTypes checks if the precompile method returns a []any and an error. Returns an
+// error otherwise.
+func validateReturnTypes(implMethod reflect.Method) error {
+	if implMethod.Type.NumOut() != 2 { //nolint:gomnd // always expect 2 return values.
+		return errors.New(
+			"precompile methods must return ([]any, error), but found wrong number of return types for precompile method", //nolint:lll // it's okay.
+		)
 	}
+
+	// check if the first return type is of type []any
 	firstReturnType := implMethod.Type.Out(0)
+	if firstReturnType.Kind() != reflect.Slice && firstReturnType.Elem().Kind() != reflect.Interface {
+		return fmt.Errorf(
+			"first parameter should be []any, but found %s for precompile method",
+			firstReturnType.String(),
+		)
+	}
+
+	// check that the second return value is an error
 	secondReturnType := implMethod.Type.Out(1)
-
-	if firstReturnType.Kind() != reflect.Slice { // check if the first return type is a []any
-		return fmt.Errorf("first parameter should be []any, but found %s for precompile method: %s",
-			firstReturnType.String(), implMethod.Name)
-	} else if firstReturnType.Elem().Kind() != reflect.Interface { // if it is but it is not an any...
-		return fmt.Errorf("first parameter should be []any, but found %s for precompile method: %s",
-			firstReturnType.String(), implMethod.Name)
+	if secondReturnType.Name() != "error" {
+		return fmt.Errorf(
+			"second parameter should be error, but found %s for precompile method",
+			secondReturnType.String(),
+		)
 	}
 
-	if secondReturnType.Name() != "error" { // if the second return value is not an error
-		return fmt.Errorf("second parameter should be error, but found %s for precompile method %s",
-			secondReturnType.String(), implMethod.Name)
-	}
 	return nil
 }
