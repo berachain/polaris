@@ -68,10 +68,10 @@ func NewPrecompileContract(bk bankkeeper.Keeper, em ERC20Module) ethprecompile.S
 // CustomValueDecoders implements StatefulImpl.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		erc20types.AttributeKeyToken:     TransferCommonHexAddress,
+		erc20types.AttributeKeyToken:     ConvertCommonHexAddress,
 		erc20types.AttributeKeyDenom:     log.ReturnStringAsIs,
-		erc20types.AttributeKeyOwner:     TransferCommonHexAddress,
-		erc20types.AttributeKeyRecipient: TransferCommonHexAddress,
+		erc20types.AttributeKeyOwner:     ConvertCommonHexAddress,
+		erc20types.AttributeKeyRecipient: ConvertCommonHexAddress,
 	}
 }
 
@@ -96,8 +96,8 @@ func (c *Contract) CoinDenomForERC20Address(
 	return []any{resp.Denom}, nil
 }
 
-// ERC20AddressForCoinDenom returns the ERC20 address for the given SDK coin denomination.
-func (c *Contract) ERC20AddressForCoinDenom(
+// Erc20AddressForCoinDenom returns the ERC20 address for the given SDK coin denomination.
+func (c *Contract) Erc20AddressForCoinDenom(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
@@ -214,11 +214,11 @@ func (c *Contract) TransferERC20ToCoinTo(
 // Event Attribute Value Decoders
 // ==============================================================================
 
-// TransferCommonHexAddress is a value decoder.
-var _ ethprecompile.ValueDecoder = TransferCommonHexAddress
+// ConvertCommonHexAddress is a value decoder.
+var _ ethprecompile.ValueDecoder = ConvertCommonHexAddress
 
-// TransferCommonHexAddress transfers a common hex address attribute to a common.Address and returns
+// ConvertCommonHexAddress transfers a common hex address attribute to a common.Address and returns
 // it as type any.
-func TransferCommonHexAddress(attributeValue string) (any, error) {
+func ConvertCommonHexAddress(attributeValue string) (any, error) {
 	return common.HexToAddress(attributeValue), nil
 }
