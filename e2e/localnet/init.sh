@@ -32,6 +32,10 @@ TRACE=""
 # used to exit on first error (any non-zero exit code)
 set -e
 
+# set the current time as genesis time
+# CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%S.%6NZ")
+# jq --arg new_genesis_time "$CURRENT_TIME" '.genesis_time = $new_genesis_time' "$HOMEDIR/config/genesis.json"
+
 ## In case you want to create multiple validators at genesis
 ## 1. Back to `./bin/polard keys add` step, init more keys
 ## 2. Back to `./bin/polard add-genesis-account` step, add balance for those

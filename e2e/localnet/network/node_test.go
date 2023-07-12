@@ -70,7 +70,7 @@ var _ = Describe("Fixture", func() {
 
 	It("should wait for a certain block height", func() {
 		Expect(c.WaitForBlock(1)).To(MatchError("block height already passed"))
-		Expect(c.WaitForBlock(5)).To(Succeed())
+		Expect(c.WaitForBlock(7)).To(Succeed())
 		Expect(c.WaitForNextBlock()).To(Succeed())
 	})
 

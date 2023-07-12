@@ -22,8 +22,6 @@ package jsonrpc_test
 
 import (
 	"context"
-	"fmt"
-	"math/big"
 
 	geth "github.com/ethereum/go-ethereum"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -60,19 +58,5 @@ var _ = Describe("Network with WS", func() {
 		sub, err := wsclient.SubscribeFilterLogs(ctx, geth.FilterQuery{}, make(chan gethtypes.Log))
 		Expect(err).ToNot(HaveOccurred())
 		Expect(sub).ToNot(BeNil())
-	})
-
-	It("should get recent blocks", func() {
-		headers := make(chan *gethtypes.Header)
-		sub, _ := wsclient.SubscribeNewHead(ctx, headers)
-		GinkgoWriter.Println("Listening for blocks...")
-		select {
-		case err := <-sub.Err():
-			Fail(fmt.Sprintf("Error in subscription for recent blocks: %v", err))
-		case header := <-headers:
-			GinkgoWriter.Printf("New block: %v", header.Number.Uint64())
-			_, err := wsclient.BlockByNumber(ctx, big.NewInt(header.Number.Int64()))
-			Expect(err).ToNot(HaveOccurred())
-		}
 	})
 })

@@ -28,6 +28,7 @@ package localnet
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -38,7 +39,7 @@ import (
 
 const (
 	defaultTimeout = 30 * time.Second
-	nodeStartTime  = 10 * time.Second
+	nodeStartTime  = 5 * time.Second
 )
 
 // ContainerizedNode is an interface for a containerized network.
@@ -228,6 +229,7 @@ func (c *containerizedNode) WaitForNextBlock() error {
 			}
 
 			if newHeight == currHeight+1 {
+				fmt.Println("BLOCK HEIGHT:", newHeight)
 				return nil
 			}
 		}
