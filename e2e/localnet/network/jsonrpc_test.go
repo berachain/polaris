@@ -42,7 +42,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
-var _ = Describe("Fixture", func() {
+var _ = Describe("JSON RPC tests", func() {
 	var (
 		tf     *TestFixture
 		client *ethclient.Client
@@ -55,8 +55,7 @@ var _ = Describe("Fixture", func() {
 	})
 
 	AfterEach(func() {
-		Expect(tf.c.Stop()).To(Succeed())
-		// Expect(tf.c.Remove()).To(Succeed())
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	Context("eth namespace", func() {

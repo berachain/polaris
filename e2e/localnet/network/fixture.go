@@ -27,6 +27,8 @@ import (
 	"os"
 	"strings"
 
+	ginkgo "github.com/onsi/ginkgo/v2"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"pkg.berachain.dev/polaris/cosmos/types"
 
@@ -36,24 +38,16 @@ import (
 
 const keysPath = "../config/keys/"
 
-type TestingT interface {
-	Fatal(args ...interface{})
-	Cleanup(func())
-	Log(args ...interface{})
-	Logf(format string, args ...interface{})
-	TempDir() string
-}
-
 // TestFixture is a testing fixture that can be used to test the
 // Ethereum JSON-RPC API.
 type TestFixture struct {
-	t       TestingT
+	t       ginkgo.FullGinkgoTInterface
 	c       ContainerizedNode
 	keysMap map[string]*ecdsa.PrivateKey
 }
 
 // NewTestFixture creates a new TestFixture.
-func NewTestFixture(t TestingT) *TestFixture {
+func NewTestFixture(t ginkgo.FullGinkgoTInterface) *TestFixture {
 	// set up the polaris bech32 prefixes
 	types.SetupCosmosConfig()
 
@@ -86,6 +80,16 @@ func NewTestFixture(t TestingT) *TestFixture {
 		c:       containerizedNode,
 		keysMap: keysMap,
 	}
+}
+
+func (tf *TestFixture) Teardown() error {
+	if err := tf.c.Stop(); err != nil {
+		return err
+	}
+	if err := tf.c.Remove(); err != nil {
+		return err
+	}
+	return nil
 }
 
 // GenerateTransactOpts generates a new transaction options object for a key by it's name.
