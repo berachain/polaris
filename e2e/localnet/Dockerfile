@@ -17,14 +17,9 @@ ARG GO_VERSION
 ARG GOARCH=arm64
 ARG GOOS=linux
 ARG BASE_IMAGE
-ARG GENESIS_PATH
 
 # Use the latest foundry image
 FROM ${BASE_IMAGE} as localpolard
-
-ENV GENESIS_PATH=${GENESIS_PATH}
-
-RUN apk add --no-cache bash jq
 
 WORKDIR /
 
@@ -33,5 +28,5 @@ COPY . .
 # Export the usual networking ports to allow outside access to the node
 EXPOSE 8545 8546 8547 8551
 
-CMD ["bash", "init.sh"]
-# CMD ["sleep", "infinity"]
+# CMD ["bash", "init.sh"]
+CMD ["sleep", "infinity"]
