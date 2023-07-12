@@ -2,6 +2,10 @@ module pkg.berachain.dev/polaris/e2e/localnet
 
 go 1.20
 
+replace(
+    github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230629154458-90866dc0cf0a
+)
+
 require (
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/onsi/ginkgo/v2 v2.11.0
