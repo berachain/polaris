@@ -21,7 +21,6 @@
 package auth_test
 
 import (
-	"context"
 	"math/big"
 	"testing"
 
@@ -40,6 +39,7 @@ import (
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -105,6 +105,7 @@ var _ = Describe("Address Precompile", func() {
 			evm              *mock.PrecompileEVMMock
 			granter, grantee common.Address
 			limit            sdk.Coins
+			pCtx             precompile.PolarContext
 		)
 
 		BeforeEach(func() {
@@ -115,6 +116,13 @@ var _ = Describe("Address Precompile", func() {
 				blockCtx.Time = 100
 				return &blockCtx
 			}
+
+			pCtx = precompile.NewPolarContext(
+				ctx,
+				evm,
+				common.Address{},
+				new(big.Int),
+			)
 
 			// Generate a granter and grantee address.
 			granterAcc := sdk.AccAddress([]byte("granter"))
@@ -129,11 +137,9 @@ var _ = Describe("Address Precompile", func() {
 		})
 
 		It("should error if the expiration is before the current block time", func() {
+
 			_, err := contract.SetSendAllowance(
-				context.Background(),
-				evm,
-				common.Address{},
-				new(big.Int),
+				pCtx,
 				granter,
 				grantee,
 				SdkCoinsToEvmCoins(limit),
@@ -144,10 +150,7 @@ var _ = Describe("Address Precompile", func() {
 
 		It("should succeed with expiration", func() {
 			_, err := contract.SetSendAllowance(
-				ctx,
-				evm,
-				common.Address{},
-				new(big.Int),
+				pCtx,
 				granter,
 				grantee,
 				SdkCoinsToEvmCoins(limit),
@@ -158,10 +161,7 @@ var _ = Describe("Address Precompile", func() {
 
 		It("should succeed without expiration", func() {
 			_, err := contract.SetSendAllowance(
-				ctx,
-				evm,
-				common.Address{},
-				new(big.Int),
+				pCtx,
 				granter,
 				grantee,
 				SdkCoinsToEvmCoins(limit),
@@ -174,10 +174,7 @@ var _ = Describe("Address Precompile", func() {
 			BeforeEach(func() {
 				// Set up a spend limit grant.
 				_, err := contract.SetSendAllowance(
-					ctx,
-					evm,
-					common.Address{},
-					new(big.Int),
+					pCtx,
 					granter,
 					grantee,
 					SdkCoinsToEvmCoins(limit),
@@ -187,10 +184,7 @@ var _ = Describe("Address Precompile", func() {
 			})
 			It("should get the spend allowance", func() {
 				res, err := contract.GetSendAllowance(
-					ctx,
-					evm,
-					common.Address{},
-					new(big.Int),
+					pCtx,
 					granter,
 					grantee,
 					"test",

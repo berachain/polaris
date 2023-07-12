@@ -47,7 +47,7 @@ var _ = Describe("Method", func() {
 				common.Address{},
 				big.NewInt(0),
 			)
-			res, err := method.Call(pCtx,
+			res, err := method.Call(nil, pCtx,
 				[]byte{0, 0, 0, 0})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).To(BeNil())
