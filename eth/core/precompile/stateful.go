@@ -85,6 +85,7 @@ func (sc *stateful) Run(
 	polarCtx := NewPolarContext(ctx, evm, caller, value)
 	fmt.Println("stateful.go::Run()", polarCtx)
 	return method.Call(
+		sc.Registrable,
 		polarCtx,
 		input,
 	)

@@ -73,7 +73,7 @@ func NewMethod(
 }
 
 // Call executes the precompile's executable with the given context and input arguments.
-func (m *Method) Call(polarCtx PolarContext, input []byte) ([]byte, error) {
+func (m *Method) Call(sc Registrable, polarCtx PolarContext, input []byte) ([]byte, error) {
 	// Unpack the args from the input, if any exist.
 	unpackedArgs, err := m.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])
 	if err != nil {
@@ -88,6 +88,7 @@ func (m *Method) Call(polarCtx PolarContext, input []byte) ([]byte, error) {
 
 	// Call the executable
 	reflectedPolarContext := []reflect.Value{
+		reflect.ValueOf(sc),
 		reflect.ValueOf(polarCtx),
 	}
 	results := m.execute.Call(append(reflectedPolarContext, reflectedUnpackedArgs...))
