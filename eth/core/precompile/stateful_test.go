@@ -41,22 +41,24 @@ import (
 var _ = Describe("Stateful Container", func() {
 	var sc vm.PrecompileContainer
 	var empty vm.PrecompileContainer
-	var ctx context.Context
-	var addr common.Address
-	var value *big.Int
 	var blank []byte
 	var badInput = []byte{1, 2, 3, 4}
 	var err error
-	var evm precompile.EVM
+	var pCtx precompile.PolarContext
 
 	BeforeEach(func() {
-		evm = pmock.NewEVM()
-		ctx = context.Background()
 		sc, err = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
 		Expect(err).ToNot(HaveOccurred())
 		empty, err = precompile.NewStateful(nil, nil)
 		Expect(empty).To(BeNil())
 		Expect(err).To(MatchError("the stateful precompile has no methods to run"))
+
+		pCtx = precompile.NewPolarContext(
+			context.Background(),
+			pmock.NewEVM(),
+			common.Address{},
+			big.NewInt(0),
+		)
 	})
 
 	Describe("Test Required Gas", func() {
@@ -73,19 +75,19 @@ var _ = Describe("Stateful Container", func() {
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
 			// invalid input
-			_, err = sc.Run(ctx, evm, blank, addr, value)
+			_, err = sc.Run(pCtx.Ctx(), pCtx.Evm(), blank, pCtx.Caller(), pCtx.Value())
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
 
 			// method not found
-			_, err = sc.Run(ctx, evm, badInput, addr, value)
+			_, err = sc.Run(pCtx.Ctx(), pCtx.Evm(), badInput, pCtx.Caller(), pCtx.Value())
 			Expect(err).To(MatchError("precompile method not found in contract ABI"))
 
 			// geth unpacking error
-			_, err = sc.Run(ctx, evm, append(getOutputABI.ID, byte(1), byte(2)), addr, value)
+			_, err = sc.Run(pCtx.Ctx(), pCtx.Evm(), append(getOutputABI.ID, byte(1), byte(2)), pCtx.Caller(), pCtx.Value())
 			Expect(err).To(HaveOccurred())
 
 			// precompile exec error
-			_, err = sc.Run(ctx, evm, getOutputPartialABI.ID, addr, value)
+			_, err = sc.Run(pCtx.Ctx(), pCtx.Evm(), getOutputPartialABI.ID, pCtx.Caller(), pCtx.Value())
 			Expect(err.Error()).To(Equal(
 				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]", //nolint:lll // test.
 			))
@@ -94,22 +96,29 @@ var _ = Describe("Stateful Container", func() {
 			var inputs []byte
 			inputs, err = contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, evm, append(contractFuncStrABI.ID, inputs...), addr, value)
+			_, err = sc.Run(pCtx.Ctx(), pCtx.Evm(), append(contractFuncStrABI.ID, inputs...), pCtx.Caller(), pCtx.Value())
 			Expect(err).To(HaveOccurred())
 
 			// geth output packing error
-			inputs, err = contractFuncAddrABI.Inputs.Pack(addr)
+			inputs, err = contractFuncAddrABI.Inputs.Pack(pCtx.Caller())
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, evm, append(contractFuncAddrABI.ID, inputs...), addr, value)
+			_, err = sc.Run(pCtx.Ctx(), pCtx.Evm(), append(contractFuncAddrABI.ID, inputs...), pCtx.Caller(), pCtx.Value())
 			Expect(err).To(HaveOccurred())
 		})
 
 		It("should return properly for valid method calls", func() {
+
 			var inputs []byte
 			inputs, err = getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
 			var ret []byte
-			ret, err = sc.Run(ctx, evm, append(getOutputABI.ID, inputs...), addr, value)
+			ret, err = sc.Run(
+				pCtx.Ctx(),
+				pCtx.Evm(),
+				append(getOutputABI.ID, inputs...),
+				pCtx.Caller(),
+				pCtx.Value(),
+			)
 			Expect(err).ToNot(HaveOccurred())
 			var outputs []interface{}
 			outputs, err = getOutputABI.Outputs.Unpack(ret)
@@ -168,7 +177,6 @@ type mockObject struct {
 
 //revive:disable
 func getOutput(
-	_ *mockStateful,
 	_ context.Context,
 	evm precompile.EVM,
 	_ common.Address,
@@ -191,7 +199,6 @@ func getOutput(
 }
 
 func getOutputPartial(
-	_ *mockStateful,
 	_ context.Context,
 	_ precompile.EVM,
 	_ common.Address,
@@ -202,7 +209,6 @@ func getOutputPartial(
 }
 
 func contractFuncAddrInput(
-	_ *mockStateful,
 	ctx context.Context,
 	_ precompile.EVM,
 	_ common.Address,
@@ -218,7 +224,6 @@ func contractFuncAddrInput(
 }
 
 func contractFuncStrInput(
-	_ *mockStateful,
 	ctx context.Context,
 	_ precompile.EVM,
 	_ common.Address,

@@ -45,6 +45,7 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -149,11 +150,16 @@ var _ = Describe("Distribution Precompile Test", func() {
 	When("SetWithdrawAddress", func() {
 
 		It("should succeed", func() {
-			res, err := contract.SetWithdrawAddress(
+
+			pCtx := precompile.NewPolarContext(
 				ctx,
 				nil,
 				testutil.Alice,
 				big.NewInt(0),
+			)
+
+			res, err := contract.SetWithdrawAddress(
+				pCtx,
 				testutil.Bob,
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -220,11 +226,14 @@ var _ = Describe("Distribution Precompile Test", func() {
 		When("Withdraw Delegator Rewards common address", func() {
 
 			It("Success", func() {
-				res, err := contract.WithdrawDelegatorReward(
+				pCtx := precompile.NewPolarContext(
 					ctx,
 					nil,
 					testutil.Alice,
 					big.NewInt(0),
+				)
+				res, err := contract.WithdrawDelegatorReward(
+					pCtx,
 					cosmlib.AccAddressToEthAddress(addr),
 					cosmlib.ValAddressToEthAddress(valAddr),
 				)
@@ -237,7 +246,13 @@ var _ = Describe("Distribution Precompile Test", func() {
 		})
 		When("Reading Params", func() {
 			It("Should get if withdraw forwarding is enabled", func() {
-				res, err := contract.GetWithdrawEnabled(ctx, nil, testutil.Alice, big.NewInt(0))
+				pCtx := precompile.NewPolarContext(
+					ctx,
+					nil,
+					testutil.Alice,
+					big.NewInt(0),
+				)
+				res, err := contract.GetWithdrawEnabled(pCtx)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(Equal([]any{true}))
 			})

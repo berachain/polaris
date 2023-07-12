@@ -184,13 +184,9 @@ func (c *Contract) CancelUnbondingDelegation(
 
 // GetActiveValidators implements the `getActiveValidators()` method.
 func (c *Contract) GetActiveValidators(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ ...any,
+	pCtx ethprecompile.PolarContext,
 ) ([]any, error) {
-	return c.activeValidatorsHelper(ctx)
+	return c.activeValidatorsHelper(pCtx.Ctx())
 }
 
 // GetValidators implements the `getValidators()` method.

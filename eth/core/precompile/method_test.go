@@ -41,12 +41,12 @@ var _ = Describe("Method", func() {
 				"mockExecutable()",
 				reflect.ValueOf(mockExecutable),
 			)
-			pCtx := precompile.PolarContext{
-				Ctx:    context.Background(),
-				Evm:    mockEVM{},
-				Caller: common.Address{},
-				Value:  big.NewInt(0),
-			}
+			pCtx := precompile.NewPolarContext(
+				context.Background(),
+				mockEVM{},
+				common.Address{},
+				big.NewInt(0),
+			)
 			res, err := method.Call(pCtx,
 				[]byte{0, 0, 0, 0})
 			Expect(err).ToNot(HaveOccurred())

@@ -21,9 +21,6 @@
 package distribution
 
 import (
-	"context"
-	"math/big"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
@@ -67,25 +64,22 @@ func (c *Contract) SetWithdrawAddress(
 	polarCtx ethprecompile.PolarContext,
 	withdrawAddress common.Address,
 ) ([]any, error) {
-	return c.setWithdrawAddressHelper(polarCtx.Ctx, sdk.AccAddress(polarCtx.Caller.Bytes()), sdk.AccAddress(withdrawAddress.Bytes()))
+	return c.setWithdrawAddressHelper(polarCtx.Ctx(), sdk.AccAddress(polarCtx.Caller().Bytes()), sdk.AccAddress(withdrawAddress.Bytes()))
 }
 
 // GetWithdrawEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
 func (c *Contract) GetWithdrawEnabled(
 	polarCtx ethprecompile.PolarContext,
 ) ([]any, error) {
-	return c.getWithdrawAddrEnabled(polarCtx.Ctx)
+	return c.getWithdrawAddrEnabled(polarCtx.Ctx())
 }
 
 // WithdrawDelegatorReward is the precompile contract method for the `withdrawDelegatorReward(address,address)`
 // method.
 func (c *Contract) WithdrawDelegatorReward(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
+	polarCtx ethprecompile.PolarContext,
 	delegator common.Address,
 	validator common.Address,
 ) ([]any, error) {
-	return c.withdrawDelegatorRewardsHelper(ctx, sdk.AccAddress(delegator.Bytes()), sdk.ValAddress(validator.Bytes()))
+	return c.withdrawDelegatorRewardsHelper(polarCtx.Ctx(), sdk.AccAddress(delegator.Bytes()), sdk.ValAddress(validator.Bytes()))
 }

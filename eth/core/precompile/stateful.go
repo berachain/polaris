@@ -22,6 +22,7 @@ package precompile
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -81,14 +82,8 @@ func (sc *stateful) Run(
 	}
 
 	// Execute the method with the reflected ctx and raw input
-	// TODO: use PolarContext
-
-	polarCtx := PolarContext{
-		Ctx:    ctx,
-		Evm:    evm,
-		Caller: caller,
-		Value:  value,
-	}
+	polarCtx := NewPolarContext(ctx, evm, caller, value)
+	fmt.Println("stateful.go::Run()", polarCtx)
 	return method.Call(
 		polarCtx,
 		input,
