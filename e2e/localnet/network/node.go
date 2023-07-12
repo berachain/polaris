@@ -28,7 +28,6 @@ package localnet
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -229,7 +228,6 @@ func (c *containerizedNode) WaitForNextBlock() error {
 			}
 
 			if newHeight == currHeight+1 {
-				fmt.Println("BLOCK HEIGHT:", newHeight)
 				return nil
 			}
 		}
