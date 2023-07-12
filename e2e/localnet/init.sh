@@ -20,8 +20,6 @@
 # TITLE.
 
 KEYS[0]="dev0"
-KEYS[1]="dev1"
-KEYS[2]="dev2"
 CHAINID="polaris-2061"
 MONIKER="localtestnet"
 # Remember to change to other types of keyring like 'file' in-case exposing to outside world,
@@ -51,9 +49,7 @@ polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
 polard config set client chain-id "$CHAINID" --home "$HOMEDIR"
 
 # If keys exist they should be deleted
-for KEY in "${KEYS[@]}"; do
-    polard keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
-done
+polard keys add ${KEYS[0]} --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
 
 # Change parameter token denominations to abera
 jq '.app_state["staking"]["params"]["bond_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -62,42 +58,8 @@ jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="abera"' "$GE
 jq '.app_state["mint"]["params"]["mint_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.consensus["params"]["block"]["max_gas"]="30000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
-# Read the JSON file and iterate over each entry
-cat "$DEFAULT_ACCOUNTS" | jq -c '.[]' | while IFS= read -r entry; do
-    # Extract the desired fields from each entry
-    name=$(echo "$entry" | jq -r '.name')
-    bech32Address=$(echo "$entry" | jq -r '.bech32Address')
-    ethAddress=$(echo "$entry" | jq -r '.ethAddress')
-    coins=$(echo "$entry" | jq '.coins')
-
-    allCoins=""
-    # Iterate over the coins array
-    echo "$coins" | jq -c '.[]' | while IFS= read -r coin; do
-        denom=$(echo "$coin" | jq -r '.denom')
-        amount=$(echo "$coin" | jq -r '.amount')
-
-        # Skip processing if denom is "eth"
-        if [[ "$denom" == "eth" ]]; then
-            cat "$GENESIS" | jq --arg addr "$ethAddress" --arg amt "$amount" '.app_state.evm.alloc += { ($addr): { "balance": ($amt) } }' > "$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-            continue
-        fi
-        
-        # Process the coin properties
-        allCoins+="$amount$denom, "
-    done
-
-    # Add your custom logic here for each entry
-    polard genesis add-genesis-account "$name" "$allCoins" --home "$HOMEDIR"
-do
-
-# Dump genesis
-echo "genesis state:"
-cat $GENESIS
-
 # Allocate genesis accounts (cosmos formatted addresses)
-for KEY in "${KEYS[@]}"; do
-    polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
-done
+polard genesis add-genesis-account ${KEYS[0]} 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 
 # Sign genesis transaction
 polard genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"

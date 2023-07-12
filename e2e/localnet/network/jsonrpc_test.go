@@ -44,31 +44,25 @@ import (
 
 var _ = Describe("Fixture", func() {
 	var (
-		tf  *TestFixture
-		ctx context.Context
-
+		tf     *TestFixture
 		client *ethclient.Client
 	)
 
 	BeforeEach(func() {
-		var err error
 		tf = NewTestFixture(GinkgoT())
-		Expect(err).ToNot(HaveOccurred())
 		Expect(tf).ToNot(BeNil())
-
-		ctx = context.Background()
 		client = tf.c.EthClient()
 	})
 
 	AfterEach(func() {
 		Expect(tf.c.Stop()).To(Succeed())
-		// Expect(tf.c.Remove()).To(Succeed())
+		Expect(tf.c.Remove()).To(Succeed())
 	})
 
 	Context("eth namespace", func() {
 		It("should connect -- multiple clients", func() {
 			// Dial an Ethereum RPC Endpoint
-			rpcClient, err := gethrpc.DialContext(ctx, tf.c.GetHTTPEndpoint())
+			rpcClient, err := gethrpc.DialContext(context.Background(), tf.c.GetHTTPEndpoint())
 			Expect(err).ToNot(HaveOccurred())
 			c := ethclient.NewClient(rpcClient)
 			Expect(err).ToNot(HaveOccurred())
@@ -76,13 +70,12 @@ var _ = Describe("Fixture", func() {
 		})
 
 		It("should support eth_chainId", func() {
-			chainID, err := client.ChainID(ctx)
+			chainID, err := client.ChainID(context.Background())
 			Expect(chainID.String()).To(Equal("2061"))
 			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("should support eth_gasPrice", func() {
-
 			gasPrice, err := client.SuggestGasPrice(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(gasPrice).ToNot(BeNil())
@@ -90,14 +83,14 @@ var _ = Describe("Fixture", func() {
 
 		It("should support eth_blockNumber", func() {
 			// Get the latest block
-			blockNumber, err := client.BlockNumber(ctx)
+			blockNumber, err := client.BlockNumber(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(blockNumber).To(BeNumerically(">", 0))
 		})
 
 		FIt("should support eth_getBalance", func() {
 			// Get the balance of an account
-			balance, err := client.BalanceAt(ctx, tf.Address("alice"), nil)
+			balance, err := client.BalanceAt(context.Background(), tf.Address("alice"), nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(balance.Uint64()).To(BeNumerically(">", 0))
 		})
@@ -114,7 +107,7 @@ var _ = Describe("Fixture", func() {
 				Value: value,
 			}
 
-			gas, err := client.EstimateGas(ctx, msg)
+			gas, err := client.EstimateGas(context.Background(), msg)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(gas).To(BeNumerically(">", 0))
 		})
@@ -144,7 +137,7 @@ var _ = Describe("Fixture", func() {
 			}
 
 			// Get the transaction by its hash, it should be mined here.
-			fetchedTx, isPending, err := client.TransactionByHash(ctx, txHash)
+			fetchedTx, isPending, err := client.TransactionByHash(context.Background(), txHash)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(isPending).To(BeFalse())
 			Expect(fetchedTx.Hash()).To(Equal(txHash))

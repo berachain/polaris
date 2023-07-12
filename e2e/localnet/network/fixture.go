@@ -23,34 +23,19 @@ package localnet
 import (
 	"context"
 	"crypto/ecdsa"
-	"encoding/json"
 	"math/big"
 	"os"
+	"path/filepath"
+	"regexp"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/types"
 
-	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
-// defaultTimeout is the default timeout for the test fixture.
-const (
-	fiveHundredError        = 500
-	defaultNumberOfAccounts = 3
-	defaultWaitForHeight    = 5
-
-	onehundred = 100
-	examoney   = 1000000000000000000
-
-	defaultAccountsFile = "default_accounts.json"
-)
-
-var defaultAccountNames = []string{"alice", "bob", "charlie"}
+var re = regexp.MustCompile(`/(.*?)\.key`)
 
 type TestingT interface {
 	Fatal(args ...interface{})
@@ -65,17 +50,30 @@ type TestingT interface {
 type TestFixture struct {
 	t       TestingT
 	c       ContainerizedNode
-	keysMap map[string]*ethsecp256k1.PrivKey
+	keysMap map[string]*ecdsa.PrivateKey
 }
 
 // NewTestFixture creates a new TestFixture.
 func NewTestFixture(t TestingT) *TestFixture {
+	// set up the polaris bech32 prefixes
 	types.SetupCosmosConfig()
 
-	// Always setup numberOfAccounts accounts.
-	keysMap := make(map[string]*ethsecp256k1.PrivKey)
-	setupTestAccounts(keysMap)
+	// load all the test accounts
+	keysMap := make(map[string]*ecdsa.PrivateKey)
+	err := filepath.WalkDir("../config/keys", func(keyFile string, _ os.DirEntry, _ error) error {
+		privKey, err := crypto.LoadECDSA(keyFile)
+		if err != nil {
+			return err
+		}
 
+		keysMap[re.FindStringSubmatch(keyFile)[1]] = privKey
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// start the docker container
 	containerizedNode, err := NewContainerizedNode(
 		"localnet",
 		"latest",
@@ -86,14 +84,13 @@ func NewTestFixture(t TestingT) *TestFixture {
 			"GO_VERSION=1.20.4",
 			"GENESIS_PATH=config",
 			"BASE_IMAGE=polard/base:v0.0.0",
-			"DEFAULT_ACCOUNTS=" + defaultAccountsFile,
 		},
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Build and return the Test Fixture.
+	// build and return the TestFixture
 	return &TestFixture{
 		t:       t,
 		c:       containerizedNode,
@@ -126,77 +123,13 @@ func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 }
 
 func (tf *TestFixture) PrivKey(name string) *ecdsa.PrivateKey {
-	newECDSATestKey, _ := tf.keysMap[name].ToECDSA()
-	return newECDSATestKey
+	return tf.keysMap[name]
 }
 
 func (tf *TestFixture) Address(name string) common.Address {
-	return crypto.PubkeyToAddress(tf.PrivKey(name).PublicKey)
-}
-
-func (tf *TestFixture) CreateKeyWithName(name string) {
-	newKey, _ := ethsecp256k1.GenPrivKey()
-	tf.keysMap[name] = newKey
-}
-
-type AccountInfo struct {
-	Name          string    `json:"name"`
-	Bech32Address string    `json:"bech32Address"`
-	EthAddress    string    `json:"ethAddress"`
-	Coins         sdk.Coins `json:"coins"`
-}
-
-func setupTestAccounts(keysMap map[string]*ethsecp256k1.PrivKey) {
-	var accounts []AccountInfo
-	for _, name := range defaultAccountNames {
-		newKey, _ := ethsecp256k1.GenPrivKey()
-		keysMap[name] = newKey
-		privateKey, _ := newKey.ToECDSA()
-
-		accounts = append(
-			accounts,
-			AccountInfo{
-				Name:          name,
-				Bech32Address: cosmlib.Bech32FromEthAddress((crypto.PubkeyToAddress(privateKey.PublicKey))),
-				EthAddress:    crypto.PubkeyToAddress(privateKey.PublicKey).Hex()[2:],
-				Coins:         getCoinsForAccount(name),
-			},
-		)
+	privKey, found := tf.keysMap[name]
+	if !found {
+		return common.Address{}
 	}
-
-	jsonBytes, _ := json.MarshalIndent(accounts, "", "   ")
-	if err := os.WriteFile(defaultAccountsFile, jsonBytes, 0644); err != nil {
-		panic(err)
-	}
-}
-
-func getCoinsForAccount(name string) sdk.Coins {
-	switch name {
-	case "alice":
-		return sdk.NewCoins(
-			sdk.NewCoin("abera", sdkmath.NewInt(examoney)),
-			sdk.NewCoin("bATOM", sdkmath.NewInt(examoney)),
-			sdk.NewCoin("bAKT", sdkmath.NewInt(12345)), //nolint:gomnd // its okay.
-			sdk.NewCoin("stake", sdkmath.NewInt(examoney)),
-			sdk.NewCoin("bOSMO", sdkmath.NewInt(12345*2)), //nolint:gomnd // its okay.
-			sdk.NewCoin("atoken", sdkmath.NewInt(examoney)),
-			sdk.NewCoin("eth", sdkmath.NewInt(examoney)),
-			// do not change the supply of this coin
-			sdk.NewCoin("asupply", sdkmath.NewInt(examoney)),
-		)
-	case "bob":
-		return sdk.NewCoins(
-			sdk.NewCoin("abera", sdkmath.NewInt(onehundred)),
-			sdk.NewCoin("atoken", sdkmath.NewInt(onehundred)),
-			sdk.NewCoin("stake", sdkmath.NewInt(examoney)),
-			sdk.NewCoin("eth", sdkmath.NewInt(examoney)),
-		)
-	case "charlie":
-		return sdk.NewCoins(
-			sdk.NewCoin("abera", sdkmath.NewInt(examoney)),
-			sdk.NewCoin("eth", sdkmath.NewInt(examoney)),
-		)
-	default:
-		return sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(examoney)))
-	}
+	return crypto.PubkeyToAddress(privKey.PublicKey)
 }

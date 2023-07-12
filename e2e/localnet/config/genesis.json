@@ -17,13 +17,6 @@
       "accounts": [
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "polar1qk36tw89pgf5f8jhxf4hcug3q20u35x2p4jmm5",
-          "pub_key": null,
-          "account_number": "0",
-          "sequence": "0"
-        },
-        {
-          "@type": "/cosmos.auth.v1beta1.BaseAccount",
           "address": "polar1l4qr3q3535su2ggy7kh2j04a35wd8vyshtuafh",
           "pub_key": null,
           "account_number": "1",
@@ -34,6 +27,27 @@
           "address": "polar16z3wul8jkjksw60kr2gumsv7hk9l5ck5597nwa",
           "pub_key": null,
           "account_number": "2",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "polar1dgtgps0vxwt90hu6f3cceqypc5k664cz2kml8y",
+          "pub_key": null,
+          "account_number": "3",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "polar1h08vp7xt40nks7d0mlg47duyv54ewdxryjqtp8",
+          "pub_key": null,
+          "account_number": "4",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "polar14nqnr8l8y2se3uu47qtyqehdfccfgwdlsrc04n",
+          "pub_key": null,
+          "account_number": "5",
           "sequence": "0"
         }
       ]
@@ -48,15 +62,6 @@
       },
       "balances": [
         {
-          "address": "polar1qk36tw89pgf5f8jhxf4hcug3q20u35x2p4jmm5",
-          "coins": [
-            {
-              "denom": "abera",
-              "amount": "100000000000000000000000000"
-            }
-          ]
-        },
-        {
           "address": "polar16z3wul8jkjksw60kr2gumsv7hk9l5ck5597nwa",
           "coins": [
             {
@@ -73,16 +78,207 @@
               "amount": "100000000000000000000000000"
             }
           ]
+        },
+        {
+          "address": "polar1dgtgps0vxwt90hu6f3cceqypc5k664cz2kml8y",
+          "coins": [
+            {
+              "denom": "abera",
+              "amount": "1000000000000000000"
+            },
+            {
+              "denom": "asupply",
+              "amount": "1000000000000000000"
+            },
+            {
+              "denom": "atoken",
+              "amount": "1000000000000000000"
+            },
+            {
+              "denom": "bAKT",
+              "amount": "12345"
+            },
+            {
+              "denom": "bATOM",
+              "amount": "1000000000000000000"
+            },
+            {
+              "denom": "bOSMO",
+              "amount": "24690"
+            },
+            {
+              "denom": "stake",
+              "amount": "1000000000000000000"
+            }
+          ]
+        },
+        {
+          "address": "polar1h08vp7xt40nks7d0mlg47duyv54ewdxryjqtp8",
+          "coins": [
+            {
+              "denom": "abera",
+              "amount": "100"
+            },
+            {
+              "denom": "atoken",
+              "amount": "100"
+            },
+            {
+              "denom": "stake",
+              "amount": "1000000000000000000"
+            }
+          ]
+        },
+        {
+          "address": "polar14nqnr8l8y2se3uu47qtyqehdfccfgwdlsrc04n",
+          "coins": [
+            {
+              "denom": "abera",
+              "amount": "1000000000000000000"
+            }
+          ]
         }
       ],
       "supply": [
         {
           "denom": "abera",
-          "amount": "300000000000000000000000000"
+          "amount": "200000002000000000000000100"
         }
       ],
-      "denom_metadata": [],
-      "send_enabled": []
+      "denom_metadata": [
+        {
+          "name": "Berachain bera",
+          "symbol": "BERA",
+          "description": "The Bera.",
+          "denom_units": [
+            {
+              "denom": "bera",
+              "exponent": 0,
+              "aliases": [
+                "bera"
+              ]
+            },
+            {
+              "denom": "nbera",
+              "exponent": 9,
+              "aliases": [
+                "nanobera"
+              ]
+            },
+            {
+              "denom": "abera",
+              "exponent": 18,
+              "aliases": [
+                "attobera"
+              ]
+            }
+          ],
+          "base": "abera",
+          "display": "bera"
+        },
+        {
+          "name": "Token",
+          "symbol": "TOKEN",
+          "description": "The native staking token of the Token Hub.",
+          "denom_units": [
+            {
+              "denom": "1token",
+              "exponent": 5,
+              "aliases": [
+                "decitoken"
+              ]
+            },
+            {
+              "denom": "2token",
+              "exponent": 4,
+              "aliases": [
+                "centitoken"
+              ]
+            },
+            {
+              "denom": "3token",
+              "exponent": 7,
+              "aliases": [
+                "dekatoken"
+              ]
+            }
+          ],
+          "base": "utoken",
+          "display": "token"
+        },
+        {
+          "name": "Osmosis",
+          "symbol": "OSMO",
+          "denom_units": [
+            {
+              "denom": "osmo",
+              "exponent": 0,
+              "aliases": [
+                "osmo"
+              ]
+            },
+            {
+              "denom": "nosmo",
+              "exponent": 9,
+              "aliases": [
+                "nanoosmo"
+              ]
+            },
+            {
+              "denom": "aosmo",
+              "exponent": 18,
+              "aliases": [
+                "attoosmo"
+              ]
+            }
+          ],
+          "base": "bOSMO",
+          "display": "osmosis"
+        },
+        {
+          "name": "Akash",
+          "symbol": "AKT",
+          "denom_units": [
+            {
+              "denom": "akt",
+              "exponent": 0,
+              "aliases": [
+                "akt"
+              ]
+            },
+            {
+              "denom": "nakt",
+              "exponent": 9,
+              "aliases": [
+                "nanoakt"
+              ]
+            },
+            {
+              "denom": "aakt",
+              "exponent": 18,
+              "aliases": [
+                "attoakt"
+              ]
+            }
+          ],
+          "base": "bAKT",
+          "display": "akash"
+        }
+      ],
+      "send_enabled": [
+        {
+          "denom": "abera",
+          "enabled": true
+        },
+        {
+          "denom": "atoken",
+          "enabled": true
+        },
+        {
+          "denom": "stake",
+          "enabled": true
+        }
+      ]
     },
     "consensus": null,
     "crisis": {
@@ -148,6 +344,15 @@
       "coinbase": "0x0000000000000000000000000000000000000000",
       "alloc": {
         "20f33ce90a13a4b5e7697e3544c3083b8f8a51d4": {
+          "balance": "0x4563918244f40000"
+        },
+        "6A1680c1Ec339657df9a4c718C8081C52daD5702": {
+          "balance": "0x4563918244f40000"
+        },
+        "bBcec0f8cBAbe76879AfdfD15F3784652B9734C3": {
+          "balance": "0x4563918244f40000"
+        },
+        "acc1319Fe722A198F395F0164066ED4E309439Bf": {
           "balance": "0x4563918244f40000"
         }
       },

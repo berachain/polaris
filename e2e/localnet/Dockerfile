@@ -18,13 +18,11 @@ ARG GOARCH=arm64
 ARG GOOS=linux
 ARG BASE_IMAGE
 ARG GENESIS_PATH
-ARG DEFAULT_ACCOUNTS
 
 # Use the latest foundry image
 FROM ${BASE_IMAGE} as localpolard
 
 ENV GENESIS_PATH=${GENESIS_PATH}
-ENV DEFAULT_ACCOUNTS=${DEFAULT_ACCOUNTS}
 
 RUN apk add --no-cache bash jq
 

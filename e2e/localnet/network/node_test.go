@@ -31,10 +31,10 @@ import (
 	"math/big"
 	"testing"
 
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 func TestLocalnet(t *testing.T) {
