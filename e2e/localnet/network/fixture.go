@@ -81,10 +81,7 @@ func (tf *TestFixture) Teardown() error {
 	if err := tf.c.Stop(); err != nil {
 		return err
 	}
-	if err := tf.c.Remove(); err != nil {
-		return err
-	}
-	return nil
+	return tf.c.Remove()
 }
 
 // GenerateTransactOpts generates a new transaction options object for a key by it's name.
@@ -131,7 +128,8 @@ func setupTestAccounts(keysMap map[string]*ecdsa.PrivateKey) error {
 	}
 
 	for _, keyFile := range keyFiles {
-		privKey, err := crypto.LoadECDSA(keysPath + keyFile.Name())
+		var privKey *ecdsa.PrivateKey
+		privKey, err = crypto.LoadECDSA(keysPath + keyFile.Name())
 		if err != nil {
 			return err
 		}
