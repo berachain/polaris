@@ -32,9 +32,13 @@ TRACE=""
 # used to exit on first error (any non-zero exit code)
 set -e
 
+GENESIS=$HOMEDIR/config/genesis.json
+TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
+cp $GENESIS $TMP_GENESIS
+
 # set the current time as genesis time
-# CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%S.%6NZ")
-# jq --arg new_genesis_time "$CURRENT_TIME" '.genesis_time = $new_genesis_time' "$HOMEDIR/config/genesis.json"
+CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%S.000000Z")
+cat "$GENESIS" | jq --arg curr_time "$CURRENT_TIME" '.genesis_time = $curr_time' > "$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 ## In case you want to create multiple validators at genesis
 ## 1. Back to `./bin/polard keys add` step, init more keys
