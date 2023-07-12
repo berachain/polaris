@@ -60,10 +60,17 @@ var _ = Describe("Bank Precompile Test", func() {
 		factory  *log.Factory
 		bk       bankkeeper.BaseKeeper
 		ctx      sdk.Context
+		pCtx     ethprecompile.PolarContext
 	)
 
 	BeforeEach(func() {
 		ctx, _, bk, _ = testutil.SetupMinimalKeepers()
+		pCtx = ethprecompile.NewPolarContext(
+			ctx,
+			nil,
+			common.Address{},
+			big.NewInt(0),
+		)
 
 		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(bankkeeper.NewMsgServerImpl(bk), bk))
 		addr = sdk.AccAddress([]byte("bank"))
@@ -129,19 +136,11 @@ var _ = Describe("Bank Precompile Test", func() {
 
 	When("Calling Precompile Methods", func() {
 		var (
-			acc  sdk.AccAddress
-			pCtx ethprecompile.PolarContext
+			acc sdk.AccAddress
 		)
 
 		denom := "abera"
 		denom2 := "atoken"
-
-		pCtx = ethprecompile.NewPolarContext(
-			ctx,
-			nil,
-			common.Address{},
-			big.NewInt(0),
-		)
 
 		When("GetBalance", func() {
 

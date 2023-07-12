@@ -45,7 +45,6 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -151,7 +150,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 		It("should succeed", func() {
 
-			pCtx := precompile.NewPolarContext(
+			pCtx := ethprecompile.NewPolarContext(
 				ctx,
 				nil,
 				testutil.Alice,
@@ -226,7 +225,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		When("Withdraw Delegator Rewards common address", func() {
 
 			It("Success", func() {
-				pCtx := precompile.NewPolarContext(
+				pCtx := ethprecompile.NewPolarContext(
 					ctx,
 					nil,
 					testutil.Alice,
@@ -246,7 +245,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		})
 		When("Reading Params", func() {
 			It("Should get if withdraw forwarding is enabled", func() {
-				pCtx := precompile.NewPolarContext(
+				pCtx := ethprecompile.NewPolarContext(
 					ctx,
 					nil,
 					testutil.Alice,

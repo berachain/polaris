@@ -22,7 +22,6 @@ package precompile
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -82,11 +81,9 @@ func (sc *stateful) Run(
 	}
 
 	// Execute the method with the reflected ctx and raw input
-	polarCtx := NewPolarContext(ctx, evm, caller, value)
-	fmt.Println("stateful.go::Run()", polarCtx)
 	return method.Call(
 		sc.Registrable,
-		polarCtx,
+		NewPolarContext(ctx, evm, caller, value),
 		input,
 	)
 }

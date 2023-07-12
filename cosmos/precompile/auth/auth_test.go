@@ -39,7 +39,6 @@ import (
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -105,7 +104,7 @@ var _ = Describe("Address Precompile", func() {
 			evm              *mock.PrecompileEVMMock
 			granter, grantee common.Address
 			limit            sdk.Coins
-			pCtx             precompile.PolarContext
+			pCtx             ethprecompile.PolarContext
 		)
 
 		BeforeEach(func() {
@@ -117,7 +116,7 @@ var _ = Describe("Address Precompile", func() {
 				return &blockCtx
 			}
 
-			pCtx = precompile.NewPolarContext(
+			pCtx = ethprecompile.NewPolarContext(
 				ctx,
 				evm,
 				common.Address{},

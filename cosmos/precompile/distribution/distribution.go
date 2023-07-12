@@ -64,7 +64,11 @@ func (c *Contract) SetWithdrawAddress(
 	polarCtx ethprecompile.PolarContext,
 	withdrawAddress common.Address,
 ) ([]any, error) {
-	return c.setWithdrawAddressHelper(polarCtx.Ctx(), sdk.AccAddress(polarCtx.Caller().Bytes()), sdk.AccAddress(withdrawAddress.Bytes()))
+	return c.setWithdrawAddressHelper(
+		polarCtx.Ctx(),
+		sdk.AccAddress(polarCtx.Caller().Bytes()),
+		sdk.AccAddress(withdrawAddress.Bytes()),
+	)
 }
 
 // GetWithdrawEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
@@ -74,12 +78,16 @@ func (c *Contract) GetWithdrawEnabled(
 	return c.getWithdrawAddrEnabled(polarCtx.Ctx())
 }
 
-// WithdrawDelegatorReward is the precompile contract method for the `withdrawDelegatorReward(address,address)`
-// method.
+// WithdrawDelegatorReward is the precompile contract method for the
+// `withdrawDelegatorReward(address,address)` method.
 func (c *Contract) WithdrawDelegatorReward(
 	polarCtx ethprecompile.PolarContext,
 	delegator common.Address,
 	validator common.Address,
 ) ([]any, error) {
-	return c.withdrawDelegatorRewardsHelper(polarCtx.Ctx(), sdk.AccAddress(delegator.Bytes()), sdk.ValAddress(validator.Bytes()))
+	return c.withdrawDelegatorRewardsHelper(
+		polarCtx.Ctx(),
+		sdk.AccAddress(delegator.Bytes()),
+		sdk.ValAddress(validator.Bytes()),
+	)
 }

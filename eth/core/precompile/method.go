@@ -87,11 +87,11 @@ func (m *Method) Call(sc Registrable, polarCtx PolarContext, input []byte) ([]by
 	}
 
 	// Call the executable
-	reflectedPolarContext := []reflect.Value{
-		reflect.ValueOf(sc),
-		reflect.ValueOf(polarCtx),
-	}
-	results := m.execute.Call(append(reflectedPolarContext, reflectedUnpackedArgs...))
+	results := m.execute.Call(append(
+		[]reflect.Value{
+			reflect.ValueOf(sc),
+			reflect.ValueOf(polarCtx),
+		}, reflectedUnpackedArgs...))
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if !results[1].IsNil() {
