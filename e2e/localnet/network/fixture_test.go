@@ -33,9 +33,12 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 
 	geth "github.com/ethereum/go-ethereum"
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
+	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	testutils "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -145,6 +148,113 @@ var _ = Describe("JSON RPC tests", func() {
 			erc20Balance, err := erc20Contract.BalanceOf(&bind.CallOpts{}, tf.Address("alice"))
 			Expect(err).ToNot(HaveOccurred())
 			Expect(erc20Balance).To(Equal(big.NewInt(100000000)))
+		})
+	})
+	Context("txpool namespace", func() {
+		var contract *tbindings.ConsumeGas
+
+		BeforeEach(func() {
+			var err error
+			var tx *coretypes.Transaction
+			// Run some transactions for alice
+			_, tx, contract, err = tbindings.DeployConsumeGas(
+				tf.GenerateTransactOpts("alice"), client,
+			)
+			Expect(err).NotTo(HaveOccurred())
+			ExpectSuccessReceipt(client, tx)
+			tx, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
+			Expect(err).NotTo(HaveOccurred())
+			ExpectSuccessReceipt(client, tx)
+			Expect(tf.c.WaitForNextBlock()).To(Succeed())
+		})
+
+		It("should handle txpool requests: pending nonce", func() {
+			aliceCurrNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(aliceCurrNonce).To(BeNumerically(">=", 2))
+			Expect(tf.c.WaitForNextBlock()).To(Succeed())
+
+			// send a transaction and make sure pending nonce is incremented
+			_, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
+			Expect(err).NotTo(HaveOccurred())
+			alicePendingNonce, err := client.PendingNonceAt(context.Background(), tf.Address("alice"))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(alicePendingNonce).To(Equal(aliceCurrNonce + 1))
+			acn, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(acn).To(Equal(aliceCurrNonce))
+
+			Expect(tf.c.WaitForNextBlock()).To(Succeed())
+
+			aliceCurrNonce, err = client.NonceAt(context.Background(), tf.Address("alice"), nil)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(aliceCurrNonce).To(Equal(alicePendingNonce))
+		})
+
+		It("should handle multiple transactions as queued", func() {
+			// Get the starting nonce.
+			beforeNonce, err := client.PendingNonceAt(context.Background(), tf.Address("charlie"))
+			Expect(err).NotTo(HaveOccurred())
+
+			// send 10 transactions, each one with updated nonce
+			var txs []*coretypes.Transaction
+			for i := beforeNonce; i < beforeNonce+10; i++ {
+				txr := tf.GenerateTransactOpts("charlie")
+				txr.Nonce = big.NewInt(int64(i))
+				var tx *coretypes.Transaction
+				tx, err = contract.ConsumeGas(txr, big.NewInt(50))
+				txs = append(txs, tx)
+				Expect(err).ToNot(HaveOccurred())
+			}
+
+			// check that nonce is updated in memory.
+			afterNonce, err := client.PendingNonceAt(context.Background(), tf.Address("charlie"))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(afterNonce).To(Equal(beforeNonce + uint64(len(txs))))
+
+			// check to make sure all the txs went thru.
+			for _, tx := range txs {
+				ExpectSuccessReceipt(client, tx)
+			}
+
+			// verify the nonce has increased on disk.
+			afterNonce, err = client.NonceAt(context.Background(), tf.Address("charlie"), nil)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(afterNonce).To(Equal(beforeNonce + 10))
+		})
+	})
+	Context("ws namespace", func() {
+		var (
+			ctx      context.Context
+			wsclient *ethclient.Client
+		)
+
+		BeforeEach(func() {
+			ctx = context.Background()
+			wsclient = tf.c.EthWsClient()
+		})
+
+		It("should connect -- multiple clients", func() {
+			// Dial an Ethereum websocket Endpoint
+			ws, err := gethrpc.DialWebsocket(ctx, tf.c.GetWSEndpoint(), "*")
+			Expect(err).ToNot(HaveOccurred())
+			wsClient := ethclient.NewClient(ws)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(wsClient).ToNot(BeNil())
+		})
+
+		It("should subscribe to new heads", func() {
+			// Subscribe to new heads
+			sub, err := wsclient.SubscribeNewHead(ctx, make(chan *gethtypes.Header))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(sub).ToNot(BeNil())
+		})
+
+		It("should subscribe to logs", func() {
+			// Subscribe to logs
+			sub, err := wsclient.SubscribeFilterLogs(ctx, geth.FilterQuery{}, make(chan gethtypes.Log))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(sub).ToNot(BeNil())
 		})
 	})
 })
