@@ -33,4 +33,5 @@ COPY . .
 # Export the usual networking ports to allow outside access to the node
 EXPOSE 8545 8546 8547 8551
 
-CMD ["bash", "init.sh"]
+# CMD ["bash", "init.sh"]
+CMD ["sleep", "infinity"]

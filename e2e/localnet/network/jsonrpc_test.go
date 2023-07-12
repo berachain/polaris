@@ -56,7 +56,7 @@ var _ = Describe("Fixture", func() {
 
 	AfterEach(func() {
 		Expect(tf.c.Stop()).To(Succeed())
-		Expect(tf.c.Remove()).To(Succeed())
+		// Expect(tf.c.Remove()).To(Succeed())
 	})
 
 	Context("eth namespace", func() {

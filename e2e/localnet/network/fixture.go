@@ -25,8 +25,7 @@ import (
 	"crypto/ecdsa"
 	"math/big"
 	"os"
-	"path/filepath"
-	"regexp"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"pkg.berachain.dev/polaris/cosmos/types"
@@ -35,7 +34,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
-var re = regexp.MustCompile(`/(.*?)\.key`)
+const keysPath = "../config/keys/"
 
 type TestingT interface {
 	Fatal(args ...interface{})
@@ -60,16 +59,7 @@ func NewTestFixture(t TestingT) *TestFixture {
 
 	// load all the test accounts
 	keysMap := make(map[string]*ecdsa.PrivateKey)
-	err := filepath.WalkDir("../config/keys", func(keyFile string, _ os.DirEntry, _ error) error {
-		privKey, err := crypto.LoadECDSA(keyFile)
-		if err != nil {
-			return err
-		}
-
-		keysMap[re.FindStringSubmatch(keyFile)[1]] = privKey
-		return nil
-	})
-	if err != nil {
+	if err := setupTestAccounts(keysMap); err != nil {
 		t.Fatal(err)
 	}
 
@@ -132,4 +122,23 @@ func (tf *TestFixture) Address(name string) common.Address {
 		return common.Address{}
 	}
 	return crypto.PubkeyToAddress(privKey.PublicKey)
+}
+
+// setupTestAccounts loads all the test account private keys from the keys directory.
+func setupTestAccounts(keysMap map[string]*ecdsa.PrivateKey) error {
+	keyFiles, err := os.ReadDir(keysPath)
+	if err != nil {
+		return err
+	}
+
+	for _, keyFile := range keyFiles {
+		privKey, err := crypto.LoadECDSA(keysPath + keyFile.Name())
+		if err != nil {
+			return err
+		}
+
+		keysMap[strings.Split(keyFile.Name(), ".")[0]] = privKey
+	}
+
+	return nil
 }

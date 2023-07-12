@@ -43,7 +43,10 @@ set -e
 # Remove the previous folder
 
 # Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
-polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
+polard init $MONIKER --chain-id $CHAINID --home "$HOMEDIR"
+
+polard config home
+
 # Set client config
 polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
 polard config set client chain-id "$CHAINID" --home "$HOMEDIR"
