@@ -19,7 +19,6 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-
 KEYS[0]="dev0"
 KEYS[1]="dev1"
 KEYS[2]="dev2"
@@ -58,7 +57,6 @@ mage build
 # else
 overwrite="Y"
 # fi
-
 
 # Setup local node if overwrite is set to Yes, otherwise skip setup
 if [[ $overwrite == "y" || $overwrite == "Y" ]]; then

@@ -59,7 +59,7 @@ type (
 
 	// StatelessImpl is the interface for all stateless precompiled contract
 	// implementations. A stateless contract must provide its own precompile container, as it is
-	// stateless in nature. This requires a deterministic gas count, `RequiredGas`, and an
+	// stateless in nature. This requires a deterministic gas count, and an
 	// executable function `Run`.
 	StatelessImpl interface {
 		Registrable
@@ -76,10 +76,6 @@ type (
 		// structs. NOTE: this can be directly loaded from the `Methods` field of a Go-Ethereum ABI
 		// struct, which can be built for a solidity interface or contract.
 		ABIMethods() map[string]abi.Method
-
-		// PrecompileMethods should return all the stateful precompile's functions (and each of
-		// their required gas).
-		PrecompileMethods() Methods
 
 		// ABIEvents() should return a map of Ethereum event names to Go-Ethereum abi `Event`.
 		// NOTE: this can be directly loaded from the `Events` field of a Go-Ethereum ABI struct,

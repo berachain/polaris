@@ -99,11 +99,6 @@ func (c *baseContract) CustomValueDecoders() ValueDecoders {
 	return nil
 }
 
-// PrecompileMethods implements StatefulImpl.
-func (c *baseContract) PrecompileMethods() Methods {
-	return Methods{}
-}
-
 // SetPlugin implements BaseContract.
 func (c *baseContract) SetPlugin(plugin Plugin) {
 	c.plugin = plugin

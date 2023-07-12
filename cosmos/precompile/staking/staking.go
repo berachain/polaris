@@ -57,221 +57,129 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 	}
 }
 
-// PrecompileMethods implements StatefulImpl.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{
-		{
-			AbiSig:  "getDelegation(address,address)",
-			Execute: c.GetDelegationAddrInput,
-		},
-		{
-			AbiSig:  "getUnbondingDelegation(address,address)",
-			Execute: c.GetUnbondingDelegationAddrInput,
-		},
-		{
-			AbiSig:  "getRedelegations(address,address,address)",
-			Execute: c.GetRedelegationsAddrInput,
-		},
-		{
-			AbiSig:  "delegate(address,uint256)",
-			Execute: c.DelegateAddrInput,
-		},
-		{
-			AbiSig:  "undelegate(address,uint256)",
-			Execute: c.UndelegateAddrInput,
-		},
-		{
-			AbiSig:  "beginRedelegate(address,address,uint256)",
-			Execute: c.BeginRedelegateAddrInput,
-		},
-		{
-			AbiSig:  "cancelUnbondingDelegation(address,uint256,int64)",
-			Execute: c.CancelUnbondingDelegationAddrInput,
-		},
-		{
-			AbiSig:  "getActiveValidators()",
-			Execute: c.GetActiveValidators,
-		},
-		{
-			AbiSig:  "getValidators()",
-			Execute: c.GetValidators,
-		},
-		{
-			AbiSig:  "getValidator(address)",
-			Execute: c.GetValidatorAddrInput,
-		},
-		{
-			AbiSig:  "getDelegatorValidators(address)",
-			Execute: c.GetDelegatorValidatorsAddrInput,
-		},
-	}
-}
-
-// GetDelegationAddrInput implements `getDelegation(address)` method.
-func (c *Contract) GetDelegationAddrInput(
+// GetValidators implements the `getValidator(address)` method.
+func (c *Contract) GetValidator(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	args ...any,
+	validatorAddr common.Address,
 ) ([]any, error) {
-	del, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	val, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
+	return c.validatorHelper(ctx, sdk.ValAddress(validatorAddr[:]).String())
+}
 
+// GetDelegatorValidators implements the `getDelegatorValidators(address)` method.
+func (c *Contract) GetDelegatorValidators(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	delegatorAddr common.Address,
+) ([]any, error) {
+	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr))
+}
+
+// GetDelegation implements `getDelegation(address)` method.
+func (c *Contract) GetDelegation(
+	ctx context.Context,
+	_ ethprecompile.EVM,
+	_ common.Address,
+	_ *big.Int,
+	delegatorAddress common.Address,
+	validatorAddress common.Address,
+) ([]any, error) {
 	return c.getDelegationHelper(
-		ctx, cosmlib.AddressToAccAddress(del), cosmlib.AddressToValAddress(val),
+		ctx, cosmlib.AddressToAccAddress(delegatorAddress), cosmlib.AddressToValAddress(validatorAddress),
 	)
 }
 
-// GetUnbondingDelegationAddrInput implements the `getUnbondingDelegation(address)` method.
-func (c *Contract) GetUnbondingDelegationAddrInput(
+// GetUnbondingDelegation implements the `getUnbondingDelegation(address,address)` method.
+func (c *Contract) GetUnbondingDelegation(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	args ...any,
+	delegatorAddress common.Address,
+	validatorAddress common.Address,
 ) ([]any, error) {
-	del, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	val, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
 	return c.getUnbondingDelegationHelper(
-		ctx, cosmlib.AddressToAccAddress(del), cosmlib.AddressToValAddress(val),
+		ctx, cosmlib.AddressToAccAddress(delegatorAddress), cosmlib.AddressToValAddress(validatorAddress),
 	)
 }
 
-// GetRedelegationsAddrInput implements the `getRedelegations(address,address)` method.
-func (c *Contract) GetRedelegationsAddrInput(
+// GetRedelegations implements the `getRedelegations(address,address)` method.
+func (c *Contract) GetRedelegations(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	_ common.Address,
 	_ *big.Int,
-	args ...any,
+	delegatorAddress common.Address,
+	srcValidator common.Address,
+	dstValidator common.Address,
 ) ([]any, error) {
-	del, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	srcVal, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	dstVal, ok := utils.GetAs[common.Address](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
 	return c.getRedelegationsHelper(
 		ctx,
-		cosmlib.AddressToAccAddress(del),
-		cosmlib.AddressToValAddress(srcVal),
-		cosmlib.AddressToValAddress(dstVal),
+		cosmlib.AddressToAccAddress(delegatorAddress),
+		cosmlib.AddressToValAddress(srcValidator),
+		cosmlib.AddressToValAddress(dstValidator),
 	)
 }
 
-// DelegateAddrInput implements the `delegate(address,uint256)` method.
-func (c *Contract) DelegateAddrInput(
+// Delegate implements the `delegate(address,uint256)` method.
+func (c *Contract) Delegate(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	args ...any,
+	validatorAddress common.Address,
+	amount *big.Int,
 ) ([]any, error) {
-	val, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
-	return c.delegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
+	return c.delegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(validatorAddress))
 }
 
-// UndelegateAddrInput implements the `undelegate(address,uint256)` method.
-func (c *Contract) UndelegateAddrInput(
+// Undelegate implements the `undelegate(address,uint256)` method.
+func (c *Contract) Undelegate(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	args ...any,
+	validatorAddress common.Address,
+	amount *big.Int,
 ) ([]any, error) {
-	val, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
-	return c.undelegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val))
+	return c.undelegateHelper(ctx, caller, amount, cosmlib.AddressToValAddress(validatorAddress))
 }
 
-// BeginRedelegateAddrInput implements the `beginRedelegate(address,address,uint256)` method.
-func (c *Contract) BeginRedelegateAddrInput(
+// BeginRedelegate implements the `beginRedelegate(address,address,uint256)` method.
+func (c *Contract) BeginRedelegate(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	args ...any,
+	srcValidator common.Address,
+	dstValidator common.Address,
+	amount *big.Int,
 ) ([]any, error) {
-	srcVal, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	dstVal, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-
 	return c.beginRedelegateHelper(
 		ctx,
 		caller,
 		amount,
-		cosmlib.AddressToValAddress(srcVal),
-		cosmlib.AddressToValAddress(dstVal),
+		cosmlib.AddressToValAddress(srcValidator),
+		cosmlib.AddressToValAddress(dstValidator),
 	)
 }
 
-// CancelRedelegateAddrInput implements the `cancelRedelegate(address,address,uint256,int64)` method.
-func (c *Contract) CancelUnbondingDelegationAddrInput(
+// CancelRedelegate implements the `cancelRedelegate(address,address,uint256,int64)` method.
+func (c *Contract) CancelUnbondingDelegation(
 	ctx context.Context,
 	_ ethprecompile.EVM,
 	caller common.Address,
 	_ *big.Int,
-	args ...any,
+	validatorAddress common.Address,
+	amount *big.Int,
+	creationHeight int64,
 ) ([]any, error) {
-	val, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, ok := utils.GetAs[*big.Int](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-	creationHeight, ok := utils.GetAs[int64](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidInt64
-	}
-
-	return c.cancelUnbondingDelegationHelper(ctx, caller, amount, cosmlib.AddressToValAddress(val), creationHeight)
+	return c.cancelUnbondingDelegationHelper(
+		ctx, caller, amount, cosmlib.AddressToValAddress(validatorAddress), creationHeight)
 }
 
 // GetActiveValidators implements the `getActiveValidators()` method.
