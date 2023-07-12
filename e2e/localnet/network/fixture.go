@@ -37,8 +37,7 @@ import (
 
 const keysPath = "../config/ethkeys/"
 
-// TestFixture is a testing fixture that can be used to test the
-// Ethereum JSON-RPC API.
+// TestFixture is a testing fixture that runs a single Polaris validator node in a Docker container.
 type TestFixture struct {
 	t       ginkgo.FullGinkgoTInterface
 	c       ContainerizedNode
