@@ -37,7 +37,6 @@ import (
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	testutils "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -116,7 +115,7 @@ var _ = Describe("JSON RPC tests", func() {
 
 		It("should deploy, mint tokens and check balance, eth_getTransactionByHash", func() {
 			// Deploy the contract
-			erc20Contract, deployedAddress := testutils.DeployERC20(tf.GenerateTransactOpts("alice"), client)
+			erc20Contract, deployedAddress := DeployERC20(tf.GenerateTransactOpts("alice"), client)
 
 			// Mint tokens
 			tx, err := erc20Contract.Mint(tf.GenerateTransactOpts("alice"),
@@ -127,7 +126,7 @@ var _ = Describe("JSON RPC tests", func() {
 			txHash := tx.Hash()
 
 			// Wait for the receipt.
-			receipt := testutils.ExpectSuccessReceipt(client, tx)
+			receipt := ExpectSuccessReceipt(client, tx)
 			Expect(receipt.Logs).To(HaveLen(2))
 			for i, log := range receipt.Logs {
 				Expect(log.Address).To(Equal(deployedAddress))

@@ -30,7 +30,6 @@ import (
 	ginkgo "github.com/onsi/ginkgo/v2"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"pkg.berachain.dev/polaris/cosmos/types"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
@@ -48,9 +47,6 @@ type TestFixture struct {
 
 // NewTestFixture creates a new TestFixture.
 func NewTestFixture(t ginkgo.FullGinkgoTInterface) *TestFixture {
-	// set up the polaris bech32 prefixes
-	types.SetupCosmosConfig()
-
 	// load all the test accounts
 	keysMap := make(map[string]*ecdsa.PrivateKey)
 	if err := setupTestAccounts(keysMap); err != nil {
