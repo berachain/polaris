@@ -21,6 +21,8 @@ ARG BASE_IMAGE
 # Use the latest foundry image
 FROM ${BASE_IMAGE} as localpolard
 
+RUN apk add --no-cache bash jq
+
 WORKDIR /
 
 COPY . .
