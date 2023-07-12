@@ -23,7 +23,6 @@ package precompile
 import (
 	"context"
 	"math/big"
-	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -83,14 +82,15 @@ func (sc *stateful) Run(
 
 	// Execute the method with the reflected ctx and raw input
 	// TODO: use PolarContext
+
+	polarCtx := PolarContext{
+		Ctx:    ctx,
+		Evm:    evm,
+		Caller: caller,
+		Value:  value,
+	}
 	return method.Call(
-		[]reflect.Value{
-			reflect.ValueOf(sc.Registrable),
-			reflect.ValueOf(ctx),
-			reflect.ValueOf(evm),
-			reflect.ValueOf(caller),
-			reflect.ValueOf(value),
-		},
+		polarCtx,
 		input,
 	)
 }

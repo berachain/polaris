@@ -64,23 +64,17 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 
 // SetWithdrawAddress is the precompile contract method for the `setWithdrawAddress(address)` method.
 func (c *Contract) SetWithdrawAddress(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
+	polarCtx ethprecompile.PolarContext,
 	withdrawAddress common.Address,
 ) ([]any, error) {
-	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), sdk.AccAddress(withdrawAddress.Bytes()))
+	return c.setWithdrawAddressHelper(polarCtx.Ctx, sdk.AccAddress(polarCtx.Caller.Bytes()), sdk.AccAddress(withdrawAddress.Bytes()))
 }
 
 // GetWithdrawEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
 func (c *Contract) GetWithdrawEnabled(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
+	polarCtx ethprecompile.PolarContext,
 ) ([]any, error) {
-	return c.getWithdrawAddrEnabled(ctx)
+	return c.getWithdrawAddrEnabled(polarCtx.Ctx)
 }
 
 // WithdrawDelegatorReward is the precompile contract method for the `withdrawDelegatorReward(address,address)`
