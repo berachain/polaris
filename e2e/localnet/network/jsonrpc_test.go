@@ -55,7 +55,7 @@ var _ = Describe("JSON RPC tests", func() {
 	})
 
 	AfterEach(func() {
-		// Expect(tf.Teardown()).To(Succeed())
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	Context("eth namespace", func() {
@@ -87,7 +87,7 @@ var _ = Describe("JSON RPC tests", func() {
 			Expect(blockNumber).To(BeNumerically(">", 0))
 		})
 
-		FIt("should support eth_getBalance", func() {
+		It("should support eth_getBalance", func() {
 			// Get the balance of an account
 			balance, err := client.BalanceAt(context.Background(), tf.Address("alice"), nil)
 			Expect(err).ToNot(HaveOccurred())
