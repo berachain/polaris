@@ -28,6 +28,7 @@ package localnet
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -94,6 +95,7 @@ func NewContainerizedNode(
 	// If we error out, make sure to stop and remove the container.
 	defer func() {
 		if err != nil {
+			fmt.Println(err)
 			_ = containerClient.Stop()
 			_ = containerClient.Remove()
 		}

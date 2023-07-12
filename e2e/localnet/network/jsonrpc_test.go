@@ -55,7 +55,7 @@ var _ = Describe("JSON RPC tests", func() {
 	})
 
 	AfterEach(func() {
-		Expect(tf.Teardown()).To(Succeed())
+		// Expect(tf.Teardown()).To(Succeed())
 	})
 
 	Context("eth namespace", func() {

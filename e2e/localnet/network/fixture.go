@@ -36,7 +36,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
-const keysPath = "../config/keys/"
+const keysPath = "../config/ethkeys/"
 
 // TestFixture is a testing fixture that can be used to test the
 // Ethereum JSON-RPC API.

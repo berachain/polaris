@@ -65,8 +65,8 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Remove the previous folder
 	rm -rf "$HOMEDIR"
 
-    	# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
-	./bin/polard init $MONIKER --chain-id $CHAINID --home "$HOMEDIR"
+	# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
+	./bin/polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
 
 	cp ./cosmos/docker/local/config/app.toml "$APP_TOML"
 	cp ./cosmos/docker/local/config/config.toml "$CONFIG_TOML"

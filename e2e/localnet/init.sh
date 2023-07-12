@@ -19,62 +19,25 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-KEYS[0]="dev0"
 CHAINID="polaris-2061"
 MONIKER="localtestnet"
-# Remember to change to other types of keyring like 'file' in-case exposing to outside world,
-# otherwise your balance will be wiped quickly
-# The keyring test does not require private key to steal tokens from you
-KEYRING="test"
-KEYALGO="eth_secp256k1"
+
 LOGLEVEL="info"
 # Set dedicated home directory for the ./bin/polard instance
 HOMEDIR="/"
-# to trace evm
+# to trace evm 
 #TRACE="--trace"
 TRACE=""
 
-# Path variables
-GENESIS=$HOMEDIR/$GENESIS_PATH/genesis.json
-TMP_GENESIS=$HOMEDIR/$GENESIS_PATH/tmp_genesis.json
-
 # used to exit on first error (any non-zero exit code)
 set -e
-# Remove the previous folder
 
-# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
-polard init $MONIKER --chain-id $CHAINID --home "$HOMEDIR"
-
-polard config home
-
-# Set client config
-polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
-polard config set client chain-id "$CHAINID" --home "$HOMEDIR"
-
-# If keys exist they should be deleted
-polard keys add ${KEYS[0]} --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
-
-# Change parameter token denominations to abera
-jq '.app_state["staking"]["params"]["bond_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state["crisis"]["constant_fee"]["denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state["mint"]["params"]["mint_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.consensus["params"]["block"]["max_gas"]="30000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-
-# Allocate genesis accounts (cosmos formatted addresses)
-polard genesis add-genesis-account ${KEYS[0]} 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
-
-# Sign genesis transaction
-polard genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
 ## In case you want to create multiple validators at genesis
 ## 1. Back to `./bin/polard keys add` step, init more keys
 ## 2. Back to `./bin/polard add-genesis-account` step, add balance for those
 ## 3. Clone this ~/../bin/polard home directory into some others, let's say `~/.cloned./bin/polard`
 ## 4. Run `gentx` in each of those folders
 ## 5. Copy the `gentx-*` folders under `~/.cloned./bin/polard/config/gentx/` folders into the original `~/../bin/polard/config/gentx`
-
-# Collect genesis tx
-polard genesis collect-gentxs --home "$HOMEDIR"
 
 # Run this to ensure everything worked and that the genesis file is setup correctly
 polard genesis validate-genesis --home "$HOMEDIR"
