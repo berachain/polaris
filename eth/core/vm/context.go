@@ -110,6 +110,11 @@ func (c *PolarContext) Value(key any) any {
 	return c.baseCtx.Value(key)
 }
 
+func (c *PolarContext) WithValue(key, value interface{}) *PolarContext {
+	c.baseCtx = context.WithValue(c.baseCtx, key, value)
+	return c
+}
+
 // UnwrapPolarContext retrieves a Context from a context.Context instance attached with a
 // PolarContext. It panics if a Context was not properly attached.
 func UnwrapPolarContext(ctx context.Context) *PolarContext {
@@ -117,10 +122,4 @@ func UnwrapPolarContext(ctx context.Context) *PolarContext {
 		return polarCtx
 	}
 	return utils.MustGetAs[*PolarContext](ctx.Value(PolarContextKey))
-}
-
-// WithVaue attaches a value to the context.
-func (c *PolarContext) WithValue(key, value interface{}) *PolarContext {
-	c.baseCtx = context.WithValue(c.baseCtx, key, value)
-	return c
 }
