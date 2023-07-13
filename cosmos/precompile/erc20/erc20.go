@@ -35,7 +35,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/polar"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // Contract is the precompile contract for the auth module.
@@ -128,11 +128,11 @@ func (c *Contract) TransferCoinToERC20(
 	amount *big.Int,
 ) ([]any, error) {
 	err := c.transferCoinToERC20(ctx,
-		polar.UnwrapPolarContext(ctx).Evm(),
-		polar.UnwrapPolarContext(ctx).MsgValue(),
+		vm.UnwrapPolarContext(ctx).Evm(),
+		vm.UnwrapPolarContext(ctx).MsgValue(),
 		denom,
-		polar.UnwrapPolarContext(ctx).MsgSender(),
-		polar.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
 		amount,
 	)
 	return []any{err == nil}, err
@@ -148,8 +148,8 @@ func (c *Contract) TransferCoinToERC20From(
 ) ([]any, error) {
 	err := c.transferCoinToERC20(
 		ctx,
-		polar.UnwrapPolarContext(ctx).Evm(),
-		polar.UnwrapPolarContext(ctx).MsgValue(),
+		vm.UnwrapPolarContext(ctx).Evm(),
+		vm.UnwrapPolarContext(ctx).MsgValue(),
 		denom,
 		owner,
 		recipient,
@@ -167,10 +167,10 @@ func (c *Contract) TransferCoinToERC20To(
 ) ([]any, error) {
 	err := c.transferCoinToERC20(
 		ctx,
-		polar.UnwrapPolarContext(ctx).Evm(),
-		polar.UnwrapPolarContext(ctx).MsgValue(),
+		vm.UnwrapPolarContext(ctx).Evm(),
+		vm.UnwrapPolarContext(ctx).MsgValue(),
 		denom,
-		polar.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
 		recipient,
 		amount,
 	)
@@ -185,11 +185,11 @@ func (c *Contract) TransferERC20ToCoin(
 ) ([]any, error) {
 	err := c.transferERC20ToCoin(
 		ctx,
-		polar.UnwrapPolarContext(ctx).MsgSender(),
-		polar.UnwrapPolarContext(ctx).Evm(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).Evm(),
 		token,
-		polar.UnwrapPolarContext(ctx).MsgSender(),
-		polar.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
 		amount,
 	)
 	return []any{err == nil}, err
@@ -205,8 +205,8 @@ func (c *Contract) TransferERC20ToCoinFrom(
 ) ([]any, error) {
 	err := c.transferERC20ToCoin(
 		ctx,
-		polar.UnwrapPolarContext(ctx).MsgSender(),
-		polar.UnwrapPolarContext(ctx).Evm(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).Evm(),
 		token,
 		owner,
 		recipient,
@@ -224,10 +224,10 @@ func (c *Contract) TransferERC20ToCoinTo(
 ) ([]any, error) {
 	err := c.transferERC20ToCoin(
 		ctx,
-		polar.UnwrapPolarContext(ctx).MsgSender(),
-		polar.UnwrapPolarContext(ctx).Evm(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).Evm(),
 		token,
-		polar.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
 		recipient,
 		amount,
 	)

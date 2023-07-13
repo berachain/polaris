@@ -34,7 +34,7 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/polar"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // Contract is the precompile contract for the governance module.
@@ -85,7 +85,7 @@ func (c *Contract) CancelProposal(
 	ctx context.Context,
 	id uint64,
 ) ([]any, error) {
-	proposer := sdk.AccAddress(polar.UnwrapPolarContext(ctx).MsgSender().Bytes())
+	proposer := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
 	return c.cancelProposalHelper(ctx, proposer, id)
 }
@@ -97,7 +97,7 @@ func (c *Contract) Vote(
 	options int32,
 	metadata string,
 ) ([]any, error) {
-	voter := sdk.AccAddress(polar.UnwrapPolarContext(ctx).MsgSender().Bytes())
+	voter := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
 	return c.voteHelper(ctx, voter, proposalID, options, metadata)
 }
@@ -109,7 +109,7 @@ func (c *Contract) VoteWeighted(
 	options []generated.IGovernanceModuleWeightedVoteOption,
 	metadata string,
 ) ([]any, error) {
-	voter := sdk.AccAddress(polar.UnwrapPolarContext(ctx).MsgSender().Bytes())
+	voter := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
 }
 

@@ -32,7 +32,7 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/polar"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // Contract is the precompile contract for the auth(z) module.
@@ -84,7 +84,7 @@ func (c *Contract) SetSendAllowance(
 	}
 	return c.setSendAllowanceHelper(
 		ctx,
-		time.Unix(int64(polar.UnwrapPolarContext(ctx).Evm().GetContext().Time), 0),
+		time.Unix(int64(vm.UnwrapPolarContext(ctx).Evm().GetContext().Time), 0),
 		cosmlib.AddressToAccAddress(owner),
 		cosmlib.AddressToAccAddress(spender),
 		amt,
@@ -101,7 +101,7 @@ func (c *Contract) GetSendAllowance(
 ) ([]any, error) {
 	return c.getSendAllownaceHelper(
 		ctx,
-		time.Unix(int64(polar.UnwrapPolarContext(ctx).Evm().GetContext().Time), 0),
+		time.Unix(int64(vm.UnwrapPolarContext(ctx).Evm().GetContext().Time), 0),
 		cosmlib.AddressToAccAddress(owner),
 		cosmlib.AddressToAccAddress(spender),
 		denom,

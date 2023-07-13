@@ -30,7 +30,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/polar"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // Contract is the precompile contract for the distribution module.
@@ -69,7 +69,7 @@ func (c *Contract) SetWithdrawAddress(
 ) ([]any, error) {
 	return c.setWithdrawAddressHelper(
 		ctx,
-		sdk.AccAddress(polar.UnwrapPolarContext(ctx).MsgSender().Bytes()),
+		sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes()),
 		sdk.AccAddress(withdrawAddress.Bytes()),
 	)
 }

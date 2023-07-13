@@ -74,6 +74,8 @@ func NewMethod(
 }
 
 // Call executes the precompile's executable with the given context and input arguments.
+//
+//nolint:revive // needed for reflection.
 func (m *Method) Call(sc Registrable, ctx context.Context, input []byte) ([]byte, error) {
 	// Unpack the args from the input, if any exist.
 	unpackedArgs, err := m.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])

@@ -34,7 +34,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/polar"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -121,7 +121,7 @@ func (c *Contract) Delegate(
 ) ([]any, error) {
 	return c.delegateHelper(
 		ctx,
-		polar.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
 		amount,
 		cosmlib.AddressToValAddress(validatorAddress),
 	)
@@ -135,7 +135,7 @@ func (c *Contract) Undelegate(
 ) ([]any, error) {
 	return c.undelegateHelper(
 		ctx,
-		polar.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
 		amount,
 		cosmlib.AddressToValAddress(validatorAddress),
 	)
@@ -150,7 +150,7 @@ func (c *Contract) BeginRedelegate(
 ) ([]any, error) {
 	return c.beginRedelegateHelper(
 		ctx,
-		polar.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
 		amount,
 		cosmlib.AddressToValAddress(srcValidator),
 		cosmlib.AddressToValAddress(dstValidator),
@@ -166,7 +166,7 @@ func (c *Contract) CancelUnbondingDelegation(
 ) ([]any, error) {
 	return c.cancelUnbondingDelegationHelper(
 		ctx,
-		polar.UnwrapPolarContext(ctx).MsgSender(),
+		vm.UnwrapPolarContext(ctx).MsgSender(),
 		amount,
 		cosmlib.AddressToValAddress(validatorAddress),
 		creationHeight,

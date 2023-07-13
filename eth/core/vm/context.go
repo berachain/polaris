@@ -36,10 +36,10 @@ type ContextKey string
 const PolarContextKey ContextKey = "polar-context"
 
 // Compile-time assertion that polar.Context implements context.Context.
-var _ context.Context = (*Context)(nil)
+var _ context.Context = (*PolarContext)(nil)
 
 // Context is the context for a Polaris EVM execution.
-type Context struct {
+type PolarContext struct {
 	baseCtx   context.Context
 	evm       PrecompileEVM
 	msgSender common.Address
@@ -47,8 +47,13 @@ type Context struct {
 }
 
 // NewPolarContext creates a new polar.Context given an EVM call request.
-func NewPolarContext(baseCtx context.Context, evm PrecompileEVM, msgSender common.Address, msgValue *big.Int) *Context {
-	return &Context{
+func NewPolarContext(
+	baseCtx context.Context,
+	evm PrecompileEVM,
+	msgSender common.Address,
+	msgValue *big.Int,
+) *PolarContext {
+	return &PolarContext{
 		baseCtx:   baseCtx,
 		evm:       evm,
 		msgSender: msgSender,
@@ -60,23 +65,23 @@ func NewPolarContext(baseCtx context.Context, evm PrecompileEVM, msgSender commo
 // polar.Context implementation
 // =============================================================================
 
-func (c *Context) Context() context.Context {
+func (c *PolarContext) Context() context.Context {
 	return c.baseCtx
 }
 
-func (c *Context) Evm() PrecompileEVM {
+func (c *PolarContext) Evm() PrecompileEVM {
 	return c.evm
 }
 
-func (c *Context) MsgSender() common.Address {
+func (c *PolarContext) MsgSender() common.Address {
 	return c.msgSender
 }
 
-func (c *Context) MsgValue() *big.Int {
+func (c *PolarContext) MsgValue() *big.Int {
 	return c.msgValue
 }
 
-func (c *Context) Block() *BlockContext {
+func (c *PolarContext) Block() *BlockContext {
 	return c.evm.GetContext()
 }
 
@@ -84,19 +89,20 @@ func (c *Context) Block() *BlockContext {
 // context.Context implementation
 // =============================================================================
 
-func (c Context) Deadline() (deadline time.Time, ok bool) {
+//nolint:nonamedreturns // context package uses named returns.
+func (c *PolarContext) Deadline() (deadline time.Time, ok bool) {
 	return c.baseCtx.Deadline()
 }
 
-func (c Context) Done() <-chan struct{} {
+func (c *PolarContext) Done() <-chan struct{} {
 	return c.baseCtx.Done()
 }
 
-func (c Context) Err() error {
+func (c *PolarContext) Err() error {
 	return c.baseCtx.Err()
 }
 
-func (c Context) Value(key any) any {
+func (c *PolarContext) Value(key any) any {
 	if key == PolarContextKey {
 		return c
 	}
@@ -106,9 +112,9 @@ func (c Context) Value(key any) any {
 
 // UnwrapPolarContext retrieves a Context from a context.Context instance attached with a
 // PolarContext. It panics if a Context was not properly attached.
-func UnwrapPolarContext(ctx context.Context) *Context {
-	if polarCtx, ok := utils.GetAs[*Context](ctx); ok {
+func UnwrapPolarContext(ctx context.Context) *PolarContext {
+	if polarCtx, ok := utils.GetAs[*PolarContext](ctx); ok {
 		return polarCtx
 	}
-	return utils.MustGetAs[*Context](ctx.Value(PolarContextKey))
+	return utils.MustGetAs[*PolarContext](ctx.Value(PolarContextKey))
 }

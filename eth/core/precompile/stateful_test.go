@@ -32,7 +32,6 @@ import (
 	pmock "pkg.berachain.dev/polaris/eth/core/precompile/mock"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/eth/polar"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -45,7 +44,7 @@ var _ = Describe("Stateful Container", func() {
 	var blank []byte
 	var badInput = []byte{1, 2, 3, 4}
 	var err error
-	var ctx *polar.Context
+	var ctx *vm.PolarContext
 
 	BeforeEach(func() {
 		sc, err = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
@@ -75,19 +74,41 @@ var _ = Describe("Stateful Container", func() {
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
 			// invalid input
-			_, err = sc.Run(ctx, ctx.Evm(), blank, polar.UnwrapPolarContext(ctx).MsgSender(), polar.UnwrapPolarContext(ctx).MsgValue())
+			_, err = sc.Run(
+				ctx,
+				ctx.Evm(),
+				blank,
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
 
 			// method not found
-			_, err = sc.Run(ctx, ctx.Evm(), badInput, polar.UnwrapPolarContext(ctx).MsgSender(), polar.UnwrapPolarContext(ctx).MsgValue())
+			_, err = sc.Run(
+				ctx,
+				ctx.Evm(),
+				badInput, vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(MatchError("precompile method not found in contract ABI"))
 
 			// geth unpacking error
-			_, err = sc.Run(ctx, ctx.Evm(), append(getOutputABI.ID, byte(1), byte(2)), polar.UnwrapPolarContext(ctx).MsgSender(), polar.UnwrapPolarContext(ctx).MsgValue())
+			_, err = sc.Run(ctx,
+				ctx.Evm(),
+				append(getOutputABI.ID, byte(1), byte(2)),
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(HaveOccurred())
 
 			// precompile exec error
-			_, err = sc.Run(ctx, ctx.Evm(), getOutputPartialABI.ID, polar.UnwrapPolarContext(ctx).MsgSender(), polar.UnwrapPolarContext(ctx).MsgValue())
+			_, err = sc.Run(
+				ctx,
+				ctx.Evm(),
+				getOutputPartialABI.ID,
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err.Error()).To(Equal(
 				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]", //nolint:lll // test.
 			))
@@ -96,13 +117,25 @@ var _ = Describe("Stateful Container", func() {
 			var inputs []byte
 			inputs, err = contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, ctx.Evm(), append(contractFuncStrABI.ID, inputs...), polar.UnwrapPolarContext(ctx).MsgSender(), polar.UnwrapPolarContext(ctx).MsgValue())
+			_, err = sc.Run(
+				ctx,
+				ctx.Evm(),
+				append(contractFuncStrABI.ID, inputs...),
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(HaveOccurred())
 
 			// geth output packing error
-			inputs, err = contractFuncAddrABI.Inputs.Pack(polar.UnwrapPolarContext(ctx).MsgSender())
+			inputs, err = contractFuncAddrABI.Inputs.Pack(vm.UnwrapPolarContext(ctx).MsgSender())
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, ctx.Evm(), append(contractFuncAddrABI.ID, inputs...), polar.UnwrapPolarContext(ctx).MsgSender(), polar.UnwrapPolarContext(ctx).MsgValue())
+			_, err = sc.Run(
+				ctx,
+				ctx.Evm(),
+				append(contractFuncAddrABI.ID, inputs...),
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(HaveOccurred())
 		})
 
@@ -116,8 +149,8 @@ var _ = Describe("Stateful Container", func() {
 				ctx,
 				ctx.Evm(),
 				append(getOutputABI.ID, inputs...),
-				polar.UnwrapPolarContext(ctx).MsgSender(),
-				polar.UnwrapPolarContext(ctx).MsgValue(),
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
 			)
 			Expect(err).ToNot(HaveOccurred())
 			var outputs []interface{}
@@ -125,7 +158,10 @@ var _ = Describe("Stateful Container", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(outputs).To(HaveLen(1))
 			Expect(
-				reflect.ValueOf(outputs[0]).Index(0).FieldByName("CreationHeight").Interface().(*big.Int),
+				reflect.ValueOf(outputs[0]).
+					Index(0).
+					FieldByName("CreationHeight").
+					Interface().(*big.Int),
 			).To(Equal(big.NewInt(1)))
 			Expect(
 				reflect.ValueOf(outputs[0]).Index(0).FieldByName("TimeStamp").Interface().(string),
@@ -135,10 +171,6 @@ var _ = Describe("Stateful Container", func() {
 })
 
 // MOCKS BELOW.
-
-type mockEVM struct {
-	vm.PrecompileEVM
-}
 
 var (
 	mock, _             = solidity.MockPrecompileMetaData.GetAbi()

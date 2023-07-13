@@ -45,7 +45,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/types"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/eth/polar"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -59,14 +58,14 @@ func TestGovernancePrecompile(t *testing.T) {
 
 var _ = Describe("Governance Precompile", func() {
 	var (
-		ctx      sdk.Context
+		sdkCtx   sdk.Context
 		bk       bankkeeper.Keeper
 		gk       *governancekeeper.Keeper
 		caller   sdk.AccAddress
 		mockCtrl *gomock.Controller
 		contract *Contract
 		sf       *ethprecompile.StatefulFactory
-		pCtx     *polar.Context
+		ctx      context.Context
 	)
 
 	BeforeEach(func() {
@@ -74,15 +73,15 @@ var _ = Describe("Governance Precompile", func() {
 		mockCtrl = gomock.NewController(t)
 		types.SetupCosmosConfig()
 		caller = cosmlib.AddressToAccAddress(testutil.Alice)
-		ctx, bk, gk = precomtest.Setup(mockCtrl, caller)
+		sdkCtx, _, gk = precomtest.Setup(mockCtrl, caller)
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
 			governancekeeper.NewMsgServerImpl(gk),
 			governancekeeper.NewQueryServer(gk),
 		))
 		types.SetupCosmosConfig()
 		sf = ethprecompile.NewStatefulFactory()
-		pCtx = vm.NewPolarContext(
-			ctx,
+		ctx = vm.NewPolarContext(
+			sdkCtx,
 			nil,
 			cosmlib.AccAddressToEthAddress(caller),
 			big.NewInt(0),
@@ -165,7 +164,7 @@ var _ = Describe("Governance Precompile", func() {
 			Expect(err).ToNot(HaveOccurred())
 			// Submit the proposal.
 			res, err := contract.SubmitProposal(
-				*pCtx,
+				ctx,
 				proposalBz,
 				msgBz,
 			)
@@ -184,7 +183,7 @@ var _ = Describe("Governance Precompile", func() {
 			})
 			Expect(err).ToNot(HaveOccurred())
 			res, err := contract.CancelProposal(
-				pCtx,
+				ctx,
 				uint64(1),
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -206,7 +205,7 @@ var _ = Describe("Governance Precompile", func() {
 
 		It("should fail if the proposal does not exist", func() {
 			res, err := contract.Vote(
-				pCtx,
+				ctx,
 				uint64(1000),
 				int32(1),
 				"metadata",
@@ -216,7 +215,7 @@ var _ = Describe("Governance Precompile", func() {
 		})
 		It("should succeed", func() {
 			res, err := contract.Vote(
-				pCtx,
+				ctx,
 				uint64(1),
 				int32(1),
 				"metadata",
@@ -229,7 +228,7 @@ var _ = Describe("Governance Precompile", func() {
 
 			It("should fail if the proposal does not exist", func() {
 				res, err := contract.VoteWeighted(
-					pCtx,
+					ctx,
 					uint64(1000),
 					[]generated.IGovernanceModuleWeightedVoteOption{},
 					"metadata",
@@ -247,7 +246,7 @@ var _ = Describe("Governance Precompile", func() {
 					},
 				}
 				res, err := contract.VoteWeighted(
-					pCtx,
+					ctx,
 					uint64(1),
 					options,
 					"metadata",
@@ -298,7 +297,7 @@ var _ = Describe("Governance Precompile", func() {
 			When("GetProposal", func() {
 				It("should get the proposal", func() {
 					res, err := contract.GetProposal(
-						pCtx,
+						ctx,
 						uint64(2),
 					)
 					Expect(err).ToNot(HaveOccurred())
@@ -309,12 +308,12 @@ var _ = Describe("Governance Precompile", func() {
 			When("GetProposals", func() {
 				BeforeEach(func() {
 					// Not filled proposal, hence will panic the parser.
-					_, err := contract.CancelProposal(pCtx, uint64(1))
+					_, err := contract.CancelProposal(ctx, uint64(1))
 					Expect(err).ToNot(HaveOccurred())
 				})
 				It("should get the proposals", func() {
 					res, err := contract.GetProposals(
-						pCtx,
+						ctx,
 						int32(0),
 					)
 					Expect(err).ToNot(HaveOccurred())

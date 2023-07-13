@@ -21,6 +21,7 @@
 package precompile_test
 
 import (
+	"context"
 	"math/big"
 	"reflect"
 
@@ -28,9 +29,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/polar"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 
-	"github.com/ethereum/go-ethereum/core/vm"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -46,7 +46,7 @@ var _ = Describe("Method", func() {
 			)
 			pCtx := vm.NewPolarContext(
 				ctx,
-				vm.NewEVMWithPrecompiles(vm.BlockContext{}, vm.TxContext{}, nil, nil, vm.Config{}, nil),
+				vm.NewGethEVMWithPrecompiles(vm.BlockContext{}, vm.TxContext{}, nil, nil, vm.Config{}, nil),
 				common.Address{},
 				big.NewInt(0),
 			)
@@ -61,7 +61,7 @@ var _ = Describe("Method", func() {
 // MOCKS BELOW.
 
 func mockExecutable(
-	polarCtx polar.Context,
+	_ context.Context,
 ) ([]any, error) {
 	return nil, nil
 }
