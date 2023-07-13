@@ -37,7 +37,8 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/precompile/testutil"
+	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -63,7 +64,7 @@ var _ = Describe("Bank Precompile Test", func() {
 	)
 
 	BeforeEach(func() {
-		ctx, _, bk, _ = testutil.SetupMinimalKeepers()
+		ctx, _, bk, _ = testutils.SetupMinimalKeepers()
 
 		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(bankkeeper.NewMsgServerImpl(bk), bk))
 		addr = sdk.AccAddress([]byte("bank"))
@@ -519,11 +520,10 @@ var _ = Describe("Bank Precompile Test", func() {
 				_, err = contract.Send(
 					ctx,
 					nil,
-					caller,
-					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(fromAcc),
+					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(toAcc),
-					sdkCoinsToEvmCoins(sortedSdkCoins),
+					testutil.SdkCoinsToEvmCoins(sortedSdkCoins),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -555,11 +555,10 @@ var _ = Describe("Bank Precompile Test", func() {
 				_, err = contract.Send(
 					ctx,
 					nil,
-					caller,
-					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(fromAcc),
+					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(toAcc),
-					sdkCoinsToEvmCoins(coinsToSend),
+					testutil.SdkCoinsToEvmCoins(coinsToSend),
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidCoin))
 			})
@@ -601,24 +600,4 @@ func getTestMetadata() []banktypes.Metadata {
 			Display: "token",
 		},
 	}
-}
-
-func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
-	Amount *big.Int `json:"amount"`
-	Denom  string   `json:"denom"`
-} {
-	evmCoins := make([]struct {
-		Amount *big.Int `json:"amount"`
-		Denom  string   `json:"denom"`
-	}, len(sdkCoins))
-	for i, coin := range sdkCoins {
-		evmCoins[i] = struct {
-			Amount *big.Int `json:"amount"`
-			Denom  string   `json:"denom"`
-		}{
-			Amount: coin.Amount.BigInt(),
-			Denom:  coin.Denom,
-		}
-	}
-	return evmCoins
 }

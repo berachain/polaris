@@ -74,6 +74,14 @@ var _ = Describe("ERC20", func() {
 			Expect(err).ToNot(HaveOccurred())
 			ExpectSuccessReceipt(tf.EthClient, tx)
 
+			tx, err = token.Mint(
+				tf.GenerateTransactOpts("alice"),
+				tf.Address("alice"),
+				big.NewInt(150),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectSuccessReceipt(tf.EthClient, tx)
+
 			// Call the polaris erc20 contract to set the allowance of the swapper contract.
 			tx, err = token.Approve(
 				tf.GenerateTransactOpts("alice"),
