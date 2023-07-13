@@ -137,7 +137,7 @@ var _ = Describe("Governance Precompile", func() {
 			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
 			govAcct := gk.GetGovernanceAccount(ctx).GetAddress()
 			err := cosmlib.MintCoinsToAddress(
-				ctx, bk, governancetypes.ModuleName,
+				sdk.UnwrapSDKContext(ctx), bk, governancetypes.ModuleName,
 				cosmlib.AccAddressToEthAddress(govAcct), "abera", big.NewInt(100),
 			)
 			Expect(err).ToNot(HaveOccurred())
