@@ -24,7 +24,7 @@ import (
 	"testing"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
-	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
+	network "pkg.berachain.dev/polaris/e2e/localnet/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -38,12 +38,12 @@ func TestCosmosPrecompiles(t *testing.T) {
 
 var _ = Describe("Auth", func() {
 	var (
-		tf             *localnet.TestFixture
+		tf             *network.TestFixture
 		authPrecompile *bindings.AuthModule
 	)
 
 	BeforeEach(func() {
-		tf = localnet.NewTestFixture(GinkgoT())
+		tf = network.NewTestFixture(GinkgoT())
 		authPrecompile, _ = bindings.NewAuthModule(
 			common.HexToAddress("0xBDF49C3C3882102fc017FFb661108c63a836D065"), tf.EthClient())
 	})

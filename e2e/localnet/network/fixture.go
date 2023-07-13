@@ -125,12 +125,12 @@ func (tf *TestFixture) Address(name string) common.Address {
 // setupTestAccounts loads all the test account private keys from the keys directory.
 func setupTestAccounts(keysMap map[string]*ecdsa.PrivateKey) error {
 	// get filePath of fixture.go
-	_, filePath, _, ok := runtime.Caller(1)
+	_, absFilePath, _, ok := runtime.Caller(1)
 	if !ok {
 		return errors.New("unable to get key files")
 	}
 
-	keysPath := filepath.Dir(filePath) + "/" + relativeKeysPath
+	keysPath := filepath.Join(filepath.Dir(absFilePath), relativeKeysPath)
 	keyFiles, err := os.ReadDir(keysPath)
 	if err != nil {
 		return err
@@ -138,7 +138,7 @@ func setupTestAccounts(keysMap map[string]*ecdsa.PrivateKey) error {
 
 	for _, keyFile := range keyFiles {
 		var privKey *ecdsa.PrivateKey
-		privKey, err = crypto.LoadECDSA(keysPath + keyFile.Name())
+		privKey, err = crypto.LoadECDSA(filepath.Join(keysPath, keyFile.Name()))
 		if err != nil {
 			return err
 		}

@@ -33,12 +33,12 @@ import (
 	sbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/testing/integration"
+	network "pkg.berachain.dev/polaris/e2e/localnet/network"
+	utils "pkg.berachain.dev/polaris/e2e/localnet/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
 func TestDistributionPrecompile(t *testing.T) {
@@ -46,35 +46,36 @@ func TestDistributionPrecompile(t *testing.T) {
 	RunSpecs(t, "cosmos/testing/integration/precompile/distribution")
 }
 
-var (
-	tf                *integration.TestFixture
-	precompile        *bindings.DistributionModule
-	stakingPrecompile *sbindings.StakingModule
-	bankPrecompile    *bbindings.BankModule
-	validator         common.Address
-)
-
-var _ = SynchronizedBeforeSuite(func() []byte {
-	// Setup the network and clients here.
-	tf = integration.NewTestFixture(GinkgoT())
-	// Setup the governance precompile.
-	precompile, _ = bindings.NewDistributionModule(
-		common.HexToAddress("0x69"),
-		tf.EthClient,
-	)
-	// Setup the staking precompile.
-	stakingPrecompile, _ = sbindings.NewStakingModule(
-		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
-	bankPrecompile, _ = bbindings.NewBankModule(
-		cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
-		tf.EthClient,
-	)
-	// Set the validator address.
-	validator = common.Address(tf.Network.Validators[0].Address.Bytes())
-	return nil
-}, func(data []byte) {})
-
 var _ = Describe("Distribution Precompile", func() {
+	var (
+		tf                *network.TestFixture
+		precompile        *bindings.DistributionModule
+		stakingPrecompile *sbindings.StakingModule
+		bankPrecompile    *bbindings.BankModule
+	)
+
+	BeforeEach(func() {
+		// Setup the network and clients here.
+		tf = network.NewTestFixture(GinkgoT())
+		// Setup the governance precompile.
+		precompile, _ = bindings.NewDistributionModule(
+			common.HexToAddress("0x69"),
+			tf.EthClient(),
+		)
+		// Setup the staking precompile.
+		stakingPrecompile, _ = sbindings.NewStakingModule(
+			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient())
+		bankPrecompile, _ = bbindings.NewBankModule(
+			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
+			tf.EthClient(),
+		)
+	})
+
+	AfterEach(func() {
+		err := tf.Teardown()
+		Expect(err).ToNot(HaveOccurred())
+	})
+
 	It("should be able to get if withdraw address is enabled", func() {
 		res, err := precompile.GetWithdrawEnabled(nil)
 		Expect(err).ToNot(HaveOccurred())
@@ -85,7 +86,7 @@ var _ = Describe("Distribution Precompile", func() {
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.SetWithdrawAddress(txr, common.BytesToAddress(addr))
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 	})
 	It("should be able to set withdraw address with ethereum address", func() {
 		addr := sdk.AccAddress("addr")
@@ -93,7 +94,7 @@ var _ = Describe("Distribution Precompile", func() {
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.SetWithdrawAddress(txr, ethAddr)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 	})
 	It("should be able to get delegator reward", func() {
 		// Delegate some tokens to an active validator.
@@ -105,31 +106,31 @@ var _ = Describe("Distribution Precompile", func() {
 		txr.Value = delegateAmt
 		tx, err := stakingPrecompile.Delegate(txr, val, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wait for the 2 block to be produced, to make sure there are rewards.
-		err = tf.Network.WaitForNextBlock()
+		err = tf.WaitForNextBlock()
 		Expect(err).ToNot(HaveOccurred())
-		err = tf.Network.WaitForNextBlock()
+		err = tf.WaitForNextBlock()
 		Expect(err).ToNot(HaveOccurred())
 
 		// Withdraw the rewards.
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = precompile.WithdrawDelegatorReward(txr, tf.Address("alice"), val)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 	})
 
 	It("Should be able to call the precompile via the contract", func() {
 		// Deploy the contract.
 		contractAddress, tx, contract, err := tbindings.DeployDistributionWrapper(
 			tf.GenerateTransactOpts("alice"),
-			tf.EthClient,
+			tf.EthClient(),
 			common.HexToAddress("0x69"),
 			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"),
 		)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		txr := tf.GenerateTransactOpts("alice")
 		amt := big.NewInt(123450000000)
@@ -140,7 +141,7 @@ var _ = Describe("Distribution Precompile", func() {
 			},
 		})
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Delegate some tokens to a validator.
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
@@ -151,19 +152,19 @@ var _ = Describe("Distribution Precompile", func() {
 		txr.Value = amt
 		tx, err = contract.Delegate(txr, val)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wait for the 2 block to be produced, to make sure there are rewards.
-		err = tf.Network.WaitForNextBlock()
+		err = tf.WaitForNextBlock()
 		Expect(err).ToNot(HaveOccurred())
-		err = tf.Network.WaitForNextBlock()
+		err = tf.WaitForNextBlock()
 		Expect(err).ToNot(HaveOccurred())
 
 		// Withdraw the rewards.
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = contract.WithdrawRewards(txr, contractAddress, val)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Get withdraw address enabled.
 		res, err := contract.GetWithdrawEnabled(nil)
@@ -176,6 +177,6 @@ var _ = Describe("Distribution Precompile", func() {
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = contract.SetWithdrawAddress(txr, ethAddr)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 	})
 })
