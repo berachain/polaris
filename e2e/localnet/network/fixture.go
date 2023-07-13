@@ -139,7 +139,7 @@ func setupTestAccounts(keysMap map[string]*ecdsa.PrivateKey) error {
 		keyFileName := keyFile.Name()
 
 		var privKey *ecdsa.PrivateKey
-		privKey, err = crypto.LoadECDSA(keysPath + keyFileName)
+		privKey, err = crypto.LoadECDSA(filepath.Join(keysPath, keyFile.Name()))
 		if err != nil {
 			return err
 		}
