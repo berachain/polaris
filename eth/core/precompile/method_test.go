@@ -21,7 +21,6 @@
 package precompile_test
 
 import (
-	"context"
 	"math/big"
 	"reflect"
 
@@ -42,7 +41,6 @@ var _ = Describe("Method", func() {
 				reflect.ValueOf(mockExecutable),
 			)
 			pCtx := precompile.NewPolarContext(
-				context.Background(),
 				mockEVM{},
 				common.Address{},
 				big.NewInt(0),
@@ -58,11 +56,7 @@ var _ = Describe("Method", func() {
 // MOCKS BELOW.
 
 func mockExecutable(
-	_ context.Context,
-	_ precompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ ...any,
+	polarCtx precompile.PolarContext,
 ) ([]any, error) {
 	return nil, nil
 }

@@ -151,7 +151,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 		It("should succeed", func() {
 
 			pCtx := ethprecompile.NewPolarContext(
-				ctx,
 				nil,
 				testutil.Alice,
 				big.NewInt(0),
@@ -226,7 +225,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 			It("Success", func() {
 				pCtx := ethprecompile.NewPolarContext(
-					ctx,
 					nil,
 					testutil.Alice,
 					big.NewInt(0),
@@ -246,7 +244,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 		When("Reading Params", func() {
 			It("Should get if withdraw forwarding is enabled", func() {
 				pCtx := ethprecompile.NewPolarContext(
-					ctx,
 					nil,
 					testutil.Alice,
 					big.NewInt(0),

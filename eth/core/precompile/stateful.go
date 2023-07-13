@@ -83,7 +83,7 @@ func (sc *stateful) Run(
 	// Execute the method with the reflected ctx and raw input
 	return method.Call(
 		sc.Registrable,
-		NewPolarContext(ctx, evm, caller, value),
+		NewPolarContext(evm, caller, value),
 		input,
 	)
 }

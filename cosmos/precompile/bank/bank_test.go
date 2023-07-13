@@ -66,7 +66,6 @@ var _ = Describe("Bank Precompile Test", func() {
 	BeforeEach(func() {
 		ctx, _, bk, _ = testutil.SetupMinimalKeepers()
 		pCtx = ethprecompile.NewPolarContext(
-			ctx,
 			nil,
 			common.Address{},
 			big.NewInt(0),

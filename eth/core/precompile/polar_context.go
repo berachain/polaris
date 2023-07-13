@@ -39,15 +39,14 @@ type PolarContext interface {
 }
 
 type polarCtx struct {
-	ctx    context.Context
+	context.Context
 	evm    EVM
 	caller common.Address
 	value  *big.Int
 }
 
-func NewPolarContext(ctx context.Context, evm EVM, caller common.Address, value *big.Int) PolarContext {
+func NewPolarContext(evm EVM, caller common.Address, value *big.Int) PolarContext {
 	return &polarCtx{
-		ctx:    ctx,
 		evm:    evm,
 		caller: caller,
 		value:  value,
@@ -55,7 +54,7 @@ func NewPolarContext(ctx context.Context, evm EVM, caller common.Address, value 
 }
 
 func (p *polarCtx) Ctx() context.Context {
-	return p.ctx
+	return p.Context
 }
 
 func (p *polarCtx) Evm() EVM {

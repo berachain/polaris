@@ -80,7 +80,6 @@ var _ = Describe("Governance Precompile", func() {
 		types.SetupCosmosConfig()
 		sf = ethprecompile.NewStatefulFactory()
 		pCtx = ethprecompile.NewPolarContext(
-			ctx,
 			nil,
 			cosmlib.AccAddressToEthAddress(caller),
 			big.NewInt(0),

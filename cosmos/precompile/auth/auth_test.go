@@ -54,11 +54,9 @@ func TestAddressPrecompile(t *testing.T) {
 
 var _ = Describe("Address Precompile", func() {
 	var contract *auth.Contract
-	var ctx sdk.Context
 	var sf *ethprecompile.StatefulFactory
 	BeforeEach(func() {
-		sdkctx, ak, _, _ := testutil.SetupMinimalKeepers()
-		ctx = sdkctx
+		_, ak, _, _ := testutil.SetupMinimalKeepers()
 		k := authzkeeper.NewKeeper(
 			runtime.NewKVStoreService(storetypes.NewKVStoreKey(authtypes.StoreKey)),
 			testutil.GetEncodingConfig().Codec,
@@ -117,7 +115,6 @@ var _ = Describe("Address Precompile", func() {
 			}
 
 			pCtx = ethprecompile.NewPolarContext(
-				ctx,
 				evm,
 				common.Address{},
 				new(big.Int),

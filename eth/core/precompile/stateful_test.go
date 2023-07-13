@@ -54,7 +54,6 @@ var _ = Describe("Stateful Container", func() {
 		Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 
 		pCtx = precompile.NewPolarContext(
-			context.Background(),
 			pmock.NewEVM(),
 			common.Address{},
 			big.NewInt(0),

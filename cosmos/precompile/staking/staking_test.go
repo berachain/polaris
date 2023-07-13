@@ -163,7 +163,7 @@ var _ = Describe("Staking", func() {
 			err = sk.SetParams(ctx, defaultParams)
 			Expect(err).ToNot(HaveOccurred())
 
-			pCtx = ethprecompile.NewPolarContext(ctx, nil, caller, big.NewInt(0))
+			pCtx = ethprecompile.NewPolarContext(nil, caller, big.NewInt(0))
 
 		})
 
