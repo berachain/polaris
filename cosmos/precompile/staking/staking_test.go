@@ -39,6 +39,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/polar"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -125,7 +127,7 @@ var _ = Describe("Staking", func() {
 			otherValidator stakingtypes.Validator
 			otherVal       sdk.ValAddress
 			caller         common.Address
-			pCtx           ethprecompile.PolarContext
+			pCtx           *polar.Context
 		)
 
 		BeforeEach(func() {
@@ -163,7 +165,7 @@ var _ = Describe("Staking", func() {
 			err = sk.SetParams(ctx, defaultParams)
 			Expect(err).ToNot(HaveOccurred())
 
-			pCtx = ethprecompile.NewPolarContext(nil, caller, big.NewInt(0))
+			pCtx = vm.NewPolarContext(ctx, nil, caller, big.NewInt(0))
 
 		})
 

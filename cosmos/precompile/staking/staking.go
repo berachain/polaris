@@ -21,6 +21,7 @@
 package staking
 
 import (
+	"context"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,6 +34,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/polar"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -58,51 +60,53 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 
 // GetValidators implements the `getValidator(address)` method.
 func (c *Contract) GetValidator(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	validatorAddr common.Address,
 ) ([]any, error) {
-	return c.validatorHelper(polarCtx.Ctx(), sdk.ValAddress(validatorAddr[:]).String())
+	return c.validatorHelper(ctx, sdk.ValAddress(validatorAddr[:]).String())
 }
 
 // GetDelegatorValidators implements the `getDelegatorValidators(address)` method.
 func (c *Contract) GetDelegatorValidators(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	delegatorAddr common.Address,
 ) ([]any, error) {
-	return c.delegatorValidatorsHelper(polarCtx.Ctx(), cosmlib.Bech32FromEthAddress(delegatorAddr))
+	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr))
 }
 
 // GetDelegation implements `getDelegation(address)` method.
 func (c *Contract) GetDelegation(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	delegatorAddress common.Address,
 	validatorAddress common.Address,
 ) ([]any, error) {
 	return c.getDelegationHelper(
-		polarCtx.Ctx(), cosmlib.AddressToAccAddress(delegatorAddress), cosmlib.AddressToValAddress(validatorAddress),
+		ctx,
+		cosmlib.AddressToAccAddress(delegatorAddress),
+		cosmlib.AddressToValAddress(validatorAddress),
 	)
 }
 
 // GetUnbondingDelegation implements the `getUnbondingDelegation(address,address)` method.
 func (c *Contract) GetUnbondingDelegation(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	delegatorAddress common.Address,
 	validatorAddress common.Address,
 ) ([]any, error) {
 	return c.getUnbondingDelegationHelper(
-		polarCtx.Ctx(), cosmlib.AddressToAccAddress(delegatorAddress), cosmlib.AddressToValAddress(validatorAddress),
+		ctx, cosmlib.AddressToAccAddress(delegatorAddress), cosmlib.AddressToValAddress(validatorAddress),
 	)
 }
 
 // GetRedelegations implements the `getRedelegations(address,address)` method.
 func (c *Contract) GetRedelegations(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	delegatorAddress common.Address,
 	srcValidator common.Address,
 	dstValidator common.Address,
 ) ([]any, error) {
 	return c.getRedelegationsHelper(
-		polarCtx.Ctx(),
+		ctx,
 		cosmlib.AddressToAccAddress(delegatorAddress),
 		cosmlib.AddressToValAddress(srcValidator),
 		cosmlib.AddressToValAddress(dstValidator),
@@ -111,32 +115,42 @@ func (c *Contract) GetRedelegations(
 
 // Delegate implements the `delegate(address,uint256)` method.
 func (c *Contract) Delegate(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	validatorAddress common.Address,
 	amount *big.Int,
 ) ([]any, error) {
-	return c.delegateHelper(polarCtx.Ctx(), polarCtx.Caller(), amount, cosmlib.AddressToValAddress(validatorAddress))
+	return c.delegateHelper(
+		ctx,
+		polar.UnwrapPolarContext(ctx).MsgSender(),
+		amount,
+		cosmlib.AddressToValAddress(validatorAddress),
+	)
 }
 
 // Undelegate implements the `undelegate(address,uint256)` method.
 func (c *Contract) Undelegate(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	validatorAddress common.Address,
 	amount *big.Int,
 ) ([]any, error) {
-	return c.undelegateHelper(polarCtx.Ctx(), polarCtx.Caller(), amount, cosmlib.AddressToValAddress(validatorAddress))
+	return c.undelegateHelper(
+		ctx,
+		polar.UnwrapPolarContext(ctx).MsgSender(),
+		amount,
+		cosmlib.AddressToValAddress(validatorAddress),
+	)
 }
 
 // BeginRedelegate implements the `beginRedelegate(address,address,uint256)` method.
 func (c *Contract) BeginRedelegate(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	srcValidator common.Address,
 	dstValidator common.Address,
 	amount *big.Int,
 ) ([]any, error) {
 	return c.beginRedelegateHelper(
-		polarCtx.Ctx(),
-		polarCtx.Caller(),
+		ctx,
+		polar.UnwrapPolarContext(ctx).MsgSender(),
 		amount,
 		cosmlib.AddressToValAddress(srcValidator),
 		cosmlib.AddressToValAddress(dstValidator),
@@ -145,32 +159,37 @@ func (c *Contract) BeginRedelegate(
 
 // CancelRedelegate implements the `cancelRedelegate(address,address,uint256,int64)` method.
 func (c *Contract) CancelUnbondingDelegation(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	validatorAddress common.Address,
 	amount *big.Int,
 	creationHeight int64,
 ) ([]any, error) {
 	return c.cancelUnbondingDelegationHelper(
-		polarCtx.Ctx(), polarCtx.Caller(), amount, cosmlib.AddressToValAddress(validatorAddress), creationHeight)
+		ctx,
+		polar.UnwrapPolarContext(ctx).MsgSender(),
+		amount,
+		cosmlib.AddressToValAddress(validatorAddress),
+		creationHeight,
+	)
 }
 
 // GetActiveValidators implements the `getActiveValidators()` method.
 func (c *Contract) GetActiveValidators(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 ) ([]any, error) {
-	return c.activeValidatorsHelper(polarCtx.Ctx())
+	return c.activeValidatorsHelper(ctx)
 }
 
 // GetValidators implements the `getValidators()` method.
 func (c *Contract) GetValidators(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 ) ([]any, error) {
-	return c.validatorsHelper(polarCtx.Ctx())
+	return c.validatorsHelper(ctx)
 }
 
 // GetValidators implements the `getValidator(address)` method.
 func (c *Contract) GetValidatorAddrInput(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	args ...any,
 ) ([]any, error) {
 	val, ok := utils.GetAs[common.Address](args[0])
@@ -178,12 +197,12 @@ func (c *Contract) GetValidatorAddrInput(
 		return nil, precompile.ErrInvalidHexAddress
 	}
 
-	return c.validatorHelper(polarCtx.Ctx(), sdk.ValAddress(val[:]).String())
+	return c.validatorHelper(ctx, sdk.ValAddress(val[:]).String())
 }
 
 // GetDelegatorValidatorsAddrInput implements the `getDelegatorValidators(address)` method.
 func (c *Contract) GetDelegatorValidatorsAddrInput(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	args ...any,
 ) ([]any, error) {
 	del, ok := utils.GetAs[common.Address](args[0])
@@ -191,5 +210,5 @@ func (c *Contract) GetDelegatorValidatorsAddrInput(
 		return nil, precompile.ErrInvalidHexAddress
 	}
 
-	return c.delegatorValidatorsHelper(polarCtx.Ctx(), cosmlib.Bech32FromEthAddress(del))
+	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(del))
 }

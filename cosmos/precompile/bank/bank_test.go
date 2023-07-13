@@ -42,6 +42,8 @@ import (
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/polar"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -60,12 +62,13 @@ var _ = Describe("Bank Precompile Test", func() {
 		factory  *log.Factory
 		bk       bankkeeper.BaseKeeper
 		ctx      sdk.Context
-		pCtx     ethprecompile.PolarContext
+		pCtx     *polar.Context
 	)
 
 	BeforeEach(func() {
 		ctx, _, bk, _ = testutil.SetupMinimalKeepers()
-		pCtx = ethprecompile.NewPolarContext(
+		pCtx = vm.NewPolarContext(
+			ctx,
 			nil,
 			common.Address{},
 			big.NewInt(0),

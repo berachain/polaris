@@ -41,6 +41,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/polar"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -55,8 +56,10 @@ func TestAddressPrecompile(t *testing.T) {
 var _ = Describe("Address Precompile", func() {
 	var contract *auth.Contract
 	var sf *ethprecompile.StatefulFactory
+	var ctx sdk.Context
 	BeforeEach(func() {
-		_, ak, _, _ := testutil.SetupMinimalKeepers()
+		sdkCtx, ak, _, _ := testutil.SetupMinimalKeepers()
+		ctx = sdkCtx
 		k := authzkeeper.NewKeeper(
 			runtime.NewKVStoreService(storetypes.NewKVStoreKey(authtypes.StoreKey)),
 			testutil.GetEncodingConfig().Codec,
@@ -102,7 +105,7 @@ var _ = Describe("Address Precompile", func() {
 			evm              *mock.PrecompileEVMMock
 			granter, grantee common.Address
 			limit            sdk.Coins
-			pCtx             ethprecompile.PolarContext
+			pCtx             *polar.Context
 		)
 
 		BeforeEach(func() {
@@ -114,7 +117,8 @@ var _ = Describe("Address Precompile", func() {
 				return &blockCtx
 			}
 
-			pCtx = ethprecompile.NewPolarContext(
+			pCtx = vm.NewPolarContext(
+				ctx,
 				evm,
 				common.Address{},
 				new(big.Int),

@@ -24,10 +24,13 @@ import (
 	"math/big"
 	"reflect"
 
+	"pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/polar"
 
+	"github.com/ethereum/go-ethereum/core/vm"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -35,13 +38,15 @@ import (
 var _ = Describe("Method", func() {
 	Context("Calling the method", func() {
 		It("should be able to call the Method's executable", func() {
+			ctx := utils.NewContext()
 			method := precompile.NewMethod(
 				&abi.Method{},
 				"mockExecutable()",
 				reflect.ValueOf(mockExecutable),
 			)
-			pCtx := precompile.NewPolarContext(
-				mockEVM{},
+			pCtx := vm.NewPolarContext(
+				ctx,
+				vm.NewEVMWithPrecompiles(vm.BlockContext{}, vm.TxContext{}, nil, nil, vm.Config{}, nil),
 				common.Address{},
 				big.NewInt(0),
 			)
@@ -56,7 +61,7 @@ var _ = Describe("Method", func() {
 // MOCKS BELOW.
 
 func mockExecutable(
-	polarCtx precompile.PolarContext,
+	polarCtx polar.Context,
 ) ([]any, error) {
 	return nil, nil
 }

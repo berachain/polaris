@@ -21,6 +21,8 @@
 package distribution
 
 import (
+	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
@@ -28,6 +30,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/polar"
 )
 
 // Contract is the precompile contract for the distribution module.
@@ -61,32 +64,32 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 
 // SetWithdrawAddress is the precompile contract method for the `setWithdrawAddress(address)` method.
 func (c *Contract) SetWithdrawAddress(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	withdrawAddress common.Address,
 ) ([]any, error) {
 	return c.setWithdrawAddressHelper(
-		polarCtx.Ctx(),
-		sdk.AccAddress(polarCtx.Caller().Bytes()),
+		ctx,
+		sdk.AccAddress(polar.UnwrapPolarContext(ctx).MsgSender().Bytes()),
 		sdk.AccAddress(withdrawAddress.Bytes()),
 	)
 }
 
 // GetWithdrawEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
 func (c *Contract) GetWithdrawEnabled(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 ) ([]any, error) {
-	return c.getWithdrawAddrEnabled(polarCtx.Ctx())
+	return c.getWithdrawAddrEnabled(ctx)
 }
 
 // WithdrawDelegatorReward is the precompile contract method for the
 // `withdrawDelegatorReward(address,address)` method.
 func (c *Contract) WithdrawDelegatorReward(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	delegator common.Address,
 	validator common.Address,
 ) ([]any, error) {
 	return c.withdrawDelegatorRewardsHelper(
-		polarCtx.Ctx(),
+		ctx,
 		sdk.AccAddress(delegator.Bytes()),
 		sdk.ValAddress(validator.Bytes()),
 	)

@@ -21,6 +21,8 @@
 package governance
 
 import (
+	"context"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -32,6 +34,7 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/polar"
 )
 
 // Contract is the precompile contract for the governance module.
@@ -66,7 +69,7 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 
 // SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
 func (c *Contract) SubmitProposal(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	proposalBz []byte,
 	messageBz []byte,
 ) ([]any, error) {
@@ -74,56 +77,56 @@ func (c *Contract) SubmitProposal(
 	if err != nil {
 		return nil, err
 	}
-	return c.submitProposalHelper(polarCtx.Ctx(), proposalBz, []*codectypes.Any{message})
+	return c.submitProposalHelper(ctx, proposalBz, []*codectypes.Any{message})
 }
 
 // CancelProposal is the method for the `cancelProposal` method of the governance precompile contract.
 func (c *Contract) CancelProposal(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	id uint64,
 ) ([]any, error) {
-	proposer := sdk.AccAddress(polarCtx.Caller().Bytes())
+	proposer := sdk.AccAddress(polar.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
-	return c.cancelProposalHelper(polarCtx.Ctx(), proposer, id)
+	return c.cancelProposalHelper(ctx, proposer, id)
 }
 
 // Vote is the method for the `vote` method of the governance precompile contract.
 func (c *Contract) Vote(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	proposalID uint64,
 	options int32,
 	metadata string,
 ) ([]any, error) {
-	voter := sdk.AccAddress(polarCtx.Caller().Bytes())
+	voter := sdk.AccAddress(polar.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
-	return c.voteHelper(polarCtx.Ctx(), voter, proposalID, options, metadata)
+	return c.voteHelper(ctx, voter, proposalID, options, metadata)
 }
 
 // VoteWeighted is the method for the `voteWeighted` method of the governance precompile contract.
 func (c *Contract) VoteWeighted(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	proposalID uint64,
 	options []generated.IGovernanceModuleWeightedVoteOption,
 	metadata string,
 ) ([]any, error) {
-	voter := sdk.AccAddress(polarCtx.Caller().Bytes())
-	return c.voteWeightedHelper(polarCtx.Ctx(), voter, proposalID, options, metadata)
+	voter := sdk.AccAddress(polar.UnwrapPolarContext(ctx).MsgSender().Bytes())
+	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
 }
 
 // GetProposal is the method for the `getProposal` method of the governance precompile contract.
 func (c *Contract) GetProposal(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	proposalID uint64,
 ) ([]any, error) {
-	return c.getProposalHelper(polarCtx.Ctx(), proposalID)
+	return c.getProposalHelper(ctx, proposalID)
 }
 
 // GetProposals is the method for the `getProposal` method of the governance precompile contract.
 func (c *Contract) GetProposals(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	proposalStatus int32,
 ) ([]any, error) {
-	return c.getProposalsHelper(polarCtx.Ctx(), proposalStatus)
+	return c.getProposalsHelper(ctx, proposalStatus)
 }
 
 // unmarshalMsgAndReturnAny unmarshals `[]byte` into a `codectypes.Any` message.

@@ -65,7 +65,7 @@ func NewStateful(
 // Run implements `PrecompileContainer`.
 func (sc *stateful) Run(
 	ctx context.Context,
-	evm EVM,
+	evm vm.PrecompileEVM,
 	input []byte,
 	caller common.Address,
 	value *big.Int,
@@ -83,7 +83,7 @@ func (sc *stateful) Run(
 	// Execute the method with the reflected ctx and raw input
 	return method.Call(
 		sc.Registrable,
-		NewPolarContext(evm, caller, value),
+		vm.NewPolarContext(ctx, evm, caller, value),
 		input,
 	)
 }

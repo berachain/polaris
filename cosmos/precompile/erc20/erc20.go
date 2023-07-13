@@ -21,6 +21,7 @@
 package erc20
 
 import (
+	"context"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -34,6 +35,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/polar"
 )
 
 // Contract is the precompile contract for the auth module.
@@ -76,11 +78,11 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 
 // CoinDenomForERC20Address returns the SDK coin denomination for the given ERC20 address.
 func (c *Contract) CoinDenomForERC20Address(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	token common.Address,
 ) ([]any, error) {
 	resp, err := c.em.CoinDenomForERC20Address(
-		polarCtx.Ctx(),
+		ctx,
 		&erc20types.CoinDenomForERC20AddressRequest{
 			Token: cosmlib.Bech32FromEthAddress(token),
 		},
@@ -94,11 +96,11 @@ func (c *Contract) CoinDenomForERC20Address(
 
 // Erc20AddressForCoinDenom returns the ERC20 address for the given SDK coin denomination.
 func (c *Contract) Erc20AddressForCoinDenom(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	denom string,
 ) ([]any, error) {
 	resp, err := c.em.ERC20AddressForCoinDenom(
-		polarCtx.Ctx(),
+		ctx,
 		&erc20types.ERC20AddressForCoinDenomRequest{
 			Denom: denom,
 		},
@@ -121,16 +123,16 @@ func (c *Contract) Erc20AddressForCoinDenom(
 
 // TransferCoinToERC20 transfers SDK coins to ERC20 tokens for msg.sender.
 func (c *Contract) TransferCoinToERC20(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	denom string,
 	amount *big.Int,
 ) ([]any, error) {
-	err := c.transferCoinToERC20(polarCtx.Ctx(),
-		polarCtx.Evm(),
-		polarCtx.Value(),
+	err := c.transferCoinToERC20(ctx,
+		polar.UnwrapPolarContext(ctx).Evm(),
+		polar.UnwrapPolarContext(ctx).MsgValue(),
 		denom,
-		polarCtx.Caller(),
-		polarCtx.Caller(),
+		polar.UnwrapPolarContext(ctx).MsgSender(),
+		polar.UnwrapPolarContext(ctx).MsgSender(),
 		amount,
 	)
 	return []any{err == nil}, err
@@ -138,16 +140,16 @@ func (c *Contract) TransferCoinToERC20(
 
 // TransferCoinToERC20From transfers SDK coins to ERC20 tokens from owner to recipient.
 func (c *Contract) TransferCoinToERC20From(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	denom string,
 	owner common.Address,
 	recipient common.Address,
 	amount *big.Int,
 ) ([]any, error) {
 	err := c.transferCoinToERC20(
-		polarCtx.Ctx(),
-		polarCtx.Evm(),
-		polarCtx.Value(),
+		ctx,
+		polar.UnwrapPolarContext(ctx).Evm(),
+		polar.UnwrapPolarContext(ctx).MsgValue(),
 		denom,
 		owner,
 		recipient,
@@ -158,17 +160,17 @@ func (c *Contract) TransferCoinToERC20From(
 
 // TransferCoinToERC20To transfers SDK coins to ERC20 tokens from msg.sender to recipient.
 func (c *Contract) TransferCoinToERC20To(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	denom string,
 	recipient common.Address,
 	amount *big.Int,
 ) ([]any, error) {
 	err := c.transferCoinToERC20(
-		polarCtx.Ctx(),
-		polarCtx.Evm(),
-		polarCtx.Value(),
+		ctx,
+		polar.UnwrapPolarContext(ctx).Evm(),
+		polar.UnwrapPolarContext(ctx).MsgValue(),
 		denom,
-		polarCtx.Caller(),
+		polar.UnwrapPolarContext(ctx).MsgSender(),
 		recipient,
 		amount,
 	)
@@ -177,17 +179,17 @@ func (c *Contract) TransferCoinToERC20To(
 
 // TransferERC20ToCoin transfers ERC20 tokens to SDK coins for msg.sender.
 func (c *Contract) TransferERC20ToCoin(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	token common.Address,
 	amount *big.Int,
 ) ([]any, error) {
 	err := c.transferERC20ToCoin(
-		polarCtx.Ctx(),
-		polarCtx.Caller(),
-		polarCtx.Evm(),
+		ctx,
+		polar.UnwrapPolarContext(ctx).MsgSender(),
+		polar.UnwrapPolarContext(ctx).Evm(),
 		token,
-		polarCtx.Caller(),
-		polarCtx.Caller(),
+		polar.UnwrapPolarContext(ctx).MsgSender(),
+		polar.UnwrapPolarContext(ctx).MsgSender(),
 		amount,
 	)
 	return []any{err == nil}, err
@@ -195,16 +197,16 @@ func (c *Contract) TransferERC20ToCoin(
 
 // TransferERC20ToCoinFrom transfers ERC20 tokens to SDK coins from owner to recipient.
 func (c *Contract) TransferERC20ToCoinFrom(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	token common.Address,
 	owner common.Address,
 	recipient common.Address,
 	amount *big.Int,
 ) ([]any, error) {
 	err := c.transferERC20ToCoin(
-		polarCtx.Ctx(),
-		polarCtx.Caller(),
-		polarCtx.Evm(),
+		ctx,
+		polar.UnwrapPolarContext(ctx).MsgSender(),
+		polar.UnwrapPolarContext(ctx).Evm(),
 		token,
 		owner,
 		recipient,
@@ -215,17 +217,17 @@ func (c *Contract) TransferERC20ToCoinFrom(
 
 // TransferERC20ToCoinTo transfers ERC20 tokens to SDK coins from msg.sender to recipient.
 func (c *Contract) TransferERC20ToCoinTo(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	token common.Address,
 	recipient common.Address,
 	amount *big.Int,
 ) ([]any, error) {
 	err := c.transferERC20ToCoin(
-		polarCtx.Ctx(),
-		polarCtx.Caller(),
-		polarCtx.Evm(),
+		ctx,
+		polar.UnwrapPolarContext(ctx).MsgSender(),
+		polar.UnwrapPolarContext(ctx).Evm(),
 		token,
-		polarCtx.Caller(),
+		polar.UnwrapPolarContext(ctx).MsgSender(),
 		recipient,
 		amount,
 	)

@@ -44,6 +44,8 @@ import (
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/types"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/polar"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -64,7 +66,7 @@ var _ = Describe("Governance Precompile", func() {
 		mockCtrl *gomock.Controller
 		contract *Contract
 		sf       *ethprecompile.StatefulFactory
-		pCtx     ethprecompile.PolarContext
+		pCtx     *polar.Context
 	)
 
 	BeforeEach(func() {
@@ -79,7 +81,8 @@ var _ = Describe("Governance Precompile", func() {
 		))
 		types.SetupCosmosConfig()
 		sf = ethprecompile.NewStatefulFactory()
-		pCtx = ethprecompile.NewPolarContext(
+		pCtx = vm.NewPolarContext(
+			ctx,
 			nil,
 			cosmlib.AccAddressToEthAddress(caller),
 			big.NewInt(0),
@@ -162,7 +165,7 @@ var _ = Describe("Governance Precompile", func() {
 			Expect(err).ToNot(HaveOccurred())
 			// Submit the proposal.
 			res, err := contract.SubmitProposal(
-				pCtx,
+				*pCtx,
 				proposalBz,
 				msgBz,
 			)

@@ -20,6 +20,7 @@
 package auth
 
 import (
+	"context"
 	"math/big"
 	"time"
 
@@ -31,6 +32,7 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/polar"
 )
 
 // Contract is the precompile contract for the auth(z) module.
@@ -62,15 +64,15 @@ func NewPrecompileContract(
 
 // GetAccountInfoStringInput implements `getAccountInfo(address)`.
 func (c *Contract) GetAccountInfo(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	account common.Address,
 ) ([]any, error) {
-	return c.accountInfoHelper(polarCtx.Ctx(), cosmlib.Bech32FromEthAddress(account))
+	return c.accountInfoHelper(ctx, cosmlib.Bech32FromEthAddress(account))
 }
 
 // SetSendAllowance sends a send authorization message to the authz module.
 func (c *Contract) SetSendAllowance(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	owner common.Address,
 	spender common.Address,
 	amount any,
@@ -81,8 +83,8 @@ func (c *Contract) SetSendAllowance(
 		return nil, err
 	}
 	return c.setSendAllowanceHelper(
-		polarCtx.Ctx(),
-		time.Unix(int64(polarCtx.Evm().GetContext().Time), 0),
+		ctx,
+		time.Unix(int64(polar.UnwrapPolarContext(ctx).Evm().GetContext().Time), 0),
 		cosmlib.AddressToAccAddress(owner),
 		cosmlib.AddressToAccAddress(spender),
 		amt,
@@ -92,14 +94,14 @@ func (c *Contract) SetSendAllowance(
 
 // GetSendAllowance returns the amount of tokens that the spender is allowd to spend.
 func (c *Contract) GetSendAllowance(
-	polarCtx ethprecompile.PolarContext,
+	ctx context.Context,
 	owner common.Address,
 	spender common.Address,
 	denom string,
 ) ([]any, error) {
 	return c.getSendAllownaceHelper(
-		polarCtx.Ctx(),
-		time.Unix(int64(polarCtx.Evm().GetContext().Time), 0),
+		ctx,
+		time.Unix(int64(polar.UnwrapPolarContext(ctx).Evm().GetContext().Time), 0),
 		cosmlib.AddressToAccAddress(owner),
 		cosmlib.AddressToAccAddress(spender),
 		denom,
