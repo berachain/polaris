@@ -33,7 +33,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// TODO: Add these functions to thevm.PrecompileEVM object itself to allow enforcing calls into
+// TODO: Add these functions to the EVM object itself to allow enforcing calls into
 // EVM automatically (i.e. precompile cannot bypass these calls to enter the EVM via call/create
 // when in read-only mode). Use gas pool to consume gas rather than Cosmos gas meter.
 
