@@ -89,8 +89,7 @@ func (c *PolarContext) Block() *BlockContext {
 // context.Context implementation
 // =============================================================================
 
-//nolint:nonamedreturns // context package uses named returns.
-func (c *PolarContext) Deadline() (deadline time.Time, ok bool) {
+func (c *PolarContext) Deadline() (time.Time, bool) {
 	return c.baseCtx.Deadline()
 }
 
