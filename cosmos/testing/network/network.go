@@ -225,8 +225,8 @@ func getTestMetadata() []banktypes.Metadata {
 				{Denom: "nbera", Exponent: uint32(9), Aliases: []string{"nanobera"}},
 				{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
 			},
-			Base:    "bera",
-			Display: "bera",
+			Base:    "abera",
+			Display: "abera",
 		},
 		{
 			Name:        "Token",
