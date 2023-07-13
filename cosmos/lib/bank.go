@@ -45,7 +45,6 @@ func MintCoinsToAddress(
 	if err := bk.MintCoins(ctx, moduleAcc, coins); err != nil {
 		return err
 	}
-
 	// Send the bank denomination to the receipient.
 	return bk.SendCoinsFromModuleToAccount(ctx, moduleAcc, recipient.Bytes(), coins)
 }

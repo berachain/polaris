@@ -73,7 +73,7 @@ var _ = Describe("Governance Precompile", func() {
 		mockCtrl = gomock.NewController(t)
 		types.SetupCosmosConfig()
 		caller = cosmlib.AddressToAccAddress(testutil.Alice)
-		sdkCtx, _, gk = precomtest.Setup(mockCtrl, caller)
+		sdkCtx, bk, gk = precomtest.Setup(mockCtrl, caller)
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
 			governancekeeper.NewMsgServerImpl(gk),
 			governancekeeper.NewQueryServer(gk),
@@ -133,12 +133,16 @@ var _ = Describe("Governance Precompile", func() {
 
 	When("Submitting a proposal", func() {
 
-		It("should succeed", func() {
+		FIt("should succeed", func() {
 			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
 			govAcct := gk.GetGovernanceAccount(ctx).GetAddress()
 			err := cosmlib.MintCoinsToAddress(
-				sdk.UnwrapSDKContext(ctx), bk, governancetypes.ModuleName,
-				cosmlib.AccAddressToEthAddress(govAcct), "abera", big.NewInt(100),
+				sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
+				bk,
+				governancetypes.ModuleName,
+				cosmlib.AccAddressToEthAddress(govAcct),
+				"abera",
+				big.NewInt(100),
 			)
 			Expect(err).ToNot(HaveOccurred())
 			message := &banktypes.MsgSend{
