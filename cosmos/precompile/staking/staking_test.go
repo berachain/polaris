@@ -41,6 +41,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/core/vm/mock"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -127,6 +128,7 @@ var _ = Describe("Staking", func() {
 			otherValidator stakingtypes.Validator
 			otherVal       sdk.ValAddress
 			caller         common.Address
+			mockEVM        *mock.PrecompileEVMMock
 			ctx            context.Context
 		)
 
@@ -147,6 +149,9 @@ var _ = Describe("Staking", func() {
 
 			validator, _ = validator.AddTokensFromDel(sdkmath.NewIntFromBigInt(amount))
 			otherValidator, _ = otherValidator.AddTokensFromDel(sdkmath.NewIntFromBigInt(amount))
+
+			mockEVM = mock.NewEVM()
+			ctx = vm.NewPolarContext(sdkCtx, mockEVM, caller, big.NewInt(0))
 
 			validator = stakingkeeper.TestingUpdateValidator(
 				&sk,
@@ -174,8 +179,6 @@ var _ = Describe("Staking", func() {
 			defaultParams.BondDenom = "stake"
 			err = sk.SetParams(ctx, defaultParams)
 			Expect(err).ToNot(HaveOccurred())
-
-			ctx = vm.NewPolarContext(sdkCtx, nil, caller, big.NewInt(0))
 
 		})
 
@@ -245,7 +248,7 @@ var _ = Describe("Staking", func() {
 
 		When("CancelUnbondingDelegation", func() {
 			It("should succeed", func() {
-				creationHeight := vm.UnwrapPolarContext(ctx).Block().BlockNumber.Int64()
+				creationHeight := sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()).BlockHeight()
 				amount, ok := new(big.Int).SetString("1", 10)
 				Expect(ok).To(BeTrue())
 

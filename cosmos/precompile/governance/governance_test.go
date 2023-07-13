@@ -133,7 +133,7 @@ var _ = Describe("Governance Precompile", func() {
 
 	When("Submitting a proposal", func() {
 
-		FIt("should succeed", func() {
+		It("should succeed", func() {
 			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
 			govAcct := gk.GetGovernanceAccount(ctx).GetAddress()
 			err := cosmlib.MintCoinsToAddress(

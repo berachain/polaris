@@ -21,18 +21,25 @@
 package mock
 
 import (
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/core/state"
 
-	"pkg.berachain.dev/polaris/eth/core/vm/mock"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
-//go:generate moq -out ./evm.mock.go -skip-ensure -pkg mock ../ EVM
+//go:generate moq -out ./evm.mock.go -skip-ensure -pkg mock ../ PrecompileEVM
 
-func NewEVM() *EVMMock {
-	mockSDB := mock.NewEmptyStateDB()
-	return &EVMMock{
+func NewEVM() *PrecompileEVMMock {
+	mockSDB := NewEmptyStateDB()
+	return &PrecompileEVMMock{
 		GetStateDBFunc: func() state.StateDBI {
 			return mockSDB
+		},
+		GetContextFunc: func() *vm.BlockContext {
+			return &vm.BlockContext{
+				BlockNumber: big.NewInt(1),
+			}
 		},
 	}
 }

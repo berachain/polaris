@@ -29,9 +29,9 @@ import (
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
-	pmock "pkg.berachain.dev/polaris/eth/core/precompile/mock"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	evmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -54,7 +54,7 @@ var _ = Describe("Stateful Container", func() {
 		Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 		ctx = vm.NewPolarContext(
 			context.Background(),
-			pmock.NewEVM(),
+			evmmock.NewEVM(),
 			common.Address{},
 			big.NewInt(0),
 		)
