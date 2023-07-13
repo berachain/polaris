@@ -25,8 +25,6 @@ import (
 	"errors"
 	"math/big"
 
-	sdkmath "cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	abi "github.com/ethereum/go-ethereum/accounts/abi"
@@ -39,9 +37,12 @@ import (
 )
 
 const (
+	p            = `p`
 	balanceOf    = `balanceOf`
 	transfer     = `transfer`
 	transferFrom = `transferFrom`
+	mint         = `mint`
+	burn         = `burn`
 )
 
 var (
@@ -63,86 +64,80 @@ func (c *Contract) transferCoinToERC20(
 	recipient common.Address,
 	amount *big.Int,
 ) error {
-	if amount.Cmp(new(big.Int)) <= 0 {
+	if amount.Cmp(common.Big0) <= 0 {
 		return ErrInvalidAmount
 	}
 
-	var (
-		sdkCtx         = sdk.UnwrapSDKContext(ctx)
-		isPolarisDenom = erc20types.IsPolarisDenom(denom)
-	)
-
-	// 1) Handle the incoming SDK/Polaris coins
-	if isPolarisDenom { // transferring Polaris coins to ERC20 originated tokens
-		// burn amount Polaris coins from owner
-		if err := cosmlib.BurnCoinsFromAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
-			return err
-		}
-	} else { // transferring IBC-originated SDK coins to Polaris ERC20 tokens
-		// send bank-module backed tokens from owner to recipient
-		if err := c.bk.SendCoins(
-			sdkCtx,
-			cosmlib.AddressToAccAddress(owner),
-			cosmlib.AddressToAccAddress(recipient),
-			sdk.Coins{{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)}},
-		); err != nil {
-			return err
-		}
-	}
-
-	// 2) Handle the outgoing (Polaris)ERC20 tokens
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	resp, err := c.em.ERC20AddressForCoinDenom(
-		ctx, &erc20types.ERC20AddressForCoinDenomRequest{
+		sdkCtx, &erc20types.ERC20AddressForCoinDenomRequest{
 			Denom: denom,
 		},
 	)
 	if err != nil {
 		return err
 	}
-	if resp.Token == "" { //nolint:nestif // readability.
-		// first occurrence of an IBC originated SDK coin
 
-		// TODO: require that the SDK coin has denom metadata registered.
-		// if !c.bk.HasDenomMetaData(sdkCtx, denom) {
-		// 	return fmt.Errorf("coin %s does not have metadata registered", denom)
-		// }
+	// burn the incoming SDK/Polaris coins from owner
+	if err := cosmlib.BurnCoinsFromAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
+		return err
+	}
 
-		// deploy the new PolarisERC20 token contract
-		// NOTE: deployer of this contract is the ERC20 precompile account, NOT the msg.sender
-		// NOTE: the incoming coin's denom must have a denomMetadata set in the bank keeper
-		// (ref: https://github.com/berachain/polaris/issues/682)
-		var token common.Address
+	// determine the outgoing (Polaris)ERC20 token
+	var token common.Address
+	if resp.Token == "" {
+		// first occurrence of an IBC originated SDK coin, must be created as a Polaris ERC20 token
+
+		// deploy the new ERC20 token contract (deployer of this contract is the ERC20 module!)
 		if token, _, err = cosmlib.DeployOnEVMFromPrecompile(
 			sdkCtx, c.GetPlugin(), evm,
 			c.RegistryKey(), c.polarisERC20ABI, value,
-			c.polarisERC20Bin, denom,
+			c.polarisERC20Bin, p+denom,
 		); err != nil {
 			return err
 		}
 
 		// create the new ERC20 token contract pairing with SDK coin denomination
 		c.em.RegisterCoinERC20Pair(sdkCtx, denom, token)
-	} else if isPolarisDenom {
-		// subesequent occurrence of Polaris coins
+	} else {
+		// subsequent occurrence of an IBC-originated SDK coin OR an ERC20 originated token's
+		// Polaris coin counterpart
 
 		// convert ERC20 token bech32 address to common.Address
 		var tokenAcc sdk.AccAddress
 		if tokenAcc, err = sdk.AccAddressFromBech32(resp.Token); err != nil {
 			return err
 		}
-		token := cosmlib.AccAddressToEthAddress(tokenAcc)
+		token = cosmlib.AccAddressToEthAddress(tokenAcc)
 
 		// return an error if the ERC20 token contract does not exist to revert the tx
 		if !evm.GetStateDB().Exist(token) {
 			return ErrTokenDoesNotExist
 		}
+	}
 
-		// transfer escrowed amount ERC20-originated tokens to the recipient
+	// handle the outgoing (Polaris)ERC20 tokens
+	if erc20types.IsPolarisDenom(denom) {
+		// converting Polaris coins to ERC20 originated tokens
 		// NOTE: it is guaranteed that the ERC20 tokens were transferred to the ERC20 module
+		// precompile contract as escrow before this case is reached.
+
+		// transfer amount ERC20 tokens to the recipient
 		if _, err = cosmlib.CallEVMFromPrecompile(
 			sdkCtx, c.GetPlugin(), evm,
-			c.RegistryKey(), token, c.polarisERC20ABI, big.NewInt(0),
+			c.RegistryKey(), token, c.polarisERC20ABI, common.Big0,
 			transfer, recipient, amount,
+		); err != nil {
+			return err
+		}
+	} else {
+		// converting IBC-originated SDK coins to Polaris ERC20 tokens
+
+		// mint amount PolarisERC20 tokens to the recipient
+		if _, err = cosmlib.CallEVMFromPrecompile(
+			sdkCtx, c.GetPlugin(), evm,
+			c.RegistryKey(), token, c.polarisERC20ABI, common.Big0,
+			mint, recipient, amount,
 		); err != nil {
 			return err
 		}
@@ -171,7 +166,7 @@ func (c *Contract) transferERC20ToCoin(
 	recipient common.Address,
 	amount *big.Int,
 ) error {
-	if amount.Cmp(new(big.Int)) <= 0 {
+	if amount.Cmp(common.Big0) <= 0 {
 		return ErrInvalidAmount
 	}
 
@@ -193,8 +188,9 @@ func (c *Contract) transferERC20ToCoin(
 		denom = c.em.RegisterERC20CoinPair(sdkCtx, token)
 	}
 
-	//nolint:nestif // readability.
-	if erc20types.IsPolarisDenom(denom) { // transferring ERC20 originated tokens to Polaris coins
+	if erc20types.IsPolarisDenom(denom) { //nolint:nestif // readability.
+		// transferring ERC20 originated tokens to Polaris coins
+
 		// return an error if the ERC20 token contract does not exist to revert the tx
 		if !evm.GetStateDB().Exist(token) {
 			return ErrTokenDoesNotExist
@@ -214,12 +210,11 @@ func (c *Contract) transferERC20ToCoin(
 			return err
 		}
 
-		// caller transfers amount ERC20 tokens from owner to ERC20 module precompile contract in
-		// escrow
+		// caller transfers amount ERC20 tokens from owner to ERC20 module in escrow
 		// NOTE: owner must have previously approved the ERC20 Module to spend amount ERC20 tokens
 		if _, err = cosmlib.CallEVMFromPrecompile(
 			sdkCtx, plugin, evm,
-			erc20Module, token, c.polarisERC20ABI, big.NewInt(0),
+			erc20Module, token, c.polarisERC20ABI, common.Big0,
 			transferFrom, owner, erc20Module, amount,
 		); err != nil {
 			return err
@@ -232,21 +227,23 @@ func (c *Contract) transferERC20ToCoin(
 			return err
 		}
 
-		// mint amount Polaris Coins to recipient
 		amount = new(big.Int).Sub(balanceAfter, balanceBefore)
-		if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, recipient, denom, amount); err != nil {
-			return err
-		}
-	} else { // transferring Polaris ERC20 tokens to IBC-originated SDK coins
-		// send bank module-backed tokens from owner to recipient
-		if err = c.bk.SendCoins(
-			sdkCtx,
-			cosmlib.AddressToAccAddress(owner),
-			cosmlib.AddressToAccAddress(recipient),
-			sdk.Coins{{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)}},
+	} else {
+		// transferring Polaris ERC20 tokens to IBC-originated SDK coins
+
+		// burn amount ERC20 tokens from owner
+		if _, err = cosmlib.CallEVMFromPrecompile(
+			sdkCtx, c.GetPlugin(), evm,
+			c.RegistryKey(), token, c.polarisERC20ABI, common.Big0,
+			burn, owner, amount,
 		); err != nil {
 			return err
 		}
+	}
+
+	// mint amount SDK/Polaris Coins to recipient
+	if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, recipient, denom, amount); err != nil {
+		return err
 	}
 
 	// emit an event at the end of this successful transfer

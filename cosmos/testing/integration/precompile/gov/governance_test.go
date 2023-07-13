@@ -102,7 +102,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 			},
 		}
 		txr = tf.GenerateTransactOpts("alice")
-		tx, err = bankPrecompile.Send(txr, tf.Address("alice"), wrapperAddr, coins)
+		tx, err = bankPrecompile.Send(txr, wrapperAddr, coins)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient, tx)
 

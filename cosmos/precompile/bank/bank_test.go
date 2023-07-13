@@ -519,9 +519,8 @@ var _ = Describe("Bank Precompile Test", func() {
 				_, err = contract.Send(
 					ctx,
 					nil,
-					caller,
-					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(fromAcc),
+					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(toAcc),
 					sdkCoinsToEvmCoins(sortedSdkCoins),
 				)
@@ -555,9 +554,8 @@ var _ = Describe("Bank Precompile Test", func() {
 				_, err = contract.Send(
 					ctx,
 					nil,
-					caller,
-					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(fromAcc),
+					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(toAcc),
 					sdkCoinsToEvmCoins(coinsToSend),
 				)
