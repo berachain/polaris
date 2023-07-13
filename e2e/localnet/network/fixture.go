@@ -124,6 +124,7 @@ func (tf *TestFixture) Address(name string) common.Address {
 
 // setupTestAccounts loads all the test account private keys from the keys directory.
 func setupTestAccounts(keysMap map[string]*ecdsa.PrivateKey) error {
+	// get filePath of fixture.go
 	_, filePath, _, ok := runtime.Caller(1)
 	if !ok {
 		return errors.New("unable to get key files")

@@ -30,8 +30,7 @@ import (
 )
 
 const (
-	baseImage   = "polard/base:v0.0.0"
-	genesisPath = "config"
+	baseImage = "polard/base:v0.0.0"
 
 	localnetDockerPath = "./e2e/localnet"
 	localnetRepository = "localnet"
@@ -45,7 +44,6 @@ func (Localnet) Build() error {
 		func(...string) error {
 			return dockerBuildFn(false)(
 				"--build-arg", "GO_VERSION="+goVersion,
-				"--build-arg", "GENESIS_PATH="+genesisPath,
 				"--build-arg", "BASE_IMAGE="+baseImage,
 				"-t", localnetRepository+":"+localnetVersion,
 				".",
