@@ -54,7 +54,7 @@ var (
 
 // transferCoinToERC20 transfers SDK/Polaris coins to ERC20 tokens for an owner.
 //
-//nolint:funlen // okay.
+
 func (c *Contract) transferCoinToERC20(
 	ctx context.Context,
 	evm ethprecompile.EVM,
@@ -79,7 +79,7 @@ func (c *Contract) transferCoinToERC20(
 	}
 
 	// burn the incoming SDK/Polaris coins from owner
-	if err := cosmlib.BurnCoinsFromAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
+	if err = cosmlib.BurnCoinsFromAddress(sdkCtx, c.bk, erc20types.ModuleName, owner, denom, amount); err != nil {
 		return err
 	}
 
