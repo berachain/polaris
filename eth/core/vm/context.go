@@ -35,7 +35,7 @@ type ContextKey string
 // PolarContextKey is the key in the context.Context which holds the polar.Context.
 const PolarContextKey ContextKey = "polar-context"
 
-// Compile-time assertion that polar.Context implements context.Context.
+// Compile-time assertion that PolarContext implements context.Context.
 var _ context.Context = (*PolarContext)(nil)
 
 // Context is the context for a Polaris EVM execution.
