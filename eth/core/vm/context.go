@@ -118,3 +118,9 @@ func UnwrapPolarContext(ctx context.Context) *PolarContext {
 	}
 	return utils.MustGetAs[*PolarContext](ctx.Value(PolarContextKey))
 }
+
+// WithVaue attaches a value to the context.
+func (c *PolarContext) WithValue(key, value interface{}) *PolarContext {
+	c.baseCtx = context.WithValue(c.baseCtx, key, value)
+	return c
+}

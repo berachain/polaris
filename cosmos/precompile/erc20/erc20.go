@@ -127,12 +127,13 @@ func (c *Contract) TransferCoinToERC20(
 	denom string,
 	amount *big.Int,
 ) ([]any, error) {
+	polarCtx := vm.UnwrapPolarContext(ctx)
 	err := c.transferCoinToERC20(ctx,
-		vm.UnwrapPolarContext(ctx).Evm(),
-		vm.UnwrapPolarContext(ctx).MsgValue(),
+		polarCtx.Evm(),
+		polarCtx.MsgValue(),
 		denom,
-		vm.UnwrapPolarContext(ctx).MsgSender(),
-		vm.UnwrapPolarContext(ctx).MsgSender(),
+		polarCtx.MsgSender(),
+		polarCtx.MsgSender(),
 		amount,
 	)
 	return []any{err == nil}, err
@@ -146,10 +147,11 @@ func (c *Contract) TransferCoinToERC20From(
 	recipient common.Address,
 	amount *big.Int,
 ) ([]any, error) {
+	polarCtx := vm.UnwrapPolarContext(ctx)
 	err := c.transferCoinToERC20(
 		ctx,
-		vm.UnwrapPolarContext(ctx).Evm(),
-		vm.UnwrapPolarContext(ctx).MsgValue(),
+		polarCtx.Evm(),
+		polarCtx.MsgValue(),
 		denom,
 		owner,
 		recipient,
@@ -165,12 +167,13 @@ func (c *Contract) TransferCoinToERC20To(
 	recipient common.Address,
 	amount *big.Int,
 ) ([]any, error) {
+	polarCtx := vm.UnwrapPolarContext(ctx)
 	err := c.transferCoinToERC20(
 		ctx,
-		vm.UnwrapPolarContext(ctx).Evm(),
-		vm.UnwrapPolarContext(ctx).MsgValue(),
+		polarCtx.Evm(),
+		polarCtx.MsgValue(),
 		denom,
-		vm.UnwrapPolarContext(ctx).MsgSender(),
+		polarCtx.MsgSender(),
 		recipient,
 		amount,
 	)
@@ -183,13 +186,14 @@ func (c *Contract) TransferERC20ToCoin(
 	token common.Address,
 	amount *big.Int,
 ) ([]any, error) {
+	polarCtx := vm.UnwrapPolarContext(ctx)
 	err := c.transferERC20ToCoin(
 		ctx,
-		vm.UnwrapPolarContext(ctx).MsgSender(),
-		vm.UnwrapPolarContext(ctx).Evm(),
+		polarCtx.MsgSender(),
+		polarCtx.Evm(),
 		token,
-		vm.UnwrapPolarContext(ctx).MsgSender(),
-		vm.UnwrapPolarContext(ctx).MsgSender(),
+		polarCtx.MsgSender(),
+		polarCtx.MsgSender(),
 		amount,
 	)
 	return []any{err == nil}, err
@@ -203,10 +207,11 @@ func (c *Contract) TransferERC20ToCoinFrom(
 	recipient common.Address,
 	amount *big.Int,
 ) ([]any, error) {
+	polarCtx := vm.UnwrapPolarContext(ctx)
 	err := c.transferERC20ToCoin(
 		ctx,
-		vm.UnwrapPolarContext(ctx).MsgSender(),
-		vm.UnwrapPolarContext(ctx).Evm(),
+		polarCtx.MsgSender(),
+		polarCtx.Evm(),
 		token,
 		owner,
 		recipient,
@@ -222,12 +227,13 @@ func (c *Contract) TransferERC20ToCoinTo(
 	recipient common.Address,
 	amount *big.Int,
 ) ([]any, error) {
+	polarCtx := vm.UnwrapPolarContext(ctx)
 	err := c.transferERC20ToCoin(
 		ctx,
-		vm.UnwrapPolarContext(ctx).MsgSender(),
-		vm.UnwrapPolarContext(ctx).Evm(),
+		polarCtx.MsgSender(),
+		polarCtx.Evm(),
 		token,
-		vm.UnwrapPolarContext(ctx).MsgSender(),
+		polarCtx.MsgSender(),
 		recipient,
 		amount,
 	)

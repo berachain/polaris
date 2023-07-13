@@ -54,7 +54,7 @@ var _ = Describe("Method", func() {
 			// method call as the first parameter to thef function. this is taken care of for the
 			// caller of the precompile under the hood, and users dont have to worry when
 			// implementing their own precompiles.
-			sc, _ := precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
+			sc := &mockStateful{&mockBase{}}
 			res, err := method.Call(sc, ctx, []byte{0, 0, 0, 0})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).To(BeNil())

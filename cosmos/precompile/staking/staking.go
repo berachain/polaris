@@ -31,11 +31,9 @@ import (
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Contract is the precompile contract for the staking module.
@@ -56,6 +54,20 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 		msgServer: stakingkeeper.NewMsgServerImpl(sk),
 		querier:   stakingkeeper.Querier{Keeper: sk},
 	}
+}
+
+// GetActiveValidators implements the `getActiveValidators()` method.
+func (c *Contract) GetActiveValidators(
+	ctx context.Context,
+) ([]any, error) {
+	return c.activeValidatorsHelper(ctx)
+}
+
+// GetValidators implements the `getValidators()` method.
+func (c *Contract) GetValidators(
+	ctx context.Context,
+) ([]any, error) {
+	return c.validatorsHelper(ctx)
 }
 
 // GetValidators implements the `getValidator(address)` method.
@@ -171,44 +183,4 @@ func (c *Contract) CancelUnbondingDelegation(
 		cosmlib.AddressToValAddress(validatorAddress),
 		creationHeight,
 	)
-}
-
-// GetActiveValidators implements the `getActiveValidators()` method.
-func (c *Contract) GetActiveValidators(
-	ctx context.Context,
-) ([]any, error) {
-	return c.activeValidatorsHelper(ctx)
-}
-
-// GetValidators implements the `getValidators()` method.
-func (c *Contract) GetValidators(
-	ctx context.Context,
-) ([]any, error) {
-	return c.validatorsHelper(ctx)
-}
-
-// GetValidators implements the `getValidator(address)` method.
-func (c *Contract) GetValidatorAddrInput(
-	ctx context.Context,
-	args ...any,
-) ([]any, error) {
-	val, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
-	return c.validatorHelper(ctx, sdk.ValAddress(val[:]).String())
-}
-
-// GetDelegatorValidatorsAddrInput implements the `getDelegatorValidators(address)` method.
-func (c *Contract) GetDelegatorValidatorsAddrInput(
-	ctx context.Context,
-	args ...any,
-) ([]any, error) {
-	del, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
-	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(del))
 }
