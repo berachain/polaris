@@ -120,7 +120,7 @@ func UnwrapPolarContext(ctx context.Context) *PolarContext {
 }
 
 // WithVaue attaches a value to the context.
-func (c *PolarContext) WithValue(key, value interface{}) *PolarContext {
+func (c *PolarContext) WithValue(key, value any) *PolarContext {
 	c.baseCtx = context.WithValue(c.baseCtx, key, value)
 	return c
 }
