@@ -39,8 +39,8 @@ const keysPath = "../config/ethkeys/"
 
 // TestFixture is a testing fixture that runs a single Polaris validator node in a Docker container.
 type TestFixture struct {
+	ContainerizedNode
 	t       ginkgo.FullGinkgoTInterface
-	c       ContainerizedNode
 	keysMap map[string]*ecdsa.PrivateKey
 }
 
@@ -70,29 +70,29 @@ func NewTestFixture(t ginkgo.FullGinkgoTInterface) *TestFixture {
 
 	// build and return the TestFixture
 	return &TestFixture{
-		t:       t,
-		c:       containerizedNode,
-		keysMap: keysMap,
+		ContainerizedNode: containerizedNode,
+		t:                 t,
+		keysMap:           keysMap,
 	}
 }
 
 func (tf *TestFixture) Teardown() error {
-	if err := tf.c.Stop(); err != nil {
+	if err := tf.ContainerizedNode.Stop(); err != nil {
 		return err
 	}
-	return tf.c.Remove()
+	return tf.ContainerizedNode.Remove()
 }
 
 // GenerateTransactOpts generates a new transaction options object for a key by it's name.
 func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 	// Get the nonce from the RPC.
-	nonce, err := tf.c.EthClient().PendingNonceAt(context.Background(), tf.Address(name))
+	nonce, err := tf.EthClient().PendingNonceAt(context.Background(), tf.Address(name))
 	if err != nil {
 		tf.t.Fatal(err)
 	}
 
 	// Get the ChainID from the RPC.
-	chainID, err := tf.c.EthClient().ChainID(context.Background())
+	chainID, err := tf.EthClient().ChainID(context.Background())
 	if err != nil {
 		tf.t.Fatal(err)
 	}

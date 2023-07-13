@@ -52,7 +52,7 @@ var _ = Describe("JSON RPC tests", func() {
 	BeforeEach(func() {
 		tf = NewTestFixture(GinkgoT())
 		Expect(tf).ToNot(BeNil())
-		client = tf.c.EthClient()
+		client = tf.EthClient()
 	})
 
 	AfterEach(func() {
@@ -62,7 +62,7 @@ var _ = Describe("JSON RPC tests", func() {
 	Context("eth namespace", func() {
 		It("should connect -- multiple clients", func() {
 			// Dial an Ethereum RPC Endpoint
-			rpcClient, err := gethrpc.DialContext(context.Background(), tf.c.GetHTTPEndpoint())
+			rpcClient, err := gethrpc.DialContext(context.Background(), tf.GetHTTPEndpoint())
 			Expect(err).ToNot(HaveOccurred())
 			c := ethclient.NewClient(rpcClient)
 			Expect(err).ToNot(HaveOccurred())
@@ -148,6 +148,7 @@ var _ = Describe("JSON RPC tests", func() {
 			Expect(erc20Balance).To(Equal(big.NewInt(100000000)))
 		})
 	})
+
 	Context("txpool namespace", func() {
 		var contract *tbindings.ConsumeGas
 
@@ -163,14 +164,14 @@ var _ = Describe("JSON RPC tests", func() {
 			tx, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
 			Expect(err).NotTo(HaveOccurred())
 			ExpectSuccessReceipt(client, tx)
-			Expect(tf.c.WaitForNextBlock()).To(Succeed())
+			Expect(tf.WaitForNextBlock()).To(Succeed())
 		})
 
 		It("should handle txpool requests: pending nonce", func() {
 			aliceCurrNonce, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(aliceCurrNonce).To(BeNumerically(">=", 2))
-			Expect(tf.c.WaitForNextBlock()).To(Succeed())
+			Expect(tf.WaitForNextBlock()).To(Succeed())
 
 			// send a transaction and make sure pending nonce is incremented
 			_, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
@@ -182,7 +183,7 @@ var _ = Describe("JSON RPC tests", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(acn).To(Equal(aliceCurrNonce))
 
-			Expect(tf.c.WaitForNextBlock()).To(Succeed())
+			Expect(tf.WaitForNextBlock()).To(Succeed())
 
 			aliceCurrNonce, err = client.NonceAt(context.Background(), tf.Address("alice"), nil)
 			Expect(err).NotTo(HaveOccurred())
@@ -221,6 +222,7 @@ var _ = Describe("JSON RPC tests", func() {
 			Expect(afterNonce).To(Equal(beforeNonce + 10))
 		})
 	})
+
 	Context("ws namespace", func() {
 		var (
 			ctx      context.Context
@@ -229,12 +231,12 @@ var _ = Describe("JSON RPC tests", func() {
 
 		BeforeEach(func() {
 			ctx = context.Background()
-			wsclient = tf.c.EthWsClient()
+			wsclient = tf.EthWsClient()
 		})
 
 		It("should connect -- multiple clients", func() {
 			// Dial an Ethereum websocket Endpoint
-			ws, err := gethrpc.DialWebsocket(ctx, tf.c.GetWSEndpoint(), "*")
+			ws, err := gethrpc.DialWebsocket(ctx, tf.GetWSEndpoint(), "*")
 			Expect(err).ToNot(HaveOccurred())
 			wsClient := ethclient.NewClient(ws)
 			Expect(err).ToNot(HaveOccurred())
