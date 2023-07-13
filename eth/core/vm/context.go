@@ -32,7 +32,7 @@ import (
 // ContextKey defines a type alias for a stdlib Context key.
 type ContextKey string
 
-// PolarContextKey is the key in the context.Context which holds the polar.Context.
+// PolarContextKey is the key in the context.Context which holds the PolarContext.
 const PolarContextKey ContextKey = "polar-context"
 
 // Compile-time assertion that PolarContext implements context.Context.
