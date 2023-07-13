@@ -25,6 +25,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/lib/encoding"
 )
 
 // GetChainConfig is used to get the genesis info of the Ethereum chain.
@@ -33,11 +34,7 @@ func (p *plugin) ChainConfig() *params.ChainConfig {
 	if bz == nil {
 		return nil
 	}
-	var chainConfig params.ChainConfig
-	if err := json.Unmarshal(bz, &chainConfig); err != nil {
-		panic(err)
-	}
-	return &chainConfig
+	return encoding.MustUnmarshalJSON[params.ChainConfig](bz)
 }
 
 // GetEthGenesis is used to get the genesis info of the Ethereum chain.

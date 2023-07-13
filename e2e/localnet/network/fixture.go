@@ -23,9 +23,7 @@ package localnet
 import (
 	"context"
 	"crypto/ecdsa"
-	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -38,6 +36,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/lib/encoding"
 )
 
 const (
@@ -158,17 +157,15 @@ func (tf *TestFixture) setupTestAccounts() error {
 	}
 
 	// read the validator public key from the validator key file
-	jsonVal, err := ioutil.ReadFile(filepath.Join(absDirPath, relativeValKeyFile))
+	valBz, err := os.ReadFile(filepath.Join(absDirPath, relativeValKeyFile))
 	if err != nil {
 		return err
 	}
-	valData := struct {
-		Address string `json:"address"`
-	}{}
-	if err = json.Unmarshal(jsonVal, &valData); err != nil {
-		return err
-	}
-	tf.valAddr = common.HexToAddress(valData.Address)
+	tf.valAddr = common.HexToAddress(
+		encoding.MustUnmarshalJSON[struct {
+			Address string `json:"address"`
+		}](valBz).Address,
+	)
 
 	return nil
 }
