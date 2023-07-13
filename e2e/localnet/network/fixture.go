@@ -140,7 +140,7 @@ func (tf *TestFixture) setupTestAccounts() error {
 
 	// read the test account private keys from the keys directory
 	keysPath := filepath.Join(absDirPath, relativeKeysPath)
-	keyFiles, err := os.ReadDir(keysPath)
+	keyFiles, err := os.ReadDir(filepath.Clean(keysPath))
 	if err != nil {
 		return err
 	}
@@ -157,7 +157,8 @@ func (tf *TestFixture) setupTestAccounts() error {
 	}
 
 	// read the validator public key from the validator key file
-	valBz, err := os.ReadFile(filepath.Join(absDirPath, relativeValKeyFile))
+	valKeyFile := filepath.Join(absDirPath, relativeValKeyFile)
+	valBz, err := os.ReadFile(filepath.Clean(valKeyFile))
 	if err != nil {
 		return err
 	}
