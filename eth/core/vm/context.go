@@ -32,10 +32,10 @@ import (
 // ContextKey defines a type alias for a stdlib Context key.
 type ContextKey string
 
-// PolarContextKey is the key in the context.Context which holds the polar.Context.
+// PolarContextKey is the key in the context.Context which holds the PolarContext.
 const PolarContextKey ContextKey = "polar-context"
 
-// Compile-time assertion that polar.Context implements context.Context.
+// Compile-time assertion that PolarContext implements context.Context.
 var _ context.Context = (*PolarContext)(nil)
 
 // Context is the context for a Polaris EVM execution.
@@ -46,7 +46,7 @@ type PolarContext struct {
 	msgValue  *big.Int
 }
 
-// NewPolarContext creates a new polar.Context given an EVM call request.
+// NewPolarContext creates a new PolarContext given an EVM call request.
 func NewPolarContext(
 	baseCtx context.Context,
 	evm PrecompileEVM,
@@ -89,8 +89,7 @@ func (c *PolarContext) Block() *BlockContext {
 // context.Context implementation
 // =============================================================================
 
-//nolint:nonamedreturns // context package uses named returns.
-func (c *PolarContext) Deadline() (deadline time.Time, ok bool) {
+func (c *PolarContext) Deadline() (time.Time, bool) {
 	return c.baseCtx.Deadline()
 }
 
@@ -110,7 +109,7 @@ func (c *PolarContext) Value(key any) any {
 	return c.baseCtx.Value(key)
 }
 
-func (c *PolarContext) WithValue(key, value interface{}) *PolarContext {
+func (c *PolarContext) WithValue(key, value any) *PolarContext {
 	c.baseCtx = context.WithValue(c.baseCtx, key, value)
 	return c
 }
