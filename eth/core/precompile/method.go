@@ -92,7 +92,7 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 	// Call the executable
 	results := m.execute.Call(append(
 		[]reflect.Value{
-			reflect.ValueOf(sc),
+			reflect.ValueOf(si),
 			reflect.ValueOf(ctx),
 		}, reflectedUnpackedArgs...))
 
