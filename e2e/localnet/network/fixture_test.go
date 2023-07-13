@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 //
-// Copyright (c) 2023 Berachain Foundation
+// Copyright (C) 2023 Berachain Foundation
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -23,7 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package localnet
+package localnet_test
 
 import (
 	"context"
@@ -36,6 +36,7 @@ import (
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
@@ -45,12 +46,12 @@ import (
 
 var _ = Describe("JSON RPC tests", func() {
 	var (
-		tf     *TestFixture
+		tf     *localnet.TestFixture
 		client *ethclient.Client
 	)
 
 	BeforeEach(func() {
-		tf = NewTestFixture(GinkgoT())
+		tf = localnet.NewTestFixture(GinkgoT())
 		Expect(tf).ToNot(BeNil())
 		client = tf.EthClient()
 	})
@@ -64,9 +65,9 @@ var _ = Describe("JSON RPC tests", func() {
 			// Dial an Ethereum RPC Endpoint
 			rpcClient, err := gethrpc.DialContext(context.Background(), tf.GetHTTPEndpoint())
 			Expect(err).ToNot(HaveOccurred())
-			c := ethclient.NewClient(rpcClient)
+			newClient := ethclient.NewClient(rpcClient)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(c).ToNot(BeNil())
+			Expect(newClient).ToNot(BeNil())
 		})
 
 		It("should support eth_chainId", func() {
@@ -114,7 +115,7 @@ var _ = Describe("JSON RPC tests", func() {
 
 		It("should deploy, mint tokens and check balance, eth_getTransactionByHash", func() {
 			// Deploy the contract
-			erc20Contract, deployedAddress := DeployERC20(tf.GenerateTransactOpts("alice"), client)
+			erc20Contract, deployedAddress := localnet.DeployERC20(tf.GenerateTransactOpts("alice"), client)
 
 			// Mint tokens
 			tx, err := erc20Contract.Mint(tf.GenerateTransactOpts("alice"),
@@ -125,7 +126,7 @@ var _ = Describe("JSON RPC tests", func() {
 			txHash := tx.Hash()
 
 			// Wait for the receipt.
-			receipt := ExpectSuccessReceipt(client, tx)
+			receipt := localnet.ExpectSuccessReceipt(client, tx)
 			Expect(receipt.Logs).To(HaveLen(2))
 			for i, log := range receipt.Logs {
 				Expect(log.Address).To(Equal(deployedAddress))
@@ -160,10 +161,10 @@ var _ = Describe("JSON RPC tests", func() {
 				tf.GenerateTransactOpts("alice"), client,
 			)
 			Expect(err).NotTo(HaveOccurred())
-			ExpectSuccessReceipt(client, tx)
+			localnet.ExpectSuccessReceipt(client, tx)
 			tx, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
 			Expect(err).NotTo(HaveOccurred())
-			ExpectSuccessReceipt(client, tx)
+			localnet.ExpectSuccessReceipt(client, tx)
 			Expect(tf.WaitForNextBlock()).To(Succeed())
 		})
 
@@ -213,7 +214,7 @@ var _ = Describe("JSON RPC tests", func() {
 
 			// check to make sure all the txs went thru.
 			for _, tx := range txs {
-				ExpectSuccessReceipt(client, tx)
+				localnet.ExpectSuccessReceipt(client, tx)
 			}
 
 			// verify the nonce has increased on disk.

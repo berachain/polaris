@@ -23,31 +23,26 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package localnet
+package localnet_test
 
 import (
 	"context"
 	"fmt"
 	"math/big"
-	"testing"
 
+	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-func TestLocalnet(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "testing:e2e")
-}
-
-var _ = Describe("Fixture", func() {
-	var c ContainerizedNode
+var _ = Describe("ContainerizedNode", func() {
+	var c localnet.ContainerizedNode
 
 	BeforeEach(func() {
 		var err error
-		c, err = NewContainerizedNode(
+		c, err = localnet.NewContainerizedNode(
 			"localnet",
 			"latest",
 			"goodcontainer",

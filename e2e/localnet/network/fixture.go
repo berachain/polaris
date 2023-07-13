@@ -92,7 +92,7 @@ func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 	}
 
 	// Get the ChainID from the RPC.
-	chainID, err := tf.EthClient().ChainID(context.Background())
+	chainID, err := tf.ContainerizedNode.EthClient().ChainID(context.Background())
 	if err != nil {
 		tf.t.Fatal(err)
 	}
