@@ -34,8 +34,8 @@ const NumBytesMethodID = 4
 
 // stateful is a container for running stateful and precompiled contracts.
 type stateful struct {
-	// StatefulImpl is the base precompile implementation.
-	StatefulImpl
+	// Registrable is the base precompile implementation.
+	Registrable
 	// idsToMethods is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
 	// method signatures) to native precompile functions. The signature key is provided by the
 	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
@@ -48,13 +48,13 @@ type stateful struct {
 
 // NewStateful creates and returns a new `stateful` with the given method ids precompile functions map.
 func NewStateful(
-	si StatefulImpl, idsToMethods map[string]*Method,
+	r StatefulImpl, idsToMethods map[string]*Method,
 ) (vm.PrecompileContainer, error) {
 	if idsToMethods == nil {
 		return nil, ErrContainerHasNoMethods
 	}
 	return &stateful{
-		StatefulImpl: si,
+		Registrable:  r,
 		idsToMethods: idsToMethods,
 	}, nil
 }
@@ -82,7 +82,7 @@ func (sc *stateful) Run(
 
 	// Execute the method with the reflected ctx and raw input
 	return method.Call(
-		sc,
+		sc.Registrable,
 		vm.NewPolarContext(ctx, evm, caller, value),
 		input,
 	)
