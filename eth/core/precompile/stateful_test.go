@@ -31,7 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	evmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
+	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -44,7 +44,7 @@ var _ = Describe("Stateful Container", func() {
 	var blank []byte
 	var badInput = []byte{1, 2, 3, 4}
 	var err error
-	var ctx *vm.PolarContext
+	var ctx context.Context
 
 	BeforeEach(func() {
 		sc, err = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
@@ -54,7 +54,7 @@ var _ = Describe("Stateful Container", func() {
 		Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 		ctx = vm.NewPolarContext(
 			context.Background(),
-			evmmock.NewEVM(),
+			vmmock.NewEVM(),
 			common.Address{},
 			big.NewInt(0),
 		)
@@ -76,7 +76,7 @@ var _ = Describe("Stateful Container", func() {
 			// invalid input
 			_, err = sc.Run(
 				ctx,
-				ctx.Evm(),
+				vm.UnwrapPolarContext(ctx).Evm(),
 				blank,
 				vm.UnwrapPolarContext(ctx).MsgSender(),
 				vm.UnwrapPolarContext(ctx).MsgValue(),
@@ -86,7 +86,7 @@ var _ = Describe("Stateful Container", func() {
 			// method not found
 			_, err = sc.Run(
 				ctx,
-				ctx.Evm(),
+				vm.UnwrapPolarContext(ctx).Evm(),
 				badInput, vm.UnwrapPolarContext(ctx).MsgSender(),
 				vm.UnwrapPolarContext(ctx).MsgValue(),
 			)
@@ -94,7 +94,7 @@ var _ = Describe("Stateful Container", func() {
 
 			// geth unpacking error
 			_, err = sc.Run(ctx,
-				ctx.Evm(),
+				vm.UnwrapPolarContext(ctx).Evm(),
 				append(getOutputABI.ID, byte(1), byte(2)),
 				vm.UnwrapPolarContext(ctx).MsgSender(),
 				vm.UnwrapPolarContext(ctx).MsgValue(),
@@ -104,7 +104,7 @@ var _ = Describe("Stateful Container", func() {
 			// precompile exec error
 			_, err = sc.Run(
 				ctx,
-				ctx.Evm(),
+				vm.UnwrapPolarContext(ctx).Evm(),
 				getOutputPartialABI.ID,
 				vm.UnwrapPolarContext(ctx).MsgSender(),
 				vm.UnwrapPolarContext(ctx).MsgValue(),
@@ -119,7 +119,7 @@ var _ = Describe("Stateful Container", func() {
 			Expect(err).ToNot(HaveOccurred())
 			_, err = sc.Run(
 				ctx,
-				ctx.Evm(),
+				vm.UnwrapPolarContext(ctx).Evm(),
 				append(contractFuncStrABI.ID, inputs...),
 				vm.UnwrapPolarContext(ctx).MsgSender(),
 				vm.UnwrapPolarContext(ctx).MsgValue(),
@@ -131,7 +131,7 @@ var _ = Describe("Stateful Container", func() {
 			Expect(err).ToNot(HaveOccurred())
 			_, err = sc.Run(
 				ctx,
-				ctx.Evm(),
+				vm.UnwrapPolarContext(ctx).Evm(),
 				append(contractFuncAddrABI.ID, inputs...),
 				vm.UnwrapPolarContext(ctx).MsgSender(),
 				vm.UnwrapPolarContext(ctx).MsgValue(),
@@ -147,7 +147,7 @@ var _ = Describe("Stateful Container", func() {
 			var ret []byte
 			ret, err = sc.Run(
 				ctx,
-				ctx.Evm(),
+				vm.UnwrapPolarContext(ctx).Evm(),
 				append(getOutputABI.ID, inputs...),
 				vm.UnwrapPolarContext(ctx).MsgSender(),
 				vm.UnwrapPolarContext(ctx).MsgValue(),
@@ -209,17 +209,15 @@ type mockObject struct {
 
 //revive:disable
 func getOutput(
-	_ context.Context,
-	evm vm.PrecompileEVM,
-	_ common.Address,
-	_ *big.Int,
+	sc precompile.Registrable,
+	ctx context.Context,
 	args ...any,
 ) ([]any, error) {
 	str, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, errors.New("cast error")
 	}
-	evm.GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
+	vm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
 	return []any{
 		[]mockObject{
 			{
@@ -231,20 +229,16 @@ func getOutput(
 }
 
 func getOutputPartial(
-	_ context.Context,
-	_ vm.PrecompileEVM,
-	_ common.Address,
-	_ *big.Int,
+	sc precompile.Registrable,
+	ctx context.Context,
 	_ ...any,
 ) ([]any, error) {
 	return nil, errors.New("err during precompile execution")
 }
 
 func contractFuncAddrInput(
+	sc precompile.Registrable,
 	ctx context.Context,
-	_ vm.PrecompileEVM,
-	_ common.Address,
-	_ *big.Int,
 	args ...any,
 ) ([]any, error) {
 	_ = ctx
@@ -256,10 +250,8 @@ func contractFuncAddrInput(
 }
 
 func contractFuncStrInput(
+	sc precompile.Registrable,
 	ctx context.Context,
-	_ vm.PrecompileEVM,
-	_ common.Address,
-	_ *big.Int,
 	args ...any,
 ) ([]any, error) {
 	_ = ctx
