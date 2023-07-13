@@ -24,7 +24,7 @@ import (
 	"testing"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
-	"pkg.berachain.dev/polaris/cosmos/testing/integration"
+	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -36,23 +36,21 @@ func TestCosmosPrecompiles(t *testing.T) {
 	RunSpecs(t, "cosmos/testing/integration/precompile/auth")
 }
 
-var (
-	tf             *integration.TestFixture
-	authPrecompile *bindings.AuthModule
-)
-
-var _ = SynchronizedBeforeSuite(func() []byte {
-	// Setup the network and clients here.
-	tf = integration.NewTestFixture(GinkgoT())
-	authPrecompile, _ = bindings.NewAuthModule(
-		common.HexToAddress("0xBDF49C3C3882102fc017FFb661108c63a836D065"), tf.EthClient)
-	return nil
-}, func(data []byte) {})
-
 var _ = Describe("Auth", func() {
+	var (
+		tf             *localnet.TestFixture
+		authPrecompile *bindings.AuthModule
+	)
+
 	BeforeEach(func() {
-		_, err := tf.Network.WaitForHeight(1)
-		Expect(err).NotTo(HaveOccurred())
+		tf = localnet.NewTestFixture(GinkgoT())
+		authPrecompile, _ = bindings.NewAuthModule(
+			common.HexToAddress("0xBDF49C3C3882102fc017FFb661108c63a836D065"), tf.EthClient())
+	})
+
+	AfterEach(func() {
+		err := tf.Teardown()
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	It("should call functions on the precompile directly", func() {
