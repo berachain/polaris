@@ -168,7 +168,7 @@ func (tf *TestFixture) setupTestAccounts() error {
 	if err = json.Unmarshal(jsonVal, &valData); err != nil {
 		return err
 	}
-	tf.valAddr = common.BytesToAddress(common.FromHex(valData.Address))
+	tf.valAddr = common.HexToAddress(valData.Address)
 
 	return nil
 }
