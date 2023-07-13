@@ -46,7 +46,7 @@ type PolarContext struct {
 	msgValue  *big.Int
 }
 
-// NewPolarContext creates a new polar.Context given an EVM call request.
+// NewPolarContext creates a new PolarContext given an EVM call request.
 func NewPolarContext(
 	baseCtx context.Context,
 	evm PrecompileEVM,
