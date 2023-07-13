@@ -5,7 +5,7 @@ go 1.20
 replace (
 	cosmossdk.io/x/evidence => github.com/rollkit/cosmos-sdk/x/evidence v0.0.0-20230615215434-7f213565b33f
 	github.com/cometbft/cometbft => github.com/rollkit/cometbft v0.0.0-20230614163111-d6a8d2c98cc0
-	github.com/cosmos/cosmos-sdk => github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230616213058-08fe487dda77
+	github.com/cosmos/cosmos-sdk => github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230713020404-caa86da61977
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230609180942-c6acc930b404
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
