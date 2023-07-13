@@ -77,10 +77,10 @@ func NewTestFixture(t ginkgo.FullGinkgoTInterface) *TestFixture {
 }
 
 func (tf *TestFixture) Teardown() error {
-	if err := tf.ContainerizedNode.Stop(); err != nil {
+	if err := tf.Stop(); err != nil {
 		return err
 	}
-	return tf.ContainerizedNode.Remove()
+	return tf.Remove()
 }
 
 // GenerateTransactOpts generates a new transaction options object for a key by it's name.
