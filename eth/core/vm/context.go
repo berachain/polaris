@@ -109,6 +109,7 @@ func (c *PolarContext) Value(key any) any {
 	return c.baseCtx.Value(key)
 }
 
+// WithVaue attaches a value to the context.
 func (c *PolarContext) WithValue(key, value any) *PolarContext {
 	c.baseCtx = context.WithValue(c.baseCtx, key, value)
 	return c
