@@ -37,12 +37,12 @@ import (
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
-	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 var _ = Describe("JSON RPC tests", func() {
