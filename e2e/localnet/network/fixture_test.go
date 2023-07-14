@@ -42,6 +42,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 var _ = Describe("JSON RPC tests", func() {
@@ -115,7 +116,7 @@ var _ = Describe("JSON RPC tests", func() {
 
 		It("should deploy, mint tokens and check balance, eth_getTransactionByHash", func() {
 			// Deploy the contract
-			erc20Contract, deployedAddress := localnet.DeployERC20(tf.GenerateTransactOpts("alice"), client)
+			erc20Contract, deployedAddress := DeployERC20(tf.GenerateTransactOpts("alice"), client)
 
 			// Mint tokens
 			tx, err := erc20Contract.Mint(tf.GenerateTransactOpts("alice"),
@@ -126,7 +127,7 @@ var _ = Describe("JSON RPC tests", func() {
 			txHash := tx.Hash()
 
 			// Wait for the receipt.
-			receipt := localnet.ExpectSuccessReceipt(client, tx)
+			receipt := ExpectSuccessReceipt(client, tx)
 			Expect(receipt.Logs).To(HaveLen(2))
 			for i, log := range receipt.Logs {
 				Expect(log.Address).To(Equal(deployedAddress))
@@ -161,10 +162,10 @@ var _ = Describe("JSON RPC tests", func() {
 				tf.GenerateTransactOpts("alice"), client,
 			)
 			Expect(err).NotTo(HaveOccurred())
-			localnet.ExpectSuccessReceipt(client, tx)
+			ExpectSuccessReceipt(client, tx)
 			tx, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
 			Expect(err).NotTo(HaveOccurred())
-			localnet.ExpectSuccessReceipt(client, tx)
+			ExpectSuccessReceipt(client, tx)
 			Expect(tf.WaitForNextBlock()).To(Succeed())
 		})
 
@@ -214,7 +215,7 @@ var _ = Describe("JSON RPC tests", func() {
 
 			// check to make sure all the txs went thru.
 			for _, tx := range txs {
-				localnet.ExpectSuccessReceipt(client, tx)
+				ExpectSuccessReceipt(client, tx)
 			}
 
 			// verify the nonce has increased on disk.

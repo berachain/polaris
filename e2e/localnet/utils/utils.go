@@ -26,10 +26,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
-	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	"pkg.berachain.dev/polaris/cosmos/testing/network"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
@@ -40,23 +38,6 @@ const (
 	DefaultTimeout = 15 * time.Second
 	TxTimeout      = 30 * time.Second
 )
-
-// StartPolarisNetwork starts a new in-memory Polaris chain.
-func StartPolarisNetwork(t network.TestingT) (*network.Network, *ethclient.Client) {
-	var err error
-	net := network.New(t)
-	time.Sleep(1 * time.Second)
-	_, err = net.WaitForHeightWithTimeout(1, DefaultTimeout)
-	Expect(err).ToNot(HaveOccurred())
-
-	// Dial an Ethereum RPC Endpoint
-	rpcClient, err := gethrpc.DialContext(context.Background(), net.Validators[0].APIAddress+"/eth/rpc")
-	Expect(err).ToNot(HaveOccurred())
-	client := ethclient.NewClient(rpcClient)
-	Expect(err).ToNot(HaveOccurred())
-
-	return net, client
-}
 
 // ExpectedMined waits for a transaction to be mined.
 func ExpectMined(client *ethclient.Client, tx *coretypes.Transaction) {
