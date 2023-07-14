@@ -37,7 +37,8 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	"pkg.berachain.dev/polaris/cosmos/precompile/auth/mock"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/precompile/testutil"
+	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -57,10 +58,10 @@ var _ = Describe("Address Precompile", func() {
 	var contract *auth.Contract
 	var sf *ethprecompile.StatefulFactory
 	BeforeEach(func() {
-		_, ak, _, _ := testutil.SetupMinimalKeepers()
+		_, ak, _, _ := testutils.SetupMinimalKeepers()
 		k := authzkeeper.NewKeeper(
 			runtime.NewKVStoreService(storetypes.NewKVStoreKey(authtypes.StoreKey)),
-			testutil.GetEncodingConfig().Codec,
+			testutils.GetEncodingConfig().Codec,
 			MsgRouterMockWithSend(),
 			ak,
 		)
@@ -108,7 +109,7 @@ var _ = Describe("Address Precompile", func() {
 
 		BeforeEach(func() {
 			// Genereate an evm where the block time is 100.
-			sdkCtx, _, _, _ := testutil.SetupMinimalKeepers()
+			sdkCtx, _, _, _ := testutils.SetupMinimalKeepers()
 			evm = mock.NewPrecompileEVMMock()
 			evm.GetContextFunc = func() *vm.BlockContext {
 				blockCtx := vm.BlockContext{}
@@ -139,9 +140,8 @@ var _ = Describe("Address Precompile", func() {
 
 			_, err := contract.SetSendAllowance(
 				ctx,
-				granter,
 				grantee,
-				SdkCoinsToEvmCoins(limit),
+				testutil.SdkCoinsToEvmCoins(limit),
 				big.NewInt(1),
 			)
 			Expect(err).To(HaveOccurred())
@@ -150,9 +150,8 @@ var _ = Describe("Address Precompile", func() {
 		It("should succeed with expiration", func() {
 			_, err := contract.SetSendAllowance(
 				ctx,
-				granter,
 				grantee,
-				SdkCoinsToEvmCoins(limit),
+				testutil.SdkCoinsToEvmCoins(limit),
 				big.NewInt(110),
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -161,9 +160,8 @@ var _ = Describe("Address Precompile", func() {
 		It("should succeed without expiration", func() {
 			_, err := contract.SetSendAllowance(
 				ctx,
-				granter,
 				grantee,
-				SdkCoinsToEvmCoins(limit),
+				testutil.SdkCoinsToEvmCoins(limit),
 				new(big.Int),
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -174,9 +172,8 @@ var _ = Describe("Address Precompile", func() {
 				// Set up a spend limit grant.
 				_, err := contract.SetSendAllowance(
 					ctx,
-					granter,
 					grantee,
-					SdkCoinsToEvmCoins(limit),
+					testutil.SdkCoinsToEvmCoins(limit),
 					new(big.Int),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -195,27 +192,6 @@ var _ = Describe("Address Precompile", func() {
 	})
 
 })
-
-// TODO: move to utils since also used by bank.
-func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
-	Amount *big.Int `json:"amount"`
-	Denom  string   `json:"denom"`
-} {
-	evmCoins := make([]struct {
-		Amount *big.Int `json:"amount"`
-		Denom  string   `json:"denom"`
-	}, len(sdkCoins))
-	for i, coin := range sdkCoins {
-		evmCoins[i] = struct {
-			Amount *big.Int `json:"amount"`
-			Denom  string   `json:"denom"`
-		}{
-			Amount: coin.Amount.BigInt(),
-			Denom:  coin.Denom,
-		}
-	}
-	return evmCoins
-}
 
 func MsgRouterMockWithSend() *mock.MessageRouterMock {
 	router := mock.NewMsgRouterMock()

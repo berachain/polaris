@@ -62,7 +62,6 @@ contract GovernanceWrapper {
         Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
         coins[0].denom = denom;
         coins[0].amount = amount;
-        bank.send(msg.sender, address(this), coins);
         return governanceModule.submitProposal(proposal, message);
     }
 

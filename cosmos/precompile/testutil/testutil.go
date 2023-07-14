@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package test
+package testutil
 
 import (
 	"fmt"
@@ -110,4 +110,24 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 	}
 
 	return ctx, bk, gk
+}
+
+func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
+	Amount *big.Int `json:"amount"`
+	Denom  string   `json:"denom"`
+} {
+	evmCoins := make([]struct {
+		Amount *big.Int `json:"amount"`
+		Denom  string   `json:"denom"`
+	}, len(sdkCoins))
+	for i, coin := range sdkCoins {
+		evmCoins[i] = struct {
+			Amount *big.Int `json:"amount"`
+			Denom  string   `json:"denom"`
+		}{
+			Amount: coin.Amount.BigInt(),
+			Denom:  coin.Denom,
+		}
+	}
+	return evmCoins
 }

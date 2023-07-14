@@ -38,10 +38,10 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/precompile/testutil"
+	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -65,14 +65,7 @@ var _ = Describe("Bank Precompile Test", func() {
 	)
 
 	BeforeEach(func() {
-		var sdkCtx sdk.Context
-		sdkCtx, _, bk, _ = testutil.SetupMinimalKeepers()
-		ctx = vm.NewPolarContext(
-			sdkCtx,
-			nil,
-			common.Address{},
-			big.NewInt(0),
-		)
+		ctx, _, bk, _ = testutils.SetupMinimalKeepers()
 
 		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(bankkeeper.NewMsgServerImpl(bk), bk))
 		addr = sdk.AccAddress([]byte("bank"))
@@ -187,7 +180,6 @@ var _ = Describe("Bank Precompile Test", func() {
 		})
 
 		When("GetAllBalance", func() {
-
 			It("should succeed", func() {
 				numOfDenoms := 3
 				acc = simtestutil.CreateRandomAccounts(1)[0]
@@ -458,13 +450,15 @@ var _ = Describe("Bank Precompile Test", func() {
 		})
 
 		When("Send", func() {
-
 			It("should succeed", func() {
+
 				balanceAmount, ok := new(big.Int).SetString("220000000000000000", 10)
 				Expect(ok).To(BeTrue())
 
 				accs := simtestutil.CreateRandomAccounts(2)
 				fromAcc, toAcc := accs[0], accs[1]
+
+				pCtx := vm.NewPolarContext(ctx, nil, cosmlib.AccAddressToEthAddress(fromAcc), new(big.Int))
 
 				sortedSdkCoins := sdk.NewCoins(
 					sdk.NewCoin(
@@ -478,7 +472,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 
 				err := FundAccount(
-					sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
+					sdk.UnwrapSDKContext(ctx),
 					bk,
 					fromAcc,
 					sortedSdkCoins,
@@ -489,10 +483,9 @@ var _ = Describe("Bank Precompile Test", func() {
 				bk.SetSendEnabled(ctx, denom2, true)
 
 				_, err = contract.Send(
-					ctx,
-					cosmlib.AccAddressToEthAddress(fromAcc),
+					pCtx,
 					cosmlib.AccAddressToEthAddress(toAcc),
-					sdkCoinsToEvmCoins(sortedSdkCoins),
+					testutil.SdkCoinsToEvmCoins(sortedSdkCoins),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -523,9 +516,8 @@ var _ = Describe("Bank Precompile Test", func() {
 				bk.SetSendEnabled(ctx, denom, true)
 				_, err = contract.Send(
 					ctx,
-					cosmlib.AccAddressToEthAddress(fromAcc),
 					cosmlib.AccAddressToEthAddress(toAcc),
-					sdkCoinsToEvmCoins(coinsToSend),
+					testutil.SdkCoinsToEvmCoins(coinsToSend),
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidCoin))
 			})
@@ -567,24 +559,4 @@ func getTestMetadata() []banktypes.Metadata {
 			Display: "token",
 		},
 	}
-}
-
-func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
-	Amount *big.Int `json:"amount"`
-	Denom  string   `json:"denom"`
-} {
-	evmCoins := make([]struct {
-		Amount *big.Int `json:"amount"`
-		Denom  string   `json:"denom"`
-	}, len(sdkCoins))
-	for i, coin := range sdkCoins {
-		evmCoins[i] = struct {
-			Amount *big.Int `json:"amount"`
-			Denom  string   `json:"denom"`
-		}{
-			Amount: coin.Amount.BigInt(),
-			Denom:  coin.Denom,
-		}
-	}
-	return evmCoins
 }

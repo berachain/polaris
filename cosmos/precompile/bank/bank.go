@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // Contract is the precompile contract for the bank module.
@@ -199,10 +200,9 @@ func (c *Contract) GetSendEnabled(
 	return []any{res.SendEnabled[0].Enabled}, nil
 }
 
-// Send implements `send(address,address,(uint256,string))` method.
+// Send implements `send(address,(uint256,string))` method.
 func (c *Contract) Send(
 	ctx context.Context,
-	fromAddress common.Address,
 	toAddress common.Address,
 	coins any,
 ) ([]any, error) {
@@ -212,7 +212,7 @@ func (c *Contract) Send(
 	}
 
 	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
-		FromAddress: cosmlib.Bech32FromEthAddress(fromAddress),
+		FromAddress: cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()),
 		ToAddress:   cosmlib.Bech32FromEthAddress(toAddress),
 		Amount:      amount,
 	})

@@ -73,7 +73,6 @@ func (c *Contract) GetAccountInfo(
 // SetSendAllowance sends a send authorization message to the authz module.
 func (c *Contract) SetSendAllowance(
 	ctx context.Context,
-	owner common.Address,
 	spender common.Address,
 	amount any,
 	expiration *big.Int,
@@ -82,10 +81,13 @@ func (c *Contract) SetSendAllowance(
 	if err != nil {
 		return nil, err
 	}
+
+	polarCtx := vm.UnwrapPolarContext(ctx)
+
 	return c.setSendAllowanceHelper(
 		ctx,
-		time.Unix(int64(vm.UnwrapPolarContext(ctx).Evm().GetContext().Time), 0),
-		cosmlib.AddressToAccAddress(owner),
+		time.Unix(int64(polarCtx.Block().Time), 0),
+		cosmlib.AddressToAccAddress(polarCtx.MsgSender()),
 		cosmlib.AddressToAccAddress(spender),
 		amt,
 		expiration,
