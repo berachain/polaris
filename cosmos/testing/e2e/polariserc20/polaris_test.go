@@ -37,7 +37,7 @@ import (
 
 func TestPolarisERC20(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/polariserc20")
+	RunSpecs(t, "cosmos/testing/e2e/polariserc20")
 }
 
 var _ = Describe("ERC20", func() {

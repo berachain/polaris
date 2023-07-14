@@ -43,7 +43,7 @@ import (
 
 func TestStakingPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/staking")
+	RunSpecs(t, "cosmos/testing/e2e/precompile/staking")
 }
 
 var _ = Describe("Staking", func() {

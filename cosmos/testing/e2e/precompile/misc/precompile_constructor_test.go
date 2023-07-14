@@ -34,7 +34,7 @@ import (
 
 func TestMiscellaneousPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/misc")
+	RunSpecs(t, "cosmos/testing/e2e/precompile/misc")
 }
 
 var _ = Describe("Miscellaneous Precompile Tests", func() {

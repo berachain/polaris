@@ -34,7 +34,7 @@ import (
 
 func TestCosmosPrecompiles(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/bank")
+	RunSpecs(t, "cosmos/testing/e2e/precompile/bank")
 }
 
 var _ = Describe("Bank", func() {

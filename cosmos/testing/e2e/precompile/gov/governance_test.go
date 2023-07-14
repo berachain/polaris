@@ -45,7 +45,7 @@ import (
 
 func TestGovernancePrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/governance")
+	RunSpecs(t, "cosmos/testing/e2e/precompile/governance")
 }
 
 var tf *network.TestFixture

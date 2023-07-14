@@ -33,7 +33,7 @@ import (
 
 func TestCosmosPrecompiles(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/auth")
+	RunSpecs(t, "cosmos/testing/e2e/precompile/auth")
 }
 
 var _ = Describe("Auth", func() {

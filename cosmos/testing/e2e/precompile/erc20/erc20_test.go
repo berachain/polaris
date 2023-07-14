@@ -41,7 +41,7 @@ import (
 
 func TestERC20Precompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/erc20")
+	RunSpecs(t, "cosmos/testing/e2e/precompile/erc20")
 }
 
 var _ = SynchronizedBeforeSuite(func() []byte {
