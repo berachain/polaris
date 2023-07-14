@@ -66,7 +66,7 @@ func (c *Contract) GetActiveValidators(
 // GetValidators implements the `getValidators()` method.
 func (c *Contract) GetValidators(
 	ctx context.Context,
-) ([]any, error) {
+) ([]generated.IStakingModuleValidator, error) {
 	return c.validatorsHelper(ctx)
 }
 
@@ -74,7 +74,7 @@ func (c *Contract) GetValidators(
 func (c *Contract) GetValidator(
 	ctx context.Context,
 	validatorAddr common.Address,
-) ([]any, error) {
+) (generated.IStakingModuleValidator, error) {
 	return c.validatorHelper(ctx, sdk.ValAddress(validatorAddr[:]).String())
 }
 
@@ -82,7 +82,7 @@ func (c *Contract) GetValidator(
 func (c *Contract) GetDelegatorValidators(
 	ctx context.Context,
 	delegatorAddr common.Address,
-) ([]any, error) {
+) ([]generated.IStakingModuleValidator, error) {
 	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr))
 }
 
@@ -104,7 +104,7 @@ func (c *Contract) GetUnbondingDelegation(
 	ctx context.Context,
 	delegatorAddress common.Address,
 	validatorAddress common.Address,
-) ([]any, error) {
+) ([]generated.IStakingModuleUnbondingDelegationEntry, error) {
 	return c.getUnbondingDelegationHelper(
 		ctx, cosmlib.AddressToAccAddress(delegatorAddress), cosmlib.AddressToValAddress(validatorAddress),
 	)
@@ -116,7 +116,7 @@ func (c *Contract) GetRedelegations(
 	delegatorAddress common.Address,
 	srcValidator common.Address,
 	dstValidator common.Address,
-) ([]any, error) {
+) ([]generated.IStakingModuleRedelegationEntry, error) {
 	return c.getRedelegationsHelper(
 		ctx,
 		cosmlib.AddressToAccAddress(delegatorAddress),

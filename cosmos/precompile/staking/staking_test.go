@@ -217,7 +217,7 @@ var _ = Describe("Staking", func() {
 					cosmlib.AccAddressToEthAddress(del), cosmlib.ValAddressToEthAddress(val),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res[0]).To(Equal(big.NewInt(9))) // should have correct shares
+				Expect(res).To(Equal(big.NewInt(9))) // should have correct shares
 			})
 		})
 
@@ -320,16 +320,16 @@ var _ = Describe("Staking", func() {
 					cosmlib.ValAddressToEthAddress(val),
 					amount,
 				)
-				Expect(utils.MustGetAs[bool](ret[0])).To(BeTrue())
+				Expect(ret).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 
-				ret, err = contract.GetDelegation(ctx,
+				del, err := contract.GetDelegation(ctx,
 					caller,
 					cosmlib.ValAddressToEthAddress(val),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				Expect(utils.MustGetAs[*big.Int](ret[0]).Cmp(new(big.Int).Add(amount, big.NewInt(9)))).To(Equal(0))
+				Expect(del.Cmp(new(big.Int).Add(amount, big.NewInt(9)))).To(Equal(0))
 
 				otherValidator.Status = stakingtypes.Bonded
 
@@ -341,31 +341,31 @@ var _ = Describe("Staking", func() {
 					cosmlib.ValAddressToEthAddress(otherVal),
 					amount,
 				)
-				Expect(utils.MustGetAs[bool](ret[0])).To(BeTrue())
+				Expect(ret).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 
-				ret, err = contract.GetDelegation(ctx,
+				del, err = contract.GetDelegation(ctx,
 					caller,
 					cosmlib.ValAddressToEthAddress(val),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(utils.MustGetAs[*big.Int](ret[0]).Cmp(big.NewInt(9))).To(Equal(0))
+				Expect((del).Cmp(big.NewInt(9))).To(Equal(0))
 
-				ret, err = contract.GetDelegation(ctx,
+				del, err = contract.GetDelegation(ctx,
 					caller,
 					cosmlib.ValAddressToEthAddress(otherVal),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(utils.MustGetAs[*big.Int](ret[0]).Cmp(amount)).To(Equal(0))
+				Expect((del).Cmp(amount)).To(Equal(0))
 
-				ret, err = contract.GetRedelegations(
+				redels, err := contract.GetRedelegations(
 					ctx,
 					caller,
 					cosmlib.ValAddressToEthAddress(val),
 					cosmlib.ValAddressToEthAddress(otherVal),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(ret).ToNot(BeNil())
+				Expect(redels).ToNot(BeNil())
 			})
 		})
 
@@ -395,8 +395,7 @@ var _ = Describe("Staking", func() {
 							otherVal,
 						)
 						Expect(err).ToNot(HaveOccurred())
-						del := utils.MustGetAs[*big.Int](vals[0])
-						Expect(del.Cmp(big.NewInt(0))).To(Equal(0))
+						Expect(vals.Cmp(big.NewInt(0))).To(Equal(0))
 					})
 					It("should succeed", func() {
 						_, err := contract.getDelegationHelper(

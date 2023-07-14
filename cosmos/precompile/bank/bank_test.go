@@ -177,7 +177,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					denom,
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res[0]).To(Equal(balanceAmount))
+				Expect(res).To(Equal(balanceAmount))
 			})
 		})
 
@@ -262,7 +262,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					denom,
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res[0]).To(Equal(balanceAmount))
+				Expect(res).To(Equal(balanceAmount))
 			})
 		})
 
@@ -351,7 +351,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					denom,
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res[0]).To(Equal(balanceAmount3))
+				Expect(res).To(Equal(balanceAmount3))
 			})
 		})
 
@@ -430,7 +430,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					metadata[0].Base,
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res[0]).To(Equal(expectedResult))
+				Expect(res).To(Equal(expectedResult))
 			})
 		})
 
@@ -447,7 +447,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				Expect(res[0]).To(BeTrue())
+				Expect(res).To(BeTrue())
 			})
 		})
 

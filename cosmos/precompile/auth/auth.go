@@ -28,7 +28,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
+	authgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -53,7 +53,7 @@ func NewPrecompileContract(
 ) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
-			generated.AuthModuleMetaData.ABI,
+			authgenerated.AuthModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(authtypes.ModuleName)),
 		),
 		authQueryServer: authQueryServer,
@@ -66,7 +66,7 @@ func NewPrecompileContract(
 func (c *Contract) GetAccountInfo(
 	ctx context.Context,
 	account common.Address,
-) (generated.IAuthModuleBaseAccount, error) {
+) (authgenerated.IAuthModuleBaseAccount, error) {
 	return c.accountInfoHelper(ctx, cosmlib.Bech32FromEthAddress(account))
 }
 

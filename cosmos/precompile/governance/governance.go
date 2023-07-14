@@ -72,10 +72,10 @@ func (c *Contract) SubmitProposal(
 	ctx context.Context,
 	proposalBz []byte,
 	messageBz []byte,
-) ([]any, error) {
+) (uint64, error) {
 	message, err := unmarshalMsgAndReturnAny(messageBz)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	return c.submitProposalHelper(ctx, proposalBz, []*codectypes.Any{message})
 }
@@ -84,7 +84,7 @@ func (c *Contract) SubmitProposal(
 func (c *Contract) CancelProposal(
 	ctx context.Context,
 	id uint64,
-) ([]any, error) {
+) ([]uint64, error) {
 	proposer := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
 	return c.cancelProposalHelper(ctx, proposer, id)
@@ -96,7 +96,7 @@ func (c *Contract) Vote(
 	proposalID uint64,
 	options int32,
 	metadata string,
-) ([]any, error) {
+) (bool, error) {
 	voter := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
 	return c.voteHelper(ctx, voter, proposalID, options, metadata)
@@ -108,7 +108,7 @@ func (c *Contract) VoteWeighted(
 	proposalID uint64,
 	options []generated.IGovernanceModuleWeightedVoteOption,
 	metadata string,
-) ([]any, error) {
+) (bool, error) {
 	voter := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
 }
@@ -117,7 +117,7 @@ func (c *Contract) VoteWeighted(
 func (c *Contract) GetProposal(
 	ctx context.Context,
 	proposalID uint64,
-) ([]any, error) {
+) (generated.IGovernanceModuleProposal, error) {
 	return c.getProposalHelper(ctx, proposalID)
 }
 
@@ -125,7 +125,7 @@ func (c *Contract) GetProposal(
 func (c *Contract) GetProposals(
 	ctx context.Context,
 	proposalStatus int32,
-) ([]any, error) {
+) ([]generated.IGovernanceModuleProposal, error) {
 	return c.getProposalsHelper(ctx, proposalStatus)
 }
 
