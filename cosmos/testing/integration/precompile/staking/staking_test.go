@@ -59,7 +59,7 @@ var _ = Describe("Staking", func() {
 		// Setup the network and clients here.
 		tf = network.NewTestFixture(GinkgoT())
 
-		validator = common.Address(tf.Validators[0].ValAddress.Bytes())
+		validator = tf.ValAddr()
 		stakingPrecompile, _ = bindings.NewStakingModule(
 			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient())
 		bankPrecompile, _ = bbindings.NewBankModule(
@@ -152,7 +152,7 @@ var _ = Describe("Staking", func() {
 
 		txr := tf.GenerateTransactOpts("alice")
 		amt := big.NewInt(123450000000)
-		tx, err = bankPrecompile.Send(txr, tf.Address("alice"), contractAddr, []bbindings.CosmosCoin{
+		tx, err = bankPrecompile.Send(txr, contractAddr, []bbindings.CosmosCoin{
 			{
 				Denom:  "abera",
 				Amount: amt,

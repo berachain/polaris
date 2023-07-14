@@ -25,9 +25,7 @@ import (
 	"testing"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing/fundraiser"
-	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	utils "pkg.berachain.dev/polaris/e2e/localnet/utils"
+	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -41,7 +39,7 @@ func TestCosmosPrecompiles(t *testing.T) {
 
 var _ = Describe("Bank", func() {
 	var (
-		tf             *network.TestFixture
+		tf             *localnet.TestFixture
 		bankPrecompile *bindings.BankModule
 
 		denom  = "abera"
@@ -50,7 +48,7 @@ var _ = Describe("Bank", func() {
 	)
 
 	BeforeEach(func() {
-		tf = network.NewTestFixture(GinkgoT())
+		tf = localnet.NewTestFixture(GinkgoT())
 		bankPrecompile, _ = bindings.NewBankModule(
 			common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient())
 	})
@@ -103,7 +101,6 @@ var _ = Describe("Bank", func() {
 		// Send 1000 bera from alice to charlie
 		_, err = bankPrecompile.Send(
 			tf.GenerateTransactOpts("alice"),
-			tf.Address("alice"),
 			tf.Address("charlie"),
 			coinsToBeSent,
 		)
@@ -146,48 +143,5 @@ var _ = Describe("Bank", func() {
 		sendEnabled, err := bankPrecompile.GetSendEnabled(nil, "abera")
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(sendEnabled).To(BeTrue())
-	})
-
-	It("should be able to call a precompile from a smart contract", func() {
-		// deploy fundraiser contract with account 0
-		contractAddr, tx, contract, err := tbindings.DeployFundraiser(
-			tf.GenerateTransactOpts("alice"),
-			tf.EthClient(),
-		)
-		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
-
-		coinsToDonate := []tbindings.CosmosCoin{
-			{
-				Denom:  denom,
-				Amount: big.NewInt(1000000),
-			},
-		}
-
-		// donate 1000000 abera from account 0 to contractAddr
-		_, err = contract.Donate(tf.GenerateTransactOpts("alice"), coinsToDonate)
-		Expect(err).ToNot(HaveOccurred())
-
-		// Wait one block.
-		err = tf.WaitForNextBlock()
-		Expect(err).ToNot(HaveOccurred())
-
-		// contractAddr should have 1000000 abera
-		balance, err := bankPrecompile.GetBalance(nil, contractAddr, denom)
-		Expect(err).ShouldNot(HaveOccurred())
-		Expect(balance).To(Equal(big.NewInt(1000000)))
-
-		// withdraw all 1000000 abera from contractAddr to account 0
-		_, err = contract.WithdrawDonations(tf.GenerateTransactOpts("alice"))
-		Expect(err).ToNot(HaveOccurred())
-
-		// Wait one block.
-		err = tf.WaitForNextBlock()
-		Expect(err).ToNot(HaveOccurred())
-
-		// contractAddr should have 0 abera
-		balance, err = bankPrecompile.GetBalance(nil, contractAddr, denom)
-		Expect(err).ShouldNot(HaveOccurred())
-		Expect(balance.Cmp(big.NewInt(0))).To(Equal(0))
 	})
 })

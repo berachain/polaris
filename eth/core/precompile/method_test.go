@@ -28,6 +28,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -41,15 +43,19 @@ var _ = Describe("Method", func() {
 				"mockExecutable()",
 				reflect.ValueOf(mockExecutable),
 			)
-			res, err := method.Call(
-				[]reflect.Value{
-					reflect.ValueOf(context.Background()),
-					reflect.ValueOf(mockEVM{}),
-					reflect.ValueOf(common.Address{}),
-					reflect.ValueOf(big.NewInt(0)),
-					reflect.ValueOf(false),
-					reflect.ValueOf([]byte{}),
-				}, []byte{0, 0, 0, 0})
+			ctx := vm.NewPolarContext(
+				context.Background(),
+				vmmock.NewEVM(),
+				common.Address{1},
+				big.NewInt(0),
+			)
+
+			// due to how the go "reflect" package works, we need to pass in the `stateful` in the
+			// method call as the first parameter to thef function. this is taken care of for the
+			// caller of the precompile under the hood, and users dont have to worry when
+			// implementing their own precompiles.
+			sc := &mockStateful{&mockBase{}}
+			res, err := method.Call(sc, ctx, []byte{0, 0, 0, 0})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).To(BeNil())
 		})
@@ -58,12 +64,10 @@ var _ = Describe("Method", func() {
 
 // MOCKS BELOW.
 
+//nolint:revive // needed for go "reflect" package.
 func mockExecutable(
+	_ precompile.Registrable,
 	_ context.Context,
-	_ precompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ ...any,
 ) ([]any, error) {
 	return nil, nil
 }

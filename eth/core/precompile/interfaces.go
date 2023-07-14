@@ -43,10 +43,10 @@ type (
 
 		// EnableReentrancy enables the execution of a precompile contract to call back into the
 		// EVM.
-		EnableReentrancy(EVM)
+		EnableReentrancy(vm.PrecompileEVM)
 		// DisableReentrancy disables the execution of a precompile contract to call back into the
 		// EVM.
-		DisableReentrancy(EVM)
+		DisableReentrancy(vm.PrecompileEVM)
 	}
 )
 

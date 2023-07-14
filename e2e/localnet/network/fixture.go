@@ -36,27 +36,35 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
+	"pkg.berachain.dev/polaris/lib/encoding"
 )
 
-const relativeKeysPath = "../config/ethkeys/"
+const (
+	relativeKeysPath   = "../config/ethkeys/"
+	relativeValKeyFile = "../config/priv_validator_key.json"
+)
 
 // TestFixture is a testing fixture that runs a single Polaris validator node in a Docker container.
 type TestFixture struct {
 	ContainerizedNode
 	t       ginkgo.FullGinkgoTInterface
 	keysMap map[string]*ecdsa.PrivateKey
+	valAddr common.Address
 }
 
 // NewTestFixture creates a new TestFixture.
 func NewTestFixture(t ginkgo.FullGinkgoTInterface) *TestFixture {
-	// load all the test accounts
-	keysMap := make(map[string]*ecdsa.PrivateKey)
-	if err := setupTestAccounts(keysMap); err != nil {
+	tf := &TestFixture{
+		t:       t,
+		keysMap: make(map[string]*ecdsa.PrivateKey),
+	}
+
+	err := tf.setupTestAccounts()
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	// start the docker container
-	containerizedNode, err := NewContainerizedNode(
+	tf.ContainerizedNode, err = NewContainerizedNode(
 		"localnet",
 		"latest",
 		"goodcontainer",
@@ -71,12 +79,7 @@ func NewTestFixture(t ginkgo.FullGinkgoTInterface) *TestFixture {
 		t.Fatal(err)
 	}
 
-	// build and return the TestFixture
-	return &TestFixture{
-		ContainerizedNode: containerizedNode,
-		t:                 t,
-		keysMap:           keysMap,
-	}
+	return tf
 }
 
 func (tf *TestFixture) Teardown() error {
@@ -122,29 +125,48 @@ func (tf *TestFixture) Address(name string) common.Address {
 	return crypto.PubkeyToAddress(privKey.PublicKey)
 }
 
-// setupTestAccounts loads all the test account private keys from the keys directory.
-func setupTestAccounts(keysMap map[string]*ecdsa.PrivateKey) error {
-	// get filePath of fixture.go
+func (tf *TestFixture) ValAddr() common.Address {
+	return tf.valAddr
+}
+
+// setupTestAccounts loads the test account private keys and validator public key.
+func (tf *TestFixture) setupTestAccounts() error {
+	// get the absolute path of the current file
 	_, absFilePath, _, ok := runtime.Caller(1)
 	if !ok {
 		return errors.New("unable to get key files")
 	}
+	absDirPath := filepath.Dir(absFilePath)
 
-	keysPath := filepath.Join(filepath.Dir(absFilePath), relativeKeysPath)
-	keyFiles, err := os.ReadDir(keysPath)
+	// read the test account private keys from the keys directory
+	keysPath := filepath.Join(absDirPath, relativeKeysPath)
+	keyFiles, err := os.ReadDir(filepath.Clean(keysPath))
 	if err != nil {
 		return err
 	}
-
 	for _, keyFile := range keyFiles {
+		keyFileName := keyFile.Name()
+
 		var privKey *ecdsa.PrivateKey
 		privKey, err = crypto.LoadECDSA(filepath.Join(keysPath, keyFile.Name()))
 		if err != nil {
 			return err
 		}
 
-		keysMap[strings.Split(keyFile.Name(), ".")[0]] = privKey
+		tf.keysMap[strings.Split(keyFileName, ".")[0]] = privKey
 	}
+
+	// read the validator public key from the validator key file
+	valKeyFile := filepath.Join(absDirPath, relativeValKeyFile)
+	valBz, err := os.ReadFile(filepath.Clean(valKeyFile))
+	if err != nil {
+		return err
+	}
+	tf.valAddr = common.HexToAddress(
+		encoding.MustUnmarshalJSON[struct {
+			Address string `json:"address"`
+		}](valBz).Address,
+	)
 
 	return nil
 }

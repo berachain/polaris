@@ -12,12 +12,12 @@ import (
 	"sync"
 )
 
-// EVMMock is a mock implementation of precompile.EVM.
+// PrecompileEVMMock is a mock implementation of vm.PrecompileEVM.
 //
-//	func TestSomethingThatUsesEVM(t *testing.T) {
+//	func TestSomethingThatUsesPrecompileEVM(t *testing.T) {
 //
-//		// make and configure a mocked precompile.EVM
-//		mockedEVM := &EVMMock{
+//		// make and configure a mocked vm.PrecompileEVM
+//		mockedPrecompileEVM := &PrecompileEVMMock{
 //			CallFunc: func(caller vm.ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int) ([]byte, uint64, error) {
 //				panic("mock out the Call method")
 //			},
@@ -38,11 +38,11 @@ import (
 //			},
 //		}
 //
-//		// use mockedEVM in code that requires precompile.EVM
+//		// use mockedPrecompileEVM in code that requires vm.PrecompileEVM
 //		// and then make assertions.
 //
 //	}
-type EVMMock struct {
+type PrecompileEVMMock struct {
 	// CallFunc mocks the Call method.
 	CallFunc func(caller vm.ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int) ([]byte, uint64, error)
 
@@ -127,9 +127,9 @@ type EVMMock struct {
 }
 
 // Call calls CallFunc.
-func (mock *EVMMock) Call(caller vm.ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int) ([]byte, uint64, error) {
+func (mock *PrecompileEVMMock) Call(caller vm.ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int) ([]byte, uint64, error) {
 	if mock.CallFunc == nil {
-		panic("EVMMock.CallFunc: method is nil but EVM.Call was just called")
+		panic("PrecompileEVMMock.CallFunc: method is nil but PrecompileEVM.Call was just called")
 	}
 	callInfo := struct {
 		Caller vm.ContractRef
@@ -153,8 +153,8 @@ func (mock *EVMMock) Call(caller vm.ContractRef, addr common.Address, input []by
 // CallCalls gets all the calls that were made to Call.
 // Check the length with:
 //
-//	len(mockedEVM.CallCalls())
-func (mock *EVMMock) CallCalls() []struct {
+//	len(mockedPrecompileEVM.CallCalls())
+func (mock *PrecompileEVMMock) CallCalls() []struct {
 	Caller vm.ContractRef
 	Addr   common.Address
 	Input  []byte
@@ -175,9 +175,9 @@ func (mock *EVMMock) CallCalls() []struct {
 }
 
 // Create calls CreateFunc.
-func (mock *EVMMock) Create(caller vm.ContractRef, code []byte, gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
+func (mock *PrecompileEVMMock) Create(caller vm.ContractRef, code []byte, gas uint64, value *big.Int) ([]byte, common.Address, uint64, error) {
 	if mock.CreateFunc == nil {
-		panic("EVMMock.CreateFunc: method is nil but EVM.Create was just called")
+		panic("PrecompileEVMMock.CreateFunc: method is nil but PrecompileEVM.Create was just called")
 	}
 	callInfo := struct {
 		Caller vm.ContractRef
@@ -199,8 +199,8 @@ func (mock *EVMMock) Create(caller vm.ContractRef, code []byte, gas uint64, valu
 // CreateCalls gets all the calls that were made to Create.
 // Check the length with:
 //
-//	len(mockedEVM.CreateCalls())
-func (mock *EVMMock) CreateCalls() []struct {
+//	len(mockedPrecompileEVM.CreateCalls())
+func (mock *PrecompileEVMMock) CreateCalls() []struct {
 	Caller vm.ContractRef
 	Code   []byte
 	Gas    uint64
@@ -219,9 +219,9 @@ func (mock *EVMMock) CreateCalls() []struct {
 }
 
 // Create2 calls Create2Func.
-func (mock *EVMMock) Create2(caller vm.ContractRef, code []byte, gas uint64, endowment *big.Int, salt *uint256.Int) ([]byte, common.Address, uint64, error) {
+func (mock *PrecompileEVMMock) Create2(caller vm.ContractRef, code []byte, gas uint64, endowment *big.Int, salt *uint256.Int) ([]byte, common.Address, uint64, error) {
 	if mock.Create2Func == nil {
-		panic("EVMMock.Create2Func: method is nil but EVM.Create2 was just called")
+		panic("PrecompileEVMMock.Create2Func: method is nil but PrecompileEVM.Create2 was just called")
 	}
 	callInfo := struct {
 		Caller    vm.ContractRef
@@ -245,8 +245,8 @@ func (mock *EVMMock) Create2(caller vm.ContractRef, code []byte, gas uint64, end
 // Create2Calls gets all the calls that were made to Create2.
 // Check the length with:
 //
-//	len(mockedEVM.Create2Calls())
-func (mock *EVMMock) Create2Calls() []struct {
+//	len(mockedPrecompileEVM.Create2Calls())
+func (mock *PrecompileEVMMock) Create2Calls() []struct {
 	Caller    vm.ContractRef
 	Code      []byte
 	Gas       uint64
@@ -267,9 +267,9 @@ func (mock *EVMMock) Create2Calls() []struct {
 }
 
 // GetContext calls GetContextFunc.
-func (mock *EVMMock) GetContext() *vm.BlockContext {
+func (mock *PrecompileEVMMock) GetContext() *vm.BlockContext {
 	if mock.GetContextFunc == nil {
-		panic("EVMMock.GetContextFunc: method is nil but EVM.GetContext was just called")
+		panic("PrecompileEVMMock.GetContextFunc: method is nil but PrecompileEVM.GetContext was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -282,8 +282,8 @@ func (mock *EVMMock) GetContext() *vm.BlockContext {
 // GetContextCalls gets all the calls that were made to GetContext.
 // Check the length with:
 //
-//	len(mockedEVM.GetContextCalls())
-func (mock *EVMMock) GetContextCalls() []struct {
+//	len(mockedPrecompileEVM.GetContextCalls())
+func (mock *PrecompileEVMMock) GetContextCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -294,9 +294,9 @@ func (mock *EVMMock) GetContextCalls() []struct {
 }
 
 // GetStateDB calls GetStateDBFunc.
-func (mock *EVMMock) GetStateDB() state.StateDBI {
+func (mock *PrecompileEVMMock) GetStateDB() state.StateDBI {
 	if mock.GetStateDBFunc == nil {
-		panic("EVMMock.GetStateDBFunc: method is nil but EVM.GetStateDB was just called")
+		panic("PrecompileEVMMock.GetStateDBFunc: method is nil but PrecompileEVM.GetStateDB was just called")
 	}
 	callInfo := struct {
 	}{}
@@ -309,8 +309,8 @@ func (mock *EVMMock) GetStateDB() state.StateDBI {
 // GetStateDBCalls gets all the calls that were made to GetStateDB.
 // Check the length with:
 //
-//	len(mockedEVM.GetStateDBCalls())
-func (mock *EVMMock) GetStateDBCalls() []struct {
+//	len(mockedPrecompileEVM.GetStateDBCalls())
+func (mock *PrecompileEVMMock) GetStateDBCalls() []struct {
 } {
 	var calls []struct {
 	}
@@ -321,9 +321,9 @@ func (mock *EVMMock) GetStateDBCalls() []struct {
 }
 
 // StaticCall calls StaticCallFunc.
-func (mock *EVMMock) StaticCall(caller vm.ContractRef, addr common.Address, input []byte, gas uint64) ([]byte, uint64, error) {
+func (mock *PrecompileEVMMock) StaticCall(caller vm.ContractRef, addr common.Address, input []byte, gas uint64) ([]byte, uint64, error) {
 	if mock.StaticCallFunc == nil {
-		panic("EVMMock.StaticCallFunc: method is nil but EVM.StaticCall was just called")
+		panic("PrecompileEVMMock.StaticCallFunc: method is nil but PrecompileEVM.StaticCall was just called")
 	}
 	callInfo := struct {
 		Caller vm.ContractRef
@@ -345,8 +345,8 @@ func (mock *EVMMock) StaticCall(caller vm.ContractRef, addr common.Address, inpu
 // StaticCallCalls gets all the calls that were made to StaticCall.
 // Check the length with:
 //
-//	len(mockedEVM.StaticCallCalls())
-func (mock *EVMMock) StaticCallCalls() []struct {
+//	len(mockedPrecompileEVM.StaticCallCalls())
+func (mock *PrecompileEVMMock) StaticCallCalls() []struct {
 	Caller vm.ContractRef
 	Addr   common.Address
 	Input  []byte

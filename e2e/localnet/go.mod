@@ -11,6 +11,7 @@ require (
 	github.com/ory/dockertest v3.3.5+incompatible
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230516224826-185dd722aa87
 	pkg.berachain.dev/polaris/eth v0.0.0-20230711033436-c9ba5862eb68
+	pkg.berachain.dev/polaris/lib v0.0.0-20230516224826-185dd722aa87
 )
 
 require (
@@ -53,7 +54,6 @@ require (
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/tools v0.9.3 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools v2.2.0+incompatible // indirect

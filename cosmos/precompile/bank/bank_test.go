@@ -21,6 +21,7 @@
 package bank_test
 
 import (
+	"context"
 	"fmt"
 	"math/big"
 	"testing"
@@ -37,11 +38,12 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/precompile/testutil"
+	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -59,11 +61,11 @@ var _ = Describe("Bank Precompile Test", func() {
 		addr     sdk.AccAddress
 		factory  *log.Factory
 		bk       bankkeeper.BaseKeeper
-		ctx      sdk.Context
+		ctx      context.Context
 	)
 
 	BeforeEach(func() {
-		ctx, _, bk, _ = testutil.SetupMinimalKeepers()
+		ctx, _, bk, _ = testutils.SetupMinimalKeepers()
 
 		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(bankkeeper.NewMsgServerImpl(bk), bk))
 		addr = sdk.AccAddress([]byte("bank"))
@@ -130,20 +132,18 @@ var _ = Describe("Bank Precompile Test", func() {
 	When("Calling Precompile Methods", func() {
 		var (
 			acc    sdk.AccAddress
-			caller common.Address
+			denom  = "abera"
+			denom2 = "atoken"
 		)
 
-		denom := "abera"
-		denom2 := "atoken"
+		BeforeEach(func() {
+			ctx = vm.NewPolarContext(ctx, nil, cosmlib.AccAddressToEthAddress(acc), big.NewInt(0))
+		})
 
 		When("GetBalance", func() {
-
 			It("should fail if input denom is not a valid denom", func() {
 				res, err := contract.GetBalance(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(acc),
 					"_invalid_denom",
 				)
@@ -159,7 +159,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				acc = simtestutil.CreateRandomAccounts(1)[0]
 
 				err := FundAccount(
-					ctx,
+					sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 					bk,
 					acc,
 					sdk.NewCoins(
@@ -173,9 +173,6 @@ var _ = Describe("Bank Precompile Test", func() {
 
 				res, err := contract.GetBalance(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(acc),
 					denom,
 				)
@@ -185,7 +182,6 @@ var _ = Describe("Bank Precompile Test", func() {
 		})
 
 		When("GetAllBalance", func() {
-
 			It("should succeed", func() {
 				numOfDenoms := 3
 				acc = simtestutil.CreateRandomAccounts(1)[0]
@@ -195,7 +191,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					Expect(ok).To(BeTrue())
 
 					err := FundAccount(
-						ctx,
+						sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 						bk,
 						acc,
 						sdk.NewCoins(
@@ -210,9 +206,6 @@ var _ = Describe("Bank Precompile Test", func() {
 
 				res, err := contract.GetAllBalances(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(acc),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -236,9 +229,6 @@ var _ = Describe("Bank Precompile Test", func() {
 			It("should fail if input denom is not a valid denom", func() {
 				res, err := contract.GetSpendableBalance(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(acc),
 					"_invalid_denom",
 				)
@@ -254,7 +244,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				acc = simtestutil.CreateRandomAccounts(1)[0]
 
 				err := FundAccount(
-					ctx,
+					sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 					bk,
 					acc,
 					sdk.NewCoins(
@@ -268,9 +258,6 @@ var _ = Describe("Bank Precompile Test", func() {
 
 				res, err := contract.GetSpendableBalance(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(acc),
 					denom,
 				)
@@ -291,7 +278,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					Expect(ok).To(BeTrue())
 
 					err := FundAccount(
-						ctx,
+						sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 						bk,
 						acc,
 						sdk.NewCoins(
@@ -306,9 +293,6 @@ var _ = Describe("Bank Precompile Test", func() {
 
 				res, err := contract.GetAllSpendableBalances(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
 					cosmlib.AccAddressToEthAddress(acc),
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -332,9 +316,6 @@ var _ = Describe("Bank Precompile Test", func() {
 			It("should fail if input denom is not a valid Denom", func() {
 				res, err := contract.GetSupply(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
 					"_invalid_denom",
 				)
 				// fmt.Errorf("invalid denom: %s", denom)
@@ -352,7 +333,7 @@ var _ = Describe("Bank Precompile Test", func() {
 
 				for i := 0; i < 3; i++ {
 					err := FundAccount(
-						ctx,
+						sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 						bk,
 						accs[i],
 						sdk.NewCoins(
@@ -367,9 +348,6 @@ var _ = Describe("Bank Precompile Test", func() {
 
 				res, err := contract.GetSupply(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
 					denom,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -388,7 +366,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				for i := 0; i < 3; i++ {
 					for j := 0; j < 3; j++ {
 						err := FundAccount(
-							ctx,
+							sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 							bk,
 							accs[i],
 							sdk.NewCoins(
@@ -404,9 +382,6 @@ var _ = Describe("Bank Precompile Test", func() {
 
 				res, err := contract.GetAllSupply(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -426,9 +401,6 @@ var _ = Describe("Bank Precompile Test", func() {
 			It("should fail if input denom is not a valid Denom", func() {
 				res, err := contract.GetDenomMetadata(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
 					"_invalid_denom",
 				)
 
@@ -455,9 +427,6 @@ var _ = Describe("Bank Precompile Test", func() {
 
 				res, err := contract.GetDenomMetadata(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
 					metadata[0].Base,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -474,9 +443,6 @@ var _ = Describe("Bank Precompile Test", func() {
 
 				res, err := contract.GetSendEnabled(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
 					enabledDenom,
 				)
 				Expect(err).ToNot(HaveOccurred())
@@ -486,13 +452,15 @@ var _ = Describe("Bank Precompile Test", func() {
 		})
 
 		When("Send", func() {
-
 			It("should succeed", func() {
+
 				balanceAmount, ok := new(big.Int).SetString("220000000000000000", 10)
 				Expect(ok).To(BeTrue())
 
 				accs := simtestutil.CreateRandomAccounts(2)
 				fromAcc, toAcc := accs[0], accs[1]
+
+				pCtx := vm.NewPolarContext(ctx, nil, cosmlib.AccAddressToEthAddress(fromAcc), new(big.Int))
 
 				sortedSdkCoins := sdk.NewCoins(
 					sdk.NewCoin(
@@ -506,7 +474,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 
 				err := FundAccount(
-					ctx,
+					sdk.UnwrapSDKContext(ctx),
 					bk,
 					fromAcc,
 					sortedSdkCoins,
@@ -517,13 +485,9 @@ var _ = Describe("Bank Precompile Test", func() {
 				bk.SetSendEnabled(ctx, denom2, true)
 
 				_, err = contract.Send(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					cosmlib.AccAddressToEthAddress(fromAcc),
+					pCtx,
 					cosmlib.AccAddressToEthAddress(toAcc),
-					sdkCoinsToEvmCoins(sortedSdkCoins),
+					testutil.SdkCoinsToEvmCoins(sortedSdkCoins),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -545,7 +509,7 @@ var _ = Describe("Bank Precompile Test", func() {
 					sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(big.NewInt(0))),
 				)
 				err := FundAccount(
-					ctx,
+					sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 					bk,
 					fromAcc,
 					coinsToMint,
@@ -554,12 +518,8 @@ var _ = Describe("Bank Precompile Test", func() {
 				bk.SetSendEnabled(ctx, denom, true)
 				_, err = contract.Send(
 					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					cosmlib.AccAddressToEthAddress(fromAcc),
 					cosmlib.AccAddressToEthAddress(toAcc),
-					sdkCoinsToEvmCoins(coinsToSend),
+					testutil.SdkCoinsToEvmCoins(coinsToSend),
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidCoin))
 			})
@@ -601,24 +561,4 @@ func getTestMetadata() []banktypes.Metadata {
 			Display: "token",
 		},
 	}
-}
-
-func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
-	Amount *big.Int `json:"amount"`
-	Denom  string   `json:"denom"`
-} {
-	evmCoins := make([]struct {
-		Amount *big.Int `json:"amount"`
-		Denom  string   `json:"denom"`
-	}, len(sdkCoins))
-	for i, coin := range sdkCoins {
-		evmCoins[i] = struct {
-			Amount *big.Int `json:"amount"`
-			Denom  string   `json:"denom"`
-		}{
-			Amount: coin.Amount.BigInt(),
-			Denom:  coin.Denom,
-		}
-	}
-	return evmCoins
 }

@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"context"
 	"errors"
 	"reflect"
 
@@ -73,7 +74,9 @@ func NewMethod(
 }
 
 // Call executes the precompile's executable with the given context and input arguments.
-func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
+//
+//nolint:revive // needed for reflection.
+func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byte, error) {
 	// Unpack the args from the input, if any exist.
 	unpackedArgs, err := m.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])
 	if err != nil {
@@ -87,7 +90,11 @@ func (m *Method) Call(ctx []reflect.Value, input []byte) ([]byte, error) {
 	}
 
 	// Call the executable
-	results := m.execute.Call(append(ctx, reflectedUnpackedArgs...))
+	results := m.execute.Call(append(
+		[]reflect.Value{
+			reflect.ValueOf(si),
+			reflect.ValueOf(ctx),
+		}, reflectedUnpackedArgs...))
 
 	// If the precompile returned an error, the error is returned to the caller.
 	if !results[1].IsNil() {
