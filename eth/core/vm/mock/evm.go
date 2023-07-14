@@ -18,12 +18,28 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile
+package mock
 
 import (
-	"github.com/ethereum/go-ethereum/core/vm"
+	"math/big"
+
+	"github.com/ethereum/go-ethereum/core/state"
+
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
-type (
-	EVM = vm.PrecompileEVM
-)
+//go:generate moq -out ./evm.mock.go -skip-ensure -pkg mock ../ PrecompileEVM
+
+func NewEVM() *PrecompileEVMMock {
+	mockSDB := NewEmptyStateDB()
+	return &PrecompileEVMMock{
+		GetStateDBFunc: func() state.StateDBI {
+			return mockSDB
+		},
+		GetContextFunc: func() *vm.BlockContext {
+			return &vm.BlockContext{
+				BlockNumber: big.NewInt(1),
+			}
+		},
+	}
+}

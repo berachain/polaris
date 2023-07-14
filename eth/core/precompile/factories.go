@@ -96,21 +96,21 @@ func NewStatefulFactory() *StatefulFactory {
 func (sf *StatefulFactory) Build(
 	rp Registrable, p Plugin,
 ) (vm.PrecompileContainer, error) {
-	sci, ok := utils.GetAs[StatefulImpl](rp)
+	si, ok := utils.GetAs[StatefulImpl](rp)
 	if !ok {
 		return nil, errorslib.Wrap(ErrWrongContainerFactory, statefulContainerName)
 	}
 
 	// attach the precompile plugin to the stateful contract
-	sci.SetPlugin(p)
+	si.SetPlugin(p)
 
 	// add precompile methods to stateful container, if any exist
-	idsToMethods, err := buildIdsToMethods(sci.ABIMethods(), reflect.ValueOf(sci))
+	idsToMethods, err := buildIdsToMethods(si.ABIMethods(), reflect.ValueOf(si))
 	if err != nil {
 		return nil, err
 	}
 
-	return NewStateful(rp, idsToMethods)
+	return NewStateful(si, idsToMethods)
 }
 
 // This function matches each Go implementation of the precompile to the ABI's respective function.

@@ -56,11 +56,9 @@ func TestAddressPrecompile(t *testing.T) {
 
 var _ = Describe("Address Precompile", func() {
 	var contract *auth.Contract
-	var ctx sdk.Context
 	var sf *ethprecompile.StatefulFactory
 	BeforeEach(func() {
-		sdkctx, ak, _, _ := testutils.SetupMinimalKeepers()
-		ctx = sdkctx
+		_, ak, _, _ := testutils.SetupMinimalKeepers()
 		k := authzkeeper.NewKeeper(
 			runtime.NewKVStoreService(storetypes.NewKVStoreKey(authtypes.StoreKey)),
 			testutils.GetEncodingConfig().Codec,
@@ -106,10 +104,12 @@ var _ = Describe("Address Precompile", func() {
 			evm              *mock.PrecompileEVMMock
 			granter, grantee common.Address
 			limit            sdk.Coins
+			ctx              context.Context
 		)
 
 		BeforeEach(func() {
 			// Genereate an evm where the block time is 100.
+			sdkCtx, _, _, _ := testutils.SetupMinimalKeepers()
 			evm = mock.NewPrecompileEVMMock()
 			evm.GetContextFunc = func() *vm.BlockContext {
 				blockCtx := vm.BlockContext{}
@@ -123,6 +123,13 @@ var _ = Describe("Address Precompile", func() {
 			granter = cosmlib.AccAddressToEthAddress(granterAcc)
 			grantee = cosmlib.AccAddressToEthAddress(granteeAcc)
 
+			ctx = vm.NewPolarContext(
+				sdkCtx,
+				evm,
+				granter,
+				new(big.Int),
+			)
+
 			// Generate a limit.
 			limit = sdk.NewCoins(sdk.NewInt64Coin("test", 100))
 
@@ -130,11 +137,9 @@ var _ = Describe("Address Precompile", func() {
 		})
 
 		It("should error if the expiration is before the current block time", func() {
+
 			_, err := contract.SetSendAllowance(
-				context.Background(),
-				evm,
-				granter,
-				new(big.Int),
+				ctx,
 				grantee,
 				testutil.SdkCoinsToEvmCoins(limit),
 				big.NewInt(1),
@@ -145,9 +150,6 @@ var _ = Describe("Address Precompile", func() {
 		It("should succeed with expiration", func() {
 			_, err := contract.SetSendAllowance(
 				ctx,
-				evm,
-				granter,
-				new(big.Int),
 				grantee,
 				testutil.SdkCoinsToEvmCoins(limit),
 				big.NewInt(110),
@@ -158,9 +160,6 @@ var _ = Describe("Address Precompile", func() {
 		It("should succeed without expiration", func() {
 			_, err := contract.SetSendAllowance(
 				ctx,
-				evm,
-				granter,
-				new(big.Int),
 				grantee,
 				testutil.SdkCoinsToEvmCoins(limit),
 				new(big.Int),
@@ -173,21 +172,16 @@ var _ = Describe("Address Precompile", func() {
 				// Set up a spend limit grant.
 				_, err := contract.SetSendAllowance(
 					ctx,
-					evm,
-					granter,
-					new(big.Int),
 					grantee,
 					testutil.SdkCoinsToEvmCoins(limit),
 					new(big.Int),
 				)
 				Expect(err).ToNot(HaveOccurred())
 			})
+
 			It("should get the spend allowance", func() {
 				res, err := contract.GetSendAllowance(
 					ctx,
-					evm,
-					common.Address{},
-					new(big.Int),
 					granter,
 					grantee,
 					"test",

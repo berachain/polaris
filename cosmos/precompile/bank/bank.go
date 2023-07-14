@@ -22,7 +22,6 @@ package bank
 
 import (
 	"context"
-	"math/big"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -32,6 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // Contract is the precompile contract for the bank module.
@@ -57,9 +57,6 @@ func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) *Co
 // GetBalance implements `getBalance(address,string)` method.
 func (c *Contract) GetBalance(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
 	accountAddress common.Address,
 	denom string,
 ) ([]any, error) {
@@ -78,9 +75,6 @@ func (c *Contract) GetBalance(
 // // GetAllBalances implements `getAllBalances(address)` method.
 func (c *Contract) GetAllBalances(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
 	accountAddress common.Address,
 ) ([]any, error) {
 	// todo: add pagination here
@@ -97,9 +91,6 @@ func (c *Contract) GetAllBalances(
 // GetSpendableBalanceByDenom implements `getSpendableBalanceByDenom(address,string)` method.
 func (c *Contract) GetSpendableBalance(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
 	accountAddress common.Address,
 	denom string,
 ) ([]any, error) {
@@ -118,9 +109,6 @@ func (c *Contract) GetSpendableBalance(
 // GetSpendableBalances implements `getAllSpendableBalances(address)` method.
 func (c *Contract) GetAllSpendableBalances(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
 	accountAddress common.Address,
 ) ([]any, error) {
 	res, err := c.querier.SpendableBalances(ctx, &banktypes.QuerySpendableBalancesRequest{
@@ -136,9 +124,6 @@ func (c *Contract) GetAllSpendableBalances(
 // GetSupplyOf implements `getSupply(string)` method.
 func (c *Contract) GetSupply(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
 	denom string,
 ) ([]any, error) {
 	res, err := c.querier.SupplyOf(ctx, &banktypes.QuerySupplyOfRequest{
@@ -155,9 +140,6 @@ func (c *Contract) GetSupply(
 // GetTotalSupply implements `getAllSupply()` method.
 func (c *Contract) GetAllSupply(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
 ) ([]any, error) {
 	// todo: add pagination here
 	res, err := c.querier.TotalSupply(ctx, &banktypes.QueryTotalSupplyRequest{})
@@ -171,9 +153,6 @@ func (c *Contract) GetAllSupply(
 // GetDenomMetadata implements `getDenomMetadata(string)` method.
 func (c *Contract) GetDenomMetadata(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
 	denom string,
 ) ([]any, error) {
 	res, err := c.querier.DenomMetadata(ctx, &banktypes.QueryDenomMetadataRequest{
@@ -206,9 +185,6 @@ func (c *Contract) GetDenomMetadata(
 // GetSendEnabled implements `getSendEnabled(string[])` method.
 func (c *Contract) GetSendEnabled(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
 	denom string,
 ) ([]any, error) {
 	res, err := c.querier.SendEnabled(ctx, &banktypes.QuerySendEnabledRequest{
@@ -227,9 +203,6 @@ func (c *Contract) GetSendEnabled(
 // Send implements `send(address,(uint256,string))` method.
 func (c *Contract) Send(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
 	toAddress common.Address,
 	coins any,
 ) ([]any, error) {
@@ -239,7 +212,7 @@ func (c *Contract) Send(
 	}
 
 	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
-		FromAddress: cosmlib.Bech32FromEthAddress(caller),
+		FromAddress: cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()),
 		ToAddress:   cosmlib.Bech32FromEthAddress(toAddress),
 		Amount:      amount,
 	})

@@ -36,6 +36,7 @@ type (
 	GetHashFunc         = vm.GetHashFunc
 	PrecompileContainer = vm.PrecompiledContract
 	PrecompileManager   = vm.PrecompileManager
+	PrecompileEVM       = vm.PrecompileEVM
 	TransferFunc        = vm.TransferFunc
 	TxContext           = vm.TxContext
 )

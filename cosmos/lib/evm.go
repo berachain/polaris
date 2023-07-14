@@ -33,7 +33,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// TODO: Add these functions to the ethprecompile.EVM object itself to allow enforcing calls into
+// TODO: Add these functions to the EVM object itself to allow enforcing calls into
 // EVM automatically (i.e. precompile cannot bypass these calls to enter the EVM via call/create
 // when in read-only mode). Use gas pool to consume gas rather than Cosmos gas meter.
 
@@ -41,7 +41,7 @@ import (
 func DeployOnEVMFromPrecompile(
 	ctx sdk.Context,
 	plugin ethprecompile.Plugin,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	deployer common.Address,
 	contract abi.ABI,
 	endowment *big.Int,
@@ -74,7 +74,7 @@ func DeployOnEVMFromPrecompile(
 func CallEVMFromPrecompile(
 	ctx sdk.Context,
 	plugin ethprecompile.Plugin,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	caller common.Address,
 	address common.Address,
 	contract abi.ABI,
@@ -108,7 +108,7 @@ func CallEVMFromPrecompile(
 func CallEVMFromPrecompileUnpackArgs(
 	ctx sdk.Context,
 	plugin ethprecompile.Plugin,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	caller common.Address,
 	address common.Address,
 	contract abi.ABI,
@@ -129,7 +129,7 @@ func CallEVMFromPrecompileUnpackArgs(
 func StaticCallEVMFromPrecompileUnpackArgs(
 	ctx sdk.Context,
 	plugin ethprecompile.Plugin,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	caller common.Address,
 	address common.Address,
 	contract abi.ABI,

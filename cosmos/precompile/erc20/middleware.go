@@ -28,6 +28,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	abi "github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
@@ -57,7 +58,7 @@ var (
 
 func (c *Contract) transferCoinToERC20(
 	ctx context.Context,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	value *big.Int,
 	denom string,
 	owner common.Address,
@@ -160,7 +161,7 @@ func (c *Contract) transferCoinToERC20(
 func (c *Contract) transferERC20ToCoin(
 	ctx context.Context,
 	_ common.Address,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	token common.Address,
 	owner common.Address,
 	recipient common.Address,
@@ -263,7 +264,7 @@ func (c *Contract) transferERC20ToCoin(
 func getBalanceOf(
 	ctx sdk.Context,
 	plugin ethprecompile.Plugin,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	caller common.Address,
 	contractAddr common.Address,
 	contract abi.ABI,

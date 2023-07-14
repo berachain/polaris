@@ -107,7 +107,7 @@ func (ms *mockStateless) RequiredGas(_ []byte) uint64 {
 }
 
 func (ms *mockStateless) Run(
-	_ context.Context, _ precompile.EVM, _ []byte,
+	_ context.Context, _ vm.PrecompileEVM, _ []byte,
 	_ common.Address, _ *big.Int,
 ) ([]byte, error) {
 	return nil, nil
@@ -129,7 +129,7 @@ func (ms *mockStateful) ABIMethods() map[string]abi.Method {
 
 func (ms *mockStateful) GetOutput(
 	_ context.Context,
-	_ precompile.EVM,
+	_ vm.PrecompileEVM,
 	_ common.Address,
 	_ *big.Int,
 	_ bool,
