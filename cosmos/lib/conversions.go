@@ -21,6 +21,7 @@
 package lib
 
 import (
+	"fmt"
 	"math/big"
 	"time"
 
@@ -185,6 +186,7 @@ func SdkValidatorsToStakingValidators(vals []stakingtypes.Validator) (
 
 // SdkAccountToAuthAccount converts a Cosmos SDK Base Account to a geth compatible Base Account.
 func SdkAccountToAuthAccount(acc sdk.AccountI) auth.IAuthModuleBaseAccount {
+	fmt.Println("SdkAccountToAuthAccount")
 	if acc == nil {
 		return auth.IAuthModuleBaseAccount{}
 	}

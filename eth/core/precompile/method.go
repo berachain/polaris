@@ -23,6 +23,7 @@ package precompile
 import (
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -95,7 +96,7 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 			reflect.ValueOf(si),
 			reflect.ValueOf(ctx),
 		}, reflectedUnpackedArgs...))
-
+	fmt.Println("What up ")
 	// If the precompile returned an error, the error is returned to the caller.
 	if !results[1].IsNil() {
 		err = utils.MustGetAs[error](results[1].Interface())
@@ -110,7 +111,7 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 	}
 
 	// Pack the return values and return, if any exist.
-	ret, err := m.abiMethod.Outputs.PackValues(utils.MustGetAs[[]any](results[0].Interface()))
+	ret, err := m.abiMethod.Outputs.PackValues(([]any{results[0].Interface()}))
 	if err != nil {
 		return nil, err
 	}

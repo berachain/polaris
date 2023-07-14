@@ -23,6 +23,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"time"
 
@@ -113,6 +114,7 @@ func (c *Contract) accountInfoHelper(
 	ctx context.Context,
 	acc string,
 ) (auth.IAuthModuleBaseAccount, error) {
+	fmt.Println("accountInfoHelper")
 	res, err := c.authQueryServer.Account(ctx, &authtypes.QueryAccountRequest{
 		Address: acc,
 	})
