@@ -87,7 +87,7 @@ var _ = Describe("Bank", func() {
 				{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
 			},
 			Base:    "abera",
-			Display: "bera",
+			Display: "abera",
 		}
 
 		// charlie initially has 1000000000000000000 abera

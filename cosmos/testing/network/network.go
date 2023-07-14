@@ -226,18 +226,18 @@ func getTestMetadata() []banktypes.Metadata {
 				{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
 			},
 			Base:    "abera",
-			Display: "bera",
+			Display: "abera",
 		},
 		{
 			Name:        "Token",
 			Symbol:      "TOKEN",
 			Description: "The native staking token of the Token Hub.",
 			DenomUnits: []*banktypes.DenomUnit{
-				{Denom: "1token", Exponent: uint32(5), Aliases: []string{"decitoken"}},
-				{Denom: "2token", Exponent: uint32(4), Aliases: []string{"centitoken"}},
-				{Denom: "3token", Exponent: uint32(7), Aliases: []string{"dekatoken"}},
+				{Denom: "atoken", Exponent: uint32(5), Aliases: []string{"decitoken"}},
+				{Denom: "btoken", Exponent: uint32(4), Aliases: []string{"centitoken"}},
+				{Denom: "ctoken", Exponent: uint32(7), Aliases: []string{"dekatoken"}},
 			},
-			Base:    "utoken",
+			Base:    "atoken",
 			Display: "token",
 		},
 		{

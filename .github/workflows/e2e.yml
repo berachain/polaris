@@ -1,0 +1,165 @@
+# SPDX-License-Identifier: BUSL-1.1
+#
+# Copyright (C) 2023, Berachain Foundation. All rights reserved.
+# Use of this software is govered by the Business Source License included
+# in the LICENSE file of this repository and at www.mariadb.com/bsl11.
+#
+# ANY USE OF THE LICENSED WORK IN VIOLATION OF THIS LICENSE WILL AUTOMATICALLY
+# TERMINATE YOUR RIGHTS UNDER THIS LICENSE FOR THE CURRENT AND ALL OTHER
+# VERSIONS OF THE LICENSED WORK.
+#
+# THIS LICENSE DOES NOT GRANT YOU ANY RIGHT IN ANY TRADEMARK OR LOGO OF
+# LICENSOR OR ITS AFFILIATES (PROVIDED THAT YOU MAY USE A TRADEMARK OR LOGO OF
+# LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
+#
+# TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+# AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+# EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+# TITLE.
+
+name: e2e
+
+on:
+  pull_request:
+
+jobs:
+  build-base:
+    strategy:
+      matrix:
+        namespace: [cosmos]
+        docker-version: [base]
+        os: [ubuntu-latest]
+        go-version: [1.20.4]
+        go-arch: [amd64]
+        image-name: ["polard/base:v0.0.0"]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Golang
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Cache Golang Deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go
+          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Run ${{ matrix.namespace }}:docker ${{ matrix.docker-version }} ${{ matrix.go-arch }}
+        uses: magefile/mage-action@v2
+        with:
+          version: latest
+          args: ${{ matrix.namespace }}:docker base ${{ matrix.go-arch }}
+        env:
+          GOPATH: /home/runner/go
+      - name: Save base image
+        run: docker save ${{ matrix.image-name }} -o base-image.tar
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: base-image
+          path: base-image.tar
+  
+  localnet:
+    needs: build-base
+    strategy:
+      matrix:
+        namespace: [localnet]
+        os: [ubuntu-latest]
+        go-version: [1.20.4]
+        base-image: [base-image]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Setup Golang
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Cache Golang Deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go
+          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-
+      - name: Install Go Tools
+        run: |
+          go run magefiles/setup/setup.go ci
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Download image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.base-image }}
+      - name: Load ${{ matrix.base-image }}
+        run: docker load -i ${{ matrix.base-image }}.tar
+      - name: Run ${{ matrix.namespace }}:build
+        uses: magefile/mage-action@v2
+        with:
+          version: latest
+          args: ${{ matrix.namespace }}:build
+        env:
+          GOPATH: /home/runner/go
+      - name: Run teste2e
+        uses: magefile/mage-action@v2
+        with:
+          version: latest
+          args: teste2e
+        env:
+          GOPATH: /home/runner/go
+
+  hive:
+    needs: build-base
+    strategy:
+      matrix:
+        simulator: [polaris/rpc, polaris/graphql] 
+        namespace: [cosmos]
+        os: [ubuntu-latest]
+        go-version: [1.20.4]
+        base-image: [base-image]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Setup Golang
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Download image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.base-image }}
+      - name: Load ${{ matrix.base-image }}
+        run: docker load -i ${{ matrix.base-image }}.tar
+      - name: Cache Golang Deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go
+          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-
+      - name: Run ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
+        uses: magefile/mage-action@v2
+        with:
+          version: latest
+          args: ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
+        env:
+          GOPATH: /home/runner/go

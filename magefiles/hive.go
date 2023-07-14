@@ -41,6 +41,7 @@ type tests struct {
 }
 
 const (
+	baseImageVersion   = "polard/base:v0.0.0"
 	baseHiveDockerPath = "./e2e/hive/"
 )
 
