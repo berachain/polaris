@@ -37,7 +37,7 @@ import (
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
-	"pkg.berachain.dev/polaris/e2e/localnet/utils"
+	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
@@ -116,7 +116,7 @@ var _ = Describe("JSON RPC tests", func() {
 
 		It("should deploy, mint tokens and check balance, eth_getTransactionByHash", func() {
 			// Deploy the contract
-			erc20Contract, deployedAddress := utils.DeployERC20(tf.GenerateTransactOpts("alice"), client)
+			erc20Contract, deployedAddress := DeployERC20(tf.GenerateTransactOpts("alice"), client)
 
 			// Mint tokens
 			tx, err := erc20Contract.Mint(tf.GenerateTransactOpts("alice"),
@@ -127,7 +127,7 @@ var _ = Describe("JSON RPC tests", func() {
 			txHash := tx.Hash()
 
 			// Wait for the receipt.
-			receipt := utils.ExpectSuccessReceipt(client, tx)
+			receipt := ExpectSuccessReceipt(client, tx)
 			Expect(receipt.Logs).To(HaveLen(2))
 			for i, log := range receipt.Logs {
 				Expect(log.Address).To(Equal(deployedAddress))
@@ -162,10 +162,10 @@ var _ = Describe("JSON RPC tests", func() {
 				tf.GenerateTransactOpts("alice"), client,
 			)
 			Expect(err).NotTo(HaveOccurred())
-			utils.ExpectSuccessReceipt(client, tx)
+			ExpectSuccessReceipt(client, tx)
 			tx, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
 			Expect(err).NotTo(HaveOccurred())
-			utils.ExpectSuccessReceipt(client, tx)
+			ExpectSuccessReceipt(client, tx)
 			Expect(tf.WaitForNextBlock()).To(Succeed())
 		})
 
@@ -215,7 +215,7 @@ var _ = Describe("JSON RPC tests", func() {
 
 			// check to make sure all the txs went thru.
 			for _, tx := range txs {
-				utils.ExpectSuccessReceipt(client, tx)
+				ExpectSuccessReceipt(client, tx)
 			}
 
 			// verify the nonce has increased on disk.
