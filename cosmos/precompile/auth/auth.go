@@ -66,7 +66,7 @@ func NewPrecompileContract(
 func (c *Contract) GetAccountInfo(
 	ctx context.Context,
 	account common.Address,
-) ([]any, error) {
+) (generated.IAuthModuleBaseAccount, error) {
 	return c.accountInfoHelper(ctx, cosmlib.Bech32FromEthAddress(account))
 }
 
@@ -76,10 +76,10 @@ func (c *Contract) SetSendAllowance(
 	spender common.Address,
 	amount any,
 	expiration *big.Int,
-) ([]any, error) {
+) (bool, error) {
 	amt, err := cosmlib.ExtractCoinsFromInput(amount)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
 	polarCtx := vm.UnwrapPolarContext(ctx)
@@ -100,7 +100,7 @@ func (c *Contract) GetSendAllowance(
 	owner common.Address,
 	spender common.Address,
 	denom string,
-) ([]any, error) {
+) (*big.Int, error) {
 	return c.getSendAllownaceHelper(
 		ctx,
 		time.Unix(int64(vm.UnwrapPolarContext(ctx).Evm().GetContext().Time), 0),
