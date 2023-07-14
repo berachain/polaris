@@ -29,10 +29,10 @@ import (
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 func TestPolarisERC20(t *testing.T) {

@@ -24,7 +24,6 @@ import (
 	"testing"
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
 	utils "pkg.berachain.dev/polaris/e2e/localnet/utils"
 
