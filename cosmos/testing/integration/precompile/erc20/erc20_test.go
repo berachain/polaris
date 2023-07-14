@@ -135,7 +135,7 @@ var _ = Describe("ERC20", func() {
 				Expect(err).ToNot(HaveOccurred())
 				balance, err := token.BalanceOf(nil, tf.Address("alice"))
 				Expect(err).ToNot(HaveOccurred())
-				Expect(balance).To(Equal(big.NewInt(12345 * 2)))
+				Expect(balance).To(Equal(big.NewInt(12345)))
 
 				// denom already exists, token already exists
 				tx, err = erc20Precompile.TransferCoinToERC20(
@@ -163,13 +163,13 @@ var _ = Describe("ERC20", func() {
 				// check that the new ERC20 is burned from TestAddress
 				balance, err = token.BalanceOf(nil, tf.Address("alice"))
 				Expect(err).ToNot(HaveOccurred())
-				Expect(balance).To(Equal(big.NewInt(12345 * 2)))
+				Expect(balance).To(Equal(big.NewInt(12345)))
 
 				// convert illegal amount back to SDK coin
 				tx, err = erc20Precompile.TransferERC20ToCoin(
 					tf.GenerateTransactOpts("alice"),
 					tokenAddr,
-					big.NewInt(12345*2+1),
+					big.NewInt(12346),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				ExpectFailedReceipt(tf.EthClient, tx)
@@ -329,7 +329,7 @@ var _ = Describe("ERC20", func() {
 			// check that the new ERC20 is burned from TestAddress
 			balance, err = token.BalanceOf(nil, tf.Address("alice"))
 			Expect(err).ToNot(HaveOccurred())
-			Expect(balance).To(Equal(big.NewInt(12345)))
+			Expect(balance).To(Equal(big.NewInt(12000)))
 		})
 	})
 })

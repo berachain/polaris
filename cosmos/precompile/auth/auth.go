@@ -76,9 +76,8 @@ func (c *Contract) GetAccountInfo(
 func (c *Contract) SetSendAllowance(
 	ctx context.Context,
 	evm ethprecompile.EVM,
-	_ common.Address,
+	caller common.Address,
 	_ *big.Int,
-	owner common.Address,
 	spender common.Address,
 	amount any,
 	expiration *big.Int,
@@ -90,7 +89,7 @@ func (c *Contract) SetSendAllowance(
 	return c.setSendAllowanceHelper(
 		ctx,
 		time.Unix(int64(evm.GetContext().Time), 0),
-		cosmlib.AddressToAccAddress(owner),
+		cosmlib.AddressToAccAddress(caller),
 		cosmlib.AddressToAccAddress(spender),
 		amt,
 		expiration,

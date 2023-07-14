@@ -224,13 +224,12 @@ func (c *Contract) GetSendEnabled(
 	return []any{res.SendEnabled[0].Enabled}, nil
 }
 
-// Send implements `send(address,address,(uint256,string))` method.
+// Send implements `send(address,(uint256,string))` method.
 func (c *Contract) Send(
 	ctx context.Context,
 	_ ethprecompile.EVM,
-	_ common.Address,
+	caller common.Address,
 	_ *big.Int,
-	fromAddress common.Address,
 	toAddress common.Address,
 	coins any,
 ) ([]any, error) {
@@ -240,7 +239,7 @@ func (c *Contract) Send(
 	}
 
 	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
-		FromAddress: cosmlib.Bech32FromEthAddress(fromAddress),
+		FromAddress: cosmlib.Bech32FromEthAddress(caller),
 		ToAddress:   cosmlib.Bech32FromEthAddress(toAddress),
 		Amount:      amount,
 	})
