@@ -96,7 +96,10 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 			reflect.ValueOf(ctx),
 		}, reflectedUnpackedArgs...))
 	// If the precompile returned an error, the error is returned to the caller.
-	if !results[1].IsNil() {
+
+	err = utils.MustGetAs[error](results[len(results)-1].Interface())
+
+	if err != nil {
 		err = utils.MustGetAs[error](results[1].Interface())
 		if !errors.Is(err, vm.ErrWriteProtection) {
 			err = errorslib.Wrapf(
@@ -109,7 +112,11 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 	}
 
 	// Pack the return values and return, if any exist.
-	ret, err := m.abiMethod.Outputs.PackValues(([]any{results[0].Interface()}))
+	var retVals []any
+	for _, val := range results[0 : len(results)-1] {
+		retVals = append(retVals, val.Interface())
+	}
+	ret, err := m.abiMethod.Outputs.PackValues(retVals)
 	if err != nil {
 		return nil, err
 	}

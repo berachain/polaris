@@ -187,7 +187,7 @@ var _ = Describe("Address Precompile", func() {
 					"test",
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res).To(Equal([]any{big.NewInt(100)}))
+				Expect(res).To(Equal(big.NewInt(100)))
 			})
 		})
 	})

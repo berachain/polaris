@@ -59,16 +59,16 @@ func (c *Contract) cancelProposalHelper(
 	ctx context.Context,
 	proposer sdk.AccAddress,
 	proposalID uint64,
-) ([]uint64, error) {
+) (uint64, uint64, error) {
 	res, err := c.msgServer.CancelProposal(ctx, &v1.MsgCancelProposal{
 		ProposalId: proposalID,
 		Proposer:   proposer.String(),
 	})
 	if err != nil {
-		return nil, err
+		return 0, 0, err
 	}
 
-	return []uint64{uint64(res.CanceledTime.Unix()), res.CanceledHeight}, nil
+	return uint64(res.CanceledTime.Unix()), res.CanceledHeight, nil
 }
 
 // voteHelper is a helper function for the `Vote` method of the governance precompile contract.

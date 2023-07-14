@@ -33,7 +33,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
@@ -204,14 +203,11 @@ var _ = Describe("Bank Precompile Test", func() {
 					Expect(err).ToNot(HaveOccurred())
 				}
 
-				res, err := contract.GetAllBalances(
+				coins, err := contract.GetAllBalances(
 					ctx,
 					cosmlib.AccAddressToEthAddress(acc),
 				)
 				Expect(err).ToNot(HaveOccurred())
-
-				coins, ok := utils.GetAs[[]libgenerated.CosmosCoin](res[0])
-				Expect(ok).To(BeTrue())
 
 				for i, coin := range coins {
 					balanceAmountStr := fmt.Sprintf("%d000000000000000000", i+1)
@@ -291,14 +287,11 @@ var _ = Describe("Bank Precompile Test", func() {
 					Expect(err).ToNot(HaveOccurred())
 				}
 
-				res, err := contract.GetAllSpendableBalances(
+				coins, err := contract.GetAllSpendableBalances(
 					ctx,
 					cosmlib.AccAddressToEthAddress(acc),
 				)
 				Expect(err).ToNot(HaveOccurred())
-
-				coins, ok := utils.GetAs[[]libgenerated.CosmosCoin](res[0])
-				Expect(ok).To(BeTrue())
 
 				for i, coin := range coins {
 					balanceAmountStr := fmt.Sprintf("%d000000000000000000", i+1)
@@ -380,13 +373,10 @@ var _ = Describe("Bank Precompile Test", func() {
 					}
 				}
 
-				res, err := contract.GetAllSupply(
+				coins, err := contract.GetAllSupply(
 					ctx,
 				)
 				Expect(err).ToNot(HaveOccurred())
-
-				coins, ok := utils.GetAs[[]libgenerated.CosmosCoin](res[0])
-				Expect(ok).To(BeTrue())
 
 				for i := 0; i < 3; i++ {
 					Expect(coins[i].Denom).To(Equal(fmt.Sprintf("%s%d", denom, i)))
@@ -405,7 +395,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				)
 
 				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
+				Expect(res).To(Equal(generated.IBankModuleDenomMetadata{}))
 			})
 
 			It("should succeed", func() {

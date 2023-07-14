@@ -185,12 +185,13 @@ var _ = Describe("Governance Precompile", func() {
 				Status:   v1.StatusVotingPeriod,
 			})
 			Expect(err).ToNot(HaveOccurred())
-			res, err := contract.CancelProposal(
+			res, res1, err := contract.CancelProposal(
 				ctx,
 				uint64(1),
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).ToNot(BeNil())
+			Expect(res1).ToNot(BeNil())
 		})
 
 	})
@@ -213,8 +214,8 @@ var _ = Describe("Governance Precompile", func() {
 				int32(1),
 				"metadata",
 			)
+			Expect(res).To(BeFalse())
 			Expect(err).To(HaveOccurred())
-			Expect(res).To(HaveLen(1))
 		})
 		It("should succeed", func() {
 			res, err := contract.Vote(
@@ -236,8 +237,8 @@ var _ = Describe("Governance Precompile", func() {
 					[]generated.IGovernanceModuleWeightedVoteOption{},
 					"metadata",
 				)
+				Expect(res).To(BeFalse())
 				Expect(err).To(HaveOccurred())
-				Expect(res).To(HaveLen(1))
 			})
 			It("should succeed", func() {
 				weight, err := sdkmath.LegacyNewDecFromStr("1")
@@ -305,13 +306,12 @@ var _ = Describe("Governance Precompile", func() {
 					)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(res).ToNot(BeNil())
-					Expect(res).To(HaveLen(1))
 				})
 			})
 			When("GetProposals", func() {
 				BeforeEach(func() {
 					// Not filled proposal, hence will panic the parser.
-					_, err := contract.CancelProposal(ctx, uint64(1))
+					_, _, err := contract.CancelProposal(ctx, uint64(1))
 					Expect(err).ToNot(HaveOccurred())
 				})
 				It("should get the proposals", func() {

@@ -424,8 +424,7 @@ var _ = Describe("Staking", func() {
 							otherVal,
 						)
 						Expect(err).ToNot(HaveOccurred())
-						_, ok := utils.GetAs[[]stakingtypes.UnbondingDelegationEntry](vals[0])
-						Expect(ok).To(BeTrue())
+						Expect(vals).To(HaveLen(0))
 					})
 
 					It("should succeed", func() {
@@ -496,8 +495,7 @@ var _ = Describe("Staking", func() {
 				res, err := contract.GetActiveValidators(ctx)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
-				addrs := utils.MustGetAs[[]common.Address](res[0])
-				Expect(addrs[0]).To(Equal(cosmlib.ValAddressToEthAddress(val)))
+				Expect(res[0]).To(Equal(cosmlib.ValAddressToEthAddress(val)))
 			})
 		})
 	})

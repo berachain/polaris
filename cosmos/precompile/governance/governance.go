@@ -84,7 +84,7 @@ func (c *Contract) SubmitProposal(
 func (c *Contract) CancelProposal(
 	ctx context.Context,
 	id uint64,
-) ([]uint64, error) {
+) (uint64, uint64, error) {
 	proposer := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
 	return c.cancelProposalHelper(ctx, proposer, id)
