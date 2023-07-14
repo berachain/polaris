@@ -159,7 +159,8 @@ func formatName(name string) string {
 func validateReturnTypes(_ reflect.Method) error {
 	// 	if implMethod.Type.NumOut() != 2 { //nolint:gomnd // always expect 2 return values.
 	// return errors.New(
-	// "precompile methods must return ([]any, error), but found wrong number of return types for precompile method", //nolint:lll // it's okay.
+	// "precompile methods must return ([]any, error), but found wrong number of return types for
+	// precompile method", //nolint:lll // it's okay.
 	// )
 	// }
 

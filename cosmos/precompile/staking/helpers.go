@@ -249,7 +249,10 @@ func (c *Contract) validatorsHelper(ctx context.Context) ([]staking.IStakingModu
 }
 
 // valAddr must be the bech32 address of the validator.
-func (c *Contract) validatorHelper(ctx context.Context, valAddr string) (staking.IStakingModuleValidator, error) {
+func (c *Contract) validatorHelper(
+	ctx context.Context,
+	valAddr string,
+) (staking.IStakingModuleValidator, error) {
 	res, err := c.querier.Validator(ctx, &stakingtypes.QueryValidatorRequest{
 		ValidatorAddr: valAddr,
 	})
@@ -257,7 +260,9 @@ func (c *Contract) validatorHelper(ctx context.Context, valAddr string) (staking
 		return staking.IStakingModuleValidator{}, err
 	}
 
-	val, err := cosmlib.SdkValidatorsToStakingValidators([]stakingtypes.Validator{res.GetValidator()})
+	val, err := cosmlib.SdkValidatorsToStakingValidators(
+		[]stakingtypes.Validator{res.GetValidator()},
+	)
 	if err != nil {
 		return staking.IStakingModuleValidator{}, err
 	}
@@ -267,7 +272,10 @@ func (c *Contract) validatorHelper(ctx context.Context, valAddr string) (staking
 }
 
 // accAddr must be the bech32 address of the delegator.
-func (c *Contract) delegatorValidatorsHelper(ctx context.Context, accAddr string) ([]staking.IStakingModuleValidator, error) {
+func (c *Contract) delegatorValidatorsHelper(
+	ctx context.Context,
+	accAddr string,
+) ([]staking.IStakingModuleValidator, error) {
 	res, err := c.querier.DelegatorValidators(ctx, &stakingtypes.QueryDelegatorValidatorsRequest{
 		DelegatorAddr: accAddr,
 	})

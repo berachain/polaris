@@ -31,7 +31,8 @@ import (
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 )
 
-// submitProposalHelper is a helper function for the `SubmitProposal` method of the governance precompile contract.
+// submitProposalHelper is a helper function for the `SubmitProposal` method of the
+// governance precompile contract.
 func (c *Contract) submitProposalHelper(
 	ctx context.Context,
 	proposalBz []byte,
@@ -52,7 +53,8 @@ func (c *Contract) submitProposalHelper(
 	return res.ProposalId, nil
 }
 
-// cancelProposalHelper is a helper function for the `CancelProposal` method of the governance precompile contract.
+// cancelProposalHelper is a helper function for the `CancelProposal` method of the
+// governance precompile contract.
 func (c *Contract) cancelProposalHelper(
 	ctx context.Context,
 	proposer sdk.AccAddress,
@@ -86,7 +88,8 @@ func (c *Contract) voteHelper(
 	return err == nil, err
 }
 
-// voteWeighted is a helper function for the `VoteWeighted` method of the governance precompile contract.
+// voteWeighted is a helper function for the `VoteWeighted` method of the
+// governance precompile contract.
 func (c *Contract) voteWeightedHelper(
 	ctx context.Context,
 	voter sdk.AccAddress,
@@ -114,8 +117,12 @@ func (c *Contract) voteWeightedHelper(
 	return err == nil, err
 }
 
-// getProposalHelper is a helper function for the `GetProposal` method of the governance precompile contract.
-func (c *Contract) getProposalHelper(ctx context.Context, proposalID uint64) (generated.IGovernanceModuleProposal, error) {
+// getProposalHelper is a helper function for the `GetProposal` method of the
+// governance precompile contract.
+func (c *Contract) getProposalHelper(
+	ctx context.Context,
+	proposalID uint64,
+) (generated.IGovernanceModuleProposal, error) {
 	res, err := c.querier.Proposal(ctx, &v1.QueryProposalRequest{
 		ProposalId: proposalID,
 	})
@@ -125,7 +132,8 @@ func (c *Contract) getProposalHelper(ctx context.Context, proposalID uint64) (ge
 	return transformProposalToABIProposal(*res.Proposal), nil
 }
 
-// getProposalsHelper is a helper function for the `GetProposal` method of the governance precompile contract.
+// getProposalsHelper is a helper function for the `GetProposal` method of the
+// governance precompile contract.
 func (c *Contract) getProposalsHelper(
 	ctx context.Context,
 	proposalStatus int32,

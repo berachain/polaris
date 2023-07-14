@@ -23,7 +23,6 @@ package precompile
 import (
 	"context"
 	"errors"
-	"fmt"
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -96,7 +95,6 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 			reflect.ValueOf(si),
 			reflect.ValueOf(ctx),
 		}, reflectedUnpackedArgs...))
-	fmt.Println("What up ")
 	// If the precompile returned an error, the error is returned to the caller.
 	if !results[1].IsNil() {
 		err = utils.MustGetAs[error](results[1].Interface())
