@@ -117,18 +117,18 @@ var _ = Describe("Address Precompile", func() {
 				return &blockCtx
 			}
 
-			ctx = vm.NewPolarContext(
-				sdkCtx,
-				evm,
-				common.Address{},
-				new(big.Int),
-			)
-
 			// Generate a granter and grantee address.
 			granterAcc := sdk.AccAddress([]byte("granter"))
 			granteeAcc := sdk.AccAddress([]byte("grantee"))
 			granter = cosmlib.AccAddressToEthAddress(granterAcc)
 			grantee = cosmlib.AccAddressToEthAddress(granteeAcc)
+
+			ctx = vm.NewPolarContext(
+				sdkCtx,
+				evm,
+				granter,
+				new(big.Int),
+			)
 
 			// Generate a limit.
 			limit = sdk.NewCoins(sdk.NewInt64Coin("test", 100))
@@ -178,6 +178,7 @@ var _ = Describe("Address Precompile", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 			})
+
 			It("should get the spend allowance", func() {
 				res, err := contract.GetSendAllowance(
 					ctx,

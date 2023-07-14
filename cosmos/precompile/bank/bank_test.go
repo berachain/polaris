@@ -131,14 +131,16 @@ var _ = Describe("Bank Precompile Test", func() {
 
 	When("Calling Precompile Methods", func() {
 		var (
-			acc sdk.AccAddress
+			acc    sdk.AccAddress
+			denom  = "abera"
+			denom2 = "atoken"
 		)
 
-		denom := "abera"
-		denom2 := "atoken"
+		BeforeEach(func() {
+			ctx = vm.NewPolarContext(ctx, nil, cosmlib.AccAddressToEthAddress(acc), big.NewInt(0))
+		})
 
 		When("GetBalance", func() {
-
 			It("should fail if input denom is not a valid denom", func() {
 				res, err := contract.GetBalance(
 					ctx,

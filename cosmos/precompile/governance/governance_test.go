@@ -73,7 +73,7 @@ var _ = Describe("Governance Precompile", func() {
 		mockCtrl = gomock.NewController(t)
 		types.SetupCosmosConfig()
 		caller = cosmlib.AddressToAccAddress(testutils.Alice)
-		ctx, bk, gk = testutil.Setup(mockCtrl, caller)
+		sdkCtx, bk, gk = testutil.Setup(mockCtrl, caller)
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
 			governancekeeper.NewMsgServerImpl(gk),
 			governancekeeper.NewQueryServer(gk),
