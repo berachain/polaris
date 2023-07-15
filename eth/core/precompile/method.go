@@ -99,7 +99,7 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 	err = utils.MustGetAs[error](results[len(results)-1].Interface())
 
 	if err != nil {
-		err = utils.MustGetAs[error](results[1].Interface())
+		err = utils.MustGetAs[error](results[len(results)-1].Interface())
 		if !errors.Is(err, vm.ErrWriteProtection) {
 			err = errorslib.Wrapf(
 				vm.ErrExecutionReverted,
@@ -111,7 +111,7 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 	}
 
 	// Pack the return values and return, if any exist.
-	var retVals []any
+	retVals := make([]any, 0, len(results)-1)
 	for _, val := range results[0 : len(results)-1] {
 		retVals = append(retVals, val.Interface())
 	}

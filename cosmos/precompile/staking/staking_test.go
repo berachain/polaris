@@ -424,7 +424,7 @@ var _ = Describe("Staking", func() {
 							otherVal,
 						)
 						Expect(err).ToNot(HaveOccurred())
-						Expect(vals).To(HaveLen(0))
+						Expect(vals).To(BeEmpty())
 					})
 
 					It("should succeed", func() {

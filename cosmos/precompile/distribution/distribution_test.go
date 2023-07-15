@@ -251,7 +251,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 				)
 				res, err := contract.GetWithdrawEnabled(pCtx)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res).To(Equal(true))
+				Expect(res).To(BeTrue())
 			})
 		})
 		When("Base Precompile Features", func() {
