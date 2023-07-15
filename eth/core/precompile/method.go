@@ -96,7 +96,6 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 			reflect.ValueOf(ctx),
 		}, reflectedUnpackedArgs...))
 	// If the precompile returned an error, the error is returned to the caller.
-
 	err = utils.MustGetAs[error](results[len(results)-1].Interface())
 
 	if err != nil {
