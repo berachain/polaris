@@ -33,41 +33,46 @@ import (
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/testing/integration"
+	network "pkg.berachain.dev/polaris/e2e/localnet/network"
+	utils "pkg.berachain.dev/polaris/e2e/localnet/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
 func TestStakingPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/staking")
+	RunSpecs(t, "cosmos/testing/e2e/precompile/staking")
 }
 
-var (
-	tf                *integration.TestFixture
-	stakingPrecompile *bindings.StakingModule
-	bankPrecompile    *bbindings.BankModule
-	validator         common.Address
-	delegateAmt       = big.NewInt(123450000000)
-)
-
-var _ = SynchronizedBeforeSuite(func() []byte {
-	// Setup the network and clients here.
-	tf = integration.NewTestFixture(GinkgoT())
-	validator = common.Address(tf.Network.Validators[0].ValAddress.Bytes())
-	stakingPrecompile, _ = bindings.NewStakingModule(
-		common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient)
-	bankPrecompile, _ = bbindings.NewBankModule(
-		cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
-		tf.EthClient,
-	)
-	return nil
-}, func(data []byte) {})
-
 var _ = Describe("Staking", func() {
+	var (
+		tf                *network.TestFixture
+		stakingPrecompile *bindings.StakingModule
+		bankPrecompile    *bbindings.BankModule
+		validator         common.Address
+		delegateAmt       = big.NewInt(123450000000)
+	)
+
+	BeforeEach(func() {
+		// Setup the network and clients here.
+		tf = network.NewTestFixture(GinkgoT())
+
+		validator = tf.ValAddr()
+		stakingPrecompile, _ = bindings.NewStakingModule(
+			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient())
+		bankPrecompile, _ = bbindings.NewBankModule(
+			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
+			tf.EthClient(),
+		)
+	})
+
+	AfterEach(func() {
+		err := tf.Teardown()
+		Expect(err).ToNot(HaveOccurred())
+	})
+
 	It("should call functions on the precompile directly", func() {
 		validators, err := stakingPrecompile.GetActiveValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
@@ -81,7 +86,7 @@ var _ = Describe("Staking", func() {
 		txr.Value = delegateAmt
 		tx, err := stakingPrecompile.Delegate(txr, validator, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		delegated, err = stakingPrecompile.GetDelegation(nil, tf.Address("alice"), validator)
 		Expect(err).ToNot(HaveOccurred())
@@ -101,7 +106,7 @@ var _ = Describe("Staking", func() {
 			undelegateAmt,
 		)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		ude, err := stakingPrecompile.GetUnbondingDelegation(
 			nil,
@@ -129,12 +134,12 @@ var _ = Describe("Staking", func() {
 	It("should be able to call a precompile from a smart contract", func() {
 		contractAddr, tx, contract, err := tbindings.DeployLiquidStaking(
 			tf.GenerateTransactOpts("alice"),
-			tf.EthClient,
+			tf.EthClient(),
 			"myToken",
 			"MTK",
 		)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		delegated, err := stakingPrecompile.GetDelegation(nil, contractAddr, validator)
 		Expect(err).ToNot(HaveOccurred())
@@ -154,7 +159,7 @@ var _ = Describe("Staking", func() {
 			},
 		})
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Send tokens to the contract to delegate and mint LSD.
 		txr = tf.GenerateTransactOpts("alice")
@@ -162,7 +167,7 @@ var _ = Describe("Staking", func() {
 		txr.Value = delegateAmt
 		tx, err = contract.Delegate(txr, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient, tx)
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wait for a couple blocks to query.
 		time.Sleep(4 * time.Second)

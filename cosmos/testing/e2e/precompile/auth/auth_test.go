@@ -18,42 +18,44 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package network_test
+package auth_test
 
 import (
-	"os"
 	"testing"
-	"time"
 
-	"pkg.berachain.dev/polaris/cosmos/testing/network"
+	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
+	network "pkg.berachain.dev/polaris/e2e/localnet/network"
+	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-func TestNetwork(t *testing.T) {
+func TestCosmosPrecompiles(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/network:integration")
+	RunSpecs(t, "cosmos/testing/e2e/precompile/auth")
 }
 
-const defaultTimeout = 15 * time.Second
+var _ = Describe("Auth", func() {
+	var (
+		tf             *network.TestFixture
+		authPrecompile *bindings.AuthModule
+	)
 
-var _ = Describe("Network", func() {
-	var net *network.Network
 	BeforeEach(func() {
-		net = network.New(GinkgoT())
-		time.Sleep(5 * time.Second)
-		_, err := net.WaitForHeightWithTimeout(3, defaultTimeout)
-		Expect(err).ToNot(HaveOccurred())
+		tf = network.NewTestFixture(GinkgoT())
+		authPrecompile, _ = bindings.NewAuthModule(
+			common.HexToAddress("0xBDF49C3C3882102fc017FFb661108c63a836D065"), tf.EthClient())
 	})
 
 	AfterEach(func() {
-		// TODO: FIX THE OFFCHAIN DB
-		os.RemoveAll("data")
+		err := tf.Teardown()
+		Expect(err).ToNot(HaveOccurred())
 	})
 
-	It("should produce blocks", func() {
-		_, err := net.WaitForHeightWithTimeout(5, defaultTimeout)
-		Expect(err).ToNot(HaveOccurred())
+	It("should call functions on the precompile directly", func() {
+		acc, err := authPrecompile.GetAccountInfo(nil, tf.Address("alice"))
+		Expect(err).NotTo(HaveOccurred())
+		Expect(acc.Addr).To(Equal(tf.Address("alice")))
 	})
 })

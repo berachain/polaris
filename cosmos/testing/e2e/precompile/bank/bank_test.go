@@ -25,7 +25,7 @@ import (
 	"testing"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
-	"pkg.berachain.dev/polaris/cosmos/testing/integration"
+	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -34,26 +34,29 @@ import (
 
 func TestCosmosPrecompiles(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/bank")
+	RunSpecs(t, "cosmos/testing/e2e/precompile/bank")
 }
 
-var (
-	tf             *integration.TestFixture
-	bankPrecompile *bindings.BankModule
-)
-
-var _ = SynchronizedBeforeSuite(func() []byte {
-	// Setup the network and clients here.
-	tf = integration.NewTestFixture(GinkgoT())
-	bankPrecompile, _ = bindings.NewBankModule(
-		common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient)
-	return nil
-}, func(data []byte) {})
-
 var _ = Describe("Bank", func() {
-	denom := "abera"
-	denom2 := "atoken"
-	denom3 := "stake"
+	var (
+		tf             *localnet.TestFixture
+		bankPrecompile *bindings.BankModule
+
+		denom  = "abera"
+		denom2 = "atoken"
+		denom3 = "stake"
+	)
+
+	BeforeEach(func() {
+		tf = localnet.NewTestFixture(GinkgoT())
+		bankPrecompile, _ = bindings.NewBankModule(
+			common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient())
+	})
+
+	AfterEach(func() {
+		err := tf.Teardown()
+		Expect(err).ShouldNot(HaveOccurred())
+	})
 
 	It("should call functions on the precompile directly", func() {
 		numberOfDenoms := 8
@@ -104,7 +107,7 @@ var _ = Describe("Bank", func() {
 		Expect(err).ShouldNot(HaveOccurred())
 
 		// Wait one block.
-		err = tf.Network.WaitForNextBlock()
+		err = tf.WaitForNextBlock()
 		Expect(err).ToNot(HaveOccurred())
 
 		// charlie now has 1000000000000001000 abera

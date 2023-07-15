@@ -31,40 +31,48 @@ import (
 	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/erc20"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	"pkg.berachain.dev/polaris/cosmos/testing/integration"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
+	network "pkg.berachain.dev/polaris/e2e/localnet/network"
+	utils "pkg.berachain.dev/polaris/e2e/localnet/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
 )
 
 func TestERC20Precompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/erc20")
+	RunSpecs(t, "cosmos/testing/e2e/precompile/erc20")
 }
-
-var (
-	tf                 *integration.TestFixture
-	erc20Precompile    *bindings.ERC20Module
-	bankPrecompile     *bbindings.BankModule
-	erc20ModuleAddress = common.HexToAddress("0x696969")
-	// cosmlib.AccAddressToEthAddress(
-	// 	authtypes.NewModuleAddress(erc20types.ModuleName),
-	// ).
-)
 
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Setup the network and clients here.
-	tf = integration.NewTestFixture(GinkgoT())
-	bankPrecompile, _ = bbindings.NewBankModule(
-		common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient,
-	)
-	erc20Precompile, _ = bindings.NewERC20Module(erc20ModuleAddress, tf.EthClient)
 	return nil
 }, func(data []byte) {})
 
 var _ = Describe("ERC20", func() {
+	var (
+		tf                 *network.TestFixture
+		erc20Precompile    *bindings.ERC20Module
+		bankPrecompile     *bbindings.BankModule
+		erc20ModuleAddress = common.HexToAddress("0x696969")
+		// cosmlib.AccAddressToEthAddress(
+		// 	authtypes.NewModuleAddress(erc20types.ModuleName),
+		// ).
+	)
+
+	BeforeEach(func() {
+		tf = network.NewTestFixture(GinkgoT())
+		bankPrecompile, _ = bbindings.NewBankModule(
+			common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient(),
+		)
+		erc20Precompile, _ = bindings.NewERC20Module(erc20ModuleAddress, tf.EthClient())
+	})
+
+	AfterEach(func() {
+		err := tf.Teardown()
+		Expect(err).ToNot(HaveOccurred())
+	})
+
 	Describe("calling the erc20 precompile directly", func() {
 		When("calling read-only methods", func() {
 			It("should handle empty inputs", func() {
@@ -101,7 +109,7 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(123456789),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				ExpectFailedReceipt(tf.EthClient, tx)
+				utils.ExpectFailedReceipt(tf.EthClient(), tx)
 
 				// token doesn't exist, user does not have balance of token
 				tx, err = erc20Precompile.TransferERC20ToCoin(
@@ -110,8 +118,8 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(123456789),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(tf.Network.WaitForNextBlock()).To(Succeed())
-				_, err = tf.EthClient.TransactionReceipt(context.Background(), tx.Hash())
+				Expect(tf.WaitForNextBlock()).To(Succeed())
+				_, err = tf.EthClient().TransactionReceipt(context.Background(), tx.Hash())
 				Expect(err).To(MatchError("not found")) // err: ERC20 token contract does not exist
 			})
 
@@ -125,13 +133,13 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(12345),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(tf.Network.WaitForNextBlock()).To(Succeed())
-				ExpectSuccessReceipt(tf.EthClient, tx)
+				Expect(tf.WaitForNextBlock()).To(Succeed())
+				utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 				// check that the new ERC20 is minted to TestAddress
 				tokenAddr, err := erc20Precompile.Erc20AddressForCoinDenom(nil, "bOSMO")
 				Expect(err).ToNot(HaveOccurred())
-				token, err := cbindings.NewPolarisERC20(tokenAddr, tf.EthClient)
+				token, err := cbindings.NewPolarisERC20(tokenAddr, tf.EthClient())
 				Expect(err).ToNot(HaveOccurred())
 				balance, err := token.BalanceOf(nil, tf.Address("alice"))
 				Expect(err).ToNot(HaveOccurred())
@@ -144,7 +152,7 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(12345),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				ExpectSuccessReceipt(tf.EthClient, tx)
+				utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 				// check that the new ERC20 is minted to TestAddress
 				balance, err = token.BalanceOf(nil, tf.Address("alice"))
@@ -158,7 +166,7 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(12345),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				ExpectSuccessReceipt(tf.EthClient, tx)
+				utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 				// check that the new ERC20 is burned from TestAddress
 				balance, err = token.BalanceOf(nil, tf.Address("alice"))
@@ -172,19 +180,19 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(12346),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				ExpectFailedReceipt(tf.EthClient, tx)
+				utils.ExpectFailedReceipt(tf.EthClient(), tx)
 			})
 
 			It("should handle a ERC20 originated token", func() {
 				// originate a ERC20 token
-				contract, token := DeployERC20(tf.GenerateTransactOpts("alice"), tf.EthClient)
+				contract, token := utils.DeployERC20(tf.GenerateTransactOpts("alice"), tf.EthClient())
 
 				// mint some tokens to the test address
 				tx, err := contract.Mint(
 					tf.GenerateTransactOpts("alice"), tf.Address("alice"), big.NewInt(123456789),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				ExpectSuccessReceipt(tf.EthClient, tx)
+				utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 				// check that the new ERC20 is minted to TestAddress
 				bal, err := contract.BalanceOf(nil, tf.Address("alice"))
 				Expect(err).ToNot(HaveOccurred())
@@ -201,7 +209,7 @@ var _ = Describe("ERC20", func() {
 				// NOTE: if a high gas limit is provided and the estimate gas routine is skipped,
 				// the tx executes without returning an error (i.e. reverting), but the state
 				// changes (for the transfer) are not persisted, as expected.
-				Expect(tf.Network.WaitForNextBlock()).To(Succeed())
+				Expect(tf.WaitForNextBlock()).To(Succeed())
 
 				// verify the transfer did not work
 				bal, err = contract.BalanceOf(nil, tf.Address("alice"))
@@ -223,7 +231,7 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(6789),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				ExpectSuccessReceipt(tf.EthClient, tx)
+				utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 				// token already exists, create new Polaris denom
 				_, err = erc20Precompile.TransferERC20ToCoin(
@@ -232,9 +240,9 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(6789),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				ExpectSuccessReceipt(tf.EthClient, tx)
+				utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
-				err = tf.Network.WaitForNextBlock()
+				err = tf.WaitForNextBlock()
 				Expect(err).ToNot(HaveOccurred())
 
 				// check that the new ERC20 is transferred from TestAddress to precompile (escrow)
@@ -259,7 +267,7 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(6790),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				ExpectFailedReceipt(tf.EthClient, tx) // not enough funds
+				utils.ExpectFailedReceipt(tf.EthClient(), tx) // not enough funds
 
 				// convert back to ERC20 token
 				tx, err = erc20Precompile.TransferCoinToERC20(
@@ -268,9 +276,9 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(6789),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				ExpectSuccessReceipt(tf.EthClient, tx)
+				utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
-				err = tf.Network.WaitForNextBlock()
+				err = tf.WaitForNextBlock()
 				Expect(err).ToNot(HaveOccurred())
 
 				// check that Polaris Coin is converted back to ERC20
@@ -289,16 +297,16 @@ var _ = Describe("ERC20", func() {
 
 	Describe("calling the erc20 precompile via the another contract", func() {
 		It("should work", func() {
-			_, tx, swapper, err := tbindings.DeploySwapper(tf.GenerateTransactOpts("alice"), tf.EthClient)
+			_, tx, swapper, err := tbindings.DeploySwapper(tf.GenerateTransactOpts("alice"), tf.EthClient())
 			Expect(err).ToNot(HaveOccurred())
-			ExpectSuccessReceipt(tf.EthClient, tx)
+			utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 			// check that the new ERC20 is minted to TestAddress
 			tokenAddr, err := swapper.GetPolarisERC20(nil, "bAKT")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(tokenAddr.Bytes()).To(Equal(common.Address{}.Bytes()))
 
-			err = tf.Network.WaitForNextBlock()
+			err = tf.WaitForNextBlock()
 			Expect(err).ToNot(HaveOccurred())
 
 			tx, err = swapper.Swap(
@@ -307,12 +315,12 @@ var _ = Describe("ERC20", func() {
 				big.NewInt(12345),
 			)
 			Expect(err).ToNot(HaveOccurred())
-			ExpectSuccessReceipt(tf.EthClient, tx)
+			utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 			// check that the new ERC20 is minted to TestAddress
 			tokenAddr, err = swapper.GetPolarisERC20(nil, "bAKT")
 			Expect(err).ToNot(HaveOccurred())
-			token, err := cbindings.NewPolarisERC20(tokenAddr, tf.EthClient)
+			token, err := cbindings.NewPolarisERC20(tokenAddr, tf.EthClient())
 			Expect(err).ToNot(HaveOccurred())
 			balance, err := token.BalanceOf(nil, tf.Address("alice"))
 			Expect(err).ToNot(HaveOccurred())
@@ -324,7 +332,7 @@ var _ = Describe("ERC20", func() {
 				big.NewInt(345),
 			)
 			Expect(err).ToNot(HaveOccurred())
-			ExpectSuccessReceipt(tf.EthClient, tx)
+			utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 			// check that the new ERC20 is burned from TestAddress
 			balance, err = token.BalanceOf(nil, tf.Address("alice"))

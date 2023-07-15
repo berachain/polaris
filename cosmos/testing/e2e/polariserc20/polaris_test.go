@@ -28,51 +28,53 @@ import (
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	"pkg.berachain.dev/polaris/cosmos/testing/integration"
+	network "pkg.berachain.dev/polaris/e2e/localnet/network"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/cosmos/testing/integration/utils"
+	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 func TestPolarisERC20(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/integration/precompile/polariserc20:integration")
+	RunSpecs(t, "cosmos/testing/e2e/polariserc20")
 }
 
-var (
-	tf *integration.TestFixture
-)
-
-var _ = SynchronizedBeforeSuite(func() []byte {
-	// Setup the network and clients here.
-	tf = integration.NewTestFixture(GinkgoT())
-	return nil
-}, func(data []byte) {})
-
 var _ = Describe("ERC20", func() {
+	var tf *network.TestFixture
+
+	BeforeEach(func() {
+		// Setup the network and clients here.
+		tf = network.NewTestFixture(GinkgoT())
+	})
+
+	AfterEach(func() {
+		err := tf.Teardown()
+		Expect(err).ToNot(HaveOccurred())
+	})
+
 	Describe("deploy a polaris erc20 and call it from another contract", func() {
 		It("should approve and use the transfer from method", func() {
-			swapperAddress, tx, swapper, err := tbindings.DeploySwapper(tf.GenerateTransactOpts("alice"), tf.EthClient)
+			swapperAddress, tx, swapper, err := tbindings.DeploySwapper(tf.GenerateTransactOpts("alice"), tf.EthClient())
 			Expect(err).ToNot(HaveOccurred())
-			ExpectSuccessReceipt(tf.EthClient, tx)
+			ExpectSuccessReceipt(tf.EthClient(), tx)
 
 			// check that the new ERC20 is minted to TestAddress
 			tokenAddr, err := swapper.GetPolarisERC20(nil, "bAKT")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(tokenAddr.Bytes()).To(Equal(common.Address{}.Bytes()))
 
-			err = tf.Network.WaitForNextBlock()
+			err = tf.WaitForNextBlock()
 			Expect(err).ToNot(HaveOccurred())
 
 			// Create a polaris erc20 contract from the address.
 			tokenAddr, tx, token, err := cbindings.DeployPolarisERC20(
 				tf.GenerateTransactOpts("alice"),
-				tf.EthClient,
+				tf.EthClient(),
 				"bAKT",
 			)
 			Expect(err).ToNot(HaveOccurred())
-			ExpectSuccessReceipt(tf.EthClient, tx)
+			ExpectSuccessReceipt(tf.EthClient(), tx)
 
 			tx, err = token.Mint(
 				tf.GenerateTransactOpts("alice"),
@@ -80,7 +82,7 @@ var _ = Describe("ERC20", func() {
 				big.NewInt(150),
 			)
 			Expect(err).ToNot(HaveOccurred())
-			ExpectSuccessReceipt(tf.EthClient, tx)
+			ExpectSuccessReceipt(tf.EthClient(), tx)
 
 			// Call the polaris erc20 contract to set the allowance of the swapper contract.
 			tx, err = token.Approve(
@@ -89,7 +91,7 @@ var _ = Describe("ERC20", func() {
 				big.NewInt(100),
 			)
 			Expect(err).ToNot(HaveOccurred())
-			ExpectSuccessReceipt(tf.EthClient, tx)
+			ExpectSuccessReceipt(tf.EthClient(), tx)
 
 			// Get the current allowance of the swapper contract.
 			res, err := token.Allowance(
@@ -107,7 +109,7 @@ var _ = Describe("ERC20", func() {
 				big.NewInt(50),
 			)
 			Expect(err).ToNot(HaveOccurred())
-			ExpectSuccessReceipt(tf.EthClient, tx)
+			ExpectSuccessReceipt(tf.EthClient(), tx)
 
 			// Call the balance of the swapper contract to check the balance of the polaris erc20 token.
 			res, err = token.BalanceOf(
