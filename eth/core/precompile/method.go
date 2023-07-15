@@ -23,6 +23,7 @@ package precompile
 import (
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -78,6 +79,7 @@ func NewMethod(
 //nolint:revive // needed for reflection.
 func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byte, error) {
 	// Unpack the args from the input, if any exist.
+	fmt.Println("fuck man this is Call()")
 	unpackedArgs, err := m.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])
 	if err != nil {
 		return nil, err
@@ -94,10 +96,11 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 			reflect.ValueOf(si),
 			reflect.ValueOf(ctx),
 		}, reflectedUnpackedArgs...))
-	// If the precompile returned an error, the error is returned to the caller.
 
+	// If the precompile returned an error, the error is returned to the caller.
 	callErr := results[len(results)-1].Interface()
 	if callErr != nil {
+		fmt.Println("fuck man")
 		err = utils.MustGetAs[error](callErr)
 	}
 	if err != nil {
@@ -114,12 +117,14 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 	// Pack the return values and return, if any exist.
 	retVals := make([]any, 0, len(results)-1)
 	for _, val := range results[0 : len(results)-1] {
+		fmt.Println("hello", val.Interface())
 		retVals = append(retVals, val.Interface())
 	}
 	ret, err := m.abiMethod.Outputs.PackValues(retVals)
 	if err != nil {
+		fmt.Println("hello2")
 		return nil, err
 	}
-
+	fmt.Println("This is ret", ret)
 	return ret, nil
 }
