@@ -22,6 +22,7 @@ package precompile_test
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"reflect"
 
@@ -29,46 +30,35 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 )
 
 var _ = Describe("Method", func() {
 	Context("Calling the method", func() {
 		FIt("should be able to call the Method's executable", func() {
 			sc := &mockStateful{&mockBase{}}
+			fmt.Println(reflect.TypeOf(sc.mockExecutable).String())
+			fmt.Println(reflect.TypeOf(sc.mockExecutable).NumIn())
 			method := precompile.NewMethod(
 				&abi.Method{},
 				"mockExecutable()",
-				reflect.ValueOf(sc.mockExecutable),
+				reflect.TypeOf(sc).Method(0).Func,
 			)
+			fmt.Println("method", method)
 			ctx := vm.NewPolarContext(
-				context.Background(),
-				vmmock.NewEVM(),
-				common.Address{1},
-				big.NewInt(0),
+				context.Background(), vmmock.NewEVM(), common.Address{1}, big.NewInt(1),
 			)
 
 			// due to how the go "reflect" package works, we need to pass in the `stateful` in the
 			// method call as the first parameter to thef function. this is taken care of for the
 			// caller of the precompile under the hood, and users dont have to worry when
 			// implementing their own precompiles.
-			res, err := method.Call(sc, ctx, []byte{0, 1, 0, 0})
+			res, err := method.Call(sc, ctx, []byte{4, 4, 4, 4})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).To(BeNil())
 		})
 	})
 })
-
-// MOCKS BELOW.
-
-//nolint:revive // needed for go "reflect" package.
-func (*mockStateful) mockExecutable(
-	_ precompile.Registrable,
-	_ context.Context,
-	_ []byte,
-) (any, error) {
-	return nil, nil
-}
