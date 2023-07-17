@@ -148,6 +148,8 @@ var _ = Describe("Staking", func() {
 		addresses, err := contract.GetActiveValidators(nil)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(addresses).To(HaveLen(1))
+		print("getActiveValidators: ", addresses[0], "\n")
+		print("validator: ", validator, "\n")
 		Expect(addresses[0]).To(Equal(validator))
 
 		txr := tf.GenerateTransactOpts("alice")
