@@ -87,12 +87,33 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 	}
 
 	// convert the any unnamed struct types into `execute`'s requested struct type
+	// bro this is so cool
+
+	// first we check if the execute function requires a struct type as an argument
+	for i := 0; i < m.execute.Type().NumIn(); i++ {
+		fmt.Println("this is the argument kidn type asjiodjsaiodj", m.execute.Type().In(i).Kind())
+	}
 
 	// Build argument list
 	reflectedUnpackedArgs := make([]reflect.Value, 0, len(unpackedArgs))
-	for _, unpacked := range unpackedArgs {
+	for i, unpacked := range unpackedArgs {
 		fmt.Println("unpacked: ", unpacked)
-		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
+		unpackedVal := reflect.ValueOf(unpacked)
+		fmt.Println(m.abiMethod.Inputs[i].Type.T)
+		if m.abiMethod.Inputs[i].Type.T == abi.TupleTy {
+			fmt.Println("tutple type")
+			// assume unpacked is unnamed struct
+			reqStructType := m.execute.Type().In(i)
+			unpackedVal = reflect.New(reqStructType)
+			for j := 0; j < reqStructType.NumField(); j++ {
+				fieldName := reqStructType.Field(j).Name
+				unpackedVal.FieldByName(fieldName).Set(unpackedVal.FieldByName(formatName(fieldName)))
+			}
+		}
+		if m.abiMethod.Inputs[i].Type.T == abi.SliceTy {
+			fmt.Println("its a slice type motherfucka")
+		}
+		reflectedUnpackedArgs = append(reflectedUnpackedArgs, unpackedVal)
 	}
 
 	// Call the executable

@@ -115,7 +115,7 @@ interface IBankModule {
     /**
      * @dev Send coins from msg.sender to another.
      */
-    function send(address toAddress, Cosmos.Coin[] calldata amount) external payable returns (bool);
+    function send(address toAddress, Cosmos.Coin memory amount) external payable returns (bool);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 

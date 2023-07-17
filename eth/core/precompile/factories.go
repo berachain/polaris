@@ -161,7 +161,6 @@ func formatName(name string) string {
 
 // validateReturnTypes checks if the precompile method return types match the abi's return types.
 func validateReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error {
-	fmt.Println("=====================================")
 	// reserve a return value for possible reverts/errors
 	if implMethod.Type.NumOut()-1 != len(abiMethod.Outputs) {
 		fmt.Println(implMethod.Type.NumOut(), "<>", len(abiMethod.Outputs))
@@ -171,8 +170,6 @@ func validateReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error 
 	for i := 0; i < implMethod.Type.NumOut()-1; i++ {
 		implMethodReturnType := implMethod.Type.Out(i)
 		abiMethodReturnType := abiMethod.Outputs[i].Type.GetType()
-		fmt.Println(implMethodReturnType, "<>", abiMethodReturnType)
-		fmt.Println(implMethodReturnType.Kind(), "<>", abiMethodReturnType.Kind())
 
 		// primitive types
 		switch abiMethodReturnType.Kind() {
@@ -194,7 +191,7 @@ func validateReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error 
 						return err
 					}
 				} else {
-					if implMethodReturnType.Elem() != abiMethodReturnType.Elem() {
+					if implMethodReturnType.In(j) != abiMethodReturnType.In(j) {
 						return fmt.Errorf("return type mismatch: %v != %v",
 							implMethodReturnType.Elem(),
 							abiMethodReturnType.Elem(),
@@ -206,7 +203,6 @@ func validateReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error 
 
 	}
 
-	fmt.Println("=====================================")
 	return nil
 }
 

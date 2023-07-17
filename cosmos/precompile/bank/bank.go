@@ -207,7 +207,7 @@ func (c *Contract) GetSendEnabled(
 func (c *Contract) Send(
 	ctx context.Context,
 	toAddress common.Address,
-	coins sdk.Coins,
+	coin sdk.Coin,
 ) (bool, error) {
 	// amount, err := cosmlib.ExtractCoinsFromInput(coins)
 	// if err != nil {
@@ -216,7 +216,7 @@ func (c *Contract) Send(
 	_, err := c.msgServer.Send(ctx, &banktypes.MsgSend{
 		FromAddress: cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()),
 		ToAddress:   cosmlib.Bech32FromEthAddress(toAddress),
-		Amount:      coins,
+		Amount:      sdk.Coins{coin},
 	})
 	return err == nil, err
 }
