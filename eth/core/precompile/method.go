@@ -23,7 +23,6 @@ package precompile
 import (
 	"context"
 	"errors"
-	"fmt"
 	"reflect"
 
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
@@ -84,7 +83,6 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("input", input)
 	// convert the any unnamed struct types into `execute`'s requested struct type
 	reflectedUnpackedArgs := make([]reflect.Value, 0, len(unpackedArgs))
 	for _, unpacked := range unpackedArgs {
@@ -100,7 +98,6 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 
 	// If the precompile returned an error, the error is returned to the caller.
 	callErr := results[len(results)-1].Interface()
-	fmt.Println("THIS IS THE FUCKING ERROR", callErr)
 	if callErr != nil {
 		err = utils.MustGetAs[error](callErr)
 	}
