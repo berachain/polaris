@@ -52,7 +52,7 @@ var (
 	localDockerPath        = baseDockerPath + "local/Dockerfile"
 	seedDockerPath         = baseDockerPath + "seed/Dockerfile"
 	valDockerPath          = baseDockerPath + "validator/Dockerfile"
-	goVersion              = "1.20.4"
+	goVersion              = "1.20.6"
 	precompileContractsDir = "./contracts"
 )
 

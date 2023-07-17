@@ -12,8 +12,8 @@ require (
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.8
 	golang.org/x/text v0.11.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230516224826-185dd722aa87
-	pkg.berachain.dev/polaris/lib v0.0.0-20230516224826-185dd722aa87
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230717165123-80a30c3435c3
+	pkg.berachain.dev/polaris/lib v0.0.0-20230717165123-80a30c3435c3
 )
 
 require (
@@ -88,7 +88,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/status-im/keycard-go v0.2.0 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/supranational/blst v0.3.11-0.20230406105308-e9dfc5ee724b // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
