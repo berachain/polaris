@@ -163,7 +163,6 @@ func formatName(name string) string {
 func validateReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error {
 	// reserve a return value for possible reverts/errors
 	if implMethod.Type.NumOut()-1 != len(abiMethod.Outputs) {
-		fmt.Println(implMethod.Type.NumOut(), "<>", len(abiMethod.Outputs))
 		return errors.New("number of return types mismatch")
 	}
 
@@ -171,36 +170,34 @@ func validateReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error 
 		implMethodReturnType := implMethod.Type.Out(i)
 		abiMethodReturnType := abiMethod.Outputs[i].Type.GetType()
 
-		// primitive types
+		//nolint:exhaustive // nah, this is fine.
 		switch abiMethodReturnType.Kind() {
-		// we're good, it's a primitive type
+		// we need to make sure that the struct fields match.
+
 		case implMethodReturnType.Kind():
 			continue
-		// we need to make sure that the struct fields match.
 		case reflect.Struct:
 			if err := validateStructFields(implMethodReturnType, abiMethodReturnType); err != nil {
 				return err
 			}
-		case reflect.Slice:
+		case reflect.Slice, reflect.Array:
 			for j := 0; j < abiMethodReturnType.Len(); j++ {
 				// if it is a struct, then we need to check if the struct fields match
 				if abiMethodReturnType.Elem().Kind() == reflect.Struct {
-					if err := validateStructFields(implMethodReturnType.Elem(),
+					if err := validateStructFields(
+						implMethodReturnType.Elem(),
 						abiMethodReturnType.Elem(),
 					); err != nil {
 						return err
 					}
-				} else {
-					if implMethodReturnType.In(j) != abiMethodReturnType.In(j) {
-						return fmt.Errorf("return type mismatch: %v != %v",
-							implMethodReturnType.Elem(),
-							abiMethodReturnType.Elem(),
-						)
-					}
+				} else if implMethodReturnType.In(j) != abiMethodReturnType.In(j) {
+					return fmt.Errorf("return type mismatch: %v != %v",
+						implMethodReturnType.Elem(),
+						abiMethodReturnType.Elem(),
+					)
 				}
 			}
 		}
-
 	}
 
 	return nil
@@ -218,8 +215,9 @@ func validateStructFields(implMethodReturnType reflect.Type,
 		return errors.New("number of return types mismatch")
 	}
 	for j := 0; j < implMethodReturnType.NumField(); j++ {
-
 		// if the field is a nested struct, then we recurse
+
+		//nolint:gocritic // nah, this is fine.
 		if implMethodReturnType.Field(j).Type.Kind() == reflect.Struct &&
 			abiMethodReturnType.Field(j).Type.Kind() == reflect.Struct {
 			if err := validateStructFields(
@@ -236,7 +234,6 @@ func validateStructFields(implMethodReturnType reflect.Type,
 		} else {
 			continue
 		}
-
 	}
 	return nil
 }

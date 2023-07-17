@@ -44,6 +44,7 @@ var (
 	NewType    = abi.NewType
 	TupleTy    = abi.TupleTy
 	SliceTy    = abi.SliceTy
+	ArrayTy    = abi.ArrayTy
 )
 
 // ToMixedCase converts a under_score formatted string to mixedCase format (camelCase with the
