@@ -37,11 +37,15 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/lib/encoding"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/cosmos/types"
 )
 
 const (
-	relativeKeysPath   = "../config/ethkeys/"
-	relativeValKeyFile = "../config/priv_validator_key.json"
+	relativeKeysPath = "../config/ethkeys/"
+	genFilePath      = "../config/genesis.json"
 )
 
 // TestFixture is a testing fixture that runs a single Polaris validator node in a Docker container.
@@ -156,17 +160,32 @@ func (tf *TestFixture) setupTestAccounts() error {
 		tf.keysMap[strings.Split(keyFileName, ".")[0]] = privKey
 	}
 
-	// read the validator public key from the validator key file
-	valKeyFile := filepath.Join(absDirPath, relativeValKeyFile)
-	valBz, err := os.ReadFile(filepath.Clean(valKeyFile))
+	// read the validator public key from the genesis file
+	genFile := filepath.Join(absDirPath, genFilePath)
+	genBz, err := os.ReadFile(filepath.Clean(genFile))
 	if err != nil {
 		return err
 	}
-	tf.valAddr = common.HexToAddress(
-		encoding.MustUnmarshalJSON[struct {
-			Address string `json:"address"`
-		}](valBz).Address,
-	)
+
+	types.SetupCosmosConfig()
+	valAddr := encoding.MustUnmarshalJSON[struct {
+		AppState struct {
+			GenUtil struct {
+				GenTxs []struct {
+					Body struct {
+						Messages []struct {
+							ValidatorAddress string `json:"validator_address"`
+						} `json:"messages"`
+					} `json:"body"`
+				} `json:"gen_txs"`
+			} `json:"genutil"`
+		} `json:"app_state"`
+	}](genBz).AppState.GenUtil.GenTxs[0].Body.Messages[0].ValidatorAddress
+	acc, err := sdk.ValAddressFromBech32(valAddr)
+	if err != nil {
+		return err
+	}
+	tf.valAddr = cosmlib.ValAddressToEthAddress(acc)
 
 	return nil
 }
