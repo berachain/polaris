@@ -212,18 +212,16 @@ func getOutput(
 	sc precompile.Registrable,
 	ctx context.Context,
 	args ...any,
-) ([]any, error) {
+) ([]mockObject, error) {
 	str, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, errors.New("cast error")
 	}
 	vm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
-	return []any{
-		[]mockObject{
-			{
-				CreationHeight: big.NewInt(1),
-				TimeStamp:      str,
-			},
+	return []mockObject{
+		{
+			CreationHeight: big.NewInt(1),
+			TimeStamp:      str,
 		},
 	}, nil
 }

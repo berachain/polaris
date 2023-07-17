@@ -59,14 +59,14 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 // GetActiveValidators implements the `getActiveValidators()` method.
 func (c *Contract) GetActiveValidators(
 	ctx context.Context,
-) ([]any, error) {
+) ([]common.Address, error) {
 	return c.activeValidatorsHelper(ctx)
 }
 
 // GetValidators implements the `getValidators()` method.
 func (c *Contract) GetValidators(
 	ctx context.Context,
-) ([]any, error) {
+) ([]generated.IStakingModuleValidator, error) {
 	return c.validatorsHelper(ctx)
 }
 
@@ -74,7 +74,7 @@ func (c *Contract) GetValidators(
 func (c *Contract) GetValidator(
 	ctx context.Context,
 	validatorAddr common.Address,
-) ([]any, error) {
+) (generated.IStakingModuleValidator, error) {
 	return c.validatorHelper(ctx, sdk.ValAddress(validatorAddr[:]).String())
 }
 
@@ -82,7 +82,7 @@ func (c *Contract) GetValidator(
 func (c *Contract) GetDelegatorValidators(
 	ctx context.Context,
 	delegatorAddr common.Address,
-) ([]any, error) {
+) ([]generated.IStakingModuleValidator, error) {
 	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr))
 }
 
@@ -91,7 +91,7 @@ func (c *Contract) GetDelegation(
 	ctx context.Context,
 	delegatorAddress common.Address,
 	validatorAddress common.Address,
-) ([]any, error) {
+) (*big.Int, error) {
 	return c.getDelegationHelper(
 		ctx,
 		cosmlib.AddressToAccAddress(delegatorAddress),
@@ -104,7 +104,7 @@ func (c *Contract) GetUnbondingDelegation(
 	ctx context.Context,
 	delegatorAddress common.Address,
 	validatorAddress common.Address,
-) ([]any, error) {
+) ([]generated.IStakingModuleUnbondingDelegationEntry, error) {
 	return c.getUnbondingDelegationHelper(
 		ctx, cosmlib.AddressToAccAddress(delegatorAddress), cosmlib.AddressToValAddress(validatorAddress),
 	)
@@ -116,7 +116,7 @@ func (c *Contract) GetRedelegations(
 	delegatorAddress common.Address,
 	srcValidator common.Address,
 	dstValidator common.Address,
-) ([]any, error) {
+) ([]generated.IStakingModuleRedelegationEntry, error) {
 	return c.getRedelegationsHelper(
 		ctx,
 		cosmlib.AddressToAccAddress(delegatorAddress),
@@ -130,7 +130,7 @@ func (c *Contract) Delegate(
 	ctx context.Context,
 	validatorAddress common.Address,
 	amount *big.Int,
-) ([]any, error) {
+) (bool, error) {
 	return c.delegateHelper(
 		ctx,
 		vm.UnwrapPolarContext(ctx).MsgSender(),
@@ -144,7 +144,7 @@ func (c *Contract) Undelegate(
 	ctx context.Context,
 	validatorAddress common.Address,
 	amount *big.Int,
-) ([]any, error) {
+) (bool, error) {
 	return c.undelegateHelper(
 		ctx,
 		vm.UnwrapPolarContext(ctx).MsgSender(),
@@ -159,7 +159,7 @@ func (c *Contract) BeginRedelegate(
 	srcValidator common.Address,
 	dstValidator common.Address,
 	amount *big.Int,
-) ([]any, error) {
+) (bool, error) {
 	return c.beginRedelegateHelper(
 		ctx,
 		vm.UnwrapPolarContext(ctx).MsgSender(),
@@ -175,7 +175,7 @@ func (c *Contract) CancelUnbondingDelegation(
 	validatorAddress common.Address,
 	amount *big.Int,
 	creationHeight int64,
-) ([]any, error) {
+) (bool, error) {
 	return c.cancelUnbondingDelegationHelper(
 		ctx,
 		vm.UnwrapPolarContext(ctx).MsgSender(),

@@ -41,7 +41,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
@@ -237,10 +236,9 @@ var _ = Describe("Distribution Precompile Test", func() {
 					cosmlib.ValAddressToEthAddress(valAddr),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				resTyped := utils.MustGetAs[[]libgenerated.CosmosCoin](res[0])
-				Expect(resTyped[0].Denom).To(Equal(sdk.DefaultBondDenom))
+				Expect(res[0].Denom).To(Equal(sdk.DefaultBondDenom))
 				rewards, _ := tokens.TruncateDecimal()
-				Expect(resTyped[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
+				Expect(res[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
 			})
 		})
 		When("Reading Params", func() {
@@ -253,7 +251,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 				)
 				res, err := contract.GetWithdrawEnabled(pCtx)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res).To(Equal([]any{true}))
+				Expect(res).To(BeTrue())
 			})
 		})
 		When("Base Precompile Features", func() {

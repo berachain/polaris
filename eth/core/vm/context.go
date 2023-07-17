@@ -62,7 +62,7 @@ func NewPolarContext(
 }
 
 // =============================================================================
-// polar.Context implementation
+// vm.PolarContext implementation
 // =============================================================================
 
 func (c *PolarContext) Context() context.Context {

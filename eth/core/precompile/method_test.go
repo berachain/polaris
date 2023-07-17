@@ -68,6 +68,6 @@ var _ = Describe("Method", func() {
 func mockExecutable(
 	_ precompile.Registrable,
 	_ context.Context,
-) ([]any, error) {
-	return nil, nil
+) any {
+	return nil
 }
