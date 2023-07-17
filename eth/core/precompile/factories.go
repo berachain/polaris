@@ -173,7 +173,6 @@ func validateReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error 
 		//nolint:exhaustive // nah, this is fine.
 		switch abiMethodReturnType.Kind() {
 		// we need to make sure that the struct fields match.
-
 		case implMethodReturnType.Kind():
 			continue
 		case reflect.Struct:
@@ -197,6 +196,8 @@ func validateReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error 
 					)
 				}
 			}
+		default:
+			return fmt.Errorf("return type mismatch: %v != %v", implMethodReturnType, abiMethodReturnType)
 		}
 	}
 
