@@ -148,13 +148,13 @@ func TestE2E() error {
 		return err
 	}
 	LogGreen("Running all e2e tests")
-	return testE2E("./e2e")
+	return testE2E(".")
 }
 
 func testE2E(path string) error {
 	args := []string{
 		"-timeout", "30m",
-		path + "/...",
+		"--focus", ".*e2e.*", path + "/...",
 	}
 	return ginkgoTest(args...)
 }
