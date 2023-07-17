@@ -18,7 +18,7 @@
 ###           Stage 0 - Build Arguments             ###
 #######################################################
 
-ARG GO_VERSION=1.20.4
+ARG GO_VERSION=1.20.6
 ARG GOARCH=amd64
 ARG GOOS=linux
 ARG NAME=polaris-cosmos
