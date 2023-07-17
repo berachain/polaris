@@ -94,45 +94,37 @@ var _ = Describe("Container Factories", func() {
 
 type mockBase struct{}
 
-func (mb *mockBase) RegistryKey() common.Address { return common.Address{} }
-
-func (ms *mockBase) ABIMethods() map[string]abi.Method {
-	return map[string]abi.Method{
-		"getOutput":      mockPrecompile.Methods["getOutput"],
-		"mockExecutable": mockPrecompile.Methods["mockExecutable"],
-	}
+func (mb *mockBase) RegistryKey() common.Address {
+	return common.Address{}
 }
-
-func (ms *mockBase) ABIEvents() map[string]abi.Event { return nil }
-
-func (ms *mockBase) CustomValueDecoders() precompile.ValueDecoders { return nil }
-
-func (ms *mockBase) SetPlugin(precompile.Plugin) {}
 
 type mockStateless struct {
-	precompile.StatefulImpl
+	*mockBase
 }
 
-func (ms *mockStateless) RequiredGas(_ []byte) uint64 { return 10 }
+func (ms *mockStateless) RequiredGas(_ []byte) uint64 {
+	return 10
+}
+
 func (ms *mockStateless) Run(
 	_ context.Context, _ vm.PrecompileEVM, _ []byte,
 	_ common.Address, _ *big.Int,
 ) ([]byte, error) {
 	return nil, nil
 }
+
 func (ms *mockStateless) WithStateDB(vm.GethStateDB) vm.PrecompileContainer {
 	return ms
 }
 
 type mockStateful struct {
-	precompile.StatefulImpl
+	*mockBase
 }
 
-func (ms *mockStateful) mockExecutable(
-	_ context.Context,
-	_ ...any,
-) ([]byte, error) {
-	return nil, nil
+func (ms *mockStateful) ABIMethods() map[string]abi.Method {
+	return map[string]abi.Method{
+		"getOutput": mockPrecompile.Methods["getOutput"],
+	}
 }
 
 func (ms *mockStateful) GetOutput(
@@ -156,6 +148,16 @@ func (ms *mockStateful) GetOutput(
 		},
 	}, nil
 }
+
+func (ms *mockStateful) ABIEvents() map[string]abi.Event {
+	return nil
+}
+
+func (ms *mockStateful) CustomValueDecoders() precompile.ValueDecoders {
+	return nil
+}
+
+func (ms *mockStateful) SetPlugin(precompile.Plugin) {}
 
 type badMockStateful struct {
 	*mockStateful
