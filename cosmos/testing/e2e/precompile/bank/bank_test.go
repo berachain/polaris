@@ -26,6 +26,7 @@ import (
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
+	"pkg.berachain.dev/polaris/e2e/localnet/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -59,7 +60,7 @@ var _ = Describe("Bank", func() {
 	})
 
 	It("should call functions on the precompile directly", func() {
-		numberOfDenoms := 8
+		numberOfDenoms := 7
 		coinsToBeSent := []bindings.CosmosCoin{
 			{
 				Denom:  denom,
@@ -89,8 +90,8 @@ var _ = Describe("Bank", func() {
 				{Denom: "nbera", Exponent: uint32(9), Aliases: []string{"nanobera"}},
 				{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
 			},
-			Base:    "abera",
-			Display: "abera",
+			Base:    "bera",
+			Display: "bera",
 		}
 
 		// charlie initially has 1000000000000000000 abera
@@ -99,12 +100,15 @@ var _ = Describe("Bank", func() {
 		Expect(balance.Cmp(big.NewInt(1000000000000000000))).To(Equal(0))
 
 		// Send 1000 bera from alice to charlie
-		_, err = bankPrecompile.Send(
-			tf.GenerateTransactOpts("alice"),
+		opts := tf.GenerateTransactOpts("alice")
+		opts.GasLimit = 10000000
+		tx, err := bankPrecompile.Send(
+			opts,
 			tf.Address("charlie"),
 			coinsToBeSent,
 		)
 		Expect(err).ShouldNot(HaveOccurred())
+		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wait one block.
 		err = tf.WaitForNextBlock()
@@ -136,7 +140,7 @@ var _ = Describe("Bank", func() {
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(totalSupply).To(HaveLen(numberOfDenoms))
 
-		denomMetadata, err := bankPrecompile.GetDenomMetadata(nil, denom)
+		denomMetadata, err := bankPrecompile.GetDenomMetadata(nil, "bera")
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(denomMetadata).To(Equal(evmDenomMetadata))
 
