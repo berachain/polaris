@@ -100,10 +100,8 @@ var _ = Describe("Bank", func() {
 		Expect(balance.Cmp(big.NewInt(1000000000000000000))).To(Equal(0))
 
 		// Send 1000 bera from alice to charlie
-		opts := tf.GenerateTransactOpts("alice")
-		opts.GasLimit = 10000000
 		tx, err := bankPrecompile.Send(
-			opts,
+			tf.GenerateTransactOpts("alice"),
 			tf.Address("charlie"),
 			coinsToBeSent,
 		)
