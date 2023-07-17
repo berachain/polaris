@@ -25,10 +25,9 @@ import (
 	"errors"
 	"reflect"
 
-	errorslib "pkg.berachain.dev/polaris/lib/errors"
-
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
