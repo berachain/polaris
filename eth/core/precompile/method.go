@@ -23,6 +23,7 @@ package precompile
 import (
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -57,6 +58,8 @@ type Method struct {
 	// Also note that "int" is substitute for its canonical representation "int256".
 	abiSig string
 
+	rcvr StatefulImpl
+
 	// Execute is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
 	execute reflect.Value
@@ -82,9 +85,13 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 	if err != nil {
 		return nil, err
 	}
+
+	// convert the any unnamed struct types into `execute`'s requested struct type
+
 	// Build argument list
 	reflectedUnpackedArgs := make([]reflect.Value, 0, len(unpackedArgs))
 	for _, unpacked := range unpackedArgs {
+		fmt.Println("unpacked: ", unpacked)
 		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
 	}
 
@@ -110,6 +117,8 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 		}
 		return nil, err
 	}
+
+	// convert any of `execute`'s custom return struct types into unnamed struct type
 
 	// Pack the return values and return, if any exist.
 	retVals := make([]any, 0, len(results)-1)

@@ -116,7 +116,10 @@ func (sf *StatefulFactory) Build(
 // This function matches each Go implementation of the precompile to the ABI's respective function.
 // It searches for the ABI function in the Go precompile contract and performs basic validation on
 // the implemented function.
-func buildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (map[string]*Method, error) {
+func buildIdsToMethods(
+	pcABI map[string]abi.Method,
+	contractImpl reflect.Value,
+) (map[string]*Method, error) {
 	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*Method)
 	for m := 0; m < contractImplType.NumMethod(); m++ {
@@ -185,12 +188,17 @@ func validateReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error 
 			for j := 0; j < abiMethodReturnType.Len(); j++ {
 				// if it is a struct, then we need to check if the struct fields match
 				if abiMethodReturnType.Elem().Kind() == reflect.Struct {
-					if err := validateStructFields(implMethodReturnType.Elem(), abiMethodReturnType.Elem()); err != nil {
+					if err := validateStructFields(implMethodReturnType.Elem(),
+						abiMethodReturnType.Elem(),
+					); err != nil {
 						return err
 					}
 				} else {
 					if implMethodReturnType.Elem() != abiMethodReturnType.Elem() {
-						return fmt.Errorf("return type mismatch: %v != %v", implMethodReturnType.Elem(), abiMethodReturnType.Elem())
+						return fmt.Errorf("return type mismatch: %v != %v",
+							implMethodReturnType.Elem(),
+							abiMethodReturnType.Elem(),
+						)
 					}
 				}
 			}
@@ -204,7 +212,9 @@ func validateReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error 
 
 // this function checks to make sure that the struct fields match. if there is a nested struct, then
 // we use recursion until we reach the base case of primitive types.
-func validateStructFields(implMethodReturnType reflect.Type, abiMethodReturnType reflect.Type) error {
+func validateStructFields(implMethodReturnType reflect.Type,
+	abiMethodReturnType reflect.Type,
+) error {
 	if implMethodReturnType == nil && abiMethodReturnType == nil {
 		return nil
 	}
@@ -214,12 +224,19 @@ func validateStructFields(implMethodReturnType reflect.Type, abiMethodReturnType
 	for j := 0; j < implMethodReturnType.NumField(); j++ {
 
 		// if the field is a nested struct, then we recurse
-		if implMethodReturnType.Field(j).Type.Kind() == reflect.Struct && abiMethodReturnType.Field(j).Type.Kind() == reflect.Struct {
-			if err := validateStructFields(implMethodReturnType.Field(j).Type, abiMethodReturnType.Field(j).Type); err != nil {
+		if implMethodReturnType.Field(j).Type.Kind() == reflect.Struct &&
+			abiMethodReturnType.Field(j).Type.Kind() == reflect.Struct {
+			if err := validateStructFields(
+				implMethodReturnType.Field(j).Type,
+				abiMethodReturnType.Field(j).Type,
+			); err != nil {
 				return err
 			}
 		} else if implMethodReturnType.Field(j).Type != abiMethodReturnType.Field(j).Type {
-			return fmt.Errorf("return type mismatch: %v != %v", implMethodReturnType.Field(j).Type, abiMethodReturnType.Field(j).Type)
+			return fmt.Errorf("return type mismatch: %v != %v",
+				implMethodReturnType.Field(j).Type,
+				abiMethodReturnType.Field(j).Type,
+			)
 		} else {
 			continue
 		}
