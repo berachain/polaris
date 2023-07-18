@@ -27,22 +27,7 @@ on:
       - main
 
 # Define reusable steps
-jobs:
-  cache-golang-deps:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Cache Golang Deps
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go
-          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-golang-
-
+jobs: 
   # Define templates
   build-base:
     strategy:
@@ -97,7 +82,16 @@ jobs:
           name: ${{ matrix.base-image }}
       - name: Load ${{ matrix.base-image }}
         run: docker load -i ${{ matrix.base-image }}.tar
-      - uses: cache-golang-deps
+      - name: Cache Golang Deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go
+          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-
+
 
   # # Define jobs from templates
   # hive:
