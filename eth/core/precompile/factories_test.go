@@ -155,6 +155,10 @@ type badMockStateful struct {
 	*mockBase
 }
 
+func (bms *badMockStateful) GetOutput(_ context.Context, _ string) ([]byte, error) {
+	return nil, nil
+}
+
 func (bms *badMockStateful) ABIMethods() map[string]abi.Method {
 	return map[string]abi.Method{
 		"getOutput":        mock.Methods["getOutput"],
