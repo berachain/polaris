@@ -1,3 +1,28 @@
+// SPDX-License-Identifier: Apache-2.0
+//
+// Copyright (c) 2023 Berachain Foundation
+//
+// Permission is hereby granted, free of charge, to any person
+// obtaining a copy of this software and associated documentation
+// files (the "Software"), to deal in the Software without
+// restriction, including without limitation the rights to use,
+// copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following
+// conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+
 package utils
 
 import (
@@ -12,7 +37,6 @@ import (
 // the abi's argument return types. this is for overloaded Solidity functions and general
 // validation.
 func ValidateArgumentAndReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error {
-
 	// last parameter of go impl is an error (for reverts), so we don't check it.
 	if implMethod.Type.NumOut()-1 != len(abiMethod.Outputs) {
 		return errors.New("number of return types mismatch")
@@ -23,14 +47,18 @@ func ValidateArgumentAndReturnTypes(implMethod reflect.Method, abiMethod abi.Met
 	for i := 2; i < implMethod.Type.NumIn(); i++ {
 		implMethodParamType := implMethod.Type.In(i)
 		abiMethodParamType := abiMethod.Inputs[j].Type.GetType()
-		validate(implMethodParamType, abiMethodParamType)
+		if err := validate(implMethodParamType, abiMethodParamType); err != nil {
+			return fmt.Errorf("argument type mismatch: %v != %v", implMethodParamType, abiMethodParamType)
+		}
 		j++
 	}
 
 	for i := 0; i < implMethod.Type.NumOut()-1; i++ {
 		implMethodReturnType := implMethod.Type.Out(i)
 		abiMethodReturnType := abiMethod.Outputs[i].Type.GetType()
-		validate(implMethodReturnType, abiMethodReturnType)
+		if err := validate(implMethodReturnType, abiMethodReturnType); err != nil {
+			return fmt.Errorf("return type mismatch: %v != %v", implMethodReturnType, abiMethodReturnType)
+		}
 	}
 
 	return nil
@@ -41,7 +69,9 @@ func ValidateArgumentAndReturnTypes(implMethod reflect.Method, abiMethod abi.Met
 func validate(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
 	//nolint:exhaustive // nah, this is fine.
 	switch implMethodVarType.Kind() {
-	case abiMethodVarType.Kind():
+	// if the type is any, we leave it to the user to make sure that it is used
+	// correctly.
+	case abiMethodVarType.Kind(), reflect.Interface:
 		return nil
 	case reflect.Struct:
 		if err := validateStructFields(implMethodVarType, abiMethodVarType); err != nil {
