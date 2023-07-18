@@ -48,6 +48,7 @@ var _ core.PolarisHostChain = (*host)(nil)
 // It includes core.PolarisHostChain and functions that are called in other packages.
 type Host interface {
 	core.PolarisHostChain
+	GetTxPoolPlugin() txpool.Plugin
 	GetAllPlugins() []plugins.Base
 	Setup(
 		storetypes.StoreKey,
@@ -84,7 +85,7 @@ func NewHost(
 	h.bp = block.NewPlugin(storeKey, sk)
 	h.cp = configuration.NewPlugin(storeKey)
 	h.gp = gas.NewPlugin()
-	h.txp = txpool.NewPlugin(utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	h.txp = txpool.NewPlugin(utils.MustGetAs[*mempool.WrappedGethTxPool](ethTxMempool))
 	h.pcs = precompiles
 
 	return h
@@ -103,7 +104,6 @@ func (h *host) Setup(
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles(), h.sp)
 	// TODO: re-enable historical plugin using ABCI listener.
 	h.hp = historical.NewPlugin(h.cp, h.bp, nil, storeKey)
-	h.txp.SetNonceRetriever(h.sp)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)
@@ -140,7 +140,7 @@ func (h *host) GetStatePlugin() core.StatePlugin {
 }
 
 // GetTxPoolPlugin returns the txpool plugin.
-func (h *host) GetTxPoolPlugin() core.TxPoolPlugin {
+func (h *host) GetTxPoolPlugin() txpool.Plugin {
 	return h.txp
 }
 

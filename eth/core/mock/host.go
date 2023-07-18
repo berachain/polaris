@@ -26,7 +26,7 @@ import "pkg.berachain.dev/polaris/eth/core"
 
 func NewMockHostAndPlugins() (
 	*PolarisHostChainMock, *BlockPluginMock, *ConfigurationPluginMock, *GasPluginMock,
-	*HistoricalPluginMock, *PrecompilePluginMock, *StatePluginMock, *TxPoolPluginMock,
+	*HistoricalPluginMock, *PrecompilePluginMock, *StatePluginMock,
 ) {
 	bp := NewBlockPluginMock()
 	cp := NewConfigurationPluginMock()
@@ -34,7 +34,6 @@ func NewMockHostAndPlugins() (
 	hp := NewHistoricalPluginMock()
 	pp := NewPrecompilePluginMock()
 	sp := NewStatePluginMock()
-	tp := &TxPoolPluginMock{}
 	mockedPolarisHostChain := &PolarisHostChainMock{
 		GetBlockPluginFunc: func() core.BlockPlugin {
 			return bp
@@ -54,9 +53,6 @@ func NewMockHostAndPlugins() (
 		GetStatePluginFunc: func() core.StatePlugin {
 			return sp
 		},
-		GetTxPoolPluginFunc: func() core.TxPoolPlugin {
-			return tp
-		},
 	}
-	return mockedPolarisHostChain, bp, cp, gp, hp, pp, sp, tp
+	return mockedPolarisHostChain, bp, cp, gp, hp, pp, sp
 }

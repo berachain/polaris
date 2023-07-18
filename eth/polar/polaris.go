@@ -151,3 +151,11 @@ func (pl *Polaris) StartServices() error {
 	}()
 	return nil
 }
+
+func (pl *Polaris) SetTxPool(txPool *txpool.TxPool) {
+	pl.txPool = txPool
+}
+
+func (pl *Polaris) Blockchain() core.Blockchain {
+	return pl.blockchain
+}

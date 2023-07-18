@@ -21,75 +21,123 @@
 package mempool
 
 import (
+	"context"
+	"errors"
 	"math/big"
-	"sync"
 
-	"github.com/cosmos/cosmos-sdk/types/mempool"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"pkg.berachain.dev/polaris/eth/common"
+	"github.com/ethereum/go-ethereum/core/txpool"
+
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// EthTxPool is a mempool for Ethereum transactions. It wraps a PriorityNonceMempool and caches
-// transactions that are added to the mempool by ethereum transaction hash.
-type EthTxPool struct {
-	// The underlying mempool implementation.
-	*mempool.PriorityNonceMempool[*big.Int]
+// Compile-time interface assertion.
+var _ sdkmempool.Mempool = (*WrappedGethTxPool)(nil)
 
-	// We need to keep track of the priority policy so that we can update the base fee.
-	priorityPolicy *EthereumTxPriorityPolicy
+// WrappedGethTxPool is a mempool for Ethereum transactions. It wraps a Geth TxPool.
+// NOTE: currently does not support adding `sdk.Tx`s that do NOT have a `WrappedEthereumTransaction`
+// as the tx Msg.
+type WrappedGethTxPool struct {
+	// The underlying Geth mempool implementation.
+	*txpool.TxPool
 
-	// NonceRetriever is used to retrieve the nonce for a given address (this is typically a
-	// reference to the StateDB).
-	nr NonceRetriever
+	// serializer converts eth txs to sdk txs when being iterated over.
+	serializer SdkTxSerializer
 
-	// ethTxCache caches transactions that are added to the mempool so that they can be retrieved
-	// later
-	ethTxCache map[common.Hash]*coretypes.Transaction
+	// pendingBaseFee is set by the miner, as is the signer.
+	pendingBaseFee *big.Int
+	signer         coretypes.Signer
 
-	// nonceToHash maps a nonce to the hash of the transaction that was added to the mempool with
-	// that nonce. This is used to retrieve the hash of a transaction that was added to the mempool
-	// by nonce.
-	nonceToHash map[common.Address]map[uint64]common.Hash
-
-	// We have a mutex to protect the ethTxCache and nonces maps since they are accessed
-	// concurrently by multiple goroutines.
-	mu sync.RWMutex
+	// iterator is used to iterate over the txpool.
+	iterator *iterator
 }
 
-// NewPolarisEthereumTxPool creates a new Ethereum transaction pool.
-func NewPolarisEthereumTxPool() *EthTxPool {
-	tpp := EthereumTxPriorityPolicy{
-		baseFee: big.NewInt(0),
-	}
-	config := mempool.PriorityNonceMempoolConfig[*big.Int]{
-		TxReplacement: EthereumTxReplacePolicy[*big.Int]{
-			PriceBump: 10, //nolint:gomnd // 10% to match geth.
-		}.Func,
-		TxPriority: mempool.TxPriority[*big.Int]{
-			GetTxPriority: tpp.GetTxPriority,
-			Compare: func(a *big.Int, b *big.Int) int {
-				return a.Cmp(b)
-			},
-			MinValue: big.NewInt(-1),
-		},
-		MaxTx: 10000, //nolint:gomnd // todo: parametize this.
-	}
-
-	return &EthTxPool{
-		PriorityNonceMempool: mempool.NewPriorityMempool(config),
-		nonceToHash:          make(map[common.Address]map[uint64]common.Hash),
-		ethTxCache:           make(map[common.Hash]*coretypes.Transaction),
-		priorityPolicy:       &tpp,
-	}
+// NewWrappedGethTxPool creates a new Ethereum transaction pool.
+func NewWrappedGethTxPool() *WrappedGethTxPool {
+	return &WrappedGethTxPool{}
 }
 
-// SetNonceRetriever sets the nonce retriever db for the mempool.
-func (etp *EthTxPool) SetNonceRetriever(nr NonceRetriever) {
-	etp.nr = nr
+// Setup sets the chain config and sdk tx serializer on the wrapped Geth TxPool.
+func (gtp *WrappedGethTxPool) Setup(txPool *txpool.TxPool, serializer SdkTxSerializer) {
+	gtp.TxPool = txPool
+	gtp.serializer = serializer
 }
 
-// SetBaseFee updates the base fee in the priority policy.
-func (etp *EthTxPool) SetBaseFee(baseFee *big.Int) {
-	etp.priorityPolicy.baseFee = baseFee
+// Prepare prepares the txpool for the next pending block.
+func (gtp *WrappedGethTxPool) Prepare(pendingBaseFee *big.Int, signer coretypes.Signer) {
+	gtp.pendingBaseFee = pendingBaseFee
+	gtp.signer = signer
+}
+
+// Insert is called when a transaction is added to the mempool.
+func (gtp *WrappedGethTxPool) Insert(_ context.Context, tx sdk.Tx) error {
+	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
+		err := gtp.AddRemotes(coretypes.Transactions{ethTx})[0]
+		// If we see ErrAlreadyKnown, we can ignore it, since this is likely from the ABCI broadcast.
+		// TODO: we should do a check here to make sure that the ErrAlreadyKnown is happening because of
+		// the fact that InsertLocal was called. If this is a genuine p2p broadcast of a tx, we may want to
+		// actually handle the error if already known, in the case where two indepdent peers are sending us the
+		// same transaction. TODO verify this.
+		if errors.Is(err, txpool.ErrAlreadyKnown) {
+			return nil
+		}
+		return err
+	}
+	return nil
+}
+
+// InsertSync is called when a transaction is added to the mempool (for testing purposes).
+func (gtp *WrappedGethTxPool) InsertSync(_ context.Context, tx sdk.Tx) error {
+	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
+		return gtp.AddRemotesSync(coretypes.Transactions{ethTx})[0]
+	}
+	return nil
+}
+
+// Remove is called when a transaction is removed from the mempool.
+func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
+	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
+		if gtp.iterator != nil {
+			gtp.iterator.txs.Pop()
+		} else {
+			// remove from the pending queue of txs in the geth mempool.
+			if gtp.RemoveTx(ethTx.Hash(), true) < 1 {
+				// Note: RemoveTx will return 0 if the tx was removed from future queue. Generally, any
+				// tx in the future queue will not be removed because only the pending txs get
+				// selected by prepare proposal.
+				return sdkmempool.ErrTxNotFound
+			}
+		}
+	}
+	return nil
+}
+
+// Select returns an Iterator over the app-side mempool. If txs are specified, then they shall be
+// incorporated into the Iterator. The Iterator must closed by the caller.
+func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Iterator {
+	// return nil if there are no pending txs
+	pendingTxs := gtp.Pending(true)
+	if len(pendingTxs) == 0 {
+		return nil
+	}
+
+	// return an iterator over the pending txs, sorted by price and nonce
+	gtp.iterator = &iterator{
+		txs: coretypes.NewTransactionsByPriceAndNonce(
+			gtp.signer,
+			pendingTxs,
+			gtp.pendingBaseFee,
+		),
+		serializer: gtp.serializer,
+	}
+	return gtp.iterator
+}
+
+// CountTx returns the number of transactions currently in the mempool.
+func (gtp *WrappedGethTxPool) CountTx() int {
+	pending, queued := gtp.Stats()
+	return pending + queued
 }

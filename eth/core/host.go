@@ -45,8 +45,6 @@ type PolarisHostChain interface {
 	GetPrecompilePlugin() PrecompilePlugin
 	// GetStatePlugin returns the `StatePlugin` of the Polaris host chain.
 	GetStatePlugin() StatePlugin
-	// GetTxPoolPlugin returns the `TxPoolPlugin` of the Polaris host chain.
-	GetTxPoolPlugin() TxPoolPlugin
 }
 
 // =============================================================================
@@ -115,13 +113,6 @@ type (
 		state.Plugin
 		// StateAtBlockNumber returns the state at the given block height.
 		StateAtBlockNumber(uint64) (StatePlugin, error)
-	}
-
-	// TxPoolPlugin defines the methods that the chain running Polaris EVM should implement to
-	// support the transaction pool.
-	TxPoolPlugin interface {
-		// SetBaseFee sets the base fee of the transaction pool.
-		SetBaseFee(*big.Int)
 	}
 )
 

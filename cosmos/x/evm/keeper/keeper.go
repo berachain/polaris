@@ -34,9 +34,9 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/txpool"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
@@ -137,8 +137,14 @@ func (k *Keeper) GetHost() Host {
 	return k.host
 }
 
-func (k *Keeper) SetClientCtx(clientContext client.Context) {
-	k.host.GetTxPoolPlugin().(txpool.Plugin).SetClientContext(clientContext)
+func (k *Keeper) StartServices(clientContext client.Context) {
+	txpool := txpool.NewTxPool(
+		txpool.DefaultConfig, k.host.GetConfigurationPlugin().ChainConfig(), k.polaris.Blockchain(),
+	)
+	k.polaris.SetTxPool(txpool)
+	tp := k.host.GetTxPoolPlugin()
+	tp.Setup(txpool, clientContext)
+
 	// TODO: move this
 	go func() {
 		// spin lock for a bit
@@ -149,6 +155,8 @@ func (k *Keeper) SetClientCtx(clientContext client.Context) {
 		if err := k.polaris.StartServices(); err != nil {
 			panic(err)
 		}
+
+		tp.Start()
 	}()
 }
 

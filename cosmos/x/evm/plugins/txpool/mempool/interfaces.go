@@ -20,11 +20,21 @@
 
 package mempool
 
-import "pkg.berachain.dev/polaris/eth/common"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+)
 
 type (
 	// NonceRetriever is used to retrieve a nonce from the db.
 	NonceRetriever interface {
 		GetNonce(addr common.Address) uint64
+	}
+
+	// SdkTxSerializer is used to convert eth transactions to sdk transactions.
+	SdkTxSerializer interface {
+		SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
 	}
 )

@@ -134,7 +134,7 @@ func NewPolarisApp(
 	var (
 		app          = &SimApp{}
 		appBuilder   *runtime.AppBuilder
-		ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
+		ethTxMempool = evmmempool.NewWrappedGethTxPool()
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
 			AppConfig,
@@ -366,7 +366,7 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
+	app.EVMKeeper.StartServices(apiSvr.ClientCtx)
 }
 
 // GetMaccPerms returns a copy of the module account permissions

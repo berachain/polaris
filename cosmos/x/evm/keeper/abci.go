@@ -24,17 +24,41 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/consensus/misc"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 func (k *Keeper) BeginBlocker(ctx context.Context) error {
-	sCtx := sdk.UnwrapSDKContext(ctx)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
+	if k.lock {
+		k.GetHost().GetTxPoolPlugin().SetLogger(k.Logger(sdkCtx))
+		k.lock = false
+	}
+
 	// Prepare the Polaris Ethereum block.
-	k.lock = false
-	k.polaris.Prepare(ctx, uint64(sCtx.BlockHeight()))
+	k.polaris.Prepare(ctx, uint64(sdkCtx.BlockHeight()))
 	return nil
 }
 
 func (k *Keeper) EndBlock(ctx context.Context) error {
 	// Finalize the Polaris Ethereum block.
-	return k.polaris.Finalize(ctx)
+	if err := k.polaris.Finalize(ctx); err != nil {
+		return err
+	}
+
+	// Prepare the txpool for the next pending block.
+	// TODO: move this.
+	parent, err := k.GetHost().GetBlockPlugin().GetHeaderByNumber(
+		uint64(sdk.UnwrapSDKContext(ctx).BlockHeight()),
+	)
+	if err != nil {
+		return err
+	}
+	chainConfig := k.host.GetConfigurationPlugin().ChainConfig()
+	k.GetHost().GetTxPoolPlugin().Prepare(
+		misc.CalcBaseFee(chainConfig, parent), types.LatestSigner(chainConfig), // TODO: use MakeSigner.
+	)
+
+	return nil
 }

@@ -31,13 +31,21 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
+type serializer struct {
+	clientCtx client.Context
+}
+
+func newSerializer(clientCtx client.Context) *serializer {
+	return &serializer{
+		clientCtx: clientCtx,
+	}
+}
+
 // SerializeToSdkTx converts an ethereum transaction to a Cosmos native transaction.
-func SerializeToSdkTx(
-	clientCtx client.Context, signedTx *coretypes.Transaction,
-) (sdk.Tx, error) {
+func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error) {
 	// TODO: do we really need to use extensions for anything? Since we
 	// are using the standard ante handler stuff I don't think we actually need to.
-	tx := clientCtx.TxConfig.NewTxBuilder()
+	tx := s.clientCtx.TxConfig.NewTxBuilder()
 
 	// We can also retrieve the gaslimit for the transaction from the ethereum transaction.
 	tx.SetGasLimit(signedTx.Gas())
@@ -100,17 +108,15 @@ func SerializeToSdkTx(
 
 // SerializeToBytes converts an Ethereum transaction to Cosmos formatted txBytes which allows for
 // it to broadcast it to CometBFT.
-func SerializeToBytes(
-	clientCtx client.Context, signedTx *coretypes.Transaction,
-) ([]byte, error) {
+func (s *serializer) SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error) {
 	// First, we convert the Ethereum transaction to a Cosmos transaction.
-	cosmosTx, err := SerializeToSdkTx(clientCtx, signedTx)
+	cosmosTx, err := s.SerializeToSdkTx(signedTx)
 	if err != nil {
 		return nil, err
 	}
 
 	// Then we use the clientCtx.TxConfig.TxEncoder() to encode the Cosmos transaction into bytes.
-	txBytes, err := clientCtx.TxConfig.TxEncoder()(cosmosTx)
+	txBytes, err := s.clientCtx.TxConfig.TxEncoder()(cosmosTx)
 	if err != nil {
 		return nil, err
 	}

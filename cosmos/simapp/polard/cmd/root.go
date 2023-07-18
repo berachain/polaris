@@ -80,7 +80,7 @@ func NewRootCmd() *cobra.Command {
 		moduleBasicManager module.BasicManager
 	)
 	if err := depinject.Inject(depinject.Configs(simapp.AppConfig, depinject.Supply(
-		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
+		evmmepool.NewWrappedGethTxPool(), log.NewNopLogger())),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,

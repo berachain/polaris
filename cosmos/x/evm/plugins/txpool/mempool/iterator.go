@@ -18,6 +18,45 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package mock
+package mempool
 
-//go:generate moq -out ./txpool_plugin.mock.go -pkg mock ../ TxPoolPlugin
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+
+	coretypes "github.com/ethereum/go-ethereum/core/types"
+)
+
+// iterator is used to iterate over the transactions in the sdk mempool.
+type iterator struct {
+	txs        *coretypes.TransactionsByPriceAndNonce
+	serializer SdkTxSerializer
+}
+
+// Tx implements sdkmempool.Iterator.
+func (i *iterator) Tx() sdk.Tx {
+	ethTx := i.txs.Peek()
+	if ethTx == nil {
+		// should never hit this case because the immediately before call to Next() should return
+		// nil
+		return nil
+	}
+
+	sdkTx, err := i.serializer.SerializeToSdkTx(ethTx)
+	if err != nil {
+		// gtp.logger.Error("eth tx could not be serialized to sdk tx:", err)
+		return nil
+	}
+
+	return sdkTx
+}
+
+// Next implements sdkmempool.Iterator.
+func (i *iterator) Next() sdkmempool.Iterator {
+	i.txs.Shift()
+
+	if i.txs.Peek() == nil {
+		i = nil
+	}
+	return i
+}

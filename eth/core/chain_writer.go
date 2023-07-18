@@ -80,9 +80,6 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 
 	bc.logger.Info("preparing evm block", "seal_hash", header.Hash())
 
-	// We update the base fee in the txpool to the next base fee.
-	bc.tp.SetBaseFee(header.BaseFee)
-
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	bc.processor.Prepare(
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
