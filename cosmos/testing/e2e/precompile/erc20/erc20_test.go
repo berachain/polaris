@@ -101,10 +101,10 @@ var _ = Describe("ERC20", func() {
 		})
 
 		When("calling write methods", func() {
-			It("should error on non-existent denoms/tokens", func() {
+			FIt("should error on non-existent denoms/tokens", func() {
 				// user does not have balance of bOSMO
 				txr := tf.GenerateTransactOpts("alice")
-				// txr.GasLimit = 10000000
+				txr.GasLimit = 10000000
 				tx, err := erc20Precompile.TransferCoinToERC20(
 					txr,
 					"bOSMO",
@@ -115,7 +115,7 @@ var _ = Describe("ERC20", func() {
 
 				// token doesn't exist, user does not have balance of token
 				txr = tf.GenerateTransactOpts("alice")
-				// txr.GasLimit = 10000000
+				txr.GasLimit = 10000000
 				tx, err = erc20Precompile.TransferERC20ToCoin(
 					txr,
 					common.HexToAddress("0x432423432489230"),

@@ -23,7 +23,6 @@ package precompile
 import (
 	"context"
 	"errors"
-	"fmt"
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -102,7 +101,6 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 		err = utils.MustGetAs[error](callErr)
 	}
 	if err != nil {
-		fmt.Println("err", err)
 		if !errors.Is(err, vm.ErrWriteProtection) {
 			err = errorslib.Wrapf(
 				vm.ErrExecutionReverted,
