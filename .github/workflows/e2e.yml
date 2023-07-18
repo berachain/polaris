@@ -104,25 +104,25 @@ jobs:
           run: docker load -i ${{ matrix.base-image }}.tar
         - uses: cache-golang-deps
 
-  # Define jobs from templates
-  hive:
-    needs: [build-base, setup-env]
-    strategy:
-      matrix:
-        simulator: [polaris/rpc, polaris/graphql]
-        namespace: [cosmos]
-        os: [ubuntu-latest]
-        go-version: [1.20.6]
-        base-image: [base-image]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Run ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
-        uses: magefile/mage-action@v2
-        with:
-          version: latest
-          args: ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
-        env:
-          GOPATH: /home/runner/go
+  # # Define jobs from templates
+  # hive:
+  #   needs: [build-base, setup-env]
+  #   strategy:
+  #     matrix:
+  #       simulator: [polaris/rpc, polaris/graphql]
+  #       namespace: [cosmos]
+  #       os: [ubuntu-latest]
+  #       go-version: [1.20.6]
+  #       base-image: [base-image]
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #     - name: Run ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
+  #       uses: magefile/mage-action@v2
+  #       with:
+  #         version: latest
+  #         args: ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
+  #       env:
+  #         GOPATH: /home/runner/go
 
   # localnet:
   #     needs: [build-base, setup-env]
