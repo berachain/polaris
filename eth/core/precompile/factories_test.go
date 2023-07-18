@@ -84,7 +84,7 @@ var _ = Describe("Container Factories", func() {
 		It("should error on missing precompile method for ABI method", func() {
 			_, err := scf.Build(&badMockStateful{&mockBase{}}, nil)
 			var _ precompile.StatefulImpl = (*mockBase)(nil)
-			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutput"))
+			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial"))
 		})
 	})
 })
