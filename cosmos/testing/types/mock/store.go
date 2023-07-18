@@ -57,7 +57,7 @@ func NewMultiStore() types.MultiStore {
 		kvstore:        map[string]interfaces.KVStore{},
 		MultiStoreMock: &mock.MultiStoreMock{},
 	}
-	ms.GetKVStoreFunc = func(storeKey types.StoreKey) types.KVStore {
+	ms.MultiStoreMock.GetKVStoreFunc = func(storeKey types.StoreKey) types.KVStore {
 		if store, ok := ms.kvstore[storeKey.String()]; ok {
 			return store
 		}
@@ -65,8 +65,7 @@ func NewMultiStore() types.MultiStore {
 		ms.kvstore[storeKey.String()] = store
 		return store
 	}
-
-	ms.CacheMultiStoreFunc = func() types.CacheMultiStore {
+	ms.MultiStoreMock.CacheMultiStoreFunc = func() types.CacheMultiStore {
 		return NewCachedMultiStore(ms)
 	}
 
@@ -101,6 +100,10 @@ func NewCachedMultiStore(ms MultiStore) types.CacheMultiStore {
 		for _, store := range cached.kvstore {
 			utils.MustGetAs[*TestKVStore](store).Write()
 		}
+	}
+
+	cached.CacheMultiStoreFunc = func() types.CacheMultiStore {
+		return NewCachedMultiStore(ms)
 	}
 	return cached
 }

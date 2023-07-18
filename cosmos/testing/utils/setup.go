@@ -21,6 +21,7 @@
 package utils
 
 import (
+	"errors"
 	"testing"
 
 	"cosmossdk.io/log"
@@ -56,6 +57,8 @@ import (
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	coremock "pkg.berachain.dev/polaris/eth/core/mock"
 )
 
 var (
@@ -69,7 +72,8 @@ var (
 
 // NewContext creates a SDK context and mounts a mock multistore.
 func NewContext() sdk.Context {
-	return sdk.NewContext(mock.NewMultiStore(), cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
+	ms := mock.NewMultiStore()
+	return sdk.NewContext(ms, cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
 }
 
 func NewContextWithMultiStore(ms storetypes.MultiStore) sdk.Context {
@@ -176,4 +180,19 @@ func GetEncodingConfig() testutil.TestEncodingConfig {
 		staking.AppModuleBasic{},
 		authz.AppModuleBasic{},
 	)
+}
+
+func MockQueryContext(height int64, _ bool) (sdk.Context, error) {
+	if height <= 0 {
+		return sdk.Context{}, errors.New("cannot query context at this height")
+	}
+	ctx := NewContext().WithBlockHeight(height)
+	header := coremock.GenerateHeaderAtHeight(height)
+	headerBz, err := coretypes.MarshalHeader(header)
+	if err != nil {
+		return sdk.Context{}, err
+	}
+	ctx.KVStore(EvmKey).Set([]byte{evmtypes.HeaderKey}, headerBz)
+	ctx.KVStore(EvmKey).Set(header.Hash().Bytes(), header.Number.Bytes())
+	return ctx, nil
 }

@@ -41,5 +41,8 @@ func NewPrecompilePluginMock() *PrecompilePluginMock {
 		RegisterFunc: func(pc vm.PrecompileContainer) error {
 			return nil
 		},
+		HasFunc: func(addr common.Address) bool {
+			return false
+		},
 	}
 }

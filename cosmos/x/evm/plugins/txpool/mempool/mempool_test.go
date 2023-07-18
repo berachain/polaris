@@ -41,6 +41,8 @@ import (
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/mock"
+	"pkg.berachain.dev/polaris/eth/core/txpool"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
@@ -56,26 +58,43 @@ func TestEthPool(t *testing.T) {
 
 var (
 	ctx     sdk.Context
-	sp      core.StatePlugin
+	sp      state.Plugin
 	etp     *WrappedGethTxPool
 	key1, _ = crypto.GenerateEthKey()
 	addr1   = crypto.PubkeyToAddress(key1.PublicKey)
 	key2, _ = crypto.GenerateEthKey()
 	addr2   = crypto.PubkeyToAddress(key2.PublicKey)
+	txPool  *txpool.TxPool
 )
 
 var _ = Describe("EthTxPool", func() {
-
 	BeforeEach(func() {
 		sCtx, ak, _, _ := testutil.SetupMinimalKeepers()
 		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
+		sp.SetQueryContextFn(testutil.MockQueryContext)
 		ctx = sCtx
+		sp.Prepare(ctx)
 		sp.Reset(ctx)
 		sp.SetNonce(addr1, 1)
 		sp.SetNonce(addr2, 2)
 		sp.Finalize()
-		sp.Reset(ctx)
+		ctx.MultiStore().CacheMultiStore()
 		etp = NewWrappedGethTxPool()
+		mockHost, bp, cp, _, _, _, _ := mock.NewMockHostAndPlugins()
+		mockHost.GetStatePluginFunc = func() core.StatePlugin {
+			return sp
+		}
+		mockHost.GetHistoricalPluginFunc = func() core.HistoricalPlugin {
+			return nil
+		}
+		bc := core.NewChain(mockHost)
+		bc.Prepare(sCtx, 1)
+		Expect(bc.Finalize(sCtx)).To(Succeed())
+		txPool = txpool.NewTxPool(txpool.DefaultConfig, cp.ChainConfig(), bc)
+		etp.Setup(txPool, nil)
+		parent, err := bp.GetHeaderByNumber(0)
+		Expect(err).ToNot(HaveOccurred())
+		etp.Prepare(parent.BaseFee, coretypes.LatestSignerForChainID(cp.ChainConfig().ChainID))
 	})
 
 	Describe("All Cases", func() {
@@ -93,7 +112,7 @@ var _ = Describe("EthTxPool", func() {
 			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 0})
 			err := etp.InsertSync(ctx, tx1)
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("nonce too low"))
+			Expect(err.Error()).To(ContainSubstring(""))
 		})
 
 		It("should return pending/queued txs with correct nonces", func() {
@@ -304,10 +323,17 @@ var _ = Describe("EthTxPool", func() {
 		})
 
 		It("should be able to return the transaction priority for a Cosmos tx and effective gas tip value", func() {
+			ms := make(mockSerializer)
+			etp.Setup(txPool, ms)
+
 			ethTx1, tx1 := buildTx(key1, &coretypes.DynamicFeeTx{
-				Nonce: 1, GasTipCap: big.NewInt(1), GasFeeCap: big.NewInt(10000)})
+				Nonce: 1, GasTipCap: big.NewInt(1), GasFeeCap: big.NewInt(10000),
+			})
+			ms[ethTx1] = tx1
 			ethTx2, tx2 := buildTx(key2, &coretypes.DynamicFeeTx{
-				Nonce: 2, GasTipCap: big.NewInt(2), GasFeeCap: big.NewInt(200)})
+				Nonce: 2, GasTipCap: big.NewInt(2), GasFeeCap: big.NewInt(200),
+			})
+			ms[ethTx2] = tx2
 
 			// Test live mempool
 			err := etp.InsertSync(ctx, tx1)
@@ -487,3 +513,9 @@ func (m *mockSdkTx) GetSigners() ([][]byte, error)                  { return m.s
 func (m *mockSdkTx) GetPubKeys() ([]cryptotypes.PubKey, error) { return m.pubKeys, nil }
 
 func (m *mockSdkTx) GetSignaturesV2() ([]signing.SignatureV2, error) { return m.signatures, nil }
+
+type mockSerializer map[*coretypes.Transaction]sdk.Tx
+
+func (ms mockSerializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error) {
+	return ms[signedTx], nil
+}

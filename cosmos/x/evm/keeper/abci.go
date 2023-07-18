@@ -24,8 +24,10 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/consensus/misc"
-	"github.com/ethereum/go-ethereum/core/types"
+
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 func (k *Keeper) BeginBlocker(ctx context.Context) error {
@@ -57,7 +59,7 @@ func (k *Keeper) EndBlock(ctx context.Context) error {
 	}
 	chainConfig := k.host.GetConfigurationPlugin().ChainConfig()
 	k.GetHost().GetTxPoolPlugin().Prepare(
-		misc.CalcBaseFee(chainConfig, parent), types.LatestSigner(chainConfig), // TODO: use MakeSigner.
+		misc.CalcBaseFee(chainConfig, parent), coretypes.LatestSignerForChainID(chainConfig.ChainID),
 	)
 
 	return nil

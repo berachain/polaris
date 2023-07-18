@@ -20,8 +20,14 @@
 
 package mock
 
+import "context"
+
 //go:generate moq -out ./state_plugin.mock.go -pkg mock ../ StatePlugin
 
 func NewStatePluginMock() *StatePluginMock {
-	return &StatePluginMock{}
+	return &StatePluginMock{
+		PrepareFunc: func(contextMoqParam context.Context) {
+			return
+		},
+	}
 }

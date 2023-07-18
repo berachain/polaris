@@ -125,7 +125,6 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 	)
 	bc.currentBlock.Store(nil)
 	bc.finalizedBlock.Store(nil)
-
 	return bc
 }
 

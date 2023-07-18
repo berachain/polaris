@@ -135,9 +135,14 @@ func NewPlugin(
 //
 // Prepare implements `core.StatePlugin`.
 func (p *plugin) Prepare(ctx context.Context) {
-	p.ctx = sdk.UnwrapSDKContext(ctx).
-		WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{})
+	p.ctx = sdk.UnwrapSDKContext(ctx)
+
+	// We also remove the KVStore gas metering from the context prior to entering the EVM
+	// state transition. This is because the EVM is not aware of the Cosmos SDK's gas metering
+	// and is designed to be used in a standalone manner, as each of the EVM's opcodes are priced
+	// individually. By setting the gas configs to empty structs, we ensure that SLOADS and SSTORES
+	// in the EVM are not being charged additional gas unknowingly.
+	p.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
 }
 
 // Reset sets up the state plugin for execution of a new transaction. It sets up the snapshottable
@@ -159,13 +164,6 @@ func (p *plugin) Reset(ctx context.Context) {
 	// We need to build a custom configuration for the context in order to handle precompile event logs
 	// and proper gas consumption.
 	p.ctx = sdkCtx.WithMultiStore(p.cms).WithEventManager(cem)
-
-	// We also remove the KVStore gas metering from the context prior to entering the EVM
-	// state transition. This is because the EVM is not aware of the Cosmos SDK's gas metering
-	// and is designed to be used in a standalone manner, as each of the EVM's opcodes are priced
-	// individually. By setting the gas configs to empty structs, we ensure that SLOADS and SSTORES
-	// in the EVM are not being charged additional gas unknowingly.
-	p.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
 
 	// We setup a snapshot controller to properly revert the Controllable MultiStore and EventManager.
 	p.Controller = snapshot.NewController[string, libtypes.Controllable[string]]()

@@ -21,7 +21,6 @@
 package block
 
 import (
-	"errors"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -29,9 +28,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/mock"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -47,7 +46,7 @@ var _ = Describe("Header", func() {
 		_, _, _, sk := testutil.SetupMinimalKeepers()
 		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
 		p = utils.MustGetAs[*plugin](NewPlugin(testutil.EvmKey, sk))
-		p.SetQueryContextFn(mockQueryContext)
+		p.SetQueryContextFn(testutil.MockQueryContext)
 		p.Prepare(ctx) // on block 0 (genesis)
 	})
 
@@ -80,6 +79,7 @@ var _ = Describe("Header", func() {
 			TxHash:      common.Hash{0x05},
 			ReceiptHash: common.Hash{0x06},
 			Number:      big.NewInt(10),
+			BaseFee:     big.NewInt(69),
 		}
 		err := p.StoreHeader(header)
 		Expect(err).ToNot(HaveOccurred())
@@ -101,7 +101,7 @@ var _ = Describe("Header", func() {
 		for i := int64(1); i <= toAdd; i++ {
 			ctx = ctx.WithBlockHeight(i)
 			p.Prepare(ctx)
-			header := generateHeaderAtHeight(i)
+			header := mock.GenerateHeaderAtHeight(i)
 			if i <= 5 { // these hashes will be deleted
 				deletedHashes = append(deletedHashes, header.Hash())
 			}
@@ -128,30 +128,3 @@ var _ = Describe("Header", func() {
 		}
 	})
 })
-
-func mockQueryContext(height int64, _ bool) (sdk.Context, error) {
-	if height <= 0 {
-		return sdk.Context{}, errors.New("cannot query context at this height")
-	}
-	ctx := testutil.NewContext().WithBlockHeight(height)
-	header := generateHeaderAtHeight(height)
-	headerBz, err := types.MarshalHeader(header)
-	if err != nil {
-		return sdk.Context{}, err
-	}
-	ctx.KVStore(testutil.EvmKey).Set([]byte{evmtypes.HeaderKey}, headerBz)
-	ctx.KVStore(testutil.EvmKey).Set(header.Hash().Bytes(), header.Number.Bytes())
-	return ctx, nil
-}
-
-func generateHeaderAtHeight(height int64) *types.Header {
-	return &types.Header{
-		ParentHash:  common.Hash{0x01},
-		UncleHash:   common.Hash{0x02},
-		Coinbase:    common.Address{0x03},
-		Root:        common.Hash{0x04},
-		TxHash:      common.Hash{0x05},
-		ReceiptHash: common.Hash{0x06},
-		Number:      big.NewInt(height),
-	}
-}

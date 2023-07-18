@@ -20,16 +20,52 @@
 
 package mock
 
-import "github.com/ethereum/go-ethereum/core/types"
+import (
+	"context"
+	"math/big"
+
+	"github.com/ethereum/go-ethereum/core/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+)
 
 // const testBaseFee = 69
 
 //go:generate moq -out ./block_plugin.mock.go -pkg mock ../ BlockPlugin
 
 func NewBlockPluginMock() *BlockPluginMock {
-	return &BlockPluginMock{
-		GetHeaderByNumberFunc: func(v uint64) (*types.Header, error) {
-			return &types.Header{}, nil
+	bp := &BlockPluginMock{
+		PrepareFunc: func(contextMoqParam context.Context) {},
+		StoreHeaderFunc: func(header *types.Header) error {
+			return nil
 		},
+		GetNewBlockMetadataFunc: func(n uint64) (common.Address, uint64) {
+			return common.BytesToAddress([]byte{2}), uint64(3)
+		},
+	}
+	bp.GetHeaderByNumberFunc = func(v uint64) (*types.Header, error) {
+		if v == 0 { // handle genesis block
+			return GenerateHeaderAtHeight(0), nil
+		}
+		for _, call := range bp.StoreHeaderCalls() {
+			if call.Header.Number.Uint64() == v {
+				return types.CopyHeader(call.Header), nil
+			}
+		}
+		return nil, core.ErrHeaderNotFound
+	}
+	return bp
+}
+
+func GenerateHeaderAtHeight(height int64) *types.Header {
+	return &types.Header{
+		ParentHash:  common.Hash{0x01},
+		UncleHash:   common.Hash{0x02},
+		Coinbase:    common.Address{0x03},
+		Root:        common.Hash{0x04},
+		TxHash:      common.Hash{0x05},
+		ReceiptHash: common.Hash{0x06},
+		Number:      big.NewInt(height),
+		BaseFee:     big.NewInt(69),
 	}
 }

@@ -20,8 +20,14 @@
 
 package mock
 
+import "context"
+
 //go:generate moq -out ./historical_plugin.mock.go -pkg mock ../ HistoricalPlugin
 
 func NewHistoricalPluginMock() *HistoricalPluginMock {
-	return &HistoricalPluginMock{}
+	return &HistoricalPluginMock{
+		PrepareFunc: func(contextMoqParam context.Context) {
+			return
+		},
+	}
 }
