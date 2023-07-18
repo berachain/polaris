@@ -57,8 +57,8 @@ import (
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	coremock "pkg.berachain.dev/polaris/eth/core/mock"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 var (

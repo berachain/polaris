@@ -27,7 +27,7 @@ import "context"
 func NewStatePluginMock() *StatePluginMock {
 	return &StatePluginMock{
 		PrepareFunc: func(contextMoqParam context.Context) {
-			return
+			// no-op
 		},
 	}
 }

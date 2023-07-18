@@ -43,11 +43,11 @@ import (
 const ConsensusVersion = 1
 
 var (
-	_ appmodule.HasServices          = AppModule{}
-	_ appmodule.HasBeginBlocker      = AppModule{}
-	_ appmodule.HasEndBlocker        = AppModule{}
-	_ module.AppModule               = AppModule{}
-	_ module.AppModuleBasic          = AppModuleBasic{}
+	_ appmodule.HasServices     = AppModule{}
+	_ appmodule.HasBeginBlocker = AppModule{}
+	_ appmodule.HasEndBlocker   = AppModule{}
+	_ module.AppModule          = AppModule{}
+	_ module.AppModuleBasic     = AppModuleBasic{}
 )
 
 // ==============================================================================

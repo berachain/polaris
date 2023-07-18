@@ -68,8 +68,8 @@ type Polaris struct {
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
 
-	txPool    *txpool.TxPool // canonical tx pool for the node
-	txHandler txpool.Handler // broadcasts txs to other nodes
+	// canonical tx pool for the node.
+	txPool *txpool.TxPool
 
 	// blockchain represents the canonical chain.
 	blockchain core.Blockchain

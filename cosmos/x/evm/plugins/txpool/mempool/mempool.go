@@ -102,14 +102,12 @@ func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
 		if gtp.iterator != nil {
 			gtp.iterator.txs.Pop()
-		} else {
+		} else if gtp.RemoveTx(ethTx.Hash(), true) < 1 {
 			// remove from the pending queue of txs in the geth mempool.
-			if gtp.RemoveTx(ethTx.Hash(), true) < 1 {
-				// Note: RemoveTx will return 0 if the tx was removed from future queue. Generally, any
-				// tx in the future queue will not be removed because only the pending txs get
-				// selected by prepare proposal.
-				return sdkmempool.ErrTxNotFound
-			}
+			// Note: RemoveTx will return 0 if the tx was removed from future queue. Generally, any
+			// tx in the future queue will not be removed because only the pending txs get
+			// selected by prepare proposal.
+			return sdkmempool.ErrTxNotFound
 		}
 	}
 	return nil

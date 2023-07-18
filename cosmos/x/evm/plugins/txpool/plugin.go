@@ -24,6 +24,7 @@ import (
 	"math/big"
 
 	"cosmossdk.io/log"
+
 	"github.com/cosmos/cosmos-sdk/client"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"

@@ -27,7 +27,7 @@ import "context"
 func NewHistoricalPluginMock() *HistoricalPluginMock {
 	return &HistoricalPluginMock{
 		PrepareFunc: func(contextMoqParam context.Context) {
-			return
+			// no-op
 		},
 	}
 }

@@ -25,11 +25,16 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/types"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
-// const testBaseFee = 69
+const (
+	coinbase    = 2
+	timestamp   = 3
+	testBaseFee = 69
+)
 
 //go:generate moq -out ./block_plugin.mock.go -pkg mock ../ BlockPlugin
 
@@ -40,7 +45,7 @@ func NewBlockPluginMock() *BlockPluginMock {
 			return nil
 		},
 		GetNewBlockMetadataFunc: func(n uint64) (common.Address, uint64) {
-			return common.BytesToAddress([]byte{2}), uint64(3)
+			return common.BytesToAddress([]byte{coinbase}), uint64(timestamp)
 		},
 	}
 	bp.GetHeaderByNumberFunc = func(v uint64) (*types.Header, error) {
@@ -66,6 +71,6 @@ func GenerateHeaderAtHeight(height int64) *types.Header {
 		TxHash:      common.Hash{0x05},
 		ReceiptHash: common.Hash{0x06},
 		Number:      big.NewInt(height),
-		BaseFee:     big.NewInt(69),
+		BaseFee:     big.NewInt(testBaseFee),
 	}
 }

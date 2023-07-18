@@ -441,7 +441,7 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // Transaction Pool API
 // ==============================================================================
 
-func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
+func (b *backend) SendTx(_ context.Context, signedTx *types.Transaction) error {
 	return b.polar.txPool.AddLocal(signedTx)
 }
 
