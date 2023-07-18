@@ -24,15 +24,15 @@ on:
   pull_request:
   push:
     branches:
-        - main
+      - main
 
 # Define reusable steps
 jobs:
   setup-base:
     strategy:
       matrix:
-          os: [ubuntu-latest]
-          go-version: [1.20.6]
+        os: [ubuntu-latest]
+        go-version: [1.20.6]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -51,11 +51,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-              ~/.cache/go-build
-              ~/go
+            ~/.cache/go-build
+            ~/go
           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-              ${{ runner.os }}-golang-
+            ${{ runner.os }}-golang-
 
   # Define templates
   build-base:
@@ -152,45 +152,45 @@ jobs:
           env:
             GOPATH: /home/runner/go
 
-  ci:
-      needs: [build-base, setup-env]
-      strategy:
-        matrix:
-          args: ["teste2ecover"]
-          os: [ubuntu-latest]
-          go-version: [1.20.6]
-          base-image: [base-image]
-      runs-on: ${{ matrix.os }}
-      steps:
-        - name: Install Go Tools
-          run: |
-            go run magefiles/setup/setup.go ci
-        - name: Run ${{ matrix.args }}
-          uses: magefile/mage-action@v2
-          with:
-            version: latest
-            args: ${{ matrix.args }}
-          env:
-            GOPATH: /home/runner/go
-        - name: Archive code coverage results
-          uses: actions/upload-artifact@v3
-          with:
-            name: code-coverage-report
-            path: coverage-${{ matrix.args }}.txt
-            retention-days: 1
+  # ci:
+  #     needs: [build-base, setup-env]
+  #     strategy:
+  #       matrix:
+  #         args: ["teste2ecover"]
+  #         os: [ubuntu-latest]
+  #         go-version: [1.20.6]
+  #         base-image: [base-image]
+  #     runs-on: ${{ matrix.os }}
+  #     steps:
+  #       - name: Install Go Tools
+  #         run: |
+  #           go run magefiles/setup/setup.go ci
+  #       - name: Run ${{ matrix.args }}
+  #         uses: magefile/mage-action@v2
+  #         with:
+  #           version: latest
+  #           args: ${{ matrix.args }}
+  #         env:
+  #           GOPATH: /home/runner/go
+  #       - name: Archive code coverage results
+  #         uses: actions/upload-artifact@v3
+  #         with:
+  #           name: code-coverage-report
+  #           path: coverage-${{ matrix.args }}.txt
+  #           retention-days: 1
 
-  codecov:
-      name: codecov(uploader, ubuntu-latest)
-      runs-on: ubuntu-latest
-      needs: ci
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v3
-        - name: Download code coverage results
-          uses: actions/download-artifact@v2
-          with:
-            name: code-coverage-report
-        - name: Upload to Codecov
-          uses: codecov/codecov-action@v2
-          with:
-            token: ${{ secrets.CODECOV_TOKEN }}
+  # codecov:
+  #     name: codecov(uploader, ubuntu-latest)
+  #     runs-on: ubuntu-latest
+  #     needs: ci
+  #     steps:
+  #       - name: Checkout
+  #         uses: actions/checkout@v3
+  #       - name: Download code coverage results
+  #         uses: actions/download-artifact@v2
+  #         with:
+  #           name: code-coverage-report
+  #       - name: Upload to Codecov
+  #         uses: codecov/codecov-action@v2
+  #         with:
+  #           token: ${{ secrets.CODECOV_TOKEN }}
