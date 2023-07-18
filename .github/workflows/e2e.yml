@@ -31,6 +31,8 @@ jobs:
   cache-golang-deps:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Cache Golang Deps
         uses: actions/cache@v3
         with:
@@ -76,24 +78,26 @@ jobs:
           name: base-image
           path: base-image.tar
 
-  # setup-env:
-  #   needs: build-base
-  #   strategy:
-  #     matrix:
-  #       os: [ubuntu-latest]
-  #       go-version: [1.20.6]
-  #       base-image: [base-image]
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #     - name: Install Foundry
-  #       uses: foundry-rs/foundry-toolchain@v1
-  #     - name: Download image artifact
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: ${{ matrix.base-image }}
-  #     - name: Load ${{ matrix.base-image }}
-  #       run: docker load -i ${{ matrix.base-image }}.tar
-  #     - uses: cache-golang-deps
+  setup-env:
+    needs: build-base
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        go-version: [1.20.6]
+        base-image: [base-image]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Download image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.base-image }}
+      - name: Load ${{ matrix.base-image }}
+        run: docker load -i ${{ matrix.base-image }}.tar
+      - uses: cache-golang-deps
 
   # # Define jobs from templates
   # hive:
