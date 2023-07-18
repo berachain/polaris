@@ -32,15 +32,15 @@ import (
 
 	ginkgo "github.com/onsi/ginkgo/v2"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/cosmos/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/lib/encoding"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/types"
 )
 
 const (
@@ -167,7 +167,6 @@ func (tf *TestFixture) setupTestAccounts() error {
 		return err
 	}
 
-	types.SetupCosmosConfig()
 	valAddr := encoding.MustUnmarshalJSON[struct {
 		AppState struct {
 			GenUtil struct {
@@ -181,6 +180,7 @@ func (tf *TestFixture) setupTestAccounts() error {
 			} `json:"genutil"`
 		} `json:"app_state"`
 	}](genBz).AppState.GenUtil.GenTxs[0].Body.Messages[0].ValidatorAddress
+	types.SetupCosmosConfig()
 	acc, err := sdk.ValAddressFromBech32(valAddr)
 	if err != nil {
 		return err
