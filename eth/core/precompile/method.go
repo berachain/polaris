@@ -23,7 +23,6 @@ package precompile
 import (
 	"context"
 	"errors"
-	"fmt"
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -79,7 +78,7 @@ func NewMethod(
 
 // Call executes the precompile's executable with the given context and input arguments.
 //
-//nolint:revive // needed for reflection.
+
 func (m *Method) Call(ctx context.Context, input []byte) ([]byte, error) {
 	// Unpack the args from the input, if any exist.
 	unpackedArgs, err := m.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])
@@ -94,9 +93,6 @@ func (m *Method) Call(ctx context.Context, input []byte) ([]byte, error) {
 	}
 
 	// Call the executable
-	fmt.Println(m.rcvr)
-	fmt.Println(ctx)
-	fmt.Println(reflectedUnpackedArgs)
 	results := m.execute.Func.Call(append(
 		[]reflect.Value{
 			reflect.ValueOf(m.rcvr),

@@ -124,21 +124,6 @@ func (ms *mockStateful) ABIMethods() map[string]abi.Method {
 		"getOutput": mockPrecompile.Methods["getOutput"],
 	}
 }
-
-func (ms *mockStateful) GetOutput(
-	_ context.Context,
-	str string,
-) ([]any, error) {
-	return []any{
-		[]mockObject{
-			{
-				CreationHeight: big.NewInt(1),
-				TimeStamp:      str,
-			},
-		},
-	}, nil
-}
-
 func (ms *mockStateful) ABIEvents() map[string]abi.Event {
 	return nil
 }

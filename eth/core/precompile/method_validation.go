@@ -135,7 +135,7 @@ func validateStructFields(implMethodVarType reflect.Type,
 	}
 	for j := 0; j < implMethodVarType.NumField(); j++ {
 		// if the field is a nested struct, then we recurse
-		//nolint:gocritic // nah, this is fine.
+
 		if implMethodVarType.Field(j).Type.Kind() == reflect.Struct &&
 			abiMethodVarType.Field(j).Type.Kind() == reflect.Struct {
 			if err := validateStructFields(

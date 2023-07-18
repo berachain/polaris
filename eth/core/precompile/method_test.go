@@ -67,8 +67,7 @@ var _ = Describe("Method", func() {
 
 // MOCKS BELOW.
 
-//nolint:revive // needed for go "reflect" package.
-func (m *mockStateful) MockExecutable(
+func (ms *mockStateful) MockExecutable(
 	_ context.Context,
 ) any {
 	return nil

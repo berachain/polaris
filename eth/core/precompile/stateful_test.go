@@ -139,7 +139,7 @@ var _ = Describe("Stateful Container", func() {
 			Expect(err).To(HaveOccurred())
 		})
 
-		FIt("should return properly for valid method calls", func() {
+		It("should return properly for valid method calls", func() {
 
 			var inputs []byte
 			inputs, err = getOutputABI.Inputs.Pack("string")
@@ -179,10 +179,10 @@ var (
 	contractFuncAddrABI          = mock.Methods["contractFunc"]
 	contractFuncStrABI           = mock.Methods["contractFuncStr"]
 	mockStatefulDummy            = &mockStateful{&mockBase{}}
-	getOutputFunc, _             = reflect.TypeOf(mockStatefulDummy).MethodByName("getOutput")
-	getOutputPartialFunc, _      = reflect.TypeOf(mockStatefulDummy).MethodByName("getOutputPartial")
-	contractFuncAddrInputFunc, _ = reflect.TypeOf(mockStatefulDummy).MethodByName("contractFuncAddrInput")
-	contractFuncStrInputFunc, _  = reflect.TypeOf(mockStatefulDummy).MethodByName("contractFuncStrInput")
+	getOutputFunc, _             = reflect.TypeOf(mockStatefulDummy).MethodByName("GetOutput")
+	getOutputPartialFunc, _      = reflect.TypeOf(mockStatefulDummy).MethodByName("GetOutputPartial")
+	contractFuncAddrInputFunc, _ = reflect.TypeOf(mockStatefulDummy).MethodByName("ContractFuncAddrInput")
+	contractFuncStrInputFunc, _  = reflect.TypeOf(mockStatefulDummy).MethodByName("ContractFuncStrInput")
 	mockIdsToMethods             = map[string]*precompile.Method{
 		utils.UnsafeBytesToStr(getOutputABI.ID): precompile.NewMethod(
 			mockStatefulDummy,
@@ -217,7 +217,8 @@ type mockObject struct {
 }
 
 //revive:disable
-func (m *mockBase) getOutput(
+
+func (ms *mockStateful) GetOutput(
 	ctx context.Context,
 	str string,
 ) ([]mockObject, error) {
@@ -230,13 +231,13 @@ func (m *mockBase) getOutput(
 	}, nil
 }
 
-func (m *mockBase) getOutputPartial(
+func (ms *mockStateful) GetOutputPartial(
 	ctx context.Context,
 ) ([]any, error) {
 	return nil, errors.New("err during precompile execution")
 }
 
-func (m *mockBase) contractFuncAddrInput(
+func (ms *mockStateful) ContractFuncAddrInput(
 	ctx context.Context,
 	addr common.Address,
 ) ([]any, error) {
@@ -244,7 +245,7 @@ func (m *mockBase) contractFuncAddrInput(
 	return []any{"invalid - should be *big.Int here"}, nil
 }
 
-func (m *mockBase) contractFuncStrInput(
+func (ms *mockStateful) ContractFuncStrInput(
 	ctx context.Context,
 	addr string,
 ) ([]any, error) {
