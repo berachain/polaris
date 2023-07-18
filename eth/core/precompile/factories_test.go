@@ -22,7 +22,6 @@ package precompile_test
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
@@ -71,7 +70,7 @@ var _ = Describe("Container Factories", func() {
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockStateless{&mockBase{}}, nil)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 
@@ -85,7 +84,6 @@ var _ = Describe("Container Factories", func() {
 		It("should error on missing precompile method for ABI method", func() {
 			_, err := scf.Build(&badMockStateful{&mockBase{}}, nil)
 			var _ precompile.StatefulImpl = (*mockBase)(nil)
-			fmt.Println(err.Error())
 			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutput"))
 		})
 	})
@@ -110,9 +108,9 @@ func (mb *mockBase) ABIEvents() map[string]abi.Event { return nil }
 // logic.
 func (mb *mockBase) CustomValueDecoders() precompile.ValueDecoders { return nil }
 
-func (mb *mockBase) SetPlugin(p precompile.Plugin) {}
+func (mb *mockBase) SetPlugin(_ precompile.Plugin) {}
 
-// ============================================================================
+// ============================================================================.
 type mockStateless struct {
 	*mockBase
 }
@@ -132,7 +130,7 @@ func (ms *mockStateless) WithStateDB(vm.GethStateDB) vm.PrecompileContainer {
 	return ms
 }
 
-// ============================================================================
+// ============================================================================.
 type mockStateful struct {
 	*mockBase
 }
@@ -152,7 +150,7 @@ func (ms *mockStateful) CustomValueDecoders() precompile.ValueDecoders {
 
 func (ms *mockStateful) SetPlugin(precompile.Plugin) {}
 
-// ============================================================================
+// ============================================================================.
 type badMockStateful struct {
 	*mockBase
 }

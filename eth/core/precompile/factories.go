@@ -24,8 +24,6 @@ import (
 	"reflect"
 	"unicode"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
-
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -103,7 +101,7 @@ func (sf *StatefulFactory) Build(
 	si.SetPlugin(p)
 
 	// add precompile methods to stateful container, if any exist
-	idsToMethods, err := buildIdsToMethods(si, si.ABIMethods(), reflect.ValueOf(si))
+	idsToMethods, err := buildIdsToMethods(si, reflect.ValueOf(si))
 	if err != nil {
 		return nil, err
 	}
@@ -116,9 +114,9 @@ func (sf *StatefulFactory) Build(
 // the implemented function.
 func buildIdsToMethods(
 	si StatefulImpl,
-	pcABI map[string]abi.Method,
 	contractImpl reflect.Value,
 ) (map[string]*Method, error) {
+	pcABI := si.ABIMethods()
 	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*Method)
 	for m := 0; m < contractImplType.NumMethod(); m++ {

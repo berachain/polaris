@@ -85,7 +85,7 @@ func (m *Method) ValidateBasic() error {
 	return nil
 }
 
-// helper function for validateArgumentAndReturnTypes. this function function uses reflection to see
+// helper function for ValidateBasic. this function function uses reflection to see
 // what types your implementation uses, and checks against the geth representation of the abi types.
 func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
 	//nolint:exhaustive // nah, this is fine.
