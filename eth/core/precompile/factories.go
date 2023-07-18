@@ -130,6 +130,9 @@ func buildIdsToMethods(
 				abiMethod.Sig,
 				implMethod,
 			)
+			if err := method.ValidateBasic(); err != nil {
+				return nil, errorslib.Wrap(err, implMethodName)
+			}
 			idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = method
 		}
 	}
