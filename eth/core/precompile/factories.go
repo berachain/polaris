@@ -155,5 +155,6 @@ func formatName(name string) string {
 
 	ret := []rune(name)
 	ret[0] = unicode.ToLower(ret[0])
+
 	return string(ret)
 }
