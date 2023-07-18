@@ -21,176 +21,176 @@
 name: e2e
 
 on:
-    pull_request:
-    push:
-        branches:
-            - main
+  pull_request:
+  push:
+    branches:
+        - main
 
 # Define reusable steps
 jobs:
-    setup-base:
-        strategy:
-            matrix:
-                os: [ubuntu-latest]
-                go-version: [1.20.6]
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-            - name: Setup Golang
-              uses: actions/setup-go@v3
-              with:
-                  go-version: ${{ matrix.go-version }}
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v2
+  setup-base:
+    strategy:
+      matrix:
+          os: [ubuntu-latest]
+          go-version: [1.20.6]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Golang
+        uses: actions/setup-go@v3
+        with:
+            go-version: ${{ matrix.go-version }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    cache-golang-deps:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Cache Golang Deps
-              uses: actions/cache@v3
-              with:
-                  path: |
-                      ~/.cache/go-build
-                      ~/go
-                  key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
-                  restore-keys: |
-                      ${{ runner.os }}-golang-
+  cache-golang-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Golang Deps
+        uses: actions/cache@v3
+        with:
+          path: |
+              ~/.cache/go-build
+              ~/go
+          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+              ${{ runner.os }}-golang-
 
-    # Define templates
-    build-base:
-        needs: setup-base
-        strategy:
-            matrix:
-                namespace: [cosmos]
-                docker-version: [base]
-                os: [ubuntu-latest]
-                go-version: [1.20.6]
-                go-arch: [amd64]
-                image-name: ["polard/base:v0.0.0"]
-        runs-on: ubuntu-latest
-        steps:
-            - name: Run ${{ matrix.namespace }}:docker ${{ matrix.docker-version }} ${{ matrix.go-arch }}
-              uses: magefile/mage-action@v2
-              with:
-                  version: latest
-                  args: ${{ matrix.namespace }}:docker base ${{ matrix.go-arch }}
-              env:
-                  GOPATH: /home/runner/go
-            - name: Save base image
-              run: docker save ${{ matrix.image-name }} -o base-image.tar
-            - name: Upload image artifact
-              uses: actions/upload-artifact@v2
-              with:
-                  name: base-image
-                  path: base-image.tar
+  # Define templates
+  build-base:
+      needs: setup-base
+      strategy:
+        matrix:
+          namespace: [cosmos]
+          docker-version: [base]
+          os: [ubuntu-latest]
+          go-version: [1.20.6]
+          go-arch: [amd64]
+          image-name: ["polard/base:v0.0.0"]
+      runs-on: ubuntu-latest
+      steps:
+        - name: Run ${{ matrix.namespace }}:docker ${{ matrix.docker-version }} ${{ matrix.go-arch }}
+          uses: magefile/mage-action@v2
+          with:
+            version: latest
+            args: ${{ matrix.namespace }}:docker base ${{ matrix.go-arch }}
+          env:
+            GOPATH: /home/runner/go
+        - name: Save base image
+          run: docker save ${{ matrix.image-name }} -o base-image.tar
+        - name: Upload image artifact
+          uses: actions/upload-artifact@v2
+          with:
+            name: base-image
+            path: base-image.tar
 
-    setup-env:
-        needs: setup-base
-        strategy:
-            matrix:
-                os: [ubuntu-latest]
-                go-version: [1.20.6]
-                base-image: [base-image]
-        runs-on: ${{ matrix.os }}
-        steps:
-            - name: Install Foundry
-              uses: foundry-rs/foundry-toolchain@v1
-            - name: Download image artifact
-              uses: actions/download-artifact@v2
-              with:
-                  name: ${{ matrix.base-image }}
-            - name: Load ${{ matrix.base-image }}
-              run: docker load -i ${{ matrix.base-image }}.tar
-            - uses: cache-golang-deps
+  setup-env:
+      needs: setup-base
+      strategy:
+        matrix:
+          os: [ubuntu-latest]
+          go-version: [1.20.6]
+          base-image: [base-image]
+      runs-on: ${{ matrix.os }}
+      steps:
+        - name: Install Foundry
+          uses: foundry-rs/foundry-toolchain@v1
+        - name: Download image artifact
+          uses: actions/download-artifact@v2
+          with:
+            name: ${{ matrix.base-image }}
+        - name: Load ${{ matrix.base-image }}
+          run: docker load -i ${{ matrix.base-image }}.tar
+        - uses: cache-golang-deps
 
-    # Define jobs from templates
-    hive:
-        needs: [build-base, setup-env]
-        strategy:
-            matrix:
-                simulator: [polaris/rpc, polaris/graphql]
-                namespace: [cosmos]
-                os: [ubuntu-latest]
-                go-version: [1.20.6]
-                base-image: [base-image]
-        runs-on: ${{ matrix.os }}
-        steps:
-            - name: Run ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
-              uses: magefile/mage-action@v2
-              with:
-                  version: latest
-                  args: ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
-              env:
-                  GOPATH: /home/runner/go
+  # Define jobs from templates
+  hive:
+    needs: [build-base, setup-env]
+    strategy:
+      matrix:
+        simulator: [polaris/rpc, polaris/graphql]
+        namespace: [cosmos]
+        os: [ubuntu-latest]
+        go-version: [1.20.6]
+        base-image: [base-image]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Run ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
+        uses: magefile/mage-action@v2
+        with:
+          version: latest
+          args: ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
+        env:
+          GOPATH: /home/runner/go
 
-    localnet:
-        needs: [build-base, setup-env]
-        strategy:
-            matrix:
-                namespace: [localnet]
-                os: [ubuntu-latest]
-                go-version: [1.20.6]
-                base-image: [base-image]
-        runs-on: ${{ matrix.os }}
-        steps:
-            - name: Install Go Tools
-              run: |
-                  go run magefiles/setup/setup.go ci
-            - name: Run ${{ matrix.namespace }}:build
-              uses: magefile/mage-action@v2
-              with:
-                  version: latest
-                  args: ${{ matrix.namespace }}:build
-              env:
-                  GOPATH: /home/runner/go
-            - name: Run ${{ matrix.namespace }}:test
-              uses: magefile/mage-action@v2
-              with:
-                  version: latest
-                  args: ${{ matrix.namespace }}:test
-              env:
-                  GOPATH: /home/runner/go
+  localnet:
+      needs: [build-base, setup-env]
+      strategy:
+        matrix:
+          namespace: [localnet]
+          os: [ubuntu-latest]
+          go-version: [1.20.6]
+          base-image: [base-image]
+      runs-on: ${{ matrix.os }}
+      steps:
+        - name: Install Go Tools
+          run: |
+            go run magefiles/setup/setup.go ci
+        - name: Run ${{ matrix.namespace }}:build
+          uses: magefile/mage-action@v2
+          with:
+            version: latest
+            args: ${{ matrix.namespace }}:build
+          env:
+            GOPATH: /home/runner/go
+        - name: Run ${{ matrix.namespace }}:test
+          uses: magefile/mage-action@v2
+          with:
+            version: latest
+            args: ${{ matrix.namespace }}:test
+          env:
+            GOPATH: /home/runner/go
 
-    ci:
-        needs: [build-base, setup-env]
-        strategy:
-            matrix:
-                args: ["teste2ecover"]
-                os: [ubuntu-latest]
-                go-version: [1.20.6]
-                base-image: [base-image]
-        runs-on: ${{ matrix.os }}
-        steps:
-            - name: Install Go Tools
-              run: |
-                  go run magefiles/setup/setup.go ci
-            - name: Run ${{ matrix.args }}
-              uses: magefile/mage-action@v2
-              with:
-                  version: latest
-                  args: ${{ matrix.args }}
-              env:
-                  GOPATH: /home/runner/go
-            - name: Archive code coverage results
-              uses: actions/upload-artifact@v3
-              with:
-                  name: code-coverage-report
-                  path: coverage-${{ matrix.args }}.txt
-                  retention-days: 1
+  ci:
+      needs: [build-base, setup-env]
+      strategy:
+        matrix:
+          args: ["teste2ecover"]
+          os: [ubuntu-latest]
+          go-version: [1.20.6]
+          base-image: [base-image]
+      runs-on: ${{ matrix.os }}
+      steps:
+        - name: Install Go Tools
+          run: |
+            go run magefiles/setup/setup.go ci
+        - name: Run ${{ matrix.args }}
+          uses: magefile/mage-action@v2
+          with:
+            version: latest
+            args: ${{ matrix.args }}
+          env:
+            GOPATH: /home/runner/go
+        - name: Archive code coverage results
+          uses: actions/upload-artifact@v3
+          with:
+            name: code-coverage-report
+            path: coverage-${{ matrix.args }}.txt
+            retention-days: 1
 
-    codecov:
-        name: codecov(uploader, ubuntu-latest)
-        runs-on: ubuntu-latest
-        needs: ci
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-            - name: Download code coverage results
-              uses: actions/download-artifact@v2
-              with:
-                  name: code-coverage-report
-            - name: Upload to Codecov
-              uses: codecov/codecov-action@v2
-              with:
-                  token: ${{ secrets.CODECOV_TOKEN }}
+  codecov:
+      name: codecov(uploader, ubuntu-latest)
+      runs-on: ubuntu-latest
+      needs: ci
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+        - name: Download code coverage results
+          uses: actions/download-artifact@v2
+          with:
+            name: code-coverage-report
+        - name: Upload to Codecov
+          uses: codecov/codecov-action@v2
+          with:
+            token: ${{ secrets.CODECOV_TOKEN }}

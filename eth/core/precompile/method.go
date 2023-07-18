@@ -88,6 +88,18 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
 	}
 
+	defer func() {
+		if err != nil {
+			if !errors.Is(err, vm.ErrWriteProtection) {
+				err = errorslib.Wrapf(
+					vm.ErrExecutionReverted,
+					"vm error [%v] occurred during precompile execution of [%s]",
+					err, m.abiMethod.Name,
+				)
+			}
+		}
+	}()
+
 	// Call the executable
 	results := m.execute.Call(append(
 		[]reflect.Value{
