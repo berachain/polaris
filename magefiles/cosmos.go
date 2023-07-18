@@ -194,7 +194,7 @@ func (c Cosmos) Test() error {
 		return err
 	}
 
-	return TestIntegration()
+	return TestE2E()
 }
 
 // Runs all unit tests for the Cosmos SDK chain.
@@ -209,10 +209,10 @@ func (c Cosmos) TestUnitRace() error {
 	return testUnitRace(c.directory())
 }
 
-// Runs all integration for the Cosmos SDK chain.
-func (c Cosmos) TestIntegration() error {
-	LogGreen("Running integration tests for the Cosmos SDK chain.")
-	return testIntegration(c.directory() + "/testing/integration")
+// Runs all e2e tests for the Cosmos SDK chain.
+func (c Cosmos) TestE2E() error {
+	LogGreen("Running e2e tests for the Cosmos SDK chain.")
+	return testE2E(c.directory() + "/testing/e2e")
 }
 
 func (c Cosmos) TestHive(sim string) error {

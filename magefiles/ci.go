@@ -51,7 +51,6 @@ func TestUnit() error {
 
 func testUnit(path string) error {
 	return ginkgoTest(
-		"--skip", ".*integration.*",
 		"--skip", ".*e2e.*",
 		"./"+path+"/...",
 	)
@@ -60,7 +59,6 @@ func testUnit(path string) error {
 func testUnitRace(path string) error {
 	return ginkgoTest(
 		"--race",
-		"--skip", ".*integration.*",
 		"--skip", ".*e2e.*",
 		"./"+path+"/...",
 	)
@@ -72,7 +70,7 @@ func TestUnitCover() error {
 		return err
 	}
 	args := []string{
-		"--skip", ".*integration.*", "--skip", ".*e2e.*",
+		"--skip", ".*e2e.*",
 	}
 	LogGreen("Running all unit tests with coverage...")
 	return ginkgoTest(append(coverArgs, args...)...)
@@ -84,7 +82,7 @@ func TestUnitRace() error {
 		return err
 	}
 	args := []string{
-		"--skip", ".*integration.*", "--skip", ".*e2e.*",
+		"--skip", ".*e2e.*",
 	}
 	LogGreen("Running all unit tests with --race...")
 	return ginkgoTest(append(raceArgs, args...)...)
@@ -107,41 +105,6 @@ func testUnitBenchmark() error {
 	return goTest(args...)
 }
 
-// Runs the integration tests.
-func TestIntegration() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
-	LogGreen("Running all integration tests")
-	return testIntegration(".")
-}
-
-func testIntegration(path string) error {
-	args := []string{
-		"-timeout", "30m",
-		"--focus", ".*integration.*", path + "/...",
-	}
-	return ginkgoTest(args...)
-}
-
-// Runs the integration tests with coverage.
-func TestIntegrationCover() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
-	LogGreen("Running all integration tests with coverage")
-	return testIntegrationCover()
-}
-
-func testIntegrationCover() error {
-	args := []string{
-		"-timeout", "30m",
-		"-coverprofile=coverage-testintegrationcover.txt",
-		"--focus", ".*integration.*",
-	}
-	return ginkgoTest(args...)
-}
-
 // Runs the e2e tests.
 func TestE2E() error {
 	if err := (Contracts{}).Build(); err != nil {
@@ -154,6 +117,23 @@ func TestE2E() error {
 func testE2E(path string) error {
 	args := []string{
 		"-timeout", "30m",
+		"--focus", ".*e2e.*", path + "/...",
+	}
+	return ginkgoTest(args...)
+}
+
+func TestE2ECover() error {
+	if err := (Contracts{}).Build(); err != nil {
+		return err
+	}
+	LogGreen("Running all e2e tests with coverage")
+	return testE2ECover(".")
+}
+
+func testE2ECover(path string) error {
+	args := []string{
+		"-timeout", "30m",
+		"-coverprofile=coverage-teste2ecover.txt",
 		"--focus", ".*e2e.*", path + "/...",
 	}
 	return ginkgoTest(args...)

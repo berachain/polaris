@@ -33,7 +33,7 @@ type MageModule interface {
 	directory() string
 	Test() error
 	TestUnit() error
-	TestIntegration() error
+	TestE2E() error
 }
 
 // Runs a series of commonly used commands.

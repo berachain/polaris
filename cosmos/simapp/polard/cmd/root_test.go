@@ -39,7 +39,7 @@ import (
 
 func TestCmd(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/simapp/polard/cmd:integration")
+	RunSpecs(t, "cosmos/simapp/polard/cmd")
 }
 
 var _ = BeforeSuite(func() {

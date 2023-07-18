@@ -50,3 +50,11 @@ func (Localnet) Build() error {
 			)
 		}, false)
 }
+
+func (Localnet) Test() error {
+	if err := (Contracts{}).Build(); err != nil {
+		return err
+	}
+	LogGreen("Running all localnet tests")
+	return testE2E("e2e/localnet")
+}
