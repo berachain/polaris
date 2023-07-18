@@ -26,6 +26,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
+	precompileutils "pkg.berachain.dev/polaris/eth/core/precompile/utils"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -125,7 +126,7 @@ func buildIdsToMethods(
 		implMethodName := formatName(implMethod.Name)
 
 		if abiMethod, found := pcABI[implMethodName]; found {
-			if err := utils.ValidateArgumentAndReturnTypes(implMethod, abiMethod); err != nil {
+			if err := precompileutils.ValidateArgumentAndReturnTypes(implMethod, abiMethod); err != nil {
 				return nil, errorslib.Wrap(err, implMethodName)
 			}
 			idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = NewMethod(
