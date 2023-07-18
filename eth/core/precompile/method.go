@@ -48,6 +48,8 @@ import (
 // Method is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
 type Method struct {
+	// Rcvr is the receiver object of the precompile's executable. This is the object that
+	// implements the respective precompile method.
 	rcvr StatefulImpl
 
 	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
