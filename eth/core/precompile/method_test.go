@@ -38,10 +38,14 @@ import (
 var _ = Describe("Method", func() {
 	Context("Calling the method", func() {
 		It("should be able to call the Method's executable", func() {
+			sc := &mockStateful{&mockBase{}}
+			execute, found := reflect.TypeOf(sc).MethodByName("MockExecutable")
+			Expect(found).To(BeTrue())
 			method := precompile.NewMethod(
+				sc,
 				&abi.Method{},
 				"mockExecutable()",
-				reflect.ValueOf(mockExecutable),
+				execute,
 			)
 			ctx := vm.NewPolarContext(
 				context.Background(),
@@ -54,8 +58,7 @@ var _ = Describe("Method", func() {
 			// method call as the first parameter to thef function. this is taken care of for the
 			// caller of the precompile under the hood, and users dont have to worry when
 			// implementing their own precompiles.
-			sc := &mockStateful{&mockBase{}}
-			res, err := method.Call(sc, ctx, []byte{0, 0, 0, 0})
+			res, err := method.Call(ctx, []byte{0, 0, 0, 0})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).To(BeNil())
 		})
@@ -65,8 +68,7 @@ var _ = Describe("Method", func() {
 // MOCKS BELOW.
 
 //nolint:revive // needed for go "reflect" package.
-func mockExecutable(
-	_ precompile.Registrable,
+func (m *mockStateful) MockExecutable(
 	_ context.Context,
 ) any {
 	return nil

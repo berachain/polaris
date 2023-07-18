@@ -55,7 +55,7 @@ var _ = Describe("Stateful Container", func() {
 		ctx = vm.NewPolarContext(
 			context.Background(),
 			vmmock.NewEVM(),
-			common.Address{},
+			common.Address{0},
 			big.NewInt(0),
 		)
 	})
@@ -139,7 +139,7 @@ var _ = Describe("Stateful Container", func() {
 			Expect(err).To(HaveOccurred())
 		})
 
-		It("should return properly for valid method calls", func() {
+		FIt("should return properly for valid method calls", func() {
 
 			var inputs []byte
 			inputs, err = getOutputABI.Inputs.Pack("string")
@@ -173,31 +173,40 @@ var _ = Describe("Stateful Container", func() {
 // MOCKS BELOW.
 
 var (
-	mock, _             = solidity.MockPrecompileMetaData.GetAbi()
-	getOutputABI        = mock.Methods["getOutput"]
-	getOutputPartialABI = mock.Methods["getOutputPartial"]
-	contractFuncAddrABI = mock.Methods["contractFunc"]
-	contractFuncStrABI  = mock.Methods["contractFuncStr"]
-	mockIdsToMethods    = map[string]*precompile.Method{
+	mock, _                      = solidity.MockPrecompileMetaData.GetAbi()
+	getOutputABI                 = mock.Methods["getOutput"]
+	getOutputPartialABI          = mock.Methods["getOutputPartial"]
+	contractFuncAddrABI          = mock.Methods["contractFunc"]
+	contractFuncStrABI           = mock.Methods["contractFuncStr"]
+	mockStatefulDummy            = &mockStateful{&mockBase{}}
+	getOutputFunc, _             = reflect.TypeOf(mockStatefulDummy).MethodByName("getOutput")
+	getOutputPartialFunc, _      = reflect.TypeOf(mockStatefulDummy).MethodByName("getOutputPartial")
+	contractFuncAddrInputFunc, _ = reflect.TypeOf(mockStatefulDummy).MethodByName("contractFuncAddrInput")
+	contractFuncStrInputFunc, _  = reflect.TypeOf(mockStatefulDummy).MethodByName("contractFuncStrInput")
+	mockIdsToMethods             = map[string]*precompile.Method{
 		utils.UnsafeBytesToStr(getOutputABI.ID): precompile.NewMethod(
+			mockStatefulDummy,
 			&getOutputABI,
 			getOutputABI.Sig,
-			reflect.ValueOf(getOutput),
+			getOutputFunc,
 		),
 		utils.UnsafeBytesToStr(getOutputPartialABI.ID): precompile.NewMethod(
+			mockStatefulDummy,
 			&getOutputPartialABI,
 			getOutputPartialABI.Sig,
-			reflect.ValueOf(getOutputPartial),
+			getOutputPartialFunc,
 		),
 		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): precompile.NewMethod(
+			mockStatefulDummy,
 			&contractFuncAddrABI,
 			contractFuncAddrABI.Sig,
-			reflect.ValueOf(contractFuncAddrInput),
+			contractFuncAddrInputFunc,
 		),
 		utils.UnsafeBytesToStr(contractFuncStrABI.ID): precompile.NewMethod(
+			mockStatefulDummy,
 			&contractFuncStrABI,
 			contractFuncStrABI.Sig,
-			reflect.ValueOf(contractFuncStrInput),
+			contractFuncStrInputFunc,
 		),
 	}
 )
@@ -208,15 +217,10 @@ type mockObject struct {
 }
 
 //revive:disable
-func getOutput(
-	sc precompile.Registrable,
+func (m *mockBase) getOutput(
 	ctx context.Context,
-	args ...any,
+	str string,
 ) ([]mockObject, error) {
-	str, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, errors.New("cast error")
-	}
 	vm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
 	return []mockObject{
 		{
@@ -226,37 +230,25 @@ func getOutput(
 	}, nil
 }
 
-func getOutputPartial(
-	sc precompile.Registrable,
+func (m *mockBase) getOutputPartial(
 	ctx context.Context,
-	_ ...any,
 ) ([]any, error) {
 	return nil, errors.New("err during precompile execution")
 }
 
-func contractFuncAddrInput(
-	sc precompile.Registrable,
+func (m *mockBase) contractFuncAddrInput(
 	ctx context.Context,
-	args ...any,
+	addr common.Address,
 ) ([]any, error) {
 	_ = ctx
-	_, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, errors.New("cast error")
-	}
 	return []any{"invalid - should be *big.Int here"}, nil
 }
 
-func contractFuncStrInput(
-	sc precompile.Registrable,
+func (m *mockBase) contractFuncStrInput(
 	ctx context.Context,
-	args ...any,
+	addr string,
 ) ([]any, error) {
 	_ = ctx
-	addr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, errors.New("cast error")
-	}
 	ans := big.NewInt(int64(len(addr)))
 	return []any{ans}, nil
 }

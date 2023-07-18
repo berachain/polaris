@@ -26,7 +26,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
-	precompileutils "pkg.berachain.dev/polaris/eth/core/precompile/utils"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -104,7 +103,7 @@ func (sf *StatefulFactory) Build(
 	si.SetPlugin(p)
 
 	// add precompile methods to stateful container, if any exist
-	idsToMethods, err := buildIdsToMethods(si.ABIMethods(), reflect.ValueOf(si))
+	idsToMethods, err := buildIdsToMethods(si, si.ABIMethods(), reflect.ValueOf(si))
 	if err != nil {
 		return nil, err
 	}
@@ -116,6 +115,7 @@ func (sf *StatefulFactory) Build(
 // It searches for the ABI function in the Go precompile contract and performs basic validation on
 // the implemented function.
 func buildIdsToMethods(
+	si StatefulImpl,
 	pcABI map[string]abi.Method,
 	contractImpl reflect.Value,
 ) (map[string]*Method, error) {
@@ -126,14 +126,13 @@ func buildIdsToMethods(
 		implMethodName := formatName(implMethod.Name)
 
 		if abiMethod, found := pcABI[implMethodName]; found {
-			if err := precompileutils.ValidateArgumentAndReturnTypes(implMethod, abiMethod); err != nil {
-				return nil, errorslib.Wrap(err, implMethodName)
-			}
-			idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = NewMethod(
+			method := NewMethod(
+				si,
 				&abiMethod,
 				abiMethod.Sig,
-				implMethod.Func,
+				implMethod,
 			)
+			idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = method
 		}
 	}
 

@@ -23,21 +23,22 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package precompileutils
+package precompile
 
 import (
 	"errors"
 	"fmt"
 	"reflect"
-
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
 )
 
 // validateArgumentAndReturnTypes checks if the precompile method argument and return types match
 // the abi's argument return types. this is for overloaded Solidity functions and general
 // validation.
-func ValidateArgumentAndReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error {
-	if len(abiMethod.Outputs) == 0 {
+func (m *Method) ValidateBasic() error {
+	implMethod := m.execute
+	abiMethod := m.abiMethod
+
+	if len(m.abiMethod.Outputs) == 0 {
 		// the Solidity compiler requires that precompiles must return at least one value.
 		// see https://github.com/berachain/polaris/issues/491 for more information.
 
@@ -60,25 +61,23 @@ func ValidateArgumentAndReturnTypes(implMethod reflect.Method, abiMethod abi.Met
 	// if the function does not take any inputs, no need to check.
 	// note again that for NumIn(), we check for 2 args, because the first two are the receiver and
 	// ctx due to the nature of Go's `reflect` package.
-	if len(abiMethod.Inputs) == 0 && implMethod.Type.NumIn() == 2 {
+	if implMethod.Type.NumIn() == 2 && len(abiMethod.Inputs) == 0 {
 		return nil
 	}
 
-	j := 0
 	// receiver is 0th param, context is 1st param, so skip those.
 	for i := 2; i < implMethod.Type.NumIn(); i++ {
 		implMethodParamType := implMethod.Type.In(i)
-		abiMethodParamType := abiMethod.Inputs[j].Type.GetType()
-		if err := validate(implMethodParamType, abiMethodParamType); err != nil {
+		abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
+		if err := validateArg(implMethodParamType, abiMethodParamType); err != nil {
 			return fmt.Errorf("argument type mismatch: %v != %v", implMethodParamType, abiMethodParamType)
 		}
-		j++
 	}
 
 	for i := 0; i < implMethod.Type.NumOut()-1; i++ {
 		implMethodReturnType := implMethod.Type.Out(i)
 		abiMethodReturnType := abiMethod.Outputs[i].Type.GetType()
-		if err := validate(implMethodReturnType, abiMethodReturnType); err != nil {
+		if err := validateArg(implMethodReturnType, abiMethodReturnType); err != nil {
 			return fmt.Errorf("return type mismatch: %v != %v", implMethodReturnType, abiMethodReturnType)
 		}
 	}
@@ -88,12 +87,12 @@ func ValidateArgumentAndReturnTypes(implMethod reflect.Method, abiMethod abi.Met
 
 // helper function for validateArgumentAndReturnTypes. this function function uses reflection to see
 // what types your implementation uses, and checks against the geth representation of the abi types.
-func validate(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
+func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
 	//nolint:exhaustive // nah, this is fine.
 	switch implMethodVarType.Kind() {
-	// if the Go type is any, we leave it to the user to make sure that it is used
-	// correctly.
 	case abiMethodVarType.Kind(), reflect.Interface:
+		// if the Go type matches the abi type, we're good.
+		// if it's `any`, we leave it to the user to make sure that it is used/converted correctly.
 		return nil
 	case reflect.Struct:
 		if err := validateStructFields(implMethodVarType, abiMethodVarType); err != nil {
@@ -150,8 +149,6 @@ func validateStructFields(implMethodVarType reflect.Type,
 				implMethodVarType.Field(j).Type,
 				abiMethodVarType.Field(j).Type,
 			)
-		} else {
-			continue
 		}
 	}
 	return nil

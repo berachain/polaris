@@ -23,6 +23,7 @@ package precompile
 import (
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -48,6 +49,8 @@ import (
 // Method is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
 type Method struct {
+	rcvr StatefulImpl
+
 	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
 	abiMethod *abi.Method
 
@@ -59,14 +62,15 @@ type Method struct {
 
 	// Execute is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
-	execute reflect.Value
+	execute reflect.Method
 }
 
 // NewMethod creates and returns a new `Method` with the given abiMethod, abiSig, and executable.
 func NewMethod(
-	abiMethod *abi.Method, abiSig string, execute reflect.Value,
+	rcvr StatefulImpl, abiMethod *abi.Method, abiSig string, execute reflect.Method,
 ) *Method {
 	return &Method{
+		rcvr:      rcvr,
 		abiMethod: abiMethod,
 		abiSig:    abiSig,
 		execute:   execute,
@@ -76,22 +80,26 @@ func NewMethod(
 // Call executes the precompile's executable with the given context and input arguments.
 //
 //nolint:revive // needed for reflection.
-func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byte, error) {
+func (m *Method) Call(ctx context.Context, input []byte) ([]byte, error) {
 	// Unpack the args from the input, if any exist.
 	unpackedArgs, err := m.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])
 	if err != nil {
 		return nil, err
 	}
-	// convert the any unnamed struct types into `execute`'s requested struct type
+
+	// Build argument list
 	reflectedUnpackedArgs := make([]reflect.Value, 0, len(unpackedArgs))
 	for _, unpacked := range unpackedArgs {
-		unpackedVal := reflect.ValueOf(unpacked) // geth type
-		reflectedUnpackedArgs = append(reflectedUnpackedArgs, unpackedVal)
+		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
 	}
+
 	// Call the executable
-	results := m.execute.Call(append(
+	fmt.Println(m.rcvr)
+	fmt.Println(ctx)
+	fmt.Println(reflectedUnpackedArgs)
+	results := m.execute.Func.Call(append(
 		[]reflect.Value{
-			reflect.ValueOf(si),
+			reflect.ValueOf(m.rcvr),
 			reflect.ValueOf(ctx),
 		}, reflectedUnpackedArgs...))
 
