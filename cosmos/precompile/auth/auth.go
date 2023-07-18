@@ -94,7 +94,7 @@ func (c *Contract) SetSendAllowance(
 	)
 }
 
-// GetSendAllowance returns the amount of tokens that the spender is allowd to spend.
+// GetSendAllowance returns the amount of tokens that the spender is allowed to spend.
 func (c *Contract) GetSendAllowance(
 	ctx context.Context,
 	owner common.Address,

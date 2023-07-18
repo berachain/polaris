@@ -127,7 +127,7 @@ func buildIdsToMethods(
 		implMethodName := formatName(implMethod.Name)
 
 		if abiMethod, found := pcABI[implMethodName]; found {
-			if err := validateReturnTypes(implMethod, abiMethod); err != nil {
+			if err := validateArgumentAndReturnTypes(implMethod, abiMethod); err != nil {
 				return nil, errorslib.Wrap(err, implMethodName)
 			}
 			idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = NewMethod(
@@ -159,11 +159,68 @@ func formatName(name string) string {
 	return string(ret)
 }
 
-// validateReturnTypes checks if the precompile method return types match the abi's return types.
-func validateReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error {
+// validateArgumentAndReturnTypes checks if the precompile method argument and return types match
+// the abi's argument return types. this is for overloaded Solidity functions and general
+// validation.
+func validateArgumentAndReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error {
 	// reserve a return value for possible reverts/errors
 	if implMethod.Type.NumOut()-1 != len(abiMethod.Outputs) {
 		return errors.New("number of return types mismatch")
+	}
+	fmt.Println(implMethod.Name)
+
+	for i := 0; i < implMethod.Type.NumIn(); i++ {
+		fmt.Println("meow", implMethod.Type.In(i))
+	}
+
+	// receiver is first param, context is second param, check the actual function params
+	j := 0
+	for i := 2; i < implMethod.Type.NumIn(); i++ {
+		implMethodParamType := implMethod.Type.In(i)
+		abiMethodParamType := abiMethod.Inputs[j].Type.GetType()
+
+		j++
+		fmt.Println("=====================================")
+		fmt.Println(implMethod.Name)
+		fmt.Println("abiMethodParamType kind:", abiMethodParamType.Kind())
+		fmt.Println("implMethodParamType kind:", implMethodParamType.Kind())
+		fmt.Println("abiMethodParamType:", abiMethodParamType)
+		fmt.Println("implMethodParamType:", implMethodParamType)
+
+		fmt.Println("=====================================")
+		switch abiMethodParamType.Kind() {
+		// we need to make sure that the struct fields match.
+
+		case implMethodParamType.Kind(), reflect.Interface:
+			continue
+		case reflect.Struct:
+			if err := validateStructFields(implMethodParamType, abiMethodParamType); err != nil {
+				return err
+			}
+		case reflect.Slice, reflect.Array:
+
+			k := 2
+			for j := 0; j < abiMethodParamType.Len(); j++ {
+				if abiMethodParamType.Elem().Kind() == reflect.Struct {
+					if err := validateStructFields(
+						implMethodParamType.Elem(),
+						abiMethodParamType.Elem(),
+					); err != nil {
+						return err
+					}
+				} else if implMethodParamType.In(k) != abiMethodParamType.In(j) {
+					return fmt.Errorf("param type mismatch: %v != %v",
+						implMethodParamType.Elem(),
+						abiMethodParamType.Elem(),
+					)
+				}
+				k++
+			}
+
+		default:
+			return fmt.Errorf("param type mismatch: %v != %v", implMethodParamType, abiMethodParamType)
+		}
+
 	}
 
 	for i := 0; i < implMethod.Type.NumOut()-1; i++ {
@@ -217,7 +274,6 @@ func validateStructFields(implMethodReturnType reflect.Type,
 	}
 	for j := 0; j < implMethodReturnType.NumField(); j++ {
 		// if the field is a nested struct, then we recurse
-
 		//nolint:gocritic // nah, this is fine.
 		if implMethodReturnType.Field(j).Type.Kind() == reflect.Struct &&
 			abiMethodReturnType.Field(j).Type.Kind() == reflect.Struct {
