@@ -60,9 +60,6 @@ func ValidateArgumentAndReturnTypes(implMethod reflect.Method, abiMethod abi.Met
 	// if the function does not take any inputs, no need to check.
 	// note again that for NumIn(), we check for 2 args, because the first two are the receiver and
 	// ctx due to the nature of Go's `reflect` package.
-	//
-	// and for returns, we check for 2 args, because precompiles must always return at least one
-	// value and an error. See above panic.
 	if len(abiMethod.Inputs) == 0 && implMethod.Type.NumIn() == 2 {
 		return nil
 	}
