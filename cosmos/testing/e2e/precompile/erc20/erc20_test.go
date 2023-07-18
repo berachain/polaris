@@ -102,7 +102,7 @@ var _ = Describe("ERC20", func() {
 		})
 
 		When("calling write methods", func() {
-			FIt("should error on non-existent denoms/tokens", func() {
+			It("should error on non-existent denoms/tokens", func() {
 				// user does not have balance of bOSMO
 				tx, err := erc20Precompile.TransferCoinToERC20(
 					tf.GenerateTransactOpts("alice"),
