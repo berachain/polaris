@@ -22,7 +22,6 @@ package precompile_test
 
 import (
 	"context"
-	"errors"
 	"math/big"
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
@@ -30,7 +29,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -129,16 +127,8 @@ func (ms *mockStateful) ABIMethods() map[string]abi.Method {
 
 func (ms *mockStateful) GetOutput(
 	_ context.Context,
-	_ vm.PrecompileEVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
+	str string,
 ) ([]any, error) {
-	str, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, errors.New("cast error")
-	}
 	return []any{
 		[]mockObject{
 			{

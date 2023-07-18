@@ -37,13 +37,38 @@ import (
 // the abi's argument return types. this is for overloaded Solidity functions and general
 // validation.
 func ValidateArgumentAndReturnTypes(implMethod reflect.Method, abiMethod abi.Method) error {
-	// last parameter of go impl is an error (for reverts), so we don't check it.
+	if len(abiMethod.Outputs) == 0 {
+		// the Solidity compiler requires that precompiles must return at least one value.
+		// see https://github.com/berachain/polaris/issues/491 for more information.
+
+		//nolint:lll // error message.
+		panic("The Solidity compiler requires all precompile functions to return at least one value. Consider returning a boolean.")
+	}
+
+	// first two args of Go precompile implementation are the receiver contract and the
+	// context, so we skip those.
+	if implMethod.Type.NumIn()-2 != len(abiMethod.Inputs) {
+		return errors.New("number of arguments mismatch")
+	}
+
+	// last parameter of Go precompile implementation is an error (for reverts),
+	// so we skip that.
 	if implMethod.Type.NumOut()-1 != len(abiMethod.Outputs) {
 		return errors.New("number of return types mismatch")
 	}
 
-	// receiver is 0th param, context is 1st param, so skip those.
+	// if the function does not take any inputs, no need to check.
+	// note again that for NumIn(), we check for 2 args, because the first two are the receiver and
+	// ctx due to the nature of Go's `reflect` package.
+	//
+	// and for returns, we check for 2 args, because precompiles must always return at least one
+	// value and an error. See above panic.
+	if len(abiMethod.Inputs) == 0 && implMethod.Type.NumIn() == 2 {
+		return nil
+	}
+
 	j := 0
+	// receiver is 0th param, context is 1st param, so skip those.
 	for i := 2; i < implMethod.Type.NumIn(); i++ {
 		implMethodParamType := implMethod.Type.In(i)
 		abiMethodParamType := abiMethod.Inputs[j].Type.GetType()
@@ -69,7 +94,7 @@ func ValidateArgumentAndReturnTypes(implMethod reflect.Method, abiMethod abi.Met
 func validate(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
 	//nolint:exhaustive // nah, this is fine.
 	switch implMethodVarType.Kind() {
-	// if the type is any, we leave it to the user to make sure that it is used
+	// if the Go type is any, we leave it to the user to make sure that it is used
 	// correctly.
 	case abiMethodVarType.Kind(), reflect.Interface:
 		return nil
@@ -102,7 +127,7 @@ func validate(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) err
 }
 
 // this function checks to make sure that the struct fields match. if there is a nested struct, then
-// we use recursion until we reach the base case of primitive types.
+// we recurse until we reach the base case of a struct composing of only primitive types.
 func validateStructFields(implMethodVarType reflect.Type,
 	abiMethodVarType reflect.Type,
 ) error {
