@@ -31,6 +31,7 @@ import (
 	"github.com/ethereum/go-ethereum/graphql"
 
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/log"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
@@ -67,7 +68,9 @@ type Polaris struct {
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
 
-	// txPool     *txpool.TxPool
+	txPool    *txpool.TxPool // canonical tx pool for the node
+	txHandler txpool.Handler // broadcasts txs to other nodes
+
 	// blockchain represents the canonical chain.
 	blockchain core.Blockchain
 
