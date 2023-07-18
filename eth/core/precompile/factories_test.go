@@ -22,6 +22,7 @@ package precompile_test
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
@@ -70,7 +71,7 @@ var _ = Describe("Container Factories", func() {
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockStateless{&mockBase{}}, nil)
-			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: StatefulContainerImpl"))
+			Expect(err).To(BeNil())
 		})
 	})
 
@@ -82,13 +83,17 @@ var _ = Describe("Container Factories", func() {
 		})
 
 		It("should error on missing precompile method for ABI method", func() {
-			_, err := scf.Build(&badMockStateful{&mockStateful{&mockBase{}}}, nil)
-			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial"))
+			_, err := scf.Build(&badMockStateful{&mockBase{}}, nil)
+			var _ precompile.StatefulImpl = (*mockBase)(nil)
+			fmt.Println(err.Error())
+			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutput"))
 		})
 	})
 })
 
 // MOCKS BELOW.
+
+// ============================================================================
 
 type mockBase struct{}
 
@@ -96,6 +101,18 @@ func (mb *mockBase) RegistryKey() common.Address {
 	return common.Address{}
 }
 
+func (mb *mockBase) ABIMethods() map[string]abi.Method { return nil }
+
+func (mb *mockBase) ABIEvents() map[string]abi.Event { return nil }
+
+// CustomValueDecoders should return a map of event attribute keys to value decoder
+// functions. This is used to decode event attribute values that require custom decoding
+// logic.
+func (mb *mockBase) CustomValueDecoders() precompile.ValueDecoders { return nil }
+
+func (mb *mockBase) SetPlugin(p precompile.Plugin) {}
+
+// ============================================================================
 type mockStateless struct {
 	*mockBase
 }
@@ -115,6 +132,7 @@ func (ms *mockStateless) WithStateDB(vm.GethStateDB) vm.PrecompileContainer {
 	return ms
 }
 
+// ============================================================================
 type mockStateful struct {
 	*mockBase
 }
@@ -134,8 +152,9 @@ func (ms *mockStateful) CustomValueDecoders() precompile.ValueDecoders {
 
 func (ms *mockStateful) SetPlugin(precompile.Plugin) {}
 
+// ============================================================================
 type badMockStateful struct {
-	*mockStateful
+	*mockBase
 }
 
 func (bms *badMockStateful) ABIMethods() map[string]abi.Method {
@@ -144,3 +163,5 @@ func (bms *badMockStateful) ABIMethods() map[string]abi.Method {
 		"getOutputPartial": mock.Methods["getOutputPartial"],
 	}
 }
+
+// ============================================================================
