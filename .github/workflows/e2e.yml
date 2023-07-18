@@ -105,6 +105,8 @@ jobs:
         base-image: [base-image]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Run ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
         uses: magefile/mage-action@v2
         with:
@@ -123,6 +125,8 @@ jobs:
           base-image: [base-image]
       runs-on: ${{ matrix.os }}
       steps:
+        - name: Checkout
+          uses: actions/checkout@v3
         - name: Install Go Tools
           run: |
             go run magefiles/setup/setup.go ci
@@ -151,6 +155,8 @@ jobs:
           base-image: [base-image]
       runs-on: ${{ matrix.os }}
       steps:
+        - name: Checkout
+          uses: actions/checkout@v3
         - name: Install Go Tools
           run: |
             go run magefiles/setup/setup.go ci
