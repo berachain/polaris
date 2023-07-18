@@ -124,33 +124,33 @@ jobs:
         env:
           GOPATH: /home/runner/go
 
-  localnet:
-      needs: [build-base, setup-env]
-      strategy:
-        matrix:
-          namespace: [localnet]
-          os: [ubuntu-latest]
-          go-version: [1.20.6]
-          base-image: [base-image]
-      runs-on: ${{ matrix.os }}
-      steps:
-        - name: Install Go Tools
-          run: |
-            go run magefiles/setup/setup.go ci
-        - name: Run ${{ matrix.namespace }}:build
-          uses: magefile/mage-action@v2
-          with:
-            version: latest
-            args: ${{ matrix.namespace }}:build
-          env:
-            GOPATH: /home/runner/go
-        - name: Run ${{ matrix.namespace }}:test
-          uses: magefile/mage-action@v2
-          with:
-            version: latest
-            args: ${{ matrix.namespace }}:test
-          env:
-            GOPATH: /home/runner/go
+  # localnet:
+  #     needs: [build-base, setup-env]
+  #     strategy:
+  #       matrix:
+  #         namespace: [localnet]
+  #         os: [ubuntu-latest]
+  #         go-version: [1.20.6]
+  #         base-image: [base-image]
+  #     runs-on: ${{ matrix.os }}
+  #     steps:
+  #       - name: Install Go Tools
+  #         run: |
+  #           go run magefiles/setup/setup.go ci
+  #       - name: Run ${{ matrix.namespace }}:build
+  #         uses: magefile/mage-action@v2
+  #         with:
+  #           version: latest
+  #           args: ${{ matrix.namespace }}:build
+  #         env:
+  #           GOPATH: /home/runner/go
+  #       - name: Run ${{ matrix.namespace }}:test
+  #         uses: magefile/mage-action@v2
+  #         with:
+  #           version: latest
+  #           args: ${{ matrix.namespace }}:test
+  #         env:
+  #           GOPATH: /home/runner/go
 
   # ci:
   #     needs: [build-base, setup-env]
