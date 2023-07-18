@@ -31,7 +31,7 @@ import (
 	"reflect"
 )
 
-// validateArgumentAndReturnTypes checks if the precompile method argument and return types match
+// ValidateBasic checks if the precompile method argument and return types match
 // the abi's argument return types. this is for overloaded Solidity functions and general
 // validation.
 func (m *Method) ValidateBasic() error {
