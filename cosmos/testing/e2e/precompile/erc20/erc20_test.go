@@ -44,11 +44,6 @@ func TestERC20Precompile(t *testing.T) {
 	RunSpecs(t, "cosmos/testing/e2e/precompile/erc20")
 }
 
-var _ = SynchronizedBeforeSuite(func() []byte {
-	// Setup the network and clients here.
-	return nil
-}, func(data []byte) {})
-
 var _ = Describe("ERC20", func() {
 	var (
 		tf                 *network.TestFixture
@@ -61,6 +56,7 @@ var _ = Describe("ERC20", func() {
 	)
 
 	BeforeEach(func() {
+		// Setup the network and clients here.
 		tf = network.NewTestFixture(GinkgoT())
 		bankPrecompile, _ = bbindings.NewBankModule(
 			common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient(),
@@ -69,8 +65,13 @@ var _ = Describe("ERC20", func() {
 	})
 
 	AfterEach(func() {
-		err := tf.Teardown()
-		Expect(err).ToNot(HaveOccurred())
+		// Dump logs and stop the containter here.
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := tf.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	Describe("calling the erc20 precompile directly", func() {
@@ -103,21 +104,17 @@ var _ = Describe("ERC20", func() {
 		When("calling write methods", func() {
 			It("should error on non-existent denoms/tokens", func() {
 				// user does not have balance of bOSMO
-				txr := tf.GenerateTransactOpts("alice")
-				// txr.GasLimit = 10000000
 				tx, err := erc20Precompile.TransferCoinToERC20(
-					txr,
-					"bOSMO",
+					tf.GenerateTransactOpts("alice"),
+					"stake",
 					big.NewInt(123456789),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				ExpectFailedReceipt(tf.EthClient(), tx)
 
 				// token doesn't exist, user does not have balance of token
-				txr = tf.GenerateTransactOpts("alice")
-				// txr.GasLimit = 10000000
 				tx, err = erc20Precompile.TransferERC20ToCoin(
-					txr,
+					tf.GenerateTransactOpts("alice"),
 					common.HexToAddress("0x432423432489230"),
 					big.NewInt(123456789),
 				)

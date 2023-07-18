@@ -49,14 +49,20 @@ var _ = Describe("Bank", func() {
 	)
 
 	BeforeEach(func() {
+		// Setup the network and clients here.
 		tf = localnet.NewTestFixture(GinkgoT())
 		bankPrecompile, _ = bindings.NewBankModule(
 			common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient())
 	})
 
 	AfterEach(func() {
-		err := tf.Teardown()
-		Expect(err).ShouldNot(HaveOccurred())
+		// Dump logs and stop the containter here.
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := tf.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	It("should call functions on the precompile directly", func() {

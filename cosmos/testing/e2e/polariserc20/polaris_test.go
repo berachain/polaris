@@ -49,8 +49,13 @@ var _ = Describe("ERC20", func() {
 	})
 
 	AfterEach(func() {
-		err := tf.Teardown()
-		Expect(err).ToNot(HaveOccurred())
+		// Dump logs and stop the containter here.
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := tf.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	Describe("deploy a polaris erc20 and call it from another contract", func() {

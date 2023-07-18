@@ -72,8 +72,13 @@ var _ = Describe("Distribution Precompile", func() {
 	})
 
 	AfterEach(func() {
-		err := tf.Teardown()
-		Expect(err).ToNot(HaveOccurred())
+		// Dump logs and stop the containter here.
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := tf.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	It("should be able to get if withdraw address is enabled", func() {

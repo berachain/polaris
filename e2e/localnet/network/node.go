@@ -53,6 +53,7 @@ type ContainerizedNode interface {
 	EthWsClient() *ethclient.Client
 	WaitForBlock(number uint64) error
 	WaitForNextBlock() error
+	DumpLogs() (string, error)
 }
 
 // containerizedNode implements ContainerizedNode.
@@ -153,6 +154,10 @@ func (c *containerizedNode) Reset() error {
 // Remove removes the node.
 func (c *containerizedNode) Remove() error {
 	return c.containerClient.Remove()
+}
+
+func (c *containerizedNode) DumpLogs() (string, error) {
+	return c.containerClient.GetContainerLogs()
 }
 
 // GetHTTPEndpoint returns the HTTP endpoint of the node.

@@ -26,6 +26,12 @@
 package container
 
 import (
+	"context"
+	"io/ioutil"
+
+	dtypes "github.com/docker/docker/api/types"
+	dclient "github.com/docker/docker/client"
+
 	dt "github.com/ory/dockertest"
 )
 
@@ -42,6 +48,8 @@ type Client interface {
 
 	// GetEndpoint returns the endpoint for the given id of the container.
 	GetEndpoint(string) string
+
+	GetContainerLogs() (string, error)
 }
 
 // client implements the Client interface using the dockertest library.
@@ -98,4 +106,28 @@ func (c *client) Remove() error {
 // GetEndpoint returns the endpoint for the given id of the container.
 func (c *client) GetEndpoint(id string) string {
 	return c.resource.GetHostPort(id)
+}
+
+func (c *client) GetContainerLogs() (string, error) {
+	ctx := context.Background()
+	cli, err := dclient.NewClientWithOpts(dclient.FromEnv)
+	if err != nil {
+		return "", err
+	}
+
+	logsReader, err := cli.ContainerLogs(ctx, c.resource.Container.ID, dtypes.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+	})
+	if err != nil {
+		return "", err
+	}
+	defer logsReader.Close()
+
+	logsBytes, err := ioutil.ReadAll(logsReader)
+	if err != nil {
+		return "", err
+	}
+
+	return string(logsBytes), nil
 }
