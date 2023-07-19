@@ -75,7 +75,7 @@ func (m *Method) ValidateBasic() error {
 		return nil
 	}
 
-	// Ceceiver is 0th param, context is 1st param, so skip those.
+	// Receiver is 0th param, context is 1st param, so skip those.
 	// Validate that the precompile input args types == abi input arg types.
 	for i := 2; i < implMethodNumIn; i++ {
 		implMethodParamType := implMethod.Type.In(i)
