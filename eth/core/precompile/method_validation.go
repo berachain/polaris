@@ -67,8 +67,6 @@ func (m *Method) ValidateBasic() error {
 		return errors.New("number of return types mismatch")
 	}
 	// If the function does not take any inputs, no need to check.
-	// Note again that for NumIn(), we check for 2 args, because the first two are the receiver and
-	// Context due to the nature of Go's `reflect` package.
 	if abiMethodNumIn == 0 {
 		return nil
 	}
