@@ -134,7 +134,12 @@ func validateStructFields(implMethodVarType reflect.Type,
 		return nil
 	}
 	if implMethodVarType.NumField() != abiMethodVarType.NumField() {
-		return errors.New("number of struct fields mismatch")
+		return fmt.Errorf("struct %v has %v fields, but struct %v has %v fields",
+			implMethodVarType.Name(),
+			implMethodVarType.NumField(),
+			abiMethodVarType.Name(),
+			abiMethodVarType.NumField(),
+		)
 	}
 	for j := 0; j < implMethodVarType.NumField(); j++ {
 		// if the field is a nested struct, then we recurse
