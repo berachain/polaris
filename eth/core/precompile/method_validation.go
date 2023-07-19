@@ -39,34 +39,34 @@ func (m *Method) ValidateBasic() error {
 	abiMethod := m.abiMethod
 
 	if len(m.abiMethod.Outputs) == 0 {
-		// the Solidity compiler requires that precompiles must return at least one value.
-		// see https://github.com/berachain/polaris/issues/491 for more information.
+		// The Solidity compiler requires that precompiles must return at least one value.
+		// See https://github.com/berachain/polaris/issues/491 for more information.
 
 		//nolint:lll // error message.
 		panic("The Solidity compiler requires all precompile functions to return at least one value. Consider returning a boolean.")
 	}
 
-	// first two args of Go precompile implementation are the receiver contract and the
-	// context, so we skip those.
+	// First two args of Go precompile implementation are the receiver contract and the
+	// Context, so we skip those.
 	if implMethod.Type.NumIn()-2 != len(abiMethod.Inputs) {
 		return errors.New("number of arguments mismatch")
 	}
 
-	// last parameter of Go precompile implementation is an error (for reverts),
+	// Last parameter of Go precompile implementation is an error (for reverts),
 	// so we skip that.
 	if implMethod.Type.NumOut()-1 != len(abiMethod.Outputs) {
 		return errors.New("number of return types mismatch")
 	}
 
-	// if the function does not take any inputs, no need to check.
-	// note again that for NumIn(), we check for 2 args, because the first two are the receiver and
-	// ctx due to the nature of Go's `reflect` package.
+	// If the function does not take any inputs, no need to check.
+	// Note again that for NumIn(), we check for 2 args, because the first two are the receiver and
+	// Context due to the nature of Go's `reflect` package.
 	if implMethod.Type.NumIn() == 2 && len(abiMethod.Inputs) == 0 {
 		return nil
 	}
 
-	// receiver is 0th param, context is 1st param, so skip those.
-	// validate that the precompile input args types == abi input arg types.
+	// Ceceiver is 0th param, context is 1st param, so skip those.
+	// validate that the precompile input args types == abi input arg types
 	for i := 2; i < implMethod.Type.NumIn(); i++ {
 		implMethodParamType := implMethod.Type.In(i)
 		abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
@@ -75,8 +75,8 @@ func (m *Method) ValidateBasic() error {
 		}
 	}
 
-	// error is the last param, so skip that.
-	// validate that the precompile return types == abi return types.
+	// Error is the last param, so skip that.
+	// validate that the precompile return types == abi return types
 	for i := 0; i < implMethod.Type.NumOut()-1; i++ {
 		implMethodReturnType := implMethod.Type.Out(i)
 		abiMethodReturnType := abiMethod.Outputs[i].Type.GetType()
@@ -88,14 +88,14 @@ func (m *Method) ValidateBasic() error {
 	return nil
 }
 
-// helper function for ValidateBasic. this function function uses reflection to see
+// Helper function for ValidateBasic. This function function uses reflection to see
 // what types your implementation uses, and checks against the geth representation of the abi types.
 func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
 	//nolint:exhaustive // nah, this is fine.
 	switch implMethodVarType.Kind() {
 	case abiMethodVarType.Kind(), reflect.Interface:
-		// if the Go type matches the abi type, we're good.
-		// if it's `any`, we leave it to the user to make sure that it is used/converted correctly.
+		// if the Go type matches the abi type, we're good
+		// if it's `any`, we leave it to the user to make sure that it is used/converted correctly
 		return nil
 	case reflect.Struct:
 		if err := validateStructFields(implMethodVarType, abiMethodVarType); err != nil {
@@ -125,7 +125,7 @@ func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) 
 	return nil
 }
 
-// this function checks to make sure that the struct fields match. if there is a nested struct, then
+// This function checks to make sure that the struct fields match. If there is a nested struct, then
 // we recurse until we reach the base case of a struct composing of only primitive types.
 func validateStructFields(implMethodVarType reflect.Type,
 	abiMethodVarType reflect.Type,
