@@ -57,7 +57,7 @@ func (m *Method) ValidateBasic() error {
 
 	// First two args of Go precompile implementation are the receiver contract and the
 	// Context, so we skip those.
-	if implMethodNumIn-2 != len(abiMethod.Inputs) {
+	if implMethodNumIn-2 != abiMethodNumIn {
 		return errors.New("number of arguments mismatch")
 	}
 
@@ -69,7 +69,7 @@ func (m *Method) ValidateBasic() error {
 	// If the function does not take any inputs, no need to check.
 	// Note again that for NumIn(), we check for 2 args, because the first two are the receiver and
 	// Context due to the nature of Go's `reflect` package.
-	if implMethodNumIn == 2 && abiMethodNumIn == 0 {
+	if abiMethodNumIn == 0 {
 		return nil
 	}
 
