@@ -21,7 +21,6 @@
 package txpool
 
 import (
-	"fmt"
 	"sync"
 
 	"cosmossdk.io/log"
@@ -105,7 +104,6 @@ func (h *handler) txBroadcastLoop() {
 func (h *handler) broadcastTransactions(txs types.Transactions) {
 	h.logger.Info("broadcasting transactions", "num_txs", len(txs))
 	for _, signedEthTx := range txs {
-		fmt.Println("signedEthTx", signedEthTx)
 		// Serialize the transaction to Bytes
 		txBytes, err := h.serializer.SerializeToBytes(signedEthTx)
 		if err != nil {
