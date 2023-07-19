@@ -38,6 +38,11 @@ func (m *Method) ValidateBasic() error {
 	implMethod := m.execute
 	abiMethod := m.abiMethod
 
+	implMethodNumIn := implMethod.Type.NumIn()
+	abiMethodNumIn := len(abiMethod.Inputs)
+	implMethodNumOut := implMethod.Type.NumOut()
+	abiMethodNumOut := len(abiMethod.Outputs)
+
 	if len(m.abiMethod.Outputs) == 0 {
 		// The Solidity compiler requires that precompiles must return at least one value.
 		// See https://github.com/berachain/polaris/issues/491 for more information.
@@ -48,26 +53,31 @@ func (m *Method) ValidateBasic() error {
 
 	// First two args of Go precompile implementation are the receiver contract and the
 	// Context, so we skip those.
-	if implMethod.Type.NumIn()-2 != len(abiMethod.Inputs) {
+	if implMethodNumIn-2 != len(abiMethod.Inputs) {
 		return errors.New("number of arguments mismatch")
 	}
 
 	// Last parameter of Go precompile implementation is an error (for reverts),
 	// so we skip that.
-	if implMethod.Type.NumOut()-1 != len(abiMethod.Outputs) {
+	if implMethodNumOut-1 != abiMethodNumOut {
 		return errors.New("number of return types mismatch")
+	}
+
+	// Validate that our implementation returns an error as the last param.
+	if implMethod.Type.Out(implMethodNumOut-1) != reflect.TypeOf((*error)(nil)).Elem() {
+		return fmt.Errorf("last return type must be error, got %v", implMethod.Type.Out(implMethodNumOut-1))
 	}
 
 	// If the function does not take any inputs, no need to check.
 	// Note again that for NumIn(), we check for 2 args, because the first two are the receiver and
 	// Context due to the nature of Go's `reflect` package.
-	if implMethod.Type.NumIn() == 2 && len(abiMethod.Inputs) == 0 {
+	if implMethodNumIn == 2 && abiMethodNumIn == 0 {
 		return nil
 	}
 
 	// Ceceiver is 0th param, context is 1st param, so skip those.
 	// Validate that the precompile input args types == abi input arg types.
-	for i := 2; i < implMethod.Type.NumIn(); i++ {
+	for i := 2; i < implMethodNumIn; i++ {
 		implMethodParamType := implMethod.Type.In(i)
 		abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
 		if err := validateArg(implMethodParamType, abiMethodParamType); err != nil {
@@ -77,7 +87,7 @@ func (m *Method) ValidateBasic() error {
 
 	// Error is the last param, so skip that.
 	// Validate that the precompile return types == abi return types.
-	for i := 0; i < implMethod.Type.NumOut()-1; i++ {
+	for i := 0; i < implMethodNumOut-1; i++ {
 		implMethodReturnType := implMethod.Type.Out(i)
 		abiMethodReturnType := abiMethod.Outputs[i].Type.GetType()
 		if err := validateArg(implMethodReturnType, abiMethodReturnType); err != nil {
