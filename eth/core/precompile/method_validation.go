@@ -43,12 +43,16 @@ func (m *Method) ValidateBasic() error {
 	implMethodNumOut := implMethod.Type.NumOut()
 	abiMethodNumOut := len(abiMethod.Outputs)
 
+	// The Solidity compiler requires that precompiles must return at least one value.
+	// See https://github.com/berachain/polaris/issues/491 for more information.
 	if len(m.abiMethod.Outputs) == 0 {
-		// The Solidity compiler requires that precompiles must return at least one value.
-		// See https://github.com/berachain/polaris/issues/491 for more information.
-
 		//nolint:lll // error message.
 		panic("The Solidity compiler requires all precompile functions to return at least one value. Consider returning a boolean.")
+	}
+
+	// Validate that our implementation returns an error (revert) as the last param.
+	if implMethod.Type.Out(implMethodNumOut-1) != reflect.TypeOf((*error)(nil)).Elem() {
+		return fmt.Errorf("last return type must be error, got %v", implMethod.Type.Out(implMethodNumOut-1))
 	}
 
 	// First two args of Go precompile implementation are the receiver contract and the
@@ -62,12 +66,6 @@ func (m *Method) ValidateBasic() error {
 	if implMethodNumOut-1 != abiMethodNumOut {
 		return errors.New("number of return types mismatch")
 	}
-
-	// Validate that our implementation returns an error as the last param.
-	if implMethod.Type.Out(implMethodNumOut-1) != reflect.TypeOf((*error)(nil)).Elem() {
-		return fmt.Errorf("last return type must be error, got %v", implMethod.Type.Out(implMethodNumOut-1))
-	}
-
 	// If the function does not take any inputs, no need to check.
 	// Note again that for NumIn(), we check for 2 args, because the first two are the receiver and
 	// Context due to the nature of Go's `reflect` package.
