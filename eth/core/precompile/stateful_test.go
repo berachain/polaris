@@ -55,7 +55,7 @@ var _ = Describe("Stateful Container", func() {
 		ctx = vm.NewPolarContext(
 			context.Background(),
 			vmmock.NewEVM(),
-			common.Address{0},
+			common.Address{},
 			big.NewInt(0),
 		)
 	})
