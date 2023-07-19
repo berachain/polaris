@@ -66,7 +66,7 @@ func (m *Method) ValidateBasic() error {
 	}
 
 	// Ceceiver is 0th param, context is 1st param, so skip those.
-	// validate that the precompile input args types == abi input arg types
+	// Validate that the precompile input args types == abi input arg types.
 	for i := 2; i < implMethod.Type.NumIn(); i++ {
 		implMethodParamType := implMethod.Type.In(i)
 		abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
@@ -76,7 +76,7 @@ func (m *Method) ValidateBasic() error {
 	}
 
 	// Error is the last param, so skip that.
-	// validate that the precompile return types == abi return types
+	// Validate that the precompile return types == abi return types.
 	for i := 0; i < implMethod.Type.NumOut()-1; i++ {
 		implMethodReturnType := implMethod.Type.Out(i)
 		abiMethodReturnType := abiMethod.Outputs[i].Type.GetType()
@@ -94,8 +94,8 @@ func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) 
 	//nolint:exhaustive // nah, this is fine.
 	switch implMethodVarType.Kind() {
 	case abiMethodVarType.Kind(), reflect.Interface:
-		// if the Go type matches the abi type, we're good
-		// if it's `any`, we leave it to the user to make sure that it is used/converted correctly
+		// If the Go type matches the abi type, we're good.
+		// If it's `any`, we leave it to the user to make sure that it is used/converted correctly.
 		return nil
 	case reflect.Struct:
 		if err := validateStructFields(implMethodVarType, abiMethodVarType); err != nil {
@@ -103,7 +103,7 @@ func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) 
 		}
 	case reflect.Slice, reflect.Array:
 		for j := 0; j < abiMethodVarType.Len(); j++ {
-			// if it is a slice/array of structs, then we need to check if the struct fields match
+			// If it is a slice/array of structs, then we need to check if the struct fields match.
 			if abiMethodVarType.Elem().Kind() == reflect.Struct {
 				if err := validateStructFields(
 					implMethodVarType.Elem(),
@@ -142,7 +142,7 @@ func validateStructFields(implMethodVarType reflect.Type,
 		)
 	}
 	for j := 0; j < implMethodVarType.NumField(); j++ {
-		// if the field is a nested struct, then we recurse
+		// If the field is a nested struct, then we recurse.
 		if implMethodVarType.Field(j).Type.Kind() == reflect.Struct &&
 			abiMethodVarType.Field(j).Type.Kind() == reflect.Struct {
 			if err := validateStructFields(
