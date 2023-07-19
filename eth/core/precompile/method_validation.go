@@ -103,7 +103,7 @@ func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) 
 		}
 	case reflect.Slice, reflect.Array:
 		for j := 0; j < abiMethodVarType.Len(); j++ {
-			// If it is a slice/array of structs, then we need to check if the struct fields match.
+			// If it is a slice/array of structs, check if the struct fields match.
 			if abiMethodVarType.Elem().Kind() == reflect.Struct {
 				if err := validateStructFields(
 					implMethodVarType.Elem(),

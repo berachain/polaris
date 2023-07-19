@@ -86,23 +86,26 @@ func (m *Method) Call(ctx context.Context, input []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	// Build argument list
+	// Convert the unpacked args to reflect values.
 	reflectedUnpackedArgs := make([]reflect.Value, 0, len(unpackedArgs))
 	for _, unpacked := range unpackedArgs {
 		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
 	}
 
-	// Call the executable
-	results := m.execute.Func.Call(append(
-		[]reflect.Value{
-			reflect.ValueOf(m.rcvr),
-			reflect.ValueOf(ctx),
-		}, reflectedUnpackedArgs...))
+	// Call the executable the reflected values.
+	results := m.execute.Func.Call(
+		append(
+			[]reflect.Value{
+				reflect.ValueOf(m.rcvr),
+				reflect.ValueOf(ctx),
+			},
+			reflectedUnpackedArgs...,
+		),
+	)
 
 	// If the precompile returned an error, the error is returned to the caller.
-	callErr := results[len(results)-1].Interface()
-	if callErr != nil {
-		err = utils.MustGetAs[error](callErr)
+	if revert := results[len(results)-1].Interface(); revert != nil {
+		err = utils.MustGetAs[error](revert)
 	}
 	if err != nil {
 		if !errors.Is(err, vm.ErrWriteProtection) {
