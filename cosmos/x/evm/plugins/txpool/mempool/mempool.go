@@ -23,6 +23,7 @@ package mempool
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -116,6 +117,13 @@ func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
 // Select returns an Iterator over the app-side mempool. If txs are specified, then they shall be
 // incorporated into the Iterator. The Iterator must closed by the caller.
 func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Iterator {
+	if gtp.TxPool == nil {
+		// not processing txs yet
+		return nil
+	}
+
+	fmt.Println("WGTP", gtp)
+
 	// return nil if there are no pending txs
 	pendingTxs := gtp.Pending(true)
 	if len(pendingTxs) == 0 {

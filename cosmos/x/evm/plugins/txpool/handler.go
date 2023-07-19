@@ -24,7 +24,6 @@ import (
 	"sync"
 
 	"cosmossdk.io/log"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
@@ -54,25 +53,22 @@ type handler struct {
 	wg     sync.WaitGroup
 }
 
-func newHandler(clientCtx client.Context, txPool *txpool.TxPool, serializer *serializer) *handler {
-	return &handler{
+// newHandler creates a new handler and starts the broadcast loop.
+func newHandler(
+	clientCtx client.Context, txPool *txpool.TxPool, serializer *serializer, logger log.Logger,
+) *handler {
+	h := &handler{
 		clientCtx:  clientCtx.WithBroadcastMode(flags.BroadcastSync),
 		serializer: serializer,
 		txPool:     txPool,
+		logger:     logger,
 	}
-}
-
-func (h *handler) SetLogger(logger log.Logger) {
-	h.logger = logger
-}
-
-// Start starts the handler.
-func (h *handler) Start() {
 	h.wg.Add(1)
 	h.txsCh = make(chan core.NewTxsEvent, txChanSize)
 	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
 	h.logger.Info("handler started")
 	go h.txBroadcastLoop() // start broadcast handlers
+	return h
 }
 
 // stop stops the handler.
@@ -85,6 +81,8 @@ func (h *handler) stop() {
 	h.wg.Wait()
 
 	h.logger.Info("handler stopped")
+
+	h.txPool.Stop()
 }
 
 // txBroadcastLoop announces new transactions to connected peers.

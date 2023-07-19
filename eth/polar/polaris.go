@@ -63,7 +63,9 @@ type NetworkingStack interface {
 
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
+	// cfg is the configuration for the node.
 	cfg *Config
+
 	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC APIs.
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
@@ -84,14 +86,12 @@ type Polaris struct {
 
 func NewWithNetworkingStack(
 	cfg *Config,
-	host core.PolarisHostChain,
 	stack NetworkingStack,
 	logHandler log.Handler,
 ) *Polaris {
 	pl := &Polaris{
-		cfg:        cfg,
-		blockchain: core.NewChain(host),
-		stack:      stack,
+		cfg:   cfg,
+		stack: stack,
 	}
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
@@ -104,8 +104,6 @@ func NewWithNetworkingStack(
 		log.Root().SetHandler(logHandler)
 	}
 
-	// Build and set the RPC Backend.
-	pl.backend = NewBackend(pl, stack.ExtRPCEnabled(), cfg)
 	return pl
 }
 
@@ -128,8 +126,11 @@ func (pl *Polaris) APIs() []rpc.API {
 	}...)
 }
 
-// StartServices notifies the NetworkStack to spin up (i.e json-rpc).
+// StartServices notifies the NetworkStack to spin up (i.e json-rpc, graphql).
 func (pl *Polaris) StartServices() error {
+	// Build and set the RPC Backend.
+	pl.backend = NewBackend(pl, pl.stack.ExtRPCEnabled(), pl.cfg)
+
 	// Register the JSON-RPCs with the networking stack.
 	pl.stack.RegisterAPIs(pl.APIs())
 
@@ -154,6 +155,10 @@ func (pl *Polaris) StartServices() error {
 
 func (pl *Polaris) SetTxPool(txPool *txpool.TxPool) {
 	pl.txPool = txPool
+}
+
+func (pl *Polaris) SetBlockchain(bc core.Blockchain) {
+	pl.blockchain = bc
 }
 
 func (pl *Polaris) Blockchain() core.Blockchain {

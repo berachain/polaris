@@ -362,11 +362,14 @@ func (app *SimApp) SimulationManager() *module.SimulationManager {
 // API server.
 func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
+
 	// register swagger API in app.go so that other applications can override easily
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	app.EVMKeeper.StartServices(apiSvr.ClientCtx)
+
+	// TODO: move this.
+	go app.EVMKeeper.StartServices(apiSvr.ClientCtx)
 }
 
 // GetMaccPerms returns a copy of the module account permissions

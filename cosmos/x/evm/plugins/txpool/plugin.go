@@ -24,7 +24,6 @@ import (
 	"math/big"
 
 	"cosmossdk.io/log"
-
 	"github.com/cosmos/cosmos-sdk/client"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
@@ -33,23 +32,28 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
+const pluginName = `txpool`
+
 // Compile-time type assertion.
 var _ Plugin = (*plugin)(nil)
 
 // Plugin defines the required functions of the transaction pool plugin.
 type Plugin interface {
 	plugins.Base
-	Start()
-	SetLogger(logger log.Logger)
-	Setup(*txpool.TxPool, client.Context)
+	Start(*txpool.TxPool, client.Context)
 	Prepare(*big.Int, coretypes.Signer)
 }
 
 // plugin represents the transaction pool plugin.
 type plugin struct {
 	*mempool.WrappedGethTxPool
+
 	*handler
+
 	serializer *serializer
+
+	// log is the logger for the plugin.
+	logger log.Logger
 }
 
 // NewPlugin returns a new transaction pool plugin.
@@ -60,10 +64,16 @@ func NewPlugin(wrappedGethTxPool *mempool.WrappedGethTxPool) Plugin {
 }
 
 // Setup implements the Plugin interface.
-func (p *plugin) Setup(txpool *txpool.TxPool, ctx client.Context) {
+func (p *plugin) Start(txpool *txpool.TxPool, ctx client.Context) {
 	p.serializer = newSerializer(ctx)
 	p.WrappedGethTxPool.Setup(txpool, p.serializer)
-	p.handler = newHandler(ctx, txpool, p.serializer)
+	p.handler = newHandler(ctx, txpool, p.serializer, p.logger)
 }
 
-func (p *plugin) IsPlugin() {}
+func (p *plugin) SetLogger(logger log.Logger) {
+	p.logger = logger
+}
+
+func (p *plugin) Name() string {
+	return pluginName
+}

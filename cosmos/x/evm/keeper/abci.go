@@ -31,15 +31,13 @@ import (
 )
 
 func (k *Keeper) BeginBlocker(ctx context.Context) error {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-
 	if k.lock {
-		k.GetHost().GetTxPoolPlugin().SetLogger(k.Logger(sdkCtx))
+		// unlock the keeper so that the Polaris services (EVM, JSON-RPC, TxPool, etc.) can start
 		k.lock = false
 	}
 
 	// Prepare the Polaris Ethereum block.
-	k.polaris.Prepare(ctx, uint64(sdkCtx.BlockHeight()))
+	k.polaris.Prepare(ctx, uint64(sdk.UnwrapSDKContext(ctx).BlockHeight()))
 	return nil
 }
 
@@ -51,15 +49,10 @@ func (k *Keeper) EndBlock(ctx context.Context) error {
 
 	// Prepare the txpool for the next pending block.
 	// TODO: move this.
-	parent, err := k.GetHost().GetBlockPlugin().GetHeaderByNumber(
-		uint64(sdk.UnwrapSDKContext(ctx).BlockHeight()),
-	)
-	if err != nil {
-		return err
-	}
 	chainConfig := k.host.GetConfigurationPlugin().ChainConfig()
 	k.GetHost().GetTxPoolPlugin().Prepare(
-		misc.CalcBaseFee(chainConfig, parent), coretypes.LatestSignerForChainID(chainConfig.ChainID),
+		misc.CalcBaseFee(chainConfig, k.polaris.Blockchain().CurrentBlock()),
+		coretypes.LatestSignerForChainID(chainConfig.ChainID),
 	)
 
 	return nil

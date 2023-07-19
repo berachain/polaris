@@ -123,8 +123,11 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 	bc.processor = NewStateProcessor(
 		bc.cp, bc.gp, host.GetPrecompilePlugin(), bc.statedb, bc.vmConfig,
 	)
-	bc.currentBlock.Store(nil)
-	bc.finalizedBlock.Store(nil)
+
+	// initialize the current and finalized block with the genesis block
+	genesisBlock := bc.GetBlockByNumber(0)
+	bc.currentBlock.Store(genesisBlock)
+	bc.finalizedBlock.Store(genesisBlock)
 	return bc
 }
 

@@ -25,14 +25,16 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 )
+
+const pluginName = `block`
 
 type Plugin interface {
 	plugins.Base
@@ -44,6 +46,8 @@ type Plugin interface {
 }
 
 type plugin struct {
+	// log is the logger for the plugin.
+	logger log.Logger
 	// ctx is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
 	// storekey is the store key for the header store.
@@ -59,6 +63,10 @@ func NewPlugin(storekey storetypes.StoreKey, sk StakingKeeper) Plugin {
 		storekey: storekey,
 		sk:       sk,
 	}
+}
+
+func (p *plugin) SetLogger(logger log.Logger) {
+	p.logger = logger
 }
 
 // Prepare implements core.BlockPlugin.
@@ -86,4 +94,6 @@ func (p *plugin) GetNewBlockMetadata(number uint64) (common.Address, uint64) {
 	return common.BytesToAddress(val.GetOperator()), uint64(cometHeader.Time.UTC().Unix())
 }
 
-func (p *plugin) IsPlugin() {}
+func (p *plugin) Name() string {
+	return pluginName
+}

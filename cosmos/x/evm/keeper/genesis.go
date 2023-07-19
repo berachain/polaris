@@ -32,11 +32,18 @@ import (
 func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	// Initialize all the plugins.
 	for _, plugin := range k.host.GetAllPlugins() {
+		// give all plugins access to the sdk logger
+		plugin.SetLogger(k.Logger(ctx).With(plugin.Name()))
+
 		// checks whether plugin implements methods of HasGenesis and executes them if it does
 		if plugin, ok := utils.GetAs[plugins.HasGenesis](plugin); ok {
 			plugin.InitGenesis(ctx, genState)
 		}
 	}
+
+	// Set the Polaris blockchain.
+	k.polaris.SetBlockchain(core.NewChain(k.host))
+
 	return nil
 }
 

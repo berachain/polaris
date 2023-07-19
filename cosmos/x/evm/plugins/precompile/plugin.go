@@ -23,8 +23,8 @@ package precompile
 import (
 	"math/big"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
@@ -38,6 +38,8 @@ import (
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
+
+const pluginName = `precompile`
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
@@ -53,6 +55,8 @@ type Plugin interface {
 // plugin runs precompile containers in the Cosmos environment with the context gas configs.
 type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
+	// log is the logger for the plugin.
+	logger log.Logger
 	// precompiles is all supported precompile contracts.
 	precompiles []ethprecompile.Registrable
 	// kvGasConfig is the gas config for the KV store.
@@ -72,6 +76,14 @@ func NewPlugin(precompiles []ethprecompile.Registrable, sp StatePlugin) Plugin {
 		transientKVGasConfig: storetypes.TransientGasConfig(),
 		sp:                   sp,
 	}
+}
+
+func (p *plugin) SetLogger(logger log.Logger) {
+	p.logger = logger
+}
+
+func (p *plugin) Name() string {
+	return pluginName
 }
 
 // GetPrecompiles implements core.PrecompilePlugin.

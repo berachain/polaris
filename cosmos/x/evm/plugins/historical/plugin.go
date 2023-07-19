@@ -23,13 +23,15 @@ package historical
 import (
 	"context"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/core"
 )
+
+const pluginName = `historical`
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
@@ -40,6 +42,8 @@ type Plugin interface {
 
 // plugin keeps track of polaris blocks via headers.
 type plugin struct {
+	// log is the logger for the plugin.
+	logger log.Logger
 	// ctx is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
 	// cp is used to get the current chain config.
@@ -63,6 +67,14 @@ func NewPlugin(
 		bp:       bp,
 		storeKey: storekey,
 	}
+}
+
+func (p *plugin) SetLogger(logger log.Logger) {
+	p.logger = logger
+}
+
+func (p *plugin) Name() string {
+	return pluginName
 }
 
 // Prepare implements core.HistoricalPlugin.

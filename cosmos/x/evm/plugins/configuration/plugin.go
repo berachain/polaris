@@ -23,8 +23,8 @@ package configuration
 import (
 	"context"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -33,6 +33,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/params"
 )
+
+const pluginName = `config`
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
@@ -44,6 +46,9 @@ type Plugin interface {
 
 // plugin implements the core.ConfigurationPlugin interface.
 type plugin struct {
+	// log is the logger for the plugin.
+	logger log.Logger
+
 	storeKey    storetypes.StoreKey
 	paramsStore storetypes.KVStore
 }
@@ -53,6 +58,14 @@ func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 	return &plugin{
 		storeKey: storeKey,
 	}
+}
+
+func (p *plugin) SetLogger(logger log.Logger) {
+	p.logger = logger
+}
+
+func (p *plugin) Name() string {
+	return pluginName
 }
 
 // Prepare implements the core.ConfigurationPlugin interface.
@@ -67,5 +80,3 @@ func (p *plugin) FeeCollector() *common.Address {
 	addr := common.BytesToAddress([]byte(authtypes.FeeCollectorName))
 	return &addr
 }
-
-func (p *plugin) IsPlugin() {}

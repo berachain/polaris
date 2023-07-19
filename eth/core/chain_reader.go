@@ -84,8 +84,7 @@ func (bc *blockchain) CurrentSnapBlock() *types.Header {
 	return nil
 }
 
-// GetHeadersFrom returns a contiguous segment of headers, in rlp-form, going
-// backwards from the given number.
+// CurrentFinalBlock returns the current finalized header of the blockchain.
 func (bc *blockchain) CurrentFinalBlock() *types.Header {
 	fb, ok := utils.GetAs[*types.Block](bc.finalizedBlock.Load())
 	if fb == nil || !ok {

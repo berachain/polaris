@@ -111,7 +111,7 @@ func (k *Keeper) Setup(
 		panic(err)
 	}
 
-	k.polaris = polar.NewWithNetworkingStack(cfg, k.host, node, ethlog.FuncHandler(
+	k.polaris = polar.NewWithNetworkingStack(cfg, node, ethlog.FuncHandler(
 		func(r *ethlog.Record) error {
 			polarisGethLogger := logger.With("module", "polaris-geth")
 			switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
@@ -137,27 +137,25 @@ func (k *Keeper) GetHost() Host {
 	return k.host
 }
 
+// StartServices waits until the first block is being processed for the lock to unlock before
+// starting the networking stack and txpool service.
 func (k *Keeper) StartServices(clientContext client.Context) {
+	// spin lock until the first block is being processed
+	for ; k.lock; time.Sleep(100 * time.Millisecond) {
+		continue
+	}
+
+	// start the txpool service
 	txpool := txpool.NewTxPool(
 		txpool.DefaultConfig, k.host.GetConfigurationPlugin().ChainConfig(), k.polaris.Blockchain(),
 	)
 	k.polaris.SetTxPool(txpool)
-	tp := k.host.GetTxPoolPlugin()
-	tp.Setup(txpool, clientContext)
+	k.host.GetTxPoolPlugin().Start(txpool, clientContext)
 
-	// TODO: move this
-	go func() {
-		// spin lock for a bit
-		for ; k.lock; time.Sleep(1 * time.Second) {
-			continue
-		}
-
-		if err := k.polaris.StartServices(); err != nil {
-			panic(err)
-		}
-
-		tp.Start()
-	}()
+	// start the networking stack (json-rpc, graphql, etc.)
+	if err := k.polaris.StartServices(); err != nil {
+		panic(err)
+	}
 }
 
 // TODO: Remove these, because they're hacky af.

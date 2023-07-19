@@ -26,8 +26,8 @@ import (
 	"math/big"
 	"sync"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
@@ -42,7 +42,10 @@ import (
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
-const pluginRegistryKey = `statePlugin`
+const (
+	pluginRegistryKey = `statePlugin`
+	pluginName        = `state`
+)
 
 var (
 	// EmptyCodeHash is the code hash of an empty code
@@ -90,6 +93,9 @@ type Plugin interface {
 type plugin struct {
 	libtypes.Controller[string, libtypes.Controllable[string]]
 
+	// log is the logger for the plugin.
+	logger log.Logger
+
 	// We maintain a context in the StateDB, so that we can pass it with the correctly
 	// configured multi-store to the precompiled contracts.
 	ctx sdk.Context
@@ -128,6 +134,19 @@ func NewPlugin(
 		plf:      plf,
 		mu:       sync.Mutex{},
 	}
+}
+
+func (p *plugin) SetLogger(logger log.Logger) {
+	p.logger = logger
+}
+
+// RegistryKey implements `libtypes.Registrable`.
+func (p *plugin) RegistryKey() string {
+	return pluginRegistryKey
+}
+
+func (p *plugin) Name() string {
+	return pluginName
 }
 
 // Prepare sets up the context on the state plugin for a new block. It sets the gas configs to be 0
@@ -172,11 +191,6 @@ func (p *plugin) Reset(ctx context.Context) {
 
 	// We reset the saved error, so that we can check for errors in the next state transition.
 	p.savedErr = nil
-}
-
-// RegistryKey implements `libtypes.Registrable`.
-func (p *plugin) RegistryKey() string {
-	return pluginRegistryKey
 }
 
 // GetContext implements `core.StatePlugin`.
