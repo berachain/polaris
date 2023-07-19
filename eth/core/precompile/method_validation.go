@@ -32,7 +32,7 @@ import (
 )
 
 // ValidateBasic checks if the precompile method argument and return types match
-// the abi's argument return types. this is for overloaded Solidity functions and general
+// the abi's argument and return types. This is for overloaded Solidity functions and general
 // validation.
 func (m *Method) ValidateBasic() error {
 	implMethod := m.execute
@@ -66,6 +66,7 @@ func (m *Method) ValidateBasic() error {
 	}
 
 	// receiver is 0th param, context is 1st param, so skip those.
+	// validate that the precompile input args types == abi input arg types.
 	for i := 2; i < implMethod.Type.NumIn(); i++ {
 		implMethodParamType := implMethod.Type.In(i)
 		abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
@@ -74,6 +75,8 @@ func (m *Method) ValidateBasic() error {
 		}
 	}
 
+	// error is the last param, so skip that.
+	// validate that the precompile return types == abi return types.
 	for i := 0; i < implMethod.Type.NumOut()-1; i++ {
 		implMethodReturnType := implMethod.Type.Out(i)
 		abiMethodReturnType := abiMethod.Outputs[i].Type.GetType()
@@ -131,11 +134,10 @@ func validateStructFields(implMethodVarType reflect.Type,
 		return nil
 	}
 	if implMethodVarType.NumField() != abiMethodVarType.NumField() {
-		return errors.New("number of return types mismatch")
+		return errors.New("number of struct fields mismatch")
 	}
 	for j := 0; j < implMethodVarType.NumField(); j++ {
 		// if the field is a nested struct, then we recurse
-
 		if implMethodVarType.Field(j).Type.Kind() == reflect.Struct &&
 			abiMethodVarType.Field(j).Type.Kind() == reflect.Struct {
 			if err := validateStructFields(
