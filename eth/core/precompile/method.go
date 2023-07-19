@@ -48,8 +48,8 @@ import (
 // Method is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
 type Method struct {
-	// Rcvr is the receiver object of the precompile's executable. This is the object that
-	// implements the respective precompile method.
+	// rcvr is the receiver of the method's executable. This is the stateful precompile
+	// that implements the respective precompile method.
 	rcvr StatefulImpl
 
 	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
@@ -79,8 +79,6 @@ func NewMethod(
 }
 
 // Call executes the precompile's executable with the given context and input arguments.
-//
-
 func (m *Method) Call(ctx context.Context, input []byte) ([]byte, error) {
 	// Unpack the args from the input, if any exist.
 	unpackedArgs, err := m.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])
