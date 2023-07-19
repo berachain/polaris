@@ -21,8 +21,11 @@
 package mempool
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	"pkg.berachain.dev/polaris/eth/common"
 
 	coretypes "github.com/ethereum/go-ethereum/core/types"
 )
@@ -31,6 +34,16 @@ import (
 type iterator struct {
 	txs        *coretypes.TransactionsByPriceAndNonce
 	serializer SdkTxSerializer
+}
+
+func newIterator(
+	pendingTxs map[common.Address]coretypes.Transactions, pendingBaseFee *big.Int,
+	signer coretypes.Signer, serializer SdkTxSerializer,
+) *iterator {
+	return &iterator{
+		txs:        coretypes.NewTransactionsByPriceAndNonce(signer, pendingTxs, pendingBaseFee),
+		serializer: serializer,
+	}
 }
 
 // Tx implements sdkmempool.Iterator.

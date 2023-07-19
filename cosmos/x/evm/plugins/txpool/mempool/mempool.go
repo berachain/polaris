@@ -131,14 +131,7 @@ func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Itera
 	}
 
 	// return an iterator over the pending txs, sorted by price and nonce
-	gtp.iterator = &iterator{
-		txs: coretypes.NewTransactionsByPriceAndNonce(
-			gtp.signer,
-			pendingTxs,
-			gtp.pendingBaseFee,
-		),
-		serializer: gtp.serializer,
-	}
+	gtp.iterator = newIterator(pendingTxs, gtp.pendingBaseFee, gtp.signer, gtp.serializer)
 	return gtp.iterator
 }
 
