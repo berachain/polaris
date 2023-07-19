@@ -111,7 +111,7 @@ func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) 
 				); err != nil {
 					return err
 				}
-				// any other case, we just check the elements.
+				// Any other case, we just check the elements.
 			} else if implMethodVarType.In(j) != abiMethodVarType.In(j) {
 				return fmt.Errorf("return type mismatch: %v != %v",
 					implMethodVarType.Elem(),
