@@ -21,6 +21,7 @@
 package txpool
 
 import (
+	"fmt"
 	"sync"
 
 	"cosmossdk.io/log"
@@ -91,7 +92,6 @@ func (h *handler) txBroadcastLoop() {
 	for {
 		select {
 		case event := <-h.txsCh:
-			h.logger.Debug("received new transactions", "numTxs", len(event.Txs))
 			h.broadcastTransactions(event.Txs)
 		case <-h.txsSub.Err():
 			h.logger.Error("tx subscription error", "err", h.txsSub.Err())
@@ -103,8 +103,9 @@ func (h *handler) txBroadcastLoop() {
 
 // broadcastTransactions will propagate a batch of transactions to the CometBFT mempool.
 func (h *handler) broadcastTransactions(txs types.Transactions) {
-	h.logger.Debug("broadcasting transactions", "num_txs", len(txs))
+	h.logger.Info("broadcasting transactions", "num_txs", len(txs))
 	for _, signedEthTx := range txs {
+		fmt.Println("signedEthTx", signedEthTx)
 		// Serialize the transaction to Bytes
 		txBytes, err := h.serializer.SerializeToBytes(signedEthTx)
 		if err != nil {

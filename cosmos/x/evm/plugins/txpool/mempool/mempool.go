@@ -23,7 +23,6 @@ package mempool
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -45,9 +44,6 @@ type WrappedGethTxPool struct {
 	// The underlying Geth mempool implementation.
 	*txpool.TxPool
 
-	// serializer converts eth txs to sdk txs when being iterated over.
-	serializer SdkTxSerializer
-
 	// pendingBaseFee is set by the miner, as is the signer.
 	pendingBaseFee *big.Int
 	signer         coretypes.Signer
@@ -64,7 +60,7 @@ func NewWrappedGethTxPool() *WrappedGethTxPool {
 // Setup sets the chain config and sdk tx serializer on the wrapped Geth TxPool.
 func (gtp *WrappedGethTxPool) Setup(txPool *txpool.TxPool, serializer SdkTxSerializer) {
 	gtp.TxPool = txPool
-	gtp.serializer = serializer
+	gtp.iterator = newIterator(serializer)
 }
 
 // Prepare prepares the txpool for the next pending block.
@@ -101,13 +97,13 @@ func (gtp *WrappedGethTxPool) InsertSync(_ context.Context, tx sdk.Tx) error {
 // Remove is called when a transaction is removed from the mempool.
 func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		if gtp.iterator != nil {
+		if !gtp.iterator.empty {
 			gtp.iterator.txs.Pop()
 		} else if gtp.RemoveTx(ethTx.Hash(), true) < 1 {
 			// remove from the pending queue of txs in the geth mempool.
 			// Note: RemoveTx will return 0 if the tx was removed from future queue. Generally, any
 			// tx in the future queue will not be removed because only the pending txs get
-			// selected by prepare proposal.
+			// selected by prepare proposal.nu
 			return sdkmempool.ErrTxNotFound
 		}
 	}
@@ -122,16 +118,13 @@ func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Itera
 		return nil
 	}
 
-	fmt.Println("WGTP", gtp)
-
 	// return nil if there are no pending txs
-	pendingTxs := gtp.Pending(true)
-	if len(pendingTxs) == 0 {
+	if pending, _ := gtp.Stats(); pending == 0 {
 		return nil
 	}
 
-	// return an iterator over the pending txs, sorted by price and nonce
-	gtp.iterator = newIterator(pendingTxs, gtp.pendingBaseFee, gtp.signer, gtp.serializer)
+	// return the iterator over the pending txs, sorted by price and nonce
+	gtp.iterator.reset(gtp.Pending(true), gtp.pendingBaseFee, gtp.signer)
 	return gtp.iterator
 }
 
