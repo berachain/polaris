@@ -351,8 +351,6 @@ cosmossdk.io/api v0.4.2/go.mod h1:qrVgOp7DIeAXa+Tt5dDjOC47bZCDrwx8ZHxrmy7STNE=
 cosmossdk.io/api v0.4.3-0.20230608151552-9b9e319d1abc/go.mod h1:qrVgOp7DIeAXa+Tt5dDjOC47bZCDrwx8ZHxrmy7STNE=
 cosmossdk.io/api v0.5.0/go.mod h1:5Jc00Q4tSTcrZXvvE3J/ybvZK6DopLcp3ThK3X703QE=
 cosmossdk.io/api v0.6.0/go.mod h1:kJFAEMLN57y0viszHDPLMmieF0471o5QAwwApa+270M=
-cosmossdk.io/client/v2 v2.0.0-20230719143845-dff6b0e26aa4 h1:rXCotxNnD0DUpcVBYojEZWUTEIJ9p+sgkpEtZlV4+pE=
-cosmossdk.io/client/v2 v2.0.0-20230719143845-dff6b0e26aa4/go.mod h1:mrwVTC+6n90zDpvn4N12YJVl67QUCDQ3yEqIR4Ovp14=
 cosmossdk.io/collections v0.2.0/go.mod h1:Oc1FK0vlmxJZsgUn9/o3ldE6zNyWKvobVzaLhWknZJE=
 cosmossdk.io/core v0.8.0/go.mod h1:LF6VLOv2DdCiaHxYVmr0MZcZpaSM9ZgvyrQSYTeg6D0=
 cosmossdk.io/core v0.8.1-0.20230608151552-9b9e319d1abc/go.mod h1:LF6VLOv2DdCiaHxYVmr0MZcZpaSM9ZgvyrQSYTeg6D0=
@@ -466,6 +464,8 @@ github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd3
 github.com/aymerick/raymond v2.0.3-0.20180322193309-b565731e1464+incompatible h1:Ppm0npCCsmuR9oQaBtRuZcmILVE74aXE+AmrJj8L2ns=
 github.com/aymerick/raymond v2.0.3-0.20180322193309-b565731e1464+incompatible/go.mod h1:osfaiScAUVup+UC9Nfq76eWqDhXlp+4UYaA8uhTBO6g=
 github.com/benbjohnson/clock v1.3.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
+github.com/berachain/polaris-geth v0.0.0-20230720035902-5dba0ba4d280 h1:qJV9v49gVYWLWZnab8eqTB6ZXwmLymYVJg72H0xCRL0=
+github.com/berachain/polaris-geth v0.0.0-20230720035902-5dba0ba4d280/go.mod h1:/oo2X/dZLJjf2mJ6YT9wcWxa4nNJDBKDBU6sFIpx1Gs=
 github.com/boombuler/barcode v1.0.0/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/boombuler/barcode v1.0.1/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=

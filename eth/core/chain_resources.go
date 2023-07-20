@@ -36,7 +36,6 @@ import (
 type ChainResources interface {
 	StateAtBlockNumber(uint64) (vm.GethStateDB, error)
 	StateAt(common.Hash) (state.StateDBI, error)
-	StateAtHeader(header *types.Header) (vm.GethStateDB, error)
 	GetVMConfig() *vm.Config
 	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
 	NewEVMBlockContext(header *types.Header) *vm.BlockContext
@@ -55,11 +54,6 @@ func (bc *blockchain) StateAtBlockNumber(number uint64) (vm.GethStateDB, error) 
 // StateAt returns a new mutable state based on a particular point in time.
 func (bc *blockchain) StateAt(common.Hash) (state.StateDBI, error) {
 	return nil, errors.New("state root not supported by Polaris")
-}
-
-// StateAtHeader returns a new mutable state based on a particular block header in time.
-func (bc *blockchain) StateAtHeader(header *types.Header) (vm.GethStateDB, error) {
-	return bc.StateAtBlockNumber(header.Number.Uint64())
 }
 
 // GetEVM returns an EVM ready to be used for executing transactions. It is used by both the
