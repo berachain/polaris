@@ -21,6 +21,8 @@
 package precompile
 
 import (
+	"errors"
+	"fmt"
 	"reflect"
 	"unicode"
 
@@ -117,14 +119,14 @@ func buildIdsToMethods(
 	si StatefulImpl,
 	contractImpl reflect.Value,
 ) (map[string]*Method, error) {
-	pcABI := si.ABIMethods()
+	precompileABI := si.ABIMethods()
 	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*Method)
 	for m := 0; m < contractImplType.NumMethod(); m++ {
 		implMethod := contractImplType.Method(m)
 		// This only runs when we have overloaded functions. In most cases, it's an O(1) operation.
 
-		abiMethod := find(implMethod, pcABI)
+		abiMethod := findInABI(implMethod, precompileABI)
 		// we need to make sure that this is actually mapping the right implMethod by checking the
 		// arg types due to the overloaded function edge case.
 		if abiMethod.Name != "" {
@@ -144,7 +146,7 @@ func buildIdsToMethods(
 	}
 
 	// verify that every abi method has a corresponding precompile implementation
-	for _, abiMethod := range pcABI {
+	for _, abiMethod := range precompileABI {
 		if _, found := idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)]; !found {
 			return nil, errorslib.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Name)
 		}
@@ -153,38 +155,20 @@ func buildIdsToMethods(
 	return idsToMethods, nil
 }
 
-// Find returns the longest substring of `implMethodName` that is a key in `pcABI`.
+// Find returns the longest substring of `implMethodName` that is a key in `precompileABI`.
 // This function is used to find the ABI method that corresponds to the Go implementation.
 // and provides safeguarding against the overloaded function edge case.
-func find(implMethod reflect.Method, pcABI map[string]abi.Method) abi.Method {
+func findInABI(implMethod reflect.Method, precompileABI map[string]abi.Method) abi.Method {
 	implMethodName := formatName(implMethod.Name)
 
 	for i := len(implMethodName); i > 0; i-- {
-		for _, abiMethod := range pcABI {
-			abiRawName := abiMethod.RawName
+		for _, abiMethod := range precompileABI {
 			// this could be the function
-			if implMethodName == abiRawName {
+			if implMethodName == abiMethod.RawName {
 				// same function name and same amount of arguments. if this case fails then
 				// we either don't have the right function or we have an overloaded function.
-				if len(abiMethod.Inputs) > 0 && len(abiMethod.Inputs) == implMethod.Type.NumIn()-2 {
-					// simple type checking of args
-					for i := 0; i < len(abiMethod.Inputs); i++ {
-						//nolint:gomnd // we skip the first 2 args.
-						implArgType := implMethod.Type.In(i + 2)
-						abiArgType := abiMethod.Inputs[i].Type.GetType()
-						// if the arg types don't match, and the abiArgType isn't an interface, then this
-						// isn't the right function.
-						if implArgType != abiArgType && implArgType.Kind() != reflect.Interface {
-							continue
-						}
-					}
-					// if we got here, all the args match and it's the right function.
+				if err := validateInputs(implMethod, abiMethod); err == nil {
 					return abiMethod
-				} else if len(abiMethod.Inputs) == 0 {
-					// no args to check, this is the right method.
-					return abiMethod
-				} else {
-					continue
 				}
 			}
 			implMethodName = implMethodName[:i]
@@ -192,6 +176,32 @@ func find(implMethod reflect.Method, pcABI map[string]abi.Method) abi.Method {
 	}
 
 	return abi.Method{}
+}
+
+func validateInputs(implMethod reflect.Method, abiMethod abi.Method) error {
+	abiMethodNumIn := len(abiMethod.Inputs)
+
+	// First two args of Go precompile implementation are the receiver contract and the Context, so
+	// verify that the ABI method has exactly 2 fewer inputs than the implementation method.
+	if implMethod.Type.NumIn()-2 != abiMethodNumIn {
+		return errors.New("number of arguments mismatch")
+	}
+
+	// If the function does not take any inputs, no need to check.
+	if abiMethodNumIn > 0 {
+		// Validate that the precompile input args types match ABI input arg types, excluding the
+		// first two args (receiver contract and Context).
+		for i := 2; i < implMethod.Type.NumIn(); i++ {
+			implMethodParamType := implMethod.Type.In(i)
+			abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
+			if err := validateArg(implMethodParamType, abiMethodParamType); err != nil {
+				fmt.Println("we error", err)
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 // formatName converts to first character of name to lowercase.

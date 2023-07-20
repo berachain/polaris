@@ -26,21 +26,17 @@
 package precompile
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 )
 
-// ValidateBasic checks if the precompile method argument and return types match
-// the abi's argument and return types. This is for overloaded Solidity functions and general
-// validation.
+// ValidateBasic checks if the precompile method argument and return types match the ABI's argument
+// and return types. This is for overloaded Solidity functions and general validation.
 func (m *Method) ValidateBasic() error {
-	implMethod := m.execute
-	abiMethod := m.abiMethod
 
-	implMethodNumIn := implMethod.Type.NumIn()
-	abiMethodNumIn := len(abiMethod.Inputs)
-	implMethodNumOut := implMethod.Type.NumOut()
-	abiMethodNumOut := len(abiMethod.Outputs)
+	// Now verify the outputs match.
+	implMethodNumOut := m.execute.Type.NumOut()
 
 	// The Solidity compiler requires that precompiles must return at least one value.
 	// See https://github.com/berachain/polaris/issues/491 for more information.
@@ -49,66 +45,26 @@ func (m *Method) ValidateBasic() error {
 		panic("The Solidity compiler requires all precompile functions to return at least one value. Consider returning a boolean.")
 	}
 
-	// Validate that our implementation returns an error (revert) as the last param.
-	if implMethod.Type.Out(implMethodNumOut-1) != reflect.TypeOf((*error)(nil)).Elem() {
-		return fmt.Errorf(
-			"last return type must be error, got %v",
-			implMethod.Type.Out(implMethodNumOut-1),
-		)
-	}
-
-	// First two args of Go precompile implementation are the receiver contract and the
-	// Context, so we skip those.
-	if implMethodNumIn-2 != abiMethodNumIn {
-		return fmt.Errorf(
-			"number of arguments mismatch for function %v, want %v, got %v",
-			abiMethod.Name,
-			abiMethodNumIn,
-			//nolint:gomnd // 2 is the number of args we skip.
-			implMethodNumIn-2,
-		)
-	}
-
 	// Last parameter of Go precompile implementation is an error (for reverts),
 	// so we skip that.
-	if implMethodNumOut-1 != abiMethodNumOut {
+	if implMethodNumOut-1 != len(m.abiMethod.Outputs) {
+		return errors.New("number of return types mismatch")
+	}
+
+	// Validate that our implementation returns an error (revert) as the last param.
+	if m.execute.Type.Out(implMethodNumOut-1) != reflect.TypeOf((*error)(nil)).Elem() {
 		return fmt.Errorf(
-			"number of return values mismatch for function %v, want %v, got %v",
-			m.abiMethod.Name,
-			abiMethodNumOut,
-			implMethodNumOut-1,
+			"last return type must be error, got %v", m.execute.Type.Out(implMethodNumOut-1),
 		)
 	}
-	// If the function does not take any inputs, no need to check.
-	if abiMethodNumIn == 0 {
-		return nil
-	}
 
-	// Receiver is 0th param, context is 1st param, so skip those.
-	// Validate that the precompile input args types == abi input arg types.
-	for i := 2; i < implMethodNumIn; i++ {
-		implMethodParamType := implMethod.Type.In(i)
-		abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
-		if err := validateArg(implMethodParamType, abiMethodParamType); err != nil {
-			return fmt.Errorf(
-				"argument type mismatch: %v != %v function %v",
-				implMethodParamType,
-				abiMethodParamType,
-				abiMethod.Name,
-			)
-		}
-	}
-
-	// Error is the last param, so skip that.
-	// Validate that the precompile return types == abi return types.
+	// Validate that the other implementation return types match ABI return types.
 	for i := 0; i < implMethodNumOut-1; i++ {
-		implMethodReturnType := implMethod.Type.Out(i)
-		abiMethodReturnType := abiMethod.Outputs[i].Type.GetType()
+		implMethodReturnType := m.execute.Type.Out(i)
+		abiMethodReturnType := m.abiMethod.Outputs[i].Type.GetType()
 		if err := validateArg(implMethodReturnType, abiMethodReturnType); err != nil {
 			return fmt.Errorf(
-				"return type mismatch: %v != %v",
-				implMethodReturnType,
-				abiMethodReturnType,
+				"return type mismatch: %v != %v", implMethodReturnType, abiMethodReturnType,
 			)
 		}
 	}
@@ -116,14 +72,14 @@ func (m *Method) ValidateBasic() error {
 	return nil
 }
 
-// Helper function for ValidateBasic. This function function uses reflection to see
-// what types your implementation uses, and checks against the geth representation of the abi types.
+// validateArg is a helper function for ValidateBasic. This function function uses reflection to
+// verify the implementation method's arg type matches the ABI method's corresponding arg type.
 func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
-	//nolint:exhaustive // nah, this is fine.
+	//nolint:exhaustive // checking necessary conditions.
 	switch implMethodVarType.Kind() {
 	case abiMethodVarType.Kind(), reflect.Interface:
-		// If the Go type matches the abi type, we're good.
-		// If it's `any`, we leave it to the user to make sure that it is used/converted correctly.
+		// If the Go type matches the ABI type, we're good. If it's `any` (reflect.Interface), we
+		// leave it to the implementer to make sure that it is used/converted correctly.
 		return nil
 	case reflect.Struct:
 		if err := validateStructFields(implMethodVarType, abiMethodVarType); err != nil {
@@ -131,17 +87,17 @@ func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) 
 		}
 	case reflect.Slice, reflect.Array:
 		for j := 0; j < abiMethodVarType.Len(); j++ {
-			// If it is a slice/array of structs, check if the struct fields match.
 			if abiMethodVarType.Elem().Kind() == reflect.Struct {
+				// If it is a slice/array of structs, check if the struct fields match.
 				if err := validateStructFields(
-					implMethodVarType.Elem(),
-					abiMethodVarType.Elem(),
+					implMethodVarType.Elem(), abiMethodVarType.Elem(),
 				); err != nil {
 					return err
 				}
-				// Any other case, we just check the elements.
 			} else if implMethodVarType.In(j) != abiMethodVarType.In(j) {
-				return fmt.Errorf("return type mismatch: %v != %v",
+				// Any other case, we just check the elements.
+				return fmt.Errorf(
+					"return type mismatch: %v != %v",
 					implMethodVarType.Elem(),
 					abiMethodVarType.Elem(),
 				)
@@ -150,37 +106,39 @@ func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) 
 	default:
 		return fmt.Errorf("return type mismatch: %v != %v", implMethodVarType, abiMethodVarType)
 	}
+
 	return nil
 }
 
-// This function checks to make sure that the struct fields match. If there is a nested struct, then
+// This function checks to make sure that the struct fields match. If there is a nested struct,
 // we recurse until we reach the base case of a struct composing of only primitive types.
-func validateStructFields(implMethodVarType reflect.Type,
-	abiMethodVarType reflect.Type,
-) error {
+func validateStructFields(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
 	if implMethodVarType == nil && abiMethodVarType == nil {
 		return nil
 	}
+
 	if implMethodVarType.NumField() != abiMethodVarType.NumField() {
-		return fmt.Errorf("struct %v has %v fields, but struct %v has %v fields",
+		return fmt.Errorf(
+			"struct %v has %v fields, but struct %v has %v fields",
 			implMethodVarType.Name(),
 			implMethodVarType.NumField(),
 			abiMethodVarType.Name(),
 			abiMethodVarType.NumField(),
 		)
 	}
+
 	for j := 0; j < implMethodVarType.NumField(); j++ {
-		// If the field is a nested struct, then we recurse.
 		if implMethodVarType.Field(j).Type.Kind() == reflect.Struct &&
 			abiMethodVarType.Field(j).Type.Kind() == reflect.Struct {
+			// If the field is a struct, then we recurse.
 			if err := validateStructFields(
-				implMethodVarType.Field(j).Type,
-				abiMethodVarType.Field(j).Type,
+				implMethodVarType.Field(j).Type, abiMethodVarType.Field(j).Type,
 			); err != nil {
 				return err
 			}
 		} else if implMethodVarType.Field(j).Type != abiMethodVarType.Field(j).Type {
-			return fmt.Errorf("return type mismatch: %v != %v",
+			return fmt.Errorf(
+				"return type mismatch: %v != %v",
 				implMethodVarType.Field(j).Type,
 				abiMethodVarType.Field(j).Type,
 			)
