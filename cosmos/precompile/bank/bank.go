@@ -74,7 +74,7 @@ func (c *Contract) GetBalance(
 	return balance.BigInt(), nil
 }
 
-// // GetAllBalances implements `getAllBalances(address)` method.
+// GetAllBalances implements `getAllBalances(address)` method.
 func (c *Contract) GetAllBalances(
 	ctx context.Context,
 	accountAddress common.Address,
