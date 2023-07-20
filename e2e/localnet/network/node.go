@@ -157,7 +157,8 @@ func (c *containerizedNode) Remove() error {
 }
 
 func (c *containerizedNode) DumpLogs() (string, error) {
-	return c.containerClient.GetContainerLogs()
+	logsBz, err := c.containerClient.GetContainerLogs()
+	return string(logsBz), err
 }
 
 // GetHTTPEndpoint returns the HTTP endpoint of the node.
