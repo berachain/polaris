@@ -58,6 +58,12 @@ func (m *Method) ValidateBasic() error {
 	// First two args of Go precompile implementation are the receiver contract and the
 	// Context, so we skip those.
 	if implMethodNumIn-2 != abiMethodNumIn {
+		for i := 0; i < implMethod.Type.NumIn(); i++ {
+			fmt.Println(implMethod.Type.In(i))
+		}
+		fmt.Println(implMethod.Name)
+		fmt.Println(abiMethod.Name)
+		fmt.Println(implMethodNumIn, abiMethodNumIn)
 		return errors.New("number of arguments mismatch")
 	}
 

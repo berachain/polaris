@@ -37,7 +37,7 @@ type MockPrecompileInterfaceObject struct {
 
 // MockPrecompileMetaData contains all meta data concerning the MockPrecompile contract.
 var MockPrecompileMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"contractFunc\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"ans\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"str\",\"type\":\"string\"}],\"name\":\"contractFuncStr\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"str\",\"type\":\"string\"}],\"name\":\"getOutput\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"creationHeight\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"timeStamp\",\"type\":\"string\"}],\"internalType\":\"structMockPrecompileInterface.Object[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getOutputPartial\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"creationHeight\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"timeStamp\",\"type\":\"string\"}],\"internalType\":\"structMockPrecompileInterface.Object\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"contractFunc\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"ans\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"str\",\"type\":\"string\"}],\"name\":\"contractFuncStr\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"str\",\"type\":\"string\"}],\"name\":\"getOutput\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"creationHeight\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"timeStamp\",\"type\":\"string\"}],\"internalType\":\"structMockPrecompileInterface.Object[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getOutputPartial\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"creationHeight\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"timeStamp\",\"type\":\"string\"}],\"internalType\":\"structMockPrecompileInterface.Object\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"overloadedFunc\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"ans\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"overloadedFunc\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"ans\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // MockPrecompileABI is the input ABI used to generate the binding from.
@@ -268,4 +268,46 @@ func (_MockPrecompile *MockPrecompileSession) GetOutputPartial() (*types.Transac
 // Solidity: function getOutputPartial() returns((uint256,string))
 func (_MockPrecompile *MockPrecompileTransactorSession) GetOutputPartial() (*types.Transaction, error) {
 	return _MockPrecompile.Contract.GetOutputPartial(&_MockPrecompile.TransactOpts)
+}
+
+// OverloadedFunc is a paid mutator transaction binding the contract method 0x1e61d5aa.
+//
+// Solidity: function overloadedFunc() returns(uint256 ans)
+func (_MockPrecompile *MockPrecompileTransactor) OverloadedFunc(opts *bind.TransactOpts) (*types.Transaction, error) {
+	return _MockPrecompile.contract.Transact(opts, "overloadedFunc")
+}
+
+// OverloadedFunc is a paid mutator transaction binding the contract method 0x1e61d5aa.
+//
+// Solidity: function overloadedFunc() returns(uint256 ans)
+func (_MockPrecompile *MockPrecompileSession) OverloadedFunc() (*types.Transaction, error) {
+	return _MockPrecompile.Contract.OverloadedFunc(&_MockPrecompile.TransactOpts)
+}
+
+// OverloadedFunc is a paid mutator transaction binding the contract method 0x1e61d5aa.
+//
+// Solidity: function overloadedFunc() returns(uint256 ans)
+func (_MockPrecompile *MockPrecompileTransactorSession) OverloadedFunc() (*types.Transaction, error) {
+	return _MockPrecompile.Contract.OverloadedFunc(&_MockPrecompile.TransactOpts)
+}
+
+// OverloadedFunc0 is a paid mutator transaction binding the contract method 0x5482a42b.
+//
+// Solidity: function overloadedFunc(uint256 a) returns(uint256 ans)
+func (_MockPrecompile *MockPrecompileTransactor) OverloadedFunc0(opts *bind.TransactOpts, a *big.Int) (*types.Transaction, error) {
+	return _MockPrecompile.contract.Transact(opts, "overloadedFunc0", a)
+}
+
+// OverloadedFunc0 is a paid mutator transaction binding the contract method 0x5482a42b.
+//
+// Solidity: function overloadedFunc(uint256 a) returns(uint256 ans)
+func (_MockPrecompile *MockPrecompileSession) OverloadedFunc0(a *big.Int) (*types.Transaction, error) {
+	return _MockPrecompile.Contract.OverloadedFunc0(&_MockPrecompile.TransactOpts, a)
+}
+
+// OverloadedFunc0 is a paid mutator transaction binding the contract method 0x5482a42b.
+//
+// Solidity: function overloadedFunc(uint256 a) returns(uint256 ans)
+func (_MockPrecompile *MockPrecompileTransactorSession) OverloadedFunc0(a *big.Int) (*types.Transaction, error) {
+	return _MockPrecompile.Contract.OverloadedFunc0(&_MockPrecompile.TransactOpts, a)
 }

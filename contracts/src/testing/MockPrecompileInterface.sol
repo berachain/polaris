@@ -38,4 +38,8 @@ interface MockPrecompileInterface {
     function contractFunc(address addr) external returns (uint256 ans);
 
     function contractFuncStr(string calldata str) external;
+
+    function overloadedFunc() external returns (uint256 ans);
+
+    function overloadedFunc(uint256 a) external returns (uint256 ans);
 }

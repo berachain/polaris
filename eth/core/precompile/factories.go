@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"fmt"
 	"reflect"
 	"unicode"
 
@@ -118,6 +119,7 @@ func buildIdsToMethods(
 	contractImpl reflect.Value,
 ) (map[string]*Method, error) {
 	pcABI := si.ABIMethods()
+	fmt.Println("THIS IS PCABI", pcABI)
 	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*Method)
 	for m := 0; m < contractImplType.NumMethod(); m++ {
@@ -127,9 +129,8 @@ func buildIdsToMethods(
 
 		// we need to make sure that this is actually mapping the right implMethod by checking the
 		// arg types due to the overloaded function edge case.
-		var method *Method
 		if abiMethod.Name != "" {
-			method = NewMethod(
+			method := NewMethod(
 				si,
 				&abiMethod,
 				abiMethod.Sig,
@@ -137,7 +138,7 @@ func buildIdsToMethods(
 			)
 
 			if err := method.ValidateBasic(); err != nil {
-				continue
+				return nil, err
 			} else {
 				idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = method
 			}
@@ -166,7 +167,6 @@ func find(implMethod reflect.Method, pcABI map[string]abi.Method) abi.Method {
 		if abiMethod, found := pcABI[implMethodName]; found {
 			// check types of the arguments to make sure that the method is actually the right one
 			// due to the overloaded function edge case.
-
 			for j := 2; j < implMethod.Type.NumIn(); j++ {
 				implArgType := implMethod.Type.In(j)
 				abiArgType := abiMethod.Inputs[j-2].Type.GetType()

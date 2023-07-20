@@ -22,6 +22,7 @@ package precompile_test
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
@@ -87,6 +88,18 @@ var _ = Describe("Container Factories", func() {
 			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial"))
 		})
 	})
+
+	Context("Overloaded Stateful Container", func() {
+
+		It("should contruct a stateful container with overloaded methods", func() {
+			scf := precompile.NewStatefulFactory()
+			os := &overloadedStateful{&mockBase{}}
+			stateful, err := scf.Build(os, nil)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(stateful).ToNot(BeNil())
+		})
+
+	})
 })
 
 // MOCKS BELOW.
@@ -135,21 +148,6 @@ type mockStateful struct {
 	*mockBase
 }
 
-func (ms *mockStateful) ABIMethods() map[string]abi.Method {
-	return map[string]abi.Method{
-		"getOutput": mockPrecompile.Methods["getOutput"],
-	}
-}
-func (ms *mockStateful) ABIEvents() map[string]abi.Event {
-	return nil
-}
-
-func (ms *mockStateful) CustomValueDecoders() precompile.ValueDecoders {
-	return nil
-}
-
-func (ms *mockStateful) SetPlugin(precompile.Plugin) {}
-
 // ============================================================================.
 type badMockStateful struct {
 	*mockBase
@@ -167,3 +165,29 @@ func (bms *badMockStateful) ABIMethods() map[string]abi.Method {
 }
 
 // ============================================================================
+
+type overloadedStateful struct {
+	*mockBase
+}
+
+func (os *overloadedStateful) OverloadedFunc(_ context.Context) (*big.Int, error) {
+	return big.NewInt(69), nil
+}
+
+func (os *overloadedStateful) OverloadedFunc_(_ context.Context, a *big.Int) (*big.Int, error) {
+	return big.NewInt(420), nil
+}
+
+func (os *overloadedStateful) ABIMethods() map[string]abi.Method {
+	fmt.Println("=====================================")
+	fmt.Println("=====================================")
+	for k, v := range mock.Methods {
+		fmt.Println(k, "<>", v)
+	}
+	fmt.Println("=====================================")
+	fmt.Println("=====================================")
+	return map[string]abi.Method{
+		"overloadedFunc":  mock.Methods["overloadedFunc"],
+		"overloadedFunc0": mock.Methods["overloadedFunc0"],
+	}
+}
