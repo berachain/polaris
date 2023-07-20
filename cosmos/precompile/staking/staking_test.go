@@ -166,7 +166,7 @@ var _ = Describe("Staking", func() {
 				true,
 			)
 
-			delegation := stakingtypes.NewDelegation(del, val, sdkmath.LegacyNewDec(9))
+			delegation := stakingtypes.NewDelegation(del.String(), val.String(), sdkmath.LegacyNewDec(9))
 			Expect(sk.SetDelegation(ctx, delegation)).To(Succeed())
 
 			// Check that the delegation was created.
