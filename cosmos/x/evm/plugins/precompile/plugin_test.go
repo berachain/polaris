@@ -34,7 +34,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -45,7 +44,7 @@ import (
 
 var _ = Describe("plugin", func() {
 	var p *plugin
-	var e precompile.EVM
+	var e vm.PrecompileEVM
 	var ctx sdk.Context
 
 	BeforeEach(func() {
@@ -117,7 +116,7 @@ func (msp *mockSP) SetGasConfig(kvg storetypes.GasConfig, tkvg storetypes.GasCon
 }
 
 type mockEVM struct {
-	precompile.EVM
+	vm.PrecompileEVM
 	ctx sdk.Context
 	ms  *mockSDB
 }
@@ -147,7 +146,7 @@ func (ms *mockStateless) RegistryKey() common.Address {
 }
 
 func (ms *mockStateless) Run(
-	ctx context.Context, _ precompile.EVM, _ []byte,
+	ctx context.Context, _ vm.PrecompileEVM, _ []byte,
 	_ common.Address, _ *big.Int,
 ) ([]byte, error) {
 	sdk.UnwrapSDKContext(ctx).GasMeter().ConsumeGas(10, "")
@@ -166,7 +165,7 @@ func (msf *mockStateful) RegistryKey() common.Address {
 
 // panics if modifying state on read-only.
 func (msf *mockStateful) Run(
-	ctx context.Context, _ precompile.EVM, input []byte,
+	ctx context.Context, _ vm.PrecompileEVM, input []byte,
 	_ common.Address, _ *big.Int,
 ) ([]byte, error) {
 	if input[0] == byte(2) {

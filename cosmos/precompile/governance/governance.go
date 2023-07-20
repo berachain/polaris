@@ -22,7 +22,6 @@ package governance
 
 import (
 	"context"
-	"math/big"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,11 +32,9 @@ import (
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
-	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // Contract is the precompile contract for the governance module.
@@ -61,36 +58,6 @@ func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
 	}
 }
 
-// PrecompileMethods implements the `ethprecompile.StatefulImpl` interface.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{
-		{
-			AbiSig:  "submitProposal(bytes,bytes)",
-			Execute: c.SubmitProposal,
-		},
-		{
-			AbiSig:  "cancelProposal(uint64)",
-			Execute: c.CancelProposal,
-		},
-		{
-			AbiSig:  "vote(uint64,int32,string)",
-			Execute: c.Vote,
-		},
-		{
-			AbiSig:  "voteWeighted(uint64,(int32,string)[],string)",
-			Execute: c.VoteWeighted,
-		},
-		{
-			AbiSig:  "getProposal(uint64)",
-			Execute: c.GetProposal,
-		},
-		{
-			AbiSig:  "getProposals(int32)",
-			Execute: c.GetProposals,
-		},
-	}
-}
-
 // CustomValueDecoders implements the `ethprecompile.StatefulImpl` interface.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
@@ -103,22 +70,12 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 // SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	proposalBz, ok := utils.GetAs[[]byte](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidBytes
-	}
-	messageBz, ok := utils.GetAs[[]byte](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBytes
-	}
+	proposalBz []byte,
+	messageBz []byte,
+) (uint64, error) {
 	message, err := unmarshalMsgAndReturnAny(messageBz)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	return c.submitProposalHelper(ctx, proposalBz, []*codectypes.Any{message})
 }
@@ -126,16 +83,9 @@ func (c *Contract) SubmitProposal(
 // CancelProposal is the method for the `cancelProposal` method of the governance precompile contract.
 func (c *Contract) CancelProposal(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	id, ok := utils.GetAs[uint64](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidUint64
-	}
-	proposer := sdk.AccAddress(caller.Bytes())
+	id uint64,
+) (uint64, uint64, error) {
+	proposer := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
 	return c.cancelProposalHelper(ctx, proposer, id)
 }
@@ -143,24 +93,11 @@ func (c *Contract) CancelProposal(
 // Vote is the method for the `vote` method of the governance precompile contract.
 func (c *Contract) Vote(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	proposalID, ok := utils.GetAs[uint64](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidUint64
-	}
-	options, ok := utils.GetAs[int32](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidInt32
-	}
-	metadata, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	voter := sdk.AccAddress(caller.Bytes())
+	proposalID uint64,
+	options int32,
+	metadata string,
+) (bool, error) {
+	voter := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
 	return c.voteHelper(ctx, voter, proposalID, options, metadata)
 }
@@ -168,56 +105,27 @@ func (c *Contract) Vote(
 // VoteWeighted is the method for the `voteWeighted` method of the governance precompile contract.
 func (c *Contract) VoteWeighted(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	proposalID, ok := utils.GetAs[uint64](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
-	options, ok := utils.GetAs[[]generated.IGovernanceModuleWeightedVoteOption](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidOptions
-	}
-	metadata, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	voter := sdk.AccAddress(caller.Bytes())
+	proposalID uint64,
+	options []generated.IGovernanceModuleWeightedVoteOption,
+	metadata string,
+) (bool, error) {
+	voter := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
 }
 
 // GetProposal is the method for the `getProposal` method of the governance precompile contract.
 func (c *Contract) GetProposal(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	proposalID, ok := utils.GetAs[uint64](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidUint64
-	}
-
+	proposalID uint64,
+) (generated.IGovernanceModuleProposal, error) {
 	return c.getProposalHelper(ctx, proposalID)
 }
 
 // GetProposals is the method for the `getProposal` method of the governance precompile contract.
 func (c *Contract) GetProposals(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	proposalStatus, ok := utils.GetAs[int32](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidInt32
-	}
-
+	proposalStatus int32,
+) ([]generated.IGovernanceModuleProposal, error) {
 	return c.getProposalsHelper(ctx, proposalStatus)
 }
 

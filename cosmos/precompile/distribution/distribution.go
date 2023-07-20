@@ -22,17 +22,16 @@ package distribution
 
 import (
 	"context"
-	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/distribution"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // Contract is the precompile contract for the distribution module.
@@ -64,68 +63,35 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	}
 }
 
-// PrecompileMethods implements the `coreprecompile.StatefulImpl` interface.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{
-		{
-			AbiSig:  "setWithdrawAddress(address)",
-			Execute: c.SetWithdrawAddress,
-		},
-		{
-			AbiSig:  "withdrawDelegatorReward(address,address)",
-			Execute: c.WithdrawDelegatorReward,
-		},
-		{
-			AbiSig:  "getWithdrawEnabled()",
-			Execute: c.GetWithdrawAddrEnabled,
-		},
-	}
-}
-
 // SetWithdrawAddress is the precompile contract method for the `setWithdrawAddress(address)` method.
 func (c *Contract) SetWithdrawAddress(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	withdrawAddr, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
-	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), sdk.AccAddress(withdrawAddr.Bytes()))
+	withdrawAddress common.Address,
+) (bool, error) {
+	return c.setWithdrawAddressHelper(
+		ctx,
+		sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes()),
+		sdk.AccAddress(withdrawAddress.Bytes()),
+	)
 }
 
-// WithdrawDelegatorReward is the precompile contract method for the `withdrawDelegatorReward(address,address)`
-// method.
+// GetWithdrawEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
+func (c *Contract) GetWithdrawEnabled(
+	ctx context.Context,
+) (bool, error) {
+	return c.getWithdrawAddrEnabled(ctx)
+}
+
+// WithdrawDelegatorReward is the precompile contract method for the
+// `withdrawDelegatorReward(address,address)` method.
 func (c *Contract) WithdrawDelegatorReward(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	delegator, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	validator, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
-	return c.withdrawDelegatorRewardsHelper(ctx, sdk.AccAddress(delegator.Bytes()), sdk.ValAddress(validator.Bytes()))
-}
-
-// GetWithdrawAddrEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
-func (c *Contract) GetWithdrawAddrEnabled(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ ...any,
-) ([]any, error) {
-	return c.getWithdrawAddrEnabled(ctx)
+	delegator common.Address,
+	validator common.Address,
+) ([]lib.CosmosCoin, error) {
+	return c.withdrawDelegatorRewardsHelper(
+		ctx,
+		sdk.AccAddress(delegator.Bytes()),
+		sdk.ValAddress(validator.Bytes()),
+	)
 }

@@ -31,6 +31,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -43,7 +44,7 @@ func (c *Contract) setSendAllowanceHelper(
 	granter, grantee sdk.AccAddress,
 	limit sdk.Coins,
 	expiration *big.Int,
-) ([]any, error) {
+) (bool, error) {
 	var (
 		grant authz.Grant
 		err   error
@@ -62,7 +63,7 @@ func (c *Contract) setSendAllowanceHelper(
 
 	// Assert that the grant is valid.
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
 	// Send the grant via the authz module.
@@ -72,7 +73,7 @@ func (c *Contract) setSendAllowanceHelper(
 		Grant:   grant,
 	})
 
-	return []any{err == nil}, err
+	return err == nil, err
 }
 
 // getSendAllownace returns the highest allowance for a given coin denom.
@@ -81,7 +82,7 @@ func (c *Contract) getSendAllownaceHelper(
 	blocktime time.Time,
 	granter, grantee sdk.AccAddress,
 	coinDenom string,
-) ([]any, error) {
+) (*big.Int, error) {
 	// Get the grants from the authz query server.
 	res, err := c.queryServer.Grants(ctx, &authz.QueryGrantsRequest{
 		Granter:    granter.String(),
@@ -91,7 +92,7 @@ func (c *Contract) getSendAllownaceHelper(
 	})
 	if err != nil {
 		//nolint:nilerr // We want to ignore the error here.
-		return []any{big.NewInt(0)}, nil
+		return big.NewInt(0), nil
 	}
 
 	// Map the grants to send authorizations, should have the same type since we filtered by msg
@@ -104,25 +105,25 @@ func (c *Contract) getSendAllownaceHelper(
 	// Get the highest allowance from the send authorizations.
 	allowance := getHighestAllowance(sendAuths, coinDenom)
 
-	return []any{allowance}, nil
+	return allowance, nil
 }
 
 // acc must be the bech32 encoded address.
 func (c *Contract) accountInfoHelper(
 	ctx context.Context,
 	acc string,
-) ([]any, error) {
+) (auth.IAuthModuleBaseAccount, error) {
 	res, err := c.authQueryServer.Account(ctx, &authtypes.QueryAccountRequest{
 		Address: acc,
 	})
 	if err != nil {
-		return nil, err
+		return auth.IAuthModuleBaseAccount{}, err
 	}
 
 	account, ok := utils.GetAs[sdk.AccountI](res.GetAccount().GetCachedValue())
 	if !ok {
-		return nil, errors.New("invalid SDK account type")
+		return auth.IAuthModuleBaseAccount{}, errors.New("invalid SDK account type")
 	}
 
-	return []any{cosmlib.SdkAccountToAuthAccount(account)}, nil
+	return cosmlib.SdkAccountToAuthAccount(account), nil
 }

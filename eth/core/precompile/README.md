@@ -24,8 +24,7 @@ Stateful Precompiles can be implemented by adhering to the `StatefulImpl` interf
         A) This precompile contract should expose the ABI's `Methods`, which can be generated via
         Go-Ethereum's abi package. These methods are of type `abi.Method`.
  	    B) This precompile contract should also expose the `Method`s. A `Method` includes the
-        `executable`, which is the direct implementation of a corresponding ABI method, the
-        `executable`'s `RequiredGas`, and the ABI signature. Do NOT provide the `AbiMethod` as
+        `executable`, which is the direct implementation of a corresponding ABI method, and the ABI signature. Do NOT provide the `AbiMethod` as
         this field will be automatically populated.
 
 Examples of stateful precompiles that run in a Cosmos SDK-based host chain can be found in the

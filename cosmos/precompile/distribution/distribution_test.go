@@ -41,12 +41,11 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -107,6 +106,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		dk  *distrkeeper.Keeper
 		sk  *stakingkeeper.Keeper
 		bk  *bankkeeper.BaseKeeper
+		sf  *ethprecompile.StatefulFactory
 	)
 
 	BeforeEach(func() {
@@ -122,6 +122,9 @@ var _ = Describe("Distribution Precompile Test", func() {
 
 		// Register the events.
 		f = log.NewFactory([]ethprecompile.Registrable{contract})
+
+		// Set up the stateful factory.
+		sf = ethprecompile.NewStatefulFactory()
 	})
 
 	It("should register the withdraw event", func() {
@@ -136,26 +139,25 @@ var _ = Describe("Distribution Precompile Test", func() {
 		Expect(log.Address).To(Equal(contract.RegistryKey()))
 	})
 
-	When("SetWithdrawAddress", func() {
-		It("should fail if not common address", func() {
-			res, err := contract.SetWithdrawAddress(
-				ctx,
-				nil,
-				testutil.Alice,
-				big.NewInt(0),
-				false,
-				"invalid",
-			)
-			Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-			Expect(res).To(BeNil())
+	When("PrecompileMethods", func() {
+		It("should return the correct methods", func() {
+			_, err := sf.Build(contract, nil)
+			Expect(err).ToNot(HaveOccurred())
 		})
+	})
+
+	When("SetWithdrawAddress", func() {
 
 		It("should succeed", func() {
-			res, err := contract.SetWithdrawAddress(
+			pCtx := vm.NewPolarContext(
 				ctx,
 				nil,
 				testutil.Alice,
 				big.NewInt(0),
+			)
+
+			res, err := contract.SetWithdrawAddress(
+				pCtx,
 				testutil.Bob,
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -220,64 +222,43 @@ var _ = Describe("Distribution Precompile Test", func() {
 		})
 
 		When("Withdraw Delegator Rewards common address", func() {
-			It("should fail if not common address", func() {
-				res, err := contract.WithdrawDelegatorReward(
-					ctx,
-					nil,
-					testutil.Alice,
-					big.NewInt(0),
-					"0x0000000000",
-					cosmlib.ValAddressToEthAddress(valAddr),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if validator address not common.address", func() {
-				res, err := contract.WithdrawDelegatorReward(
-					ctx,
-					nil,
-					testutil.Alice,
-					big.NewInt(0),
-					false,
-					cosmlib.AccAddressToEthAddress(addr),
-					"0x0000000000",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
 
 			It("Success", func() {
-				res, err := contract.WithdrawDelegatorReward(
+				pCtx := vm.NewPolarContext(
 					ctx,
 					nil,
 					testutil.Alice,
 					big.NewInt(0),
+				)
+				res, err := contract.WithdrawDelegatorReward(
+					pCtx,
 					cosmlib.AccAddressToEthAddress(addr),
 					cosmlib.ValAddressToEthAddress(valAddr),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				resTyped := utils.MustGetAs[[]libgenerated.CosmosCoin](res[0])
-				Expect(resTyped[0].Denom).To(Equal(sdk.DefaultBondDenom))
+				Expect(res[0].Denom).To(Equal(sdk.DefaultBondDenom))
 				rewards, _ := tokens.TruncateDecimal()
-				Expect(resTyped[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
+				Expect(res[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
 			})
 		})
-
 		When("Reading Params", func() {
 			It("Should get if withdraw forwarding is enabled", func() {
-				res, err := contract.GetWithdrawAddrEnabled(ctx, nil, testutil.Alice, big.NewInt(0))
+				pCtx := vm.NewPolarContext(
+					ctx,
+					nil,
+					testutil.Alice,
+					big.NewInt(0),
+				)
+				res, err := contract.GetWithdrawEnabled(pCtx)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res).To(Equal([]any{true}))
+				Expect(res).To(BeTrue())
 			})
 		})
 		When("Base Precompile Features", func() {
 			It("Should have custom value decoders", func() {
 				Expect(contract.CustomValueDecoders()).ToNot(BeNil())
 			})
-			It("Should have correct amount of precompile methods", func() {
-				Expect(contract.PrecompileMethods()).To(HaveLen(3))
-			})
+
 		})
 	})
 })

@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: BUSL-1.1
 //
 // Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // Use of this software is govered by the Business Source License included
@@ -29,12 +28,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
+	authgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // Contract is the precompile contract for the auth(z) module.
@@ -55,7 +53,7 @@ func NewPrecompileContract(
 ) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
-			generated.AuthModuleMetaData.ABI,
+			authgenerated.AuthModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(authtypes.ModuleName)),
 		),
 		authQueryServer: authQueryServer,
@@ -64,55 +62,34 @@ func NewPrecompileContract(
 	}
 }
 
-// PrecompileMethods implements StatefulImpl.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{
-		{
-			AbiSig:  "setSendAllowance(address,address,(uint256,string)[],uint256)",
-			Execute: c.SetSendAllowance,
-		},
-		{
-			AbiSig:  "getSendAllowance(address,address,string)",
-			Execute: c.GetSendAllowance,
-		},
-		{
-			AbiSig:  "getAccountInfo(address)",
-			Execute: c.GetAccountInfoAddrInput,
-		},
-	}
+// GetAccountInfoStringInput implements `getAccountInfo(address)`.
+func (c *Contract) GetAccountInfo(
+	ctx context.Context,
+	account common.Address,
+) (authgenerated.IAuthModuleBaseAccount, error) {
+	return c.accountInfoHelper(ctx, cosmlib.Bech32FromEthAddress(account))
 }
 
 // SetSendAllowance sends a send authorization message to the authz module.
 func (c *Contract) SetSendAllowance(
 	ctx context.Context,
-	evm ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	owner, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	spender, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	amount, err := cosmlib.ExtractCoinsFromInput(args[2])
+	spender common.Address,
+	amount any,
+	expiration *big.Int,
+) (bool, error) {
+	amt, err := cosmlib.ExtractCoinsFromInput(amount)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
-	expiration, ok := utils.GetAs[*big.Int](args[3])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
-	}
+
+	polarCtx := vm.UnwrapPolarContext(ctx)
 
 	return c.setSendAllowanceHelper(
 		ctx,
-		time.Unix(int64(evm.GetContext().Time), 0),
-		cosmlib.AddressToAccAddress(owner),
+		time.Unix(int64(polarCtx.Block().Time), 0),
+		cosmlib.AddressToAccAddress(polarCtx.MsgSender()),
 		cosmlib.AddressToAccAddress(spender),
-		amount,
+		amt,
 		expiration,
 	)
 }
@@ -120,27 +97,13 @@ func (c *Contract) SetSendAllowance(
 // GetSendAllowance returns the amount of tokens that the spender is allowd to spend.
 func (c *Contract) GetSendAllowance(
 	ctx context.Context,
-	evm ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	owner, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	spender, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	denom, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-
+	owner common.Address,
+	spender common.Address,
+	denom string,
+) (*big.Int, error) {
 	return c.getSendAllownaceHelper(
 		ctx,
-		time.Unix(int64(evm.GetContext().Time), 0),
+		time.Unix(int64(vm.UnwrapPolarContext(ctx).Evm().GetContext().Time), 0),
 		cosmlib.AddressToAccAddress(owner),
 		cosmlib.AddressToAccAddress(spender),
 		denom,
@@ -161,19 +124,4 @@ func getHighestAllowance(sendAuths []*banktypes.SendAuthorization, coinDenom str
 		}
 	}
 	return max
-}
-
-// GetAccountInfoAddrInput implements `getAccountInfo(address)`.
-func (c *Contract) GetAccountInfoAddrInput(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	args ...any,
-) ([]any, error) {
-	acc, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	return c.accountInfoHelper(ctx, cosmlib.Bech32FromEthAddress(acc))
 }

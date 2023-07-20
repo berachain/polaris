@@ -22,6 +22,7 @@ package precompile_test
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
@@ -29,6 +30,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -83,12 +85,7 @@ var _ = Describe("Container Factories", func() {
 
 		It("should error on missing precompile method for ABI method", func() {
 			_, err := scf.Build(&badMockStateful{&mockStateful{&mockBase{}}}, nil)
-			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial()"))
-		})
-
-		It("should error on invalid precompile methods", func() {
-			_, err := scf.Build(&invalidMockStateful{&mockStateful{&mockBase{}}}, nil)
-			Expect(err.Error()).To(Equal("incomplete precompile Method"))
+			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial"))
 		})
 	})
 })
@@ -110,7 +107,7 @@ func (ms *mockStateless) RequiredGas(_ []byte) uint64 {
 }
 
 func (ms *mockStateless) Run(
-	_ context.Context, _ precompile.EVM, _ []byte,
+	_ context.Context, _ vm.PrecompileEVM, _ []byte,
 	_ common.Address, _ *big.Int,
 ) ([]byte, error) {
 	return nil, nil
@@ -130,14 +127,26 @@ func (ms *mockStateful) ABIMethods() map[string]abi.Method {
 	}
 }
 
-func (ms *mockStateful) PrecompileMethods() precompile.Methods {
-	return precompile.Methods{
-		{
-			AbiSig:      "getOutput(string)",
-			Execute:     getOutput,
-			RequiredGas: 1,
-		},
+func (ms *mockStateful) GetOutput(
+	_ context.Context,
+	_ vm.PrecompileEVM,
+	_ common.Address,
+	_ *big.Int,
+	_ bool,
+	args ...any,
+) ([]any, error) {
+	str, ok := utils.GetAs[string](args[0])
+	if !ok {
+		return nil, errors.New("cast error")
 	}
+	return []any{
+		[]mockObject{
+			{
+				CreationHeight: big.NewInt(1),
+				TimeStamp:      str,
+			},
+		},
+	}, nil
 }
 
 func (ms *mockStateful) ABIEvents() map[string]abi.Event {
@@ -158,18 +167,5 @@ func (bms *badMockStateful) ABIMethods() map[string]abi.Method {
 	return map[string]abi.Method{
 		"getOutput":        mock.Methods["getOutput"],
 		"getOutputPartial": mock.Methods["getOutputPartial"],
-	}
-}
-
-type invalidMockStateful struct {
-	*mockStateful
-}
-
-func (ims *invalidMockStateful) PrecompileMethods() precompile.Methods {
-	return precompile.Methods{
-		{
-			AbiSig:      "getOutput(string)",
-			RequiredGas: 1,
-		},
 	}
 }

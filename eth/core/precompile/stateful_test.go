@@ -29,9 +29,9 @@ import (
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
-	pmock "pkg.berachain.dev/polaris/eth/core/precompile/mock"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -41,25 +41,27 @@ import (
 var _ = Describe("Stateful Container", func() {
 	var sc vm.PrecompileContainer
 	var empty vm.PrecompileContainer
-	var ctx context.Context
-	var addr common.Address
-	var value *big.Int
 	var blank []byte
 	var badInput = []byte{1, 2, 3, 4}
-	var evm precompile.EVM
+	var err error
+	var ctx context.Context
 
 	BeforeEach(func() {
-		evm = pmock.NewEVM()
-		ctx = context.Background()
-		sc = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
-		empty = precompile.NewStateful(nil, nil)
+		sc, err = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
+		Expect(err).ToNot(HaveOccurred())
+		empty, err = precompile.NewStateful(nil, nil)
+		Expect(empty).To(BeNil())
+		Expect(err).To(MatchError("the stateful precompile has no methods to run"))
+		ctx = vm.NewPolarContext(
+			context.Background(),
+			vmmock.NewEVM(),
+			common.Address{},
+			big.NewInt(0),
+		)
 	})
 
 	Describe("Test Required Gas", func() {
-		It("should return 0 for invalid cases", func() {
-			// empty input
-			Expect(empty.RequiredGas(blank)).To(Equal(uint64(0)))
-
+		It("should return 0 in all cases", func() {
 			// method not found
 			Expect(sc.RequiredGas(badInput)).To(Equal(uint64(0)))
 
@@ -67,61 +69,99 @@ var _ = Describe("Stateful Container", func() {
 			Expect(sc.RequiredGas(blank)).To(Equal(uint64(0)))
 		})
 
-		It("should properly return the required gas for valid methods", func() {
-			Expect(sc.RequiredGas(getOutputABI.ID)).To(Equal(uint64(1)))
-			Expect(sc.RequiredGas(getOutputPartialABI.ID)).To(Equal(uint64(10)))
-			Expect(sc.RequiredGas(contractFuncAddrABI.ID)).To(Equal(uint64(100)))
-			Expect(sc.RequiredGas(contractFuncStrABI.ID)).To(Equal(uint64(1000)))
-		})
 	})
 
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
-			// empty input
-			_, err := empty.Run(ctx, evm, blank, addr, value)
-			Expect(err).To(MatchError("the stateful precompile has no methods to run"))
-
 			// invalid input
-			_, err = sc.Run(ctx, evm, blank, addr, value)
+			_, err = sc.Run(
+				ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				blank,
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
 
 			// method not found
-			_, err = sc.Run(ctx, evm, badInput, addr, value)
+			_, err = sc.Run(
+				ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				badInput, vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(MatchError("precompile method not found in contract ABI"))
 
 			// geth unpacking error
-			_, err = sc.Run(ctx, evm, append(getOutputABI.ID, byte(1), byte(2)), addr, value)
+			_, err = sc.Run(ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				append(getOutputABI.ID, byte(1), byte(2)),
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(HaveOccurred())
 
 			// precompile exec error
-			_, err = sc.Run(ctx, evm, getOutputPartialABI.ID, addr, value)
+			_, err = sc.Run(
+				ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				getOutputPartialABI.ID,
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err.Error()).To(Equal(
 				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]", //nolint:lll // test.
 			))
 
 			// precompile returns vals when none expected
-			inputs, err := contractFuncStrABI.Inputs.Pack("string")
+			var inputs []byte
+			inputs, err = contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, evm, append(contractFuncStrABI.ID, inputs...), addr, value)
+			_, err = sc.Run(
+				ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				append(contractFuncStrABI.ID, inputs...),
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(HaveOccurred())
 
 			// geth output packing error
-			inputs, err = contractFuncAddrABI.Inputs.Pack(addr)
+			inputs, err = contractFuncAddrABI.Inputs.Pack(vm.UnwrapPolarContext(ctx).MsgSender())
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, evm, append(contractFuncAddrABI.ID, inputs...), addr, value)
+			_, err = sc.Run(
+				ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				append(contractFuncAddrABI.ID, inputs...),
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(HaveOccurred())
 		})
 
 		It("should return properly for valid method calls", func() {
-			inputs, err := getOutputABI.Inputs.Pack("string")
+
+			var inputs []byte
+			inputs, err = getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			ret, err := sc.Run(ctx, evm, append(getOutputABI.ID, inputs...), addr, value)
+			var ret []byte
+			ret, err = sc.Run(
+				ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				append(getOutputABI.ID, inputs...),
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).ToNot(HaveOccurred())
-			outputs, err := getOutputABI.Outputs.Unpack(ret)
+			var outputs []interface{}
+			outputs, err = getOutputABI.Outputs.Unpack(ret)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(outputs).To(HaveLen(1))
 			Expect(
-				reflect.ValueOf(outputs[0]).Index(0).FieldByName("CreationHeight").Interface().(*big.Int),
+				reflect.ValueOf(outputs[0]).
+					Index(0).
+					FieldByName("CreationHeight").
+					Interface().(*big.Int),
 			).To(Equal(big.NewInt(1)))
 			Expect(
 				reflect.ValueOf(outputs[0]).Index(0).FieldByName("TimeStamp").Interface().(string),
@@ -139,30 +179,26 @@ var (
 	contractFuncAddrABI = mock.Methods["contractFunc"]
 	contractFuncStrABI  = mock.Methods["contractFuncStr"]
 	mockIdsToMethods    = map[string]*precompile.Method{
-		utils.UnsafeBytesToStr(getOutputABI.ID): {
-			AbiSig:      getOutputABI.Sig,
-			AbiMethod:   &getOutputABI,
-			Execute:     getOutput,
-			RequiredGas: 1,
-		},
-		utils.UnsafeBytesToStr(getOutputPartialABI.ID): {
-			AbiSig:      getOutputPartialABI.Sig,
-			AbiMethod:   &getOutputPartialABI,
-			Execute:     getOutputPartial,
-			RequiredGas: 10,
-		},
-		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): {
-			AbiSig:      contractFuncAddrABI.Sig,
-			AbiMethod:   &contractFuncAddrABI,
-			Execute:     contractFuncAddrInput,
-			RequiredGas: 100,
-		},
-		utils.UnsafeBytesToStr(contractFuncStrABI.ID): {
-			AbiSig:      contractFuncStrABI.Sig,
-			AbiMethod:   &contractFuncStrABI,
-			Execute:     contractFuncStrInput,
-			RequiredGas: 1000,
-		},
+		utils.UnsafeBytesToStr(getOutputABI.ID): precompile.NewMethod(
+			&getOutputABI,
+			getOutputABI.Sig,
+			reflect.ValueOf(getOutput),
+		),
+		utils.UnsafeBytesToStr(getOutputPartialABI.ID): precompile.NewMethod(
+			&getOutputPartialABI,
+			getOutputPartialABI.Sig,
+			reflect.ValueOf(getOutputPartial),
+		),
+		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): precompile.NewMethod(
+			&contractFuncAddrABI,
+			contractFuncAddrABI.Sig,
+			reflect.ValueOf(contractFuncAddrInput),
+		),
+		utils.UnsafeBytesToStr(contractFuncStrABI.ID): precompile.NewMethod(
+			&contractFuncStrABI,
+			contractFuncStrABI.Sig,
+			reflect.ValueOf(contractFuncStrInput),
+		),
 	}
 )
 
@@ -171,45 +207,39 @@ type mockObject struct {
 	TimeStamp      string
 }
 
+//revive:disable
 func getOutput(
-	_ context.Context,
-	evm precompile.EVM,
-	_ common.Address,
-	_ *big.Int,
+	sc precompile.Registrable,
+	ctx context.Context,
 	args ...any,
-) ([]any, error) {
+) ([]mockObject, error) {
 	str, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, errors.New("cast error")
 	}
-	evm.GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
-	return []any{
-		[]mockObject{
-			{
-				CreationHeight: big.NewInt(1),
-				TimeStamp:      str,
-			},
+	vm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
+	return []mockObject{
+		{
+			CreationHeight: big.NewInt(1),
+			TimeStamp:      str,
 		},
 	}, nil
 }
 
 func getOutputPartial(
-	_ context.Context,
-	_ precompile.EVM,
-	_ common.Address,
-	_ *big.Int,
+	sc precompile.Registrable,
+	ctx context.Context,
 	_ ...any,
 ) ([]any, error) {
 	return nil, errors.New("err during precompile execution")
 }
 
 func contractFuncAddrInput(
-	_ context.Context,
-	_ precompile.EVM,
-	_ common.Address,
-	_ *big.Int,
+	sc precompile.Registrable,
+	ctx context.Context,
 	args ...any,
 ) ([]any, error) {
+	_ = ctx
 	_, ok := utils.GetAs[common.Address](args[0])
 	if !ok {
 		return nil, errors.New("cast error")
@@ -218,12 +248,11 @@ func contractFuncAddrInput(
 }
 
 func contractFuncStrInput(
-	_ context.Context,
-	_ precompile.EVM,
-	_ common.Address,
-	_ *big.Int,
+	sc precompile.Registrable,
+	ctx context.Context,
 	args ...any,
 ) ([]any, error) {
+	_ = ctx
 	addr, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, errors.New("cast error")

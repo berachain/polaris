@@ -120,7 +120,7 @@ func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConf
 //
 //nolint:nonamedreturns // panic recovery.
 func (p *plugin) Run(
-	evm ethprecompile.EVM, pc vm.PrecompileContainer, input []byte,
+	evm vm.PrecompileEVM, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readOnly bool,
 ) (ret []byte, gasRemaining uint64, err error) {
 	// get native Cosmos SDK context, MultiStore, and EventManager from the Polaris StateDB
@@ -169,7 +169,7 @@ func (p *plugin) Run(
 // EnableReentrancy sets the state so that execution can enter the EVM again.
 //
 // EnableReentrancy implements core.PrecompilePlugin.
-func (p *plugin) EnableReentrancy(evm ethprecompile.EVM) {
+func (p *plugin) EnableReentrancy(evm vm.PrecompileEVM) {
 	p.enableReentrancy(utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB()))
 }
 
@@ -187,7 +187,7 @@ func (p *plugin) enableReentrancy(sdb vm.PolarisStateDB) {
 // DisableReentrancy sets the state so that execution cannot enter the EVM again.
 //
 // DisableReentrancy implements core.PrecompilePlugin.
-func (p *plugin) DisableReentrancy(evm ethprecompile.EVM) {
+func (p *plugin) DisableReentrancy(evm vm.PrecompileEVM) {
 	p.disableReentrancy(utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB()))
 }
 

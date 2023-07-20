@@ -64,7 +64,7 @@ func (dp *defaultPlugin) GetActive(rules *params.Rules) []common.Address {
 //
 // Run implements core.PrecompilePlugin.
 func (dp *defaultPlugin) Run(
-	evm EVM, pc vm.PrecompileContainer, input []byte,
+	evm vm.PrecompileEVM, pc vm.PrecompileContainer, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, _ bool,
 ) ([]byte, uint64, error) {
 	gasCost := pc.RequiredGas(input)
@@ -79,10 +79,10 @@ func (dp *defaultPlugin) Run(
 }
 
 // EnableReentrancy implements core.PrecompilePlugin.
-func (dp *defaultPlugin) EnableReentrancy(EVM) {}
+func (dp *defaultPlugin) EnableReentrancy(vm.PrecompileEVM) {}
 
 // DisableReentrancy implements core.PrecompilePlugin.
-func (dp *defaultPlugin) DisableReentrancy(EVM) {}
+func (dp *defaultPlugin) DisableReentrancy(vm.PrecompileEVM) {}
 
 // GetDefaultPrecompiles returns the default set of precompiles for the given rules.
 func GetDefaultPrecompiles(rules *params.Rules) []Registrable {

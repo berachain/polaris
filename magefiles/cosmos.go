@@ -27,6 +27,7 @@ package main
 
 import (
 	"runtime"
+	"strings"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -51,7 +52,7 @@ var (
 	localDockerPath        = baseDockerPath + "local/Dockerfile"
 	seedDockerPath         = baseDockerPath + "seed/Dockerfile"
 	valDockerPath          = baseDockerPath + "validator/Dockerfile"
-	goVersion              = "1.20.4"
+	goVersion              = "1.20.6"
 	precompileContractsDir = "./contracts"
 )
 
@@ -132,12 +133,14 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 		"platform", "linux"+"/"+arch,
 		"tag", tag,
 	)
+
 	return dockerBuildFn(withX)(
 		"--build-arg", "GO_VERSION="+goVersion,
 		"--platform", "linux/"+arch,
 		"--build-arg", "PRECOMPILE_CONTRACTS_DIR="+precompileContractsDir,
 		"--build-arg", "GOOS=linux",
 		"--build-arg", "GOARCH="+arch,
+		"--build-arg", "GO_WORK="+strings.Join(moduleDirs, " "),
 		"-f", dockerFilePath,
 		"-t", tag,
 		".",
@@ -212,14 +215,12 @@ func (c Cosmos) TestIntegration() error {
 	return testIntegration(c.directory() + "/testing/integration")
 }
 
-func (c Cosmos) DockerBuildHive() error {
-	LogGreen("Building hive docker image for the Cosmos SDK chain...")
-	return c.dockerBuildNode("polard-base", execDockerPath, goVersion, "test-hive", runtime.GOARCH, false)
-}
-
 func (c Cosmos) TestHive(sim string) error {
-	if err := c.DockerBuildHive(); err != nil {
-		return err
+	if out, _ := sh.Output("docker", "images", "-q", baseImageVersion); out == "" {
+		LogGreen("No existing base docker image found, building...")
+		if err := c.Docker("base", runtime.GOARCH); err != nil {
+			return err
+		}
 	}
 
 	if err := (Hive{}).Setup(); err != nil {
