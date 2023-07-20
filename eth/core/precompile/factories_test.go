@@ -22,7 +22,6 @@ package precompile_test
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
@@ -36,7 +35,7 @@ import (
 )
 
 var (
-	mockPrecompile, _ = solidity.MockPrecompileMetaData.GetAbi()
+	_, _ = solidity.MockPrecompileMetaData.GetAbi()
 )
 
 var _ = Describe("Container Factories", func() {
@@ -91,7 +90,7 @@ var _ = Describe("Container Factories", func() {
 
 	Context("Overloaded Stateful Container", func() {
 
-		It("should contruct a stateful container with overloaded methods", func() {
+		It("should construct a stateful container with overloaded methods", func() {
 			scf := precompile.NewStatefulFactory()
 			os := &overloadedStateful{&mockBase{}}
 			stateful, err := scf.Build(os, nil)
@@ -174,18 +173,11 @@ func (os *overloadedStateful) OverloadedFunc(_ context.Context) (*big.Int, error
 	return big.NewInt(69), nil
 }
 
-func (os *overloadedStateful) OverloadedFunc_(_ context.Context, a *big.Int) (*big.Int, error) {
+func (os *overloadedStateful) OverloadedFunc0(_ context.Context, _ *big.Int) (*big.Int, error) {
 	return big.NewInt(420), nil
 }
 
 func (os *overloadedStateful) ABIMethods() map[string]abi.Method {
-	fmt.Println("=====================================")
-	fmt.Println("=====================================")
-	for k, v := range mock.Methods {
-		fmt.Println(k, "<>", v)
-	}
-	fmt.Println("=====================================")
-	fmt.Println("=====================================")
 	return map[string]abi.Method{
 		"overloadedFunc":  mock.Methods["overloadedFunc"],
 		"overloadedFunc0": mock.Methods["overloadedFunc0"],

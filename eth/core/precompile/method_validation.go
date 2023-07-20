@@ -26,7 +26,6 @@
 package precompile
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 )
@@ -58,13 +57,13 @@ func (m *Method) ValidateBasic() error {
 	// First two args of Go precompile implementation are the receiver contract and the
 	// Context, so we skip those.
 	if implMethodNumIn-2 != abiMethodNumIn {
-		return errors.New("number of arguments mismatch")
+		return fmt.Errorf("number of arguments mismatch for function %v, want %v, got %v", abiMethod.Name, abiMethodNumIn, implMethodNumIn-2)
 	}
 
 	// Last parameter of Go precompile implementation is an error (for reverts),
 	// so we skip that.
 	if implMethodNumOut-1 != abiMethodNumOut {
-		return errors.New("number of return types mismatch")
+		return fmt.Errorf("number of return values mismatch for function %v, want %v, got %v", m.abiMethod.Name, abiMethodNumOut, implMethodNumOut-1)
 	}
 	// If the function does not take any inputs, no need to check.
 	if abiMethodNumIn == 0 {

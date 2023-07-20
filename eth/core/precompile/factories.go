@@ -21,7 +21,6 @@
 package precompile
 
 import (
-	"fmt"
 	"reflect"
 	"unicode"
 
@@ -115,10 +114,10 @@ func (sf *StatefulFactory) Build(
 // It searches for the ABI function in the Go precompile contract and performs basic validation on
 // the implemented function.
 func buildIdsToMethods(
-	si StatefulImpl, contractImpl reflect.Value,
+	si StatefulImpl,
+	contractImpl reflect.Value,
 ) (map[string]*Method, error) {
 	pcABI := si.ABIMethods()
-	fmt.Println("THIS IS PCABI", pcABI)
 	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*Method)
 	for m := 0; m < contractImplType.NumMethod(); m++ {
@@ -142,7 +141,6 @@ func buildIdsToMethods(
 				idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = method
 			}
 		}
-
 	}
 
 	// verify that every abi method has a corresponding precompile implementation
@@ -160,27 +158,31 @@ func buildIdsToMethods(
 // and provides safeguarding against the overloaded function edge case.
 func find(implMethod reflect.Method, pcABI map[string]abi.Method) abi.Method {
 	implMethodName := formatName(implMethod.Name)
-
 	for i := len(implMethodName); i > 0; i-- {
-
 		if abiMethod, found := pcABI[implMethodName]; found {
 			// check types of the arguments to make sure that the method is actually the right one
 			// due to the overloaded function edge case.
-			for j := 2; j < implMethod.Type.NumIn(); j++ {
-				implArgType := implMethod.Type.In(j)
-				abiArgType := abiMethod.Inputs[j-2].Type.GetType()
-				if implArgType != abiArgType && implArgType.Kind() != reflect.Slice && implArgType.Kind() != reflect.Array && implArgType.Kind() != reflect.Interface {
-					return abi.Method{}
-				}
+			if len(abiMethod.Inputs) != implMethod.Type.NumIn()-2 {
+				continue
 			}
-			return abiMethod
+			if len(abiMethod.Inputs) > 0 {
+				for j := 2; j < implMethod.Type.NumIn(); j++ {
+					implArgType := implMethod.Type.In(j)
+					abiArgType := abiMethod.Inputs[j-2].Type.GetType()
+					if implArgType != abiArgType && implArgType.Kind() != reflect.Slice && implArgType.Kind() != reflect.Array && implArgType.Kind() != reflect.Interface {
+						return abi.Method{}
+					}
+				}
+				return abiMethod
+			} else {
+				return abiMethod
+			}
 		}
 
 		implMethodName = implMethodName[:i]
 	}
 
 	return abi.Method{}
-
 }
 
 // formatName converts to first character of name to lowercase.
