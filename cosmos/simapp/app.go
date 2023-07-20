@@ -153,7 +153,8 @@ func NewPolarisApp(
 
 				// REQUIRED FOR EIP-55 ADDRESSES
 				func() address.Codec { return addrCodec },
-				func() authtypes.ValidatorAddressCodec { return addrCodec },
+				func() runtime.ConsensusAddressCodec { return addrCodec },
+				func() runtime.ValidatorAddressCodec { return addrCodec },
 				//
 				// AUTH
 				//

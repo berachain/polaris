@@ -35,7 +35,6 @@ import (
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
-	"cosmossdk.io/x/tx/signing"
 	txsigning "cosmossdk.io/x/tx/signing"
 
 	cmtcfg "github.com/cometbft/cometbft/config"
@@ -50,6 +49,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -87,7 +87,8 @@ func NewRootCmd() *cobra.Command {
 		depinject.Configs(
 			simapp.AppConfig, depinject.Supply(
 				func() address.Codec { return addrCodec },
-				func() types.ValidatorAddressCodec { return addrCodec },
+				func() runtime.ConsensusAddressCodec { return addrCodec },
+				func() runtime.ValidatorAddressCodec { return addrCodec },
 				evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
 		&interfaceRegistry,
 		&appCodec,
@@ -137,7 +138,7 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			// Add a custom sign mode handler for ethereum transactions.
-			txConfigOpts.CustomSignModes = []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
+			txConfigOpts.CustomSignModes = []txsigning.SignModeHandler{evmante.SignModeEthTxHandler{}}
 			txConfigOpts.SigningOptions = &txsigning.Options{
 				AddressCodec:          addrCodec,
 				ValidatorAddressCodec: addrCodec,
