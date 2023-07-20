@@ -24,6 +24,7 @@ import (
 	"reflect"
 	"unicode"
 
+	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -121,20 +122,27 @@ func buildIdsToMethods(
 	idsToMethods := make(map[string]*Method)
 	for m := 0; m < contractImplType.NumMethod(); m++ {
 		implMethod := contractImplType.Method(m)
-		implMethodName := formatName(implMethod.Name)
+		// This only runs when we have overloaded functions. In most cases, it's an O(1) operation.
+		abiMethod := find(implMethod, pcABI)
 
-		if abiMethod, found := pcABI[implMethodName]; found {
-			method := NewMethod(
+		// we need to make sure that this is actually mapping the right implMethod by checking the
+		// arg types due to the overloaded function edge case.
+		var method *Method
+		if abiMethod.Name != "" {
+			method = NewMethod(
 				si,
 				&abiMethod,
 				abiMethod.Sig,
 				implMethod,
 			)
+
 			if err := method.ValidateBasic(); err != nil {
-				return nil, errorslib.Wrap(err, implMethodName)
+				continue
+			} else {
+				idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = method
 			}
-			idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = method
 		}
+
 	}
 
 	// verify that every abi method has a corresponding precompile implementation
@@ -145,6 +153,35 @@ func buildIdsToMethods(
 	}
 
 	return idsToMethods, nil
+}
+
+// Find returns the longest substring of `implMethodName` that is a key in `pcABI`.
+// This function is used to find the ABI method that corresponds to the Go implementation.
+// and provides safeguarding against the overloaded function edge case.
+func find(implMethod reflect.Method, pcABI map[string]abi.Method) abi.Method {
+	implMethodName := formatName(implMethod.Name)
+
+	for i := len(implMethodName); i > 0; i-- {
+
+		if abiMethod, found := pcABI[implMethodName]; found {
+			// check types of the arguments to make sure that the method is actually the right one
+			// due to the overloaded function edge case.
+
+			for j := 2; j < implMethod.Type.NumIn(); j++ {
+				implArgType := implMethod.Type.In(j)
+				abiArgType := abiMethod.Inputs[j-2].Type.GetType()
+				if implArgType != abiArgType && implArgType.Kind() != reflect.Slice && implArgType.Kind() != reflect.Array && implArgType.Kind() != reflect.Interface {
+					return abi.Method{}
+				}
+			}
+			return abiMethod
+		}
+
+		implMethodName = implMethodName[:i]
+	}
+
+	return abi.Method{}
+
 }
 
 // formatName converts to first character of name to lowercase.
