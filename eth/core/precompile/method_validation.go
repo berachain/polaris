@@ -51,19 +51,33 @@ func (m *Method) ValidateBasic() error {
 
 	// Validate that our implementation returns an error (revert) as the last param.
 	if implMethod.Type.Out(implMethodNumOut-1) != reflect.TypeOf((*error)(nil)).Elem() {
-		return fmt.Errorf("last return type must be error, got %v", implMethod.Type.Out(implMethodNumOut-1))
+		return fmt.Errorf(
+			"last return type must be error, got %v",
+			implMethod.Type.Out(implMethodNumOut-1),
+		)
 	}
 
 	// First two args of Go precompile implementation are the receiver contract and the
 	// Context, so we skip those.
 	if implMethodNumIn-2 != abiMethodNumIn {
-		return fmt.Errorf("number of arguments mismatch for function %v, want %v, got %v", abiMethod.Name, abiMethodNumIn, implMethodNumIn-2)
+		return fmt.Errorf(
+			"number of arguments mismatch for function %v, want %v, got %v",
+			abiMethod.Name,
+			abiMethodNumIn,
+			//nolint:gomnd // 2 is the number of args we skip.
+			implMethodNumIn-2,
+		)
 	}
 
 	// Last parameter of Go precompile implementation is an error (for reverts),
 	// so we skip that.
 	if implMethodNumOut-1 != abiMethodNumOut {
-		return fmt.Errorf("number of return values mismatch for function %v, want %v, got %v", m.abiMethod.Name, abiMethodNumOut, implMethodNumOut-1)
+		return fmt.Errorf(
+			"number of return values mismatch for function %v, want %v, got %v",
+			m.abiMethod.Name,
+			abiMethodNumOut,
+			implMethodNumOut-1,
+		)
 	}
 	// If the function does not take any inputs, no need to check.
 	if abiMethodNumIn == 0 {
@@ -76,7 +90,12 @@ func (m *Method) ValidateBasic() error {
 		implMethodParamType := implMethod.Type.In(i)
 		abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
 		if err := validateArg(implMethodParamType, abiMethodParamType); err != nil {
-			return fmt.Errorf("argument type mismatch: %v != %v", implMethodParamType, abiMethodParamType)
+			return fmt.Errorf(
+				"argument type mismatch: %v != %v function %v",
+				implMethodParamType,
+				abiMethodParamType,
+				abiMethod.Name,
+			)
 		}
 	}
 
@@ -86,7 +105,11 @@ func (m *Method) ValidateBasic() error {
 		implMethodReturnType := implMethod.Type.Out(i)
 		abiMethodReturnType := abiMethod.Outputs[i].Type.GetType()
 		if err := validateArg(implMethodReturnType, abiMethodReturnType); err != nil {
-			return fmt.Errorf("return type mismatch: %v != %v", implMethodReturnType, abiMethodReturnType)
+			return fmt.Errorf(
+				"return type mismatch: %v != %v",
+				implMethodReturnType,
+				abiMethodReturnType,
+			)
 		}
 	}
 

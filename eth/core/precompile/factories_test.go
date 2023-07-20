@@ -180,6 +180,6 @@ func (os *overloadedStateful) OverloadedFunc0(_ context.Context, _ *big.Int) (*b
 func (os *overloadedStateful) ABIMethods() map[string]abi.Method {
 	return map[string]abi.Method{
 		"overloadedFunc":  mock.Methods["overloadedFunc"],
-		"overloadedFunc0": mock.Methods["overloadedFunc0"],
+		"overloadedFunc_": mock.Methods["overloadedFunc0"],
 	}
 }

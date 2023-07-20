@@ -123,8 +123,8 @@ func buildIdsToMethods(
 	for m := 0; m < contractImplType.NumMethod(); m++ {
 		implMethod := contractImplType.Method(m)
 		// This only runs when we have overloaded functions. In most cases, it's an O(1) operation.
-		abiMethod := find(implMethod, pcABI)
 
+		abiMethod := find(implMethod, pcABI)
 		// we need to make sure that this is actually mapping the right implMethod by checking the
 		// arg types due to the overloaded function edge case.
 		if abiMethod.Name != "" {
@@ -158,28 +158,37 @@ func buildIdsToMethods(
 // and provides safeguarding against the overloaded function edge case.
 func find(implMethod reflect.Method, pcABI map[string]abi.Method) abi.Method {
 	implMethodName := formatName(implMethod.Name)
-	for i := len(implMethodName); i > 0; i-- {
-		if abiMethod, found := pcABI[implMethodName]; found {
-			// check types of the arguments to make sure that the method is actually the right one
-			// due to the overloaded function edge case.
-			if len(abiMethod.Inputs) != implMethod.Type.NumIn()-2 {
-				continue
-			}
-			if len(abiMethod.Inputs) > 0 {
-				for j := 2; j < implMethod.Type.NumIn(); j++ {
-					implArgType := implMethod.Type.In(j)
-					abiArgType := abiMethod.Inputs[j-2].Type.GetType()
-					if implArgType != abiArgType && implArgType.Kind() != reflect.Slice && implArgType.Kind() != reflect.Array && implArgType.Kind() != reflect.Interface {
-						return abi.Method{}
-					}
-				}
-				return abiMethod
-			} else {
-				return abiMethod
-			}
-		}
 
-		implMethodName = implMethodName[:i]
+	for i := len(implMethodName); i > 0; i-- {
+		for _, abiMethod := range pcABI {
+			abiRawName := abiMethod.RawName
+			// this could be the function
+			if implMethodName == abiRawName {
+				// same function name and same amount of arguments. if this case fails then
+				// we either don't have the right function or we have an overloaded function.
+				if len(abiMethod.Inputs) > 0 && len(abiMethod.Inputs) == implMethod.Type.NumIn()-2 {
+					// simple type checking of args
+					for i := 0; i < len(abiMethod.Inputs); i++ {
+						//nolint:gomnd // we skip the first 2 args.
+						implArgType := implMethod.Type.In(i + 2)
+						abiArgType := abiMethod.Inputs[i].Type.GetType()
+						// if the arg types don't match, and the abiArgType isn't an interface, then this
+						// isn't the right function.
+						if implArgType != abiArgType && implArgType.Kind() != reflect.Interface {
+							continue
+						}
+					}
+					// if we got here, all the args match and it's the right function.
+					return abiMethod
+				} else if len(abiMethod.Inputs) == 0 {
+					// no args to check, this is the right method.
+					return abiMethod
+				} else {
+					continue
+				}
+			}
+			implMethodName = implMethodName[:i]
+		}
 	}
 
 	return abi.Method{}
