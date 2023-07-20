@@ -46,7 +46,6 @@ func (m *Method) ValidateBasic() error {
 	// The Solidity compiler requires that precompiles must return at least one value.
 	// See https://github.com/berachain/polaris/issues/491 for more information.
 	if len(m.abiMethod.Outputs) == 0 {
-		fmt.Println("m.abiMethod", m.abiMethod, "m.abiMethod.Outputs", len(m.abiMethod.Outputs))
 		//nolint:lll // error message.
 		panic("The Solidity compiler requires all precompile functions to return at least one value. Consider returning a boolean.")
 	}
