@@ -207,6 +207,8 @@ cosmossdk.io/store v1.0.0-alpha.1 h1:/151XxAgm0tiKuYrtJzMG61lf6enpPuP+D/hIN8cRjQ
 cosmossdk.io/store v1.0.0-alpha.1/go.mod h1:ejgU9GhRGMNBduVnDwC3RyhOmu4uKlNQlTiJgPmbDkI=
 cosmossdk.io/tools/confix v0.0.0-20230608151552-9b9e319d1abc h1:vfcKb4a1NBWeycsMzPVNIK/PwgF5x5vFat9stTF15Nk=
 cosmossdk.io/tools/confix v0.0.0-20230608151552-9b9e319d1abc/go.mod h1:6+Z0m4+O+J8nlMYQv/ItraSFgqggthuESw58QKr96lE=
+cosmossdk.io/x/evidence v0.0.0-20230719143845-dff6b0e26aa4 h1:oDdr/qO3btc1rZNOccBVZWg4mYjwTJipW373j8daWno=
+cosmossdk.io/x/evidence v0.0.0-20230719143845-dff6b0e26aa4/go.mod h1:WszYbTCCseqXplYzulcTkGp2cr7FhUcRTfxRJ0gjXnQ=
 cosmossdk.io/x/tx v0.9.1 h1:9pmmXA9Vs4qdouOFnzhsdsff2mif0f0kylMq5xTGhRI=
 cosmossdk.io/x/tx v0.9.1/go.mod h1:/YFGTXG6+kyihd8YbfuJiXHV4R/mIMm2uvVzo80CIhA=
 cosmossdk.io/x/upgrade v0.0.0-20230704191127-8d80df8e3c5a h1:Aj+kuUqrO1o3AUo6sNcXDz34IEth8wKxckqjikYdDYQ=
@@ -387,8 +389,6 @@ github.com/cosmos/cosmos-proto v1.0.0-beta.3 h1:VitvZ1lPORTVxkmF2fAp3IiA61xVwArQ
 github.com/cosmos/cosmos-proto v1.0.0-beta.3/go.mod h1:t8IASdLaAq+bbHbjq4p960BvcTqtwuAxid3b/2rOD6I=
 github.com/cosmos/cosmos-sdk v0.50.0-beta.0 h1:cPblupyMlA4qvnvuuQEjYQPq1uqSXBgQmsiGREQ5hd0=
 github.com/cosmos/cosmos-sdk v0.50.0-beta.0/go.mod h1:MF/wnXyreoL0g8YdRZhUD4apPdgebMc29LgMJB+dh6M=
-github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230704160919-88f2c830b0ca h1:2S7q2av2U61EfBj4hK4vbhyikfCTQBkbBn7raQNr11A=
-github.com/cosmos/cosmos-sdk/x/evidence v0.0.0-20230704160919-88f2c830b0ca/go.mod h1:+xYsY2/PjkoAtgvBSqAbUT5Tzu+Ao4LLotE7NGQeXL0=
 github.com/cosmos/go-bip39 v1.0.0 h1:pcomnQdrdH22njcAatO0yWojsUnCO3y2tNoV1cb6hHY=
 github.com/cosmos/go-bip39 v1.0.0/go.mod h1:RNJv0H/pOIVgxw6KS7QeX2a0Uo0aKUlfhZ4xuwvCdJw=
 github.com/cosmos/gogogateway v1.2.0 h1:Ae/OivNhp8DqBi/sh2A8a1D0y638GpL3tkmLQAiKxTE=
