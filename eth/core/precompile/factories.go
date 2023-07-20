@@ -115,8 +115,7 @@ func (sf *StatefulFactory) Build(
 // It searches for the ABI function in the Go precompile contract and performs basic validation on
 // the implemented function.
 func buildIdsToMethods(
-	si StatefulImpl,
-	contractImpl reflect.Value,
+	si StatefulImpl, contractImpl reflect.Value,
 ) (map[string]*Method, error) {
 	pcABI := si.ABIMethods()
 	fmt.Println("THIS IS PCABI", pcABI)
