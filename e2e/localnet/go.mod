@@ -20,6 +20,7 @@ require (
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
+	github.com/cockroachdb/pebble v0.0.0-20230711190327-88bbab59ff4f // indirect
 	github.com/containerd/continuity v0.3.0 // indirect
 	github.com/deckarep/golang-set/v2 v2.2.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect

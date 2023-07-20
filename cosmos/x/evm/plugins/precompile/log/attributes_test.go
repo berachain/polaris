@@ -85,7 +85,7 @@ var _ = Describe("Attributes", func() {
 			Expect(coins).To(Equal([]libgenerated.CosmosCoin{}))
 
 			// 0 amount coins
-			coins, err = ConvertSdkCoins(sdk.NewCoins(sdk.NewCoin("denom", sdk.NewInt(0))).String())
+			coins, err = ConvertSdkCoins(sdk.NewCoins(sdk.NewCoin("denom", sdkmath.NewInt(0))).String())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(coins).To(Equal([]libgenerated.CosmosCoin{}))
 		})
