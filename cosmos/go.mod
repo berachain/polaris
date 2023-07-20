@@ -3,8 +3,9 @@ module pkg.berachain.dev/polaris/cosmos
 go 1.20
 
 replace (
-	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
+	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230629154458-90866dc0cf0a
+	// Required at the moment until a bug in the comsos-sdk is fixed.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 
