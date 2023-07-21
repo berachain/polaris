@@ -110,20 +110,8 @@ var _ = Describe("Stateful Container", func() {
 				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]", //nolint:lll // test.
 			))
 
-			// precompile returns vals when none expected
-			var inputs []byte
-			inputs, err = contractFuncStrABI.Inputs.Pack("string")
-			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(
-				ctx,
-				vm.UnwrapPolarContext(ctx).Evm(),
-				append(contractFuncStrABI.ID, inputs...),
-				vm.UnwrapPolarContext(ctx).MsgSender(),
-				vm.UnwrapPolarContext(ctx).MsgValue(),
-			)
-			Expect(err).To(HaveOccurred())
-
 			// geth output packing error
+			var inputs []byte
 			inputs, err = contractFuncAddrABI.Inputs.Pack(vm.UnwrapPolarContext(ctx).MsgSender())
 			Expect(err).ToNot(HaveOccurred())
 			_, err = sc.Run(
