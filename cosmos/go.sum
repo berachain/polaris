@@ -1818,10 +1818,10 @@ github.com/rogpeppe/go-internal v1.11.0 h1:cWPaGQEPrBb5/AsnsZesgZZ9yb1OQ+GOISoDN
 github.com/rogpeppe/go-internal v1.11.0/go.mod h1:ddIwULY96R17DhadqLgMfk9H9tvdUzkipdSkR5nkCZA=
 github.com/rollkit/celestia-openrpc v0.1.1-0.20230714143644-7b1cc02f2d82 h1:wqpI0oLkg6Bo7EKe5Zr/CxrZqul065MG1GctaBQyKeo=
 github.com/rollkit/celestia-openrpc v0.1.1-0.20230714143644-7b1cc02f2d82/go.mod h1:WNK8yMLwwzX767tJ0Y1qAd+uZXCBI16Sh5PjFGrRnqw=
-github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230721010048-135353a34d5a h1:Kpd+lvHuHhZ1NKh4c1Mf7XRlm6jTBvuBU47i979fDGY=
-github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230721010048-135353a34d5a/go.mod h1:ucEZYGHSQOqAgvQSeiT9gA5wolSu0u7gmz9jVcuk/eg=
-github.com/rollkit/rollkit v0.10.1-0.20230720173405-9177a48bcfa5 h1:HnkJR/yMhB1A6/+dEs3qvtjT0b8YnslQQDRd7OHzOcU=
-github.com/rollkit/rollkit v0.10.1-0.20230720173405-9177a48bcfa5/go.mod h1:I9K0V0g4l+YVs7bksaAMW0dabHeVhBDnRBVNmDV2G7w=
+github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230721012257-443317a43b03 h1:RSxbB85Z9KdK98vtvqwcKCRvXC0dAk/UhmXFiG2ogQ8=
+github.com/rollkit/cosmos-sdk v0.46.0-beta2.0.20230721012257-443317a43b03/go.mod h1:jAAFgu71aRWYsy3so4GSQfqaQJgVE6RrLrPLZNdxlYk=
+github.com/rollkit/rollkit v0.10.1-0.20230721011145-5668bb7e9e41 h1:7ItzVvHTAhH68xV02jC2ueZHdTidenJ/nD9Gd1gYKmE=
+github.com/rollkit/rollkit v0.10.1-0.20230721011145-5668bb7e9e41/go.mod h1:I9K0V0g4l+YVs7bksaAMW0dabHeVhBDnRBVNmDV2G7w=
 github.com/rs/cors v1.7.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
 github.com/rs/cors v1.8.2/go.mod h1:XyqrcTp5zjWr1wsJ8PIRZssZ8b/WMcMf71DJnit4EMU=
 github.com/rs/cors v1.9.0 h1:l9HGsTsHJcvW14Nk7J9KFz8bzeAWXn3CG6bgt7LsrAE=
