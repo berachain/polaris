@@ -109,7 +109,10 @@ func validateOutputs(implMethod reflect.Method, abiMethod *abi.Method) error {
 	// See https://github.com/berachain/polaris/issues/491 for more information.
 	if len(abiMethod.Outputs) == 0 {
 		//nolint:lll // error message.
-		panic("The Solidity compiler requires all precompile functions to return at least one value. Consider returning a boolean for function:" + abiMethod.Name)
+		panic(fmt.Sprintf(
+			"This precompile method %s must return at least one value (https://github.com/berachain/polaris/issues/491). Consider returning a boolean.",
+			abiMethod.Name,
+		))
 	}
 
 	// Last parameter of Go precompile implementation is an error (for reverts), so we skip that.

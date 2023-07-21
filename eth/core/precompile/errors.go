@@ -46,6 +46,4 @@ var (
 	// precompile method matches any of the given ABI methods.
 	//nolint:lll // this error message is long
 	ErrNoImplMethodSubstringMatchesABIMethods = errors.New("no substring of the precompile method matches any of the ABI's methods")
-
-	ErrWrongInputTypesForABIMethod = errors.New("the precompile method does not have the same input types as the ABI method")
 )

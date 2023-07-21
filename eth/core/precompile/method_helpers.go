@@ -21,7 +21,6 @@
 package precompile
 
 import (
-	"fmt"
 	"reflect"
 	"unicode"
 
@@ -54,16 +53,11 @@ func findMatchingABIMethod(
 		}
 
 		if tryMatchInputs(implMethod, matchedAbiMethod) {
-			fmt.Println(implMethod.Name)
 			// we found a matching impl method for the ABI method based on the inputs
 			if err := validateOutputs(implMethod, matchedAbiMethod); err != nil {
 				return "", err
 			}
 			return matchedAbiMethod.Name, nil
-		} else {
-			// we found a matching impl method for the ABI method based on the name, but the inputs
-			// do not match
-			return "", errorslib.Wrap(ErrWrongInputTypesForABIMethod, matchedAbiMethod.Name)
 		}
 	}
 
