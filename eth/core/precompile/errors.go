@@ -36,7 +36,7 @@ var (
 
 	// ErrWrongContainerFactory is returned when the wrong precompile container factory is used
 	// to build a precompile contract.
-	ErrWrongContainerFactory = errors.New("this precompile contract implementation is not implemented")
+	ErrWrongContainerFactory = errors.New("wrong container factory for this precompile implementation")
 
 	// ErrNoPrecompileMethodForABIMethod is returned when no precompile method is provided for a
 	// corresponding ABI method.

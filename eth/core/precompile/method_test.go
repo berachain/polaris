@@ -37,7 +37,7 @@ import (
 var _ = Describe("Method", func() {
 	Context("Calling the method", func() {
 		It("should be able to call the Method's executable", func() {
-			sc := &mockStateful{&mockBase{}}
+			sc := &mockStatefulWithMethod{&mockBase{}, false}
 			execute, found := reflect.TypeOf(sc).MethodByName("MockExecutable")
 			Expect(found).To(BeTrue())
 			method := newMethod(
@@ -59,14 +59,21 @@ var _ = Describe("Method", func() {
 			res, err := method.Call(ctx, []byte{0, 0, 0, 0})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).To(BeNil())
+			Expect(sc.executableCalled).To(BeTrue())
 		})
 	})
 })
 
 // MOCKS BELOW.
 
-func (ms *mockStateful) MockExecutable(
+type mockStatefulWithMethod struct {
+	*mockBase
+	executableCalled bool
+}
+
+func (ms *mockStatefulWithMethod) MockExecutable(
 	_ context.Context,
 ) any {
+	ms.executableCalled = true
 	return nil
 }

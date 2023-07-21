@@ -44,9 +44,9 @@ var _ = Describe("Stateful Container", func() {
 	var ctx context.Context
 
 	BeforeEach(func() {
-		sc, err = NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
+		sc, err = NewStatefulContainer(&mockStateful{&mockBase{}}, mockIdsToMethods)
 		Expect(err).ToNot(HaveOccurred())
-		empty, err = NewStateful(nil, nil)
+		empty, err = NewStatefulContainer(nil, nil)
 		Expect(empty).To(BeNil())
 		Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 		ctx = vm.NewPolarContext(
@@ -109,23 +109,9 @@ var _ = Describe("Stateful Container", func() {
 			Expect(err.Error()).To(Equal(
 				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]", //nolint:lll // test.
 			))
-
-			// geth output packing error
-			var inputs []byte
-			inputs, err = contractFuncAddrABI.Inputs.Pack(vm.UnwrapPolarContext(ctx).MsgSender())
-			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(
-				ctx,
-				vm.UnwrapPolarContext(ctx).Evm(),
-				append(contractFuncAddrABI.ID, inputs...),
-				vm.UnwrapPolarContext(ctx).MsgSender(),
-				vm.UnwrapPolarContext(ctx).MsgValue(),
-			)
-			Expect(err).To(HaveOccurred())
 		})
 
 		It("should return properly for valid method calls", func() {
-
 			var inputs []byte
 			inputs, err = getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())

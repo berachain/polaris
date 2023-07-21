@@ -40,7 +40,6 @@ var (
 )
 
 var _ = Describe("Container Factories", func() {
-
 	Context("Stateless Container Factory", func() {
 		var scf *StatelessFactory
 
@@ -49,12 +48,12 @@ var _ = Describe("Container Factories", func() {
 		})
 
 		It("should build stateless precompile containers", func() {
-			pc, err := scf.Build(&mockStateless{&mockBase{}}, nil)
+			pc, err := scf.Build(&mockStateless{}, nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockBase{}, nil)
-			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: StatelessContainerImpl"))
+			Expect(err.Error()).To(Equal("wrong container factory for this precompile implementation: StatelessImpl"))
 		})
 	})
 
@@ -65,12 +64,13 @@ var _ = Describe("Container Factories", func() {
 			scf = NewStatefulFactory()
 		})
 
-		FIt("should correctly build stateful containers and log events", func() {
+		It("should correctly build stateful containers and log events", func() {
 			pc, err := scf.Build(&mockStateful{&mockBase{}}, nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
 
-			_, err = scf.Build(&mockStateless{&mockBase{}}, nil)
+			statelessFactory := NewStatelessFactory()
+			_, err = statelessFactory.Build(&mockStateless{}, nil)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
@@ -82,15 +82,13 @@ var _ = Describe("Container Factories", func() {
 			scf = NewStatefulFactory()
 		})
 
-		FIt("should error on missing precompile method for ABI method", func() {
+		It("should error on missing precompile method for ABI method", func() {
 			_, err := scf.Build(&badMockStateful{&mockBase{}}, nil)
-			var _ StatefulImpl = (*mockBase)(nil)
 			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial"))
 		})
 	})
 
 	Context("Overloaded Stateful Container", func() {
-
 		It("should construct a stateful container with overloaded methods", func() {
 			scf := NewStatefulFactory()
 			os := &mockStateful{&mockBase{}}
@@ -98,7 +96,6 @@ var _ = Describe("Container Factories", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(stateful).ToNot(BeNil())
 		})
-
 	})
 })
 
@@ -106,6 +103,7 @@ var _ = Describe("Container Factories", func() {
 
 // ============================================================================
 
+// mockBase is the base contract for STATEFUL impls.
 type mockBase struct{}
 
 func (mb *mockBase) RegistryKey() common.Address {
@@ -124,8 +122,10 @@ func (mb *mockBase) CustomValueDecoders() ValueDecoders { return nil }
 func (mb *mockBase) SetPlugin(_ Plugin) {}
 
 // ============================================================================.
-type mockStateless struct {
-	*mockBase
+type mockStateless struct{}
+
+func (ms *mockStateless) RegistryKey() common.Address {
+	return common.Address{}
 }
 
 func (ms *mockStateless) RequiredGas(_ []byte) uint64 {
@@ -137,10 +137,6 @@ func (ms *mockStateless) Run(
 	_ common.Address, _ *big.Int,
 ) ([]byte, error) {
 	return nil, nil
-}
-
-func (ms *mockStateless) WithStateDB(vm.GethStateDB) vm.PrecompileContainer {
-	return ms
 }
 
 // ============================================================================.
@@ -175,20 +171,20 @@ func (ms *mockStateful) GetOutput(
 
 func (ms *mockStateful) GetOutputPartial(
 	_ context.Context,
-) (*mockObject, error) {
-	return nil, errors.New("err during precompile execution")
+) (mockObject, error) {
+	return mockObject{}, errors.New("err during precompile execution")
 }
 
 func (ms *mockStateful) ContractFuncAddrInput(
 	_ context.Context,
-	addr common.Address,
+	_ common.Address,
 ) (*big.Int, error) {
 	return big.NewInt(12112), nil
 }
 
 func (ms *mockStateful) ContractFuncStrInput(
 	_ context.Context,
-	addr string,
+	_ string,
 ) (bool, error) {
 	return true, nil
 }
@@ -206,7 +202,7 @@ type badMockStateful struct {
 	*mockBase
 }
 
-func (bms *badMockStateful) GetOutput(_ context.Context, _ string) ([]byte, error) {
+func (bms *badMockStateful) GetOutput(_ context.Context, _ string) ([]mockObject, error) {
 	return nil, nil
 }
 

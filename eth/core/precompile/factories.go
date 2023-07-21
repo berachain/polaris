@@ -29,9 +29,9 @@ import (
 )
 
 const (
-	// container impl names stored as constants, to be used in error messages.
-	statelessContainerName = `StatelessContainerImpl`
-	statefulContainerName  = `StatefulContainerImpl`
+	// impl names stored as constants, to be used in error messages.
+	statelessContainerName = `StatelessImpl`
+	statefulContainerName  = `StatefulImpl`
 )
 
 // AbstractFactory is an interface that all precompile container factories must adhere to.
@@ -105,7 +105,7 @@ func (sf *StatefulFactory) Build(
 		return nil, err
 	}
 
-	return NewStateful(si, idsToMethods)
+	return NewStatefulContainer(si, idsToMethods)
 }
 
 // This function matches each Go implementation of the precompile to the ABI's respective function.

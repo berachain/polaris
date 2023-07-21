@@ -57,10 +57,9 @@ type (
 		libtypes.Registrable[common.Address]
 	}
 
-	// StatelessImpl is the interface for all stateless precompiled contract
-	// implementations. A stateless contract must provide its own precompile container, as it is
-	// stateless in nature. This requires a deterministic gas count, and an
-	// executable function `Run`.
+	// StatelessImpl is the interface for all stateless precompiled contract implementations. A
+	// stateless contract must provide its own precompile container, as it is stateless in nature.
+	// This requires a deterministic gas count, and an executable function `Run`.
 	StatelessImpl interface {
 		Registrable
 

@@ -41,7 +41,7 @@ var _ = Describe("Default Plugin", func() {
 
 	When("running a stateless contract", func() {
 		It("should run out of gas", func() {
-			ret, remainingGas, err := dp.Run(nil, &mockStateless{&mockBase{}}, nil, common.Address{}, nil, 5, false)
+			ret, remainingGas, err := dp.Run(nil, &mockStateless{}, nil, common.Address{}, nil, 5, false)
 			Expect(ret).To(BeNil())
 			Expect(remainingGas).To(Equal(uint64(0)))
 			Expect(err.Error()).To(Equal("out of gas"))

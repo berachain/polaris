@@ -32,8 +32,10 @@ import (
 // NumBytesMethodID is the number of bytes used to represent a ABI method's ID.
 const NumBytesMethodID = 4
 
-// stateful is a container for running stateful and precompiled contracts.
-type stateful struct {
+var _ vm.PrecompileContainer = (*statefulContainer)(nil)
+
+// statefulContainer is a container for running statefulContainer and precompiled contracts.
+type statefulContainer struct {
 	// StatefulImpl is the base precompile implementation.
 	StatefulImpl
 	// idsToMethods is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
@@ -46,14 +48,15 @@ type stateful struct {
 
 }
 
-// NewStateful creates and returns a new `stateful` with the given method ids precompile functions map.
-func NewStateful(
+// NewStatefulContainer creates and returns a new `statefulContainer` with the given method ids
+// precompile functions map.
+func NewStatefulContainer(
 	si StatefulImpl, idsToMethods map[string]*method,
 ) (vm.PrecompileContainer, error) {
 	if idsToMethods == nil {
 		return nil, ErrContainerHasNoMethods
 	}
-	return &stateful{
+	return &statefulContainer{
 		StatefulImpl: si,
 		idsToMethods: idsToMethods,
 	}, nil
@@ -63,7 +66,7 @@ func NewStateful(
 // output.
 //
 // Run implements `PrecompileContainer`.
-func (sc *stateful) Run(
+func (sc *statefulContainer) Run(
 	ctx context.Context,
 	evm vm.PrecompileEVM,
 	input []byte,
@@ -89,8 +92,8 @@ func (sc *stateful) Run(
 
 // RequiredGas checks the Method corresponding to input for the required gas amount.
 //
-// RequiredGas implements PrecompileContainer.
+// RequiredGas implements `PrecompileContainer`.
 // TODO: remove in a later PR
-func (sc *stateful) RequiredGas(_ []byte) uint64 {
+func (sc *statefulContainer) RequiredGas(_ []byte) uint64 {
 	return 0
 }
