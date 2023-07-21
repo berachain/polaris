@@ -65,13 +65,6 @@ func validateArg(implMethodVar reflect.Value, abiMethodVar reflect.Value) error 
 	case reflect.Interface:
 		// If it's `any` (reflect.Interface), we leave it to the implementer to make sure that it is
 		// used/converted correctly.
-	case reflect.Ptr:
-		// If it's a pointer, we check if the underlying type matches.
-		if implMethodVarType.Elem() != abiMethodVarType.Elem() {
-			return fmt.Errorf(
-				"return type mismatch: %v != %v", implMethodVarType, abiMethodVarType,
-			)
-		}
 	default:
 		return fmt.Errorf("return type mismatch: %v != %v", implMethodVarType, abiMethodVarType)
 	}
