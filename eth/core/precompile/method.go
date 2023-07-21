@@ -53,7 +53,7 @@ type method struct {
 	rcvr StatefulImpl
 
 	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
-	abiMethod *abi.Method
+	abiMethod abi.Method
 
 	// Execute is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
@@ -62,7 +62,7 @@ type method struct {
 
 // newMethod creates and returns a new `method` with the given abiMethod, abiSig, and executable.
 func newMethod(
-	rcvr StatefulImpl, abiMethod *abi.Method, execute reflect.Method,
+	rcvr StatefulImpl, abiMethod abi.Method, execute reflect.Method,
 ) *method {
 	return &method{
 		rcvr:      rcvr,

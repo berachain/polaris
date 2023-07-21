@@ -185,22 +185,22 @@ var (
 	mockIdsToMethods             = map[string]*method{
 		utils.UnsafeBytesToStr(getOutputABI.ID): newMethod(
 			mockStatefulDummy,
-			&getOutputABI,
+			getOutputABI,
 			getOutputFunc,
 		),
 		utils.UnsafeBytesToStr(getOutputPartialABI.ID): newMethod(
 			mockStatefulDummy,
-			&getOutputPartialABI,
+			getOutputPartialABI,
 			getOutputPartialFunc,
 		),
 		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): newMethod(
 			mockStatefulDummy,
-			&contractFuncAddrABI,
+			contractFuncAddrABI,
 			contractFuncAddrInputFunc,
 		),
 		utils.UnsafeBytesToStr(contractFuncStrABI.ID): newMethod(
 			mockStatefulDummy,
-			&contractFuncStrABI,
+			contractFuncStrABI,
 			contractFuncStrInputFunc,
 		),
 	}

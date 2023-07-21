@@ -33,35 +33,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 )
 
-// tryMatchInputs returns true iff the argument types match between the Go implementation and the
-// ABI method.
-func tryMatchInputs(implMethod reflect.Method, abiMethod *abi.Method) bool {
-	abiMethodNumIn := len(abiMethod.Inputs)
-
-	// First two args of Go precompile implementation are the receiver contract and the Context, so
-	// verify that the ABI method has exactly 2 fewer inputs than the implementation method.
-	if implMethod.Type.NumIn()-2 != abiMethodNumIn {
-		return false
-	}
-
-	// If the function does not take any inputs, no need to check.
-	if abiMethodNumIn > 0 {
-		// Validate that the precompile input args types match ABI input arg types, excluding the
-		// first two args (receiver contract and Context).
-		for i := 2; i < implMethod.Type.NumIn(); i++ {
-			implMethodParamType := implMethod.Type.In(i)
-			abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
-			if validateArg(
-				reflect.New(implMethodParamType).Elem(), reflect.New(abiMethodParamType).Elem(),
-			) != nil {
-				return false
-			}
-		}
-	}
-
-	return true
-}
-
 // validateArg uses reflection to verify the implementation arg matches the ABI arg.
 func validateArg(implMethodVar reflect.Value, abiMethodVar reflect.Value) error {
 	implMethodVarType := implMethodVar.Type()
@@ -132,7 +103,6 @@ func validateStruct(implMethodVarType reflect.Type, abiMethodVarType reflect.Typ
 
 // validateOutputs checks if the impl method output types match the ABI's return types.
 func validateOutputs(implMethod reflect.Method, abiMethod *abi.Method) error {
-	// Now verify the outputs match.
 	implMethodNumOut := implMethod.Type.NumOut()
 
 	// The Solidity compiler requires that precompiles must return at least one value.
@@ -142,8 +112,7 @@ func validateOutputs(implMethod reflect.Method, abiMethod *abi.Method) error {
 		panic("The Solidity compiler requires all precompile functions to return at least one value. Consider returning a boolean.")
 	}
 
-	// Last parameter of Go precompile implementation is an error (for reverts),
-	// so we skip that.
+	// Last parameter of Go precompile implementation is an error (for reverts), so we skip that.
 	if implMethodNumOut-1 != len(abiMethod.Outputs) {
 		return errors.New("number of return types mismatch")
 	}

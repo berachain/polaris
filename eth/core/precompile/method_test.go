@@ -42,7 +42,7 @@ var _ = Describe("Method", func() {
 			Expect(found).To(BeTrue())
 			method := newMethod(
 				sc,
-				&abi.Method{},
+				abi.Method{},
 				execute,
 			)
 			ctx := vm.NewPolarContext(
