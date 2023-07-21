@@ -49,4 +49,8 @@ var (
 	// ErrNoPrecompileMethodForABIMethod is returned when no precompile method is provided for a
 	// corresponding ABI method.
 	ErrNoPrecompileMethodForABIMethod = errors.New("this ABI method does not have a corresponding precompile method")
+
+	// ErrNoImplMethodSubstringMatchesABIMethods is returned when no substring of a particular
+	// precompile method matches any of the given ABI methods.
+	ErrNoImplMethodSubstringMatchesABIMethods = errors.New("no substring of the precompile method matches any of the ABI's methods")
 )

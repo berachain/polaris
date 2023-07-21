@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"errors"
 	"reflect"
 	"unicode"
 
@@ -120,31 +121,45 @@ func buildIdsToMethods(si StatefulImpl, contractImpl reflect.Value) (map[string]
 
 	for m := 0; m < contractImplType.NumMethod(); m++ {
 		implMethod := contractImplType.Method(m)
-		implMethodName := formatName(implMethod.Name)
 
-		for i := len(implMethodName) - 1; i >= 1; i-- {
-			var matchedAbiMethod *abi.Method
-			for name := range precompileABI {
-				abiMethod := precompileABI[name]
-				if implMethodName == abiMethod.RawName {
-					matchedAbiMethod = &abiMethod
-					break
-				}
-			}
-
-			if matchedAbiMethod == nil {
-				implMethodName = implMethodName[:i]
+		methodName, err := findMatchingABIMethod(implMethod, precompileABI)
+		if err != nil {
+			if errors.Is(err, ErrNoImplMethodSubstringMatchesABIMethods) && (implMethod.Name == "ABIEvents" || implMethod.Name == "ABIMethods" || implMethod.Name == "CustomValueDecoders" || implMethod.Name == "RegistryKey" || implMethod.Name == "SetPlugin" || implMethod.Name == "GetPlugin") {
 				continue
-			}
-
-			if tryMatchInputs(implMethod, matchedAbiMethod) {
-				method := newMethod(si, matchedAbiMethod, implMethod)
-				if err := method.validateBasic(); err != nil {
-					return nil, err
-				}
-				idsToMethods[utils.UnsafeBytesToStr(matchedAbiMethod.ID)] = method
+			} else {
+				return nil, err
 			}
 		}
+
+		abiMethodPtr := precompileABI[methodName]
+		method := newMethod(si, &abiMethodPtr, implMethod)
+		idsToMethods[utils.UnsafeBytesToStr(abiMethodPtr.ID)] = method
+
+		// implMethodName := formatName(implMethod.Name)
+
+		// for i := len(implMethodName) - 1; i >= 1; i-- {
+		// 	var matchedAbiMethod *abi.Method
+		// 	for name := range precompileABI {
+		// 		abiMethod := precompileABI[name]
+		// 		if implMethodName == abiMethod.RawName {
+		// 			matchedAbiMethod = &abiMethod
+		// 			break
+		// 		}
+		// 	}
+
+		// 	if matchedAbiMethod == nil {
+		// 		implMethodName = implMethodName[:i]
+		// 		continue
+		// 	}
+
+		// 	if tryMatchInputs(implMethod, matchedAbiMethod) {
+		// 		method := newMethod(si, matchedAbiMethod, implMethod)
+		// 		if err := validateOutputs(implMethod, matchedAbiMethod); err != nil {
+		// 			return nil, err
+		// 		}
+		// 		idsToMethods[utils.UnsafeBytesToStr(matchedAbiMethod.ID)] = method
+		// 	}
+		// }
 	}
 
 	// verify that every abi method has a corresponding precompile implementation
@@ -167,4 +182,40 @@ func formatName(name string) string {
 	ret[0] = unicode.ToLower(ret[0])
 
 	return string(ret)
+}
+
+// this function finds the ABI method that matches the given impl method. It returns the key in the
+// ABI methods map that matches the impl method.
+func findMatchingABIMethod(
+	implMethod reflect.Method, precompileABI map[string]abi.Method,
+) (string, error) {
+	implMethodName := formatName(implMethod.Name)
+
+	for i := len(implMethodName) - 1; i >= 1; i-- {
+		// try to match the substring of the impl method name to a ABI method name
+		var matchedAbiMethod *abi.Method
+		for name := range precompileABI {
+			abiMethod := precompileABI[name]
+			if implMethodName == abiMethod.RawName {
+				matchedAbiMethod = &abiMethod
+				break
+			}
+		}
+
+		if matchedAbiMethod == nil {
+			// no match found, try again with a smaller substring
+			implMethodName = implMethodName[:i]
+			continue
+		}
+
+		if tryMatchInputs(implMethod, matchedAbiMethod) {
+			// we found a matching impl method for the ABI method based on the inputs
+			if err := validateOutputs(implMethod, matchedAbiMethod); err != nil {
+				return "", err
+			}
+			return matchedAbiMethod.Name, nil
+		}
+	}
+
+	return "", errorslib.Wrap(ErrNoImplMethodSubstringMatchesABIMethods, implMethod.Name)
 }
