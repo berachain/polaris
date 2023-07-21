@@ -189,8 +189,8 @@ func (ms *mockStateful) ContractFuncAddrInput(
 func (ms *mockStateful) ContractFuncStrInput(
 	_ context.Context,
 	addr string,
-) error {
-	return nil
+) (bool, error) {
+	return true, nil
 }
 
 func (ms *mockStateful) OverloadedFunc(_ context.Context) (*big.Int, error) {

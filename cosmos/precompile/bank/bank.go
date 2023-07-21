@@ -142,7 +142,6 @@ func (c *Contract) GetSupply(
 // GetTotalSupply implements `getAllSupply()` method.
 func (c *Contract) GetAllSupply(
 	ctx context.Context,
-	_ string,
 ) ([]lib.CosmosCoin, error) {
 	// todo: add pagination here
 	res, err := c.querier.TotalSupply(ctx, &banktypes.QueryTotalSupplyRequest{})
