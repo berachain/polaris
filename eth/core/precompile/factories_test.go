@@ -64,7 +64,7 @@ var _ = Describe("Container Factories", func() {
 			scf = NewStatefulFactory()
 		})
 
-		It("should correctly build stateful containers and log events", func() {
+		FIt("should correctly build stateful containers and log events", func() {
 			pc, err := scf.Build(&mockStateful{&mockBase{}}, nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
@@ -171,8 +171,8 @@ func (ms *mockStateful) GetOutput(
 
 func (ms *mockStateful) GetOutputPartial(
 	_ context.Context,
-) (mockObject, error) {
-	return mockObject{}, errors.New("err during precompile execution")
+) (*mockObject, error) {
+	return &mockObject{}, errors.New("err during precompile execution")
 }
 
 func (ms *mockStateful) ContractFuncAddrInput(
