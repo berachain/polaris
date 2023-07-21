@@ -18,7 +18,7 @@
 ###           Stage 0 - Build Arguments             ###
 #######################################################
 
-ARG GO_VERSION=1.20.4
+ARG GO_VERSION=1.20.6
 ARG GOARCH=amd64
 ARG GOOS=linux
 ARG NAME=polaris-cosmos
@@ -28,33 +28,7 @@ ARG CMD_PATH=./cosmos/simapp/polard
 ARG FOUNDRY_DIR=contracts
 
 #######################################################
-###       Stage 1 - Build Solidity Bindings         ###
-#######################################################
-
-# Use the latest foundry image
-FROM ghcr.io/foundry-rs/foundry:nightly as foundry
-
-# Set working directory
-WORKDIR /workdir
-
-# Required for forge install.
-COPY .git/ .git/
-
-# Copy over all the solidity code.
-ARG FOUNDRY_DIR
-COPY ${FOUNDRY_DIR} ${FOUNDRY_DIR}
-
-# Move into the forge repo for building.
-WORKDIR /workdir/${FOUNDRY_DIR}
-
-# Install dependecies for solidity contracts.
-RUN forge install --no-commit
-
-# Build the contracts using special flags required for abigen.
-RUN forge build --extra-output-files bin --extra-output-files abi
-
-#######################################################
-###         Stage 2 - Build the Application         ###
+###         Stage 1 - Build the Application         ###
 #######################################################
 
 FROM golang:${GO_VERSION}-alpine as builder
@@ -67,18 +41,22 @@ RUN set -eux; \
 # Set the working directory
 WORKDIR /workdir
 
-# Copy go.mod and go.sum files recursively (🔥 upgrade)
-COPY **/go.mod **/go.sum **/go.work ./
+# Copy go.work and go.work.sum files (🔥 upgrade)
+COPY ./go.work ./go.work.sum ./
+
+# Copy the go.mod and go.sum files for each module
+COPY ./contracts/go.sum ./contracts/go.mod ./contracts/
+COPY ./cosmos/go.sum ./cosmos/go.mod ./cosmos/
+COPY ./eth/go.sum ./eth/go.mod ./eth/
+COPY ./lib/go.sum ./lib/go.mod ./lib/
+COPY ./magefiles/go.sum ./magefiles/go.mod ./magefiles/
+COPY ./e2e/localnet/go.sum ./e2e/localnet/go.mod ./e2e/localnet/
 
 # Download the go module dependencies
 RUN go mod download
 
 # Copy the rest of the source code
 COPY . .
-
-# Copy the forge output
-ARG FOUNDRY_DIR
-COPY --from=foundry /workdir/${FOUNDRY_DIR}/out /workdir/${FOUNDRY_DIR}/out
 
 # Build args
 ARG NAME
@@ -109,7 +87,7 @@ RUN VERSION=$(echo $(git describe --tags) | sed 's/^v//') && \
     ${CMD_PATH}
 
 #######################################################
-###        Stage 3 - Prepare the Final Image        ###
+###        Stage 2 - Prepare the Final Image        ###
 #######################################################
 
 FROM golang:${GO_VERSION}-alpine

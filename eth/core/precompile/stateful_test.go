@@ -29,9 +29,9 @@ import (
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
-	pmock "pkg.berachain.dev/polaris/eth/core/precompile/mock"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -41,22 +41,23 @@ import (
 var _ = Describe("Stateful Container", func() {
 	var sc vm.PrecompileContainer
 	var empty vm.PrecompileContainer
-	var ctx context.Context
-	var addr common.Address
-	var value *big.Int
 	var blank []byte
 	var badInput = []byte{1, 2, 3, 4}
 	var err error
-	var evm precompile.EVM
+	var ctx context.Context
 
 	BeforeEach(func() {
-		evm = pmock.NewEVM()
-		ctx = context.Background()
 		sc, err = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
 		Expect(err).ToNot(HaveOccurred())
 		empty, err = precompile.NewStateful(nil, nil)
 		Expect(empty).To(BeNil())
 		Expect(err).To(MatchError("the stateful precompile has no methods to run"))
+		ctx = vm.NewPolarContext(
+			context.Background(),
+			vmmock.NewEVM(),
+			common.Address{},
+			big.NewInt(0),
+		)
 	})
 
 	Describe("Test Required Gas", func() {
@@ -73,19 +74,41 @@ var _ = Describe("Stateful Container", func() {
 	Describe("Test Run", func() {
 		It("should return an error for invalid cases", func() {
 			// invalid input
-			_, err = sc.Run(ctx, evm, blank, addr, value)
+			_, err = sc.Run(
+				ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				blank,
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
 
 			// method not found
-			_, err = sc.Run(ctx, evm, badInput, addr, value)
+			_, err = sc.Run(
+				ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				badInput, vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(MatchError("precompile method not found in contract ABI"))
 
 			// geth unpacking error
-			_, err = sc.Run(ctx, evm, append(getOutputABI.ID, byte(1), byte(2)), addr, value)
+			_, err = sc.Run(ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				append(getOutputABI.ID, byte(1), byte(2)),
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(HaveOccurred())
 
 			// precompile exec error
-			_, err = sc.Run(ctx, evm, getOutputPartialABI.ID, addr, value)
+			_, err = sc.Run(
+				ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				getOutputPartialABI.ID,
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err.Error()).To(Equal(
 				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]", //nolint:lll // test.
 			))
@@ -94,29 +117,51 @@ var _ = Describe("Stateful Container", func() {
 			var inputs []byte
 			inputs, err = contractFuncStrABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, evm, append(contractFuncStrABI.ID, inputs...), addr, value)
+			_, err = sc.Run(
+				ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				append(contractFuncStrABI.ID, inputs...),
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(HaveOccurred())
 
 			// geth output packing error
-			inputs, err = contractFuncAddrABI.Inputs.Pack(addr)
+			inputs, err = contractFuncAddrABI.Inputs.Pack(vm.UnwrapPolarContext(ctx).MsgSender())
 			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(ctx, evm, append(contractFuncAddrABI.ID, inputs...), addr, value)
+			_, err = sc.Run(
+				ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				append(contractFuncAddrABI.ID, inputs...),
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).To(HaveOccurred())
 		})
 
 		It("should return properly for valid method calls", func() {
+
 			var inputs []byte
 			inputs, err = getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
 			var ret []byte
-			ret, err = sc.Run(ctx, evm, append(getOutputABI.ID, inputs...), addr, value)
+			ret, err = sc.Run(
+				ctx,
+				vm.UnwrapPolarContext(ctx).Evm(),
+				append(getOutputABI.ID, inputs...),
+				vm.UnwrapPolarContext(ctx).MsgSender(),
+				vm.UnwrapPolarContext(ctx).MsgValue(),
+			)
 			Expect(err).ToNot(HaveOccurred())
 			var outputs []interface{}
 			outputs, err = getOutputABI.Outputs.Unpack(ret)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(outputs).To(HaveLen(1))
 			Expect(
-				reflect.ValueOf(outputs[0]).Index(0).FieldByName("CreationHeight").Interface().(*big.Int),
+				reflect.ValueOf(outputs[0]).
+					Index(0).
+					FieldByName("CreationHeight").
+					Interface().(*big.Int),
 			).To(Equal(big.NewInt(1)))
 			Expect(
 				reflect.ValueOf(outputs[0]).Index(0).FieldByName("TimeStamp").Interface().(string),
@@ -126,10 +171,6 @@ var _ = Describe("Stateful Container", func() {
 })
 
 // MOCKS BELOW.
-
-type mockEVM struct {
-	precompile.EVM
-}
 
 var (
 	mock, _             = solidity.MockPrecompileMetaData.GetAbi()
@@ -168,45 +209,34 @@ type mockObject struct {
 
 //revive:disable
 func getOutput(
-	_ *mockStateful,
-	_ context.Context,
-	evm precompile.EVM,
-	_ common.Address,
-	_ *big.Int,
+	sc precompile.Registrable,
+	ctx context.Context,
 	args ...any,
-) ([]any, error) {
+) ([]mockObject, error) {
 	str, ok := utils.GetAs[string](args[0])
 	if !ok {
 		return nil, errors.New("cast error")
 	}
-	evm.GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
-	return []any{
-		[]mockObject{
-			{
-				CreationHeight: big.NewInt(1),
-				TimeStamp:      str,
-			},
+	vm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
+	return []mockObject{
+		{
+			CreationHeight: big.NewInt(1),
+			TimeStamp:      str,
 		},
 	}, nil
 }
 
 func getOutputPartial(
-	_ *mockStateful,
-	_ context.Context,
-	_ precompile.EVM,
-	_ common.Address,
-	_ *big.Int,
+	sc precompile.Registrable,
+	ctx context.Context,
 	_ ...any,
 ) ([]any, error) {
 	return nil, errors.New("err during precompile execution")
 }
 
 func contractFuncAddrInput(
-	_ *mockStateful,
+	sc precompile.Registrable,
 	ctx context.Context,
-	_ precompile.EVM,
-	_ common.Address,
-	_ *big.Int,
 	args ...any,
 ) ([]any, error) {
 	_ = ctx
@@ -218,11 +248,8 @@ func contractFuncAddrInput(
 }
 
 func contractFuncStrInput(
-	_ *mockStateful,
+	sc precompile.Registrable,
 	ctx context.Context,
-	_ precompile.EVM,
-	_ common.Address,
-	_ *big.Int,
 	args ...any,
 ) ([]any, error) {
 	_ = ctx

@@ -23,7 +23,6 @@ package precompile
 import (
 	"context"
 	"math/big"
-	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -33,10 +32,10 @@ import (
 // NumBytesMethodID is the number of bytes used to represent a ABI method's ID.
 const NumBytesMethodID = 4
 
-// stateful is a container for running stateful and dynamic precompiled contracts.
+// stateful is a container for running stateful and precompiled contracts.
 type stateful struct {
-	// Registrable is the base precompile implementation.
-	Registrable
+	// StatefulImpl is the base precompile implementation.
+	StatefulImpl
 	// idsToMethods is a mapping of method IDs (string of first 4 bytes of the keccak256 hash of
 	// method signatures) to native precompile functions. The signature key is provided by the
 	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
@@ -49,13 +48,13 @@ type stateful struct {
 
 // NewStateful creates and returns a new `stateful` with the given method ids precompile functions map.
 func NewStateful(
-	rp Registrable, idsToMethods map[string]*Method,
+	si StatefulImpl, idsToMethods map[string]*Method,
 ) (vm.PrecompileContainer, error) {
 	if idsToMethods == nil {
 		return nil, ErrContainerHasNoMethods
 	}
 	return &stateful{
-		Registrable:  rp,
+		StatefulImpl: si,
 		idsToMethods: idsToMethods,
 	}, nil
 }
@@ -66,7 +65,7 @@ func NewStateful(
 // Run implements `PrecompileContainer`.
 func (sc *stateful) Run(
 	ctx context.Context,
-	evm EVM,
+	evm vm.PrecompileEVM,
 	input []byte,
 	caller common.Address,
 	value *big.Int,
@@ -82,15 +81,9 @@ func (sc *stateful) Run(
 	}
 
 	// Execute the method with the reflected ctx and raw input
-	// TODO: use PolarContext
 	return method.Call(
-		[]reflect.Value{
-			reflect.ValueOf(sc.Registrable),
-			reflect.ValueOf(ctx),
-			reflect.ValueOf(evm),
-			reflect.ValueOf(caller),
-			reflect.ValueOf(value),
-		},
+		sc.StatefulImpl,
+		vm.NewPolarContext(ctx, evm, caller, value),
 		input,
 	)
 }

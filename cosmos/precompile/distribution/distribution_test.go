@@ -41,11 +41,11 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -149,11 +149,15 @@ var _ = Describe("Distribution Precompile Test", func() {
 	When("SetWithdrawAddress", func() {
 
 		It("should succeed", func() {
-			res, err := contract.SetWithdrawAddress(
+			pCtx := vm.NewPolarContext(
 				ctx,
 				nil,
 				testutil.Alice,
 				big.NewInt(0),
+			)
+
+			res, err := contract.SetWithdrawAddress(
+				pCtx,
 				testutil.Bob,
 			)
 			Expect(err).ToNot(HaveOccurred())
@@ -220,26 +224,34 @@ var _ = Describe("Distribution Precompile Test", func() {
 		When("Withdraw Delegator Rewards common address", func() {
 
 			It("Success", func() {
-				res, err := contract.WithdrawDelegatorReward(
+				pCtx := vm.NewPolarContext(
 					ctx,
 					nil,
 					testutil.Alice,
 					big.NewInt(0),
+				)
+				res, err := contract.WithdrawDelegatorReward(
+					pCtx,
 					cosmlib.AccAddressToEthAddress(addr),
 					cosmlib.ValAddressToEthAddress(valAddr),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				resTyped := utils.MustGetAs[[]libgenerated.CosmosCoin](res[0])
-				Expect(resTyped[0].Denom).To(Equal(sdk.DefaultBondDenom))
+				Expect(res[0].Denom).To(Equal(sdk.DefaultBondDenom))
 				rewards, _ := tokens.TruncateDecimal()
-				Expect(resTyped[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
+				Expect(res[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
 			})
 		})
 		When("Reading Params", func() {
 			It("Should get if withdraw forwarding is enabled", func() {
-				res, err := contract.GetWithdrawEnabled(ctx, nil, testutil.Alice, big.NewInt(0))
+				pCtx := vm.NewPolarContext(
+					ctx,
+					nil,
+					testutil.Alice,
+					big.NewInt(0),
+				)
+				res, err := contract.GetWithdrawEnabled(pCtx)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res).To(Equal([]any{true}))
+				Expect(res).To(BeTrue())
 			})
 		})
 		When("Base Precompile Features", func() {

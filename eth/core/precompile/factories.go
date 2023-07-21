@@ -21,8 +21,6 @@
 package precompile
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
 	"unicode"
 
@@ -96,21 +94,21 @@ func NewStatefulFactory() *StatefulFactory {
 func (sf *StatefulFactory) Build(
 	rp Registrable, p Plugin,
 ) (vm.PrecompileContainer, error) {
-	sci, ok := utils.GetAs[StatefulImpl](rp)
+	si, ok := utils.GetAs[StatefulImpl](rp)
 	if !ok {
 		return nil, errorslib.Wrap(ErrWrongContainerFactory, statefulContainerName)
 	}
 
 	// attach the precompile plugin to the stateful contract
-	sci.SetPlugin(p)
+	si.SetPlugin(p)
 
 	// add precompile methods to stateful container, if any exist
-	idsToMethods, err := buildIdsToMethods(sci.ABIMethods(), reflect.ValueOf(sci))
+	idsToMethods, err := buildIdsToMethods(si.ABIMethods(), reflect.ValueOf(si))
 	if err != nil {
 		return nil, err
 	}
 
-	return NewStateful(rp, idsToMethods)
+	return NewStateful(si, idsToMethods)
 }
 
 // This function matches each Go implementation of the precompile to the ABI's respective function.
@@ -158,30 +156,31 @@ func formatName(name string) string {
 
 // validateReturnTypes checks if the precompile method returns a []any and an error. Returns an
 // error otherwise.
-func validateReturnTypes(implMethod reflect.Method) error {
-	if implMethod.Type.NumOut() != 2 { //nolint:gomnd // always expect 2 return values.
-		return errors.New(
-			"precompile methods must return ([]any, error), but found wrong number of return types for precompile method", //nolint:lll // it's okay.
-		)
-	}
+func validateReturnTypes(_ reflect.Method) error {
+	// 	if implMethod.Type.NumOut() != 2 { //nolint:gomnd // always expect 2 return values.
+	// return errors.New(
+	// "precompile methods must return ([]any, error), but found wrong number of return types for
+	// precompile method", //nolint:lll // it's okay.
+	// )
+	// }
 
-	// check if the first return type is of type []any
-	firstReturnType := implMethod.Type.Out(0)
-	if firstReturnType.Kind() != reflect.Slice && firstReturnType.Elem().Kind() != reflect.Interface {
-		return fmt.Errorf(
-			"first parameter should be []any, but found %s for precompile method",
-			firstReturnType.String(),
-		)
-	}
+	// // check if the first return type is of type []any
+	// firstReturnType := implMethod.Type.Out(0)
+	// if firstReturnType.Kind() != reflect.Slice && firstReturnType.Elem().Kind() != reflect.Interface {
+	// return fmt.Errorf(
+	// "first parameter should be []any, but found %s for precompile method",
+	// firstReturnType.String(),
+	// )
+	// }
 
-	// check that the second return value is an error
-	secondReturnType := implMethod.Type.Out(1)
-	if secondReturnType.Name() != "error" {
-		return fmt.Errorf(
-			"second parameter should be error, but found %s for precompile method",
-			secondReturnType.String(),
-		)
-	}
+	// // check that the second return value is an error
+	// secondReturnType := implMethod.Type.Out(1)
+	// if secondReturnType.Name() != "error" {
+	// return fmt.Errorf(
+	// "second parameter should be error, but found %s for precompile method",
+	// secondReturnType.String(),
+	// )
+	// }
 
 	return nil
 }
