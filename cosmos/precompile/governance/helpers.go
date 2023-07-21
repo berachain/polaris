@@ -36,6 +36,7 @@ import (
 
 const (
 	EventTypeProposalSubmitted = "proposal_submitted"
+	AttributeProposalSender    = "proposal_sender"
 )
 
 // submitProposalHelper is a helper function for the `SubmitProposal` method of the
@@ -67,7 +68,7 @@ func (c *Contract) submitProposalHelper(
 		sdk.NewEvent(
 			EventTypeProposalSubmitted,
 			sdk.NewAttribute(govtypes.AttributeKeyProposalID, proposalID),
-			sdk.NewAttribute("proposal_sender", polarCtx.MsgSender().Hex()),
+			sdk.NewAttribute(AttributeProposalSender, polarCtx.MsgSender().Hex()),
 		),
 	)
 

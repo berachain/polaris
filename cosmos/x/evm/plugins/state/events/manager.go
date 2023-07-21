@@ -21,10 +21,12 @@
 package events
 
 import (
+	"errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/errors"
+	errlib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -33,6 +35,10 @@ const (
 	initJournalCapacity = 32
 	managerRegistryKey  = `events`
 )
+
+// ErrEthEventNotRegistered is returned when an incoming event is not mapped to any registered
+// Ethereum event.
+var ErrEthEventNotRegistered = errors.New("no Ethereum event was registered for this Cosmos event")
 
 // manager is a controllable event manager that supports snapshots and reverts for emitted Cosmos
 // events. During precompile execution, it is also used to Cosmos events to the Eth logs journal.
@@ -142,7 +148,12 @@ func (m *manager) Finalize() {}
 func (m *manager) convertToLog(event *sdk.Event) {
 	log, err := m.plf.Build(event)
 	if err != nil {
-		panic(errors.Wrapf(err, "cannot convert Cosmos event %s to Eth log", event.Type))
+		if errors.Is(err, ErrEthEventNotRegistered) {
+			return
+		}
+
+		panic(errlib.Wrapf(err, "cannot convert Cosmos event %s to Eth log", event.Type))
 	}
+
 	m.ldb.AddLog(log)
 }
