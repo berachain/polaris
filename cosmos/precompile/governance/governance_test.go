@@ -125,7 +125,7 @@ var _ = Describe("Governance Precompile", func() {
 	When("submitting proposal handler", func() {
 		It("should fail if the proposal cant be unmarshalled", func() {
 			_, err := contract.submitProposalHelper(
-				context.TODO(), []byte("invalid"), nil,
+				sdk.Context{}, []byte("invalid"), nil,
 			)
 			Expect(err).To(HaveOccurred())
 		})

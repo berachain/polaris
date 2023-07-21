@@ -118,8 +118,13 @@ var _ = Describe("Call the Precompile Directly", func() {
 	})
 
 	AfterEach(func() {
-		err := tf.Teardown()
-		Expect(err).ToNot(HaveOccurred())
+		// Dump logs and stop the containter here.
+		// if !CurrentSpecReport().Failure.IsZero() {
+		// logs, err := tf.DumpLogs()
+		// Expect(err).ToNot(HaveOccurred())
+		// GinkgoWriter.Println(logs)
+		// }
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	It("Should be able to get a proposal", func() {
