@@ -63,7 +63,9 @@ func (m *method) validateBasic() error {
 	for i := 0; i < implMethodNumOut-1; i++ {
 		implMethodReturnType := m.execute.Type.Out(i)
 		abiMethodReturnType := m.abiMethod.Outputs[i].Type.GetType()
-		if err := validateArg(implMethodReturnType, abiMethodReturnType); err != nil {
+		if err := validateArg(
+			reflect.New(implMethodReturnType).Elem(), reflect.New(abiMethodReturnType).Elem(),
+		); err != nil {
 			return fmt.Errorf(
 				"return type mismatch: %v != %v", implMethodReturnType, abiMethodReturnType,
 			)
@@ -91,7 +93,9 @@ func tryMatchInputs(implMethod reflect.Method, abiMethod *abi.Method) bool {
 		for i := 2; i < implMethod.Type.NumIn(); i++ {
 			implMethodParamType := implMethod.Type.In(i)
 			abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
-			if validateArg(implMethodParamType, abiMethodParamType) != nil {
+			if validateArg(
+				reflect.New(implMethodParamType).Elem(), reflect.New(abiMethodParamType).Elem(),
+			) != nil {
 				return false
 			}
 		}
@@ -102,51 +106,75 @@ func tryMatchInputs(implMethod reflect.Method, abiMethod *abi.Method) bool {
 
 // validateArg is a helper function for ValidateBasic. This function function uses reflection to
 // verify the implementation method's arg type matches the ABI method's corresponding arg type.
-func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
+func validateArg(implMethodVar reflect.Value, abiMethodVar reflect.Value) error {
+	implMethodVarType := implMethodVar.Type()
+	abiMethodVarType := abiMethodVar.Type()
+
 	//nolint:exhaustive // checking necessary conditions.
+	fmt.Println(implMethodVarType, implMethodVarType.Kind(), "<>", abiMethodVarType, abiMethodVarType.Kind())
 	switch implMethodVarType.Kind() {
-	case abiMethodVarType.Kind(), reflect.Interface:
-		// if its a struct, check all the fields to match
+	case reflect.Array:
+		fmt.Println("go type", implMethodVarType, "abi type", abiMethodVarType)
+		for j := 0; j < abiMethodVarType.Len(); j++ {
+			// if the kind of the type of the jth array value matches, we're good
+			if implMethodVar.Index(j).Type().Kind() != abiMethodVar.Index(j).Type().Kind() {
+				return fmt.Errorf(
+					"return type mismatch: %v != %v",
+					implMethodVar.Index(j).Type(),
+					abiMethodVar.Index(j).Type(),
+				)
+			}
+
+			// if they are both structs, check if the struct fields match.
+			if implMethodVar.Index(j).Type().Kind() == reflect.Struct {
+				fmt.Println("VALIDATING ARRAY ARG W ELEM STRUCT", "go type", implMethodVarType.Elem(), "abi type", abiMethodVarType.Elem())
+				// If it is a slice/array of structs, check if the struct fields match.
+				if err := validateStruct(
+					implMethodVar.Index(j).Type(), abiMethodVar.Index(j).Type(),
+				); err != nil {
+					return err
+				}
+			}
+		}
+	case reflect.Slice:
+		if implMethodVarType.Elem() != abiMethodVarType.Elem() &&
+			implMethodVarType.Elem().Kind() != reflect.Struct {
+			return fmt.Errorf(
+				"return type mismatch: %v != %v", implMethodVar.Elem(), abiMethodVar.Elem(),
+			)
+		}
+
+		// If it is a slice/array of structs, check if the struct fields match.
+		if implMethodVarType.Elem().Kind() == reflect.Struct {
+			fmt.Println("VALIDATING SLICE ARG W ELEM STRUCT", "go type", implMethodVarType.Elem(), "abi type", abiMethodVarType.Elem())
+			if err := validateStruct(implMethodVarType.Elem(), abiMethodVarType.Elem()); err != nil {
+				return err
+			}
+		}
+	case abiMethodVarType.Kind():
+		// If it's a struct, check all the fields to match
 		if implMethodVarType.Kind() == reflect.Struct {
+			fmt.Println("VALIDATING TWO STRUCT ARGS", "go kind", implMethodVarType.Kind(), "abi kind", abiMethodVarType.Kind())
 			if err := validateStruct(implMethodVarType, abiMethodVarType); err != nil {
 				return err
 			}
 		}
-
+		// Otherwise, the types match, and we are done. QED ◻︎
+	case reflect.Interface:
 		// If it's `any` (reflect.Interface), we leave it to the implementer to make sure that it is
 		// used/converted correctly.
-		return nil
-
-	case reflect.Slice, reflect.Array:
-		if abiMethodVarType.Kind() == reflect.Slice || abiMethodVarType.Kind() == reflect.Array {
-			for j := 0; j < abiMethodVarType.Len(); j++ {
-				if abiMethodVarType.Elem().Kind() == reflect.Struct {
-					// If it is a slice/array of structs, check if the struct fields match.
-					if err := validateStruct(
-						implMethodVarType.Elem(), abiMethodVarType.Elem(),
-					); err != nil {
-						return err
-					}
-				} else if implMethodVarType.In(j) != abiMethodVarType.In(j) {
-					// Any other case, we just check the elements.
-					return fmt.Errorf(
-						"return type mismatch: %v != %v",
-						implMethodVarType.Elem(),
-						abiMethodVarType.Elem(),
-					)
-				}
-			}
-		}
+	default:
+		return fmt.Errorf("return type mismatch: %v != %v", implMethodVarType, abiMethodVarType)
 	}
 
-	return fmt.Errorf("return type mismatch: %v != %v", implMethodVarType, abiMethodVarType)
+	return nil
 }
 
 // This function checks to make sure that the struct fields match. If there is a nested struct,
 // we recurse until we reach the base case of a struct composing of only primitive types.
 func validateStruct(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
-	if implMethodVarType == nil && abiMethodVarType == nil {
-		return nil
+	if implMethodVarType.Kind() != reflect.Struct || abiMethodVarType.Kind() != reflect.Struct {
+		return errors.New("validateStruct: not a struct")
 	}
 
 	if implMethodVarType.NumField() != abiMethodVarType.NumField() {
@@ -161,8 +189,12 @@ func validateStruct(implMethodVarType reflect.Type, abiMethodVarType reflect.Typ
 
 	// match every individual field
 	for j := 0; j < implMethodVarType.NumField(); j++ {
-		err := validateArg(implMethodVarType.Field(j).Type, abiMethodVarType.Field(j).Type)
-		if err != nil {
+		fmt.Println("VALIDATING STRUCT FIELD", "go type", implMethodVarType.Field(j).Type, "abi type", abiMethodVarType.Field(j).Type)
+		fmt.Println("WTF ARE YOU", reflect.ValueOf(implMethodVarType.Field(j)), reflect.ValueOf(abiMethodVarType.Field(j)))
+		if err := validateArg(
+			reflect.New(implMethodVarType.Field(j).Type).Elem(),
+			reflect.New(abiMethodVarType.Field(j).Type).Elem(),
+		); err != nil {
 			return err
 		}
 	}

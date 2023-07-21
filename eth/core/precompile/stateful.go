@@ -22,7 +22,6 @@ package precompile
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -74,7 +73,7 @@ func (sc *stateful) Run(
 	if len(input) < NumBytesMethodID {
 		return nil, ErrInvalidInputToPrecompile
 	}
-	fmt.Println("stateful.go::Run() with ID", input[:NumBytesMethodID])
+
 	// Extract the method ID from the input and load the method.
 	method, found := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
 	if !found {

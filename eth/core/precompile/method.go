@@ -23,7 +23,6 @@ package precompile
 import (
 	"context"
 	"errors"
-	"fmt"
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -75,13 +74,11 @@ func newMethod(
 // Call executes the precompile's executable with the given context and input arguments.
 func (m *method) Call(ctx context.Context, input []byte) ([]byte, error) {
 	// Unpack the args from the input, if any exist.
-
-	fmt.Println("method.go::Call()", m.abiMethod.Sig)
 	unpackedArgs, err := m.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(unpackedArgs)
+
 	// Convert the unpacked args to reflect values.
 	reflectedUnpackedArgs := make([]reflect.Value, 0, len(unpackedArgs))
 	for _, unpacked := range unpackedArgs {
@@ -123,5 +120,6 @@ func (m *method) Call(ctx context.Context, input []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return ret, nil
 }

@@ -113,10 +113,7 @@ func (sf *StatefulFactory) Build(
 // This function matches each Go implementation of the precompile to the ABI's respective function.
 // It searches for the ABI function in the Go precompile contract and performs basic validation on
 // the implemented function.
-func buildIdsToMethods(
-	si StatefulImpl,
-	contractImpl reflect.Value,
-) (map[string]*method, error) {
+func buildIdsToMethods(si StatefulImpl, contractImpl reflect.Value) (map[string]*method, error) {
 	precompileABI := si.ABIMethods()
 	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*method)
@@ -127,7 +124,8 @@ func buildIdsToMethods(
 
 		for i := len(implMethodName) - 1; i >= 1; i-- {
 			var matchedAbiMethod *abi.Method
-			for _, abiMethod := range precompileABI {
+			for name := range precompileABI {
+				abiMethod := precompileABI[name]
 				if implMethodName == abiMethod.RawName {
 					matchedAbiMethod = &abiMethod
 					break
