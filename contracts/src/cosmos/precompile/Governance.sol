@@ -118,9 +118,9 @@ interface IGovernanceModule {
     /**
      * @dev Emitted by the governance module when `submitProposal` is called.
      * @param proposalId The id of the proposal.
-     * @param sender The sender of the submit proposal.
+     * @param proposalSender The sender of the submit proposal.
      */
-    event ProposalSubmitted(uint64 indexed proposalId, address indexed sender);
+    event ProposalSubmitted(uint64 indexed proposalId, address indexed proposalSender);
 
     /**
      * @dev Emitted by the governance module when `submitProposal` is called.

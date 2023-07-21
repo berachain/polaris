@@ -69,10 +69,10 @@ func NewPrecompileContract(bk bankkeeper.Keeper, em ERC20Module) ethprecompile.S
 // CustomValueDecoders implements StatefulImpl.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		erc20types.AttributeKeyToken:     ConvertCommonHexAddress,
+		erc20types.AttributeKeyToken:     log.ConvertCommonHexAddress,
 		erc20types.AttributeKeyDenom:     log.ReturnStringAsIs,
-		erc20types.AttributeKeyOwner:     ConvertCommonHexAddress,
-		erc20types.AttributeKeyRecipient: ConvertCommonHexAddress,
+		erc20types.AttributeKeyOwner:     log.ConvertCommonHexAddress,
+		erc20types.AttributeKeyRecipient: log.ConvertCommonHexAddress,
 	}
 }
 
@@ -245,10 +245,4 @@ func (c *Contract) TransferERC20ToCoinTo(
 // ==============================================================================
 
 // ConvertCommonHexAddress is a value decoder.
-var _ ethprecompile.ValueDecoder = ConvertCommonHexAddress
-
-// ConvertCommonHexAddress transfers a common hex address attribute to a common.Address and returns
-// it as type any.
-func ConvertCommonHexAddress(attributeValue string) (any, error) {
-	return common.HexToAddress(attributeValue), nil
-}
+var _ ethprecompile.ValueDecoder = log.ConvertCommonHexAddress

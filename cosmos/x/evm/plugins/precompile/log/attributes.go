@@ -31,6 +31,7 @@ import (
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
@@ -142,6 +143,12 @@ func ConvertUint64(attributeValue string) (any, error) {
 // ReturnStringAsIs is a `precompile.ValueDecoder`.
 func ReturnStringAsIs(attributeValue string) (any, error) {
 	return attributeValue, nil
+}
+
+// ConvertCommonHexAddress transfers a common hex address attribute to a common.Address and returns
+// it as type any.
+func ConvertCommonHexAddress(attributeValue string) (any, error) {
+	return common.HexToAddress(attributeValue), nil
 }
 
 // ==============================================================================

@@ -23,15 +23,14 @@ package governance
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
@@ -46,6 +45,7 @@ func (c *Contract) submitProposalHelper(
 	proposalBz []byte,
 	message []*codectypes.Any,
 ) (uint64, error) {
+	polarCtx := vm.UnwrapPolarContext(ctx)
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// Decode the proposal.
@@ -62,11 +62,12 @@ func (c *Contract) submitProposalHelper(
 	}
 
 	// emit an event at the end of this successful proposal submission
+	proposalID := strconv.FormatUint(res.ProposalId, 10)
 	sdkCtx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			EventTypeProposalSubmitted,
-			sdk.NewAttribute(govtypes.AttributeKeyProposalID, fmt.Sprintf("%d", res.ProposalId)),
-			sdk.NewAttribute(banktypes.AttributeKeySender, cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())),
+			sdk.NewAttribute(govtypes.AttributeKeyProposalID, proposalID),
+			sdk.NewAttribute("proposal_sender", polarCtx.MsgSender().Hex()),
 		),
 	)
 
