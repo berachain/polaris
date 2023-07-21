@@ -64,6 +64,7 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 		govtypes.AttributeKeyProposalID:       log.ConvertUint64,
 		govtypes.AttributeKeyProposalMessages: log.ReturnStringAsIs,
 		govtypes.AttributeKeyOption:           log.ReturnStringAsIs,
+		"proposal_sender":                     log.ConvertCommonHexAddress,
 	}
 }
 

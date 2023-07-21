@@ -23,12 +23,19 @@ package governance
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+)
+
+const (
+	EventTypeProposalSubmitted = "proposal_submitted"
 )
 
 // submitProposalHelper is a helper function for the `SubmitProposal` method of the
@@ -38,6 +45,9 @@ func (c *Contract) submitProposalHelper(
 	proposalBz []byte,
 	message []*codectypes.Any,
 ) (uint64, error) {
+	polarCtx := vm.UnwrapPolarContext(ctx)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
 	// Decode the proposal.
 	var proposal v1.MsgSubmitProposal
 	if err := proposal.Unmarshal(proposalBz); err != nil {
@@ -50,6 +60,17 @@ func (c *Contract) submitProposalHelper(
 	if err != nil {
 		return 0, err
 	}
+
+	// emit an event at the end of this successful proposal submission
+	proposalID := strconv.FormatUint(res.ProposalId, 10)
+	sdkCtx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			EventTypeProposalSubmitted,
+			sdk.NewAttribute(govtypes.AttributeKeyProposalID, proposalID),
+			sdk.NewAttribute("proposal_sender", polarCtx.MsgSender().Hex()),
+		),
+	)
+
 	return res.ProposalId, nil
 }
 
