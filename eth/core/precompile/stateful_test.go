@@ -22,13 +22,11 @@ package precompile
 
 import (
 	"context"
-	"errors"
 	"math/big"
 	"reflect"
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -177,11 +175,15 @@ var (
 	getOutputPartialABI          = mock.Methods["getOutputPartial"]
 	contractFuncAddrABI          = mock.Methods["contractFunc"]
 	contractFuncStrABI           = mock.Methods["contractFuncStr"]
+	overloadedFuncABI            = mock.Methods["overloadedFunc"]
+	overloadedFunc0ABI           = mock.Methods["overloadedFunc0"]
 	mockStatefulDummy            = &mockStateful{&mockBase{}}
 	getOutputFunc, _             = reflect.TypeOf(mockStatefulDummy).MethodByName("GetOutput")
 	getOutputPartialFunc, _      = reflect.TypeOf(mockStatefulDummy).MethodByName("GetOutputPartial")
 	contractFuncAddrInputFunc, _ = reflect.TypeOf(mockStatefulDummy).MethodByName("ContractFuncAddrInput")
 	contractFuncStrInputFunc, _  = reflect.TypeOf(mockStatefulDummy).MethodByName("ContractFuncStrInput")
+	overloadedFunc, _            = reflect.TypeOf(mockStatefulDummy).MethodByName("OverloadedFunc")
+	overloadedFunc0, _           = reflect.TypeOf(mockStatefulDummy).MethodByName("OverloadedFunc0")
 	mockIdsToMethods             = map[string]*method{
 		utils.UnsafeBytesToStr(getOutputABI.ID): newMethod(
 			mockStatefulDummy,
@@ -203,48 +205,20 @@ var (
 			contractFuncStrABI,
 			contractFuncStrInputFunc,
 		),
+		utils.UnsafeBytesToStr(overloadedFuncABI.ID): newMethod(
+			mockStatefulDummy,
+			overloadedFuncABI,
+			overloadedFunc,
+		),
+		utils.UnsafeBytesToStr(contractFuncStrABI.ID): newMethod(
+			mockStatefulDummy,
+			overloadedFunc0ABI,
+			overloadedFunc0,
+		),
 	}
 )
 
 type mockObject struct {
 	CreationHeight *big.Int
 	TimeStamp      string
-}
-
-//revive:disable
-
-func (ms *mockStateful) GetOutput(
-	ctx context.Context,
-	str string,
-) ([]mockObject, error) {
-	vm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
-	return []mockObject{
-		{
-			CreationHeight: big.NewInt(1),
-			TimeStamp:      str,
-		},
-	}, nil
-}
-
-func (ms *mockStateful) GetOutputPartial(
-	ctx context.Context,
-) ([]any, error) {
-	return nil, errors.New("err during precompile execution")
-}
-
-func (ms *mockStateful) ContractFuncAddrInput(
-	ctx context.Context,
-	addr common.Address,
-) ([]any, error) {
-	_ = ctx
-	return []any{"invalid - should be *big.Int here"}, nil
-}
-
-func (ms *mockStateful) ContractFuncStrInput(
-	ctx context.Context,
-	addr string,
-) ([]any, error) {
-	_ = ctx
-	ans := big.NewInt(int64(len(addr)))
-	return []any{ans}, nil
 }

@@ -22,11 +22,13 @@ package precompile
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -91,7 +93,7 @@ var _ = Describe("Container Factories", func() {
 
 		It("should construct a stateful container with overloaded methods", func() {
 			scf := NewStatefulFactory()
-			os := &overloadedStateful{&mockBase{}}
+			os := &mockStateful{&mockBase{}}
 			stateful, err := scf.Build(os, nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(stateful).ToNot(BeNil())
@@ -146,6 +148,59 @@ type mockStateful struct {
 	*mockBase
 }
 
+func (ms *mockStateful) RegistryKey() common.Address {
+	return common.HexToAddress("0x696969696969")
+}
+
+func (ms *mockStateful) ABIEvents() map[string]abi.Event {
+	return mock.Events
+}
+
+func (ms *mockStateful) ABIMethods() map[string]abi.Method {
+	return mock.Methods
+}
+
+func (ms *mockStateful) GetOutput(
+	ctx context.Context,
+	str string,
+) ([]mockObject, error) {
+	vm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
+	return []mockObject{
+		{
+			CreationHeight: big.NewInt(1),
+			TimeStamp:      str,
+		},
+	}, nil
+}
+
+func (ms *mockStateful) GetOutputPartial(
+	_ context.Context,
+) (*mockObject, error) {
+	return nil, errors.New("err during precompile execution")
+}
+
+func (ms *mockStateful) ContractFuncAddrInput(
+	_ context.Context,
+	addr common.Address,
+) (*big.Int, error) {
+	return big.NewInt(12112), nil
+}
+
+func (ms *mockStateful) ContractFuncStrInput(
+	_ context.Context,
+	addr string,
+) error {
+	return nil
+}
+
+func (ms *mockStateful) OverloadedFunc(_ context.Context) (*big.Int, error) {
+	return big.NewInt(69), nil
+}
+
+func (ms *mockStateful) OverloadedFunc0(_ context.Context, _ *big.Int) (*big.Int, error) {
+	return big.NewInt(420), nil
+}
+
 // ============================================================================.
 type badMockStateful struct {
 	*mockBase
@@ -159,26 +214,5 @@ func (bms *badMockStateful) ABIMethods() map[string]abi.Method {
 	return map[string]abi.Method{
 		"getOutput":        mock.Methods["getOutput"],
 		"getOutputPartial": mock.Methods["getOutputPartial"],
-	}
-}
-
-// ============================================================================
-
-type overloadedStateful struct {
-	*mockBase
-}
-
-func (os *overloadedStateful) OverloadedFunc(_ context.Context) (*big.Int, error) {
-	return big.NewInt(69), nil
-}
-
-func (os *overloadedStateful) OverloadedFunc0(_ context.Context, _ *big.Int) (*big.Int, error) {
-	return big.NewInt(420), nil
-}
-
-func (os *overloadedStateful) ABIMethods() map[string]abi.Method {
-	return map[string]abi.Method{
-		"overloadedFunc":  mock.Methods["overloadedFunc"],
-		"overloadedFunc0": mock.Methods["overloadedFunc0"],
 	}
 }

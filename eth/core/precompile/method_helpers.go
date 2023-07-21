@@ -58,6 +58,10 @@ func findMatchingABIMethod(
 				return "", err
 			}
 			return matchedAbiMethod.Name, nil
+		} else {
+			// we found a matching impl method for the ABI method based on the name, but the inputs
+			// do not match
+			return "", errorslib.Wrap(ErrWrongInputTypesForABIMethod, matchedAbiMethod.Name)
 		}
 	}
 
