@@ -21,8 +21,6 @@
 package precompile
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
 	"unicode"
 
@@ -118,29 +116,35 @@ func (sf *StatefulFactory) Build(
 func buildIdsToMethods(
 	si StatefulImpl,
 	contractImpl reflect.Value,
-) (map[string]*Method, error) {
+) (map[string]*method, error) {
 	precompileABI := si.ABIMethods()
 	contractImplType := contractImpl.Type()
-	idsToMethods := make(map[string]*Method)
+	idsToMethods := make(map[string]*method)
+
 	for m := 0; m < contractImplType.NumMethod(); m++ {
 		implMethod := contractImplType.Method(m)
-		// This only runs when we have overloaded functions. In most cases, it's an O(1) operation.
+		implMethodName := formatName(implMethod.Name)
 
-		abiMethod := findInABI(implMethod, precompileABI)
-		// we need to make sure that this is actually mapping the right implMethod by checking the
-		// arg types due to the overloaded function edge case.
-		if abiMethod.Name != "" {
-			method := NewMethod(
-				si,
-				&abiMethod,
-				abiMethod.Sig,
-				implMethod,
-			)
+		for i := len(implMethodName) - 1; i >= 1; i-- {
+			var matchedAbiMethod *abi.Method
+			for _, abiMethod := range precompileABI {
+				if implMethodName == abiMethod.RawName {
+					matchedAbiMethod = &abiMethod
+					break
+				}
+			}
 
-			if err := method.ValidateBasic(); err != nil {
-				return nil, err
-			} else {
-				idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = method
+			if matchedAbiMethod == nil {
+				implMethodName = implMethodName[:i]
+				continue
+			}
+
+			if tryMatchInputs(implMethod, matchedAbiMethod) {
+				method := newMethod(si, matchedAbiMethod, implMethod)
+				if err := method.validateBasic(); err != nil {
+					return nil, err
+				}
+				idsToMethods[utils.UnsafeBytesToStr(matchedAbiMethod.ID)] = method
 			}
 		}
 	}
@@ -153,55 +157,6 @@ func buildIdsToMethods(
 	}
 
 	return idsToMethods, nil
-}
-
-// Find returns the longest substring of `implMethodName` that is a key in `precompileABI`.
-// This function is used to find the ABI method that corresponds to the Go implementation.
-// and provides safeguarding against the overloaded function edge case.
-func findInABI(implMethod reflect.Method, precompileABI map[string]abi.Method) abi.Method {
-	implMethodName := formatName(implMethod.Name)
-
-	for i := len(implMethodName); i > 0; i-- {
-		for _, abiMethod := range precompileABI {
-			// this could be the function
-			if implMethodName == abiMethod.RawName {
-				// same function name and same amount of arguments. if this case fails then
-				// we either don't have the right function or we have an overloaded function.
-				if err := validateInputs(implMethod, abiMethod); err == nil {
-					return abiMethod
-				}
-			}
-			implMethodName = implMethodName[:i]
-		}
-	}
-
-	return abi.Method{}
-}
-
-func validateInputs(implMethod reflect.Method, abiMethod abi.Method) error {
-	abiMethodNumIn := len(abiMethod.Inputs)
-
-	// First two args of Go precompile implementation are the receiver contract and the Context, so
-	// verify that the ABI method has exactly 2 fewer inputs than the implementation method.
-	if implMethod.Type.NumIn()-2 != abiMethodNumIn {
-		return errors.New("number of arguments mismatch")
-	}
-
-	// If the function does not take any inputs, no need to check.
-	if abiMethodNumIn > 0 {
-		// Validate that the precompile input args types match ABI input arg types, excluding the
-		// first two args (receiver contract and Context).
-		for i := 2; i < implMethod.Type.NumIn(); i++ {
-			implMethodParamType := implMethod.Type.In(i)
-			abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
-			if err := validateArg(implMethodParamType, abiMethodParamType); err != nil {
-				fmt.Println("we error", err)
-				return err
-			}
-		}
-	}
-
-	return nil
 }
 
 // formatName converts to first character of name to lowercase.

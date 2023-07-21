@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile_test
+package precompile
 
 import (
 	"context"
@@ -27,7 +27,6 @@ import (
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -41,10 +40,10 @@ var (
 var _ = Describe("Container Factories", func() {
 
 	Context("Stateless Container Factory", func() {
-		var scf *precompile.StatelessFactory
+		var scf *StatelessFactory
 
 		BeforeEach(func() {
-			scf = precompile.NewStatelessFactory()
+			scf = NewStatelessFactory()
 		})
 
 		It("should build stateless precompile containers", func() {
@@ -58,10 +57,10 @@ var _ = Describe("Container Factories", func() {
 	})
 
 	Context("Stateful Container Factory", func() {
-		var scf *precompile.StatefulFactory
+		var scf *StatefulFactory
 
 		BeforeEach(func() {
-			scf = precompile.NewStatefulFactory()
+			scf = NewStatefulFactory()
 		})
 
 		It("should correctly build stateful containers and log events", func() {
@@ -75,23 +74,23 @@ var _ = Describe("Container Factories", func() {
 	})
 
 	Context("Bad Stateful Container", func() {
-		var scf *precompile.StatefulFactory
+		var scf *StatefulFactory
 
 		BeforeEach(func() {
-			scf = precompile.NewStatefulFactory()
+			scf = NewStatefulFactory()
 		})
 
 		It("should error on missing precompile method for ABI method", func() {
 			_, err := scf.Build(&badMockStateful{&mockBase{}}, nil)
-			var _ precompile.StatefulImpl = (*mockBase)(nil)
+			var _ StatefulImpl = (*mockBase)(nil)
 			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial"))
 		})
 	})
 
 	Context("Overloaded Stateful Container", func() {
 
-		FIt("should construct a stateful container with overloaded methods", func() {
-			scf := precompile.NewStatefulFactory()
+		It("should construct a stateful container with overloaded methods", func() {
+			scf := NewStatefulFactory()
 			os := &overloadedStateful{&mockBase{}}
 			stateful, err := scf.Build(os, nil)
 			Expect(err).ToNot(HaveOccurred())
@@ -118,9 +117,9 @@ func (mb *mockBase) ABIEvents() map[string]abi.Event { return nil }
 // CustomValueDecoders should return a map of event attribute keys to value decoder
 // functions. This is used to decode event attribute values that require custom decoding
 // logic.
-func (mb *mockBase) CustomValueDecoders() precompile.ValueDecoders { return nil }
+func (mb *mockBase) CustomValueDecoders() ValueDecoders { return nil }
 
-func (mb *mockBase) SetPlugin(_ precompile.Plugin) {}
+func (mb *mockBase) SetPlugin(_ Plugin) {}
 
 // ============================================================================.
 type mockStateless struct {

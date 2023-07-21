@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile_test
+package precompile
 
 import (
 	"context"
@@ -28,7 +28,6 @@ import (
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
@@ -47,9 +46,9 @@ var _ = Describe("Stateful Container", func() {
 	var ctx context.Context
 
 	BeforeEach(func() {
-		sc, err = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
+		sc, err = NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
 		Expect(err).ToNot(HaveOccurred())
-		empty, err = precompile.NewStateful(nil, nil)
+		empty, err = NewStateful(nil, nil)
 		Expect(empty).To(BeNil())
 		Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 		ctx = vm.NewPolarContext(
@@ -183,29 +182,25 @@ var (
 	getOutputPartialFunc, _      = reflect.TypeOf(mockStatefulDummy).MethodByName("GetOutputPartial")
 	contractFuncAddrInputFunc, _ = reflect.TypeOf(mockStatefulDummy).MethodByName("ContractFuncAddrInput")
 	contractFuncStrInputFunc, _  = reflect.TypeOf(mockStatefulDummy).MethodByName("ContractFuncStrInput")
-	mockIdsToMethods             = map[string]*precompile.Method{
-		utils.UnsafeBytesToStr(getOutputABI.ID): precompile.NewMethod(
+	mockIdsToMethods             = map[string]*method{
+		utils.UnsafeBytesToStr(getOutputABI.ID): newMethod(
 			mockStatefulDummy,
 			&getOutputABI,
-			getOutputABI.Sig,
 			getOutputFunc,
 		),
-		utils.UnsafeBytesToStr(getOutputPartialABI.ID): precompile.NewMethod(
+		utils.UnsafeBytesToStr(getOutputPartialABI.ID): newMethod(
 			mockStatefulDummy,
 			&getOutputPartialABI,
-			getOutputPartialABI.Sig,
 			getOutputPartialFunc,
 		),
-		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): precompile.NewMethod(
+		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): newMethod(
 			mockStatefulDummy,
 			&contractFuncAddrABI,
-			contractFuncAddrABI.Sig,
 			contractFuncAddrInputFunc,
 		),
-		utils.UnsafeBytesToStr(contractFuncStrABI.ID): precompile.NewMethod(
+		utils.UnsafeBytesToStr(contractFuncStrABI.ID): newMethod(
 			mockStatefulDummy,
 			&contractFuncStrABI,
-			contractFuncStrABI.Sig,
 			contractFuncStrInputFunc,
 		),
 	}

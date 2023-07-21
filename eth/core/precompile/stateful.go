@@ -22,6 +22,7 @@ package precompile
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -40,7 +41,7 @@ type stateful struct {
 	// method signatures) to native precompile functions. The signature key is provided by the
 	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
 	// (geth abi format). Please check core/precompile/container/method.go for more information.
-	idsToMethods map[string]*Method
+	idsToMethods map[string]*method
 	// receive      *Method // TODO: implement
 	// fallback     *Method // TODO: implement
 
@@ -48,7 +49,7 @@ type stateful struct {
 
 // NewStateful creates and returns a new `stateful` with the given method ids precompile functions map.
 func NewStateful(
-	si StatefulImpl, idsToMethods map[string]*Method,
+	si StatefulImpl, idsToMethods map[string]*method,
 ) (vm.PrecompileContainer, error) {
 	if idsToMethods == nil {
 		return nil, ErrContainerHasNoMethods
@@ -73,7 +74,7 @@ func (sc *stateful) Run(
 	if len(input) < NumBytesMethodID {
 		return nil, ErrInvalidInputToPrecompile
 	}
-
+	fmt.Println("stateful.go::Run() with ID", input[:NumBytesMethodID])
 	// Extract the method ID from the input and load the method.
 	method, found := sc.idsToMethods[utils.UnsafeBytesToStr(input[:NumBytesMethodID])]
 	if !found {

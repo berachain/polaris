@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile_test
+package precompile
 
 import (
 	"context"
@@ -27,7 +27,6 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 
@@ -41,10 +40,9 @@ var _ = Describe("Method", func() {
 			sc := &mockStateful{&mockBase{}}
 			execute, found := reflect.TypeOf(sc).MethodByName("MockExecutable")
 			Expect(found).To(BeTrue())
-			method := precompile.NewMethod(
+			method := newMethod(
 				sc,
 				&abi.Method{},
-				"mockExecutable()",
 				execute,
 			)
 			ctx := vm.NewPolarContext(

@@ -23,6 +23,7 @@ package precompile
 import (
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -45,9 +46,9 @@ import (
  *          `foo0`. We enforce the same overloading scheme that geth's abi package uses.
  **/
 
-// Method is a struct that contains the required information for the EVM to execute a stateful
+// method is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
-type Method struct {
+type method struct {
 	// rcvr is the receiver of the method's executable. This is the stateful precompile
 	// that implements the respective precompile method.
 	rcvr StatefulImpl
@@ -55,37 +56,32 @@ type Method struct {
 	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
 	abiMethod *abi.Method
 
-	// AbiSig returns the method's string signature according to the ABI spec.
-	// e.g.		function foo(uint32 a, int b) = "foo(uint32,int256)"
-	// Note that there are no spaces and variable names in the signature.
-	// Also note that "int" is substitute for its canonical representation "int256".
-	abiSig string
-
 	// Execute is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
 	execute reflect.Method
 }
 
-// NewMethod creates and returns a new `Method` with the given abiMethod, abiSig, and executable.
-func NewMethod(
-	rcvr StatefulImpl, abiMethod *abi.Method, abiSig string, execute reflect.Method,
-) *Method {
-	return &Method{
+// newMethod creates and returns a new `method` with the given abiMethod, abiSig, and executable.
+func newMethod(
+	rcvr StatefulImpl, abiMethod *abi.Method, execute reflect.Method,
+) *method {
+	return &method{
 		rcvr:      rcvr,
 		abiMethod: abiMethod,
-		abiSig:    abiSig,
 		execute:   execute,
 	}
 }
 
 // Call executes the precompile's executable with the given context and input arguments.
-func (m *Method) Call(ctx context.Context, input []byte) ([]byte, error) {
+func (m *method) Call(ctx context.Context, input []byte) ([]byte, error) {
 	// Unpack the args from the input, if any exist.
+
+	fmt.Println("method.go::Call()", m.abiMethod.Sig)
 	unpackedArgs, err := m.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println(unpackedArgs)
 	// Convert the unpacked args to reflect values.
 	reflectedUnpackedArgs := make([]reflect.Value, 0, len(unpackedArgs))
 	for _, unpacked := range unpackedArgs {

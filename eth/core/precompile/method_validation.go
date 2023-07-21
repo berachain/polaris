@@ -29,12 +29,13 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+
+	"pkg.berachain.dev/polaris/eth/accounts/abi"
 )
 
-// ValidateBasic checks if the precompile method argument and return types match the ABI's argument
-// and return types. This is for overloaded Solidity functions and general validation.
-func (m *Method) ValidateBasic() error {
-
+// validateBasic checks if the precompile method return types match the ABI's return types. This is
+// for overloaded Solidity functions and general validation.
+func (m *method) validateBasic() error {
 	// Now verify the outputs match.
 	implMethodNumOut := m.execute.Type.NumOut()
 
@@ -72,47 +73,78 @@ func (m *Method) ValidateBasic() error {
 	return nil
 }
 
+// tryMatchInputs returns true iff the argument types match between the Go implementation and the
+// ABI method.
+func tryMatchInputs(implMethod reflect.Method, abiMethod *abi.Method) bool {
+	abiMethodNumIn := len(abiMethod.Inputs)
+
+	// First two args of Go precompile implementation are the receiver contract and the Context, so
+	// verify that the ABI method has exactly 2 fewer inputs than the implementation method.
+	if implMethod.Type.NumIn()-2 != abiMethodNumIn {
+		return false
+	}
+
+	// If the function does not take any inputs, no need to check.
+	if abiMethodNumIn > 0 {
+		// Validate that the precompile input args types match ABI input arg types, excluding the
+		// first two args (receiver contract and Context).
+		for i := 2; i < implMethod.Type.NumIn(); i++ {
+			implMethodParamType := implMethod.Type.In(i)
+			abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
+			if validateArg(implMethodParamType, abiMethodParamType) != nil {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 // validateArg is a helper function for ValidateBasic. This function function uses reflection to
 // verify the implementation method's arg type matches the ABI method's corresponding arg type.
 func validateArg(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
 	//nolint:exhaustive // checking necessary conditions.
 	switch implMethodVarType.Kind() {
 	case abiMethodVarType.Kind(), reflect.Interface:
-		// If the Go type matches the ABI type, we're good. If it's `any` (reflect.Interface), we
-		// leave it to the implementer to make sure that it is used/converted correctly.
-		return nil
-	case reflect.Struct:
-		if err := validateStructFields(implMethodVarType, abiMethodVarType); err != nil {
-			return err
-		}
-	case reflect.Slice, reflect.Array:
-		for j := 0; j < abiMethodVarType.Len(); j++ {
-			if abiMethodVarType.Elem().Kind() == reflect.Struct {
-				// If it is a slice/array of structs, check if the struct fields match.
-				if err := validateStructFields(
-					implMethodVarType.Elem(), abiMethodVarType.Elem(),
-				); err != nil {
-					return err
-				}
-			} else if implMethodVarType.In(j) != abiMethodVarType.In(j) {
-				// Any other case, we just check the elements.
-				return fmt.Errorf(
-					"return type mismatch: %v != %v",
-					implMethodVarType.Elem(),
-					abiMethodVarType.Elem(),
-				)
+		// if its a struct, check all the fields to match
+		if implMethodVarType.Kind() == reflect.Struct {
+			if err := validateStruct(implMethodVarType, abiMethodVarType); err != nil {
+				return err
 			}
 		}
-	default:
-		return fmt.Errorf("return type mismatch: %v != %v", implMethodVarType, abiMethodVarType)
+
+		// If it's `any` (reflect.Interface), we leave it to the implementer to make sure that it is
+		// used/converted correctly.
+		return nil
+
+	case reflect.Slice, reflect.Array:
+		if abiMethodVarType.Kind() == reflect.Slice || abiMethodVarType.Kind() == reflect.Array {
+			for j := 0; j < abiMethodVarType.Len(); j++ {
+				if abiMethodVarType.Elem().Kind() == reflect.Struct {
+					// If it is a slice/array of structs, check if the struct fields match.
+					if err := validateStruct(
+						implMethodVarType.Elem(), abiMethodVarType.Elem(),
+					); err != nil {
+						return err
+					}
+				} else if implMethodVarType.In(j) != abiMethodVarType.In(j) {
+					// Any other case, we just check the elements.
+					return fmt.Errorf(
+						"return type mismatch: %v != %v",
+						implMethodVarType.Elem(),
+						abiMethodVarType.Elem(),
+					)
+				}
+			}
+		}
 	}
 
-	return nil
+	return fmt.Errorf("return type mismatch: %v != %v", implMethodVarType, abiMethodVarType)
 }
 
 // This function checks to make sure that the struct fields match. If there is a nested struct,
 // we recurse until we reach the base case of a struct composing of only primitive types.
-func validateStructFields(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
+func validateStruct(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
 	if implMethodVarType == nil && abiMethodVarType == nil {
 		return nil
 	}
@@ -127,21 +159,11 @@ func validateStructFields(implMethodVarType reflect.Type, abiMethodVarType refle
 		)
 	}
 
+	// match every individual field
 	for j := 0; j < implMethodVarType.NumField(); j++ {
-		if implMethodVarType.Field(j).Type.Kind() == reflect.Struct &&
-			abiMethodVarType.Field(j).Type.Kind() == reflect.Struct {
-			// If the field is a struct, then we recurse.
-			if err := validateStructFields(
-				implMethodVarType.Field(j).Type, abiMethodVarType.Field(j).Type,
-			); err != nil {
-				return err
-			}
-		} else if implMethodVarType.Field(j).Type != abiMethodVarType.Field(j).Type {
-			return fmt.Errorf(
-				"return type mismatch: %v != %v",
-				implMethodVarType.Field(j).Type,
-				abiMethodVarType.Field(j).Type,
-			)
+		err := validateArg(implMethodVarType.Field(j).Type, abiMethodVarType.Field(j).Type)
+		if err != nil {
+			return err
 		}
 	}
 	return nil

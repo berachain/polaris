@@ -18,13 +18,12 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile_test
+package precompile
 
 import (
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -34,10 +33,10 @@ import (
 const precompInput = `a8b53bdf3306a35a7103ab5504a0c9b492295564b6202b1942a84ef300107281000000000000000000000000000000000000000000000000000000000000001b307835653165303366353363653138623737326363623030393366663731663366353366356337356237346463623331613835616138623838393262346538621122334455667788991011121314151617181920212223242526272829303132`
 
 var _ = Describe("Default Plugin", func() {
-	var dp precompile.Plugin
+	var dp Plugin
 
 	BeforeEach(func() {
-		dp = precompile.NewDefaultPlugin()
+		dp = NewDefaultPlugin()
 	})
 
 	When("running a stateless contract", func() {
