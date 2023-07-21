@@ -45,5 +45,5 @@ var (
 	// ErrNoImplMethodSubstringMatchesABIMethods is returned when no substring of a particular
 	// precompile method matches any of the given ABI methods.
 	//nolint:lll // this error message is long
-	ErrNoImplMethodSubstringMatchesABIMethods = errors.New("no substring of the precompile methoda matches any of the ABI's methods")
+	ErrNoImplMethodSubstringMatchesABIMethods = errors.New("no substring of the precompile method matches any of the ABI's methods")
 )
