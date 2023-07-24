@@ -121,7 +121,15 @@ func (c *client) GetContainerLogs() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer logsReader.Close()
 
-	return io.ReadAll(logsReader)
+	bz, err := io.ReadAll(logsReader)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = logsReader.Close(); err != nil {
+		return nil, err
+	}
+
+	return bz, nil
 }
