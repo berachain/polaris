@@ -107,7 +107,7 @@ var _ = Describe("Stateful Container", func() {
 				vm.UnwrapPolarContext(ctx).MsgValue(),
 			)
 			Expect(err.Error()).To(Equal(
-				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]", //nolint:lll // test.
+				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]",
 			))
 		})
 

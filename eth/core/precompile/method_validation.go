@@ -45,7 +45,7 @@ func validateArg(implMethodVar reflect.Value, abiMethodVar reflect.Value) error 
 			// If the array is not a slice/array of structs, return an error.
 			if implMethodVarType.Elem().Kind() != reflect.Struct {
 				return fmt.Errorf(
-					"return type mismatch: %v != %v", implMethodVarType, abiMethodVarType,
+					"type mismatch: %v != %v", implMethodVarType, abiMethodVarType,
 				)
 			}
 
