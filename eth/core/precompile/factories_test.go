@@ -64,7 +64,7 @@ var _ = Describe("Container Factories", func() {
 			scf = NewStatefulFactory()
 		})
 
-		FIt("should correctly build stateful containers and log events", func() {
+		It("should correctly build stateful containers and log events", func() {
 			pc, err := scf.Build(&mockStateful{&mockBase{}}, nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
