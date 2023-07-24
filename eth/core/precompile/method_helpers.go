@@ -43,6 +43,7 @@ func findMatchingABIMethod(
 			if implMethodName == abiMethod.RawName {
 				matchedAbiMethod = &abiMethod
 				if tryMatchInputs(implMethod, matchedAbiMethod) {
+					// we have a match
 					break
 				}
 			}
