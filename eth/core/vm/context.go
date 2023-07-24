@@ -46,8 +46,7 @@ type PolarContext struct {
 	msgValue  *big.Int
 }
 
-// NewPolarContext creates a new PolarContext given an EVM call request. opts are used to set a
-// Value on the context with given key-value pair(s).
+// NewPolarContext creates a new PolarContext given an EVM call request.
 func NewPolarContext(
 	baseCtx context.Context,
 	evm PrecompileEVM,
