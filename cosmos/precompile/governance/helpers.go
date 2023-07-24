@@ -46,9 +46,6 @@ func (c *Contract) submitProposalHelper(
 	proposalBz []byte,
 	message []*codectypes.Any,
 ) (uint64, error) {
-	polarCtx := vm.UnwrapPolarContext(ctx)
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-
 	// Decode the proposal.
 	var proposal v1.MsgSubmitProposal
 	if err := proposal.Unmarshal(proposalBz); err != nil {
@@ -63,11 +60,11 @@ func (c *Contract) submitProposalHelper(
 	}
 
 	// emit an event at the end of this successful proposal submission
-	proposalID := strconv.FormatUint(res.ProposalId, 10)
-	sdkCtx.EventManager().EmitEvent(
+	polarCtx := vm.UnwrapPolarContext(ctx)
+	sdk.UnwrapSDKContext(polarCtx.Context()).EventManager().EmitEvent(
 		sdk.NewEvent(
 			EventTypeProposalSubmitted,
-			sdk.NewAttribute(govtypes.AttributeKeyProposalID, proposalID),
+			sdk.NewAttribute(govtypes.AttributeKeyProposalID, strconv.FormatUint(res.ProposalId, 10)),
 			sdk.NewAttribute(AttributeProposalSender, polarCtx.MsgSender().Hex()),
 		),
 	)

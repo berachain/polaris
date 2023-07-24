@@ -61,10 +61,7 @@ func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
 // CustomValueDecoders implements the `ethprecompile.StatefulImpl` interface.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		govtypes.AttributeKeyProposalID:       log.ConvertUint64,
-		govtypes.AttributeKeyProposalMessages: log.ReturnStringAsIs,
-		govtypes.AttributeKeyOption:           log.ReturnStringAsIs,
-		AttributeProposalSender:               log.ConvertCommonHexAddress,
+		govtypes.AttributeKeyProposalID: log.ConvertUint64,
 	}
 }
 
