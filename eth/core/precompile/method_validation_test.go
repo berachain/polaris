@@ -25,9 +25,11 @@ import (
 	"reflect"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
+
+	"pkg.berachain.dev/polaris/eth/common"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"pkg.berachain.dev/polaris/eth/common"
 )
 
 var _ = Describe("Method", func() {
@@ -79,6 +81,7 @@ var _ = Describe("Method", func() {
 	It("should panic when our ABI method does not return anything", func() {
 		zeroReturn := precompileABI["zeroReturn"]
 		mockMethod, _ := reflect.TypeOf(m).MethodByName("MockMethod")
+		//nolint:errcheck // it's going to panic
 		Expect(func() { validateOutputs(mockMethod, &zeroReturn) }).To(Panic())
 	})
 	It("should error when we have different structs as params", func() {
@@ -100,16 +103,16 @@ var _ = Describe("Method", func() {
 type mockImpl struct{}
 
 type mockStruct struct {
-	a *big.Int
+	_ *big.Int
 }
 
 type mockStructBad struct {
-	a uint64
+	_ uint64
 }
 
 type mockStructBadNumFields struct {
-	a *big.Int
-	b *big.Int
+	_ *big.Int
+	_ *big.Int
 }
 
 func (m *mockImpl) MockMethod() error { return nil }
