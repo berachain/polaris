@@ -66,14 +66,14 @@ func validateArg(implMethodVar reflect.Value, abiMethodVar reflect.Value) error 
 		// The corresponding ABI type must be a struct.
 		if abiMethodVarType.Kind() != reflect.Struct {
 			return fmt.Errorf(
-				"return type mismatch: %v != %v", implMethodVarType, abiMethodVarType,
+				"type mismatch: %v != %v", implMethodVarType, abiMethodVarType,
 			)
 		}
 
 		// Any implementation type that is a pointer must point to a struct.
 		if implMethodVarType.Elem().Kind() != reflect.Struct {
 			return fmt.Errorf(
-				"return type mismatch: %v != %v", implMethodVarType, abiMethodVarType,
+				"type mismatch: %v != %v", implMethodVarType, abiMethodVarType,
 			)
 		}
 
@@ -85,7 +85,7 @@ func validateArg(implMethodVar reflect.Value, abiMethodVar reflect.Value) error 
 		// If it's `any` (reflect.Interface), we leave it to the implementer to make sure that it is
 		// used/converted correctly.
 	default:
-		return fmt.Errorf("return type mismatch: %v != %v", implMethodVarType, abiMethodVarType)
+		return fmt.Errorf("type mismatch: %v != %v", implMethodVarType, abiMethodVarType)
 	}
 
 	return nil

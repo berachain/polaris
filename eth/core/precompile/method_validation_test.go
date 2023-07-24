@@ -51,7 +51,11 @@ var _ = Describe("Method", func() {
 					},
 					{
 						Name: "c",
-						Type: abi.Type{T: abi.SliceTy, Elem: &abi.Type{T: abi.TupleTy}},
+						Type: abi.Type{
+							T:         abi.SliceTy,
+							Elem:      &abi.Type{T: abi.TupleTy},
+							TupleType: reflect.TypeOf(mockStruct{}),
+						},
 					},
 				},
 				Outputs: []abi.Argument{
@@ -69,34 +73,91 @@ var _ = Describe("Method", func() {
 		}
 		m = &mockImpl{}
 	})
+	Context("findMatchingAbiMethod", func() {
+		It("should validate args successfully", func() {
+			exampleFuncValue, found := reflect.TypeOf(m).MethodByName("ExampleFunc")
+			Expect(found).To(BeTrue())
 
-	It("should validate args successfully", func() {
-		exampleFuncValue, found := reflect.TypeOf(m).MethodByName("ExampleFunc")
-		Expect(found).To(BeTrue())
-		methodName, err := findMatchingABIMethod(exampleFuncValue, precompileABI)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(methodName).To(Equal("exampleFunc"))
+			methodName, err := findMatchingABIMethod(exampleFuncValue, precompileABI)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(methodName).To(Equal("exampleFunc"))
 
+			sliceA := []uint64{}
+			sliceB := []*big.Int{}
+
+			Expect(validateArg(
+				reflect.ValueOf(sliceA),
+				reflect.ValueOf(sliceB)).Error()).To(Equal(
+				"type mismatch: []uint64 != []*big.Int",
+			))
+		})
 	})
+
+	Context("validateArg", func() {
+		It("should error when struct fields aren't the same", func() {
+			sliceA := []mockStruct{}
+			sliceB := []mockStructBad{}
+			Expect(validateArg(
+				reflect.ValueOf(sliceA),
+				reflect.ValueOf(sliceB)).Error()).To(Equal(
+				"type mismatch: *big.Int != uint64",
+			))
+		})
+		It("should error when we point to a non-struct", func() {
+			randomPointer := 69
+			implMethodVarType := &randomPointer
+			abiMethodVarType := &mockStruct{}
+			Expect(validateArg(
+				reflect.ValueOf(implMethodVarType).Elem(),
+				reflect.ValueOf(abiMethodVarType)).Error()).To(Equal(
+				"type mismatch: int != *precompile.mockStruct",
+			))
+		})
+	})
+
 	It("should panic when our ABI method does not return anything", func() {
 		zeroReturn := precompileABI["zeroReturn"]
 		mockMethod, _ := reflect.TypeOf(m).MethodByName("MockMethod")
+
 		//nolint:errcheck // it's going to panic
 		Expect(func() { validateOutputs(mockMethod, &zeroReturn) }).To(Panic())
 	})
 	It("should error when we have different structs as params", func() {
 		m := mockStruct{}
 		mb := mockStructBad{}
+
 		Expect(validateArg(reflect.New(reflect.TypeOf(m)).Elem(), reflect.New(reflect.TypeOf(mb)).Elem())).To(HaveOccurred())
+
 		Expect(validateStruct(reflect.TypeOf(m), reflect.TypeOf(mb))).To(HaveOccurred())
 		mbn := mockStructBadNumFields{}
+
 		Expect(validateStruct(reflect.TypeOf(m), reflect.TypeOf(mbn))).To(HaveOccurred())
+
+		notAStruct := 69
+
+		Expect(validateStruct(reflect.TypeOf(m), reflect.TypeOf(notAStruct)).Error()).To(Equal(
+			"validateStruct: not a struct"))
 	})
-	It("should error when our impl and abi outputs aren't correct", func() {
-		exampleFunc := precompileABI["exampleFunc"]
-		noErrorReturn, found := reflect.TypeOf(m).MethodByName("NoErrorReturn")
-		Expect(found).To(BeTrue())
-		Expect(validateOutputs(noErrorReturn, &exampleFunc)).To(HaveOccurred())
+
+	Context("validateOutputs", func() {
+		It("should error when our impl and abi outputs aren't correct", func() {
+			exampleFunc := precompileABI["exampleFunc"]
+
+			noErrorReturn, found := reflect.TypeOf(m).MethodByName("NoErrorReturn")
+			Expect(found).To(BeTrue())
+			Expect(validateOutputs(noErrorReturn, &exampleFunc).Error()).To(Equal(
+				"last return type must be error, got bool"))
+
+			numReturnMismatch, found := reflect.TypeOf(m).MethodByName("NumReturnMismatch")
+			Expect(found).To(BeTrue())
+			Expect(validateOutputs(numReturnMismatch, &exampleFunc).Error()).To(Equal(
+				"number of return types mismatch"))
+
+			returnTypeMismatch, found := reflect.TypeOf(m).MethodByName("ReturnTypeMismatch")
+			Expect(found).To(BeTrue())
+			Expect(validateOutputs(returnTypeMismatch, &exampleFunc).Error()).To(Equal(
+				"return type mismatch: string != bool"))
+		})
 	})
 })
 
@@ -125,6 +186,14 @@ func (m *mockImpl) ExampleFuncBad(_ *big.Int, _ common.Address, _ []mockStructBa
 	return true, nil
 }
 
-func (m *mockImpl) NoErrorReturn(_ *big.Int) byte {
-	return 0
+func (m *mockImpl) NoErrorReturn(_ *big.Int) (bool, bool) {
+	return true, true
+}
+
+func (m *mockImpl) NumReturnMismatch(_ *big.Int) error {
+	return nil
+}
+
+func (m *mockImpl) ReturnTypeMismatch(_ *big.Int) (string, error) {
+	return "ur mom", nil
 }
