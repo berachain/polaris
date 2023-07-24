@@ -48,12 +48,14 @@ func findMatchingABIMethod(
 			}
 		}
 
+		// no match found, try again with a smaller substring
 		if matchedAbiMethod == nil {
-			// no match found, try again with a smaller substring
 			implMethodName = implMethodName[:i]
 			continue
 		}
-		// we found a matching impl method for the ABI method based on the inputs
+
+		// we found a matching impl method for the ABI method based on the inputs, now validate
+		// that the outputs match
 		if err := validateOutputs(implMethod, matchedAbiMethod); err != nil {
 			return "", err
 		}
