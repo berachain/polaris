@@ -88,7 +88,7 @@ var _ = Describe("Container Factories", func() {
 	})
 
 	Context("Overloaded Stateful Container", func() {
-		FIt("should construct a stateful container with overloaded methods", func() {
+		It("should construct a stateful container with overloaded methods", func() {
 			scf := NewStatefulFactory()
 			os := &mockStateful{&mockBase{}}
 			stateful, err := scf.Build(os, nil)
