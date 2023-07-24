@@ -58,6 +58,12 @@ var _ = Describe("JSON RPC tests", func() {
 	})
 
 	AfterEach(func() {
+		// Dump logs and stop the containter here.
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := tf.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
 		Expect(tf.Teardown()).To(Succeed())
 	})
 

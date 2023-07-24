@@ -58,6 +58,11 @@ var _ = Describe("ContainerizedNode", func() {
 	})
 
 	AfterEach(func() {
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := c.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
 		Expect(c.Stop()).To(Succeed())
 		Expect(c.Remove()).To(Succeed())
 	})
