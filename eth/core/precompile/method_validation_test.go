@@ -159,6 +159,17 @@ var _ = Describe("Method", func() {
 				"return type mismatch: string != bool"))
 		})
 	})
+
+	Context("findMatchingABIMethod", func() {
+
+		It("should return ErrNoImplMethodSubstringMatchesABIMethods", func() {
+			mockMethod, found := reflect.TypeOf(m).MethodByName("MockMethod")
+			Expect(found).To(BeTrue())
+			methodName, err := findMatchingABIMethod(mockMethod, precompileABI)
+			Expect(methodName).To(Equal(""))
+			Expect(err.Error()).To(Equal(ErrNoImplMethodSubstringMatchesABIMethods.Error() + ": MockMethod"))
+		})
+	})
 })
 
 type mockImpl struct{}
@@ -195,5 +206,5 @@ func (m *mockImpl) NumReturnMismatch(_ *big.Int) error {
 }
 
 func (m *mockImpl) ReturnTypeMismatch(_ *big.Int) (string, error) {
-	return "ur mom", nil
+	return "bera", nil
 }
