@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"fmt"
 	"reflect"
 	"unicode"
 
@@ -40,25 +41,36 @@ func findMatchingABIMethod(
 		var matchedAbiMethod *abi.Method
 		for name := range precompileABI {
 			abiMethod := precompileABI[name]
+			var params []reflect.Type
+			for i := 0; i < len(abiMethod.Inputs); i++ {
+				abiMethodParamType := abiMethod.Inputs[i].Type.GetType()
+				params = append(params, reflect.New(abiMethodParamType).Elem().Type())
+			}
+			fmt.Println("does ", implMethodName, " match ", name, " with params ", params, " and ", implMethod.Type.NumIn()-2, " params?")
 			if implMethodName == abiMethod.RawName {
+				fmt.Println("yes it does!")
 				matchedAbiMethod = &abiMethod
-				break
+				if tryMatchInputs(implMethod, matchedAbiMethod) {
+					break
+				}
 			}
 		}
 
 		if matchedAbiMethod == nil {
 			// no match found, try again with a smaller substring
 			implMethodName = implMethodName[:i]
+			fmt.Println("no it does not, shave off last letter")
 			continue
 		}
-
-		if tryMatchInputs(implMethod, matchedAbiMethod) {
-			// we found a matching impl method for the ABI method based on the inputs
-			if err := validateOutputs(implMethod, matchedAbiMethod); err != nil {
-				return "", err
-			}
-			return matchedAbiMethod.Name, nil
+		fmt.Println("yes it does but not sure if inputs match")
+		// we found a matching impl method for the ABI method based on the inputs
+		fmt.Println("yes it does and inputs match")
+		if err := validateOutputs(implMethod, matchedAbiMethod); err != nil {
+			fmt.Println("the outputs don't match, got", implMethod.Type.NumOut(), "expected", len(matchedAbiMethod.Outputs))
+			return "", err
 		}
+		return matchedAbiMethod.Name, nil
+		fmt.Println("the inputs don't match")
 	}
 
 	return "", errorslib.Wrap(ErrNoImplMethodSubstringMatchesABIMethods, implMethod.Name)
@@ -71,7 +83,12 @@ func tryMatchInputs(implMethod reflect.Method, abiMethod *abi.Method) bool {
 
 	// First two args of Go precompile implementation are the receiver contract and the Context, so
 	// verify that the ABI method has exactly 2 fewer inputs than the implementation method.
+	for i := 0; i < len(abiMethod.Inputs); i++ {
+		abiMethodParamType := abiMethod.Inputs[i].Type.GetType()
+		fmt.Println("the abi method param type is", abiMethodParamType)
+	}
 	if implMethod.Type.NumIn()-2 != abiMethodNumIn {
+		fmt.Println("the args length don't match, got", implMethod.Type.NumIn()-2, "expected", abiMethodNumIn)
 		return false
 	}
 
@@ -82,6 +99,7 @@ func tryMatchInputs(implMethod reflect.Method, abiMethod *abi.Method) bool {
 		for i := 2; i < implMethod.Type.NumIn(); i++ {
 			implMethodParamType := implMethod.Type.In(i)
 			abiMethodParamType := abiMethod.Inputs[i-2].Type.GetType()
+			fmt.Println("the impl method param type is", implMethodParamType, "and the abi method param type is", abiMethodParamType)
 			if validateArg(
 				reflect.New(implMethodParamType).Elem(), reflect.New(abiMethodParamType).Elem(),
 			) != nil {

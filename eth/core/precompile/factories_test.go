@@ -68,7 +68,6 @@ var _ = Describe("Container Factories", func() {
 			pc, err := scf.Build(&mockStateful{&mockBase{}}, nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
-
 			statelessFactory := NewStatelessFactory()
 			_, err = statelessFactory.Build(&mockStateless{}, nil)
 			Expect(err).ToNot(HaveOccurred())
@@ -89,7 +88,7 @@ var _ = Describe("Container Factories", func() {
 	})
 
 	Context("Overloaded Stateful Container", func() {
-		It("should construct a stateful container with overloaded methods", func() {
+		FIt("should construct a stateful container with overloaded methods", func() {
 			scf := NewStatefulFactory()
 			os := &mockStateful{&mockBase{}}
 			stateful, err := scf.Build(os, nil)

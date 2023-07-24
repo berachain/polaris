@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"fmt"
 	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -115,10 +116,16 @@ func buildIdsToMethods(si StatefulImpl, contractImpl reflect.Value) (map[string]
 	precompileABI := si.ABIMethods()
 	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*method)
-
 	for m := 0; m < contractImplType.NumMethod(); m++ {
 		implMethod := contractImplType.Method(m)
+		var params []reflect.Type
+		for i := 1; i < implMethod.Type.NumIn(); i++ {
+			params = append(params, implMethod.Type.In(i))
+		}
+		fmt.Println("trying to find mapping for", implMethod.Name, "with parameters", params)
 		if isBaseContractMethod(implMethod.Name) {
+			fmt.Println("skip that fuck shit on foenem")
+			fmt.Println("_______________________________________________________")
 			continue
 		}
 
@@ -128,7 +135,9 @@ func buildIdsToMethods(si StatefulImpl, contractImpl reflect.Value) (map[string]
 		}
 
 		method := newMethod(si, precompileABI[methodName], implMethod)
+		fmt.Println("mapped", implMethod.Name, "to", methodName)
 		idsToMethods[utils.UnsafeBytesToStr(precompileABI[methodName].ID)] = method
+		fmt.Println("_______________________________________________________")
 	}
 
 	// verify that every abi method has a corresponding precompile implementation
