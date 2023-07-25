@@ -22,6 +22,7 @@ package mempool
 
 import (
 	"context"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -72,6 +73,8 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 func (etp *EthTxPool) Remove(tx sdk.Tx) error {
 	etp.mu.Lock()
 	defer etp.mu.Unlock()
+
+	fmt.Println("CALLING REMOVE ON MEMPOOL")
 
 	// Call the base mempool's Remove method
 	if err := etp.PriorityNonceMempool.Remove(tx); err != nil {

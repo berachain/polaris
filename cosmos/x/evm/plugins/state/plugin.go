@@ -23,6 +23,7 @@ package state
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"sync"
 
@@ -293,9 +294,12 @@ func (p *plugin) GetNonce(addr common.Address) uint64 {
 	defer p.mu.Unlock()
 	acc := p.ak.GetAccount(p.ctx, addr[:])
 	if acc == nil {
+		fmt.Println("GET NONCE", 0)
 		return 0
 	}
-	return acc.GetSequence()
+	n := acc.GetSequence()
+	fmt.Println("GET NONCE", n)
+	return n
 }
 
 // SetNonce implements the `StatePlugin` interface by setting the nonce
@@ -309,7 +313,10 @@ func (p *plugin) SetNonce(addr common.Address, nonce uint64) {
 		acc = p.ak.NewAccountWithAddress(p.ctx, addr[:])
 	}
 
+	fmt.Println("SET NONCE", nonce)
+
 	if err := acc.SetSequence(nonce); err != nil {
+		fmt.Println("SET NONCE ERROR", err)
 		p.savedErr = err
 	}
 

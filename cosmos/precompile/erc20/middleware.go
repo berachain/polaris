@@ -23,6 +23,7 @@ package erc20
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -167,6 +168,8 @@ func (c *Contract) transferERC20ToCoin(
 	recipient common.Address,
 	amount *big.Int,
 ) error {
+	fmt.Println("CALLING TRANSFER ERC20 TO COIN")
+
 	if amount.Cmp(common.Big0) <= 0 {
 		return ErrInvalidAmount
 	}

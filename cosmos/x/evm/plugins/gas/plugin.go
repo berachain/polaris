@@ -22,6 +22,7 @@ package gas
 
 import (
 	"context"
+	"fmt"
 	"math"
 
 	storetypes "cosmossdk.io/store/types"
@@ -66,7 +67,7 @@ func (p *plugin) Reset(ctx context.Context) {
 }
 
 // GasRemaining implements the core.GasPlugin interface.
-func (p *plugin) GasRemaining() uint64 {
+func (p *plugin) TxGasRemaining() uint64 {
 	return p.gasMeter.GasRemaining()
 }
 
@@ -78,8 +79,8 @@ func (p *plugin) BlockGasLimit() uint64 {
 	return p.consensusMaxGas
 }
 
-// TxConsumeGas implements the core.GasPlugin interface.
-func (p *plugin) ConsumeGas(amount uint64) error {
+// ConsumeTxGas implements the core.GasPlugin interface.
+func (p *plugin) ConsumeTxGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
 	// TODO: probably faster / cleaner to just wrap .ConsumeGas in a panic handler, or write our
 	// own custom gas meter that doesn't panic on overflow.
@@ -93,13 +94,6 @@ func (p *plugin) ConsumeGas(amount uint64) error {
 
 	p.gasMeter.ConsumeGas(amount, gasMeterDescriptor)
 	return nil
-}
-
-// GasConsumed returns the gas used during the current transaction.
-//
-// GasConsumed implements the core.GasPlugin interface.
-func (p *plugin) GasConsumed() uint64 {
-	return p.gasMeter.GasConsumed()
 }
 
 // BlockGasConsumed returns the cumulative gas used during the current block. If the cumulative
@@ -125,6 +119,7 @@ func (p *plugin) resetMeters(ctx sdk.Context) {
 	if p.gasMeter = ctx.GasMeter(); p.gasMeter == nil {
 		panic("gas meter is nil")
 	}
+	fmt.Println("cosmos tx gas remaining", p.gasMeter.GasRemaining(), p.gasMeter.Limit())
 	if p.blockGasMeter = ctx.BlockGasMeter(); p.blockGasMeter == nil {
 		panic("block gas meter is nil")
 	}
