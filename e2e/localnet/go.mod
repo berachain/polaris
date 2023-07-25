@@ -9,9 +9,9 @@ require (
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.8
 	github.com/ory/dockertest v3.3.5+incompatible
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230717165123-80a30c3435c3
-	pkg.berachain.dev/polaris/eth v0.0.0-20230717165123-80a30c3435c3
-	pkg.berachain.dev/polaris/lib v0.0.0-20230717165123-80a30c3435c3
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230720022139-37f587ddf39e
+	pkg.berachain.dev/polaris/eth v0.0.0-20230720022139-37f587ddf39e
+	pkg.berachain.dev/polaris/lib v0.0.0-20230720022139-37f587ddf39e
 )
 
 require (
@@ -20,7 +20,6 @@ require (
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
-	github.com/cockroachdb/pebble v0.0.0-20230711190327-88bbab59ff4f // indirect
 	github.com/containerd/continuity v0.3.0 // indirect
 	github.com/deckarep/golang-set/v2 v2.2.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect

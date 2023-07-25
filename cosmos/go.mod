@@ -15,11 +15,13 @@ require (
 	cosmossdk.io/collections v0.3.0 // indirect
 	cosmossdk.io/core v0.9.0
 	cosmossdk.io/depinject v1.0.0-alpha.3.0.20230608151552-9b9e319d1abc
+	cosmossdk.io/errors v1.0.0
 	cosmossdk.io/log v1.1.1-0.20230704160919-88f2c830b0ca
 	cosmossdk.io/math v1.0.1
 	cosmossdk.io/store v1.0.0-alpha.1
 	cosmossdk.io/tools/confix v0.0.0-20230608151552-9b9e319d1abc
 	cosmossdk.io/x/evidence v0.0.0-20230719143845-dff6b0e26aa4
+	cosmossdk.io/x/tx v0.9.1
 	cosmossdk.io/x/upgrade v0.0.0-20230704191127-8d80df8e3c5a
 	github.com/btcsuite/btcd v0.23.4
 	github.com/btcsuite/btcd/btcutil v1.1.3
@@ -41,18 +43,13 @@ require (
 	github.com/spf13/viper v1.16.0
 	github.com/tidwall/btree v1.6.0
 	google.golang.org/genproto v0.0.0-20230706204954-ccb25ca9f130 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529
 	google.golang.org/grpc v1.56.2
 	google.golang.org/protobuf v1.31.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230717165123-80a30c3435c3
-	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230717165123-80a30c3435c3
-	pkg.berachain.dev/polaris/eth v0.0.0-20230717165123-80a30c3435c3
-	pkg.berachain.dev/polaris/lib v0.0.0-20230717165123-80a30c3435c3
-)
-
-require (
-	cosmossdk.io/errors v1.0.0
-	cosmossdk.io/x/tx v0.9.1
-	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230720022139-37f587ddf39e
+	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230720022139-37f587ddf39e
+	pkg.berachain.dev/polaris/eth v0.0.0-20230720022139-37f587ddf39e
+	pkg.berachain.dev/polaris/lib v0.0.0-20230720022139-37f587ddf39e
 )
 
 require (

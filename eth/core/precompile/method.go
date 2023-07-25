@@ -45,60 +45,60 @@ import (
  *          `foo0`. We enforce the same overloading scheme that geth's abi package uses.
  **/
 
-// Method is a struct that contains the required information for the EVM to execute a stateful
+// method is a struct that contains the required information for the EVM to execute a stateful
 // precompiled contract method.
-type Method struct {
-	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
-	abiMethod *abi.Method
+type method struct {
+	// rcvr is the receiver of the method's executable. This is the stateful precompile
+	// that implements the respective precompile method.
+	rcvr StatefulImpl
 
-	// AbiSig returns the method's string signature according to the ABI spec.
-	// e.g.		function foo(uint32 a, int b) = "foo(uint32,int256)"
-	// Note that there are no spaces and variable names in the signature.
-	// Also note that "int" is substitute for its canonical representation "int256".
-	abiSig string
+	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
+	abiMethod abi.Method
 
 	// Execute is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
-	execute reflect.Value
+	execute reflect.Method
 }
 
-// NewMethod creates and returns a new `Method` with the given abiMethod, abiSig, and executable.
-func NewMethod(
-	abiMethod *abi.Method, abiSig string, execute reflect.Value,
-) *Method {
-	return &Method{
+// newMethod creates and returns a new `method` with the given abiMethod, abiSig, and executable.
+func newMethod(
+	rcvr StatefulImpl, abiMethod abi.Method, execute reflect.Method,
+) *method {
+	return &method{
+		rcvr:      rcvr,
 		abiMethod: abiMethod,
-		abiSig:    abiSig,
 		execute:   execute,
 	}
 }
 
 // Call executes the precompile's executable with the given context and input arguments.
-//
-//nolint:revive // needed for reflection.
-func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byte, error) {
+func (m *method) Call(ctx context.Context, input []byte) ([]byte, error) {
 	// Unpack the args from the input, if any exist.
 	unpackedArgs, err := m.abiMethod.Inputs.Unpack(input[NumBytesMethodID:])
 	if err != nil {
 		return nil, err
 	}
-	// Build argument list
+
+	// Convert the unpacked args to reflect values.
 	reflectedUnpackedArgs := make([]reflect.Value, 0, len(unpackedArgs))
 	for _, unpacked := range unpackedArgs {
 		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
 	}
 
-	// Call the executable
-	results := m.execute.Call(append(
-		[]reflect.Value{
-			reflect.ValueOf(si),
-			reflect.ValueOf(ctx),
-		}, reflectedUnpackedArgs...))
+	// Call the executable the reflected values.
+	results := m.execute.Func.Call(
+		append(
+			[]reflect.Value{
+				reflect.ValueOf(m.rcvr),
+				reflect.ValueOf(ctx),
+			},
+			reflectedUnpackedArgs...,
+		),
+	)
 
 	// If the precompile returned an error, the error is returned to the caller.
-	callErr := results[len(results)-1].Interface()
-	if callErr != nil {
-		err = utils.MustGetAs[error](callErr)
+	if revert := results[len(results)-1].Interface(); revert != nil {
+		err = utils.MustGetAs[error](revert)
 	}
 	if err != nil {
 		if !errors.Is(err, vm.ErrWriteProtection) {
@@ -120,5 +120,6 @@ func (m *Method) Call(si StatefulImpl, ctx context.Context, input []byte) ([]byt
 	if err != nil {
 		return nil, err
 	}
+
 	return ret, nil
 }
