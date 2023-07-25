@@ -125,5 +125,31 @@ var _ = Describe("ERC20", func() {
 			Expect(res.Cmp(big.NewInt(50))).To(Equal(0))
 		})
 
+		It("should still include reverted transactions in a block", func() {
+			// originate a ERC20 token
+			contract, _ := DeployERC20(tf.GenerateTransactOpts("alice"), tf.EthClient())
+
+			// mint some tokens to bob
+			tx, err := contract.Mint(
+				tf.GenerateTransactOpts("bob"), tf.Address("bob"), big.NewInt(123456789),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectSuccessReceipt(tf.EthClient(), tx)
+
+			// check that the new ERC20 is minted to bob
+			bal, err := contract.BalanceOf(nil, tf.Address("bob"))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(bal).To(Equal(big.NewInt(123456789)))
+
+			// ensure alice cannot transferFrom bob's account
+			tx, err = contract.TransferFrom(
+				tf.GenerateTransactOpts("alice"),
+				tf.Address("bob"),
+				tf.Address("alice"),
+				big.NewInt(6789),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectFailedReceipt(tf.EthClient(), tx)
+		})
 	})
 })

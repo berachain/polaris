@@ -25,18 +25,18 @@
 
 package utils
 
-import (
-	"golang.org/x/exp/constraints"
-)
+type Numerical interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64
+}
 
-func Min[T constraints.Ordered](a, b T) T {
+func Min[T Numerical](a, b T) T {
 	if a < b {
 		return a
 	}
 	return b
 }
 
-func Max[T constraints.Ordered](a, b T) T {
+func Max[T Numerical](a, b T) T {
 	if a > b {
 		return a
 	}
