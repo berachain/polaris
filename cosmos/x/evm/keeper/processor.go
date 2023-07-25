@@ -22,6 +22,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -37,6 +38,8 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	// complex operations prior to entering the EVM.
 	sCtx.GasMeter().RefundGas(sCtx.GasMeter().GasConsumed(),
 		"reset gas meter prior to ethereum state transition")
+
+	fmt.Println("COSMOS GAS METER GAS CONSUMED: ", sCtx.GasMeter().GasConsumed())
 
 	// Process the transaction and return the EVM's execution result.
 	execResult, err := k.polaris.ProcessTransaction(ctx, tx)

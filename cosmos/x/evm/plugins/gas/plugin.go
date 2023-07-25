@@ -84,9 +84,12 @@ func (p *plugin) ConsumeTxGas(amount uint64) error {
 	// We don't want to panic if we overflow so we do some safety checks.
 	// TODO: probably faster / cleaner to just wrap .ConsumeGas in a panic handler, or write our
 	// own custom gas meter that doesn't panic on overflow.
+	fmt.Println("amount inside ConsumeTxGas", amount)
+	fmt.Println("Cosmos gas meter gas consumed  inside ConsumeTxGas", p.gasMeter.GasConsumed())
 	if newConsumed, overflow := addUint64Overflow(p.gasMeter.GasConsumed(), amount); overflow {
 		return core.ErrGasUintOverflow
 	} else if newConsumed > p.gasMeter.Limit() {
+		fmt.Println("CONSUMED", newConsumed, "tx gas LIMIT", p.gasMeter.Limit())
 		return vm.ErrOutOfGas
 	} else if p.blockGasMeter.GasConsumed()+newConsumed > p.blockGasMeter.Limit() {
 		return core.ErrBlockOutOfGas

@@ -61,6 +61,7 @@ var _ = Describe("ERC20", func() {
 		bankPrecompile, _ = bbindings.NewBankModule(
 			common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient(),
 		)
+		_ = bankPrecompile
 		erc20Precompile, _ = bindings.NewERC20Module(erc20ModuleAddress, tf.EthClient())
 	})
 
@@ -191,7 +192,7 @@ var _ = Describe("ERC20", func() {
 			})
 
 			FIt("should handle a ERC20 originated token", func() {
-				fmt.Println()
+				fmt.Println("RUNNING TEST")
 
 				// originate a ERC20 token
 				contract, token := DeployERC20(tf.GenerateTransactOpts("alice"), tf.EthClient())
@@ -216,11 +217,17 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(6789),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				// Expect(tf.WaitForNextBlock()).To(Succeed())
-				// _, err = tf.EthClient().TransactionReceipt(context.Background(), tx.Hash())
-				// Expect(err).To(MatchError("not found"))
-				fmt.Println("EXPECTING FAILED RECEIPT")
-				ExpectFailedReceipt(tf.EthClient(), tx)
+				Expect(tf.WaitForNextBlock()).To(Succeed())
+				_, err = tf.EthClient().TransactionReceipt(context.Background(), tx.Hash())
+				Expect(err).To(MatchError("not found"))
+
+				Expect(tf.WaitForNextBlock()).To(Succeed())
+				Expect(tf.WaitForNextBlock()).To(Succeed())
+				Expect(tf.WaitForNextBlock()).To(Succeed())
+				Expect(tf.WaitForNextBlock()).To(Succeed())
+
+				Expect(2).To(Equal(1))
+				// ExpectFailedReceipt(tf.EthClient(), tx)
 				// doesn't work because alice did not approve ERC20Module to spend tokens
 				// NOTE: if a high gas limit is provided and the estimate gas routine is skipped,
 				// the tx executes without returning an error (i.e. reverting), but the state
