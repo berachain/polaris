@@ -22,7 +22,6 @@ package mempool
 
 import (
 	"context"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -128,17 +127,9 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
 
-	fmt.Println(0)
-
 	// search for the last pending tx for the given address
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
-		sdkTx := iter.Tx()
-		if ethTx := evmtypes.GetAsEthTx(sdkTx); ethTx != nil {
-			fmt.Println("mempool Nonce() -- iterating tx:", ethTx.Hash().Hex())
-		} else {
-			continue
-		}
-		txAddr, txNonce := getTxSenderNonce(sdkTx)
+		txAddr, txNonce := getTxSenderNonce(iter.Tx())
 		if addr != txAddr {
 			continue
 		}
@@ -148,19 +139,15 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 			// If on the first lookup the nonce delta is more than 0, then there is a gap
 			// and thus no pending transactions, but there are queued transactions.
 			if sdbNonce := etp.nr.GetNonce(addr); txNonce-sdbNonce >= 1 {
-				fmt.Println(1)
 				return sdbNonce
 			}
 			// this is a pending tx, add it to the pending map.
 			pendingNonces[addr] = txNonce
-			fmt.Println("adding pending tx with nonce", txNonce)
 		case txNonce == pendingNonce+1:
 			// If we are still contiguous and the nonce is the same as the pending nonce,
 			// increment the pending nonce.
 			pendingNonces[addr]++
-			fmt.Println(3)
 		case txNonce > pendingNonce+1:
-			fmt.Println(4)
 			// As soon as we see a non contiguous nonce we break.
 			break
 		}
@@ -168,12 +155,10 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 
 	// if the addr has no eth txs, fallback to the nonce retriever db
 	if _, ok := pendingNonces[addr]; !ok {
-		fmt.Println(5)
 		return etp.nr.GetNonce(addr)
 	}
 
 	// pending nonce is 1 more than the current nonce
-	fmt.Println("returning current nonce:", pendingNonces[addr], " + 1")
 	return pendingNonces[addr] + 1
 }
 

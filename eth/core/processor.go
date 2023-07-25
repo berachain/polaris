@@ -160,17 +160,13 @@ func (sp *StateProcessor) ProcessTransaction(
 		sp.header.Number, sp.sealhash, sp.header.Time, tx, &sp.header.GasUsed,
 	)
 	if err != nil {
-		fmt.Println("process err", err)
 		return nil, errorslib.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
 	}
-	fmt.Println("RESULT.ERR (VM ERR)", result.Err)
-	fmt.Println("RECEIPT", receipt)
 
 	// Consume the gas used by the state transition. In both the out of block gas as well as out of
 	// gas on the plugin cases, the line below will consume the remaining gas for the block and
 	// transaction respectively.
 	if err = sp.gp.ConsumeTxGas(receipt.GasUsed); err != nil {
-		fmt.Println("consume gas err", err)
 		return nil, errorslib.Wrapf(
 			err, "could not consume gas used %d [%s]", len(sp.txs), tx.Hash().Hex(),
 		)

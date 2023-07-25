@@ -23,7 +23,6 @@ package polar
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 	"time"
 
@@ -459,7 +458,6 @@ func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
 func (b *backend) GetPoolNonce(_ context.Context, addr common.Address) (uint64, error) {
 	nonce, err := b.polar.blockchain.GetPoolNonce(addr)
 	b.logger.Debug("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
-	fmt.Println("GET POOL NONCE", nonce)
 	return nonce, err
 }
 

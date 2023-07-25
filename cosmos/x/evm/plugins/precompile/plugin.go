@@ -21,7 +21,6 @@
 package precompile
 
 import (
-	"fmt"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -163,8 +162,6 @@ func (p *plugin) Run(
 		value,
 	)
 	gasRemaining = gm.GasRemaining()
-
-	fmt.Println("INSIDE PLUGIN GAS REMAINING", gasRemaining)
 
 	return //nolint:nakedret // named returns.
 }

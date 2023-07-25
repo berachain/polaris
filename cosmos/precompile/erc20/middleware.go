@@ -23,7 +23,6 @@ package erc20
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -55,8 +54,6 @@ var (
 )
 
 // transferCoinToERC20 transfers SDK/Polaris coins to ERC20 tokens for an owner.
-//
-
 func (c *Contract) transferCoinToERC20(
 	ctx context.Context,
 	evm vm.PrecompileEVM,
@@ -113,7 +110,7 @@ func (c *Contract) transferCoinToERC20(
 		token = cosmlib.AccAddressToEthAddress(tokenAcc)
 
 		// return an error if the ERC20 token contract does not exist to revert the tx
-		if !evm.GetStateDB().Exist(token) {
+		if !c.ak.HasAccount(ctx, cosmlib.AddressToAccAddress(token)) {
 			return ErrTokenDoesNotExist
 		}
 	}
@@ -168,8 +165,6 @@ func (c *Contract) transferERC20ToCoin(
 	recipient common.Address,
 	amount *big.Int,
 ) error {
-	fmt.Println("CALLING TRANSFER ERC20 TO COIN")
-
 	if amount.Cmp(common.Big0) <= 0 {
 		return ErrInvalidAmount
 	}
@@ -196,7 +191,7 @@ func (c *Contract) transferERC20ToCoin(
 		// transferring ERC20 originated tokens to Polaris coins
 
 		// return an error if the ERC20 token contract does not exist to revert the tx
-		if !evm.GetStateDB().Exist(token) {
+		if !c.ak.HasAccount(ctx, cosmlib.AddressToAccAddress(token)) {
 			return ErrTokenDoesNotExist
 		}
 
