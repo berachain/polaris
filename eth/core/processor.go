@@ -210,7 +210,8 @@ func (sp *StateProcessor) Finalize(
 // Utilities
 // ===========================================================================
 
-// BuildPrecompiles builds the given precompiles and registers them with the precompile plugins.
+// BuildAndRegisterPrecompiles builds the given precompiles and registers them with the precompile
+// plugin.
 func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []precompile.Registrable) {
 	for _, pc := range precompiles {
 		// skip registering precompiles that are already registered.
