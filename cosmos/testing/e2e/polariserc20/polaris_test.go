@@ -142,8 +142,10 @@ var _ = Describe("ERC20", func() {
 			Expect(bal).To(Equal(big.NewInt(123456789)))
 
 			// ensure alice cannot transferFrom bob's account
+			txr := tf.GenerateTransactOpts("alice")
+			txr.GasLimit = 1000000
 			tx, err = contract.TransferFrom(
-				tf.GenerateTransactOpts("alice"),
+				txr,
 				tf.Address("bob"),
 				tf.Address("alice"),
 				big.NewInt(6789),
