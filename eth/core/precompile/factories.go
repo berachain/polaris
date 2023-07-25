@@ -22,9 +22,6 @@ package precompile
 
 import (
 	"reflect"
-	"unicode"
-
-	"github.com/ethereum/go-ethereum/accounts/abi"
 
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
@@ -32,9 +29,9 @@ import (
 )
 
 const (
-	// container impl names stored as constants, to be used in error messages.
-	statelessContainerName = `StatelessContainerImpl`
-	statefulContainerName  = `StatefulContainerImpl`
+	// impl names stored as constants, to be used in error messages.
+	statelessContainerName = `StatelessImpl`
+	statefulContainerName  = `StatefulImpl`
 )
 
 // AbstractFactory is an interface that all precompile container factories must adhere to.
@@ -103,84 +100,42 @@ func (sf *StatefulFactory) Build(
 	si.SetPlugin(p)
 
 	// add precompile methods to stateful container, if any exist
-	idsToMethods, err := buildIdsToMethods(si.ABIMethods(), reflect.ValueOf(si))
+	idsToMethods, err := buildIdsToMethods(si, reflect.ValueOf(si))
 	if err != nil {
 		return nil, err
 	}
 
-	return NewStateful(si, idsToMethods)
+	return NewStatefulContainer(si, idsToMethods)
 }
 
 // This function matches each Go implementation of the precompile to the ABI's respective function.
 // It searches for the ABI function in the Go precompile contract and performs basic validation on
 // the implemented function.
-func buildIdsToMethods(pcABI map[string]abi.Method, contractImpl reflect.Value) (map[string]*Method, error) {
+func buildIdsToMethods(si StatefulImpl, contractImpl reflect.Value) (map[string]*method, error) {
+	precompileABI := si.ABIMethods()
 	contractImplType := contractImpl.Type()
-	idsToMethods := make(map[string]*Method)
+	idsToMethods := make(map[string]*method)
 	for m := 0; m < contractImplType.NumMethod(); m++ {
 		implMethod := contractImplType.Method(m)
-		implMethodName := formatName(implMethod.Name)
-
-		if abiMethod, found := pcABI[implMethodName]; found {
-			if err := validateReturnTypes(implMethod); err != nil {
-				return nil, errorslib.Wrap(err, implMethodName)
-			}
-			idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)] = NewMethod(
-				&abiMethod,
-				abiMethod.Sig,
-				implMethod.Func,
-			)
+		if isBaseContractMethod(implMethod.Name) {
+			continue
 		}
+
+		methodName, err := findMatchingABIMethod(implMethod, precompileABI)
+		if err != nil {
+			return nil, err
+		}
+
+		method := newMethod(si, precompileABI[methodName], implMethod)
+		idsToMethods[utils.UnsafeBytesToStr(precompileABI[methodName].ID)] = method
 	}
 
 	// verify that every abi method has a corresponding precompile implementation
-	for _, abiMethod := range pcABI {
+	for _, abiMethod := range precompileABI {
 		if _, found := idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)]; !found {
 			return nil, errorslib.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Name)
 		}
 	}
 
 	return idsToMethods, nil
-}
-
-// formatName converts to first character of name to lowercase.
-func formatName(name string) string {
-	if len(name) == 0 {
-		return name
-	}
-
-	ret := []rune(name)
-	ret[0] = unicode.ToLower(ret[0])
-	return string(ret)
-}
-
-// validateReturnTypes checks if the precompile method returns a []any and an error. Returns an
-// error otherwise.
-func validateReturnTypes(_ reflect.Method) error {
-	// 	if implMethod.Type.NumOut() != 2 { //nolint:gomnd // always expect 2 return values.
-	// return errors.New(
-	// "precompile methods must return ([]any, error), but found wrong number of return types for
-	// precompile method", //nolint:lll // it's okay.
-	// )
-	// }
-
-	// // check if the first return type is of type []any
-	// firstReturnType := implMethod.Type.Out(0)
-	// if firstReturnType.Kind() != reflect.Slice && firstReturnType.Elem().Kind() != reflect.Interface {
-	// return fmt.Errorf(
-	// "first parameter should be []any, but found %s for precompile method",
-	// firstReturnType.String(),
-	// )
-	// }
-
-	// // check that the second return value is an error
-	// secondReturnType := implMethod.Type.Out(1)
-	// if secondReturnType.Name() != "error" {
-	// return fmt.Errorf(
-	// "second parameter should be error, but found %s for precompile method",
-	// secondReturnType.String(),
-	// )
-	// }
-
-	return nil
 }

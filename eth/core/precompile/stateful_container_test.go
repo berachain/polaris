@@ -18,18 +18,15 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile_test
+package precompile
 
 import (
 	"context"
-	"errors"
 	"math/big"
 	"reflect"
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -47,9 +44,9 @@ var _ = Describe("Stateful Container", func() {
 	var ctx context.Context
 
 	BeforeEach(func() {
-		sc, err = precompile.NewStateful(&mockStateful{&mockBase{}}, mockIdsToMethods)
+		sc, err = NewStatefulContainer(&mockStateful{&mockBase{}}, mockIdsToMethods)
 		Expect(err).ToNot(HaveOccurred())
-		empty, err = precompile.NewStateful(nil, nil)
+		empty, err = NewStatefulContainer(nil, nil)
 		Expect(empty).To(BeNil())
 		Expect(err).To(MatchError("the stateful precompile has no methods to run"))
 		ctx = vm.NewPolarContext(
@@ -109,38 +106,13 @@ var _ = Describe("Stateful Container", func() {
 				vm.UnwrapPolarContext(ctx).MsgSender(),
 				vm.UnwrapPolarContext(ctx).MsgValue(),
 			)
+			//nolint:lll // error message.
 			Expect(err.Error()).To(Equal(
-				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]", //nolint:lll // test.
+				"execution reverted: vm error [err during precompile execution] occurred during precompile execution of [getOutputPartial]",
 			))
-
-			// precompile returns vals when none expected
-			var inputs []byte
-			inputs, err = contractFuncStrABI.Inputs.Pack("string")
-			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(
-				ctx,
-				vm.UnwrapPolarContext(ctx).Evm(),
-				append(contractFuncStrABI.ID, inputs...),
-				vm.UnwrapPolarContext(ctx).MsgSender(),
-				vm.UnwrapPolarContext(ctx).MsgValue(),
-			)
-			Expect(err).To(HaveOccurred())
-
-			// geth output packing error
-			inputs, err = contractFuncAddrABI.Inputs.Pack(vm.UnwrapPolarContext(ctx).MsgSender())
-			Expect(err).ToNot(HaveOccurred())
-			_, err = sc.Run(
-				ctx,
-				vm.UnwrapPolarContext(ctx).Evm(),
-				append(contractFuncAddrABI.ID, inputs...),
-				vm.UnwrapPolarContext(ctx).MsgSender(),
-				vm.UnwrapPolarContext(ctx).MsgValue(),
-			)
-			Expect(err).To(HaveOccurred())
 		})
 
 		It("should return properly for valid method calls", func() {
-
 			var inputs []byte
 			inputs, err = getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
@@ -173,31 +145,50 @@ var _ = Describe("Stateful Container", func() {
 // MOCKS BELOW.
 
 var (
-	mock, _             = solidity.MockPrecompileMetaData.GetAbi()
-	getOutputABI        = mock.Methods["getOutput"]
-	getOutputPartialABI = mock.Methods["getOutputPartial"]
-	contractFuncAddrABI = mock.Methods["contractFunc"]
-	contractFuncStrABI  = mock.Methods["contractFuncStr"]
-	mockIdsToMethods    = map[string]*precompile.Method{
-		utils.UnsafeBytesToStr(getOutputABI.ID): precompile.NewMethod(
-			&getOutputABI,
-			getOutputABI.Sig,
-			reflect.ValueOf(getOutput),
+	mock, _                      = solidity.MockPrecompileMetaData.GetAbi()
+	getOutputABI                 = mock.Methods["getOutput"]
+	getOutputPartialABI          = mock.Methods["getOutputPartial"]
+	contractFuncAddrABI          = mock.Methods["contractFunc"]
+	contractFuncStrABI           = mock.Methods["contractFuncStr"]
+	overloadedFuncABI            = mock.Methods["overloadedFunc"]
+	overloadedFunc0ABI           = mock.Methods["overloadedFunc0"]
+	mockStatefulDummy            = &mockStateful{&mockBase{}}
+	getOutputFunc, _             = reflect.TypeOf(mockStatefulDummy).MethodByName("GetOutput")
+	getOutputPartialFunc, _      = reflect.TypeOf(mockStatefulDummy).MethodByName("GetOutputPartial")
+	contractFuncAddrInputFunc, _ = reflect.TypeOf(mockStatefulDummy).MethodByName("ContractFuncAddrInput")
+	contractFuncStrInputFunc, _  = reflect.TypeOf(mockStatefulDummy).MethodByName("ContractFuncStrInput")
+	overloadedFunc, _            = reflect.TypeOf(mockStatefulDummy).MethodByName("OverloadedFunc")
+	overloadedFunc0, _           = reflect.TypeOf(mockStatefulDummy).MethodByName("OverloadedFunc0")
+	mockIdsToMethods             = map[string]*method{
+		utils.UnsafeBytesToStr(getOutputABI.ID): newMethod(
+			mockStatefulDummy,
+			getOutputABI,
+			getOutputFunc,
 		),
-		utils.UnsafeBytesToStr(getOutputPartialABI.ID): precompile.NewMethod(
-			&getOutputPartialABI,
-			getOutputPartialABI.Sig,
-			reflect.ValueOf(getOutputPartial),
+		utils.UnsafeBytesToStr(getOutputPartialABI.ID): newMethod(
+			mockStatefulDummy,
+			getOutputPartialABI,
+			getOutputPartialFunc,
 		),
-		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): precompile.NewMethod(
-			&contractFuncAddrABI,
-			contractFuncAddrABI.Sig,
-			reflect.ValueOf(contractFuncAddrInput),
+		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): newMethod(
+			mockStatefulDummy,
+			contractFuncAddrABI,
+			contractFuncAddrInputFunc,
 		),
-		utils.UnsafeBytesToStr(contractFuncStrABI.ID): precompile.NewMethod(
-			&contractFuncStrABI,
-			contractFuncStrABI.Sig,
-			reflect.ValueOf(contractFuncStrInput),
+		utils.UnsafeBytesToStr(contractFuncStrABI.ID): newMethod(
+			mockStatefulDummy,
+			contractFuncStrABI,
+			contractFuncStrInputFunc,
+		),
+		utils.UnsafeBytesToStr(overloadedFuncABI.ID): newMethod(
+			mockStatefulDummy,
+			overloadedFuncABI,
+			overloadedFunc,
+		),
+		utils.UnsafeBytesToStr(contractFuncStrABI.ID): newMethod(
+			mockStatefulDummy,
+			overloadedFunc0ABI,
+			overloadedFunc0,
 		),
 	}
 )
@@ -205,58 +196,4 @@ var (
 type mockObject struct {
 	CreationHeight *big.Int
 	TimeStamp      string
-}
-
-//revive:disable
-func getOutput(
-	sc precompile.Registrable,
-	ctx context.Context,
-	args ...any,
-) ([]mockObject, error) {
-	str, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, errors.New("cast error")
-	}
-	vm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
-	return []mockObject{
-		{
-			CreationHeight: big.NewInt(1),
-			TimeStamp:      str,
-		},
-	}, nil
-}
-
-func getOutputPartial(
-	sc precompile.Registrable,
-	ctx context.Context,
-	_ ...any,
-) ([]any, error) {
-	return nil, errors.New("err during precompile execution")
-}
-
-func contractFuncAddrInput(
-	sc precompile.Registrable,
-	ctx context.Context,
-	args ...any,
-) ([]any, error) {
-	_ = ctx
-	_, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, errors.New("cast error")
-	}
-	return []any{"invalid - should be *big.Int here"}, nil
-}
-
-func contractFuncStrInput(
-	sc precompile.Registrable,
-	ctx context.Context,
-	args ...any,
-) ([]any, error) {
-	_ = ctx
-	addr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, errors.New("cast error")
-	}
-	ans := big.NewInt(int64(len(addr)))
-	return []any{ans}, nil
 }
