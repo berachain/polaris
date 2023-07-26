@@ -139,8 +139,6 @@ jobs:
       - name: Install Go Tools
         run: |
           go run magefiles/setup/setup.go ci      
-      - name: Load ${{ matrix.base-image }}
-        run: docker load -i ${{ matrix.base-image }}.tar
       - name: Run ${{ matrix.namespace }}:build
         uses: magefile/mage-action@v2
         with:
@@ -160,7 +158,7 @@ jobs:
     needs: build-base
     strategy:
       matrix:
-        args: ["teste2ecover"]
+        args: ["teste2e"]
         os: [ubuntu-latest]
         go-version: [1.20.6]
         base-image: [base-image]
@@ -192,8 +190,6 @@ jobs:
       - name: Install Go Tools
         run: |
           go run magefiles/setup/setup.go ci
-      - name: Load ${{ matrix.base-image }}
-        run: docker load -i ${{ matrix.base-image }}.tar
       - name: Run ${{ matrix.args }}
         uses: magefile/mage-action@v2
         with:
@@ -201,27 +197,3 @@ jobs:
           args: ${{ matrix.args }}
         env:
           GOPATH: /home/runner/go
-      - name: Archive code coverage results
-        uses: actions/upload-artifact@v3
-        with:
-          name: code-coverage-report
-          path: coverage-${{ matrix.args }}.txt
-          retention-days: 1
-
-  codecov:
-    name: codecov(uploader, ubuntu-latest)
-    runs-on: ubuntu-latest
-    needs: ci
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Env
-        uses: ./.github/actions/setup-env
-      - name: Download code coverage results
-        uses: actions/download-artifact@v2
-        with:
-          name: code-coverage-report
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}

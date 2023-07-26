@@ -121,20 +121,3 @@ func testE2E(path string) error {
 	}
 	return ginkgoTest(args...)
 }
-
-func TestE2ECover() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
-	LogGreen("Running all e2e tests with coverage")
-	return testE2ECover(".")
-}
-
-func testE2ECover(path string) error {
-	args := []string{
-		"-timeout", "30m",
-		"-coverprofile=coverage-teste2ecover.txt",
-		"--focus", ".*e2e.*", path + "/...",
-	}
-	return ginkgoTest(args...)
-}
