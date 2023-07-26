@@ -35,9 +35,8 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	// We zero-out the gas meter prior to evm execution in order to ensure that the receipt output
 	// from the EVM is correct. In the future, we will revisit this to allow gas metering for more
 	// complex operations prior to entering the EVM.
-	sCtx.GasMeter().RefundGas(
-		sCtx.GasMeter().GasConsumed(), "reset gas meter prior to ethereum state transition",
-	)
+	sCtx.GasMeter().RefundGas(sCtx.GasMeter().GasConsumed(),
+		"reset gas meter prior to ethereum state transition")
 
 	// Process the transaction and return the EVM's execution result.
 	execResult, err := k.polaris.ProcessTransaction(ctx, tx)

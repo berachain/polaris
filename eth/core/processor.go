@@ -140,15 +140,8 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 func (sp *StateProcessor) ProcessTransaction(
 	_ context.Context, tx *types.Transaction,
 ) (*ExecutionResult, error) {
-	txGasLimit := tx.Gas()
-	if hostTxGasRemaining := sp.gp.TxGasRemaining(); hostTxGasRemaining != txGasLimit {
-		panic(fmt.Sprintf("tx gas limit mismatch: have %d, want %d", hostTxGasRemaining, txGasLimit))
-	}
-
-	// We set the gasPool = min(blockGasRemaining, txGasLimit)
-	gasPool := new(GasPool).AddGas(
-		utils.Min[uint64](sp.header.GasLimit-sp.gp.BlockGasConsumed(), txGasLimit),
-	)
+	// We set the gasPool = gasLimit - gasUsed.
+	gasPool := new(GasPool).AddGas(sp.header.GasLimit - sp.gp.BlockGasConsumed())
 
 	// Set the transaction context in the state database.
 	// This clears the logs and sets the transaction info.

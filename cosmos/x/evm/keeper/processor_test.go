@@ -131,9 +131,8 @@ var _ = Describe("Processor", func() {
 
 	Context("New Block", func() {
 		BeforeEach(func() {
-			// before every tx, every tx has gas limit of 100000000
-			ctx = ctx.WithGasMeter(storetypes.NewGasMeter(100000000))
-			k.GetHost().GetGasPlugin().Reset(ctx)
+			// before every tx
+			ctx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 		})
 
 		AfterEach(func() {
@@ -155,10 +154,8 @@ var _ = Describe("Processor", func() {
 		})
 
 		It("should successfully deploy a valid contract and call it", func() {
-			// create the contract
 			legacyTxData.Data = common.FromHex(bindings.SolmateERC20Bin)
 			legacyTxData.GasPrice = big.NewInt(10000000000)
-			legacyTxData.Gas = k.GetHost().GetGasPlugin().TxGasRemaining()
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
@@ -166,13 +163,12 @@ var _ = Describe("Processor", func() {
 			k.GetHost().GetStatePlugin().CreateAccount(addr)
 			k.GetHost().GetStatePlugin().AddBalance(addr, (&big.Int{}).Mul(big.NewInt(9000000000000000000), big.NewInt(999)))
 			k.GetHost().GetStatePlugin().Finalize()
+
+			// create the contract
 			result, err := k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result.Err).ToNot(HaveOccurred())
-
 			// call the contract non-view function
-			ctx = ctx.WithGasMeter(storetypes.NewGasMeter(100000000))
-			k.GetHost().GetGasPlugin().Reset(ctx)
 			deployAddress := crypto.CreateAddress(crypto.PubkeyToAddress(key.PublicKey), 0)
 			legacyTxData.To = &deployAddress
 			var solmateABI abi.ABI
@@ -181,7 +177,6 @@ var _ = Describe("Processor", func() {
 			input, err := solmateABI.Pack("mint", common.BytesToAddress([]byte{0x88}), big.NewInt(8888888))
 			Expect(err).ToNot(HaveOccurred())
 			legacyTxData.Data = input
-			legacyTxData.Gas = k.GetHost().GetGasPlugin().TxGasRemaining()
 			legacyTxData.Nonce++
 			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
 			result, err = k.ProcessTransaction(ctx, tx)
@@ -189,10 +184,7 @@ var _ = Describe("Processor", func() {
 			Expect(result.Err).ToNot(HaveOccurred())
 
 			// call the contract view function
-			ctx = ctx.WithGasMeter(storetypes.NewGasMeter(100000000))
-			k.GetHost().GetGasPlugin().Reset(ctx)
 			legacyTxData.Data = crypto.Keccak256Hash([]byte("totalSupply()")).Bytes()[:4]
-			legacyTxData.Gas = k.GetHost().GetGasPlugin().TxGasRemaining()
 			legacyTxData.Nonce++
 			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
 			result, err = k.ProcessTransaction(ctx, tx)

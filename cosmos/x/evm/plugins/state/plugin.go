@@ -295,8 +295,7 @@ func (p *plugin) GetNonce(addr common.Address) uint64 {
 	if acc == nil {
 		return 0
 	}
-	n := acc.GetSequence()
-	return n
+	return acc.GetSequence()
 }
 
 // SetNonce implements the `StatePlugin` interface by setting the nonce
