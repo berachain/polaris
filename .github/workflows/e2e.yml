@@ -74,6 +74,16 @@ jobs:
         export-name: [localnet]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Golang
+        uses: actions/setup-go@v3
+        with:
+            go-version: ${{ matrix.go-version }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Load image
+        run: docker load -i ${{ matrix.base-image }}.tar
       - name: Run ${{ matrix.namespace }}:build
         uses: magefile/mage-action@v2
         with:
