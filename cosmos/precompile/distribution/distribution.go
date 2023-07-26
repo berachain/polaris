@@ -28,7 +28,6 @@ import (
 
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/distribution"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -53,13 +52,6 @@ func NewPrecompileContract(
 		),
 		msgServer: m,
 		querier:   q,
-	}
-}
-
-// CustomValueDecoders overrides the `coreprecompile.StatefulImpl` interface.
-func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
-	return ethprecompile.ValueDecoders{
-		distributiontypes.AttributeKeyWithdrawAddress: log.ConvertAccAddressFromBech32,
 	}
 }
 

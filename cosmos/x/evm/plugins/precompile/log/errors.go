@@ -23,9 +23,6 @@ package log
 import "errors"
 
 var (
-	// ErrEthEventNotRegistered is returned when an incoming event is not mapped to any
-	// registered Ethereum event.
-	ErrEthEventNotRegistered = errors.New("no Ethereum event was registered for this Cosmos event")
 	// ErrNoAttributeKeyFound is returned when no Cosmos event attribute is provided for a
 	// certain Ethereum event's argument.
 	ErrNoAttributeKeyFound = errors.New("this Ethereum event argument has no matching Cosmos attribute key")

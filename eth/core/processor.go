@@ -118,7 +118,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 
 	// Ensure that the gas plugin and header are in sync.
 	if sp.header.GasLimit != sp.gp.BlockGasLimit() {
-		panic(fmt.Sprintf("gas limit mismatch: have %d, want %d", sp.header.GasLimit, sp.gp.BlockGasLimit()))
+		panic(fmt.Sprintf("block gas limit mismatch: have %d, want %d", sp.header.GasLimit, sp.gp.BlockGasLimit()))
 	}
 
 	// We must re-create the signer since we are processing a new block and the block number has
@@ -159,7 +159,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	// Consume the gas used by the state transition. In both the out of block gas as well as out of
 	// gas on the plugin cases, the line below will consume the remaining gas for the block and
 	// transaction respectively.
-	if err = sp.gp.ConsumeGas(receipt.GasUsed); err != nil {
+	if err = sp.gp.ConsumeTxGas(receipt.GasUsed); err != nil {
 		return nil, errorslib.Wrapf(
 			err, "could not consume gas used %d [%s]", len(sp.txs), tx.Hash().Hex(),
 		)
@@ -170,7 +170,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	sp.receipts = append(sp.receipts, receipt)
 
 	// Return the execution result to the caller.
-	return result, err
+	return result, nil
 }
 
 // Finalize finalizes the block in the state processor and returns the receipts and bloom filter to

@@ -23,6 +23,7 @@ package log
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/registry"
@@ -58,7 +59,7 @@ func (f *Factory) Build(event *sdk.Event) (*coretypes.Log, error) {
 	// get the precompile log for the Cosmos event type
 	pl := f.events.Get(event.Type)
 	if pl == nil {
-		return nil, ErrEthEventNotRegistered
+		return nil, events.ErrEthEventNotRegistered
 	}
 
 	var err error

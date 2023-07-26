@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: Apache-2.0
 //
 // Copyright (c) 2023 Berachain Foundation
 //
@@ -23,38 +23,22 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package main
+package utils
 
-import (
-	"github.com/magefile/mage/mg"
-)
-
-const (
-	baseImage = "polard/base:v0.0.0"
-
-	localnetDockerPath = "./e2e/localnet"
-	localnetRepository = "localnet"
-	localnetVersion    = "latest"
-)
-
-type Localnet mg.Namespace
-
-func (Localnet) Build() error {
-	return ExecuteInDirectory(localnetDockerPath,
-		func(...string) error {
-			return dockerBuildFn(false)(
-				"--build-arg", "GO_VERSION="+goVersion,
-				"--build-arg", "BASE_IMAGE="+baseImage,
-				"-t", localnetRepository+":"+localnetVersion,
-				".",
-			)
-		}, false)
+type Numerical interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64
 }
 
-func (Localnet) Test() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
+func Min[T Numerical](a, b T) T {
+	if a < b {
+		return a
 	}
-	LogGreen("Running all localnet tests")
-	return testE2E("e2e/localnet")
+	return b
+}
+
+func Max[T Numerical](a, b T) T {
+	if a > b {
+		return a
+	}
+	return b
 }

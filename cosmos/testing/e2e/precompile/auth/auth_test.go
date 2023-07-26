@@ -43,14 +43,20 @@ var _ = Describe("Auth", func() {
 	)
 
 	BeforeEach(func() {
+		// Setup the network and clients here.
 		tf = network.NewTestFixture(GinkgoT())
 		authPrecompile, _ = bindings.NewAuthModule(
 			common.HexToAddress("0xBDF49C3C3882102fc017FFb661108c63a836D065"), tf.EthClient())
 	})
 
 	AfterEach(func() {
-		err := tf.Teardown()
-		Expect(err).ToNot(HaveOccurred())
+		// Dump logs and stop the containter here.
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := tf.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	It("should call functions on the precompile directly", func() {

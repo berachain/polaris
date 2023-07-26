@@ -98,8 +98,8 @@ func (Contracts) Fmt() error {
 	return forgeWrapper(forgeFmt)
 }
 
-func (Contracts) TestIntegration() error {
-	LogGreen("Running foundry integration tests...")
+func (Contracts) TestE2E() error {
+	LogGreen("Running foundry e2e tests...")
 	return forgeWrapper(forgeTest)
 }
 

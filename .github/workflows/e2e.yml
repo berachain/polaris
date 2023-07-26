@@ -22,8 +22,11 @@ name: e2e
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
 
-jobs:
+jobs: 
   build-base:
     strategy:
       matrix:
@@ -32,7 +35,8 @@ jobs:
         os: [ubuntu-latest]
         go-version: [1.20.6]
         go-arch: [amd64]
-        image-name: ["polard/base:v0.0.0"]
+        image-name: ['polard/base:v0.0.0']
+        export-name: [base-image]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -40,16 +44,7 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v3
         with:
-          go-version: ${{ matrix.go-version }}
-      - name: Cache Golang Deps
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go
-          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-golang-
+            go-version: ${{ matrix.go-version }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Run ${{ matrix.namespace }}:docker ${{ matrix.docker-version }} ${{ matrix.go-arch }}
@@ -60,14 +55,14 @@ jobs:
         env:
           GOPATH: /home/runner/go
       - name: Save base image
-        run: docker save ${{ matrix.image-name }} -o base-image.tar
+        run: docker save ${{ matrix.image-name }} -o ${{ matrix.export-name }}.tar
       - name: Upload image artifact
         uses: actions/upload-artifact@v2
         with:
-          name: base-image
-          path: base-image.tar
+          name: ${{ matrix.export-name }}
+          path: ${{ matrix.export-name }}.tar
 
-  localnet:
+  build-localnet:
     needs: build-base
     strategy:
       matrix:
@@ -75,35 +70,23 @@ jobs:
         os: [ubuntu-latest]
         go-version: [1.20.6]
         base-image: [base-image]
+        image-name: ['localnet:latest']
+        export-name: [localnet]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
       - name: Setup Golang
         uses: actions/setup-go@v3
         with:
-          go-version: ${{ matrix.go-version }}
-      - name: Cache Golang Deps
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go
-          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-golang-
-      - name: Install Go Tools
-        run: |
-          go run magefiles/setup/setup.go ci
+            go-version: ${{ matrix.go-version }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Download image artifact
         uses: actions/download-artifact@v2
         with:
           name: ${{ matrix.base-image }}
-      - name: Load ${{ matrix.base-image }}
+      - name: Load image
         run: docker load -i ${{ matrix.base-image }}.tar
       - name: Run ${{ matrix.namespace }}:build
         uses: magefile/mage-action@v2
@@ -112,13 +95,13 @@ jobs:
           args: ${{ matrix.namespace }}:build
         env:
           GOPATH: /home/runner/go
-      - name: Run teste2e
-        uses: magefile/mage-action@v2
+      - name: Save localnet image
+        run: docker save ${{ matrix.image-name }} -o ${{ matrix.export-name }}.tar
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v2
         with:
-          version: latest
-          args: teste2e
-        env:
-          GOPATH: /home/runner/go
+          name: ${{ matrix.export-name }}
+          path: ${{ matrix.export-name }}.tar
 
   hive:
     needs: build-base
@@ -133,19 +116,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
       - name: Setup Golang
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
       - name: Download image artifact
         uses: actions/download-artifact@v2
         with:
           name: ${{ matrix.base-image }}
-      - name: Load ${{ matrix.base-image }}
+      - name: Load image
         run: docker load -i ${{ matrix.base-image }}.tar
       - name: Cache Golang Deps
         uses: actions/cache@v3
@@ -163,3 +144,56 @@ jobs:
           args: ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
         env:
           GOPATH: /home/runner/go
+
+  ci:
+    needs: build-localnet
+    strategy:
+      matrix:
+        namespace: ['', 'localnet']
+        os: [ubuntu-latest]
+        go-version: [1.20.6]
+        base-image: [localnet]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Golang
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Download image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.base-image }}
+      - name: Load image
+        run: docker load -i ${{ matrix.base-image }}.tar
+      - name: Cache Golang Deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go
+          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-
+      - name: Install Go Tools
+        run: |
+          go run magefiles/setup/setup.go ci
+      - name: Run ${{ matrix.namespace }}:test
+        uses: magefile/mage-action@v2
+        with:
+          version: latest
+          args: ${{ matrix.namespace }}:test
+        env:
+          GOPATH: /home/runner/go
+        if: ${{ matrix.namespace == 'localnet' }}
+      - name: Run teste2e
+        uses: magefile/mage-action@v2
+        with:
+          version: latest
+          args: teste2e
+        env:
+          GOPATH: /home/runner/go
+        if: ${{ matrix.namespace == '' }}

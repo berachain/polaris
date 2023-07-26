@@ -54,8 +54,6 @@ var (
 )
 
 // transferCoinToERC20 transfers SDK/Polaris coins to ERC20 tokens for an owner.
-//
-
 func (c *Contract) transferCoinToERC20(
 	ctx context.Context,
 	evm vm.PrecompileEVM,
@@ -112,7 +110,7 @@ func (c *Contract) transferCoinToERC20(
 		token = cosmlib.AccAddressToEthAddress(tokenAcc)
 
 		// return an error if the ERC20 token contract does not exist to revert the tx
-		if !evm.GetStateDB().Exist(token) {
+		if !c.ak.HasAccount(ctx, cosmlib.AddressToAccAddress(token)) {
 			return ErrTokenDoesNotExist
 		}
 	}
@@ -193,7 +191,7 @@ func (c *Contract) transferERC20ToCoin(
 		// transferring ERC20 originated tokens to Polaris coins
 
 		// return an error if the ERC20 token contract does not exist to revert the tx
-		if !evm.GetStateDB().Exist(token) {
+		if !c.ak.HasAccount(ctx, cosmlib.AddressToAccAddress(token)) {
 			return ErrTokenDoesNotExist
 		}
 

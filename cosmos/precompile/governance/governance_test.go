@@ -43,6 +43,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile/testutil"
 	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/types"
+	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -95,7 +96,7 @@ var _ = Describe("Governance Precompile", func() {
 	It("Should have precompile tests and custom value decoders", func() {
 		_, err := sf.Build(contract, nil)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(contract.CustomValueDecoders()).ToNot(BeNil())
+		Expect(contract.CustomValueDecoders()).To(HaveLen(1))
 	})
 
 	When("Unmarshal message and return any", func() {
@@ -125,7 +126,8 @@ var _ = Describe("Governance Precompile", func() {
 	When("submitting proposal handler", func() {
 		It("should fail if the proposal cant be unmarshalled", func() {
 			_, err := contract.submitProposalHelper(
-				context.TODO(), []byte("invalid"), nil,
+				vm.NewPolarContext(sdk.Context{}, nil, common.Address{}, nil),
+				[]byte("invalid"), nil,
 			)
 			Expect(err).To(HaveOccurred())
 		})
