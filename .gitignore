@@ -224,5 +224,6 @@ out
 # hardhat
 **/cache/
 
-# integration testing coverage
+# testing coverage
 coverage-testunitcover.txt
+coverage-teste2ecover.txt
