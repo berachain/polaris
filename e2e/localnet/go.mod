@@ -5,7 +5,7 @@ go 1.20
 replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230726214845-70a66dcc6671
 
 require (
-	github.com/cosmos/cosmos-sdk v0.50.0-beta.0
+	github.com/cosmos/cosmos-sdk v0.50.0-beta.0.0.20230727121850-bd61e84ef162
 	github.com/docker/docker v23.0.3+incompatible
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/onsi/ginkgo/v2 v2.11.0
