@@ -137,7 +137,7 @@ func validateOutputs(implMethod reflect.Method, abiMethod *abi.Method) error {
 	// Last parameter of Go precompile implementation is an error (for reverts), so we skip that.
 	if implMethodNumOut-1 != len(abiMethod.Outputs) {
 		return fmt.Errorf(
-			"number of return args mismatch: %v expects %v retrn vals, %v returns % vals",
+			"number of return args mismatch: %v expects %v return vals, %v returns %v vals",
 			abiMethod.Name,
 			len(abiMethod.Outputs),
 			implMethod.Name, implMethodNumOut-1,

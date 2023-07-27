@@ -151,7 +151,7 @@ var _ = Describe("Method", func() {
 			numReturnMismatch, found := reflect.TypeOf(m).MethodByName("NumReturnMismatch")
 			Expect(found).To(BeTrue())
 			Expect(validateOutputs(numReturnMismatch, &exampleFunc).Error()).To(Equal(
-				"number of return types mismatch"))
+				"number of return args mismatch: exampleFunc expects 1 return vals, NumReturnMismatch returns 0 vals"))
 
 			returnTypeMismatch, found := reflect.TypeOf(m).MethodByName("ReturnTypeMismatch")
 			Expect(found).To(BeTrue())
