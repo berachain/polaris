@@ -136,7 +136,12 @@ func validateOutputs(implMethod reflect.Method, abiMethod *abi.Method) error {
 
 	// Last parameter of Go precompile implementation is an error (for reverts), so we skip that.
 	if implMethodNumOut-1 != len(abiMethod.Outputs) {
-		return errors.New("number of return types mismatch")
+		return fmt.Errorf(
+			"number of return args mismatch: %v expects %v retrn vals, %v returns % vals",
+			abiMethod.Name,
+			len(abiMethod.Outputs),
+			implMethod.Name, implMethodNumOut-1,
+		)
 	}
 
 	// Validate that our implementation returns an error (revert) as the last param.
@@ -154,7 +159,11 @@ func validateOutputs(implMethod reflect.Method, abiMethod *abi.Method) error {
 			reflect.New(implMethodReturnType).Elem(), reflect.New(abiMethodReturnType).Elem(),
 		); err != nil {
 			return fmt.Errorf(
-				"return type mismatch: %v != %v", implMethodReturnType, abiMethodReturnType,
+				"return type mismatch: %v expects %v, %v has %v",
+				abiMethod.Name,
+				abiMethodReturnType,
+				implMethod.Name,
+				implMethodReturnType,
 			)
 		}
 	}
