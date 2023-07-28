@@ -22,6 +22,7 @@ package precompile
 
 import (
 	"reflect"
+	"sort"
 	"unicode"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -41,9 +42,9 @@ func findMatchingABIMethod(
 		for name := range precompileABI {
 			abiMethod := precompileABI[name]
 			if implMethodName == abiMethod.RawName {
-				matchedAbiMethod = &abiMethod
-				if tryMatchInputs(implMethod, matchedAbiMethod) {
+				if tryMatchInputs(implMethod, &abiMethod) {
 					// we have a match
+					matchedAbiMethod = &abiMethod
 					break
 				}
 			}
@@ -113,4 +114,18 @@ func formatName(name string) string {
 	ret[0] = unicode.ToLower(ret[0])
 
 	return string(ret)
+}
+
+func getAndSortGoMethods(contractImplType reflect.Type) []reflect.Method {
+	var goMethods []reflect.Method
+	for i := 0; i < contractImplType.NumMethod(); i++ {
+		if !isBaseContractMethod(contractImplType.Method(i).Name) {
+			goMethods = append(goMethods, contractImplType.Method(i))
+		}
+	}
+	sort.Slice(goMethods, func(i, j int) bool {
+		return goMethods[i].Name < goMethods[j].Name
+	})
+
+	return goMethods
 }

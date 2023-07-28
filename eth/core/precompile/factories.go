@@ -115,12 +115,10 @@ func buildIdsToMethods(si StatefulImpl, contractImpl reflect.Value) (map[string]
 	precompileABI := si.ABIMethods()
 	contractImplType := contractImpl.Type()
 	idsToMethods := make(map[string]*method)
-	for m := 0; m < contractImplType.NumMethod(); m++ {
-		implMethod := contractImplType.Method(m)
-		if isBaseContractMethod(implMethod.Name) {
-			continue
-		}
 
+	sortedGoMethods := getAndSortGoMethods(contractImplType)
+
+	for _, implMethod := range sortedGoMethods {
 		methodName, err := findMatchingABIMethod(implMethod, precompileABI)
 		if err != nil {
 			return nil, err
