@@ -22,6 +22,7 @@ package types
 
 import (
 	"errors"
+	"sync"
 
 	"google.golang.org/protobuf/proto"
 
@@ -151,22 +152,37 @@ func GetAsEthTx(tx sdk.Tx) *coretypes.Transaction {
 	return etr.AsTransaction()
 }
 
-// ProvideEthereumTransactionGetSigners.
+// ProvideEthereumTransactionGetSigners defines a custom function for
+// utilizing custom signer handling for `WrappedEthereumTransaction`s
 func ProvideEthereumTransactionGetSigners() signing.CustomGetSigner {
+
+	// Utilize a sync pool to reduce memory usage.
+	var txSyncPool = sync.Pool{
+		New: func() any { return new(coretypes.Transaction) },
+	}
+
+	// The actual function.
 	return signing.CustomGetSigner{
 		MsgType: proto.MessageName(&v1alpha1evm.WrappedEthereumTransaction{}),
 		Fn: func(msg proto.Message) ([][]byte, error) {
+			// Pull the raw ethereum bytes from pulsar.
 			ethTxData := msg.(*v1alpha1evm.WrappedEthereumTransaction).Data
-			ethTx := new(coretypes.Transaction)
+
+			// Get a new empty Transaction.
+			ethTx := txSyncPool.Get().(*coretypes.Transaction)
+
+			// Fill it with the data.
 			if err := ethTx.UnmarshalBinary(ethTxData); err != nil {
 				return nil, err
 			}
 
-			ethSigner := coretypes.LatestSignerForChainID(ethTx.ChainId())
-			signer, err := ethSigner.Sender(ethTx)
+			// Extract the signer from the signature.
+			signer, err := coretypes.LatestSignerForChainID(ethTx.ChainId()).Sender(ethTx)
 			if err != nil {
 				return nil, err
 			}
+
+			// Return the signer in the required format.
 			return [][]byte{signer.Bytes()}, nil
 		},
 	}

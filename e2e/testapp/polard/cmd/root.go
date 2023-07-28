@@ -83,7 +83,7 @@ func NewRootCmd() *cobra.Command {
 	)
 
 	if err := depinject.Inject(depinject.Configs(testapp.AppConfig, depinject.Supply(
-		evmmempool.NewPolarisEthereumTxPool(), log.NewNopLogger()), depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners())),
+		evmmempool.NewPolarisEthereumTxPool(), log.NewNopLogger()), depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners)),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,
