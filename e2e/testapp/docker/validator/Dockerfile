@@ -15,27 +15,17 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ARG GO_VERSION
-ARG GOARCH=arm64
+ARG GOARCH=amd64
 ARG GOOS=linux
-ARG POLARD_VERSION=v0.0.0
 
-#######################################################
-###         Stage 1 - Build Smart Contracts         ###
-#######################################################
-
-# Use the latest foundry image
-FROM polard-base:${POLARD_VERSION} as localpolard
+FROM polard/base:v0.0.0 as basepolard
 
 RUN apk add --no-cache bash jq
 
 WORKDIR /
 
-# Copy over the local information
-COPY ./cosmos/docker/local/docker-init.sh /docker-init.sh
-COPY ./cosmos/docker/local/config /config
+COPY ./e2e/testapp/docker/validator/scripts scripts/
 
-# Set the hom directory
-ENV HOME /
-WORKDIR $HOME
+RUN chmod +x scripts/*
 
-CMD ["bash", "docker-init.sh"]
+CMD ["sh", "-c", "sleep infinity"]

@@ -42,6 +42,7 @@ RUN set -eux; \
 WORKDIR /workdir
 
 # Copy go.work and go.work.sum files (🔥 upgrade)
+# TODO: conditional copy via USE_GOWORK arg.
 COPY ./go.work ./go.work.sum ./
 
 # Copy the go.mod and go.sum files for each module

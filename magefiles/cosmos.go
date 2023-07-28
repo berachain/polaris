@@ -47,7 +47,7 @@ var (
 	// Variables.
 	imageName              = "polard"
 	imageVersion           = "v0.0.0"
-	baseDockerPath         = "./cosmos/docker/"
+	baseDockerPath         = "./e2e/testapp/docker/"
 	execDockerPath         = baseDockerPath + "base.Dockerfile"
 	localDockerPath        = baseDockerPath + "local/Dockerfile"
 	seedDockerPath         = baseDockerPath + "seed/Dockerfile"
