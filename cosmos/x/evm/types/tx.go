@@ -22,12 +22,18 @@ package types
 
 import (
 	"errors"
+	"sync"
+
+	"google.golang.org/protobuf/proto"
+
+	"cosmossdk.io/x/tx/signing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/txpool"
 
+	v1alpha1evm "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -144,4 +150,42 @@ func GetAsEthTx(tx sdk.Tx) *coretypes.Transaction {
 		return nil
 	}
 	return etr.AsTransaction()
+}
+
+// ProvideEthereumTransactionGetSigners defines a custom function for
+// utilizing custom signer handling for `WrappedEthereumTransaction`s.
+func ProvideEthereumTransactionGetSigners() signing.CustomGetSigner {
+	// Utilize a sync pool to reduce memory usage.
+	txSyncPool := sync.Pool{
+		New: func() any { return new(coretypes.Transaction) },
+	}
+
+	// The actual function.
+	return signing.CustomGetSigner{
+		MsgType: proto.MessageName(&v1alpha1evm.WrappedEthereumTransaction{}),
+		Fn: func(msg proto.Message) ([][]byte, error) {
+			// Pull the raw ethereum bytes from pulsar.
+			ethTxData := msg.(*v1alpha1evm.WrappedEthereumTransaction).Data
+
+			// Get a new empty Transaction.
+			ethTx, ok := txSyncPool.Get().(*coretypes.Transaction)
+			if !ok {
+				return nil, errors.New("failed to get sync pool when getting signers")
+			}
+
+			// Fill it with the data.
+			if err := ethTx.UnmarshalBinary(ethTxData); err != nil {
+				return nil, err
+			}
+
+			// Extract the signer from the signature.
+			signer, err := coretypes.LatestSignerForChainID(ethTx.ChainId()).Sender(ethTx)
+			if err != nil {
+				return nil, err
+			}
+
+			// Return the signer in the required format.
+			return [][]byte{signer.Bytes()}, nil
+		},
+	}
 }
