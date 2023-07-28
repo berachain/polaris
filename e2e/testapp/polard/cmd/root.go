@@ -47,7 +47,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
 	"github.com/cosmos/cosmos-sdk/codec"
-	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
@@ -129,10 +128,6 @@ func NewRootCmd() *cobra.Command {
 			// sets the RPC client needed for SIGN_MODE_TEXTUAL.
 			txConfigOpts := tx.ConfigOptions{
 				TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx),
-				SigningOptions: &signing.Options{
-					AddressCodec:          addresscodec.NewBech32Codec("polar"),
-					ValidatorAddressCodec: addresscodec.NewBech32Codec("polar"),
-				},
 			}
 
 			// Add a custom sign mode handler for ethereum transactions.
