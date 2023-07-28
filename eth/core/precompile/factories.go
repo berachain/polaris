@@ -117,9 +117,6 @@ func buildIdsToMethods(si StatefulImpl, contractImpl reflect.Value) (map[string]
 	idsToMethods := make(map[string]*method)
 	for m := 0; m < contractImplType.NumMethod(); m++ {
 		implMethod := contractImplType.Method(m)
-		if isBaseContractMethod(implMethod.Name) {
-			continue
-		}
 
 		methodName, err := findMatchingABIMethod(implMethod, precompileABI)
 		if err != nil {

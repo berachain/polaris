@@ -93,14 +93,6 @@ func tryMatchInputs(implMethod reflect.Method, abiMethod *abi.Method) bool {
 	return true
 }
 
-// isBaseContractMethod returns true iff the given method name is a method of the BaseContract
-// interface. We skip these when constructing the respective PrecompileContainer.
-func isBaseContractMethod(implMethodName string) bool {
-	return implMethodName == "ABIEvents" || implMethodName == "ABIMethods" ||
-		implMethodName == "CustomValueDecoders" || implMethodName == "RegistryKey" ||
-		implMethodName == "SetPlugin" || implMethodName == "GetPlugin"
-}
-
 // formatName converts to first character of name to lowercase.
 func formatName(name string) string {
 	if len(name) == 0 {
