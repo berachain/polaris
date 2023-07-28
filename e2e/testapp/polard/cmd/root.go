@@ -78,7 +78,7 @@ func NewRootCmd() *cobra.Command {
 		autoCliOpts        autocli.AppOptions
 		moduleBasicManager module.BasicManager
 	)
-
+  
 	if err := depinject.Inject(depinject.Configs(testapp.AppConfig, depinject.Supply(
 		evmmempool.NewPolarisEthereumTxPool(), log.NewNopLogger()), depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners)),
 		&interfaceRegistry,
@@ -124,14 +124,11 @@ func NewRootCmd() *cobra.Command {
 
 			// This needs to go after ReadFromClientConfig, as that function
 			// sets the RPC client needed for SIGN_MODE_TEXTUAL.
-			txConfigOpts := tx.ConfigOptions{
-				TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx),
-			}
-
-			// Add a custom sign mode handler for ethereum transactions.
 			txConfigWithTextual, err := tx.NewTxConfigWithOptions(
 				codec.NewProtoCodec(interfaceRegistry),
-				txConfigOpts,
+				tx.ConfigOptions{
+				  TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx),
+			  },
 			)
 			if err != nil {
 				return err
