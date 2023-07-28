@@ -26,8 +26,6 @@ import (
 	store "cosmossdk.io/store/types"
 
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	modulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -66,12 +64,6 @@ type DepInjectOutput struct {
 
 // ProvideModule is a function that provides the module to the application.
 func ProvideModule(in DepInjectInput) DepInjectOutput {
-	// Default to governance authority if not provided
-	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
-	if in.Config.Authority != "" {
-		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
-	}
-
 	// Default to empty precompile injector if not provided.
 	if in.CustomPrecompiles == nil {
 		in.CustomPrecompiles = func() *ethprecompile.Injector { return &ethprecompile.Injector{} }
@@ -81,12 +73,14 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.AccountKeeper,
 		in.StakingKeeper,
 		in.Key,
-		authority.String(),
 		in.Mempool,
 		in.CustomPrecompiles,
 	)
 
 	m := NewAppModule(k, in.AccountKeeper)
 
-	return DepInjectOutput{Keeper: k, Module: m}
+	return DepInjectOutput{
+		Keeper: k,
+		Module: m,
+	}
 }
