@@ -25,7 +25,6 @@ import (
 	"unicode"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // this function finds the ABI method that matches the given impl method. It returns the key in the
@@ -41,9 +40,8 @@ func findMatchingABIMethod(
 		for name := range precompileABI {
 			abiMethod := precompileABI[name]
 			if implMethodName == abiMethod.RawName {
-				matchedAbiMethod = &abiMethod
-				if tryMatchInputs(implMethod, matchedAbiMethod) {
-					// we have a match
+				if tryMatchInputs(implMethod, &abiMethod) {
+					matchedAbiMethod = &abiMethod // we have a match
 					break
 				}
 			}
@@ -63,7 +61,7 @@ func findMatchingABIMethod(
 		return matchedAbiMethod.Name, nil
 	}
 
-	return "", errorslib.Wrap(ErrNoImplMethodSubstringMatchesABIMethods, implMethod.Name)
+	return "", nil
 }
 
 // tryMatchInputs returns true iff the argument types match between the Go implementation and the

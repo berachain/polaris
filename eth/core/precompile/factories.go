@@ -125,6 +125,9 @@ func buildIdsToMethods(si StatefulImpl, contractImpl reflect.Value) (map[string]
 		if err != nil {
 			return nil, err
 		}
+		if methodName == "" {
+			continue // nothing in the abi matches our go method.
+		}
 
 		method := newMethod(si, precompileABI[methodName], implMethod)
 		idsToMethods[utils.UnsafeBytesToStr(precompileABI[methodName].ID)] = method
