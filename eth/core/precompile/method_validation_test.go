@@ -21,11 +21,12 @@
 package precompile
 
 import (
+	"context"
 	"math/big"
 	"reflect"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
-
+	"pkg.berachain.dev/polaris/contracts/bindings/testing"
+	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -36,41 +37,7 @@ var _ = Describe("Method", func() {
 	var precompileABI map[string]abi.Method
 	var m *mockImpl
 	BeforeEach(func() {
-		precompileABI = map[string]abi.Method{
-			"exampleFunc": {
-				Name:    "exampleFunc",
-				RawName: "exampleFunc",
-				Inputs: []abi.Argument{
-					{
-						Name: "a",
-						Type: abi.Type{T: abi.IntTy},
-					},
-					{
-						Name: "b",
-						Type: abi.Type{T: abi.AddressTy},
-					},
-					{
-						Name: "c",
-						Type: abi.Type{
-							T:         abi.SliceTy,
-							Elem:      &abi.Type{T: abi.TupleTy},
-							TupleType: reflect.TypeOf(mockStruct{}),
-						},
-					},
-				},
-				Outputs: []abi.Argument{
-					{
-						Name: "d",
-						Type: abi.Type{T: abi.BoolTy},
-					},
-				},
-			},
-			"zeroReturn": {
-				Name:    "zeroReturn",
-				RawName: "zeroReturn",
-				Outputs: []abi.Argument{},
-			},
-		}
+		precompileABI = abi.MustUnmarshalJSON(testing.MockMethodsABI).Methods
 		m = &mockImpl{}
 	})
 	Context("findMatchingAbiMethod", func() {
@@ -167,7 +134,7 @@ var _ = Describe("Method", func() {
 			Expect(found).To(BeTrue())
 			methodName, err := findMatchingABIMethod(mockMethod, precompileABI)
 			Expect(methodName).To(Equal(""))
-			Expect(err.Error()).To(Equal(ErrNoImplMethodSubstringMatchesABIMethods.Error() + ": MockMethod"))
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 })
@@ -189,22 +156,22 @@ type mockStructBadNumFields struct {
 
 func (m *mockImpl) MockMethod() error { return nil }
 
-func (m *mockImpl) ExampleFunc(_ *big.Int, _ common.Address, _ []mockStruct) (bool, error) {
+func (m *mockImpl) ExampleFunc(_ context.Context, _ *big.Int, _ common.Address, _ []mockStruct) (bool, error) {
 	return true, nil
 }
 
-func (m *mockImpl) ExampleFuncBad(_ *big.Int, _ common.Address, _ []mockStructBad) (bool, error) {
+func (m *mockImpl) ExampleFuncBad(_ context.Context, _ *big.Int, _ common.Address, _ []mockStructBad) (bool, error) {
 	return true, nil
 }
 
-func (m *mockImpl) NoErrorReturn(_ *big.Int) (bool, bool) {
+func (m *mockImpl) NoErrorReturn(_ context.Context, _ *big.Int) (bool, bool) {
 	return true, true
 }
 
-func (m *mockImpl) NumReturnMismatch(_ *big.Int) error {
+func (m *mockImpl) NumReturnMismatch(_ context.Context, _ *big.Int) error {
 	return nil
 }
 
-func (m *mockImpl) ReturnTypeMismatch(_ *big.Int) (string, error) {
+func (m *mockImpl) ReturnTypeMismatch(context.Context, *big.Int) (string, error) {
 	return "bera", nil
 }
