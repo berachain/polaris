@@ -29,7 +29,6 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"google.golang.org/protobuf/proto"
 
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/depinject"
@@ -62,34 +61,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	coretypes "github.com/ethereum/go-ethereum/core/types"
-	v1alphaevmtx "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmepool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	testapp "pkg.berachain.dev/polaris/e2e/testapp"
 )
-
-func ProvideCustomGetSigners() signing.CustomGetSigner {
-	return signing.CustomGetSigner{
-		MsgType: proto.MessageName(&v1alphaevmtx.WrappedEthereumTransaction{}),
-		Fn: func(msg proto.Message) ([][]byte, error) {
-			ethTxData := msg.(*v1alphaevmtx.WrappedEthereumTransaction).Data
-			ethTx := new(coretypes.Transaction)
-			if err := ethTx.UnmarshalBinary(ethTxData); err != nil {
-				return nil, err
-			}
-
-			ethSigner := coretypes.LatestSignerForChainID(ethTx.ChainId())
-			signer, err := ethSigner.Sender(ethTx)
-			if err != nil {
-				return nil, err
-			}
-			return [][]byte{signer.Bytes()}, nil
-		},
-	}
-}
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
 //
@@ -105,7 +83,7 @@ func NewRootCmd() *cobra.Command {
 	)
 
 	if err := depinject.Inject(depinject.Configs(testapp.AppConfig, depinject.Supply(
-		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger()), depinject.Provide(ProvideCustomGetSigners)),
+		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger()), depinject.Provide(evmtypes.ProvideCustomGetSigners)),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,

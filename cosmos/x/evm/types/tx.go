@@ -23,9 +23,11 @@ package types
 import (
 	"errors"
 
-	"cosmossdk.io/x/tx/signing"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/protobuf/proto"
+
+	"cosmossdk.io/x/tx/signing"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/txpool"
@@ -149,7 +151,7 @@ func GetAsEthTx(tx sdk.Tx) *coretypes.Transaction {
 	return etr.AsTransaction()
 }
 
-// ProvideEthereumTransactionGetSigners
+// ProvideEthereumTransactionGetSigners.
 func ProvideEthereumTransactionGetSigners() signing.CustomGetSigner {
 	return signing.CustomGetSigner{
 		MsgType: proto.MessageName(&v1alpha1evm.WrappedEthereumTransaction{}),
