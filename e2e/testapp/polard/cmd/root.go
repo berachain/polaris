@@ -29,6 +29,7 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"google.golang.org/protobuf/proto"
 
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/depinject"
@@ -47,6 +48,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
 	"github.com/cosmos/cosmos-sdk/codec"
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
@@ -60,6 +62,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
+	coretypes "github.com/ethereum/go-ethereum/core/types"
+	v1alphaevmtx "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
@@ -79,6 +83,38 @@ func NewRootCmd() *cobra.Command {
 		autoCliOpts        autocli.AppOptions
 		moduleBasicManager module.BasicManager
 	)
+
+	// This needs to go after ReadFromClientConfig, as that function
+	// sets the RPC client needed for SIGN_MODE_TEXTUAL.
+	txConfigOpts := tx.ConfigOptions{
+		CustomSignModes: []signing.SignModeHandler{evmante.SignModeEthTxHandler{}},
+		SigningOptions: &signing.Options{
+			AddressCodec:          addresscodec.NewBech32Codec("polar"),
+			ValidatorAddressCodec: addresscodec.NewBech32Codec("polar"),
+		},
+	}
+
+	// Add a custom sign mode handler for ethereum transactions.
+	txConfigOpts.SigningOptions.DefineCustomGetSigners(proto.MessageName(&v1alphaevmtx.WrappedEthereumTransaction{}), func(msg proto.Message) ([][]byte, error) {
+		ethTxData := msg.(*v1alphaevmtx.WrappedEthereumTransaction).Data
+		ethTx := new(coretypes.Transaction)
+		if err := ethTx.UnmarshalBinary(ethTxData); err != nil {
+			return nil, err
+		}
+
+		ethSigner := coretypes.LatestSignerForChainID(ethTx.ChainId())
+		signer, err := ethSigner.Sender(ethTx)
+		if err != nil {
+			return nil, err
+		}
+		return [][]byte{signer.Bytes()}, nil
+	})
+
+	txConfig, _ = tx.NewTxConfigWithOptions(
+		codec.NewProtoCodec(interfaceRegistry),
+		txConfigOpts,
+	)
+
 	if err := depinject.Inject(depinject.Configs(testapp.AppConfig, depinject.Supply(
 		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
 		&interfaceRegistry,
@@ -126,10 +162,29 @@ func NewRootCmd() *cobra.Command {
 			// sets the RPC client needed for SIGN_MODE_TEXTUAL.
 			txConfigOpts := tx.ConfigOptions{
 				TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx),
+				SigningOptions: &signing.Options{
+					AddressCodec:          addresscodec.NewBech32Codec("polar"),
+					ValidatorAddressCodec: addresscodec.NewBech32Codec("polar"),
+				},
 			}
 
 			// Add a custom sign mode handler for ethereum transactions.
 			txConfigOpts.CustomSignModes = []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
+			txConfigOpts.SigningOptions.DefineCustomGetSigners(proto.MessageName(&v1alphaevmtx.WrappedEthereumTransaction{}), func(msg proto.Message) ([][]byte, error) {
+				ethTxData := msg.(*v1alphaevmtx.WrappedEthereumTransaction).Data
+				ethTx := new(coretypes.Transaction)
+				if err := ethTx.UnmarshalBinary(ethTxData); err != nil {
+					return nil, err
+				}
+
+				ethSigner := coretypes.LatestSignerForChainID(ethTx.ChainId())
+				signer, err := ethSigner.Sender(ethTx)
+				if err != nil {
+					return nil, err
+				}
+				return [][]byte{signer.Bytes()}, nil
+			})
+
 			txConfigWithTextual, err := tx.NewTxConfigWithOptions(
 				codec.NewProtoCodec(interfaceRegistry),
 				txConfigOpts,
