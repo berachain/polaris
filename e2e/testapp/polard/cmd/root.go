@@ -360,16 +360,16 @@ func appExport(
 	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
 	appOpts = viperAppOpts
 
-	var simApp *testapp.SimApp
+	var testApp *testapp.SimApp
 	if height != -1 {
-		simApp = testapp.NewPolarisApp(logger, db, traceStore, false, appOpts)
+		testApp = testapp.NewPolarisApp(logger, db, traceStore, false, appOpts)
 
-		if err := testapp.LoadHeight(height); err != nil {
+		if err := testApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		simApp = testapp.NewPolarisApp(logger, db, traceStore, true, appOpts)
+		testApp = testapp.NewPolarisApp(logger, db, traceStore, true, appOpts)
 	}
 
-	return testapp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
+	return testApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }
