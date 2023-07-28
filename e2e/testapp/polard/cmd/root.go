@@ -64,7 +64,7 @@ import (
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
-	evmmepool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	testapp "pkg.berachain.dev/polaris/e2e/testapp"
 )
@@ -83,7 +83,7 @@ func NewRootCmd() *cobra.Command {
 	)
 
 	if err := depinject.Inject(depinject.Configs(testapp.AppConfig, depinject.Supply(
-		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger()), depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners())),
+		evmmempool.NewPolarisEthereumTxPool(), log.NewNopLogger()), depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners())),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,
