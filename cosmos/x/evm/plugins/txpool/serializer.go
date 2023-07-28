@@ -26,7 +26,6 @@ import (
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
-	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -65,8 +64,6 @@ func SerializeToSdkTx(
 		signingtypes.SignatureV2{
 			Sequence: signedTx.Nonce(),
 			Data: &signingtypes.SingleSignatureData{
-				// TODO: this is ghetto af.
-				SignMode: signingtypes.SignMode(int32(evmante.SignMode_SIGN_MODE_ETHEREUM)),
 				// We retrieve the hash of the signed transaction from the ethereum transaction
 				// objects, as this was the bytes that were signed. We pass these into the
 				// SingleSignatureData as the SignModeHandler needs to know what data was signed

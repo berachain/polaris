@@ -34,7 +34,6 @@ import (
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
-	"cosmossdk.io/x/tx/signing"
 
 	cmtcfg "github.com/cometbft/cometbft/config"
 
@@ -62,7 +61,6 @@ import (
 
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
-	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	testapp "pkg.berachain.dev/polaris/e2e/testapp"
@@ -131,7 +129,6 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			// Add a custom sign mode handler for ethereum transactions.
-			txConfigOpts.CustomSignModes = []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
 			txConfigWithTextual, err := tx.NewTxConfigWithOptions(
 				codec.NewProtoCodec(interfaceRegistry),
 				txConfigOpts,
