@@ -169,7 +169,10 @@ func ProvideEthereumTransactionGetSigners() signing.CustomGetSigner {
 			ethTxData := msg.(*v1alpha1evm.WrappedEthereumTransaction).Data
 
 			// Get a new empty Transaction.
-			ethTx := txSyncPool.Get().(*coretypes.Transaction)
+			ethTx, ok := txSyncPool.Get().(*coretypes.Transaction)
+			if !ok {
+				return nil, errors.New("failed to get sync pool when getting signers")
+			}
 
 			// Fill it with the data.
 			if err := ethTx.UnmarshalBinary(ethTxData); err != nil {
