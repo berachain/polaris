@@ -51,6 +51,7 @@ COPY ./eth/go.sum ./eth/go.mod ./eth/
 COPY ./lib/go.sum ./lib/go.mod ./lib/
 COPY ./magefiles/go.sum ./magefiles/go.mod ./magefiles/
 COPY ./e2e/localnet/go.sum ./e2e/localnet/go.mod ./e2e/localnet/
+COPY ./e2e/testapp/go.sum ./e2e/testapp/go.mod ./e2e/testapp/
 
 # Download the go module dependencies
 RUN go mod download
