@@ -28,7 +28,6 @@ import (
 )
 
 // TODO: replace this file with a proper mining object and use message passing instead of direct calls.
-
 // Prepare prepares the Polaris chain for processing a new block at the given height.
 func (pl *Polaris) Prepare(ctx context.Context, number uint64) {
 	pl.blockchain.Prepare(ctx, number)

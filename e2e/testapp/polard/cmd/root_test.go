@@ -29,9 +29,9 @@ import (
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	simapp "pkg.berachain.dev/polaris/cosmos/simapp"
-	"pkg.berachain.dev/polaris/cosmos/simapp/polard/cmd"
 	"pkg.berachain.dev/polaris/cosmos/types"
+	testapp "pkg.berachain.dev/polaris/e2e/testapp"
+	"pkg.berachain.dev/polaris/e2e/testapp/polard/cmd"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -39,7 +39,7 @@ import (
 
 func TestCmd(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/simapp/polard/cmd")
+	RunSpecs(t, "e2e/testapp/polard/cmd")
 }
 
 var _ = BeforeSuite(func() {
@@ -58,7 +58,7 @@ var _ = Describe("Init command", func() {
 			fmt.Sprintf("--%s=%s", cli.FlagOverwrite, "true"), // Overwrite genesis.json, in case it already exists
 		})
 
-		err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome)
+		err := svrcmd.Execute(rootCmd, "", testapp.DefaultNodeHome)
 		Expect(err).ToNot(HaveOccurred())
 	})
 })
@@ -78,7 +78,7 @@ var _ = Describe("Home flag registration", func() {
 			homeDir,
 		})
 
-		err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome)
+		err := svrcmd.Execute(rootCmd, "", testapp.DefaultNodeHome)
 		Expect(err).ToNot(HaveOccurred())
 
 		result, err := rootCmd.Flags().GetString(flags.FlagHome)

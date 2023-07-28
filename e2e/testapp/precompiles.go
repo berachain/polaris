@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package simapp
+package testapp
 
 import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
