@@ -255,8 +255,8 @@ var _ = Describe("Distribution Precompile Test", func() {
 			})
 		})
 		When("Base Precompile Features", func() {
-			It("Should have custom value decoders", func() {
-				Expect(contract.CustomValueDecoders()).ToNot(BeNil())
+			It("Should not have custom value decoders", func() {
+				Expect(contract.CustomValueDecoders()).To(BeNil())
 			})
 
 		})

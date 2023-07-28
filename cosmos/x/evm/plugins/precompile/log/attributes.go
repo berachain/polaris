@@ -27,10 +27,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
@@ -63,6 +66,10 @@ var defaultCosmosValueDecoders = precompile.ValueDecoders{
 	banktypes.AttributeKeyReceiver:          ConvertAccAddressFromBech32,
 	banktypes.AttributeKeyMinter:            ConvertAccAddressFromBech32,
 	banktypes.AttributeKeyBurner:            ConvertAccAddressFromBech32,
+	distrtypes.AttributeKeyWithdrawAddress:  ConvertAccAddressFromBech32,
+	govtypes.AttributeKeyProposalID:         ConvertUint64,
+	govtypes.AttributeKeyProposalMessages:   ReturnStringAsIs,
+	govtypes.AttributeKeyOption:             ReturnStringAsIs,
 }
 
 // ==============================================================================
@@ -142,6 +149,14 @@ func ConvertUint64(attributeValue string) (any, error) {
 // ReturnStringAsIs is a `precompile.ValueDecoder`.
 func ReturnStringAsIs(attributeValue string) (any, error) {
 	return attributeValue, nil
+}
+
+// ConvertCommonHexAddress transfers a common hex address attribute to a common.Address and returns
+// it as type any.
+//
+// ConvertCommonHexAddress is a `precompile.ValueDecoder`.
+func ConvertCommonHexAddress(attributeValue string) (any, error) {
+	return common.HexToAddress(attributeValue), nil
 }
 
 // ==============================================================================

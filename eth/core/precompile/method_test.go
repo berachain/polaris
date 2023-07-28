@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile_test
+package precompile
 
 import (
 	"context"
@@ -27,7 +27,6 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 
@@ -38,10 +37,13 @@ import (
 var _ = Describe("Method", func() {
 	Context("Calling the method", func() {
 		It("should be able to call the Method's executable", func() {
-			method := precompile.NewMethod(
-				&abi.Method{},
-				"mockExecutable()",
-				reflect.ValueOf(mockExecutable),
+			sc := &mockStatefulWithMethod{&mockBase{}, false}
+			execute, found := reflect.TypeOf(sc).MethodByName("MockExecutable")
+			Expect(found).To(BeTrue())
+			method := newMethod(
+				sc,
+				abi.Method{},
+				execute,
 			)
 			ctx := vm.NewPolarContext(
 				context.Background(),
@@ -54,20 +56,24 @@ var _ = Describe("Method", func() {
 			// method call as the first parameter to thef function. this is taken care of for the
 			// caller of the precompile under the hood, and users dont have to worry when
 			// implementing their own precompiles.
-			sc := &mockStateful{&mockBase{}}
-			res, err := method.Call(sc, ctx, []byte{0, 0, 0, 0})
+			res, err := method.Call(ctx, []byte{0, 0, 0, 0})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).To(BeNil())
+			Expect(sc.executableCalled).To(BeTrue())
 		})
 	})
 })
 
 // MOCKS BELOW.
 
-//nolint:revive // needed for go "reflect" package.
-func mockExecutable(
-	_ precompile.Registrable,
+type mockStatefulWithMethod struct {
+	*mockBase
+	executableCalled bool
+}
+
+func (ms *mockStatefulWithMethod) MockExecutable(
 	_ context.Context,
 ) any {
+	ms.executableCalled = true
 	return nil
 }

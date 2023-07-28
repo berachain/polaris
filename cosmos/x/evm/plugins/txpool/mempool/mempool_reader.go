@@ -125,6 +125,7 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 	pendingNonces := make(map[common.Address]uint64)
 	etp.mu.RLock()
+	defer etp.mu.RUnlock()
 
 	// search for the last pending tx for the given address
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
@@ -151,9 +152,6 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 			break
 		}
 	}
-
-	// We move this here instead of defer as a slight optimization.
-	etp.mu.RUnlock()
 
 	// if the addr has no eth txs, fallback to the nonce retriever db
 	if _, ok := pendingNonces[addr]; !ok {

@@ -49,8 +49,13 @@ var _ = Describe("ERC20", func() {
 	})
 
 	AfterEach(func() {
-		err := tf.Teardown()
-		Expect(err).ToNot(HaveOccurred())
+		// Dump logs and stop the containter here.
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := tf.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	Describe("deploy a polaris erc20 and call it from another contract", func() {
@@ -120,5 +125,33 @@ var _ = Describe("ERC20", func() {
 			Expect(res.Cmp(big.NewInt(50))).To(Equal(0))
 		})
 
+		It("should still include reverted transactions in a block", func() {
+			// originate a ERC20 token
+			contract, _ := DeployERC20(tf.GenerateTransactOpts("alice"), tf.EthClient())
+
+			// mint some tokens to bob
+			tx, err := contract.Mint(
+				tf.GenerateTransactOpts("bob"), tf.Address("bob"), big.NewInt(123456789),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectSuccessReceipt(tf.EthClient(), tx)
+
+			// check that the new ERC20 is minted to bob
+			bal, err := contract.BalanceOf(nil, tf.Address("bob"))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(bal).To(Equal(big.NewInt(123456789)))
+
+			// ensure alice cannot transferFrom bob's account
+			txr := tf.GenerateTransactOpts("alice")
+			txr.GasLimit = 1000000
+			tx, err = contract.TransferFrom(
+				txr,
+				tf.Address("bob"),
+				tf.Address("alice"),
+				big.NewInt(6789),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectFailedReceipt(tf.EthClient(), tx)
+		})
 	})
 })

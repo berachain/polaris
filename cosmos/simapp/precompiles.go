@@ -53,7 +53,7 @@ func PrecompilesToInject(app *SimApp, customPcs ...ethprecompile.Registrable) fu
 				distrkeeper.NewQuerier(app.DistrKeeper),
 			),
 			erc20precompile.NewPrecompileContract(
-				app.BankKeeper, app.ERC20Keeper,
+				app.AccountKeeper, app.BankKeeper, app.ERC20Keeper,
 			),
 			govprecompile.NewPrecompileContract(
 				govkeeper.NewMsgServerImpl(app.GovKeeper),

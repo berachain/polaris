@@ -25,6 +25,7 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
@@ -42,6 +43,7 @@ import (
 type Contract struct {
 	ethprecompile.BaseContract
 
+	ak authkeeper.AccountKeeperI
 	bk bankkeeper.Keeper
 	em ERC20Module
 
@@ -50,7 +52,9 @@ type Contract struct {
 }
 
 // NewPrecompileContract returns a new instance of the auth module precompile contract.
-func NewPrecompileContract(bk bankkeeper.Keeper, em ERC20Module) ethprecompile.StatefulImpl {
+func NewPrecompileContract(
+	ak authkeeper.AccountKeeperI, bk bankkeeper.Keeper, em ERC20Module,
+) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			cpbindings.ERC20ModuleMetaData.ABI,
@@ -59,6 +63,7 @@ func NewPrecompileContract(bk bankkeeper.Keeper, em ERC20Module) ethprecompile.S
 			// ),
 			common.HexToAddress("0x696969"), // TODO: module addresses are broken
 		),
+		ak:              ak,
 		bk:              bk,
 		em:              em,
 		polarisERC20ABI: abi.MustUnmarshalJSON(cbindings.PolarisERC20MetaData.ABI),
@@ -69,10 +74,10 @@ func NewPrecompileContract(bk bankkeeper.Keeper, em ERC20Module) ethprecompile.S
 // CustomValueDecoders implements StatefulImpl.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		erc20types.AttributeKeyToken:     ConvertCommonHexAddress,
+		erc20types.AttributeKeyToken:     log.ConvertCommonHexAddress,
 		erc20types.AttributeKeyDenom:     log.ReturnStringAsIs,
-		erc20types.AttributeKeyOwner:     ConvertCommonHexAddress,
-		erc20types.AttributeKeyRecipient: ConvertCommonHexAddress,
+		erc20types.AttributeKeyOwner:     log.ConvertCommonHexAddress,
+		erc20types.AttributeKeyRecipient: log.ConvertCommonHexAddress,
 	}
 }
 
@@ -245,10 +250,4 @@ func (c *Contract) TransferERC20ToCoinTo(
 // ==============================================================================
 
 // ConvertCommonHexAddress is a value decoder.
-var _ ethprecompile.ValueDecoder = ConvertCommonHexAddress
-
-// ConvertCommonHexAddress transfers a common hex address attribute to a common.Address and returns
-// it as type any.
-func ConvertCommonHexAddress(attributeValue string) (any, error) {
-	return common.HexToAddress(attributeValue), nil
-}
+var _ ethprecompile.ValueDecoder = log.ConvertCommonHexAddress

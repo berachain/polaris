@@ -28,7 +28,7 @@ require (
 	github.com/cometbft/cometbft v0.38.0-rc3
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
-	github.com/cosmos/cosmos-sdk v0.50.0-beta.0
+	github.com/cosmos/cosmos-sdk v0.50.0-beta.0.0.20230727121850-bd61e84ef162
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.10
 	github.com/ethereum/go-ethereum v1.12.0
@@ -46,10 +46,10 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529
 	google.golang.org/grpc v1.56.2
 	google.golang.org/protobuf v1.31.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230717165123-80a30c3435c3
-	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230717165123-80a30c3435c3
-	pkg.berachain.dev/polaris/eth v0.0.0-20230717165123-80a30c3435c3
-	pkg.berachain.dev/polaris/lib v0.0.0-20230717165123-80a30c3435c3
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230720022139-37f587ddf39e
+	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230720022139-37f587ddf39e
+	pkg.berachain.dev/polaris/eth v0.0.0-20230720022139-37f587ddf39e
+	pkg.berachain.dev/polaris/lib v0.0.0-20230720022139-37f587ddf39e
 )
 
 require (
@@ -74,6 +74,7 @@ require (
 	github.com/bits-and-blooms/bitset v1.8.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1 // indirect
+	github.com/bytedance/sonic v1.9.2 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
