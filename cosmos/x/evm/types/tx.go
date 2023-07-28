@@ -23,11 +23,14 @@ package types
 import (
 	"errors"
 
+	"cosmossdk.io/x/tx/signing"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/txpool"
 
+	v1alpha1evm "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -144,4 +147,25 @@ func GetAsEthTx(tx sdk.Tx) *coretypes.Transaction {
 		return nil
 	}
 	return etr.AsTransaction()
+}
+
+// ProvideEthereumTransactionGetSigners
+func ProvideEthereumTransactionGetSigners() signing.CustomGetSigner {
+	return signing.CustomGetSigner{
+		MsgType: proto.MessageName(&v1alpha1evm.WrappedEthereumTransaction{}),
+		Fn: func(msg proto.Message) ([][]byte, error) {
+			ethTxData := msg.(*v1alpha1evm.WrappedEthereumTransaction).Data
+			ethTx := new(coretypes.Transaction)
+			if err := ethTx.UnmarshalBinary(ethTxData); err != nil {
+				return nil, err
+			}
+
+			ethSigner := coretypes.LatestSignerForChainID(ethTx.ChainId())
+			signer, err := ethSigner.Sender(ethTx)
+			if err != nil {
+				return nil, err
+			}
+			return [][]byte{signer.Bytes()}, nil
+		},
+	}
 }

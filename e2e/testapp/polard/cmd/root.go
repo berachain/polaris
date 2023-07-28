@@ -71,6 +71,26 @@ import (
 	testapp "pkg.berachain.dev/polaris/e2e/testapp"
 )
 
+func ProvideCustomGetSigners() signing.CustomGetSigner {
+	return signing.CustomGetSigner{
+		MsgType: proto.MessageName(&v1alphaevmtx.WrappedEthereumTransaction{}),
+		Fn: func(msg proto.Message) ([][]byte, error) {
+			ethTxData := msg.(*v1alphaevmtx.WrappedEthereumTransaction).Data
+			ethTx := new(coretypes.Transaction)
+			if err := ethTx.UnmarshalBinary(ethTxData); err != nil {
+				return nil, err
+			}
+
+			ethSigner := coretypes.LatestSignerForChainID(ethTx.ChainId())
+			signer, err := ethSigner.Sender(ethTx)
+			if err != nil {
+				return nil, err
+			}
+			return [][]byte{signer.Bytes()}, nil
+		},
+	}
+}
+
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
 //
 
@@ -84,39 +104,8 @@ func NewRootCmd() *cobra.Command {
 		moduleBasicManager module.BasicManager
 	)
 
-	// This needs to go after ReadFromClientConfig, as that function
-	// sets the RPC client needed for SIGN_MODE_TEXTUAL.
-	txConfigOpts := tx.ConfigOptions{
-		CustomSignModes: []signing.SignModeHandler{evmante.SignModeEthTxHandler{}},
-		SigningOptions: &signing.Options{
-			AddressCodec:          addresscodec.NewBech32Codec("polar"),
-			ValidatorAddressCodec: addresscodec.NewBech32Codec("polar"),
-		},
-	}
-
-	// Add a custom sign mode handler for ethereum transactions.
-	txConfigOpts.SigningOptions.DefineCustomGetSigners(proto.MessageName(&v1alphaevmtx.WrappedEthereumTransaction{}), func(msg proto.Message) ([][]byte, error) {
-		ethTxData := msg.(*v1alphaevmtx.WrappedEthereumTransaction).Data
-		ethTx := new(coretypes.Transaction)
-		if err := ethTx.UnmarshalBinary(ethTxData); err != nil {
-			return nil, err
-		}
-
-		ethSigner := coretypes.LatestSignerForChainID(ethTx.ChainId())
-		signer, err := ethSigner.Sender(ethTx)
-		if err != nil {
-			return nil, err
-		}
-		return [][]byte{signer.Bytes()}, nil
-	})
-
-	txConfig, _ = tx.NewTxConfigWithOptions(
-		codec.NewProtoCodec(interfaceRegistry),
-		txConfigOpts,
-	)
-
 	if err := depinject.Inject(depinject.Configs(testapp.AppConfig, depinject.Supply(
-		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
+		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger()), depinject.Provide(ProvideCustomGetSigners)),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,
@@ -170,21 +159,6 @@ func NewRootCmd() *cobra.Command {
 
 			// Add a custom sign mode handler for ethereum transactions.
 			txConfigOpts.CustomSignModes = []signing.SignModeHandler{evmante.SignModeEthTxHandler{}}
-			txConfigOpts.SigningOptions.DefineCustomGetSigners(proto.MessageName(&v1alphaevmtx.WrappedEthereumTransaction{}), func(msg proto.Message) ([][]byte, error) {
-				ethTxData := msg.(*v1alphaevmtx.WrappedEthereumTransaction).Data
-				ethTx := new(coretypes.Transaction)
-				if err := ethTx.UnmarshalBinary(ethTxData); err != nil {
-					return nil, err
-				}
-
-				ethSigner := coretypes.LatestSignerForChainID(ethTx.ChainId())
-				signer, err := ethSigner.Sender(ethTx)
-				if err != nil {
-					return nil, err
-				}
-				return [][]byte{signer.Bytes()}, nil
-			})
-
 			txConfigWithTextual, err := tx.NewTxConfigWithOptions(
 				codec.NewProtoCodec(interfaceRegistry),
 				txConfigOpts,
