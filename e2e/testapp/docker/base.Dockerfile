@@ -24,7 +24,7 @@ ARG GOOS=linux
 ARG NAME=polaris-cosmos
 ARG APP_NAME=polard
 ARG DB_BACKEND=pebbledb
-ARG CMD_PATH=./cosmos/simapp/polard
+ARG CMD_PATH=./e2e/testapp/polard
 ARG FOUNDRY_DIR=contracts
 
 #######################################################
@@ -42,6 +42,7 @@ RUN set -eux; \
 WORKDIR /workdir
 
 # Copy go.work and go.work.sum files (🔥 upgrade)
+# TODO: conditional copy via USE_GOWORK arg.
 COPY ./go.work ./go.work.sum ./
 
 # Copy the go.mod and go.sum files for each module
@@ -51,6 +52,7 @@ COPY ./eth/go.sum ./eth/go.mod ./eth/
 COPY ./lib/go.sum ./lib/go.mod ./lib/
 COPY ./magefiles/go.sum ./magefiles/go.mod ./magefiles/
 COPY ./e2e/localnet/go.sum ./e2e/localnet/go.mod ./e2e/localnet/
+COPY ./e2e/testapp/go.sum ./e2e/testapp/go.mod ./e2e/testapp/
 
 # Download the go module dependencies
 RUN go mod download

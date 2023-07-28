@@ -62,9 +62,9 @@ import (
 
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
-	"pkg.berachain.dev/polaris/cosmos/simapp"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmmepool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	testapp "pkg.berachain.dev/polaris/e2e/testapp"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
@@ -79,7 +79,7 @@ func NewRootCmd() *cobra.Command {
 		autoCliOpts        autocli.AppOptions
 		moduleBasicManager module.BasicManager
 	)
-	if err := depinject.Inject(depinject.Configs(simapp.AppConfig, depinject.Supply(
+	if err := depinject.Inject(depinject.Configs(testapp.AppConfig, depinject.Supply(
 		evmmepool.NewPolarisEthereumTxPool(), log.NewNopLogger())),
 		&interfaceRegistry,
 		&appCodec,
@@ -99,7 +99,7 @@ func NewRootCmd() *cobra.Command {
 		WithLegacyAmino(legacyAmino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
-		WithHomeDir(simapp.DefaultNodeHome).
+		WithHomeDir(testapp.DefaultNodeHome).
 		WithViper(""). // In simapp, we don't use any prefix for env variables.
 		WithKeyringOptions(keyring.EthSecp256k1Option())
 
@@ -162,70 +162,13 @@ func NewRootCmd() *cobra.Command {
 // initCometBFTConfig helps to override default CometBFT Config values.
 // return cmtcfg.DefaultConfig if no custom configuration is required for the application.
 func initCometBFTConfig() *cmtcfg.Config {
-	cfg := cmtcfg.DefaultConfig()
-
-	// these values put a higher strain on node memory
-	// cfg.P2P.MaxNumInboundPeers = 100
-	// cfg.P2P.MaxNumOutboundPeers = 40
-
-	return cfg
+	return cmtcfg.DefaultConfig()
 }
 
 // initAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
 func initAppConfig() (string, interface{}) {
-	// The following code snippet is just for reference.
-
-	// WASMConfig defines configuration for the wasm module.
-	type WASMConfig struct {
-		// This is the maximum sdk gas (wasm and storage) that we allow for any x/wasm "smart" queries
-		QueryGasLimit uint64 `mapstructure:"query_gas_limit"`
-
-		// Address defines the gRPC-web server to listen on
-		LruSize uint64 `mapstructure:"lru_size"`
-	}
-
-	type CustomAppConfig struct {
-		serverconfig.Config
-
-		WASM WASMConfig `mapstructure:"wasm"`
-	}
-
-	// Optionally allow the chain developer to overwrite the SDK's default
-	// server config.
-	srvCfg := serverconfig.DefaultConfig()
-	// The SDK's default minimum gas price is set to "" (empty value) inside
-	// app.toml. If left empty by validators, the node will halt on startup.
-	// However, the chain developer can set a default app.toml value for their
-	// validators here.
-	//
-	// In summary:
-	// - if you leave srvCfg.MinGasPrices = "", all validators MUST tweak their
-	//   own app.toml config,
-	// - if you set srvCfg.MinGasPrices non-empty, validators CAN tweak their
-	//   own app.toml to override, or use this default value.
-	//
-	// In simapp, we set the min gas prices to 0.
-	srvCfg.MinGasPrices = "0stake"
-	// srvCfg.BaseConfig.IAVLDisableFastNode = true // disable fastnode by default
-
-	customAppConfig := CustomAppConfig{
-		Config: *srvCfg,
-		WASM: WASMConfig{
-			LruSize:       1,
-			QueryGasLimit: 300000,
-		},
-	}
-
-	customAppTemplate := serverconfig.DefaultConfigTemplate + `
-[wasm]
-# This is the maximum sdk gas (wasm and storage) that we allow for any x/wasm "smart" queries
-query_gas_limit = 300000
-# This is the number of wasm vm instances we keep cached in memory for speed-up
-# Warning: this is currently unstable and may lead to crashes, best to keep for 0 unless testing locally
-lru_size = 0`
-
-	return customAppTemplate, customAppConfig
+	return serverconfig.DefaultConfigTemplate, serverconfig.DefaultConfig()
 }
 
 func initRootCmd(
@@ -239,14 +182,14 @@ func initRootCmd(
 	cfg.Seal()
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, simapp.DefaultNodeHome),
+		genutilcli.InitCmd(basicManager, testapp.DefaultNodeHome),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
-		pruning.Cmd(newApp, simapp.DefaultNodeHome),
+		pruning.Cmd(newApp, testapp.DefaultNodeHome),
 		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+	server.AddCommands(rootCmd, testapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
@@ -254,7 +197,7 @@ func initRootCmd(
 		genesisCommand(txConfig, basicManager),
 		queryCommand(),
 		txCommand(),
-		keys.Commands(simapp.DefaultNodeHome),
+		keys.Commands(testapp.DefaultNodeHome),
 	)
 }
 
@@ -264,7 +207,7 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter.
 func genesisCommand(txConfig client.TxConfig, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
-	cmd := genutilcli.Commands(txConfig, basicManager, simapp.DefaultNodeHome)
+	cmd := genutilcli.Commands(txConfig, basicManager, testapp.DefaultNodeHome)
 
 	for _, subCmd := range cmds {
 		cmd.AddCommand(subCmd)
@@ -326,7 +269,7 @@ func newApp(
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
-	return simapp.NewPolarisApp(
+	return testapp.NewPolarisApp(
 		logger, db, traceStore, true,
 		appOpts,
 		baseappOptions...,
@@ -360,16 +303,16 @@ func appExport(
 	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
 	appOpts = viperAppOpts
 
-	var simApp *simapp.SimApp
+	var testApp *testapp.SimApp
 	if height != -1 {
-		simApp = simapp.NewPolarisApp(logger, db, traceStore, false, appOpts)
+		testApp = testapp.NewPolarisApp(logger, db, traceStore, false, appOpts)
 
-		if err := simApp.LoadHeight(height); err != nil {
+		if err := testApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		simApp = simapp.NewPolarisApp(logger, db, traceStore, true, appOpts)
+		testApp = testapp.NewPolarisApp(logger, db, traceStore, true, appOpts)
 	}
 
-	return simApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
+	return testApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }

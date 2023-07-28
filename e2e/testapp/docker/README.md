@@ -4,8 +4,8 @@
 2. mage cosmos:dockerx base arm64 && mage cosmos:dockerx seed arm64
 
 To run a 4 nodes test:
-3. in terminal window 1: cd cosmos/docker && sh ./reset-temp.sh && docker-compose up
-4. in terminal window 2: cd cosmos/docker && sh ./network-init-4.sh
+3. in terminal window 1: cd e2e/testapp/docker && sh ./reset-temp.sh && docker-compose up
+4. in terminal window 2: cd e2e/testapp/docker && sh ./network-init-4.sh
 5. in terminal window 2: docker exec -it polard-node0 bash -c ./scripts/seed-start.sh
 6. in terminal window 3: docker exec -it polard-node1 bash -c ./scripts/seed-start.sh
 7. in terminal window 4: docker exec -it polard-node2 bash -c ./scripts/seed-start.sh

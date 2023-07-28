@@ -26,7 +26,7 @@ RUN apk add --no-cache bash jq sed curl
 
 WORKDIR /
 
-COPY ./cosmos/docker/seed/scripts scripts/
+COPY ./e2e/testapp/docker/seed/scripts scripts/
 
 RUN chmod +x scripts/*
 

@@ -27,15 +27,15 @@ import (
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	"pkg.berachain.dev/polaris/cosmos/simapp"
-	"pkg.berachain.dev/polaris/cosmos/simapp/polard/cmd"
 	"pkg.berachain.dev/polaris/cosmos/types"
+	testapp "pkg.berachain.dev/polaris/e2e/testapp"
+	"pkg.berachain.dev/polaris/e2e/testapp/polard/cmd"
 )
 
 func main() {
 	types.SetupCosmosConfig()
 	rootCmd := cmd.NewRootCmd()
-	if err := svrcmd.Execute(rootCmd, "", simapp.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(rootCmd, "", testapp.DefaultNodeHome); err != nil {
 		log.NewLogger(rootCmd.OutOrStderr()).Error("failure when running app", "err", err)
 		os.Exit(1)
 	}

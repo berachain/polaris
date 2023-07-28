@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package simapp
+package testapp
 
 import (
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"

@@ -47,7 +47,7 @@ var (
 	// Variables.
 	imageName              = "polard"
 	imageVersion           = "v0.0.0"
-	baseDockerPath         = "./cosmos/docker/"
+	baseDockerPath         = "./e2e/testapp/docker/"
 	execDockerPath         = baseDockerPath + "base.Dockerfile"
 	localDockerPath        = baseDockerPath + "local/Dockerfile"
 	seedDockerPath         = baseDockerPath + "seed/Dockerfile"
@@ -73,7 +73,7 @@ func (Cosmos) directory() string {
 
 // Starts a local development net and builds it if necessary.
 func Start() error {
-	return sh.RunV("./cosmos/init.sh")
+	return sh.RunV("./e2e/testapp/entrypoint.sh")
 }
 
 // Builds the Cosmos SDK chain.
@@ -84,7 +84,7 @@ func (Cosmos) Build() error {
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
 		"-o", generateOutDirectory(cmd),
-		"./cosmos/simapp/" + cmd,
+		"./e2e/testapp/" + cmd,
 	}
 	return goBuild(args...)
 }
@@ -178,7 +178,7 @@ func (Cosmos) Install() error {
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
-		"./cosmos/simapp/polard",
+		"./e2e/testapp/polard",
 	}
 
 	return goInstall(args...)
