@@ -167,7 +167,7 @@ var _ = Describe("Method", func() {
 			Expect(found).To(BeTrue())
 			methodName, err := findMatchingABIMethod(mockMethod, precompileABI)
 			Expect(methodName).To(Equal(""))
-			Expect(err.Error()).To(Equal(ErrNoImplMethodSubstringMatchesABIMethods.Error() + ": MockMethod"))
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 })
