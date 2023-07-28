@@ -48,8 +48,6 @@ type Keeper struct {
 	polaris *polar.Polaris
 	// The (unexposed) key used to access the store from the Context.
 	storeKey storetypes.StoreKey
-	// authority is the bech32 address that is allowed to execute governance proposals.
-	authority string
 	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
 	host Host
 
@@ -62,16 +60,14 @@ func NewKeeper(
 	ak state.AccountKeeper,
 	sk block.StakingKeeper,
 	storeKey storetypes.StoreKey,
-	authority string,
 	ethTxMempool sdkmempool.Mempool,
 	pcs func() *ethprecompile.Injector,
 ) *Keeper {
 	// We setup the keeper with some Cosmos standard sauce.
 	k := &Keeper{
-		ak:        ak,
-		authority: authority,
-		storeKey:  storeKey,
-		lock:      true,
+		ak:       ak,
+		storeKey: storeKey,
+		lock:     true,
 	}
 
 	k.host = NewHost(
