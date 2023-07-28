@@ -155,7 +155,6 @@ func GetAsEthTx(tx sdk.Tx) *coretypes.Transaction {
 // ProvideEthereumTransactionGetSigners defines a custom function for
 // utilizing custom signer handling for `WrappedEthereumTransaction`s
 func ProvideEthereumTransactionGetSigners() signing.CustomGetSigner {
-
 	// Utilize a sync pool to reduce memory usage.
 	var txSyncPool = sync.Pool{
 		New: func() any { return new(coretypes.Transaction) },
