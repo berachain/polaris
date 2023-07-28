@@ -46,12 +46,18 @@ import (
 func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []libgenerated.CosmosCoin {
 	evmCoins := make([]libgenerated.CosmosCoin, len(sdkCoins))
 	for i, coin := range sdkCoins {
-		evmCoins[i] = libgenerated.CosmosCoin{
-			Amount: coin.Amount.BigInt(),
-			Denom:  coin.Denom,
-		}
+		evmCoins[i] = SdkCoinToEvmCoin(coin)
 	}
 	return evmCoins
+}
+
+// SdkCoinsToEvmCoin converts sdk.Coin into libgenerated.CosmosCoin.
+func SdkCoinToEvmCoin(coin sdk.Coin) libgenerated.CosmosCoin {
+	evmCoin := libgenerated.CosmosCoin{
+		Amount: coin.Amount.BigInt(),
+		Denom:  coin.Denom,
+	}
+	return evmCoin
 }
 
 // ExtractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
@@ -81,22 +87,20 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	return sdkCoins, nil
 }
 
-// SdkCoinsToUnnamedCoins converts sdk.Coins into an unnamed struct.
-func SdkCoinsToUnnamedCoins(coins sdk.Coins) any {
-	unnamedCoins := []struct {
+// ExtractCoinFromInputToCoin converts a coin from input (of type any) into sdk.Coins.
+func ExtractCoinFromInputToCoin(coin any) (sdk.Coin, error) {
+	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
+	// the any type input into IBankModuleCoin.
+	amounts, ok := utils.GetAs[struct {
 		Amount *big.Int `json:"amount"`
 		Denom  string   `json:"denom"`
-	}{}
-	for _, coin := range coins {
-		unnamedCoins = append(unnamedCoins, struct {
-			Amount *big.Int `json:"amount"`
-			Denom  string   `json:"denom"`
-		}{
-			Amount: coin.Amount.BigInt(),
-			Denom:  coin.Denom,
-		})
+	}](coin)
+	if !ok {
+		return sdk.Coin{}, precompile.ErrInvalidCoin
 	}
-	return unnamedCoins
+
+	sdkCoin := sdk.NewCoin(amounts.Denom, sdkmath.NewIntFromBigInt(amounts.Amount))
+	return sdkCoin, nil
 }
 
 // GetGrantAsSendAuth maps a list of grants to a list of send authorizations.
