@@ -78,7 +78,7 @@ func NewRootCmd() *cobra.Command {
 		autoCliOpts        autocli.AppOptions
 		moduleBasicManager module.BasicManager
 	)
-  
+
 	if err := depinject.Inject(depinject.Configs(testapp.AppConfig, depinject.Supply(
 		evmmempool.NewPolarisEthereumTxPool(), log.NewNopLogger()), depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners)),
 		&interfaceRegistry,
@@ -127,8 +127,8 @@ func NewRootCmd() *cobra.Command {
 			txConfigWithTextual, err := tx.NewTxConfigWithOptions(
 				codec.NewProtoCodec(interfaceRegistry),
 				tx.ConfigOptions{
-				  TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx),
-			  },
+					TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx),
+				},
 			)
 			if err != nil {
 				return err
