@@ -5,10 +5,10 @@ import (
 	"log"
 
 	cosmosflags "github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	genutilflags "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/spf13/cobra"
+	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	"pkg.berachain.dev/polaris/genbuild/utils"
 )
 
@@ -83,7 +83,7 @@ func runInit(cmd *cobra.Command, args []string) {
 		map[string]string{
 			cosmosflags.FlagHome:           homeDir,
 			cosmosflags.FlagKeyringBackend: keyring.BackendTest,
-			cosmosflags.FlagKeyType:        fmt.Sprintf("eth_%s", string(hd.Secp256k1Type)),
+			cosmosflags.FlagKeyType:        ethsecp256k1.KeyType,
 		}); err != nil {
 		log.Fatal(err)
 	}
