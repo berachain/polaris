@@ -18,36 +18,34 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-CONTAINER0="polard-node0"
-CONTAINER1="polard-node1"
+NODE_COUNT="$1"
+CONTAINER_PREFIX="polard-node"
 HOMEDIR="/root/.polard"
-SCRIPTS="/scripts"
+CHAINID="polaris-2061"
+: "${NODE_COUNT:?Argument (node count) not passed}"
 
-# init step 1
-docker exec $CONTAINER0 bash -c "$SCRIPTS/seed0-init-step1.sh"
-docker exec $CONTAINER1 bash -c "$SCRIPTS/seed1-init-step1.sh seed-1"
+# init nodes
+for ((i=0; i<NODE_COUNT; i++))
+do
+  docker exec "$CONTAINER_PREFIX$i" bash -c "genbuild init $CONTAINER_PREFIX$i --home $HOMEDIR --chain-id $CHAINID"
+done
 
-# copy genesis.json from seed-0 to seed-1
-docker cp $CONTAINER0:$HOMEDIR/config/genesis.json ./temp/genesis.json
-docker cp ./temp/genesis.json $CONTAINER1:$HOMEDIR/config/genesis.json
+# copy all gentx to container 0
+for ((i=1; i<NODE_COUNT; i++))
+do
+  docker cp "$CONTAINER_PREFIX$i":$HOMEDIR/config/gentx ./temp
+  docker cp ./temp/gentx "$CONTAINER_PREFIX"0:$HOMEDIR/config
+done
 
-# init step 2
-docker exec $CONTAINER1 bash -c "$SCRIPTS/seed1-init-step2.sh seed-1"
+# update genesis file using gentx
+docker exec "$CONTAINER_PREFIX"0 bash -c "genbuild collect --home $HOMEDIR"
 
-# copy genesis.json from seed-1 to seed-0
-docker cp $CONTAINER1:$HOMEDIR/config/genesis.json ./temp/genesis.json
-docker cp ./temp/genesis.json $CONTAINER0:$HOMEDIR/config/genesis.json
-
-# copy gentx
-docker cp $CONTAINER1:$HOMEDIR/config/gentx ./temp/gentx
-docker cp ./temp/gentx $CONTAINER0:$HOMEDIR/config
-
-# init step 2
-docker exec $CONTAINER0 bash -c "$SCRIPTS/seed0-init-step2.sh"
-
-# copy genesis.json from seed-0 to seed-1
-docker cp $CONTAINER0:$HOMEDIR/config/genesis.json ./temp/genesis.json
-docker cp ./temp/genesis.json $CONTAINER1:$HOMEDIR/config/genesis.json
+# copy genesis file to all containers
+docker cp "$CONTAINER_PREFIX"0:$HOMEDIR/config/genesis.json ./temp/genesis.json
+for ((i=1; i<NODE_COUNT; i++))
+do
+  docker cp ./temp/genesis.json "$CONTAINER_PREFIX$i":$HOMEDIR/config/genesis.json
+done
 
 # start
 # docker exec -it $CONTAINER0 bash -c "$SCRIPTS/seed-start.sh"

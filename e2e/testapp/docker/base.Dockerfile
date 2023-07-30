@@ -53,6 +53,7 @@ COPY ./lib/go.sum ./lib/go.mod ./lib/
 COPY ./magefiles/go.sum ./magefiles/go.mod ./magefiles/
 COPY ./e2e/localnet/go.sum ./e2e/localnet/go.mod ./e2e/localnet/
 COPY ./e2e/testapp/go.sum ./e2e/testapp/go.mod ./e2e/testapp/
+COPY ./genbuild/go.sum ./genbuild/go.mod ./genbuild/
 
 # Download the go module dependencies
 RUN go mod download
@@ -67,6 +68,13 @@ ARG GOOS
 ARG APP_NAME
 ARG DB_BACKEND
 ARG CMD_PATH
+
+RUN env GOOS=${GOOS} GOARCH=${GOARCH} && \
+    go build \
+    -mod=readonly \
+    -trimpath \
+    -o /workdir/bin/ \
+    ./genbuild
 
 # Build Executable
 RUN VERSION=$(echo $(git describe --tags) | sed 's/^v//') && \
@@ -99,3 +107,4 @@ ARG APP_NAME
 
 # Copy over built executable into a fresh container.
 COPY --from=builder /workdir/bin/${APP_NAME} /bin/
+COPY --from=builder /workdir/bin/genbuild /bin/
