@@ -23,13 +23,7 @@ CONTAINER1="polard-node1"
 HOMEDIR="/root/.polard"
 SCRIPTS="/scripts"
 
-rm -rf ./temp
-mkdir ./temp
-mkdir ./temp/seed0
-mkdir ./temp/seed1
-touch ./temp/genesis.json
-
-# init step 1 
+# init step 1
 docker exec $CONTAINER0 bash -c "$SCRIPTS/seed0-init-step1.sh"
 docker exec $CONTAINER1 bash -c "$SCRIPTS/seed1-init-step1.sh seed-1"
 
@@ -46,7 +40,7 @@ docker cp ./temp/genesis.json $CONTAINER0:$HOMEDIR/config/genesis.json
 
 # copy gentx
 docker cp $CONTAINER1:$HOMEDIR/config/gentx ./temp/gentx
-docker cp ./temp/gentx $CONTAINER0:$HOMEDIR/config 
+docker cp ./temp/gentx $CONTAINER0:$HOMEDIR/config
 
 # init step 2
 docker exec $CONTAINER0 bash -c "$SCRIPTS/seed0-init-step2.sh"
