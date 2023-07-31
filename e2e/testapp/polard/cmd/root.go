@@ -194,7 +194,7 @@ func initRootCmd(
 		genesisCommand(txConfig, basicManager),
 		queryCommand(),
 		txCommand(),
-		keys.Commands(testapp.DefaultNodeHome),
+		keys.Commands(),
 	)
 }
 

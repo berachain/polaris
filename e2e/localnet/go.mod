@@ -5,7 +5,7 @@ go 1.20
 replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230629154458-90866dc0cf0a
 
 require (
-	github.com/cosmos/cosmos-sdk v0.50.0-beta.0.0.20230727121850-bd61e84ef162
+	github.com/cosmos/cosmos-sdk v0.50.0-beta.0.0.20230731131214-515042bb2e49
 	github.com/docker/docker v23.0.3+incompatible
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/onsi/ginkgo/v2 v2.11.0
@@ -25,7 +25,7 @@ require (
 	cosmossdk.io/errors v1.0.0 // indirect
 	cosmossdk.io/log v1.1.1-0.20230704160919-88f2c830b0ca // indirect
 	cosmossdk.io/math v1.0.1 // indirect
-	cosmossdk.io/store v1.0.0-alpha.1 // indirect
+	cosmossdk.io/store v1.0.0-alpha.1.0.20230728080422-54ed7dab3982 // indirect
 	cosmossdk.io/x/tx v0.9.1 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
@@ -187,8 +187,8 @@ require (
 	golang.org/x/tools v0.9.3 // indirect
 	google.golang.org/genproto v0.0.0-20230706204954-ccb25ca9f130 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230711160842-782d3b101e98 // indirect
-	google.golang.org/grpc v1.56.2 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230726155614-23370e0ffb3e // indirect
+	google.golang.org/grpc v1.57.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
