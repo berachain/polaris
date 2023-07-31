@@ -54,15 +54,6 @@ func NewFromTransaction(tx *coretypes.Transaction) *WrappedEthereumTransaction {
 	}
 }
 
-// GetSigners returns the address(es) that must sign over the transaction.
-func (etr *WrappedEthereumTransaction) GetSigners() []sdk.AccAddress {
-	sender, err := etr.GetSender()
-	if err != nil {
-		return nil
-	}
-	return []sdk.AccAddress{sdk.AccAddress(sender.Bytes())}
-}
-
 // AsTransaction extracts the transaction as an `coretypes.Transaction`.
 func (etr *WrappedEthereumTransaction) AsTransaction() *coretypes.Transaction {
 	tx := new(coretypes.Transaction)
@@ -87,26 +78,10 @@ func (etr *WrappedEthereumTransaction) GetSender() (common.Address, error) {
 }
 
 // GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
-func (etr *WrappedEthereumTransaction) GetPubKey() ([]byte, error) {
-	tx := etr.AsTransaction()
-	signer := coretypes.LatestSignerForChainID(tx.ChainId())
-	return signer.PubKey(tx)
-}
-
-// GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
 func (etr *WrappedEthereumTransaction) GetSignature() ([]byte, error) {
 	tx := etr.AsTransaction()
 	signer := coretypes.LatestSignerForChainID(tx.ChainId())
 	return signer.Signature(tx)
-}
-
-// GetGas returns the gas limit of the transaction.
-func (etr *WrappedEthereumTransaction) GetGas() uint64 {
-	var tx *coretypes.Transaction
-	if tx = etr.AsTransaction(); tx == nil {
-		return 0
-	}
-	return tx.Gas()
 }
 
 // GetGasPrice returns the gas price of the transaction.

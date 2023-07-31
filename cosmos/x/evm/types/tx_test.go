@@ -23,8 +23,6 @@ package types_test
 import (
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
@@ -58,9 +56,6 @@ var _ = Describe("WrappedEthereumTransaction", func() {
 
 		It("should return the correct signer", func() {
 			Expect(etr.GetSender()).To(Equal(address))
-			Expect(etr.GetSigners()).To(Equal([]sdk.AccAddress{address.Bytes()}))
-			_, err := etr.GetSignature()
-			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 
@@ -82,9 +77,6 @@ var _ = Describe("WrappedEthereumTransaction", func() {
 
 		It("should return the correct signer", func() {
 			Expect(etr.GetSender()).To(Equal(address))
-			Expect(etr.GetSigners()).To(Equal([]sdk.AccAddress{address.Bytes()}))
-			_, err := etr.GetSignature()
-			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 })
