@@ -23,7 +23,6 @@ package erc20
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -179,7 +178,6 @@ func (c *Contract) transferERC20ToCoin(
 		},
 	)
 	if err != nil {
-		fmt.Println("coin denom for erc20 address: ", err)
 		return err
 	}
 
@@ -208,7 +206,6 @@ func (c *Contract) transferERC20ToCoin(
 		if balanceBefore, err = getBalanceOf(
 			sdkCtx, plugin, evm, erc20Module, token, c.polarisERC20ABI, erc20Module,
 		); err != nil {
-			fmt.Println("get balance of: ", err)
 			return err
 		}
 
@@ -219,7 +216,6 @@ func (c *Contract) transferERC20ToCoin(
 			erc20Module, token, c.polarisERC20ABI, common.Big0,
 			transferFrom, owner, erc20Module, amount,
 		); err != nil {
-			fmt.Println("call evm from precompile: ", err)
 			return err
 		}
 
@@ -227,7 +223,6 @@ func (c *Contract) transferERC20ToCoin(
 		if balanceAfter, err = getBalanceOf(
 			sdkCtx, plugin, evm, erc20Module, token, c.polarisERC20ABI, erc20Module,
 		); err != nil {
-			fmt.Println("get balance of 2: ", err)
 			return err
 		}
 
@@ -241,14 +236,12 @@ func (c *Contract) transferERC20ToCoin(
 			c.RegistryKey(), token, c.polarisERC20ABI, common.Big0,
 			burn, owner, amount,
 		); err != nil {
-			fmt.Println("call evm from precompile 2: ", err)
 			return err
 		}
 	}
 
 	// mint amount SDK/Polaris Coins to recipient
 	if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, recipient, denom, amount); err != nil {
-		fmt.Println("mint coins to address: ", err)
 		return err
 	}
 
@@ -262,7 +255,6 @@ func (c *Contract) transferERC20ToCoin(
 			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()+denom),
 		),
 	)
-	fmt.Println("event emitted")
 	return nil
 }
 
