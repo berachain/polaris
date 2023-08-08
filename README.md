@@ -34,7 +34,7 @@ Polaris is built with several core principles in mind:
 2. **Configurability**: We want Polaris to be accessible to as many teams and use cases as possible. To support this, our framework is highly configurable, allowing you to tailor it to your specific needs.
 3. **Performance**: In today's competitive crypto landscape, performance is key. Polaris is optimized to deliver the highest levels of performance and efficiency.
 4. **Contributor Friendliness**: We believe that open collaboration is key to driving innovation in blockchain development. While Polaris is currently licensed under BUSL-1.1, we plan to adjust our licensing to support contributor-based schemes as we approach production readiness.
-5. **Memes**: If ur PR doesn't have a meme in it like idk sry bro, gg wp ghlf.
+5. **Memes**: If ur PR doesn't have a meme in it like idk sry bro, gg wp glhf.
 
 ## Documentation
 
