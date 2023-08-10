@@ -5,16 +5,16 @@ go 1.20
 replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230629154458-90866dc0cf0a
 
 require (
-	github.com/cosmos/cosmos-sdk v0.50.0-beta.0.0.20230731131214-515042bb2e49
+	github.com/cosmos/cosmos-sdk v0.50.0-beta.0.0.20230803231313-69db56b49bb7
 	github.com/docker/docker v23.0.3+incompatible
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.8
 	github.com/ory/dockertest v3.3.5+incompatible
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230720022139-37f587ddf39e
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20230720022139-37f587ddf39e
-	pkg.berachain.dev/polaris/eth v0.0.0-20230720022139-37f587ddf39e
-	pkg.berachain.dev/polaris/lib v0.0.0-20230720022139-37f587ddf39e
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230810045725-b6ed353ceb0e
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20230810045725-b6ed353ceb0e
+	pkg.berachain.dev/polaris/eth v0.0.0-20230810045725-b6ed353ceb0e
+	pkg.berachain.dev/polaris/lib v0.0.0-20230810045725-b6ed353ceb0e
 )
 
 require (
@@ -23,7 +23,7 @@ require (
 	cosmossdk.io/core v0.9.0 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.3.0.20230608151552-9b9e319d1abc // indirect
 	cosmossdk.io/errors v1.0.0 // indirect
-	cosmossdk.io/log v1.1.1-0.20230704160919-88f2c830b0ca // indirect
+	cosmossdk.io/log v1.2.0 // indirect
 	cosmossdk.io/math v1.0.1 // indirect
 	cosmossdk.io/store v1.0.0-alpha.1.0.20230728080422-54ed7dab3982 // indirect
 	cosmossdk.io/x/tx v0.9.1 // indirect
@@ -38,11 +38,11 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
-	github.com/bytedance/sonic v1.9.2 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/cockroachdb/errors v1.10.0 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/pebble v0.0.0-20230711190327-88bbab59ff4f // indirect
@@ -153,7 +153,7 @@ require (
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/rs/cors v1.8.3 // indirect
-	github.com/rs/zerolog v1.29.1 // indirect
+	github.com/rs/zerolog v1.30.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect

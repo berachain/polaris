@@ -14,8 +14,8 @@ require (
 	cosmossdk.io/tools/confix v0.0.0-20230608151552-9b9e319d1abc
 	cosmossdk.io/x/evidence v0.0.0-20230719143845-dff6b0e26aa4
 	cosmossdk.io/x/upgrade v0.0.0-20230704191127-8d80df8e3c5a
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20230727190653-8aae2e78f0a5
-	pkg.berachain.dev/polaris/eth v0.0.0-20230720022139-37f587ddf39e
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20230810045725-b6ed353ceb0e
+	pkg.berachain.dev/polaris/eth v0.0.0-20230810045725-b6ed353ceb0e
 )
 
 require (
@@ -24,7 +24,7 @@ require (
 	cosmossdk.io/core v0.9.0
 	cosmossdk.io/depinject v1.0.0-alpha.3.0.20230608151552-9b9e319d1abc
 	cosmossdk.io/errors v1.0.0 // indirect
-	cosmossdk.io/log v1.1.1-0.20230704160919-88f2c830b0ca
+	cosmossdk.io/log v1.2.0
 	cosmossdk.io/math v1.0.1 // indirect
 	cosmossdk.io/store v1.0.0-alpha.1.0.20230728080422-54ed7dab3982
 	cosmossdk.io/x/tx v0.9.1 // indirect
@@ -33,7 +33,7 @@ require (
 	github.com/cometbft/cometbft v0.38.0-rc3
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
-	github.com/cosmos/cosmos-sdk v0.50.0-beta.0.0.20230731131214-515042bb2e49
+	github.com/cosmos/cosmos-sdk v0.50.0-beta.0.0.20230803231313-69db56b49bb7
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogoproto v1.4.10 // indirect
 	github.com/ethereum/go-ethereum v1.12.0 // indirect
@@ -208,7 +208,7 @@ require (
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/rs/cors v1.8.3 // indirect
-	github.com/rs/zerolog v1.29.1 // indirect
+	github.com/rs/zerolog v1.30.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect

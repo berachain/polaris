@@ -42,10 +42,10 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230720022139-37f587ddf39e
-	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230720022139-37f587ddf39e
-	pkg.berachain.dev/polaris/eth v0.0.0-20230720022139-37f587ddf39e
-	pkg.berachain.dev/polaris/lib v0.0.0-20230720022139-37f587ddf39e
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230810045725-b6ed353ceb0e
+	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230810045725-b6ed353ceb0e
+	pkg.berachain.dev/polaris/eth v0.0.0-20230810045725-b6ed353ceb0e
+	pkg.berachain.dev/polaris/lib v0.0.0-20230810045725-b6ed353ceb0e
 )
 
 require (
@@ -63,7 +63,6 @@ require (
 	github.com/bits-and-blooms/bitset v1.8.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1 // indirect
-	github.com/bytedance/sonic v1.9.2 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
@@ -94,6 +93,8 @@ require (
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
+	github.com/docker/distribution v2.8.2+incompatible // indirect
+	github.com/docker/docker v23.0.3+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect

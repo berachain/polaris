@@ -12,8 +12,8 @@ require (
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.8
 	golang.org/x/text v0.11.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230720022139-37f587ddf39e
-	pkg.berachain.dev/polaris/lib v0.0.0-20230720022139-37f587ddf39e
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230810045725-b6ed353ceb0e
+	pkg.berachain.dev/polaris/lib v0.0.0-20230810045725-b6ed353ceb0e
 )
 
 require (
