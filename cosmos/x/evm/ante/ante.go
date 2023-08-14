@@ -29,10 +29,8 @@ import (
 	"pkg.berachain.dev/polaris/lib/errors"
 )
 
-// ValidateBasicDecorator will call tx.ValidateBasic and return any non-nil error.
-// If ValidateBasic passes, decorator calls next AnteHandler in chain. Note,
-// ValidateBasicDecorator decorator will not get executed on ReCheckTx since it
-// is not dependent on application state.
+// IsEvmTxDecorator ensures a transaction has only 1 message and
+// that the sole message is a `WrappedEthereumTransaction`.
 type IsEvmTxDecorator struct{}
 
 func NewIsEvmTxDecorator() IsEvmTxDecorator {
