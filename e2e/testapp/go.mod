@@ -1,6 +1,6 @@
 module pkg.berachain.dev/polaris/e2e/testapp
 
-go 1.20
+go 1.21
 
 replace (
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
@@ -10,10 +10,10 @@ replace (
 )
 
 require (
-	cosmossdk.io/client/v2 v2.0.0-20230719143845-dff6b0e26aa4
-	cosmossdk.io/tools/confix v0.0.0-20230608151552-9b9e319d1abc
-	cosmossdk.io/x/evidence v0.0.0-20230719143845-dff6b0e26aa4
-	cosmossdk.io/x/upgrade v0.0.0-20230704191127-8d80df8e3c5a
+	cosmossdk.io/client/v2 v2.0.0-20230813132910-3a96bb9f7f14
+	cosmossdk.io/tools/confix v0.0.0-20230813132910-3a96bb9f7f14
+	cosmossdk.io/x/evidence v0.0.0-20230813132910-3a96bb9f7f14
+	cosmossdk.io/x/upgrade v0.0.0-20230813132910-3a96bb9f7f14
 	pkg.berachain.dev/polaris/cosmos v0.0.0-20230810045725-b6ed353ceb0e
 	pkg.berachain.dev/polaris/eth v0.0.0-20230810045725-b6ed353ceb0e
 )
@@ -22,7 +22,7 @@ require (
 	cosmossdk.io/api v0.7.0
 	cosmossdk.io/collections v0.3.0 // indirect
 	cosmossdk.io/core v0.9.0
-	cosmossdk.io/depinject v1.0.0-alpha.3.0.20230608151552-9b9e319d1abc
+	cosmossdk.io/depinject v1.0.0-alpha.4
 	cosmossdk.io/errors v1.0.0 // indirect
 	cosmossdk.io/log v1.2.0
 	cosmossdk.io/math v1.0.1 // indirect
@@ -33,7 +33,7 @@ require (
 	github.com/cometbft/cometbft v0.38.0-rc3
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
-	github.com/cosmos/cosmos-sdk v0.50.0-beta.0.0.20230803231313-69db56b49bb7
+	github.com/cosmos/cosmos-sdk v0.50.0-beta.0.0.20230813132910-3a96bb9f7f14
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogoproto v1.4.10 // indirect
 	github.com/ethereum/go-ethereum v1.12.0 // indirect
@@ -113,7 +113,7 @@ require (
 	github.com/fjl/memsize v0.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gballet/go-libpcsclite v0.0.0-20191108122812-4678299bea08 // indirect
-	github.com/getsentry/sentry-go v0.22.0 // indirect
+	github.com/getsentry/sentry-go v0.23.0 // indirect
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
@@ -241,9 +241,9 @@ require (
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/oauth2 v0.8.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/term v0.10.0 // indirect
-	golang.org/x/text v0.11.0 // indirect
+	golang.org/x/text v0.12.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.9.3 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
