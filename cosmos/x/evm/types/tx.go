@@ -41,7 +41,6 @@ import (
 
 // WrappedEthereumTransaction defines a Cosmos SDK message for Ethereum transactions.
 var _ sdk.Msg = (*WrappedEthereumTransaction)(nil)
-var _ sdk.TxWithMemo = (*WrappedEthereumTransaction)(nil)
 
 // NewFromTransaction sets the transaction data from an `coretypes.Transaction`.
 func NewFromTransaction(tx *coretypes.Transaction) *WrappedEthereumTransaction {
@@ -108,29 +107,6 @@ func (etr *WrappedEthereumTransaction) GetGas() uint64 {
 		return 0
 	}
 	return tx.Gas()
-}
-
-// GetMemo implements sdk.TxWithMemo
-func (etr *WrappedEthereumTransaction) GetMemo() string {
-	var tx *coretypes.Transaction
-	if tx = etr.AsTransaction(); tx == nil {
-		return ""
-	}
-	return string(tx.Data())
-}
-
-// GetMsgs implements sdk.TxWithMemo
-func (etr *WrappedEthereumTransaction) GetMsgs() []sdk.Msg {
-	return []sdk.Msg{etr}
-}
-
-// GetMsgV2 implements sdk.TxWithMemo
-func (etr *WrappedEthereumTransaction) GetMsgsV2() ([]proto.Message, error) {
-	return []proto.Message{
-		&v1alpha1evm.WrappedEthereumTransaction{
-			Data: etr.Data,
-		},
-	}, nil
 }
 
 // GetGasPrice returns the gas price of the transaction.
