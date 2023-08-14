@@ -39,6 +39,15 @@ const (
 	TxTimeout      = 30 * time.Second
 )
 
+func DefaultPolarisFixtureConfig() *FixtureConfig {
+	return &FixtureConfig{
+		configPath:    "../config/polaris.json",
+		containerName: "polaris",
+		baseImage:     "polaris",
+		goVersion:     "1.15",
+	}
+}
+
 // ExpectedMined waits for a transaction to be mined.
 func ExpectMined(client *ethclient.Client, tx *coretypes.Transaction) {
 	// Wait for the transaction to be mined.
