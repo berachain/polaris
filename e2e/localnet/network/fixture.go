@@ -26,6 +26,7 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	ginkgo "github.com/onsi/ginkgo/v2"
@@ -42,13 +43,13 @@ import (
 )
 
 const (
-	relativeKeysPath = "../ethkeys/"
-	genFilePath      = "../genesis.json"
+	relativeKeysPath = "ethkeys/"
+	genFilePath      = "genesis.json"
 )
 
 // FixtureConfig is a type defining the configuration of a TestFixture.
 type FixtureConfig struct {
-	configPath string
+	path string
 
 	baseImage     string
 	containerName string
@@ -57,9 +58,28 @@ type FixtureConfig struct {
 	goVersion     string
 }
 
-func NewFixtureConfig(configPath, baseImage, containerName, httpAddress, wsAdddress, goVersion string) *FixtureConfig {
+// NewFixtureConfig creates a new FixtureConfig and infers the config directory
+// absolute path from given relative path.
+// requires: the configRelativePath to be relative to the file calling NewFixtureConfig.
+func NewFixtureConfig(
+	configRelativePath,
+	baseImage,
+	containerName,
+	httpAddress,
+	wsAdddress,
+	goVersion string,
+) *FixtureConfig {
+	// Get file path of the caller of NewFixtureConfig.
+	_, caller, _, ok := runtime.Caller(1)
+	if !ok {
+		panic("failed to get caller")
+	}
+	configPath, err := filepath.Abs(filepath.Join(filepath.Dir(caller), configRelativePath))
+	if err != nil {
+		panic(err)
+	}
 	return &FixtureConfig{
-		configPath:    configPath,
+		path:          configPath,
 		baseImage:     baseImage,
 		containerName: containerName,
 		httpAddress:   httpAddress,
@@ -155,13 +175,8 @@ func (tf *TestFixture) ValAddr() common.Address {
 
 // setupTestAccounts loads the test account private keys and validator public key.
 func (tf *TestFixture) setupTestAccounts(config *FixtureConfig) error {
-	absConfigPath, err := filepath.Abs(config.configPath)
-	if err != nil {
-		return err
-	}
-
 	// read the test account private keys from the keys directory
-	keysPath := filepath.Join(absConfigPath, relativeKeysPath)
+	keysPath := filepath.Join(config.path, relativeKeysPath)
 	keyFiles, err := os.ReadDir(filepath.Clean(keysPath))
 	if err != nil {
 		return err
@@ -179,7 +194,7 @@ func (tf *TestFixture) setupTestAccounts(config *FixtureConfig) error {
 	}
 
 	// read the validator public key from the genesis file
-	genFile := filepath.Join(absConfigPath, genFilePath)
+	genFile := filepath.Join(config.path, genFilePath)
 	genBz, err := os.ReadFile(filepath.Clean(genFile))
 	if err != nil {
 		return err

@@ -22,8 +22,6 @@ package utils
 
 import (
 	"context"
-	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -41,24 +39,23 @@ const (
 	DefaultTimeout = 15 * time.Second
 	TxTimeout      = 30 * time.Second
 
-	polardConfigPath = "../polard/config/"
+	polardConfigPath  = "../polard/config/"
+	polardBaseImage   = "polard/base:v0.0.0"
+	containerName     = "goodcontainer"
+	polardHTTPAddress = "8545/tcp"
+	polardWSAddress   = "8546/tcp"
+	goVersion         = "1.20.4"
 )
 
 // NewPolarisFixtureConfig returns a polaris fixture config.
 func NewPolarisFixtureConfig() *network.FixtureConfig {
-	_, absFilePath, _, ok := runtime.Caller(1)
-	if !ok {
-		panic("unable to get polard config path")
-	}
-	absDirPath := filepath.Dir(absFilePath)
-	configPath := filepath.Join(absDirPath, polardConfigPath)
 	return network.NewFixtureConfig(
-		configPath,
-		"polard/base:v0.0.0",
-		"goodcontainer",
-		"8545/tcp",
-		"8546/tcp",
-		"1.20.4",
+		polardConfigPath,
+		polardBaseImage,
+		containerName,
+		polardHTTPAddress,
+		polardWSAddress,
+		goVersion,
 	)
 }
 
