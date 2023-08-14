@@ -39,7 +39,9 @@ func NewIsEvmTxDecorator() IsEvmTxDecorator {
 	return IsEvmTxDecorator{}
 }
 
-func (ietd IsEvmTxDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
+func (ietd IsEvmTxDecorator) AnteHandle(
+	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
+) (sdk.Context, error) {
 	// Only 1 transaction per message.
 	if len(tx.GetMsgs()) != 1 {
 		return ctx, errors.Wrap(sdkerrors.ErrUnknownRequest, "tx must contain exactly one message")
