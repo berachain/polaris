@@ -25,10 +25,35 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
-	antelib "pkg.berachain.dev/polaris/cosmos/lib/ante"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/lib/errors"
 )
+
+// ValidateBasicDecorator will call tx.ValidateBasic and return any non-nil error.
+// If ValidateBasic passes, decorator calls next AnteHandler in chain. Note,
+// ValidateBasicDecorator decorator will not get executed on ReCheckTx since it
+// is not dependent on application state.
+type IsEvmTxDecorator struct{}
+
+func NewIsEvmTxDecorator() IsEvmTxDecorator {
+	return IsEvmTxDecorator{}
+}
+
+func (ietd IsEvmTxDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
+	// Only 1 transaction per message.
+	if len(tx.GetMsgs()) != 1 {
+		return ctx, errors.Wrap(sdkerrors.ErrUnknownRequest, "tx must contain exactly one message")
+	}
+
+	if _, ok := tx.GetMsgs()[0].(*types.WrappedEthereumTransaction); !ok {
+		// For handling genesis state. (hacky af but yolo).
+		if ctx.BlockHeight() != 0 {
+			return ctx, errors.Wrap(sdkerrors.ErrUnknownRequest, "tx must be an Ethereum transaction")
+		}
+	}
+
+	return next(ctx, tx, simulate)
+}
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
@@ -38,54 +63,11 @@ func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
 		return nil, errors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
 	}
 
-	if options.BankKeeper == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
-	}
-
-	if options.SignModeHandler == nil {
-		return nil, errors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
-	}
-
 	anteDecorators := []sdk.AnteDecorator{
-		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
-		ante.NewValidateBasicDecorator(),
-		ante.NewTxTimeoutHeightDecorator(),
-		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		// EthTransactions can skip consuming transaction gas as it will be done
-		// in the StateTransition.
-		antelib.NewIgnoreDecorator[ante.ConsumeTxSizeGasDecorator, *types.WrappedEthereumTransaction](
-			ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		),
-		// EthTransaction can skip deduct fee transactions as they are done in the
-		// StateTransition. // TODO: check to make sure this doesn't cause spam.
-		antelib.NewIgnoreDecorator[ante.DeductFeeDecorator, *types.WrappedEthereumTransaction](
-			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
-				options.FeegrantKeeper, options.TxFeeChecker),
-		),
-		ante.NewSetPubKeyDecorator(options.AccountKeeper),
-		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		// In order to match ethereum gas consumption, we do not consume any gas when
-		// verifying the signature.
-		antelib.NewIgnoreDecorator[ante.SigGasConsumeDecorator, *types.WrappedEthereumTransaction](
-			ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		),
-		// EthTransaction can skip Signature Verification as we do this in the mempool.
-		// TODO: // check with Marko to make sure this is okay (ties into the one below)
-		antelib.NewIgnoreDecorator[ante.SigVerificationDecorator, *types.WrappedEthereumTransaction](
-			ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
-		),
-		// EthTransactions are allowed to skip sequence verification as we do this in the
-		// state transition.
-		// NOTE: we may need to change this as it could cause issues if a client is intertwining
-		// Ethreum and Cosmos transactions within a close timeframe.
-		// By skipping this for Eth Transactions, the Account Seq of the sender does not get updated
-		// in checkState during checkTx, but only in DeliverTx, since we are upping in nonce during the
-		// actual execution of the block and not during the ante handler.
-		// TODO: // check with Marko to make sure this is okay.
-		antelib.NewIgnoreDecorator[ante.IncrementSequenceDecorator, *types.WrappedEthereumTransaction](
-			ante.NewIncrementSequenceDecorator(options.AccountKeeper),
-		),
+		ante.NewSetUpContextDecorator(),                   // outermost AnteDecorator. SetUpContext must be called first
+		IsEvmTxDecorator{},                                // only accept evm transactions on polaris chains.
+		ante.NewValidateBasicDecorator(),                  // run validate basic on the evm transaction.
+		ante.NewSetPubKeyDecorator(options.AccountKeeper), // we can probably remove?
 	}
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }

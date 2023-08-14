@@ -21,6 +21,7 @@
 package testapp
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -121,6 +122,17 @@ func init() {
 	DefaultNodeHome = filepath.Join(userHomeDir, ".polard")
 }
 
+type TestDeliverTxHandler struct{}
+
+func (tdth TestDeliverTxHandler) ExecuteGenesisTx([]byte) error {
+	return nil
+}
+
+func (*SimApp) ExecuteGenesisTx([]byte) error {
+	fmt.Println("HENLO123")
+	return nil
+}
+
 // NewPolarisApp returns a reference to an initialized SimApp.
 //
 //nolint:funlen // from sdk.
@@ -149,6 +161,7 @@ func NewPolarisApp(
 				ethTxMempool,
 				// ADVANCED CONFIGURATION
 				PrecompilesToInject(app),
+				&TestDeliverTxHandler{},
 				//
 				// AUTH
 				//
