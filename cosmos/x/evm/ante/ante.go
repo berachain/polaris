@@ -49,7 +49,11 @@ func (ietd IsEvmTxDecorator) AnteHandle(
 
 	if _, ok := tx.GetMsgs()[0].(*types.WrappedEthereumTransaction); !ok {
 		// For handling genesis state. (hacky af but yolo).
-		if ctx.BlockHeight() != 0 {
+
+		// This allows for the genutil to call deliverTx on the genesis state.
+		// Another option: / if ctx.BlockHeight() != 0
+		// TODO: verify if this is safe condition.
+		if ctx.IsCheckTx() || ctx.IsReCheckTx() {
 			return ctx, errors.Wrap(sdkerrors.ErrUnknownRequest, "tx must be an Ethereum transaction")
 		}
 	}
