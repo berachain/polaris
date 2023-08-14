@@ -50,3 +50,16 @@ func (Localnet) Build(client string) error {
 			)
 		}, false)
 }
+
+// Runs the localnet tooling sanity tests.
+func (Localnet) Test() error {
+	if err := (Contracts{}).Build(); err != nil {
+		return err
+	}
+	LogGreen("Running all localnet tests")
+	args := []string{
+		"-timeout", "30m",
+		"--focus", ".*e2e/localnet.*",
+	}
+	return ginkgoTest(args...)
+}
