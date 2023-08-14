@@ -56,7 +56,7 @@ var _ = Describe("ERC20", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT())
+		tf = network.NewTestFixture(GinkgoT(), NewPolarisFixtureConfig())
 		bankPrecompile, _ = bbindings.NewBankModule(
 			common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient(),
 		)

@@ -26,7 +26,6 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	ginkgo "github.com/onsi/ginkgo/v2"
@@ -45,7 +44,6 @@ import (
 const (
 	relativeKeysPath = "../ethkeys/"
 	genFilePath      = "../genesis.json"
-	polardConfigPath = "../polard/config/"
 )
 
 // FixtureConfig is a type defining the configuration of a TestFixture.
@@ -68,23 +66,6 @@ func NewFixtureConfig(configPath, baseImage, containerName, httpAddress, wsAdddr
 		wsAdddress:    wsAdddress,
 		goVersion:     goVersion,
 	}
-}
-
-func NewDefaultFixtureConfig() *FixtureConfig {
-	_, absFilePath, _, ok := runtime.Caller(1)
-	if !ok {
-		panic("unable to get polard config path")
-	}
-	absDirPath := filepath.Dir(absFilePath)
-	configPath := filepath.Join(absDirPath, polardConfigPath)
-	return NewFixtureConfig(
-		configPath,
-		"polard/base:v0.0.0",
-		"goodcontainer",
-		"8545/tcp",
-		"8546/tcp",
-		"1.20.4",
-	)
 }
 
 // TestFixture is a testing fixture that runs a single Polaris validator node in a Docker container.

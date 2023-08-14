@@ -56,7 +56,7 @@ var _ = Describe("Distribution Precompile", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT())
+		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 		// Setup the governance precompile.
 		precompile, _ = bindings.NewDistributionModule(
 			common.HexToAddress("0x69"),
