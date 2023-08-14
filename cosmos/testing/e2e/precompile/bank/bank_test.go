@@ -50,7 +50,7 @@ var _ = Describe("Bank", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = localnet.NewTestFixture(GinkgoT())
+		tf = localnet.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 		bankPrecompile, _ = bindings.NewBankModule(
 			common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient())
 	})

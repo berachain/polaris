@@ -41,7 +41,7 @@ var _ = Describe("Miscellaneous Precompile Tests", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT())
+		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 	})
 
 	AfterEach(func() {

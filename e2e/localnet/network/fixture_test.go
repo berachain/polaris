@@ -52,7 +52,7 @@ var _ = Describe("JSON RPC tests", func() {
 	)
 
 	BeforeEach(func() {
-		tf = localnet.NewTestFixture(GinkgoT())
+		tf = localnet.NewTestFixture(GinkgoT(), NewPolarisFixtureConfig())
 		Expect(tf).ToNot(BeNil())
 		client = tf.EthClient()
 	})

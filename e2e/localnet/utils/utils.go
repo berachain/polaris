@@ -28,6 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	network "pkg.berachain.dev/polaris/e2e/localnet/network"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
@@ -37,7 +38,26 @@ import (
 const (
 	DefaultTimeout = 15 * time.Second
 	TxTimeout      = 30 * time.Second
+
+	polardConfigPath  = "../polard/config/"
+	polardBaseImage   = "polard/base:v0.0.0"
+	containerName     = "goodcontainer"
+	polardHTTPAddress = "8545/tcp"
+	polardWSAddress   = "8546/tcp"
+	goVersion         = "1.20.4"
 )
+
+// NewPolarisFixtureConfig returns a polaris fixture config.
+func NewPolarisFixtureConfig() *network.FixtureConfig {
+	return network.NewFixtureConfig(
+		polardConfigPath,
+		polardBaseImage,
+		containerName,
+		polardHTTPAddress,
+		polardWSAddress,
+		goVersion,
+	)
+}
 
 // ExpectedMined waits for a transaction to be mined.
 func ExpectMined(client *ethclient.Client, tx *coretypes.Transaction) {

@@ -32,15 +32,15 @@ import (
 const (
 	baseImage = "polard/base:v0.0.0"
 
-	localnetDockerPath = "./e2e/localnet"
+	localnetDockerPath = "./e2e/localnet/"
 	localnetRepository = "localnet"
 	localnetVersion    = "latest"
 )
 
 type Localnet mg.Namespace
 
-func (Localnet) Build() error {
-	return ExecuteInDirectory(localnetDockerPath,
+func (Localnet) Build(client string) error {
+	return ExecuteInDirectory(localnetDockerPath+client,
 		func(...string) error {
 			return dockerBuildFn(false)(
 				"--build-arg", "GO_VERSION="+goVersion,
