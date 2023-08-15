@@ -34,6 +34,7 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // Contract is the governance precompile contract.
@@ -70,7 +71,7 @@ func (c *Contract) SubmitProposal(ctx context.Context, proposalBz []byte, messag
 		return 0, err
 	}
 
-	// Decode all the messages into sdk.Msg then wrap them into codectypes.Any.
+	// Decode all the messages into sdk.Msg then wrap them into codectypes.Any and add to the proposal msg.
 	messages, err := c.ProcessMessages(messageBz)
 	if err != nil {
 		return 0, err
@@ -85,6 +86,56 @@ func (c *Contract) SubmitProposal(ctx context.Context, proposalBz []byte, messag
 
 	return res.ProposalId, nil
 
+}
+
+// Vote is the method for the `vote` function.
+func (c *Contract) Vote(ctx context.Context, id uint64, option int32, metadata string) (bool, error) {
+	// Get the voter from the context.
+	voter := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
+
+	// Push through the vote.
+	_, err := c.msgServer.Vote(ctx, v1.NewMsgVote(voter, id, v1.VoteOption(option), metadata))
+
+	return err == nil, err
+}
+
+// CancelProposal is the method for the `cancelProposal` function.
+func (c *Contract) CancelProposal(ctx context.Context, id uint64) (uint64, error) {
+	// Get the proposer from the context.
+	proposer := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
+
+	// Cancel the vote.
+	res, err := c.msgServer.CancelProposal(ctx, v1.NewMsgCancelProposal(id, proposer.String()))
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(res.CanceledTime.Unix()), nil
+}
+
+// VoteWeighted is the method for the `voteWeighted` function.
+func (c *Contract) VoteWeighted(
+	ctx context.Context,
+	id uint64,
+	options []generated.IGovernanceModuleWeightedVoteOption,
+	metadata string,
+) (bool, error) {
+	// Get the voter from the context.
+	voter := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
+
+	// Decode the evm type into a cosmos vote options type.
+	weightedOptions := make([]*v1.WeightedVoteOption, len(options))
+	for _, option := range options {
+		weightedOptions = append(weightedOptions, &v1.WeightedVoteOption{
+			Option: v1.VoteOption(option.VoteOption),
+			Weight: option.Weight,
+		})
+	}
+
+	// Push through the vote.
+	_, err := c.msgServer.VoteWeighted(ctx, v1.NewMsgVoteWeighted(voter, id, weightedOptions, metadata))
+
+	return err == nil, err
 }
 
 // ProcessMessages takes in a slice of message bytes and returns a slice of codectypes.Any.
