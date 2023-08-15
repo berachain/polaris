@@ -30,8 +30,10 @@ import (
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -211,12 +213,27 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 	return err != nil, err
 }
 
-func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]common.Address, error) {
+func (c *Contract) activeValidatorsHelper(
+	ctx context.Context,
+	pageRequest any,
+) ([]common.Address, lib.CosmosPageResponse, error) {
+	pageReq, err := cosmlib.ExtractPageRequestFromInput(pageRequest)
+	if err != nil {
+		return nil, cosmlib.SdkPageResponseToEvmPageResponse(nil), err
+	}
+
 	res, err := c.querier.Validators(ctx, &stakingtypes.QueryValidatorsRequest{
 		Status: stakingtypes.BondStatusBonded,
+		Pagination: &query.PageRequest{
+			Key:        pageReq.Key,
+			Offset:     pageReq.Offset,
+			Limit:      pageReq.Limit,
+			CountTotal: pageReq.CountTotal,
+			Reverse:    pageReq.Reverse,
+		},
 	})
 	if err != nil {
-		return nil, err
+		return nil, cosmlib.SdkPageResponseToEvmPageResponse(nil), err
 	}
 
 	// Iterate over all validators and return their addresses.
@@ -225,27 +242,42 @@ func (c *Contract) activeValidatorsHelper(ctx context.Context) ([]common.Address
 		var valAddr sdk.ValAddress
 		valAddr, err = sdk.ValAddressFromBech32(val.OperatorAddress)
 		if err != nil {
-			return nil, err
+			return nil, cosmlib.SdkPageResponseToEvmPageResponse(nil), err
 		}
 		addrs = append(addrs, cosmlib.ValAddressToEthAddress(valAddr))
 	}
-	return addrs, nil
+	return addrs, cosmlib.SdkPageResponseToEvmPageResponse(res.GetPagination()), nil
 }
 
-func (c *Contract) validatorsHelper(ctx context.Context) ([]staking.IStakingModuleValidator, error) {
+func (c *Contract) validatorsHelper(
+	ctx context.Context,
+	pageRequest any,
+) ([]staking.IStakingModuleValidator, lib.CosmosPageResponse, error) {
+	pageReq, err := cosmlib.ExtractPageRequestFromInput(pageRequest)
+	if err != nil {
+		return nil, cosmlib.SdkPageResponseToEvmPageResponse(nil), err
+	}
+
 	res, err := c.querier.Validators(ctx, &stakingtypes.QueryValidatorsRequest{
 		Status: stakingtypes.BondStatusBonded,
+		Pagination: &query.PageRequest{
+			Key:        pageReq.Key,
+			Offset:     pageReq.Offset,
+			Limit:      pageReq.Limit,
+			CountTotal: pageReq.CountTotal,
+			Reverse:    pageReq.Reverse,
+		},
 	})
 	if err != nil {
-		return nil, err
+		return nil, cosmlib.SdkPageResponseToEvmPageResponse(nil), err
 	}
 
 	vals, err := cosmlib.SdkValidatorsToStakingValidators(res.GetValidators())
 	if err != nil {
-		return nil, err
+		return nil, cosmlib.SdkPageResponseToEvmPageResponse(nil), err
 	}
 
-	return vals, nil
+	return vals, cosmlib.SdkPageResponseToEvmPageResponse(res.GetPagination()), nil
 }
 
 // valAddr must be the bech32 address of the validator.
@@ -275,20 +307,33 @@ func (c *Contract) validatorHelper(
 func (c *Contract) delegatorValidatorsHelper(
 	ctx context.Context,
 	accAddr string,
-) ([]staking.IStakingModuleValidator, error) {
+	pageRequest any,
+) ([]staking.IStakingModuleValidator, lib.CosmosPageResponse, error) {
+	pageReq, err := cosmlib.ExtractPageRequestFromInput(pageRequest)
+	if err != nil {
+		return nil, cosmlib.SdkPageResponseToEvmPageResponse(nil), err
+	}
+
 	res, err := c.querier.DelegatorValidators(ctx, &stakingtypes.QueryDelegatorValidatorsRequest{
 		DelegatorAddr: accAddr,
+		Pagination: &query.PageRequest{
+			Key:        pageReq.Key,
+			Offset:     pageReq.Offset,
+			Limit:      pageReq.Limit,
+			CountTotal: pageReq.CountTotal,
+			Reverse:    pageReq.Reverse,
+		},
 	})
 	if err != nil {
-		return nil, err
+		return nil, cosmlib.SdkPageResponseToEvmPageResponse(nil), err
 	}
 
 	vals, err := cosmlib.SdkValidatorsToStakingValidators(res.GetValidators())
 	if err != nil {
-		return nil, err
+		return nil, cosmlib.SdkPageResponseToEvmPageResponse(nil), err
 	}
 
-	return vals, nil
+	return vals, cosmlib.SdkPageResponseToEvmPageResponse(res.GetPagination()), nil
 }
 
 // bondDenom returns the bond denom from the staking module.

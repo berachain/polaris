@@ -29,6 +29,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -56,21 +57,23 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 	}
 }
 
-// GetActiveValidators implements the `getActiveValidators()` method.
+// GetActiveValidators implements the `getActiveValidators((string,uint64,uint64,bool,bool))` method.
 func (c *Contract) GetActiveValidators(
 	ctx context.Context,
-) ([]common.Address, error) {
-	return c.activeValidatorsHelper(ctx)
+	pageRequest any,
+) ([]common.Address, lib.CosmosPageResponse, error) {
+	return c.activeValidatorsHelper(ctx, pageRequest)
 }
 
-// GetValidators implements the `getValidators()` method.
+// GetValidators implements the `getValidators((string,uint64,uint64,bool,bool))` method.
 func (c *Contract) GetValidators(
 	ctx context.Context,
-) ([]generated.IStakingModuleValidator, error) {
-	return c.validatorsHelper(ctx)
+	pageRequest any,
+) ([]generated.IStakingModuleValidator, lib.CosmosPageResponse, error) {
+	return c.validatorsHelper(ctx, pageRequest)
 }
 
-// GetValidators implements the `getValidator(address)` method.
+// GetValidator implements the `getValidator(address)` method.
 func (c *Contract) GetValidator(
 	ctx context.Context,
 	validatorAddr common.Address,
@@ -78,12 +81,13 @@ func (c *Contract) GetValidator(
 	return c.validatorHelper(ctx, sdk.ValAddress(validatorAddr[:]).String())
 }
 
-// GetDelegatorValidators implements the `getDelegatorValidators(address)` method.
+// GetDelegatorValidators implements the `getDelegatorValidators(address, (string,uint64,uint64,bool,bool))` method.
 func (c *Contract) GetDelegatorValidators(
 	ctx context.Context,
 	delegatorAddr common.Address,
-) ([]generated.IStakingModuleValidator, error) {
-	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr))
+	pageRequest any,
+) ([]generated.IStakingModuleValidator, lib.CosmosPageResponse, error) {
+	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr), pageRequest)
 }
 
 // GetDelegation implements `getDelegation(address)` method.

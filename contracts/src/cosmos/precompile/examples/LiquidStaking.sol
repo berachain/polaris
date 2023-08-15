@@ -26,6 +26,7 @@
 pragma solidity ^0.8.17;
 
 import {IStakingModule} from "../Staking.sol";
+import {Cosmos} from "../../CosmosTypes.sol";
 import {ERC20} from "../../../../lib/ERC20.sol";
 
 /**
@@ -66,8 +67,8 @@ contract LiquidStaking is ERC20 {
     /**
      * @dev Returns all active validators.
      */
-    function getActiveValidators() public view returns (address[] memory) {
-        return staking.getActiveValidators();
+    function getActiveValidators(Cosmos.PageRequest calldata pageRequest) public view returns (address[] memory, Cosmos.PageResponse memory) {
+        return staking.getActiveValidators(pageRequest);
     }
 
     /**
@@ -76,11 +77,12 @@ contract LiquidStaking is ERC20 {
      */
     function delegate(uint256 amount) public payable {
         if (amount == 0) revert ZeroAmount();
-        // Get the first active validator as an example.
-        address validatorAddress = staking.getActiveValidators()[0];
+        // Get the active validators as an example.
+        Cosmos.PageRequest memory pageRequest;
+        (address[] memory validatorAddresses, Cosmos.PageResponse memory pageResponse) = staking.getActiveValidators(pageRequest);
 
-        // Delegate the amount to the validator.
-        bool success = staking.delegate(validatorAddress, amount);
+        // Delegate the amount to the first validator.
+        bool success = staking.delegate(validatorAddresses[0], amount);
         require(success, "Failed to delegate");
         _mint(msg.sender, amount);
     }

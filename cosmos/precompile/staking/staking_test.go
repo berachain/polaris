@@ -30,12 +30,14 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	testutil2 "pkg.berachain.dev/polaris/cosmos/precompile/testutil"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -489,13 +491,31 @@ var _ = Describe("Staking", func() {
 			It("gets active validators", func() {
 				// Set the validator to be bonded.
 				validator.Status = stakingtypes.Bonded
+				otherValidator.Status = stakingtypes.Bonded
 				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
+				Expect(sk.SetValidator(ctx, otherValidator)).To(Succeed())
 
 				// Get the active validators.
-				res, err := contract.GetActiveValidators(ctx)
+				firstValidator, pageResponse, err := contract.GetActiveValidators(
+					ctx,
+					testutil2.SdkPageRequestToEvmPageRequest(&query.PageRequest{
+						Limit: 1,
+					}),
+				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res).To(HaveLen(1))
-				Expect(res[0]).To(Equal(cosmlib.ValAddressToEthAddress(val)))
+				Expect(pageResponse.NextKey).ToNot(Equal(""))
+
+				restValidators, pageResponse, err := contract.GetActiveValidators(
+					ctx,
+					testutil2.SdkPageRequestToEvmPageRequest(&query.PageRequest{
+						Key: []byte(pageResponse.NextKey),
+					}),
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(pageResponse.NextKey).To(Equal(""))
+				Expect(append(firstValidator, restValidators...)).To(Equal([]common.Address{
+					cosmlib.ValAddressToEthAddress(val), cosmlib.ValAddressToEthAddress(otherVal),
+				}))
 			})
 		})
 	})

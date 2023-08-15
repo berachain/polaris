@@ -79,7 +79,7 @@ var _ = Describe("Staking", func() {
 	})
 
 	It("should call functions on the precompile directly", func() {
-		validators, err := stakingPrecompile.GetActiveValidators(nil)
+		validators, _, err := stakingPrecompile.GetActiveValidators(nil, bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(validators).To(ContainElement(validator))
 
@@ -97,7 +97,7 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
 
-		delVals, err := stakingPrecompile.GetDelegatorValidators(nil, tf.Address("alice"))
+		delVals, _, err := stakingPrecompile.GetDelegatorValidators(nil, tf.Address("alice"), bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delVals).To(HaveLen(1))
 		delValAddr, err := sdk.ValAddressFromBech32(delVals[0].OperatorAddress)
@@ -124,7 +124,7 @@ var _ = Describe("Staking", func() {
 		Expect(ude[0].CompletionTime).ToNot(BeEmpty())
 		Expect(ude[0].Balance.Cmp(undelegateAmt)).To(Equal(0))
 
-		vals, err := stakingPrecompile.GetValidators(nil)
+		vals, _, err := stakingPrecompile.GetValidators(nil, bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(vals).To(HaveLen(1))
 		valAddr, err := sdk.ValAddressFromBech32(vals[0].OperatorAddress)
@@ -150,7 +150,7 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))
 
-		addresses, err := contract.GetActiveValidators(nil)
+		addresses, _, err := contract.GetActiveValidators(nil, tbindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(addresses).To(HaveLen(1))
 		Expect(addresses[0]).To(Equal(validator))
