@@ -23,7 +23,6 @@ package localnet
 import (
 	"context"
 	"crypto/ecdsa"
-	"errors"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -44,9 +43,50 @@ import (
 )
 
 const (
-	relativeKeysPath = "../config/ethkeys/"
-	genFilePath      = "../config/genesis.json"
+	relativeKeysPath = "ethkeys/"
+	genFilePath      = "genesis.json"
 )
+
+// FixtureConfig is a type defining the configuration of a TestFixture.
+type FixtureConfig struct {
+	path string
+
+	baseImage     string
+	containerName string
+	httpAddress   string
+	wsAdddress    string
+	goVersion     string
+}
+
+// NewFixtureConfig creates a new FixtureConfig and infers the config directory
+// absolute path from given relative path.
+// requires: the configRelativePath to be relative to the file calling NewFixtureConfig.
+func NewFixtureConfig(
+	configRelativePath,
+	baseImage,
+	containerName,
+	httpAddress,
+	wsAdddress,
+	goVersion string,
+) *FixtureConfig {
+	// Get file path of the caller of NewFixtureConfig.
+	_, caller, _, ok := runtime.Caller(1)
+	if !ok {
+		panic("failed to get caller")
+	}
+	configPath, err := filepath.Abs(filepath.Join(filepath.Dir(caller), configRelativePath))
+	if err != nil {
+		panic(err)
+	}
+	return &FixtureConfig{
+		path:          configPath,
+		baseImage:     baseImage,
+		containerName: containerName,
+		httpAddress:   httpAddress,
+		wsAdddress:    wsAdddress,
+		goVersion:     goVersion,
+	}
+}
 
 // TestFixture is a testing fixture that runs a single Polaris validator node in a Docker container.
 type TestFixture struct {
@@ -57,13 +97,13 @@ type TestFixture struct {
 }
 
 // NewTestFixture creates a new TestFixture.
-func NewTestFixture(t ginkgo.FullGinkgoTInterface) *TestFixture {
+func NewTestFixture(t ginkgo.FullGinkgoTInterface, config *FixtureConfig) *TestFixture {
 	tf := &TestFixture{
 		t:       t,
 		keysMap: make(map[string]*ecdsa.PrivateKey),
 	}
 
-	err := tf.setupTestAccounts()
+	err := tf.setupTestAccounts(config)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,12 +111,12 @@ func NewTestFixture(t ginkgo.FullGinkgoTInterface) *TestFixture {
 	tf.ContainerizedNode, err = NewContainerizedNode(
 		"localnet",
 		"latest",
-		"goodcontainer",
-		"8545/tcp",
-		"8546/tcp",
+		config.containerName,
+		config.httpAddress,
+		config.wsAdddress,
 		[]string{
-			"GO_VERSION=1.20.6",
-			"BASE_IMAGE=polard/base:v0.0.0",
+			"GO_VERSION=" + config.goVersion,
+			"BASE_IMAGE=" + config.baseImage,
 		},
 	)
 	if err != nil {
@@ -134,16 +174,9 @@ func (tf *TestFixture) ValAddr() common.Address {
 }
 
 // setupTestAccounts loads the test account private keys and validator public key.
-func (tf *TestFixture) setupTestAccounts() error {
-	// get the absolute path of the current file
-	_, absFilePath, _, ok := runtime.Caller(1)
-	if !ok {
-		return errors.New("unable to get key files")
-	}
-	absDirPath := filepath.Dir(absFilePath)
-
+func (tf *TestFixture) setupTestAccounts(config *FixtureConfig) error {
 	// read the test account private keys from the keys directory
-	keysPath := filepath.Join(absDirPath, relativeKeysPath)
+	keysPath := filepath.Join(config.path, relativeKeysPath)
 	keyFiles, err := os.ReadDir(filepath.Clean(keysPath))
 	if err != nil {
 		return err
@@ -161,7 +194,7 @@ func (tf *TestFixture) setupTestAccounts() error {
 	}
 
 	// read the validator public key from the genesis file
-	genFile := filepath.Join(absDirPath, genFilePath)
+	genFile := filepath.Join(config.path, genFilePath)
 	genBz, err := os.ReadFile(filepath.Clean(genFile))
 	if err != nil {
 		return err

@@ -45,7 +45,7 @@ var _ = Describe("ERC20", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT())
+		tf = network.NewTestFixture(GinkgoT(), NewPolarisFixtureConfig())
 	})
 
 	AfterEach(func() {

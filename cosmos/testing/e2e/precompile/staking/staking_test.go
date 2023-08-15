@@ -57,7 +57,7 @@ var _ = Describe("Staking", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT())
+		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 
 		validator = tf.ValAddr()
 		stakingPrecompile, _ = bindings.NewStakingModule(

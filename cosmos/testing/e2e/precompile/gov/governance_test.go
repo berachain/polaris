@@ -60,7 +60,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT())
+		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 		err := tf.WaitForNextBlock()
 		Expect(err).ToNot(HaveOccurred())
 

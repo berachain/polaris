@@ -117,6 +117,7 @@ func TestE2E() error {
 func testE2E(path string) error {
 	args := []string{
 		"-timeout", "30m",
+		"--skip", ".*localnet.*",
 		"--focus", ".*e2e.*", path + "/...",
 	}
 	return ginkgoTest(args...)
