@@ -139,14 +139,44 @@ var _ = Describe("Call the Precompile Directly", func() {
 		Expect(res2.Id).To(Equal(uint64(1)))
 
 		// Call directly.
-		getProposalsRes, err := precompile.GetProposals(nil, 0)
+		getFirstProposalRes, pageResponse, err := precompile.GetProposals(nil, 0, bindings.CosmosPageRequest{
+			Limit: 1,
+		})
 		Expect(err).ToNot(HaveOccurred())
-		Expect(getProposalsRes).To(HaveLen(2))
+		Expect(getFirstProposalRes).To(HaveLen(1))
+		Expect(pageResponse.NextKey).ToNot(Equal(""))
+
+		getRestProposalsRes, pageResponse, err := precompile.GetProposals(nil, 0, bindings.CosmosPageRequest{
+			Key: pageResponse.NextKey,
+		})
+		Expect(err).ToNot(HaveOccurred())
+		Expect(getRestProposalsRes).To(HaveLen(1))
+		Expect(pageResponse.NextKey).To(Equal(""))
+
+		getAllProposalsRes, pageResponse, err := precompile.GetProposals(nil, 0, bindings.CosmosPageRequest{})
+		Expect(err).ToNot(HaveOccurred())
+		Expect(getAllProposalsRes).To(HaveLen(2))
+		Expect(pageResponse.NextKey).To(Equal(""))
 
 		// Call via wrapper.
-		wrapperRes, err := wrapper.GetProposals(nil, 0)
+		wrapperFirstRes, wrapperPageResponse, err := wrapper.GetProposals(nil, 0, tbindings.CosmosPageRequest{
+			Limit: 1,
+		})
 		Expect(err).ToNot(HaveOccurred())
-		Expect(wrapperRes).To(HaveLen(2))
+		Expect(wrapperFirstRes).To(HaveLen(1))
+		Expect(wrapperPageResponse.NextKey).ToNot(Equal(""))
+
+		wrapperRestRes, wrapperPageResponse, err := wrapper.GetProposals(nil, 0, tbindings.CosmosPageRequest{
+			Key: wrapperPageResponse.NextKey,
+		})
+		Expect(err).ToNot(HaveOccurred())
+		Expect(wrapperRestRes).To(HaveLen(1))
+		Expect(wrapperPageResponse.NextKey).To(Equal(""))
+
+		wrapperAllRes, wrapperPageResponse, err := wrapper.GetProposals(nil, 0, tbindings.CosmosPageRequest{})
+		Expect(err).ToNot(HaveOccurred())
+		Expect(wrapperAllRes).To(HaveLen(2))
+		Expect(wrapperPageResponse.NextKey).To(Equal(""))
 
 		// Call directly.
 		txr := tf.GenerateTransactOpts("alice")

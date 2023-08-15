@@ -32,6 +32,7 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	governancekeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -317,12 +318,42 @@ var _ = Describe("Governance Precompile", func() {
 					Expect(err).ToNot(HaveOccurred())
 				})
 				It("should get the proposals", func() {
-					res, err := contract.GetProposals(
+					firstProposal, pageResponse, err := contract.GetProposals(
 						ctx,
 						int32(0),
+						testutil.SdkPageRequestToEvmPageRequest(&query.PageRequest{
+							Limit: 1,
+						}),
 					)
 					Expect(err).ToNot(HaveOccurred())
-					Expect(res).ToNot(BeNil())
+					Expect(firstProposal).ToNot(BeNil())
+					Expect(len(firstProposal)).To(Equal(1))
+					Expect(int(firstProposal[0].Id)).To(Equal(2))
+					Expect(pageResponse.NextKey).ToNot(Equal(""))
+
+					restProposals, pageResponse, err := contract.GetProposals(
+						ctx,
+						int32(0),
+						testutil.SdkPageRequestToEvmPageRequest(&query.PageRequest{
+							Key: []byte(pageResponse.NextKey),
+						}),
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(restProposals).ToNot(BeNil())
+					Expect(len(restProposals)).To(Equal(1))
+					Expect(int(restProposals[0].Id)).To(Equal(3))
+					Expect(pageResponse.NextKey).To(Equal(""))
+
+					allProposals, pageResponse, err := contract.GetProposals(
+						ctx,
+						int32(0),
+						testutil.SdkPageRequestToEvmPageRequest(&query.PageRequest{}),
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(allProposals).ToNot(BeNil())
+					Expect(len(allProposals)).To(Equal(2))
+					Expect([]uint64{allProposals[0].Id, allProposals[1].Id}).To(Equal([]uint64{2, 3}))
+					Expect(pageResponse.NextKey).To(Equal(""))
 				})
 			})
 		})

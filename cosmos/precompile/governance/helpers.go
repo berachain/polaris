@@ -27,10 +27,13 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
@@ -156,12 +159,25 @@ func (c *Contract) getProposalHelper(
 func (c *Contract) getProposalsHelper(
 	ctx context.Context,
 	proposalStatus int32,
-) ([]generated.IGovernanceModuleProposal, error) {
+	pageRequest any,
+) ([]generated.IGovernanceModuleProposal, lib.CosmosPageResponse, error) {
+	pageReq, err := cosmlib.ExtractPageRequestFromInput(pageRequest)
+	if err != nil {
+		return nil, cosmlib.SdkPageResponseToEvmPageResponse(nil), err
+	}
+
 	res, err := c.querier.Proposals(ctx, &v1.QueryProposalsRequest{
 		ProposalStatus: v1.ProposalStatus(proposalStatus),
+		Pagination: &query.PageRequest{
+			Key:        pageReq.Key,
+			Offset:     pageReq.Offset,
+			Limit:      pageReq.Limit,
+			CountTotal: pageReq.CountTotal,
+			Reverse:    pageReq.Reverse,
+		},
 	})
 	if err != nil {
-		return nil, err
+		return nil, cosmlib.SdkPageResponseToEvmPageResponse(nil), err
 	}
 
 	proposals := make([]generated.IGovernanceModuleProposal, 0)
@@ -169,7 +185,7 @@ func (c *Contract) getProposalsHelper(
 		proposals = append(proposals, transformProposalToABIProposal(*proposal))
 	}
 
-	return proposals, nil
+	return proposals, cosmlib.SdkPageResponseToEvmPageResponse(res.GetPagination()), nil
 }
 
 // transformProposalToABIProposal is a helper function to transform a `v1.Proposal`

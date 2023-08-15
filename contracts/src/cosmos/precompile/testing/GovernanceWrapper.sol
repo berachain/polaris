@@ -77,8 +77,8 @@ contract GovernanceWrapper {
      * @dev get proposals.
      * @param proposalStatus The proposal status.
      */
-    function getProposals(int32 proposalStatus) external view returns (IGovernanceModule.Proposal[] memory) {
-        return governanceModule.getProposals(proposalStatus);
+    function getProposals(int32 proposalStatus, Cosmos.PageRequest calldata pageRequest) external view returns (IGovernanceModule.Proposal[] memory, Cosmos.PageResponse memory) {
+        return governanceModule.getProposals(proposalStatus, pageRequest);
     }
 
     /**

@@ -30,6 +30,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
@@ -119,12 +120,13 @@ func (c *Contract) GetProposal(
 	return c.getProposalHelper(ctx, proposalID)
 }
 
-// GetProposals is the method for the `getProposal` method of the governance precompile contract.
+// GetProposals is the method for the `getProposals` method of the governance precompile contract.
 func (c *Contract) GetProposals(
 	ctx context.Context,
 	proposalStatus int32,
-) ([]generated.IGovernanceModuleProposal, error) {
-	return c.getProposalsHelper(ctx, proposalStatus)
+	pageRequest any,
+) ([]generated.IGovernanceModuleProposal, lib.CosmosPageResponse, error) {
+	return c.getProposalsHelper(ctx, proposalStatus, pageRequest)
 }
 
 // unmarshalMsgAndReturnAny unmarshals `[]byte` into a `codectypes.Any` message.
