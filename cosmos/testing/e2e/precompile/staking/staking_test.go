@@ -79,6 +79,7 @@ var _ = Describe("Staking", func() {
 	})
 
 	It("should call functions on the precompile directly", func() {
+		// TODO: revise these tests for pagination after node config is updated with multiple validators
 		validators, _, err := stakingPrecompile.GetActiveValidators(nil, bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(validators).To(ContainElement(validator))
