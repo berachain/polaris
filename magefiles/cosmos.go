@@ -108,7 +108,7 @@ func (c Cosmos) Docker(dockerType, arch string) error {
 }
 
 func (c Cosmos) RunDockerLocal() error {
-	return dockerRun("-p", "8545:8545", "polard-local:v0.0.0")
+	return dockerRun("-p", "8545:8545", "polard/local:v0.0.0")
 }
 
 func (c Cosmos) DockerX(dockerType, arch string) error {
