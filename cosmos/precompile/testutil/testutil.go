@@ -31,6 +31,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -130,4 +131,26 @@ func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
 		}
 	}
 	return evmCoins
+}
+
+func SdkPageRequestToEvmPageRequest(sdkPageRequest *query.PageRequest) struct {
+	Key        string `json:"key"`
+	Offset     uint64 `json:"offset"`
+	Limit      uint64 `json:"limit"`
+	CountTotal bool   `json:"countTotal"`
+	Reverse    bool   `json:"reverse"`
+} {
+	return struct {
+		Key        string `json:"key"`
+		Offset     uint64 `json:"offset"`
+		Limit      uint64 `json:"limit"`
+		CountTotal bool   `json:"countTotal"`
+		Reverse    bool   `json:"reverse"`
+	}{
+		Key:        string(sdkPageRequest.Key),
+		Offset:     sdkPageRequest.Offset,
+		Limit:      sdkPageRequest.Limit,
+		CountTotal: sdkPageRequest.CountTotal,
+		Reverse:    sdkPageRequest.Reverse,
+	}
 }
