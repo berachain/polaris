@@ -90,7 +90,7 @@ interface IGovernanceModule {
      */
     struct Proposal {
         uint64 id;
-        bytes message;
+        bytes[] messages;
         int32 status;
         TallyResult finalTallyResult;
         uint64 submitTime;

@@ -175,7 +175,7 @@ func (c *Contract) getProposalsHelper(
 // transformProposalToABIProposal is a helper function to transform a `v1.Proposal`
 // to an `IGovernanceModule.Proposal`.
 func transformProposalToABIProposal(proposal v1.Proposal) generated.IGovernanceModuleProposal {
-	message := make([]byte, 0)
+	message := make([]byte, 0, len(proposal.Messages))
 	for _, msg := range proposal.Messages {
 		message = append(message, msg.Value...)
 	}
@@ -189,9 +189,9 @@ func transformProposalToABIProposal(proposal v1.Proposal) generated.IGovernanceM
 	}
 
 	return generated.IGovernanceModuleProposal{
-		Id:      proposal.Id,
-		Message: message,
-		Status:  int32(proposal.Status), // Status is an alias for int32.
+		Id: proposal.Id,
+		//Message: [][]byte{message},
+		Status: int32(proposal.Status), // Status is an alias for int32.
 		FinalTallyResult: generated.IGovernanceModuleTallyResult{
 			YesCount:        proposal.FinalTallyResult.YesCount,
 			AbstainCount:    proposal.FinalTallyResult.AbstainCount,

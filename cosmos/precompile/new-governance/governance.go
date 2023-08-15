@@ -24,12 +24,11 @@ import (
 	"context"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/codec/unknownproto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -85,7 +84,6 @@ func (c *Contract) SubmitProposal(ctx context.Context, proposalBz []byte, messag
 	}
 
 	return res.ProposalId, nil
-
 }
 
 // Vote is the method for the `vote` function.
@@ -124,7 +122,7 @@ func (c *Contract) VoteWeighted(
 	voter := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
 	// Decode the evm type into a cosmos vote options type.
-	weightedOptions := make([]*v1.WeightedVoteOption, len(options))
+	weightedOptions := []*v1.WeightedVoteOption{}
 	for _, option := range options {
 		weightedOptions = append(weightedOptions, &v1.WeightedVoteOption{
 			Option: v1.VoteOption(option.VoteOption),
@@ -138,32 +136,35 @@ func (c *Contract) VoteWeighted(
 	return err == nil, err
 }
 
-// ProcessMessages takes in a slice of message bytes and returns a slice of codectypes.Any.
-func (c *Contract) ProcessMessages(messagesBz [][]byte) ([]*codectypes.Any, error) {
-	// Decode all the messageBz into sdk.Msg then wrap them into codectypes.Any and append to the slice.
-	var messages []*codectypes.Any
-	for _, msgBz := range messagesBz {
-		// Decode the message bytes into a sdk.Msg.
-		var msg sdk.Msg
-
-		// Reject all unkown proto fields and unknown proto messages.
-		if err := unknownproto.RejectUnknownFieldsStrict(msgBz, msg, c.cdc.InterfaceRegistry()); err != nil {
-			return nil, err
-		}
-
-		// Unmarshal the message bytes into a sdk.Msg.
-		if err := c.cdc.Unmarshal(msgBz, msg); err != nil {
-			return nil, err
-		}
-
-		// Wrap the msg into any proto message and add to the proposal msg.
-		msgAny, err := codectypes.NewAnyWithValue(msg)
-		if err != nil {
-			return nil, err
-		}
-
-		messages = append(messages, msgAny)
+// GetProposal is the method for the `getProposal` function.
+func (c *Contract) GetProposal(ctx context.Context, id uint64) (generated.IGovernanceModuleProposal, error) {
+	// Get the proposal from the querier.
+	res, err := c.queryServer.Proposal(ctx, &v1.QueryProposalRequest{ProposalId: id})
+	if err != nil {
+		return generated.IGovernanceModuleProposal{}, err
 	}
 
-	return messages, nil
+	// Transform the cosmos type to an evm type and return.
+	return transformToEvmProposal(res.Proposal), nil
+}
+
+// GetProposals is the method for the `getProposals` function.
+func (c *Contract) GetProposals(
+	ctx context.Context, proposalStatus int32) ([]generated.IGovernanceModuleProposal, error) {
+	// Get the proposals from the query server.
+	res, err := c.queryServer.Proposals(
+		ctx,
+		&v1.QueryProposalsRequest{ProposalStatus: v1.ProposalStatus(proposalStatus)},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// Transform the cosmos type to an evm type and return.
+	proposals := make([]generated.IGovernanceModuleProposal, 0, len(res.Proposals))
+	for _, proposal := range res.Proposals {
+		proposals = append(proposals, transformToEvmProposal(proposal))
+	}
+
+	return proposals, nil
 }
