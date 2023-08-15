@@ -139,44 +139,86 @@ var _ = Describe("Call the Precompile Directly", func() {
 		Expect(res2.Id).To(Equal(uint64(1)))
 
 		// Call directly.
-		getFirstProposalRes, pageResponse, err := precompile.GetProposals(nil, 0, bindings.CosmosPageRequest{
-			Limit: 1,
-		})
+		getFirstProposalRes, pageResponse, err := precompile.GetProposals(
+			nil,
+			0,
+			bindings.CosmosPageRequest{
+				Limit: 1,
+			},
+		)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(getFirstProposalRes).To(HaveLen(1))
 		Expect(pageResponse.NextKey).ToNot(Equal(""))
 
-		getRestProposalsRes, pageResponse, err := precompile.GetProposals(nil, 0, bindings.CosmosPageRequest{
-			Key: pageResponse.NextKey,
-		})
+		getRestProposalsRes, pageResponse, err := precompile.GetProposals(
+			nil,
+			0,
+			bindings.CosmosPageRequest{
+				Key: pageResponse.NextKey,
+			},
+		)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(getRestProposalsRes).To(HaveLen(1))
 		Expect(pageResponse.NextKey).To(Equal(""))
 
-		getAllProposalsRes, pageResponse, err := precompile.GetProposals(nil, 0, bindings.CosmosPageRequest{})
+		getAllProposalsRes, pageResponse, err := precompile.GetProposals(
+			nil,
+			0,
+			bindings.CosmosPageRequest{},
+		)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(getAllProposalsRes).To(HaveLen(2))
 		Expect(pageResponse.NextKey).To(Equal(""))
 
 		// Call via wrapper.
-		wrapperFirstRes, wrapperPageResponse, err := wrapper.GetProposals(nil, 0, tbindings.CosmosPageRequest{
-			Limit: 1,
-		})
+		wrapperFirstRes, wrapperPageResponse, err := wrapper.GetProposals(
+			nil,
+			0,
+			tbindings.CosmosPageRequest{
+				Limit: 1,
+			},
+		)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(wrapperFirstRes).To(HaveLen(1))
 		Expect(wrapperPageResponse.NextKey).ToNot(Equal(""))
 
-		wrapperRestRes, wrapperPageResponse, err := wrapper.GetProposals(nil, 0, tbindings.CosmosPageRequest{
-			Key: wrapperPageResponse.NextKey,
-		})
+		wrapperRestRes, wrapperPageResponse, err := wrapper.GetProposals(
+			nil,
+			0,
+			tbindings.CosmosPageRequest{
+				Key: wrapperPageResponse.NextKey,
+			},
+		)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(wrapperRestRes).To(HaveLen(1))
 		Expect(wrapperPageResponse.NextKey).To(Equal(""))
 
-		wrapperAllRes, wrapperPageResponse, err := wrapper.GetProposals(nil, 0, tbindings.CosmosPageRequest{})
+		Expect([]string{
+			wrapperFirstRes[0].Proposer,
+			wrapperRestRes[0].Proposer,
+		}).To(Equal([]string{
+			cosmlib.AddressToAccAddress(tf.Address("alice")).String(),
+			cosmlib.AddressToAccAddress(wrapperAddr).String(),
+		}))
+
+		wrapperAllRes, wrapperPageResponse, err := wrapper.GetProposals(
+			nil,
+			0,
+			tbindings.CosmosPageRequest{
+				Reverse: true,
+			},
+		)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(wrapperAllRes).To(HaveLen(2))
 		Expect(wrapperPageResponse.NextKey).To(Equal(""))
+
+		Expect([]string{
+			wrapperAllRes[0].Proposer,
+			wrapperAllRes[1].Proposer,
+		}).To(Equal([]string{
+			cosmlib.AddressToAccAddress(wrapperAddr).String(),
+			cosmlib.AddressToAccAddress(tf.Address("alice")).String(),
+		}))
 
 		// Call directly.
 		txr := tf.GenerateTransactOpts("alice")
