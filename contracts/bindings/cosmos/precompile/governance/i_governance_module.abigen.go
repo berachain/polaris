@@ -68,7 +68,7 @@ type IGovernanceModuleWeightedVoteOption struct {
 
 // GovernanceModuleMetaData contains all meta data concerning the GovernanceModule contract.
 var GovernanceModuleMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"CancelProposal\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"ProposalDeposit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proposalSender\",\"type\":\"address\"}],\"name\":\"ProposalSubmitted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"option\",\"type\":\"string\"}],\"name\":\"ProposalVote\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"}],\"name\":\"cancelProposal\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"}],\"name\":\"getProposal\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"},{\"internalType\":\"bytes[]\",\"name\":\"messages\",\"type\":\"bytes[]\"},{\"internalType\":\"int32\",\"name\":\"status\",\"type\":\"int32\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"yesCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"abstainCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noWithVetoCount\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.TallyResult\",\"name\":\"finalTallyResult\",\"type\":\"tuple\"},{\"internalType\":\"uint64\",\"name\":\"submitTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"depositEndTime\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"totalDeposit\",\"type\":\"tuple[]\"},{\"internalType\":\"uint64\",\"name\":\"votingStartTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"votingEndTime\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"summary\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"proposer\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.Proposal\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int32\",\"name\":\"proposalStatus\",\"type\":\"int32\"}],\"name\":\"getProposals\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"},{\"internalType\":\"bytes[]\",\"name\":\"messages\",\"type\":\"bytes[]\"},{\"internalType\":\"int32\",\"name\":\"status\",\"type\":\"int32\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"yesCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"abstainCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noWithVetoCount\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.TallyResult\",\"name\":\"finalTallyResult\",\"type\":\"tuple\"},{\"internalType\":\"uint64\",\"name\":\"submitTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"depositEndTime\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"totalDeposit\",\"type\":\"tuple[]\"},{\"internalType\":\"uint64\",\"name\":\"votingStartTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"votingEndTime\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"summary\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"proposer\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.Proposal[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"proposal\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"message\",\"type\":\"bytes\"}],\"name\":\"submitProposal\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"internalType\":\"int32\",\"name\":\"option\",\"type\":\"int32\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"}],\"name\":\"vote\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"int32\",\"name\":\"voteOption\",\"type\":\"int32\"},{\"internalType\":\"string\",\"name\":\"weight\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.WeightedVoteOption[]\",\"name\":\"options\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"}],\"name\":\"voteWeighted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"CancelProposal\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"indexed\":false,\"internalType\":\"structCosmos.Coin[]\",\"name\":\"amount\",\"type\":\"tuple[]\"}],\"name\":\"ProposalDeposit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proposalSender\",\"type\":\"address\"}],\"name\":\"ProposalSubmitted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"option\",\"type\":\"string\"}],\"name\":\"ProposalVote\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"}],\"name\":\"cancelProposal\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"}],\"name\":\"getProposal\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"},{\"internalType\":\"bytes[]\",\"name\":\"messages\",\"type\":\"bytes[]\"},{\"internalType\":\"int32\",\"name\":\"status\",\"type\":\"int32\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"yesCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"abstainCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noWithVetoCount\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.TallyResult\",\"name\":\"finalTallyResult\",\"type\":\"tuple\"},{\"internalType\":\"uint64\",\"name\":\"submitTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"depositEndTime\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"totalDeposit\",\"type\":\"tuple[]\"},{\"internalType\":\"uint64\",\"name\":\"votingStartTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"votingEndTime\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"summary\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"proposer\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.Proposal\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int32\",\"name\":\"proposalStatus\",\"type\":\"int32\"}],\"name\":\"getProposals\",\"outputs\":[{\"components\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"},{\"internalType\":\"bytes[]\",\"name\":\"messages\",\"type\":\"bytes[]\"},{\"internalType\":\"int32\",\"name\":\"status\",\"type\":\"int32\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"yesCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"abstainCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noCount\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"noWithVetoCount\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.TallyResult\",\"name\":\"finalTallyResult\",\"type\":\"tuple\"},{\"internalType\":\"uint64\",\"name\":\"submitTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"depositEndTime\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin[]\",\"name\":\"totalDeposit\",\"type\":\"tuple[]\"},{\"internalType\":\"uint64\",\"name\":\"votingStartTime\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"votingEndTime\",\"type\":\"uint64\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"summary\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"proposer\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.Proposal[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"proposalBz\",\"type\":\"bytes\"},{\"internalType\":\"bytes[]\",\"name\":\"messagesBz\",\"type\":\"bytes[]\"}],\"name\":\"submitProposal\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"\",\"type\":\"uint64\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"proposalId\",\"type\":\"uint64\"},{\"internalType\":\"int32\",\"name\":\"option\",\"type\":\"int32\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"}],\"name\":\"vote\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"id\",\"type\":\"uint64\"},{\"components\":[{\"internalType\":\"int32\",\"name\":\"voteOption\",\"type\":\"int32\"},{\"internalType\":\"string\",\"name\":\"weight\",\"type\":\"string\"}],\"internalType\":\"structIGovernanceModule.WeightedVoteOption[]\",\"name\":\"options\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"metadata\",\"type\":\"string\"}],\"name\":\"voteWeighted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // GovernanceModuleABI is the input ABI used to generate the binding from.
@@ -219,10 +219,10 @@ func (_GovernanceModule *GovernanceModuleTransactorRaw) Transact(opts *bind.Tran
 
 // GetProposal is a free data retrieval call binding the contract method 0xf1610a28.
 //
-// Solidity: function getProposal(uint64 proposalId) view returns((uint64,bytes[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,string))
-func (_GovernanceModule *GovernanceModuleCaller) GetProposal(opts *bind.CallOpts, proposalId uint64) (IGovernanceModuleProposal, error) {
+// Solidity: function getProposal(uint64 id) view returns((uint64,bytes[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,string))
+func (_GovernanceModule *GovernanceModuleCaller) GetProposal(opts *bind.CallOpts, id uint64) (IGovernanceModuleProposal, error) {
 	var out []interface{}
-	err := _GovernanceModule.contract.Call(opts, &out, "getProposal", proposalId)
+	err := _GovernanceModule.contract.Call(opts, &out, "getProposal", id)
 
 	if err != nil {
 		return *new(IGovernanceModuleProposal), err
@@ -236,16 +236,16 @@ func (_GovernanceModule *GovernanceModuleCaller) GetProposal(opts *bind.CallOpts
 
 // GetProposal is a free data retrieval call binding the contract method 0xf1610a28.
 //
-// Solidity: function getProposal(uint64 proposalId) view returns((uint64,bytes[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,string))
-func (_GovernanceModule *GovernanceModuleSession) GetProposal(proposalId uint64) (IGovernanceModuleProposal, error) {
-	return _GovernanceModule.Contract.GetProposal(&_GovernanceModule.CallOpts, proposalId)
+// Solidity: function getProposal(uint64 id) view returns((uint64,bytes[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,string))
+func (_GovernanceModule *GovernanceModuleSession) GetProposal(id uint64) (IGovernanceModuleProposal, error) {
+	return _GovernanceModule.Contract.GetProposal(&_GovernanceModule.CallOpts, id)
 }
 
 // GetProposal is a free data retrieval call binding the contract method 0xf1610a28.
 //
-// Solidity: function getProposal(uint64 proposalId) view returns((uint64,bytes[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,string))
-func (_GovernanceModule *GovernanceModuleCallerSession) GetProposal(proposalId uint64) (IGovernanceModuleProposal, error) {
-	return _GovernanceModule.Contract.GetProposal(&_GovernanceModule.CallOpts, proposalId)
+// Solidity: function getProposal(uint64 id) view returns((uint64,bytes[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,string))
+func (_GovernanceModule *GovernanceModuleCallerSession) GetProposal(id uint64) (IGovernanceModuleProposal, error) {
+	return _GovernanceModule.Contract.GetProposal(&_GovernanceModule.CallOpts, id)
 }
 
 // GetProposals is a free data retrieval call binding the contract method 0xb5828df2.
@@ -281,44 +281,44 @@ func (_GovernanceModule *GovernanceModuleCallerSession) GetProposals(proposalSta
 
 // CancelProposal is a paid mutator transaction binding the contract method 0x37a9a59e.
 //
-// Solidity: function cancelProposal(uint64 proposalId) returns(uint64, uint64)
-func (_GovernanceModule *GovernanceModuleTransactor) CancelProposal(opts *bind.TransactOpts, proposalId uint64) (*types.Transaction, error) {
-	return _GovernanceModule.contract.Transact(opts, "cancelProposal", proposalId)
+// Solidity: function cancelProposal(uint64 id) returns(uint64, uint64)
+func (_GovernanceModule *GovernanceModuleTransactor) CancelProposal(opts *bind.TransactOpts, id uint64) (*types.Transaction, error) {
+	return _GovernanceModule.contract.Transact(opts, "cancelProposal", id)
 }
 
 // CancelProposal is a paid mutator transaction binding the contract method 0x37a9a59e.
 //
-// Solidity: function cancelProposal(uint64 proposalId) returns(uint64, uint64)
-func (_GovernanceModule *GovernanceModuleSession) CancelProposal(proposalId uint64) (*types.Transaction, error) {
-	return _GovernanceModule.Contract.CancelProposal(&_GovernanceModule.TransactOpts, proposalId)
+// Solidity: function cancelProposal(uint64 id) returns(uint64, uint64)
+func (_GovernanceModule *GovernanceModuleSession) CancelProposal(id uint64) (*types.Transaction, error) {
+	return _GovernanceModule.Contract.CancelProposal(&_GovernanceModule.TransactOpts, id)
 }
 
 // CancelProposal is a paid mutator transaction binding the contract method 0x37a9a59e.
 //
-// Solidity: function cancelProposal(uint64 proposalId) returns(uint64, uint64)
-func (_GovernanceModule *GovernanceModuleTransactorSession) CancelProposal(proposalId uint64) (*types.Transaction, error) {
-	return _GovernanceModule.Contract.CancelProposal(&_GovernanceModule.TransactOpts, proposalId)
+// Solidity: function cancelProposal(uint64 id) returns(uint64, uint64)
+func (_GovernanceModule *GovernanceModuleTransactorSession) CancelProposal(id uint64) (*types.Transaction, error) {
+	return _GovernanceModule.Contract.CancelProposal(&_GovernanceModule.TransactOpts, id)
 }
 
-// SubmitProposal is a paid mutator transaction binding the contract method 0x474d7f35.
+// SubmitProposal is a paid mutator transaction binding the contract method 0x61a3f689.
 //
-// Solidity: function submitProposal(bytes proposal, bytes message) returns(uint64)
-func (_GovernanceModule *GovernanceModuleTransactor) SubmitProposal(opts *bind.TransactOpts, proposal []byte, message []byte) (*types.Transaction, error) {
-	return _GovernanceModule.contract.Transact(opts, "submitProposal", proposal, message)
+// Solidity: function submitProposal(bytes proposalBz, bytes[] messagesBz) returns(uint64)
+func (_GovernanceModule *GovernanceModuleTransactor) SubmitProposal(opts *bind.TransactOpts, proposalBz []byte, messagesBz [][]byte) (*types.Transaction, error) {
+	return _GovernanceModule.contract.Transact(opts, "submitProposal", proposalBz, messagesBz)
 }
 
-// SubmitProposal is a paid mutator transaction binding the contract method 0x474d7f35.
+// SubmitProposal is a paid mutator transaction binding the contract method 0x61a3f689.
 //
-// Solidity: function submitProposal(bytes proposal, bytes message) returns(uint64)
-func (_GovernanceModule *GovernanceModuleSession) SubmitProposal(proposal []byte, message []byte) (*types.Transaction, error) {
-	return _GovernanceModule.Contract.SubmitProposal(&_GovernanceModule.TransactOpts, proposal, message)
+// Solidity: function submitProposal(bytes proposalBz, bytes[] messagesBz) returns(uint64)
+func (_GovernanceModule *GovernanceModuleSession) SubmitProposal(proposalBz []byte, messagesBz [][]byte) (*types.Transaction, error) {
+	return _GovernanceModule.Contract.SubmitProposal(&_GovernanceModule.TransactOpts, proposalBz, messagesBz)
 }
 
-// SubmitProposal is a paid mutator transaction binding the contract method 0x474d7f35.
+// SubmitProposal is a paid mutator transaction binding the contract method 0x61a3f689.
 //
-// Solidity: function submitProposal(bytes proposal, bytes message) returns(uint64)
-func (_GovernanceModule *GovernanceModuleTransactorSession) SubmitProposal(proposal []byte, message []byte) (*types.Transaction, error) {
-	return _GovernanceModule.Contract.SubmitProposal(&_GovernanceModule.TransactOpts, proposal, message)
+// Solidity: function submitProposal(bytes proposalBz, bytes[] messagesBz) returns(uint64)
+func (_GovernanceModule *GovernanceModuleTransactorSession) SubmitProposal(proposalBz []byte, messagesBz [][]byte) (*types.Transaction, error) {
+	return _GovernanceModule.Contract.SubmitProposal(&_GovernanceModule.TransactOpts, proposalBz, messagesBz)
 }
 
 // Vote is a paid mutator transaction binding the contract method 0x19f7a0fb.
@@ -344,23 +344,23 @@ func (_GovernanceModule *GovernanceModuleTransactorSession) Vote(proposalId uint
 
 // VoteWeighted is a paid mutator transaction binding the contract method 0xf028295e.
 //
-// Solidity: function voteWeighted(uint64 proposalId, (int32,string)[] options, string metadata) returns(bool)
-func (_GovernanceModule *GovernanceModuleTransactor) VoteWeighted(opts *bind.TransactOpts, proposalId uint64, options []IGovernanceModuleWeightedVoteOption, metadata string) (*types.Transaction, error) {
-	return _GovernanceModule.contract.Transact(opts, "voteWeighted", proposalId, options, metadata)
+// Solidity: function voteWeighted(uint64 id, (int32,string)[] options, string metadata) returns(bool)
+func (_GovernanceModule *GovernanceModuleTransactor) VoteWeighted(opts *bind.TransactOpts, id uint64, options []IGovernanceModuleWeightedVoteOption, metadata string) (*types.Transaction, error) {
+	return _GovernanceModule.contract.Transact(opts, "voteWeighted", id, options, metadata)
 }
 
 // VoteWeighted is a paid mutator transaction binding the contract method 0xf028295e.
 //
-// Solidity: function voteWeighted(uint64 proposalId, (int32,string)[] options, string metadata) returns(bool)
-func (_GovernanceModule *GovernanceModuleSession) VoteWeighted(proposalId uint64, options []IGovernanceModuleWeightedVoteOption, metadata string) (*types.Transaction, error) {
-	return _GovernanceModule.Contract.VoteWeighted(&_GovernanceModule.TransactOpts, proposalId, options, metadata)
+// Solidity: function voteWeighted(uint64 id, (int32,string)[] options, string metadata) returns(bool)
+func (_GovernanceModule *GovernanceModuleSession) VoteWeighted(id uint64, options []IGovernanceModuleWeightedVoteOption, metadata string) (*types.Transaction, error) {
+	return _GovernanceModule.Contract.VoteWeighted(&_GovernanceModule.TransactOpts, id, options, metadata)
 }
 
 // VoteWeighted is a paid mutator transaction binding the contract method 0xf028295e.
 //
-// Solidity: function voteWeighted(uint64 proposalId, (int32,string)[] options, string metadata) returns(bool)
-func (_GovernanceModule *GovernanceModuleTransactorSession) VoteWeighted(proposalId uint64, options []IGovernanceModuleWeightedVoteOption, metadata string) (*types.Transaction, error) {
-	return _GovernanceModule.Contract.VoteWeighted(&_GovernanceModule.TransactOpts, proposalId, options, metadata)
+// Solidity: function voteWeighted(uint64 id, (int32,string)[] options, string metadata) returns(bool)
+func (_GovernanceModule *GovernanceModuleTransactorSession) VoteWeighted(id uint64, options []IGovernanceModuleWeightedVoteOption, metadata string) (*types.Transaction, error) {
+	return _GovernanceModule.Contract.VoteWeighted(&_GovernanceModule.TransactOpts, id, options, metadata)
 }
 
 // GovernanceModuleCancelProposalIterator is returned from FilterCancelProposal and is used to iterate over the raw logs and unpacked data for CancelProposal events raised by the GovernanceModule contract.

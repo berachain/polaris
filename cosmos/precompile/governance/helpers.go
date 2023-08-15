@@ -21,189 +21,86 @@
 package governance
 
 import (
-	"context"
-	"fmt"
-	"strconv"
-
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/codec/unknownproto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/eth/common"
 )
 
-const (
-	EventTypeProposalSubmitted = "proposal_submitted"
-	AttributeProposalSender    = "proposal_sender"
-)
-
-// submitProposalHelper is a helper function for the `SubmitProposal` method of the
-// governance precompile contract.
-func (c *Contract) submitProposalHelper(
-	ctx context.Context,
-	proposalBz []byte,
-	message []*codectypes.Any,
-) (uint64, error) {
-	// Decode the proposal.
-	var proposal v1.MsgSubmitProposal
-	if err := proposal.Unmarshal(proposalBz); err != nil {
-		return 0, fmt.Errorf("failed to unmarshal proposal: %w", err)
-	}
-	proposal.Messages = message
-
-	// Submit the message.
-	res, err := c.msgServer.SubmitProposal(ctx, &proposal)
-	if err != nil {
-		return 0, err
-	}
-
-	// emit an event at the end of this successful proposal submission
-	polarCtx := vm.UnwrapPolarContext(ctx)
-	sdk.UnwrapSDKContext(polarCtx.Context()).EventManager().EmitEvent(
-		sdk.NewEvent(
-			EventTypeProposalSubmitted,
-			sdk.NewAttribute(govtypes.AttributeKeyProposalID, strconv.FormatUint(res.ProposalId, 10)),
-			sdk.NewAttribute(AttributeProposalSender, polarCtx.MsgSender().Hex()),
-		),
-	)
-
-	return res.ProposalId, nil
+// PrecompileAddress returns the address of the precompile contract (0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2).
+func PrecompileAddress() common.Address {
+	eth := cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName))
+	return eth
 }
 
-// cancelProposalHelper is a helper function for the `CancelProposal` method of the
-// governance precompile contract.
-func (c *Contract) cancelProposalHelper(
-	ctx context.Context,
-	proposer sdk.AccAddress,
-	proposalID uint64,
-) (uint64, uint64, error) {
-	res, err := c.msgServer.CancelProposal(ctx, &v1.MsgCancelProposal{
-		ProposalId: proposalID,
-		Proposer:   proposer.String(),
-	})
-	if err != nil {
-		return 0, 0, err
-	}
+// ProcessMessages takes in a slice of message bytes and returns a slice of codectypes.Any.
+func (c *Contract) ProcessMessages(messagesBz [][]byte) ([]*codectypes.Any, error) {
+	// Decode all the messageBz into sdk.Msg then wrap them into codectypes.Any and append to the slice.
+	messages := []*codectypes.Any{}
+	for _, msgBz := range messagesBz {
+		// Decode the message bytes into a sdk.Msg.
+		var msg sdk.Msg
 
-	return uint64(res.CanceledTime.Unix()), res.CanceledHeight, nil
-}
-
-// voteHelper is a helper function for the `Vote` method of the governance precompile contract.
-func (c *Contract) voteHelper(
-	ctx context.Context,
-	voter sdk.AccAddress,
-	proposalID uint64,
-	option int32,
-	metadata string,
-) (bool, error) {
-	_, err := c.msgServer.Vote(ctx, &v1.MsgVote{
-		ProposalId: proposalID,
-		Voter:      voter.String(),
-		Option:     v1.VoteOption(option),
-		Metadata:   metadata,
-	})
-	return err == nil, err
-}
-
-// voteWeighted is a helper function for the `VoteWeighted` method of the
-// governance precompile contract.
-func (c *Contract) voteWeightedHelper(
-	ctx context.Context,
-	voter sdk.AccAddress,
-	proposalID uint64,
-	options []generated.IGovernanceModuleWeightedVoteOption,
-	metadata string,
-) (bool, error) {
-	// Convert the options to v1.WeightedVoteOption.
-	msgOptions := make([]*v1.WeightedVoteOption, len(options))
-	for i, option := range options {
-		msgOptions[i] = &v1.WeightedVoteOption{
-			Option: v1.VoteOption(option.VoteOption),
-			Weight: option.Weight,
+		// Reject all unknown proto fields and unknown proto messages.
+		if err := unknownproto.RejectUnknownFieldsStrict(msgBz, msg, c.cdc.InterfaceRegistry()); err != nil {
+			return nil, err
 		}
+
+		// Unmarshal the message bytes into a sdk.Msg.
+		if err := c.cdc.Unmarshal(msgBz, msg); err != nil {
+			return nil, err
+		}
+
+		// Wrap the msg into any proto message and add to the proposal msg.
+		msgAny, err := codectypes.NewAnyWithValue(msg)
+		if err != nil {
+			return nil, err
+		}
+
+		messages = append(messages, msgAny)
 	}
 
-	_, err := c.msgServer.VoteWeighted(
-		ctx, &v1.MsgVoteWeighted{
-			ProposalId: proposalID,
-			Voter:      voter.String(),
-			Options:    msgOptions,
-			Metadata:   metadata,
-		},
-	)
-	return err == nil, err
+	return messages, nil
 }
 
-// getProposalHelper is a helper function for the `GetProposal` method of the
-// governance precompile contract.
-func (c *Contract) getProposalHelper(
-	ctx context.Context,
-	proposalID uint64,
-) (generated.IGovernanceModuleProposal, error) {
-	res, err := c.querier.Proposal(ctx, &v1.QueryProposalRequest{
-		ProposalId: proposalID,
-	})
-	if err != nil {
-		return generated.IGovernanceModuleProposal{}, err
-	}
-	return transformProposalToABIProposal(*res.Proposal), nil
-}
-
-// getProposalsHelper is a helper function for the `GetProposal` method of the
-// governance precompile contract.
-func (c *Contract) getProposalsHelper(
-	ctx context.Context,
-	proposalStatus int32,
-) ([]generated.IGovernanceModuleProposal, error) {
-	res, err := c.querier.Proposals(ctx, &v1.QueryProposalsRequest{
-		ProposalStatus: v1.ProposalStatus(proposalStatus),
-	})
-	if err != nil {
-		return nil, err
+func transformToEvmProposal(p *v1.Proposal) generated.IGovernanceModuleProposal {
+	// Convert the proposal messages into a slice of bytes.
+	messages := [][]byte{}
+	for _, msg := range p.Messages {
+		messages = append(messages, msg.Value)
 	}
 
-	proposals := make([]generated.IGovernanceModuleProposal, 0)
-	for _, proposal := range res.Proposals {
-		proposals = append(proposals, transformProposalToABIProposal(*proposal))
-	}
-
-	return proposals, nil
-}
-
-// transformProposalToABIProposal is a helper function to transform a `v1.Proposal`
-// to an `IGovernanceModule.Proposal`.
-func transformProposalToABIProposal(proposal v1.Proposal) generated.IGovernanceModuleProposal {
-	message := make([]byte, 0, len(proposal.Messages))
-	for _, msg := range proposal.Messages {
-		message = append(message, msg.Value...)
-	}
-
-	totalDeposit := make([]generated.CosmosCoin, 0)
-	for _, coin := range proposal.TotalDeposit {
-		totalDeposit = append(totalDeposit, generated.CosmosCoin{
+	// Convert the proposal total deposit into evm coins.
+	td := make([]generated.CosmosCoin, 0)
+	for _, coin := range p.TotalDeposit {
+		td = append(td, generated.CosmosCoin{
 			Denom:  coin.Denom,
 			Amount: coin.Amount.BigInt(),
 		})
 	}
 
 	return generated.IGovernanceModuleProposal{
-		Id: proposal.Id,
-		//Message: [][]byte{message},
-		Status: int32(proposal.Status), // Status is an alias for int32.
+		Id:       p.Id,
+		Messages: messages,
+		Status:   int32(p.Status), // Status is an alias for int32.
 		FinalTallyResult: generated.IGovernanceModuleTallyResult{
-			YesCount:        proposal.FinalTallyResult.YesCount,
-			AbstainCount:    proposal.FinalTallyResult.AbstainCount,
-			NoCount:         proposal.FinalTallyResult.NoCount,
-			NoWithVetoCount: proposal.FinalTallyResult.NoWithVetoCount,
+			YesCount:        p.FinalTallyResult.YesCount,
+			AbstainCount:    p.FinalTallyResult.AbstainCount,
+			NoCount:         p.FinalTallyResult.NoCount,
+			NoWithVetoCount: p.FinalTallyResult.NoWithVetoCount,
 		},
-		SubmitTime:     uint64(proposal.SubmitTime.Unix()),
-		DepositEndTime: uint64(proposal.DepositEndTime.Unix()),
-		TotalDeposit:   totalDeposit,
-		Metadata:       proposal.Metadata,
-		Title:          proposal.Title,
-		Summary:        proposal.Summary,
-		Proposer:       proposal.Proposer,
+		SubmitTime:     uint64(p.SubmitTime.Unix()),
+		DepositEndTime: uint64(p.DepositEndTime.Unix()),
+		TotalDeposit:   td,
+		Metadata:       p.Metadata,
+		Title:          p.Title,
+		Summary:        p.Summary,
+		Proposer:       p.Proposer,
 	}
 }

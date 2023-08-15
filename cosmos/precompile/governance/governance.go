@@ -23,40 +23,40 @@ package governance
 import (
 	"context"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
-// Contract is the precompile contract for the governance module.
+// Contract is the governance precompile contract.
 type Contract struct {
 	ethprecompile.BaseContract
 
-	msgServer v1.MsgServer
-	querier   v1.QueryServer
+	msgServer   v1.MsgServer
+	queryServer v1.QueryServer
+	cdc         codec.ProtoCodecMarshaler
 }
 
-// NewPrecompileContract creates a new precompile contract for the governance module.
-func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
+// NewPrecompileContract creates a new governance precompile contract.
+func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer, cdc codec.ProtoCodecMarshaler) *Contract {
 	return &Contract{
-		BaseContract: ethprecompile.NewBaseContract(
-			generated.GovernanceModuleMetaData.ABI,
-			// Precompile Address: 0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
-		),
-		msgServer: m,
-		querier:   q,
+		BaseContract: ethprecompile.NewBaseContract(generated.GovernanceModuleMetaData.ABI, PrecompileAddress()),
+
+		msgServer:   m,
+		queryServer: q,
+		cdc:         cdc,
 	}
 }
+
+const (
+	EventTypeProposalSubmitted = "proposal_submitted"
+	AttributeProposalSender    = "proposal_sender"
+)
 
 // CustomValueDecoders implements the `ethprecompile.StatefulImpl` interface.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
@@ -65,78 +65,109 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	}
 }
 
-// SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
-func (c *Contract) SubmitProposal(
-	ctx context.Context,
-	proposalBz []byte,
-	messageBz []byte,
-) (uint64, error) {
-	message, err := unmarshalMsgAndReturnAny(messageBz)
+// SubmitProposal is the method for the `submitProposal` function.
+func (c *Contract) SubmitProposal(ctx context.Context, proposalBz []byte, messagesBz [][]byte) (uint64, error) {
+	// Decode the proposal bytes into  v1.MsgSubmitProposal.
+	var proposal v1.MsgSubmitProposal
+	if err := proposal.Unmarshal(proposalBz); err != nil {
+		return 0, err
+	}
+
+	// Decode all the messages into sdk.Msg then wrap them into codectypes.Any and add to the proposal msg.
+	messages, err := c.ProcessMessages(messagesBz)
 	if err != nil {
 		return 0, err
 	}
-	return c.submitProposalHelper(ctx, proposalBz, []*codectypes.Any{message})
+	proposal.Messages = messages
+
+	// Create the proposal.
+	res, err := c.msgServer.SubmitProposal(ctx, &proposal)
+	if err != nil {
+		return 0, err
+	}
+
+	return res.ProposalId, nil
 }
 
-// CancelProposal is the method for the `cancelProposal` method of the governance precompile contract.
-func (c *Contract) CancelProposal(
-	ctx context.Context,
-	id uint64,
-) (uint64, uint64, error) {
+// CancelProposal is the method for the `cancelProposal` function.
+func (c *Contract) CancelProposal(ctx context.Context, id uint64) (uint64, error) {
+	// Get the proposer from the context.
 	proposer := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
-	return c.cancelProposalHelper(ctx, proposer, id)
+	// Cancel the vote.
+	res, err := c.msgServer.CancelProposal(ctx, v1.NewMsgCancelProposal(id, proposer.String()))
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(res.CanceledTime.Unix()), nil
 }
 
-// Vote is the method for the `vote` method of the governance precompile contract.
-func (c *Contract) Vote(
-	ctx context.Context,
-	proposalID uint64,
-	options int32,
-	metadata string,
-) (bool, error) {
+// Vote is the method for the `vote` function.
+func (c *Contract) Vote(ctx context.Context, id uint64, option int32, metadata string) (bool, error) {
+	// Get the voter from the context.
 	voter := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
-	return c.voteHelper(ctx, voter, proposalID, options, metadata)
+	// Push through the vote.
+	_, err := c.msgServer.Vote(ctx, v1.NewMsgVote(voter, id, v1.VoteOption(option), metadata))
+
+	return err == nil, err
 }
 
-// VoteWeighted is the method for the `voteWeighted` method of the governance precompile contract.
+// VoteWeighted is the method for the `voteWeighted` function.
 func (c *Contract) VoteWeighted(
 	ctx context.Context,
-	proposalID uint64,
+	id uint64,
 	options []generated.IGovernanceModuleWeightedVoteOption,
 	metadata string,
 ) (bool, error) {
+	// Get the voter from the context.
 	voter := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
-	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
-}
 
-// GetProposal is the method for the `getProposal` method of the governance precompile contract.
-func (c *Contract) GetProposal(
-	ctx context.Context,
-	proposalID uint64,
-) (generated.IGovernanceModuleProposal, error) {
-	return c.getProposalHelper(ctx, proposalID)
-}
-
-// GetProposals is the method for the `getProposal` method of the governance precompile contract.
-func (c *Contract) GetProposals(
-	ctx context.Context,
-	proposalStatus int32,
-) ([]generated.IGovernanceModuleProposal, error) {
-	return c.getProposalsHelper(ctx, proposalStatus)
-}
-
-// unmarshalMsgAndReturnAny unmarshals `[]byte` into a `codectypes.Any` message.
-// TODO: This is a temporary solution until we have a better way to unmarshal messages.
-func unmarshalMsgAndReturnAny(bz []byte) (*codectypes.Any, error) {
-	var msg banktypes.MsgSend
-	if err := msg.Unmarshal(bz); err != nil {
-		return nil, err
+	// Decode the evm type into a cosmos vote options type.
+	weightedOptions := []*v1.WeightedVoteOption{}
+	for _, option := range options {
+		weightedOptions = append(weightedOptions, &v1.WeightedVoteOption{
+			Option: v1.VoteOption(option.VoteOption),
+			Weight: option.Weight,
+		})
 	}
-	anyValue, err := codectypes.NewAnyWithValue(&msg)
+
+	// Push through the vote.
+	_, err := c.msgServer.VoteWeighted(ctx, v1.NewMsgVoteWeighted(voter, id, weightedOptions, metadata))
+
+	return err == nil, err
+}
+
+// GetProposal is the method for the `getProposal` function.
+func (c *Contract) GetProposal(ctx context.Context, id uint64) (generated.IGovernanceModuleProposal, error) {
+	// Get the proposal from the querier.
+	res, err := c.queryServer.Proposal(ctx, &v1.QueryProposalRequest{ProposalId: id})
+	if err != nil {
+		return generated.IGovernanceModuleProposal{}, err
+	}
+
+	// Transform the cosmos type to an evm type and return.
+	return transformToEvmProposal(res.Proposal), nil
+}
+
+// GetProposals is the method for the `getProposals` function.
+func (c *Contract) GetProposals(
+	ctx context.Context, proposalStatus int32) ([]generated.IGovernanceModuleProposal, error) {
+	// Get the proposals from the query server.
+	res, err := c.queryServer.Proposals(
+		ctx,
+		&v1.QueryProposalsRequest{ProposalStatus: v1.ProposalStatus(proposalStatus)},
+	)
 	if err != nil {
 		return nil, err
 	}
-	return anyValue, nil
+
+	// Transform the cosmos type to an evm type and return.
+	proposals := make([]generated.IGovernanceModuleProposal, 0, len(res.Proposals))
+	for _, proposal := range res.Proposals {
+		proposals = append(proposals, transformToEvmProposal(proposal))
+	}
+
+	return proposals, nil
 }

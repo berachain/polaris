@@ -31,17 +31,17 @@ interface IGovernanceModule {
     ////////////////////////////////////////// Write Methods /////////////////////////////////////////////
     /**
      * @dev Submit a proposal to the governance module. Returns the proposal id.
-     * @param proposal The proposal to submit.
-     * @param message The message to submit with the proposal.
+     * @param proposalBz The proposal to submit.
+     * @param messagesBz The message to submit with the proposal.
      */
-    function submitProposal(bytes calldata proposal, bytes calldata message) external returns (uint64);
+    function submitProposal(bytes calldata proposalBz, bytes[] calldata messagesBz) external returns (uint64);
 
     /**
      * @dev Cancel a proposal. Returns the cancled time and height.
      *   burned.
-     * @param proposalId The id of the proposal to cancel.
+     * @param id The id of the proposal to cancel.
      */
-    function cancelProposal(uint64 proposalId) external returns (uint64, uint64);
+    function cancelProposal(uint64 id) external returns (uint64, uint64);
 
     /**
      * @dev Vote on a proposal.
@@ -53,11 +53,11 @@ interface IGovernanceModule {
 
     /**
      * @dev Vote on a proposal with weights.
-     * @param proposalId The id of the proposal to vote on.
-     * @param options The options to vote on.
+     * @param id The id of the proposal to vote on.
+     * @param options The options to vote on and their weights.
      * @param metadata The metadata to attach to the vote.
      */
-    function voteWeighted(uint64 proposalId, WeightedVoteOption[] calldata options, string calldata metadata)
+    function voteWeighted(uint64 id, WeightedVoteOption[] calldata options, string calldata metadata)
         external
         returns (bool);
 
@@ -66,7 +66,7 @@ interface IGovernanceModule {
     /**
      * @dev Get the proposal with the given id.
      */
-    function getProposal(uint64 proposalId) external view returns (Proposal memory);
+    function getProposal(uint64 id) external view returns (Proposal memory);
 
     /**
      * @dev Get proposals with a given status.
