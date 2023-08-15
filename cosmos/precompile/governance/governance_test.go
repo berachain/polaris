@@ -327,7 +327,7 @@ var _ = Describe("Governance Precompile", func() {
 					)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(firstProposal).ToNot(BeNil())
-					Expect(len(firstProposal)).To(Equal(1))
+					Expect(firstProposal).To(HaveLen(1))
 					Expect(int(firstProposal[0].Id)).To(Equal(2))
 					Expect(pageResponse.NextKey).ToNot(Equal(""))
 
@@ -340,7 +340,7 @@ var _ = Describe("Governance Precompile", func() {
 					)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(restProposals).ToNot(BeNil())
-					Expect(len(restProposals)).To(Equal(1))
+					Expect(restProposals).To(HaveLen(1))
 					Expect(int(restProposals[0].Id)).To(Equal(3))
 					Expect(pageResponse.NextKey).To(Equal(""))
 
@@ -351,7 +351,7 @@ var _ = Describe("Governance Precompile", func() {
 					)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(allProposals).ToNot(BeNil())
-					Expect(len(allProposals)).To(Equal(2))
+					Expect(allProposals).To(HaveLen(2))
 					Expect([]uint64{allProposals[0].Id, allProposals[1].Id}).To(Equal([]uint64{2, 3}))
 					Expect(pageResponse.NextKey).To(Equal(""))
 				})
