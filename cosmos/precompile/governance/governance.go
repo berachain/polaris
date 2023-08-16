@@ -74,7 +74,7 @@ func (c *Contract) SubmitProposal(ctx context.Context, proposalBz []byte, messag
 	}
 
 	// Decode all the messages into sdk.Msg then wrap them into codectypes.Any and add to the proposal msg.
-	messages, err := c.ProcessMessages(messagesBz)
+	messages, err := UnmarshalAnyBzSlice(messagesBz)
 	if err != nil {
 		return 0, err
 	}

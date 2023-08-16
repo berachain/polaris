@@ -22,8 +22,6 @@ package governance
 
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/codec/unknownproto"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -39,34 +37,20 @@ func PrecompileAddress() common.Address {
 	return eth
 }
 
-// ProcessMessages takes in a slice of message bytes and returns a slice of codectypes.Any.
-func (c *Contract) ProcessMessages(messagesBz [][]byte) ([]*codectypes.Any, error) {
-	// Decode all the messageBz into sdk.Msg then wrap them into codectypes.Any and append to the slice.
-	messages := []*codectypes.Any{}
-	for _, msgBz := range messagesBz {
-		// Decode the message bytes into a sdk.Msg.
-		var msg sdk.Msg
+// UnmarshalAnyBzSlice unmarshals a slice of bytes into a slice of Any.
+func UnmarshalAnyBzSlice(bzs [][]byte) ([]*codectypes.Any, error) {
+	anys := []*codectypes.Any{}
+	for _, bz := range bzs {
+		var a codectypes.Any
 
-		// Reject all unknown proto fields and unknown proto messages.
-		if err := unknownproto.RejectUnknownFieldsStrict(msgBz, msg, c.cdc.InterfaceRegistry()); err != nil {
+		if err := a.Unmarshal(bz); err != nil {
 			return nil, err
 		}
 
-		// Unmarshal the message bytes into a sdk.Msg.
-		if err := c.cdc.Unmarshal(msgBz, msg); err != nil {
-			return nil, err
-		}
-
-		// Wrap the msg into any proto message and add to the proposal msg.
-		msgAny, err := codectypes.NewAnyWithValue(msg)
-		if err != nil {
-			return nil, err
-		}
-
-		messages = append(messages, msgAny)
+		anys = append(anys, &a)
 	}
 
-	return messages, nil
+	return anys, nil
 }
 
 func transformToEvmProposal(p *v1.Proposal) generated.IGovernanceModuleProposal {
