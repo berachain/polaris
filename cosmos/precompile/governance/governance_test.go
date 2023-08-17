@@ -28,6 +28,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -59,4 +60,28 @@ var _ = Describe("Governance Precompile", func() {
 		Expect(typeURL).To(Equal("/cosmos.bank.v1beta1.MsgSend"))
 	})
 
+	It("Should be able to marshal and unmarshal porposalMsg", func() {
+		// Create the send msg.
+		msg := banktypes.MsgSend{
+			FromAddress: sdk.AccAddress([]byte("from")).String(),
+			ToAddress:   sdk.AccAddress([]byte("from")).String(),
+			Amount:      sdk.NewCoins(sdk.NewCoin("abera", math.NewInt(100))),
+		}
+		msgAny, err := codectypes.NewAnyWithValue(&msg)
+		Expect(err).ToNot(HaveOccurred())
+
+		// Embed the send msg into a proposal.
+		proposal := v1.MsgSubmitProposal{
+			Messages: []*codectypes.Any{msgAny},
+		}
+
+		// Marshal the proposal.
+		pBz, err := proposal.Marshal()
+		Expect(err).ToNot(HaveOccurred())
+
+		// Unmarshal the proposal.
+		var p v1.MsgSubmitProposal
+		err = p.Unmarshal(pBz)
+		Expect(err).ToNot(HaveOccurred())
+	})
 })

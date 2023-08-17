@@ -31,10 +31,9 @@ interface IGovernanceModule {
     ////////////////////////////////////////// Write Methods /////////////////////////////////////////////
     /**
      * @dev Submit a proposal to the governance module. Returns the proposal id.
-     * @param proposalBz The proposal to submit.
-     * @param messagesBz The message to submit with the proposal.
+     * @param proposal The proposal to submit.
      */
-    function submitProposal(bytes calldata proposalBz, bytes[] calldata messagesBz) external returns (uint64);
+    function submitProposal(bytes calldata proposal) external returns (uint64);
 
     /**
      * @dev Cancel a proposal. Returns the cancled time and height.

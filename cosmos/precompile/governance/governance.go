@@ -63,27 +63,18 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 }
 
 // SubmitProposal is the method for the `submitProposal` function.
-func (c *Contract) SubmitProposal(ctx context.Context, proposalBz []byte, messagesBz [][]byte) (uint64, error) {
-	// Decode the proposal bytes into  v1.MsgSubmitProposal.
-	var proposal v1.MsgSubmitProposal
-	if err := proposal.Unmarshal(proposalBz); err != nil {
+func (c *Contract) SubmitProposal(ctx context.Context, proposalMsg []byte) (uint64, error) {
+	// Decode the proposal bytes into  v1.Proposal.
+	var p v1.MsgSubmitProposal
+	if err := p.Unmarshal(proposalMsg); err != nil {
 		return 0, err
 	}
-
-	// Decode all the messages into sdk.Msg then wrap them into codectypes.Any and add to the proposal msg.
-	messages, err := UnmarshalAnyBzSlice(messagesBz)
-	if err != nil {
-		return 0, err
-	}
-	proposal.Messages = messages
 
 	// Create the proposal.
-	res, err := c.msgServer.SubmitProposal(ctx, &proposal)
-	if err != nil {
-		return 0, err
-	}
+	res, err := c.msgServer.SubmitProposal(ctx, &p)
 
-	return res.ProposalId, nil
+	// Return the proposal ID.
+	return res.ProposalId, err
 }
 
 // CancelProposal is the method for the `cancelProposal` function.
