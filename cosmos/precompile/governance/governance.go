@@ -23,7 +23,6 @@ package governance
 import (
 	"context"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
@@ -39,17 +38,15 @@ type Contract struct {
 
 	msgServer   v1.MsgServer
 	queryServer v1.QueryServer
-	cdc         codec.ProtoCodecMarshaler
 }
 
 // NewPrecompileContract creates a new governance precompile contract.
-func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer, cdc codec.ProtoCodecMarshaler) *Contract {
+func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(generated.GovernanceModuleMetaData.ABI, PrecompileAddress()),
 
 		msgServer:   m,
 		queryServer: q,
-		cdc:         cdc,
 	}
 }
 
