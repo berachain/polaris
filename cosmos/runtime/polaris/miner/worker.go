@@ -225,7 +225,7 @@ func (w *worker) buildBlock(ctx context.Context, txs [][]byte) *ProposedBlock {
 
 	w.pendingHeader = env.header
 	w.mempool.Prepare(env.header.BaseFee, env.signer)
-	w.logger.Info("🦺 building block", "seal_hash", env.header.Hash())
+	w.logger.Info("building block", "seal_hash", env.header.Hash())
 	iterator := w.mempool.Select(ctx, txs)
 	for iterator != nil {
 		memTx := iterator.Tx()
@@ -275,7 +275,7 @@ func (w *worker) processBlock(ctx context.Context, txs [][]byte) *ProcessedBlock
 
 	w.pendingHeader = env.header
 	w.mempool.Prepare(env.header.BaseFee, env.signer)
-	w.logger.Info("🚜 processing block", "seal_hash", env.header.Hash())
+	w.logger.Info("processing block", "seal_hash", env.header.Hash())
 	for _, txBytes := range txs {
 		_, err = w.txVerifier.ProcessProposalVerifyTx(txBytes)
 		if err != nil {

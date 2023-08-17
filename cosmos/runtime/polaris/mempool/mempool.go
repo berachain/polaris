@@ -121,7 +121,7 @@ func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Itera
 	}
 
 	// return an iterator over the pending txs, sorted by price and nonce
-	iterator := iterator{
+	it := iterator{
 		txs: coretypes.NewTransactionsByPriceAndNonce(
 			gtp.signer,
 			pendingTxs,
@@ -129,7 +129,7 @@ func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Itera
 		),
 		serializer: gtp.serializer,
 	}
-	return &iterator
+	return &it
 }
 
 // CountTx returns the number of transactions currently in the mempool.
