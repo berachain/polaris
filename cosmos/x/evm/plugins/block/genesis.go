@@ -32,7 +32,7 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 	p.Prepare(ctx)
 
 	// Writing genesis block 0 to disk, available to query from any future IAVL height
-	if err := p.StoreHeader(ethGen.ToBlock().Header()); err != nil {
+	if err := p.storeGenesisHeader(ethGen.ToBlock().Header()); err != nil {
 		panic(err)
 	}
 }

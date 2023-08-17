@@ -55,7 +55,7 @@ import (
 )
 
 func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey) (stakingtypes.Validator, error) {
-	return stakingtypes.NewValidator(operator.String() /* todo move to codec */, pubKey, stakingtypes.Description{})
+	return stakingtypes.NewValidator(operator.String(), pubKey, stakingtypes.Description{})
 }
 
 var (
@@ -91,10 +91,10 @@ var _ = Describe("Processor", func() {
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
-		Expect(sk.SetValidator(ctx, validator)).ToNot(HaveOccurred())
+		err = sk.SetValidator(ctx, validator)
+		Expect(err).ToNot(HaveOccurred())
 		sc = staking.NewPrecompileContract(&sk)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
-
 		k = keeper.NewKeeper(
 			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
@@ -119,7 +119,6 @@ var _ = Describe("Processor", func() {
 		k.SetPolaris(pl)
 
 		ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error { return nil })) // disable logging
-
 		for _, plugin := range k.GetHost().GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
 			if hasInitGenesis {

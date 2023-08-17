@@ -23,6 +23,7 @@ package mock
 import (
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -136,12 +137,10 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 			return false
 		},
 	}
-	mockedPolarisStateDB.LogsFunc = func() []*types.Log {
-		logs := []*types.Log{}
-		for _, l := range mockedPolarisStateDB.AddLogCalls() {
-			logs = append(logs, l.Log)
-		}
-		return logs
+
+	mockedPolarisStateDB.CopyFunc = func() vm.StateDB {
+		return mockedPolarisStateDB
 	}
+
 	return mockedPolarisStateDB
 }

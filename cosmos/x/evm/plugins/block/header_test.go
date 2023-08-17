@@ -56,7 +56,7 @@ var _ = Describe("Header", func() {
 			Number: big.NewInt(0),
 		}
 		genHash := header.Hash()
-		Expect(p.StoreHeader(header)).ToNot(HaveOccurred())
+		Expect(p.storeGenesisHeader(header)).ToNot(HaveOccurred())
 
 		genHeadByNum, err := p.getGenesisHeader()
 		Expect(err).NotTo(HaveOccurred())

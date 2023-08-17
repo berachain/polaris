@@ -85,6 +85,21 @@ func (p *plugin) GetHeaderByHash(hash common.Hash) (*coretypes.Header, error) {
 	return p.GetHeaderByNumber(new(big.Int).SetBytes(numBz).Uint64())
 }
 
+func (p *plugin) storeGenesisHeader(header *coretypes.Header) error {
+	headerHash := header.Hash()
+	headerBz, err := coretypes.MarshalHeader(header)
+	if err != nil {
+		return errorslib.Wrap(err, "SetHeader: failed to marshal header")
+	}
+	blockHeight := header.Number.Int64()
+
+	// write genesis header
+	if blockHeight == 0 {
+		return p.writeGenesisHeaderBytes(headerHash, headerBz)
+	}
+	return errors.New("not genesis block")
+}
+
 // StoreHeader implements core.BlockPlugin.
 func (p *plugin) StoreHeader(header *coretypes.Header) error {
 	headerHash := header.Hash()
@@ -99,11 +114,6 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 			"StoreHeader: block height mismatch, got %d, expected %d",
 			blockHeight, p.ctx.BlockHeight(),
 		)
-	}
-
-	// write genesis header
-	if blockHeight == 0 {
-		return p.writeGenesisHeaderBytes(headerHash, headerBz)
 	}
 
 	kvstore := p.ctx.KVStore(p.storekey)
