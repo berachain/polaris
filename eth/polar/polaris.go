@@ -30,6 +30,8 @@ import (
 	"github.com/ethereum/go-ethereum/graphql"
 
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/txpool"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/log"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
@@ -42,6 +44,11 @@ import (
 var defaultEthConfig = ethconfig.Config{
 	SyncMode:           0,
 	FilterLogCacheSize: 0,
+}
+
+//go:generate moq -out ./mock/miner.mock.go -pkg mock . Miner
+type Miner interface {
+	PendingBlock() *types.Block
 }
 
 // NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC apis.
@@ -70,6 +77,11 @@ type Polaris struct {
 	// blockchain represents the canonical chain.
 	blockchain core.Blockchain
 
+	// canonical tx pool for the chain
+	txPool  *txpool.TxPool
+	handler txpool.Handler
+	miner   Miner
+
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the blockchain.
 	backend Backend
 
@@ -78,14 +90,21 @@ type Polaris struct {
 	filterSystem *filters.FilterSystem
 }
 
-func NewWithNetworkingStack(
-	cfg *Config,
+// New creates a new Polaris instance.
+// host: is the host chain that the Polaris chain will be running on.
+// stack: is the networking stack that will be used to expose JSON-RPC APIs.
+// logHandler: is the log handler that will be used by the EVM, it is used in order to get the host chain logs
+// and the go-ethereum logs to be aesthetically the same.
+// handler: is used to broadcast new transactions via the p2p mechanism specified by the host chain
+func New(cfg *Config,
 	host core.PolarisHostChain,
 	stack NetworkingStack,
 	logHandler log.Handler,
+	handler txpool.Handler,
 ) *Polaris {
 	pl := &Polaris{
 		cfg:        cfg,
+		handler:    handler,
 		blockchain: core.NewChain(host),
 		stack:      stack,
 	}
@@ -146,4 +165,24 @@ func (pl *Polaris) StartServices() error {
 		}
 	}()
 	return nil
+}
+
+func (pl *Polaris) Blockchain() core.Blockchain {
+	return pl.blockchain
+}
+
+func (pl *Polaris) SetHandler(handler txpool.Handler) {
+	pl.handler = handler
+}
+func (pl *Polaris) SetTxPool(txpool *txpool.TxPool) {
+	pl.txPool = txpool
+}
+func (pl *Polaris) SetMiner(miner Miner) {
+	pl.miner = miner
+}
+func (pl *Polaris) TxPool() *txpool.TxPool { return pl.txPool }
+
+// FOR TESTING ONLY.
+func (pl *Polaris) SetBlockchain(blockchain core.Blockchain) {
+	pl.blockchain = blockchain
 }

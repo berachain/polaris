@@ -18,45 +18,45 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package configuration
+package mempool
 
 import (
-	"context"
-
-	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/params"
+	coretypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-// Plugin is the interface that must be implemented by the plugin.
-type Plugin interface {
-	plugins.Base
-	plugins.HasGenesis
-	core.ConfigurationPlugin
-	SetChainConfig(*params.ChainConfig)
+// iterator is used to iterate over the transactions in the sdk mempool.
+type iterator struct {
+	txs        *coretypes.TransactionsByPriceAndNonce
+	serializer SdkTxSerializer
 }
 
-// plugin implements the core.ConfigurationPlugin interface.
-type plugin struct {
-	storeKey    storetypes.StoreKey
-	paramsStore storetypes.KVStore
-}
-
-// NewPlugin returns a new plugin instance.
-func NewPlugin(storeKey storetypes.StoreKey) Plugin {
-	return &plugin{
-		storeKey: storeKey,
+// Tx implements sdkmempool.Iterator.
+func (i *iterator) Tx() sdk.Tx {
+	ethTx := i.txs.Peek()
+	if ethTx == nil {
+		// should never hit this case because the immediately before call to Next() should return
+		// nil
+		return nil
 	}
+
+	sdkTx, err := i.serializer.SerializeToSdkTx(ethTx)
+	if err != nil {
+		// gtp.logger.Error("eth tx could not be serialized to sdk tx:", err)
+		return nil
+	}
+
+	return sdkTx
 }
 
-// Prepare implements the core.ConfigurationPlugin interface.
-func (p *plugin) Prepare(ctx context.Context) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.paramsStore = sCtx.KVStore(p.storeKey)
-}
+// Next implements sdkmempool.Iterator.
+func (i *iterator) Next() sdkmempool.Iterator {
+	i.txs.Shift()
 
-func (p *plugin) IsPlugin() {}
+	if i.txs.Peek() == nil {
+		i = nil
+	}
+	return i
+}

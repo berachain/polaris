@@ -35,7 +35,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -63,11 +62,13 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
+	evmmempool "pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+
+	polarisruntime "pkg.berachain.dev/polaris/cosmos/runtime"
 )
 
 // DefaultNodeHome default home directories for the application daemon.
@@ -82,7 +83,7 @@ var (
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
 type SimApp struct {
-	*runtime.App
+	*polarisruntime.PolarisApp
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
 	txConfig          client.TxConfig
@@ -134,8 +135,8 @@ func NewPolarisApp(
 ) *SimApp {
 	var (
 		app          = &SimApp{}
-		appBuilder   *runtime.AppBuilder
-		ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
+		appBuilder   = &polarisruntime.AppBuilder{}
+		ethTxMempool = evmmempool.NewWrappedGethTxPool()
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
 			AppConfig,
@@ -174,7 +175,7 @@ func NewPolarisApp(
 	)
 
 	if err := depinject.Inject(appConfig,
-		&appBuilder,
+		&appBuilder.AppBuilder,
 		&app.appCodec,
 		&app.legacyAmino,
 		&app.txConfig,
@@ -224,26 +225,25 @@ func NewPolarisApp(
 	// }
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
-	app.App = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
+	// app.App = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
 
 	// TODO: MOVE EVM SETUP
 	// ----- BEGIN EVM SETUP ----------------------------------------------
 	// TODO: reenable offchain
 	// offchainKey := storetypes.NewKVStoreKey("offchain-evm")
 	// app.MountStore(offchainKey, storetypes.StoreTypeDB)
-	homePath, ok := appOpts.Get(flags.FlagHome).(string)
-	if !ok || homePath == "" {
-		homePath = DefaultNodeHome
-	}
+	app.PolarisApp = appBuilder.Build(db,
+		traceStore, app.StakingKeeper, ethTxMempool, app.EVMKeeper.GetHost(),
+		append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
+
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
-		nil,
+		storetypes.NewKVStoreKey("evm"),
 		app.CreateQueryContext,
-		// TODO: clean this up.
-		homePath+"/config/polaris.toml",
-		homePath+"/data/polaris",
-		logger,
 	)
+
+	app.Evmkeeper = app.EVMKeeper
+
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,
@@ -363,12 +363,11 @@ func (app *SimApp) SimulationManager() *module.SimulationManager {
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
 func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
-	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
+	app.PolarisApp.RegisterAPIRoutes(apiSvr, apiConfig)
 	// register swagger API in app.go so that other applications can override easily
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
 }
 
 // GetMaccPerms returns a copy of the module account permissions

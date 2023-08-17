@@ -73,7 +73,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.AccountKeeper,
 		in.StakingKeeper,
 		in.Key,
-		in.Mempool,
 		in.CustomPrecompiles,
 	)
 

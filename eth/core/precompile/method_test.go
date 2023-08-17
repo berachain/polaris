@@ -52,7 +52,7 @@ var _ = Describe("Method", func() {
 				big.NewInt(0),
 			)
 
-			// due to how the go "reflect" package works, we need to pass in the `stateful` in the
+			// due to how the go "reflect" package works, we neGeted to pass in the `stateful` in the
 			// method call as the first parameter to thef function. this is taken care of for the
 			// caller of the precompile under the hood, and users dont have to worry when
 			// implementing their own precompiles.

@@ -182,12 +182,8 @@ func (b *backend) SetHead(_ uint64) {
 func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*types.Header, error) {
 	switch number {
 	case rpc.PendingBlockNumber:
-		// TODO: handle "miner" stuff, Pending block is only known by the miner
-		// block := b.eth.miner.PendingBlock()
-		// TODO: this may be hiding a larger issue with the timing of the NewHead channel stuff.
-		// Investigate and hopefully remove this GTE.
-		header := b.polar.blockchain.CurrentHeader()
-		return header, nil
+		block := b.polar.miner.PendingBlock()
+		return block.Header(), nil
 	case rpc.LatestBlockNumber:
 		return b.polar.blockchain.CurrentHeader(), nil
 	case rpc.FinalizedBlockNumber:
@@ -232,11 +228,8 @@ func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*typ
 	// Pending block is only known by the miner
 	switch number {
 	case rpc.PendingBlockNumber:
-		// 	block := b.eth.miner.PendingBlock()
-		// 	return block, nil
-		//  TODO: handling pending in the miner.
-		header := b.polar.blockchain.CurrentBlock()
-		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
+		block := b.polar.miner.PendingBlock()
+		return block, nil
 
 	// Otherwise resolve and return the block
 	case rpc.LatestBlockNumber:
@@ -441,28 +434,33 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // Transaction Pool API
 // ==============================================================================
 
-func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
-	return b.polar.blockchain.SendTx(ctx, signedTx)
+func (b *backend) SendTx(_ context.Context, signedTx *types.Transaction) error {
+	return b.polar.txPool.AddLocal(signedTx)
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
 	b.logger.Debug("called eth.rpc.backend.GetPoolTransactions")
-	return b.polar.blockchain.GetPoolTransactions()
+	pending := b.polar.txPool.Pending(false)
+	var txs types.Transactions
+	for _, batch := range pending {
+		txs = append(txs, batch...)
+	}
+	return txs, nil
 }
 
 func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
 	b.logger.Debug("called eth.rpc.backend.GetPoolTransaction", "tx_hash", txHash)
-	return b.polar.blockchain.GetPoolTransaction(txHash)
+	return b.polar.txPool.Get(txHash)
 }
 
 func (b *backend) GetPoolNonce(_ context.Context, addr common.Address) (uint64, error) {
-	nonce, err := b.polar.blockchain.GetPoolNonce(addr)
+	nonce := b.polar.txPool.Nonce(addr)
 	b.logger.Debug("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
-	return nonce, err
+	return nonce, nil
 }
 
 func (b *backend) Stats() (int, int) {
-	pending, queued := b.polar.blockchain.GetPoolStats()
+	pending, queued := b.polar.txPool.Stats()
 	b.logger.Debug("called eth.rpc.backend.Stats", "pending", pending, "queued", queued)
 	return pending, queued
 }
@@ -470,7 +468,7 @@ func (b *backend) Stats() (int, int) {
 func (b *backend) TxPoolContent() (
 	map[common.Address]types.Transactions, map[common.Address]types.Transactions,
 ) {
-	pending, queued := b.polar.blockchain.GetPoolContent()
+	pending, queued := b.polar.txPool.Content()
 	b.logger.Debug("called eth.rpc.backend.TxPoolContent", "pending", len(pending), "queued", len(queued))
 	return pending, queued
 }
@@ -478,14 +476,14 @@ func (b *backend) TxPoolContent() (
 func (b *backend) TxPoolContentFrom(addr common.Address) (
 	types.Transactions, types.Transactions,
 ) {
-	pending, queued := b.polar.blockchain.GetPoolContentFrom(addr)
+	pending, queued := b.polar.txPool.ContentFrom(addr)
 	b.logger.Debug("called eth.rpc.backend.TxPoolContentFrom",
 		"addr", addr, "pending", len(pending), "queued", len(queued))
 	return pending, queued
 }
 
 func (b *backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {
-	return b.polar.blockchain.SubscribeNewTxsEvent(ch)
+	return b.polar.txPool.SubscribeNewTxsEvent(ch)
 }
 
 func (b *backend) Engine() consensus.Engine {

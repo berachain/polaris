@@ -18,45 +18,31 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package configuration
+package miner
 
 import (
 	"context"
 
-	storetypes "cosmossdk.io/store/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/params"
+	"github.com/ethereum/go-ethereum/common"
 )
 
-// Plugin is the interface that must be implemented by the plugin.
-type Plugin interface {
-	plugins.Base
-	plugins.HasGenesis
-	core.ConfigurationPlugin
-	SetChainConfig(*params.ChainConfig)
+type StakingKeeper interface {
+	GetValidatorByConsAddr(ctx context.Context, addr sdk.ConsAddress) (stakingtypes.Validator, error)
 }
 
-// plugin implements the core.ConfigurationPlugin interface.
-type plugin struct {
-	storeKey    storetypes.StoreKey
-	paramsStore storetypes.KVStore
+type CB struct {
+	Sk StakingKeeper
 }
 
-// NewPlugin returns a new plugin instance.
-func NewPlugin(storeKey storetypes.StoreKey) Plugin {
-	return &plugin{
-		storeKey: storeKey,
-	}
-}
-
-// Prepare implements the core.ConfigurationPlugin interface.
-func (p *plugin) Prepare(ctx context.Context) {
+func (cb *CB) CoinbaseFromContext(ctx context.Context) common.Address {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.paramsStore = sCtx.KVStore(p.storeKey)
+	cometHeader := sCtx.BlockHeader()
+	val, err := cb.Sk.GetValidatorByConsAddr(sCtx, cometHeader.ProposerAddress)
+	if err != nil {
+		panic(err)
+	}
+	return common.Address(val.GetOperator())
 }
-
-func (p *plugin) IsPlugin() {}

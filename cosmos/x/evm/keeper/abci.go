@@ -22,15 +22,11 @@ package keeper
 
 import (
 	"context"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (k *Keeper) BeginBlocker(ctx context.Context) error {
-	sCtx := sdk.UnwrapSDKContext(ctx)
 	// Prepare the Polaris Ethereum block.
-	k.lock = false
-	k.polaris.Prepare(ctx, uint64(sCtx.BlockHeight()))
+	k.polaris.Prepare(ctx)
 	return nil
 }
 

@@ -18,45 +18,20 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package configuration
+package polaris
 
 import (
-	"context"
+	"github.com/ethereum/go-ethereum/node"
 
-	storetypes "cosmossdk.io/store/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/eth/polar"
 )
 
-// Plugin is the interface that must be implemented by the plugin.
-type Plugin interface {
-	plugins.Base
-	plugins.HasGenesis
-	core.ConfigurationPlugin
-	SetChainConfig(*params.ChainConfig)
-}
+func (r *Runtime) LoadConfigFromDisk() (*node.Config, error) {
+	// Load EVM keeper or something?
+	// TODO: PARSE POLARIS.TOML CORRECT AGAIN
+	nodeCfg := polar.DefaultGethNodeConfig()
+	// TODO: unfuck this
+	nodeCfg.DataDir = "./.tmp/polaris"
 
-// plugin implements the core.ConfigurationPlugin interface.
-type plugin struct {
-	storeKey    storetypes.StoreKey
-	paramsStore storetypes.KVStore
+	return nodeCfg, nil
 }
-
-// NewPlugin returns a new plugin instance.
-func NewPlugin(storeKey storetypes.StoreKey) Plugin {
-	return &plugin{
-		storeKey: storeKey,
-	}
-}
-
-// Prepare implements the core.ConfigurationPlugin interface.
-func (p *plugin) Prepare(ctx context.Context) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.paramsStore = sCtx.KVStore(p.storeKey)
-}
-
-func (p *plugin) IsPlugin() {}

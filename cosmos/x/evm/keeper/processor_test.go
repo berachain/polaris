@@ -24,14 +24,13 @@ import (
 	"math/big"
 	"os"
 
-	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	ethlog "pkg.berachain.dev/polaris/eth/log"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
@@ -39,7 +38,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -47,6 +45,8 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/eth/polar"
+	polarmock "pkg.berachain.dev/polaris/eth/polar/mock"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -87,28 +87,44 @@ var _ = Describe("Processor", func() {
 
 		// before chain, init genesis state
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
+		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
+		Expect(err).ToNot(HaveOccurred())
+		validator.Status = stakingtypes.Bonded
+		sk.SetValidator(ctx, validator)
+		sc = staking.NewPrecompileContract(&sk)
+		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
+
 		k = keeper.NewKeeper(
 			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
-			evmmempool.NewPolarisEthereumTxPool(),
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
-		ctx = ctx.WithBlockHeight(0)
+		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil)
+		pl := &polar.Polaris{}
+		miner := &polarmock.MinerMock{}
+		miner.PendingBlockFunc = func() *coretypes.Block {
+			return coretypes.NewBlockWithHeader(&coretypes.Header{
+				Number:   big.NewInt(1),
+				BaseFee:  big.NewInt(1),
+				GasLimit: ctx.BlockGasMeter().Limit(),
+			})
+		}
+
+		// Setup
+		pl.SetBlockchain(core.NewChain(k.GetHost()))
+		pl.SetMiner(miner)
+		k.SetPolaris(pl)
+
+		ethlog.Root().SetHandler(ethlog.FuncHandler(func(r *ethlog.Record) error { return nil })) // disable logging
+
 		for _, plugin := range k.GetHost().GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
 			if hasInitGenesis {
 				plugin.InitGenesis(ctx, core.DefaultGenesis)
 			}
 		}
-		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
-		Expect(err).ToNot(HaveOccurred())
-		validator.Status = stakingtypes.Bonded
-		Expect(sk.SetValidator(ctx, validator)).To(Succeed())
-		sc = staking.NewPrecompileContract(&sk)
-		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger())
-		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 
 		// Set validator with consensus address.
 		consAddr, err := validator.GetConsAddr()
