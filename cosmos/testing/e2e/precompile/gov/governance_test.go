@@ -34,13 +34,14 @@ import (
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	utils "pkg.berachain.dev/polaris/e2e/localnet/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 func TestGovernancePrecompile(t *testing.T) {
@@ -80,8 +81,8 @@ var _ = Describe("Call the Precompile Directly", func() {
 			common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2"),
 		)
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectMined(tf.EthClient(), tx)
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectMined(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Alice Submits a proposal.
 		amt := sdkmath.NewInt(100000000)
@@ -89,7 +90,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err = precompile.SubmitProposal(txr, prop, msg)
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Send coins to the wrapper.
 		coins := []bbindings.CosmosCoin{
@@ -101,14 +102,14 @@ var _ = Describe("Call the Precompile Directly", func() {
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = bankPrecompile.Send(txr, wrapperAddr, coins)
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wrapper submits a proposal.
 		prop, msg = propAndMsgBz(cosmlib.AddressToAccAddress(wrapperAddr).String(), amt)
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = wrapper.Submit(txr, prop, msg, "stake", big.NewInt(amt.Int64()))
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wait for next block.
 		err = tf.WaitForNextBlock()
@@ -224,25 +225,25 @@ var _ = Describe("Call the Precompile Directly", func() {
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.Vote(txr, 1, 1, "metadata")
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Call via wrapper.
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = wrapper.Vote(txr, 1, 1, "metadata")
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Call directly.
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = precompile.CancelProposal(txr, 1)
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Call via wrapper.
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = wrapper.CancelProposal(txr, 2)
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 	})
 })
 
