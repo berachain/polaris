@@ -72,7 +72,6 @@ jobs:
         base-image: [base-image]
         image-name: ['localnet:latest']
         export-name: [localnet]
-        client-name: [polard]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -93,7 +92,7 @@ jobs:
         uses: magefile/mage-action@v2
         with:
           version: latest
-          args: ${{ matrix.namespace }}:build ${{ matrix.client-name }}
+          args: ${{ matrix.namespace }}:build
         env:
           GOPATH: /home/runner/go
       - name: Save localnet image

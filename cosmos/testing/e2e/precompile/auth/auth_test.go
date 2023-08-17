@@ -24,8 +24,8 @@ import (
 	"testing"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
+	"pkg.berachain.dev/polaris/cosmos/testing/e2e/utils"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	"pkg.berachain.dev/polaris/e2e/localnet/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"

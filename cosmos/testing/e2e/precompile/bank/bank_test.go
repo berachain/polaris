@@ -25,12 +25,13 @@ import (
 	"testing"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
+	"pkg.berachain.dev/polaris/cosmos/testing/e2e/utils"
 	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
-	"pkg.berachain.dev/polaris/e2e/localnet/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 func TestCosmosPrecompiles(t *testing.T) {
@@ -112,7 +113,7 @@ var _ = Describe("Bank", func() {
 			coinsToBeSent,
 		)
 		Expect(err).ShouldNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wait one block.
 		err = tf.WaitForNextBlock()
