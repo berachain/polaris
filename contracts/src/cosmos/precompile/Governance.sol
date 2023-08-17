@@ -36,7 +36,7 @@ interface IGovernanceModule {
     function submitProposal(bytes calldata proposalMsg) external returns (uint64);
 
     /**
-     * @dev Cancel a proposal. Returns the cancled time and height.
+     * @dev Cancel a proposal. Returns the cancelled time and height.
      *   burned.
      * @param id The id of the proposal to cancel.
      */

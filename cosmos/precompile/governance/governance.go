@@ -78,17 +78,17 @@ func (c *Contract) SubmitProposal(ctx context.Context, proposalMsg []byte) (uint
 }
 
 // CancelProposal is the method for the `cancelProposal` function.
-func (c *Contract) CancelProposal(ctx context.Context, id uint64) (uint64, error) {
+func (c *Contract) CancelProposal(ctx context.Context, id uint64) (uint64, uint64, error) {
 	// Get the proposer from the context.
 	proposer := sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes())
 
 	// Cancel the vote.
 	res, err := c.msgServer.CancelProposal(ctx, v1.NewMsgCancelProposal(id, proposer.String()))
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
-	return uint64(res.CanceledTime.Unix()), nil
+	return uint64(res.CanceledTime.Unix()), res.CanceledHeight, nil
 }
 
 // Vote is the method for the `vote` function.
