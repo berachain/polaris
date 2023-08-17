@@ -34,6 +34,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -218,6 +219,26 @@ var _ = Describe("Staking", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(Equal(big.NewInt(9))) // should have correct shares
+			})
+		})
+
+		When("GetValidatorDelegations", func() {
+			It("should return the validators correct delegations", func() {
+				res, _, err := contract.GetValidatorDelegations(
+					ctx,
+					cosmlib.ValAddressToEthAddress(val),
+					cbindings.CosmosPageRequest{
+						Key:        "test",
+						Offset:     0,
+						Limit:      10,
+						CountTotal: true,
+						Reverse:    false,
+					},
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).To(HaveLen(1))
+				Expect(res[0].Delegator).To(Equal(cosmlib.AccAddressToEthAddress(del)))
+				Expect(res[0].Shares).To(Equal(new(big.Int).Mul(big.NewInt(9), big.NewInt(1e18))))
 			})
 		})
 

@@ -30,8 +30,10 @@ import (
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	querytypes "github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -60,6 +62,38 @@ func (c *Contract) getDelegationHelper(
 	}
 
 	return delegation.Balance.Amount.BigInt(), nil
+}
+
+// getDelegationsHelper is the helper function for `getDelegations`.
+func (c *Contract) getValidatorDelegationsHelper(
+	ctx context.Context,
+	val sdk.ValAddress,
+	pagination cbindings.CosmosPageRequest,
+) ([]staking.IStakingModuleDelegation, cbindings.CosmosPageResponse, error) {
+	pageRequest, err := cosmlib.ExtractPageRequestFromInput(pagination)
+	if err != nil {
+		// TODO: figure out what we want to happen here, error if we want to enforce pageRequest
+		pageRequest = &querytypes.PageRequest{}
+	}
+	res, err := c.querier.ValidatorDelegations(ctx, &stakingtypes.QueryValidatorDelegationsRequest{
+		ValidatorAddr: val.String(),
+		Pagination:    pageRequest,
+	})
+	if status.Code(err) == codes.NotFound {
+		return []staking.IStakingModuleDelegation{}, cbindings.CosmosPageResponse{}, nil
+	} else if err != nil {
+		return nil, cbindings.CosmosPageResponse{}, err
+	}
+
+	delegations := make([]staking.IStakingModuleDelegation, 0)
+	for _, d := range res.GetDelegationResponses() {
+		delegations = append(delegations, staking.IStakingModuleDelegation{
+			Delegator: cosmlib.EthAddressFromBech32(d.Delegation.DelegatorAddress),
+			Shares:    d.Delegation.Shares.BigInt(),
+		})
+	}
+
+	return delegations, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
 // getUnbondingDelegationHelper is the helper function for `getUnbondingDelegation`.

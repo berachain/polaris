@@ -29,6 +29,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -84,6 +85,15 @@ func (c *Contract) GetDelegatorValidators(
 	delegatorAddr common.Address,
 ) ([]generated.IStakingModuleValidator, error) {
 	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr))
+}
+
+// GetValidatorDelegations implements the `getValidatorDelegations(address)` method.
+func (c *Contract) GetValidatorDelegations(
+	ctx context.Context,
+	validatorAddr common.Address,
+	pagination cbindings.CosmosPageRequest,
+) ([]generated.IStakingModuleDelegation, cbindings.CosmosPageResponse, error) {
+	return c.getValidatorDelegationsHelper(ctx, cosmlib.AddressToValAddress(validatorAddr), pagination)
 }
 
 // GetDelegation implements `getDelegation(address)` method.

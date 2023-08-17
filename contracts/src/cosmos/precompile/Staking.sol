@@ -86,6 +86,14 @@ interface IStakingModule {
     function getDelegatorValidators(address delegatorAddress) external view returns (Validator[] memory);
 
     /**
+     * @dev Returns all the delegations delegated to the given validator.
+     */
+    function getValidatorDelegations(address validatorAddress, Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (Delegation[] memory, Cosmos.PageResponse memory);
+
+    /**
      * @dev Returns the `amount` of tokens currently delegated by `delegatorAddress` to
      * `validatorAddress`
      */
@@ -225,5 +233,13 @@ interface IStakingModule {
         uint256 sharesDst;
         // unbondingId is the incrementing id that uniquely identifies this entry
         uint64 unbondingId;
+    }
+
+    /**
+     * @dev Represents a single delegation.
+     */
+    struct Delegation {
+        address delegator;
+        uint256 shares;
     }
 }
