@@ -34,7 +34,8 @@ import (
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	utils "pkg.berachain.dev/polaris/e2e/localnet/utils"
+	"pkg.berachain.dev/polaris/e2e/localnet/utils"
+	"pkg.berachain.dev/polaris/e2e/testapp"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -56,7 +57,7 @@ var _ = Describe("Distribution Precompile", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
+		tf = network.NewTestFixture(GinkgoT(), testapp.NewPolarisFixtureConfig())
 		// Setup the governance precompile.
 		precompile, _ = bindings.NewDistributionModule(
 			common.HexToAddress("0x69"),

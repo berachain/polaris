@@ -25,10 +25,11 @@ import (
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	utils "pkg.berachain.dev/polaris/e2e/localnet/utils"
+	"pkg.berachain.dev/polaris/e2e/testapp"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 func TestMiscellaneousPrecompile(t *testing.T) {
@@ -41,7 +42,7 @@ var _ = Describe("Miscellaneous Precompile Tests", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
+		tf = network.NewTestFixture(GinkgoT(), testapp.NewPolarisFixtureConfig())
 	})
 
 	AfterEach(func() {
@@ -63,7 +64,7 @@ var _ = Describe("Miscellaneous Precompile Tests", func() {
 			err = tf.WaitForNextBlock()
 			Expect(err).NotTo(HaveOccurred())
 
-			utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+			ExpectSuccessReceipt(tf.EthClient(), tx)
 			Expect(contract).ToNot(BeNil())
 			Expect(addr).ToNot(BeEmpty())
 

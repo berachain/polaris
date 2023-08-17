@@ -27,6 +27,7 @@ import (
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
 	"pkg.berachain.dev/polaris/e2e/localnet/utils"
+	"pkg.berachain.dev/polaris/e2e/testapp"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -50,7 +51,7 @@ var _ = Describe("Bank", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = localnet.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
+		tf = localnet.NewTestFixture(GinkgoT(), testapp.NewPolarisFixtureConfig())
 		bankPrecompile, _ = bindings.NewBankModule(
 			common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient())
 	})

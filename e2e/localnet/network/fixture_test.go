@@ -37,6 +37,7 @@ import (
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
+	"pkg.berachain.dev/polaris/e2e/testapp"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
@@ -52,7 +53,7 @@ var _ = Describe("JSON RPC tests", func() {
 	)
 
 	BeforeEach(func() {
-		tf = localnet.NewTestFixture(GinkgoT(), NewPolarisFixtureConfig())
+		tf = localnet.NewTestFixture(GinkgoT(), testapp.NewPolarisFixtureConfig())
 		Expect(tf).ToNot(BeNil())
 		client = tf.EthClient()
 	})

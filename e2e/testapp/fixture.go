@@ -23,43 +23,27 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package main
+package testapp
 
-import (
-	"github.com/magefile/mage/mg"
-)
+import network "pkg.berachain.dev/polaris/e2e/localnet/network"
 
 const (
-	baseImage = "polard/base:v0.0.0"
-
-	polardClientPath   = "./cosmos/testing/e2e/polard/"
-	localnetRepository = "localnet"
-	localnetVersion    = "latest"
+	polardConfigPath  = "../polard/config/"
+	polardBaseImage   = "polard/base:v0.0.0"
+	containerName     = "goodcontainer"
+	polardHTTPAddress = "8545/tcp"
+	polardWSAddress   = "8546/tcp"
+	goVersion         = "1.20.4"
 )
 
-type Localnet mg.Namespace
-
-func (Localnet) Build() error {
-	return ExecuteInDirectory(polardClientPath,
-		func(...string) error {
-			return dockerBuildFn(false)(
-				"--build-arg", "GO_VERSION="+goVersion,
-				"--build-arg", "BASE_IMAGE="+baseImage,
-				"-t", localnetRepository+":"+localnetVersion,
-				".",
-			)
-		}, false)
-}
-
-// Runs the localnet tooling sanity tests.
-func (Localnet) Test() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
-	LogGreen("Running all localnet tests")
-	args := []string{
-		"-timeout", "30m",
-		"--focus", ".*e2e/localnet.*",
-	}
-	return ginkgoTest(args...)
+// NewPolarisFixtureConfig returns a polaris fixture config.
+func NewPolarisFixtureConfig() *network.FixtureConfig {
+	return network.NewFixtureConfig(
+		polardConfigPath,
+		polardBaseImage,
+		containerName,
+		polardHTTPAddress,
+		polardWSAddress,
+		goVersion,
+	)
 }
