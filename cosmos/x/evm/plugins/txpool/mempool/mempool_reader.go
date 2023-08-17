@@ -39,9 +39,6 @@ func (etp *EthTxPool) Get(hash common.Hash) *coretypes.Transaction {
 
 // Pending is called when txs in the mempool are retrieved.
 func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
-
 	pendingNonces := make(map[common.Address]uint64)
 	pending := make(map[common.Address]coretypes.Transactions)
 
@@ -80,9 +77,6 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 
 // queued retrieves the content of the mempool.
 func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
-
 	pendingNonces := make(map[common.Address]uint64)
 	queued := make(map[common.Address]coretypes.Transactions)
 
@@ -124,8 +118,6 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 // in the mempool.
 func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 	pendingNonces := make(map[common.Address]uint64)
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
 
 	// search for the last pending tx for the given address
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
@@ -166,9 +158,6 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 func (etp *EthTxPool) Stats() (int, int) {
 	var pendingTxsLen, queuedTxsLen int
 	pending, queued := etp.Content()
-
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
 
 	for _, txs := range pending {
 		pendingTxsLen += len(txs)
