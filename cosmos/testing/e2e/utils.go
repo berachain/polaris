@@ -28,7 +28,7 @@ package utils
 import network "pkg.berachain.dev/polaris/e2e/localnet/network"
 
 const (
-	polardConfigPath  = "../polard/config/"
+	polardConfigPath  = "polard/config/"
 	polardBaseImage   = "polard/base:v0.0.0"
 	containerName     = "goodcontainer"
 	polardHTTPAddress = "8545/tcp"
