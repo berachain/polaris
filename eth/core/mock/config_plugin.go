@@ -23,7 +23,6 @@ package mock
 import (
 	"context"
 
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
@@ -36,9 +35,6 @@ func NewConfigurationPluginMock() *ConfigurationPluginMock {
 	mockedConfigurationPlugin := &ConfigurationPluginMock{
 		ChainConfigFunc: func() *params.ChainConfig {
 			return params.DefaultChainConfig
-		},
-		FeeCollectorFunc: func() *common.Address {
-			return &common.Address{}
 		},
 		PrepareFunc: func(contextMoqParam context.Context) {
 			// no-op

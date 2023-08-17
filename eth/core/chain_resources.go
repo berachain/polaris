@@ -77,16 +77,11 @@ func (bc *blockchain) GetEVM(
 
 // NewEVMBlockContext creates a new block context for use in the EVM.
 func (bc *blockchain) NewEVMBlockContext(header *types.Header) *vm.BlockContext {
-	feeCollector := bc.cp.FeeCollector()
-	if feeCollector == nil {
-		feeCollector = &header.Coinbase
-	}
-	// TODO: THIS IS KINDA COOKED PROBS
 	headerCpy := types.CopyHeader(header)
 	if headerCpy.Difficulty == nil {
 		headerCpy.Difficulty = new(big.Int)
 	}
-	blockContext := NewEVMBlockContext(headerCpy, bc, feeCollector)
+	blockContext := NewEVMBlockContext(headerCpy, bc, &header.Coinbase)
 	return &blockContext
 }
 
