@@ -87,6 +87,7 @@ interface IStakingModule {
 
     /**
      * @dev Returns all the delegations delegated to the given validator.
+     * Note: if pagination is not a valid page request, it will execute without pagination
      */
     function getValidatorDelegations(address validatorAddress, Cosmos.PageRequest calldata pagination)
         external

@@ -30,7 +30,6 @@ import (
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	querytypes "github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
@@ -70,14 +69,9 @@ func (c *Contract) getValidatorDelegationsHelper(
 	val sdk.ValAddress,
 	pagination cbindings.CosmosPageRequest,
 ) ([]staking.IStakingModuleDelegation, cbindings.CosmosPageResponse, error) {
-	pageRequest, err := cosmlib.ExtractPageRequestFromInput(pagination)
-	if err != nil {
-		// TODO: figure out what we want to happen here, error if we want to enforce pageRequest
-		pageRequest = &querytypes.PageRequest{}
-	}
 	res, err := c.querier.ValidatorDelegations(ctx, &stakingtypes.QueryValidatorDelegationsRequest{
 		ValidatorAddr: val.String(),
-		Pagination:    pageRequest,
+		Pagination:    cosmlib.ExtractPageRequestFromInput(pagination),
 	})
 	if status.Code(err) == codes.NotFound {
 		return []staking.IStakingModuleDelegation{}, cbindings.CosmosPageResponse{}, nil

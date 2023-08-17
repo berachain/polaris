@@ -98,7 +98,7 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	return sdkCoins, nil
 }
 
-func ExtractPageRequestFromInput(pageRequest any) (*query.PageRequest, error) {
+func ExtractPageRequestFromInput(pageRequest any) *query.PageRequest {
 	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
 	// the any type input into the contract's generated type.
 	req, ok := utils.GetAs[struct {
@@ -109,7 +109,7 @@ func ExtractPageRequestFromInput(pageRequest any) (*query.PageRequest, error) {
 		Reverse    bool
 	}](pageRequest)
 	if !ok {
-		return nil, precompile.ErrInvalidPageRequest
+		return nil
 	}
 	return &query.PageRequest{
 		Key:        []byte(req.Key),
@@ -117,7 +117,7 @@ func ExtractPageRequestFromInput(pageRequest any) (*query.PageRequest, error) {
 		Limit:      req.Limit,
 		CountTotal: req.CountTotal,
 		Reverse:    req.Reverse,
-	}, nil
+	}
 }
 
 // ExtractCoinFromInputToCoin converts a coin from input (of type any) into sdk.Coins.
