@@ -32,15 +32,15 @@ import (
 const (
 	baseImage = "polard/base:v0.0.0"
 
-	polardClientPath   = "./cosmos/testing/e2e/polard/"
+	localnetDockerPath = "./e2e/localnet/"
 	localnetRepository = "localnet"
 	localnetVersion    = "latest"
 )
 
 type Localnet mg.Namespace
 
-func (Localnet) Build() error {
-	return ExecuteInDirectory(polardClientPath,
+func (Localnet) Build(client string) error {
+	return ExecuteInDirectory(localnetDockerPath+client,
 		func(...string) error {
 			return dockerBuildFn(false)(
 				"--build-arg", "GO_VERSION="+goVersion,
@@ -51,15 +51,10 @@ func (Localnet) Build() error {
 		}, false)
 }
 
-// Runs the localnet tooling sanity tests.
 func (Localnet) Test() error {
 	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
 	LogGreen("Running all localnet tests")
-	args := []string{
-		"-timeout", "30m",
-		"--focus", ".*e2e/localnet.*",
-	}
-	return ginkgoTest(args...)
+	return testE2E("e2e/localnet")
 }
