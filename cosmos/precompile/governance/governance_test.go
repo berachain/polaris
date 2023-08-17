@@ -58,25 +58,6 @@ func TestGovernancePrecompile(t *testing.T) {
 }
 
 var _ = Describe("Governance Precompile", func() {
-	It("Should be able to marshal and unmarshal msgBz", func() {
-		msg := banktypes.MsgSend{
-			FromAddress: sdk.AccAddress([]byte("from")).String(),
-			ToAddress:   sdk.AccAddress([]byte("from")).String(),
-			Amount:      sdk.NewCoins(sdk.NewCoin("abera", math.NewInt(100))),
-		}
-
-		msgAny, err := codectypes.NewAnyWithValue(&msg)
-		Expect(err).ToNot(HaveOccurred())
-
-		msgBz, err := msgAny.Marshal()
-		Expect(err).ToNot(HaveOccurred())
-
-		anys, err := UnmarshalAnyBzSlice([][]byte{msgBz})
-		Expect(err).ToNot(HaveOccurred())
-
-		typeURL := anys[0].GetTypeUrl()
-		Expect(typeURL).To(Equal("/cosmos.bank.v1beta1.MsgSend"))
-	})
 	var (
 		sdkCtx   sdk.Context
 		bk       bankkeeper.Keeper
@@ -146,7 +127,7 @@ var _ = Describe("Governance Precompile", func() {
 		It("should fail if the proposal cant be unmarshalled", func() {
 			_, err := contract.SubmitProposal(
 				vm.NewPolarContext(sdk.Context{}, nil, common.Address{}, nil),
-				[]byte("invalid"), nil,
+				[]byte("invalid"),
 			)
 			Expect(err).To(HaveOccurred())
 		})
@@ -165,15 +146,9 @@ var _ = Describe("Governance Precompile", func() {
 				big.NewInt(100),
 			)
 			Expect(err).ToNot(HaveOccurred())
-			message := &banktypes.MsgSend{
-				FromAddress: govAcct.String(),
-				ToAddress:   caller.String(),
-				Amount:      initDeposit,
-			}
 			metadata := "metadata"
 			title := "title"
 			summary := "summary "
-			msgBz, err := message.Marshal()
 			Expect(err).ToNot(HaveOccurred())
 			// Create and marshal the proposal.
 			proposal := v1.MsgSubmitProposal{
@@ -190,7 +165,6 @@ var _ = Describe("Governance Precompile", func() {
 			res, err := contract.SubmitProposal(
 				ctx,
 				proposalBz,
-				[][]byte{msgBz},
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).ToNot(BeNil())
@@ -345,5 +319,49 @@ var _ = Describe("Governance Precompile", func() {
 				})
 			})
 		})
+	})
+	It("Should be able to marshal and unmarshal msgBz", func() {
+		msg := banktypes.MsgSend{
+			FromAddress: sdk.AccAddress([]byte("from")).String(),
+			ToAddress:   sdk.AccAddress([]byte("from")).String(),
+			Amount:      sdk.NewCoins(sdk.NewCoin("abera", math.NewInt(100))),
+		}
+
+		msgAny, err := codectypes.NewAnyWithValue(&msg)
+		Expect(err).ToNot(HaveOccurred())
+
+		msgBz, err := msgAny.Marshal()
+		Expect(err).ToNot(HaveOccurred())
+
+		anys, err := UnmarshalAnyBzSlice([][]byte{msgBz})
+		Expect(err).ToNot(HaveOccurred())
+
+		typeURL := anys[0].GetTypeUrl()
+		Expect(typeURL).To(Equal("/cosmos.bank.v1beta1.MsgSend"))
+	})
+
+	It("Should be able to marshal and unmarshal porposalMsg", func() {
+		// Create the send msg.
+		msg := banktypes.MsgSend{
+			FromAddress: sdk.AccAddress([]byte("from")).String(),
+			ToAddress:   sdk.AccAddress([]byte("from")).String(),
+			Amount:      sdk.NewCoins(sdk.NewCoin("abera", math.NewInt(100))),
+		}
+		msgAny, err := codectypes.NewAnyWithValue(&msg)
+		Expect(err).ToNot(HaveOccurred())
+
+		// Embed the send msg into a proposal.
+		proposal := v1.MsgSubmitProposal{
+			Messages: []*codectypes.Any{msgAny},
+		}
+
+		// Marshal the proposal.
+		pBz, err := proposal.Marshal()
+		Expect(err).ToNot(HaveOccurred())
+
+		// Unmarshal the proposal.
+		var p v1.MsgSubmitProposal
+		err = p.Unmarshal(pBz)
+		Expect(err).ToNot(HaveOccurred())
 	})
 })
