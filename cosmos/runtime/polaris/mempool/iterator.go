@@ -35,6 +35,10 @@ type iterator struct {
 
 // Tx implements sdkmempool.Iterator.
 func (i *iterator) Tx() sdk.Tx {
+	if i == nil || i.txs == nil {
+		return nil
+	}
+
 	ethTx := i.txs.Peek()
 	if ethTx == nil {
 		// should never hit this case because the immediately before call to Next() should return

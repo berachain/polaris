@@ -62,13 +62,12 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
+	polarisruntime "pkg.berachain.dev/polaris/cosmos/runtime"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/runtime/polaris/mempool"
 	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-
-	polarisruntime "pkg.berachain.dev/polaris/cosmos/runtime"
 )
 
 // DefaultNodeHome default home directories for the application daemon.

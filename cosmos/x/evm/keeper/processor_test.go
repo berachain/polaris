@@ -25,12 +25,12 @@ import (
 	"os"
 
 	storetypes "cosmossdk.io/store/types"
+
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ethlog "pkg.berachain.dev/polaris/eth/log"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
@@ -44,6 +44,7 @@ import (
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
+	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/eth/polar"
 	polarmock "pkg.berachain.dev/polaris/eth/polar/mock"
@@ -90,7 +91,7 @@ var _ = Describe("Processor", func() {
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
-		sk.SetValidator(ctx, validator)
+		Expect(sk.SetValidator(ctx, validator)).ToNot(HaveOccurred())
 		sc = staking.NewPrecompileContract(&sk)
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 

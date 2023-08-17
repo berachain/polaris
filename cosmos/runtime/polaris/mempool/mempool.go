@@ -53,8 +53,6 @@ type WrappedGethTxPool struct {
 	// pendingBaseFee is set by the miner, as is the signer.
 	pendingBaseFee *big.Int
 	signer         coretypes.Signer
-
-	iterator *iterator
 }
 
 // NewWrappedGethTxPool creates a new Ethereum transaction pool.
@@ -69,7 +67,7 @@ func (gtp *WrappedGethTxPool) Setup(txPool *txpool.TxPool, cp ConfigurationPlugi
 	gtp.serializer = serializer
 }
 
-// Prepare
+// Prepare.
 func (gtp *WrappedGethTxPool) Prepare(pendingBaseFee *big.Int, signer coretypes.Signer) {
 	gtp.pendingBaseFee = pendingBaseFee
 	gtp.signer = signer
@@ -103,16 +101,11 @@ func (gtp *WrappedGethTxPool) InsertSync(_ context.Context, tx sdk.Tx) error {
 // Remove is called when a transaction is removed from the mempool.
 func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		if gtp.iterator != nil {
-			gtp.iterator.txs.Pop()
-		} else {
-			// remove from the pending queue of txs in the geth mempool.
-			if gtp.RemoveTx(ethTx.Hash(), true) < 1 {
-				// Note: RemoveTx will return 0 if the tx was removed from future queue. Generally, any
-				// tx in the future queue will not be removed because only the pending txs get
-				// selected by prepare proposal.
-				return sdkmempool.ErrTxNotFound
-			}
+		if gtp.RemoveTx(ethTx.Hash(), true) < 1 {
+			// Note: RemoveTx will return 0 if the tx was removed from future queue. Generally, any
+			// tx in the future queue will not be removed because only the pending txs get
+			// selected by prepare proposal.
+			return sdkmempool.ErrTxNotFound
 		}
 	}
 	return nil
@@ -123,12 +116,12 @@ func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
 func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Iterator {
 	// return nil if there are no pending txs
 	pendingTxs := gtp.Pending(true)
-	if len(pendingTxs) == 0 {
+	if len(pendingTxs) == 0 || pendingTxs == nil {
 		return nil
 	}
 
 	// return an iterator over the pending txs, sorted by price and nonce
-	gtp.iterator = &iterator{
+	iterator := iterator{
 		txs: coretypes.NewTransactionsByPriceAndNonce(
 			gtp.signer,
 			pendingTxs,
@@ -136,7 +129,7 @@ func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Itera
 		),
 		serializer: gtp.serializer,
 	}
-	return gtp.iterator
+	return &iterator
 }
 
 // CountTx returns the number of transactions currently in the mempool.

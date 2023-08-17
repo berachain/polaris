@@ -103,15 +103,15 @@ func (s *txSerializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx
 
 // SerializeToBytes converts an Ethereum transaction to Cosmos formatted txBytes which allows for
 // it to broadcast it to CometBFT.
-func (txs *txSerializer) SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error) {
+func (s *txSerializer) SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error) {
 	// First, we convert the Ethereum transaction to a Cosmos transaction.
-	cosmosTx, err := txs.SerializeToSdkTx(signedTx)
+	cosmosTx, err := s.SerializeToSdkTx(signedTx)
 	if err != nil {
 		return nil, err
 	}
 
 	// Then we use the clientCtx.TxConfig.TxEncoder() to encode the Cosmos transaction into bytes.
-	txBytes, err := txs.clientCtx.TxConfig.TxEncoder()(cosmosTx)
+	txBytes, err := s.clientCtx.TxConfig.TxEncoder()(cosmosTx)
 	if err != nil {
 		return nil, err
 	}

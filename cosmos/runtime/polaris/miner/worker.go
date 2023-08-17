@@ -227,10 +227,11 @@ func (w *worker) buildBlock(ctx context.Context, txs [][]byte) *ProposedBlock {
 	w.mempool.Prepare(env.header.BaseFee, env.signer)
 	w.logger.Info("🦺 building block", "seal_hash", env.header.Hash())
 	iterator := w.mempool.Select(ctx, txs)
-
 	for iterator != nil {
 		memTx := iterator.Tx()
-
+		if memTx == nil {
+			break
+		}
 		// NOTE: Since transaction verification was already executed in CheckTx,
 		// which calls mempool.Insert, in theory everything in the pool should be
 		// valid. But some mempool implementations may insert invalid txs, so we
@@ -249,9 +250,8 @@ func (w *worker) buildBlock(ctx context.Context, txs [][]byte) *ProposedBlock {
 			} else {
 				break
 			}
-			iterator = iterator.Next()
 		}
-
+		iterator = iterator.Next()
 	}
 
 	return &ProposedBlock{ctx, &abci.ResponsePrepareProposal{Txs: selectedTxs}, nil}
