@@ -34,8 +34,8 @@ import (
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	"pkg.berachain.dev/polaris/e2e/testapp"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
 
@@ -61,7 +61,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT(), testapp.NewPolarisFixtureConfig())
+		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 		err := tf.WaitForNextBlock()
 		Expect(err).ToNot(HaveOccurred())
 

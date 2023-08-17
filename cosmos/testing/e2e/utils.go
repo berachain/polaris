@@ -23,7 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package testapp
+package utils
 
 import network "pkg.berachain.dev/polaris/e2e/localnet/network"
 
@@ -33,7 +33,7 @@ const (
 	containerName     = "goodcontainer"
 	polardHTTPAddress = "8545/tcp"
 	polardWSAddress   = "8546/tcp"
-	goVersion         = "1.20.4"
+	goVersion         = "1.20.6"
 )
 
 // NewPolarisFixtureConfig returns a polaris fixture config.

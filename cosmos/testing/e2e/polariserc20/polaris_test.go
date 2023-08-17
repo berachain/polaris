@@ -28,8 +28,8 @@ import (
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	"pkg.berachain.dev/polaris/e2e/testapp"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -46,7 +46,7 @@ var _ = Describe("ERC20", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT(), testapp.NewPolarisFixtureConfig())
+		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 	})
 
 	AfterEach(func() {

@@ -33,8 +33,8 @@ import (
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	"pkg.berachain.dev/polaris/e2e/testapp"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -58,7 +58,7 @@ var _ = Describe("Staking", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT(), testapp.NewPolarisFixtureConfig())
+		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 
 		validator = tf.ValAddr()
 		stakingPrecompile, _ = bindings.NewStakingModule(
