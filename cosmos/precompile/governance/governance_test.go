@@ -28,7 +28,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 
-	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -324,7 +323,7 @@ var _ = Describe("Governance Precompile", func() {
 		msg := banktypes.MsgSend{
 			FromAddress: sdk.AccAddress([]byte("from")).String(),
 			ToAddress:   sdk.AccAddress([]byte("from")).String(),
-			Amount:      sdk.NewCoins(sdk.NewCoin("abera", math.NewInt(100))),
+			Amount:      sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(100))),
 		}
 
 		msgAny, err := codectypes.NewAnyWithValue(&msg)
@@ -345,7 +344,7 @@ var _ = Describe("Governance Precompile", func() {
 		msg := banktypes.MsgSend{
 			FromAddress: sdk.AccAddress([]byte("from")).String(),
 			ToAddress:   sdk.AccAddress([]byte("from")).String(),
-			Amount:      sdk.NewCoins(sdk.NewCoin("abera", math.NewInt(100))),
+			Amount:      sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(100))),
 		}
 		msgAny, err := codectypes.NewAnyWithValue(&msg)
 		Expect(err).ToNot(HaveOccurred())
@@ -365,3 +364,19 @@ var _ = Describe("Governance Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 	})
 })
+
+// UnmarshalAnyBzSlice unmarshals a slice of bytes into a slice of Any.
+func UnmarshalAnyBzSlice(bzs [][]byte) ([]*codectypes.Any, error) {
+	anys := []*codectypes.Any{}
+	for _, bz := range bzs {
+		var a codectypes.Any
+
+		if err := a.Unmarshal(bz); err != nil {
+			return nil, err
+		}
+
+		anys = append(anys, &a)
+	}
+
+	return anys, nil
+}

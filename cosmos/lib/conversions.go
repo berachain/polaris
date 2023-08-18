@@ -29,10 +29,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -202,5 +204,41 @@ func SdkAccountToAuthAccount(acc sdk.AccountI) auth.IAuthModuleBaseAccount {
 		PubKey:        pubKey,
 		AccountNumber: acc.GetAccountNumber(),
 		Sequence:      acc.GetSequence(),
+	}
+}
+
+func SdkToEvmProposal(p *v1.Proposal) governance.IGovernanceModuleProposal {
+	// Convert the proposal messages into a slice of bytes.
+	messages := [][]byte{}
+	for _, msg := range p.Messages {
+		messages = append(messages, msg.Value)
+	}
+
+	// Convert the proposal total deposit into evm coins.
+	td := make([]governance.CosmosCoin, 0)
+	for _, coin := range p.TotalDeposit {
+		td = append(td, governance.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
+	}
+
+	return governance.IGovernanceModuleProposal{
+		Id:       p.Id,
+		Messages: messages,
+		Status:   int32(p.Status), // Status is an alias for int32.
+		FinalTallyResult: governance.IGovernanceModuleTallyResult{
+			YesCount:        p.FinalTallyResult.YesCount,
+			AbstainCount:    p.FinalTallyResult.AbstainCount,
+			NoCount:         p.FinalTallyResult.NoCount,
+			NoWithVetoCount: p.FinalTallyResult.NoWithVetoCount,
+		},
+		SubmitTime:     uint64(p.SubmitTime.Unix()),
+		DepositEndTime: uint64(p.DepositEndTime.Unix()),
+		TotalDeposit:   td,
+		Metadata:       p.Metadata,
+		Title:          p.Title,
+		Summary:        p.Summary,
+		Proposer:       p.Proposer,
 	}
 }

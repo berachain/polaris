@@ -24,9 +24,12 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -43,8 +46,10 @@ type Contract struct {
 // NewPrecompileContract creates a new governance precompile contract.
 func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
 	return &Contract{
-		BaseContract: ethprecompile.NewBaseContract(generated.GovernanceModuleMetaData.ABI, PrecompileAddress()),
-
+		BaseContract: ethprecompile.NewBaseContract(
+			generated.GovernanceModuleMetaData.ABI,
+			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
+		),
 		msgServer:   m,
 		queryServer: q,
 	}
@@ -136,7 +141,7 @@ func (c *Contract) GetProposal(ctx context.Context, id uint64) (generated.IGover
 	}
 
 	// Transform the cosmos type to an evm type and return.
-	return transformToEvmProposal(res.Proposal), nil
+	return cosmlib.SdkToEvmProposal(res.Proposal), nil
 }
 
 // GetProposals is the method for the `getProposals` function.
@@ -154,7 +159,7 @@ func (c *Contract) GetProposals(
 	// Transform the cosmos type to an evm type and return.
 	proposals := make([]generated.IGovernanceModuleProposal, 0, len(res.Proposals))
 	for _, proposal := range res.Proposals {
-		proposals = append(proposals, transformToEvmProposal(proposal))
+		proposals = append(proposals, cosmlib.SdkToEvmProposal(proposal))
 	}
 
 	return proposals, nil
