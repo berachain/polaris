@@ -68,12 +68,18 @@ interface IStakingModule {
     /**
      * @dev Returns a list of active validator addresses.
      */
-    function getActiveValidators() external view returns (address[] memory);
+    function getActiveValidators(Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (address[] memory, Cosmos.PageResponse memory);
 
     /**
      * @dev Returns a list of all active validators.
      */
-    function getValidators() external view returns (Validator[] memory);
+    function getValidators(Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (Validator[] memory, Cosmos.PageResponse memory);
 
     /**
      * @dev Returns the validator at the given address.

@@ -57,18 +57,20 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 	}
 }
 
-// GetActiveValidators implements the `getActiveValidators()` method.
+// GetActiveValidators implements the `getActiveValidators(PageRequest)` method.
 func (c *Contract) GetActiveValidators(
 	ctx context.Context,
-) ([]common.Address, error) {
-	return c.activeValidatorsHelper(ctx)
+	pagination *cbindings.CosmosPageRequest,
+) ([]common.Address, *cbindings.CosmosPageResponse, error) {
+	return c.activeValidatorsHelper(ctx, pagination)
 }
 
 // GetValidators implements the `getValidators()` method.
 func (c *Contract) GetValidators(
 	ctx context.Context,
-) ([]generated.IStakingModuleValidator, error) {
-	return c.validatorsHelper(ctx)
+	pagination *cbindings.CosmosPageRequest,
+) ([]generated.IStakingModuleValidator, *cbindings.CosmosPageResponse, error) {
+	return c.validatorsHelper(ctx, pagination)
 }
 
 // GetValidators implements the `getValidator(address)` method.
@@ -87,12 +89,12 @@ func (c *Contract) GetDelegatorValidators(
 	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr))
 }
 
-// GetValidatorDelegations implements the `getValidatorDelegations(address)` method.
+// GetValidatorDelegations implements the `getValidatorDelegations(address,PageRequest)` method.
 func (c *Contract) GetValidatorDelegations(
 	ctx context.Context,
 	validatorAddr common.Address,
-	pagination cbindings.CosmosPageRequest,
-) ([]generated.IStakingModuleDelegation, cbindings.CosmosPageResponse, error) {
+	pagination *cbindings.CosmosPageRequest,
+) ([]generated.IStakingModuleDelegation, *cbindings.CosmosPageResponse, error) {
 	return c.getValidatorDelegationsHelper(ctx, cosmlib.AddressToValAddress(validatorAddr), pagination)
 }
 
