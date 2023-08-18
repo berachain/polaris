@@ -65,7 +65,7 @@ func (c *Contract) GetActiveValidators(
 	return c.activeValidatorsHelper(ctx, pagination)
 }
 
-// GetValidators implements the `getValidators()` method.
+// GetValidators implements the `getValidators(PageRequest)` method.
 func (c *Contract) GetValidators(
 	ctx context.Context,
 	pagination any,
