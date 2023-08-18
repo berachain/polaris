@@ -82,7 +82,19 @@ var _ = Describe("Call the Precompile Directly", func() {
 	// 		Expect(err).ToNot(HaveOccurred())
 	// 		utils.ExpectMined(tf.EthClient(), tx)
 	// 		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+	// 	})
 
+	// 	AfterEach(func() {
+	// 		// Dump logs and stop the containter here.
+	// 		if !CurrentSpecReport().Failure.IsZero() {
+	// 			logs, err := tf.DumpLogs()
+	// 			Expect(err).ToNot(HaveOccurred())
+	// 			GinkgoWriter.Println(logs)
+	// 		}
+	// 		Expect(tf.Teardown()).To(Succeed())
+	// 	})
+
+	// It("Should be able to get a proposal", func() {
 	// 		// Alice Submits a proposal.
 	// 		amt := sdkmath.NewInt(100000000)
 	// 		prop, msg := propAndMsgBz(cosmlib.AddressToAccAddress(tf.Address("alice")).String(), amt)
@@ -115,19 +127,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 	// 		Expect(err).ToNot(HaveOccurred())
 	// 		err = tf.WaitForNextBlock()
 	// 		Expect(err).ToNot(HaveOccurred())
-	// 	})
 
-	// 	AfterEach(func() {
-	// 		// Dump logs and stop the containter here.
-	// 		if !CurrentSpecReport().Failure.IsZero() {
-	// 			logs, err := tf.DumpLogs()
-	// 			Expect(err).ToNot(HaveOccurred())
-	// 			GinkgoWriter.Println(logs)
-	// 		}
-	// 		Expect(tf.Teardown()).To(Succeed())
-	// 	})
-
-	// It("Should be able to get a proposal", func() {
 	// 	// Call directly.
 	// 	res, err := precompile.GetProposal(nil, 1)
 	// 	Expect(err).ToNot(HaveOccurred())

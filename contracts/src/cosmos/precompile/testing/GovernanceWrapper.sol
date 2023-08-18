@@ -25,81 +25,80 @@
 
 pragma solidity ^0.8.17;
 
-// import {IGovernanceModule} from "../Governance.sol";
-// import {IBankModule} from "../Bank.sol";
-// import {Cosmos} from "../../CosmosTypes.sol";
+import {IGovernanceModule} from "../Governance.sol";
+import {IBankModule} from "../Bank.sol";
+import {Cosmos} from "../../CosmosTypes.sol";
 
-// contract GovernanceWrapper {
-//     // State
-//     IGovernanceModule public governanceModule;
-//     IBankModule public immutable bank = IBankModule(0x4381dC2aB14285160c808659aEe005D51255adD7);
+contract GovernanceWrapper {
+    // State
+    IGovernanceModule public governanceModule;
+    IBankModule public immutable bank = IBankModule(0x4381dC2aB14285160c808659aEe005D51255adD7);
 
-//     // Errors
-//     error ZeroAddress();
+    // Errors
+    error ZeroAddress();
 
-//     /**
-//      * @dev Constructor.
-//      * @param _governanceModule The address of the governance module.
-//      */
-//     constructor(address _governanceModule) {
-//         if (_governanceModule == address(0)) {
-//             revert ZeroAddress();
-//         }
-//         governanceModule = IGovernanceModule(_governanceModule);
-//     }
+    /**
+     * @dev Constructor.
+     * @param _governanceModule The address of the governance module.
+     */
+    constructor(address _governanceModule) {
+        if (_governanceModule == address(0)) {
+            revert ZeroAddress();
+        }
+        governanceModule = IGovernanceModule(_governanceModule);
+    }
 
-//     /**
-//      * @dev Submit a proposal.
-//      * @param proposal The proposal.
-//      * @param message The message.
-//      */
-//     function submit(bytes calldata proposal, bytes calldata message, string calldata denom, uint256 amount)
-//         external
-//         payable
-//         returns (uint64)
-//     {
-//         // Send the deposit amount to the contract.
-//         Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
-//         coins[0].denom = denom;
-//         coins[0].amount = amount;
-//         return governanceModule.submitProposal(proposal, message);
-//     }
+    /**
+     * @dev Submit a proposal.
+     * @param proposal The proposal.
+     */
+    function submit(bytes calldata proposal, string calldata denom, uint256 amount)
+        external
+        payable
+        returns (uint64)
+    {
+        // Send the deposit amount to the contract.
+        Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
+        coins[0].denom = denom;
+        coins[0].amount = amount;
+        return governanceModule.submitProposal(proposal);
+    }
 
-//     /**
-//      * @dev get a proposal.
-//      * @param proposalId The proposal id.
-//      */
-//     function getProposal(uint64 proposalId) external view returns (IGovernanceModule.Proposal memory) {
-//         return governanceModule.getProposal(proposalId);
-//     }
+    /**
+     * @dev get a proposal.
+     * @param proposalId The proposal id.
+     */
+    function getProposal(uint64 proposalId) external view returns (IGovernanceModule.Proposal memory) {
+        return governanceModule.getProposal(proposalId);
+    }
 
-//     /**
-//      * @dev get proposals.
-//      * @param proposalStatus The proposal status.
-//      */
-//     function getProposals(int32 proposalStatus) external view returns (IGovernanceModule.Proposal[] memory) {
-//         return governanceModule.getProposals(proposalStatus);
-//     }
+    /**
+     * @dev get proposals.
+     * @param proposalStatus The proposal status.
+     */
+    function getProposals(int32 proposalStatus) external view returns (IGovernanceModule.Proposal[] memory) {
+        return governanceModule.getProposals(proposalStatus);
+    }
 
-//     /**
-//      * @dev vote.
-//      * @param proposalId The proposal id.
-//      * @param option The option.
-//      * @param metadata The metadata.
-//      */
-//     function vote(uint64 proposalId, int32 option, string memory metadata) external returns (bool) {
-//         return governanceModule.vote(proposalId, option, metadata);
-//     }
+    /**
+     * @dev vote.
+     * @param proposalId The proposal id.
+     * @param option The option.
+     * @param metadata The metadata.
+     */
+    function vote(uint64 proposalId, int32 option, string memory metadata) external returns (bool) {
+        return governanceModule.vote(proposalId, option, metadata);
+    }
 
-//     /**
-//      * @dev Cancel a proposal. Returns the cancled time and height.
-//      *   burned.
-//      * @param proposalId The id of the proposal to cancel.
-//      */
-//     function cancelProposal(uint64 proposalId) external returns (uint64, uint64) {
-//         return governanceModule.cancelProposal(proposalId);
-//     }
+    /**
+     * @dev Cancel a proposal. Returns the cancled time and height.
+     *   burned.
+     * @param proposalId The id of the proposal to cancel.
+     */
+    function cancelProposal(uint64 proposalId) external returns (uint64, uint64) {
+        return governanceModule.cancelProposal(proposalId);
+    }
 
-//     // Fallback function for receiving funds.
-//     receive() external payable {}
-// }
+    // Fallback function for receiving funds.
+    receive() external payable {}
+}
