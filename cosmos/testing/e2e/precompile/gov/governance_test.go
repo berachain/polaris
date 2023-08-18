@@ -127,51 +127,50 @@ var _ = Describe("Call the Precompile Directly", func() {
 	// 		Expect(tf.Teardown()).To(Succeed())
 	// 	})
 
-	// 	It("Should be able to get a proposal", func() {
-	// 		// Call directly.
-	// 		res, err := precompile.GetProposal(nil, 1)
-	// 		Expect(err).ToNot(HaveOccurred())
-	// 		Expect(res.Id).To(Equal(uint64(1)))
+	// It("Should be able to get a proposal", func() {
+	// 	// Call directly.
+	// 	res, err := precompile.GetProposal(nil, 1)
+	// 	Expect(err).ToNot(HaveOccurred())
+	// 	Expect(res.Id).To(Equal(uint64(1)))
 
-	// 		// Call via wrapper.
-	// 		res2, err := wrapper.GetProposal(nil, 1)
-	// 		Expect(err).ToNot(HaveOccurred())
-	// 		Expect(res2.Id).To(Equal(uint64(1)))
+	// 	// Call via wrapper.
+	// 	res2, err := wrapper.GetProposal(nil, 1)
+	// 	Expect(err).ToNot(HaveOccurred())
+	// 	Expect(res2.Id).To(Equal(uint64(1)))
 
-	// 		// Call directly.
-	// 		getProposalsRes, err := precompile.GetProposals(nil, 0)
-	// 		Expect(err).ToNot(HaveOccurred())
-	// 		Expect(getProposalsRes).To(HaveLen(2))
+	// 	// Call directly.
+	// 	getProposalsRes, err := precompile.GetProposals(nil, 0)
+	// 	Expect(err).ToNot(HaveOccurred())
+	// 	Expect(getProposalsRes).To(HaveLen(2))
 
-	// 		// Call via wrapper.
-	// 		wrapperRes, err := wrapper.GetProposals(nil, 0)
-	// 		Expect(err).ToNot(HaveOccurred())
-	// 		Expect(wrapperRes).To(HaveLen(2))
+	// 	// Call via wrapper.
+	// 	wrapperRes, err := wrapper.GetProposals(nil, 0)
+	// 	Expect(err).ToNot(HaveOccurred())
+	// 	Expect(wrapperRes).To(HaveLen(2))
 
-	// 		// Call directly.
-	// 		txr := tf.GenerateTransactOpts("alice")
-	// 		tx, err := precompile.Vote(txr, 1, 1, "metadata")
-	// 		Expect(err).ToNot(HaveOccurred())
-	// 		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+	// 	// Call directly.
+	// 	txr := tf.GenerateTransactOpts("alice")
+	// 	tx, err := precompile.Vote(txr, 1, 1, "metadata")
+	// 	Expect(err).ToNot(HaveOccurred())
+	// 	utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
-	// 		// Call via wrapper.
-	// 		txr = tf.GenerateTransactOpts("alice")
-	// 		tx, err = wrapper.Vote(txr, 1, 1, "metadata")
-	// 		Expect(err).ToNot(HaveOccurred())
-	// 		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+	// 	// Call via wrapper.
+	// 	txr = tf.GenerateTransactOpts("alice")
+	// 	tx, err = wrapper.Vote(txr, 1, 1, "metadata")
+	// 	Expect(err).ToNot(HaveOccurred())
+	// 	utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
-	// 		// Call directly.
-	// 		txr = tf.GenerateTransactOpts("alice")
-	// 		tx, err = precompile.CancelProposal(txr, 1)
-	// 		Expect(err).ToNot(HaveOccurred())
-	// 		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+	// 	// Call directly.
+	// 	txr = tf.GenerateTransactOpts("alice")
+	// 	tx, err = precompile.CancelProposal(txr, 1)
+	// 	Expect(err).ToNot(HaveOccurred())
+	// 	utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 
-	// 		// Call via wrapper.
-	// 		txr = tf.GenerateTransactOpts("alice")
-	// 		tx, err = wrapper.CancelProposal(txr, 2)
-	// 		Expect(err).ToNot(HaveOccurred())
-	// 		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
-	// 	})
+	// 	// Call via wrapper.
+	// 	txr = tf.GenerateTransactOpts("alice")
+	// 	tx, err = wrapper.CancelProposal(txr, 2)
+	// 	Expect(err).ToNot(HaveOccurred())
+	// 	utils.ExpectSuccessReceipt(tf.EthClient(), tx)
 	// })
 
 	// func propAndMsgBz(proposer string, amount sdkmath.Int) ([]byte, []byte) {
