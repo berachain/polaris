@@ -227,7 +227,7 @@ var _ = Describe("Staking", func() {
 				res, _, err := contract.GetValidatorDelegations(
 					ctx,
 					cosmlib.ValAddressToEthAddress(val),
-					&cbindings.CosmosPageRequest{
+					cbindings.CosmosPageRequest{
 						Key:        "test",
 						Offset:     0,
 						Limit:      10,
@@ -244,7 +244,7 @@ var _ = Describe("Staking", func() {
 				res, _, err := contract.GetValidatorDelegations(
 					ctx,
 					cosmlib.ValAddressToEthAddress(val),
-					nil,
+					cbindings.CosmosPageRequest{},
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
@@ -524,7 +524,7 @@ var _ = Describe("Staking", func() {
 				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
 
 				// Get the active validators.
-				res, _, err := contract.GetActiveValidators(ctx, nil)
+				res, _, err := contract.GetActiveValidators(ctx, cbindings.CosmosPageRequest{})
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
 				Expect(res[0]).To(Equal(cosmlib.ValAddressToEthAddress(val)))

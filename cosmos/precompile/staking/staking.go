@@ -60,16 +60,16 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 // GetActiveValidators implements the `getActiveValidators(PageRequest)` method.
 func (c *Contract) GetActiveValidators(
 	ctx context.Context,
-	pagination *cbindings.CosmosPageRequest,
-) ([]common.Address, *cbindings.CosmosPageResponse, error) {
+	pagination any,
+) ([]common.Address, cbindings.CosmosPageResponse, error) {
 	return c.activeValidatorsHelper(ctx, pagination)
 }
 
 // GetValidators implements the `getValidators()` method.
 func (c *Contract) GetValidators(
 	ctx context.Context,
-	pagination *cbindings.CosmosPageRequest,
-) ([]generated.IStakingModuleValidator, *cbindings.CosmosPageResponse, error) {
+	pagination any,
+) ([]generated.IStakingModuleValidator, cbindings.CosmosPageResponse, error) {
 	return c.validatorsHelper(ctx, pagination)
 }
 
@@ -93,8 +93,8 @@ func (c *Contract) GetDelegatorValidators(
 func (c *Contract) GetValidatorDelegations(
 	ctx context.Context,
 	validatorAddr common.Address,
-	pagination *cbindings.CosmosPageRequest,
-) ([]generated.IStakingModuleDelegation, *cbindings.CosmosPageResponse, error) {
+	pagination any,
+) ([]generated.IStakingModuleDelegation, cbindings.CosmosPageResponse, error) {
 	return c.getValidatorDelegationsHelper(ctx, cosmlib.AddressToValAddress(validatorAddr), pagination)
 }
 

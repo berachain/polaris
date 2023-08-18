@@ -22,7 +22,6 @@ package staking
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 
 	"google.golang.org/grpc/codes"
@@ -68,16 +67,16 @@ func (c *Contract) getDelegationHelper(
 func (c *Contract) getValidatorDelegationsHelper(
 	ctx context.Context,
 	val sdk.ValAddress,
-	pagination *cbindings.CosmosPageRequest,
-) ([]staking.IStakingModuleDelegation, *cbindings.CosmosPageResponse, error) {
+	pagination any,
+) ([]staking.IStakingModuleDelegation, cbindings.CosmosPageResponse, error) {
 	res, err := c.querier.ValidatorDelegations(ctx, &stakingtypes.QueryValidatorDelegationsRequest{
 		ValidatorAddr: val.String(),
 		Pagination:    cosmlib.ExtractPageRequestFromInput(pagination),
 	})
 	if status.Code(err) == codes.NotFound {
-		return []staking.IStakingModuleDelegation{}, nil, nil
+		return []staking.IStakingModuleDelegation{}, cbindings.CosmosPageResponse{}, nil
 	} else if err != nil {
-		return nil, nil, err
+		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
 	delegations := make([]staking.IStakingModuleDelegation, 0)
@@ -89,7 +88,7 @@ func (c *Contract) getValidatorDelegationsHelper(
 	}
 
 	pageResponse := cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination)
-	return delegations, &pageResponse, nil
+	return delegations, pageResponse, nil
 }
 
 // getUnbondingDelegationHelper is the helper function for `getUnbondingDelegation`.
@@ -243,15 +242,14 @@ func (c *Contract) cancelUnbondingDelegationHelper(
 
 func (c *Contract) activeValidatorsHelper(
 	ctx context.Context,
-	pagination *cbindings.CosmosPageRequest,
-) ([]common.Address, *cbindings.CosmosPageResponse, error) {
+	pagination any,
+) ([]common.Address, cbindings.CosmosPageResponse, error) {
 	res, err := c.querier.Validators(ctx, &stakingtypes.QueryValidatorsRequest{
 		Status:     stakingtypes.BondStatusBonded,
 		Pagination: cosmlib.ExtractPageRequestFromInput(pagination),
 	})
 	if err != nil {
-		fmt.Println("activeValidatorsHelper err", err)
-		return nil, nil, err
+		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
 	// Iterate over all validators and return their addresses.
@@ -260,33 +258,33 @@ func (c *Contract) activeValidatorsHelper(
 		var valAddr sdk.ValAddress
 		valAddr, err = sdk.ValAddressFromBech32(val.OperatorAddress)
 		if err != nil {
-			return nil, nil, err
+			return nil, cbindings.CosmosPageResponse{}, err
 		}
 		addrs = append(addrs, cosmlib.ValAddressToEthAddress(valAddr))
 	}
 
 	pageResponse := cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination)
-	return addrs, &pageResponse, nil
+	return addrs, pageResponse, nil
 }
 
 func (c *Contract) validatorsHelper(
 	ctx context.Context,
-	pagination *cbindings.CosmosPageRequest,
-) ([]staking.IStakingModuleValidator, *cbindings.CosmosPageResponse, error) {
+	pagination any,
+) ([]staking.IStakingModuleValidator, cbindings.CosmosPageResponse, error) {
 	res, err := c.querier.Validators(ctx, &stakingtypes.QueryValidatorsRequest{
 		Status:     stakingtypes.BondStatusBonded,
 		Pagination: cosmlib.ExtractPageRequestFromInput(pagination),
 	})
 	if err != nil {
-		return nil, nil, err
+		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
 	vals, err := cosmlib.SdkValidatorsToStakingValidators(res.GetValidators())
 	if err != nil {
-		return nil, nil, err
+		return nil, cbindings.CosmosPageResponse{}, err
 	}
 	pageResponse := cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination)
-	return vals, &pageResponse, nil
+	return vals, pageResponse, nil
 }
 
 // valAddr must be the bech32 address of the validator.

@@ -98,19 +98,26 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	return sdkCoins, nil
 }
 
-func ExtractPageRequestFromInput(pageRequest *libgenerated.CosmosPageRequest) *query.PageRequest {
+func ExtractPageRequestFromInput(pageRequest any) *query.PageRequest {
 	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
 	// the any type input into the contract's generated type.
-	if pageRequest == nil {
+	pageReq, ok := utils.GetAs[struct {
+		Key        string `json:"key"`
+		Offset     uint64 `json:"offset"`
+		Limit      uint64 `json:"limit"`
+		CountTotal bool   `json:"count_total"`
+		Reverse    bool   `json:"reverse"`
+	}](pageRequest)
+	if !ok {
 		return nil
 	}
 
 	return &query.PageRequest{
-		Key:        []byte(pageRequest.Key),
-		Offset:     pageRequest.Offset,
-		Limit:      pageRequest.Limit,
-		CountTotal: pageRequest.CountTotal,
-		Reverse:    pageRequest.Reverse,
+		Key:        []byte(pageReq.Key),
+		Offset:     pageReq.Offset,
+		Limit:      pageReq.Limit,
+		CountTotal: pageReq.CountTotal,
+		Reverse:    pageReq.Reverse,
 	}
 }
 
