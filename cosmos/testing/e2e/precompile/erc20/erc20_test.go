@@ -30,6 +30,7 @@ import (
 	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/erc20"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
 
@@ -56,7 +57,7 @@ var _ = Describe("ERC20", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT())
+		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 		bankPrecompile, _ = bbindings.NewBankModule(
 			common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient(),
 		)
