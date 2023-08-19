@@ -1,45 +1,4 @@
-<h1 align="center"> Polaris Monorepo ❄️🔭 </h1>
-
-![](./docs/web/public/bear_banner.png)
-
-*The project is still work in progress, see the [disclaimer below](#-warning-under-construction-).*
-
-<div>
-  <a href="https://codecov.io/gh/berachain/polaris" target="_blank">
-    <img src="https://codecov.io/gh/berachain/polaris/branch/main/graph/badge.svg?token=5SYYGUS8GW"/> 
-  </a>
-  <a href="https://pkg.go.dev/pkg.berachain.dev/polaris" target="_blank">
-    <img src="https://pkg.go.dev/badge/pkg.berachain.dev/polaris.svg" alt="Go Reference">
-  </a>
-  <a href="https://magefile.org" target="_blank">
-    <img alt="Built with Mage" src="https://magefile.org/badge.svg" />
-  </a>
-  <a href="https://t.me/polaris_devs" target="_blank">
-    <img alt="Telegram Chat" src="https://img.shields.io/endpoint?color=neon&logo=telegram&label=chat&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fpolaris_devs">
-  </a>
-  <a href="https://twitter.com/berachain" target="_blank">
-    <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/berachain">
-  </a>
-</div>
-
-
-
-## What is Polaris?
-
-Introducing Polaris, the revolutionary framework designed to simplify the integration of an Ethereum Virtual Machine (EVM) into your application. Polaris is built with a clean, easy-to-integrate API that eliminates the need for developers to spend time hacking together their own EVM integration solutions. Our framework is highly modular, allowing you to choose the components that best fit your needs and integrate an EVM environment into virtually any application.
-
-Polaris is built with several core principles in mind:
-
-1. **Modularity**: Each component is developed as a distinct package, complete with thorough testing, documentation, and benchmarking. You can use these components individually or combine them to create innovative EVM integrations.
-2. **Configurability**: We want Polaris to be accessible to as many teams and use cases as possible. To support this, our framework is highly configurable, allowing you to tailor it to your specific needs.
-3. **Performance**: In today's competitive crypto landscape, performance is key. Polaris is optimized to deliver the highest levels of performance and efficiency.
-4. **Contributor Friendliness**: We believe that open collaboration is key to driving innovation in blockchain development. While Polaris is currently licensed under BUSL-1.1, we plan to adjust our licensing to support contributor-based schemes as we approach production readiness.
-5. **Memes**: If ur PR doesn't have a meme in it like idk sry bro, gg wp ghlf.
-
-## Documentation
-
-If you want to build on top of Polaris, take a look at our [documentation](http://polaris.berachain.dev/).
-If you want to help contribute to the framework, check out the [Framework Specs](./specs/).
+<h1 align="center"> Berachain x Celestia x OP Stack ❄️🔭 </h1>
 
 ## Directory Structure
 
@@ -50,11 +9,11 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 ├── <a href="./contracts">contracts</a>: Contracts and bindings for Polaris (and hosts).
 ├── <a href="./docs">docs</a>: Documentation for Polaris.
 ├── <a href="./cosmos">cosmos</a>: Polaris integrated into a Cosmos-SDK based chain.
+├── <a href="./e2e">e2e</a>: End-to-end testing utilities.
 ├── <a href="./eth">eth</a>: The Core of the Polaris Ethereum Framework.
 ├── <a href="./lib">lib</a>: A collection of libraries used throughout the repo.
 ├── <a href="./magefiles">magefiles</a>: Build scripts and utils.
 </pre>
-
 
 ## Build & Test
 
@@ -80,19 +39,19 @@ If you want to help contribute to the framework, check out the [Framework Specs]
    export PATH=$PATH:$(go env GOPATH)/bin
    ```
 
-2. Install Foundry:
+2. Install and Set Foundry:
 
    ```sh
    curl -L https://foundry.paradigm.xyz | bash
+   foundryup
    ```
 
 3. Clone, Setup and Test:
 
    ```sh
    cd $HOME
-   git clone https://github.com/berachain/polaris
-   cd polaris
-   git checkout main
+   git clone https://github.com/kobakaku/polaris
+   git checkout rollkit-v0.50.0-beta.0
    go run magefiles/setup/setup.go
    mage cosmos:test
    ```
@@ -102,6 +61,29 @@ If you want to help contribute to the framework, check out the [Framework Specs]
    ```sh
    mage start
    ```
+
+5. Start Celestia Local Devnet:
+
+   ```sh
+   docker run --platform linux/amd64 -p 26658:26658 -p 26659:26659 ghcr.io/rollkit/local-celestia-devnet:v0.11.0-rc8
+   ```
+
+6. Put Auth Token into cosmos/init.sh
+
+This auth key is required to authorize rollkit to post to the DA.
+
+![sleep](assets/step2.png)
+
+Place it in `cosmos/init.sh`
+
+![sleep](assets/step2.1.png)
+
+7. The following private key has funds on the Polaris Chain
+
+```bash
+Address: 0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4
+PrivateKey: 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
+```
 
 ## 🚧 WARNING: UNDER CONSTRUCTION 🚧
 
