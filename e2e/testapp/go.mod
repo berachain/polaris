@@ -5,6 +5,8 @@ go 1.21
 toolchain go1.21.0
 
 replace (
+	// Fixed pebble version before polaris-geth update
+	github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20230711190327-88bbab59ff4f
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230629154458-90866dc0cf0a
 	// Required at the moment until a bug in the comsos-sdk is fixed.
@@ -16,7 +18,6 @@ require (
 	cosmossdk.io/tools/confix v0.0.0-20230608151552-9b9e319d1abc
 	cosmossdk.io/x/evidence v0.0.0-20230814085951-3dca9f8a5a18
 	cosmossdk.io/x/upgrade v0.0.0-20230704191127-8d80df8e3c5a
-	github.com/stretchr/testify v1.8.4
 	pkg.berachain.dev/polaris/cosmos v0.0.0-20230810045725-b6ed353ceb0e
 	pkg.berachain.dev/polaris/eth v0.0.0-20230810045725-b6ed353ceb0e
 )
@@ -220,6 +221,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/status-im/keycard-go v0.2.0 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/supranational/blst v0.3.11 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
@@ -265,6 +267,3 @@ require (
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
-
-// fixed pebble version before polaris-geth update 
-replace github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20230711190327-88bbab59ff4f
