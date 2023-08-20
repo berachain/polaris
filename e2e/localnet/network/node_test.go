@@ -49,7 +49,7 @@ var _ = Describe("ContainerizedNode", func() {
 			"8545/tcp",
 			"8546/tcp",
 			[]string{
-				"GO_VERSION=1.20.6",
+				"GO_VERSION=1.21.0",
 				"BASE_IMAGE=polard/base:v0.0.0",
 			},
 		)
