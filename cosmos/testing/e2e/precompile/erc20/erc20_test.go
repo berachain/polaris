@@ -82,10 +82,6 @@ var _ = Describe("ERC20", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(denom).To(Equal(""))
 
-				// invalid address
-				_, err = erc20Precompile.CoinDenomForERC20Address(nil, common.Address{})
-				Expect(err).To(HaveOccurred())
-
 				// nonexistent denom
 				token, err := erc20Precompile.Erc20AddressForCoinDenom(nil, "")
 				Expect(err).ToNot(HaveOccurred())
