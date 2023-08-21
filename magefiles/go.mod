@@ -6,7 +6,7 @@ require (
 	github.com/bufbuild/buf v1.15.1
 	github.com/carolynvs/magex v0.9.0
 	github.com/cosmos/gosec/v2 v2.0.0-20230124142343-bf28a33fadf2
-	github.com/ethereum/go-ethereum v1.12.2
+	github.com/ethereum/go-ethereum v1.12.0
 	github.com/golangci/golangci-lint v1.54.0
 	github.com/google/addlicense v1.1.1
 	github.com/magefile/mage v1.15.0
@@ -152,7 +152,6 @@ require (
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
-	github.com/holiman/billy v0.0.0-20230718173358-1c7e68d277a7 // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
 	github.com/holiman/uint256 v1.2.3 // indirect
 	github.com/huin/goupnp v1.2.0 // indirect

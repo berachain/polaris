@@ -7,7 +7,7 @@ replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.
 
 require (
 	github.com/BurntSushi/toml v1.3.2
-	github.com/ethereum/go-ethereum v1.12.2
+	github.com/ethereum/go-ethereum v1.12.0
 	github.com/holiman/uint256 v1.2.3
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.10

@@ -7,7 +7,7 @@ replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.
 require (
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.0
 	github.com/docker/docker v23.0.3+incompatible
-	github.com/ethereum/go-ethereum v1.12.2
+	github.com/ethereum/go-ethereum v1.12.0
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.10
 	github.com/ory/dockertest v3.3.5+incompatible

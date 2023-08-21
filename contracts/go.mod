@@ -2,7 +2,7 @@ module pkg.berachain.dev/polaris/contracts
 
 go 1.21
 
-require github.com/ethereum/go-ethereum v1.12.2
+require github.com/ethereum/go-ethereum v1.12.0
 
 require (
 	github.com/DataDog/zstd v1.5.5 // indirect
