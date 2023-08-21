@@ -41,7 +41,6 @@ package contracts
 //go:generate abigen --pkg testing --abi ./out/PrecompileConstructor.sol/PrecompileConstructor.abi.json --bin ./out/PrecompileConstructor.sol/PrecompileConstructor.bin --out ./bindings/testing/precompile_constructor.abigen.go --type PrecompileConstructor
 //go:generate abigen --pkg testing --abi ./out/ConsumeGas.sol/ConsumeGas.abi.json --bin ./out/ConsumeGas.sol/ConsumeGas.bin --out ./bindings/testing/consume_gas.abigen.go --type ConsumeGas
 //go:generate abigen --pkg testing --abi ./out/LiquidStaking.sol/LiquidStaking.abi.json --bin ./out/LiquidStaking.sol/LiquidStaking.bin --out ./bindings/testing/liquid_staking.abigen.go --type LiquidStaking
-//go:generate abigen --pkg testing_fundraiser --abi ./out/Fundraiser.sol/Fundraiser.abi.json --bin ./out/Fundraiser.sol/Fundraiser.bin --out ./bindings/testing/fundraiser/fundraiser.abigen.go --type Fundraiser
 //go:generate abigen --pkg testing_governance --abi ./out/GovernanceWrapper.sol/GovernanceWrapper.abi.json --bin ./out/GovernanceWrapper.sol/GovernanceWrapper.bin --out ./bindings/testing/governance/governance_wrapper.abigen.go --type GovernanceWrapper
 //go:generate abigen --pkg testing --abi ./out/DistributionWrapper.sol/DistributionWrapper.abi.json --bin ./out/DistributionWrapper.sol/DistributionWrapper.bin --out ./bindings/testing/distribution_testing_helper.abigen.go --type DistributionWrapper
 //go:generate abigen --pkg testing --abi ./out/Swapper.sol/Swapper.abi.json --bin ./out/Swapper.sol/Swapper.bin --out ./bindings/testing/swapper.abigen.go --type Swapper
