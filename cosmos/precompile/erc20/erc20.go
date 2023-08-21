@@ -274,8 +274,15 @@ func (c *Contract) PerformBankTransfer(
 		return false, errors.New("UNAUTHORIZED")
 	} else {
 		// Else we ball.
-		err = c.bk.SendCoins(ctx, sender[:], recipient[:], sdk.NewCoins(
-			sdk.NewCoin(resp.Denom, sdkmath.NewIntFromBigInt(amount))))
+		err = c.bk.SendCoins(
+			ctx, sender[:], recipient[:],
+			sdk.Coins{
+				sdk.Coin{
+					Denom:  resp.Denom,
+					Amount: sdkmath.NewIntFromBigInt(amount),
+				},
+			},
+		)
 		return err == nil, err
 	}
 }
