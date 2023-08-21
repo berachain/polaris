@@ -248,7 +248,7 @@ func (c *Contract) TransferERC20ToCoinTo(
 	return err == nil, err
 }
 
-// TransferERC20ToCoinTo transfers ERC20 tokens to SDK coins from msg.sender to recipient.
+// PerformBankTransfer transfers ERC20 tokens to SDK coins from msg.sender to recipient.
 func (c *Contract) PerformBankTransfer(
 	ctx context.Context,
 	sender common.Address,

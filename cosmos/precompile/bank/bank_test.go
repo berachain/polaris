@@ -37,6 +37,7 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
+	"pkg.berachain.dev/polaris/cosmos/precompile/testutil"
 	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -476,7 +477,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				_, err = contract.Send(
 					pCtx,
 					cosmlib.AccAddressToEthAddress(toAcc),
-					cosmlib.SdkCoinsToEvmCoins(sortedSdkCoins),
+					testutil.SdkCoinsToEvmCoins(sortedSdkCoins),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -508,7 +509,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				_, err = contract.Send(
 					ctx,
 					cosmlib.AccAddressToEthAddress(toAcc),
-					cosmlib.SdkCoinsToEvmCoins(coinsToSend),
+					testutil.SdkCoinsToEvmCoins(coinsToSend),
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidCoin))
 			})
