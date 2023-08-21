@@ -118,7 +118,7 @@ var _ = Describe("Processor", func() {
 
 		// Set header's consensus address to match the validator's.
 		header := ctx.BlockHeader()
-		header.ProposerAddress = consAddr.Bytes()
+		header.ProposerAddress = consAddr
 		ctx = ctx.WithBlockHeader(header)
 
 		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000000000)).
