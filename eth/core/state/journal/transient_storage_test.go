@@ -76,7 +76,7 @@ var _ = Describe("TransientStorage", func() {
 		Expect(ts.GetTransientState(bob, key)).To(Equal(value))
 
 		ts2 := utils.MustGetAs[*transientStorage](ts.Clone())
-		Expect(ts2.PeekAt(0).Get(bob, key)).To(Equal(common.Hash{}))
+		Expect(ts2.PeekAt(0).Get(alice, key)).To(Equal(common.Hash{}))
 		Expect(ts2.GetTransientState(bob, key)).To(Equal(value))
 
 		ts2.SetTransientState(alice, key, value2)
