@@ -33,6 +33,7 @@ import (
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
+	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
@@ -127,11 +128,20 @@ func (c *Contract) GetProposals(
 	return c.getProposalsHelper(ctx, proposalStatus)
 }
 
+// GetProposalDeposits is the method for the `getProposalDeposits` method of the governance precompile contract.
 func (c *Contract) GetProposalDeposits(
 	ctx context.Context,
 	proposalID uint64,
-) ([]generated.IGovernanceModuleDeposit, error) {
+) ([]generated.CosmosCoin, error) {
 	return c.getProposalDepositsHelper(ctx, proposalID)
+}
+
+func (c *Contract) GetProposalDepositsByDepositor(
+	ctx context.Context,
+	depositor common.Address,
+	proposalID uint64,
+) ([]generated.CosmosCoin, error) {
+	return c.getProposalDepositsByDepositorHelper(ctx, deposity, proposalID)
 }
 
 func (c *Contract) GetParams(

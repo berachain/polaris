@@ -68,11 +68,14 @@ interface IGovernanceModule {
      */
     function getProposal(uint64 proposalId) external view returns (Proposal memory);
 
+    function getProposalDeposits(uint64 proposalId) external view returns (Cosmos.Coin[] memory);
+
     /**
      * @dev Get proposals with a given status.
      * @param proposalStatus The status of the proposals to get.
      */
     function getProposals(int32 proposalStatus) external view returns (Proposal[] memory);
+
 
     /**
      * @dev Get the governance module parameters.
@@ -83,6 +86,8 @@ interface IGovernanceModule {
      * @dev Get the constitution of the chain.
     */
     function getConstitution() external view returns (string);
+
+    
 
     ////////////////////////////////////////// Structs ///////////////////////////////////////////////////
     /**

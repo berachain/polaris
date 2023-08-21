@@ -31,6 +31,7 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
@@ -171,6 +172,35 @@ func (c *Contract) getProposalsHelper(
 
 	return proposals, nil
 }
+
+// getProposalDepositsHelper is a helper function for the `GetProposalDeposits` method of the
+// governance precompile contract.
+func (c *Contract) getProposalDepositsHelper(
+	ctx context.Context,
+	proposalID uint64,
+) ([]generated.CosmosCoin, error) {
+	res, err := c.querier.Proposal(ctx, &v1.QueryProposalRequest{
+		ProposalId: proposalID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	deposits := make([]generated.CosmosCoin, 0)
+	for _, deposit := range res.Proposal.TotalDeposit {
+		deposits = append(deposits, generated.CosmosCoin{
+			Denom:  deposit.Denom,
+			Amount: deposit.Amount.BigInt(),
+		})
+	}
+
+	return deposits, nil
+}
+
+func (c *Contract) getProposalDepositsByDepositorHelper(
+	ctx context.Context,
+	depositor common.Address,
+	proposalID uint64,
+)
 
 // func (c *Contract) getParamsHelper(
 // 	ctx context.Context,
