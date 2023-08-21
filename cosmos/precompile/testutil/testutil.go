@@ -77,7 +77,10 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = "abgt"
-	sk.SetParams(ctx, stakingParams)
+	err := sk.SetParams(ctx, stakingParams)
+	if err != nil {
+		panic(err)
+	}
 
 	// Create the governance keeper.
 	gk := governancekeeper.NewKeeper(
@@ -99,7 +102,7 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 
 	// Set the Params and first proposal ID.
 	params := v1.DefaultParams()
-	err := gk.Params.Set(ctx, params)
+	err = gk.Params.Set(ctx, params)
 	if err != nil {
 		panic(err)
 	}

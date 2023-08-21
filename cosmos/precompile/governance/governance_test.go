@@ -453,7 +453,8 @@ var _ = Describe("Governance Precompile", func() {
 			})
 			When("GetConstitution", func() {
 				It("should get the constitution", func() {
-					gk.Constitution.Set(ctx, "constitution")
+					err := gk.Constitution.Set(ctx, "constitution")
+					Expect(err).ToNot(HaveOccurred())
 					res, err := contract.GetConstitution(
 						ctx,
 					)
