@@ -98,7 +98,7 @@ var _ = Describe("ERC20", func() {
 
 			code, err := tf.EthClient().CodeAt(context.Background(), tokenAddr, big.NewInt(-1))
 			Expect(err).ToNot(HaveOccurred())
-			Expect(len(code)).To(BeNumerically(">", 0))
+			Expect(code).ToNot(BeEmpty())
 
 			// Get the current allowance of the swapper contract.
 			res, err := token.Allowance(
