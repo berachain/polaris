@@ -29,27 +29,7 @@ import (
 	"github.com/magefile/mage/mg"
 )
 
-const (
-	baseImage = "polard/base:v0.0.0"
-
-	polardClientPath   = "./cosmos/testing/e2e/polard/"
-	localnetRepository = "localnet"
-	localnetVersion    = "latest"
-)
-
 type Localnet mg.Namespace
-
-func (Localnet) Build() error {
-	return ExecuteInDirectory(polardClientPath,
-		func(...string) error {
-			return dockerBuildFn(false)(
-				"--build-arg", "GO_VERSION="+goVersion,
-				"--build-arg", "BASE_IMAGE="+baseImage,
-				"-t", localnetRepository+":"+localnetVersion,
-				".",
-			)
-		}, false)
-}
 
 // Runs the localnet tooling sanity tests.
 func (Localnet) Test() error {

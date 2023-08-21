@@ -52,6 +52,8 @@ type FixtureConfig struct {
 	path string
 
 	baseImage     string
+	localnetImage string
+
 	containerName string
 	httpAddress   string
 	wsAdddress    string
@@ -64,6 +66,7 @@ type FixtureConfig struct {
 func NewFixtureConfig(
 	configRelativePath,
 	baseImage,
+	localnetImage,
 	containerName,
 	httpAddress,
 	wsAdddress,
@@ -81,6 +84,7 @@ func NewFixtureConfig(
 	return &FixtureConfig{
 		path:          configPath,
 		baseImage:     baseImage,
+		localnetImage: localnetImage,
 		containerName: containerName,
 		httpAddress:   httpAddress,
 		wsAdddress:    wsAdddress,
@@ -108,9 +112,10 @@ func NewTestFixture(t ginkgo.FullGinkgoTInterface, config *FixtureConfig) *TestF
 		t.Fatal(err)
 	}
 
+	localnetImage := strings.Split(config.localnetImage, ":")
 	tf.ContainerizedNode, err = NewContainerizedNode(
-		"localnet",
-		"latest",
+		localnetImage[0],
+		localnetImage[1],
 		config.containerName,
 		config.httpAddress,
 		config.wsAdddress,
