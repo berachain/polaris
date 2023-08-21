@@ -36,6 +36,19 @@ library Cosmos {
         uint256 amount;
         string denom;
     }
+
+    struct PageRequest {
+        string key;
+        uint64 offset;
+        uint64 limit;
+        bool countTotal;
+        bool reverse;
+    }
+
+    struct PageResponse {
+        string nextKey;
+        uint64 total;
+    }
 }
 
 /**
@@ -43,4 +56,6 @@ library Cosmos {
  */
 contract CosmosTypes {
     function coin(Cosmos.Coin calldata) public pure {}
+    function pageRequest(Cosmos.PageRequest calldata) public pure {}
+    function pageResponse(Cosmos.PageResponse calldata) public pure {}
 }

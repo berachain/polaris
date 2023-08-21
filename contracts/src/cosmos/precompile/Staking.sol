@@ -68,12 +68,18 @@ interface IStakingModule {
     /**
      * @dev Returns a list of active validator addresses.
      */
-    function getActiveValidators() external view returns (address[] memory);
+    function getActiveValidators(Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (address[] memory, Cosmos.PageResponse memory);
 
     /**
      * @dev Returns a list of all active validators.
      */
-    function getValidators() external view returns (Validator[] memory);
+    function getValidators(Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (Validator[] memory, Cosmos.PageResponse memory);
 
     /**
      * @dev Returns the validator at the given address.
@@ -84,6 +90,15 @@ interface IStakingModule {
      * @dev Returns all the validators delegated to by the given delegator.
      */
     function getDelegatorValidators(address delegatorAddress) external view returns (Validator[] memory);
+
+    /**
+     * @dev Returns all the delegations delegated to the given validator.
+     * Note: if pagination is not a valid page request, it will execute without pagination
+     */
+    function getValidatorDelegations(address validatorAddress, Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (Delegation[] memory, Cosmos.PageResponse memory);
 
     /**
      * @dev Returns the `amount` of tokens currently delegated by `delegatorAddress` to
@@ -225,5 +240,13 @@ interface IStakingModule {
         uint256 sharesDst;
         // unbondingId is the incrementing id that uniquely identifies this entry
         uint64 unbondingId;
+    }
+
+    /**
+     * @dev Represents a single delegation.
+     */
+    struct Delegation {
+        address delegator;
+        uint256 shares;
     }
 }
