@@ -85,6 +85,8 @@ func (m *method) Call(ctx context.Context, input []byte) ([]byte, error) {
 		reflectedUnpackedArgs = append(reflectedUnpackedArgs, reflect.ValueOf(unpacked))
 	}
 
+	// TODO: convert any unnamed structs into their corresponding named struct.
+
 	// Call the executable the reflected values.
 	results := m.execute.Func.Call(
 		append(

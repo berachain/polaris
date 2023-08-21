@@ -29,6 +29,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -56,18 +57,20 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 	}
 }
 
-// GetActiveValidators implements the `getActiveValidators()` method.
+// GetActiveValidators implements the `getActiveValidators(PageRequest)` method.
 func (c *Contract) GetActiveValidators(
 	ctx context.Context,
-) ([]common.Address, error) {
-	return c.activeValidatorsHelper(ctx)
+	pagination any,
+) ([]common.Address, cbindings.CosmosPageResponse, error) {
+	return c.activeValidatorsHelper(ctx, pagination)
 }
 
-// GetValidators implements the `getValidators()` method.
+// GetValidators implements the `getValidators(PageRequest)` method.
 func (c *Contract) GetValidators(
 	ctx context.Context,
-) ([]generated.IStakingModuleValidator, error) {
-	return c.validatorsHelper(ctx)
+	pagination any,
+) ([]generated.IStakingModuleValidator, cbindings.CosmosPageResponse, error) {
+	return c.validatorsHelper(ctx, pagination)
 }
 
 // GetValidators implements the `getValidator(address)` method.
@@ -84,6 +87,15 @@ func (c *Contract) GetDelegatorValidators(
 	delegatorAddr common.Address,
 ) ([]generated.IStakingModuleValidator, error) {
 	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr))
+}
+
+// GetValidatorDelegations implements the `getValidatorDelegations(address,PageRequest)` method.
+func (c *Contract) GetValidatorDelegations(
+	ctx context.Context,
+	validatorAddr common.Address,
+	pagination any,
+) ([]generated.IStakingModuleDelegation, cbindings.CosmosPageResponse, error) {
+	return c.getValidatorDelegationsHelper(ctx, cosmlib.AddressToValAddress(validatorAddr), pagination)
 }
 
 // GetDelegation implements `getDelegation(address)` method.

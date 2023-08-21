@@ -27,6 +27,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -60,6 +61,16 @@ func SdkCoinToEvmCoin(coin sdk.Coin) libgenerated.CosmosCoin {
 	return evmCoin
 }
 
+func SdkPageResponseToEvmPageResponse(pageResponse *query.PageResponse) libgenerated.CosmosPageResponse {
+	if pageResponse == nil {
+		return libgenerated.CosmosPageResponse{}
+	}
+	return libgenerated.CosmosPageResponse{
+		NextKey: string(pageResponse.GetNextKey()),
+		Total:   pageResponse.GetTotal(),
+	}
+}
+
 // ExtractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
 func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
@@ -85,6 +96,29 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	}
 
 	return sdkCoins, nil
+}
+
+func ExtractPageRequestFromInput(pageRequest any) *query.PageRequest {
+	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
+	// the any type input into the contract's generated type.
+	pageReq, ok := utils.GetAs[struct {
+		Key        string `json:"key"`
+		Offset     uint64 `json:"offset"`
+		Limit      uint64 `json:"limit"`
+		CountTotal bool   `json:"count_total"`
+		Reverse    bool   `json:"reverse"`
+	}](pageRequest)
+	if !ok {
+		return nil
+	}
+
+	return &query.PageRequest{
+		Key:        []byte(pageReq.Key),
+		Offset:     pageReq.Offset,
+		Limit:      pageReq.Limit,
+		CountTotal: pageReq.CountTotal,
+		Reverse:    pageReq.Reverse,
+	}
 }
 
 // ExtractCoinFromInputToCoin converts a coin from input (of type any) into sdk.Coins.
