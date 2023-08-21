@@ -258,7 +258,7 @@ func (c *Contract) PerformBankTransfer(
 	polarCtx := vm.UnwrapPolarContext(ctx)
 
 	// the caller SHOULD be an ERC20 contract that is registered.
-	tokenHexAddr := polarCtx.MsgSender().String()
+	tokenHexAddr := polarCtx.MsgSender().Hex()
 
 	// We check to see if the denom exists.
 	if resp, err := c.em.CoinDenomForERC20Address(
