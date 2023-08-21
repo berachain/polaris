@@ -139,7 +139,7 @@ func (tf *TestFixture) Teardown() error {
 }
 
 // GenerateTransactOpts generates a new transaction options object for a key by it's name.
-func (tf *TestFixture)  GenerateTransactOpts(name string) *bind.TransactOpts {
+func (tf *TestFixture) GenerateTransactOpts(name string) *bind.TransactOpts {
 	// Get the nonce from the RPC.
 	nonce, err := tf.EthClient().PendingNonceAt(context.Background(), tf.Address(name))
 	if err != nil {

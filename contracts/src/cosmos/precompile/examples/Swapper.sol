@@ -31,47 +31,30 @@ import {IERC20Module} from "../ERC20Module.sol";
 // Swapper is an example smart contract that uses the erc20 module precompile to swap/transfer
 // between SDK coins and ERC20 tokens.
 contract Swapper {
-    IERC20Module public immutable erc20Module =
-        IERC20Module(0x0000000000000000000000000000000000696969);
+    IERC20Module public immutable erc20Module = IERC20Module(0x0000000000000000000000000000000000696969);
 
     // transfers ERC20 --> SDK coin
     // owner must first grant this contract to spend owner's tokens if the token is originally
     // an ERC20 token
     function swap(IERC20 token, uint256 amount) external {
-        bool transferred = erc20Module.transferERC20ToCoinFrom(
-            token,
-            msg.sender,
-            msg.sender,
-            amount
-        );
+        bool transferred = erc20Module.transferERC20ToCoinFrom(token, msg.sender, msg.sender, amount);
         require(transferred, "Swapper: transferERC20ToCoin failed");
     }
 
     // transfers SDK coin --> ERC20
     function swap(string calldata denom, uint256 amount) external {
-        bool transferred = erc20Module.transferCoinToERC20From(
-            denom,
-            msg.sender,
-            msg.sender,
-            amount
-        );
+        bool transferred = erc20Module.transferCoinToERC20From(denom, msg.sender, msg.sender, amount);
         require(transferred, "Swapper: transferCoinToERC20 failed");
     }
 
     // gets the Polaris ERC20 token for a given SDK coin denomination
-    function getPolarisERC20(
-        string calldata denom
-    ) external view returns (IERC20) {
+    function getPolarisERC20(string calldata denom) external view returns (IERC20) {
         return erc20Module.erc20AddressForCoinDenom(denom);
     }
 
     // deposists the ERC20 token into the yield vault
     function deposit(address token, uint256 amount) external {
-        bool deposited = IERC20(token).transferFrom(
-            msg.sender,
-            address(this),
-            amount
-        );
+        bool deposited = IERC20(token).transferFrom(msg.sender, address(this), amount);
         require(deposited, "Swapper: transferFrom failed");
     }
 }
