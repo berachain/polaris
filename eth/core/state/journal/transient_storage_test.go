@@ -46,7 +46,14 @@ var _ = Describe("TransientStorage", func() {
 	It("should add without impacting previous state", func() {
 		ts.SetTransientState(alice, key, value)
 		ts.SetTransientState(bob, key, value)
+
+		// manually ensure the first transient state is not overwritten
+		Expect(ts.PeekAt(0).Get(alice, key)).To(Equal(value))
 		Expect(ts.PeekAt(0).Get(bob, key)).To(Equal(common.Hash{}))
+
+		// the current transient state should have all state changes
+		Expect(ts.GetTransientState(alice, key)).To(Equal(value))
+		Expect(ts.GetTransientState(bob, key)).To(Equal(value))
 	})
 
 	It("should have consistent gets and sets", func() {
@@ -72,11 +79,11 @@ var _ = Describe("TransientStorage", func() {
 
 	It("should correctly clone", func() {
 		ts.SetTransientState(bob, key, value)
-		Expect(ts.PeekAt(0).Get(alice, key)).To(Equal(common.Hash{}))
+		Expect(ts.GetTransientState(alice, key)).To(Equal(common.Hash{}))
 		Expect(ts.GetTransientState(bob, key)).To(Equal(value))
 
 		ts2 := utils.MustGetAs[*transientStorage](ts.Clone())
-		Expect(ts2.PeekAt(0).Get(alice, key)).To(Equal(common.Hash{}))
+		Expect(ts2.GetTransientState(alice, key)).To(Equal(common.Hash{}))
 		Expect(ts2.GetTransientState(bob, key)).To(Equal(value))
 
 		ts2.SetTransientState(alice, key, value2)
