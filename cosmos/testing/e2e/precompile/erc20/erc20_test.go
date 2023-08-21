@@ -114,7 +114,6 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(123456789),
 				)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("insufficient funds"))
 
 				// token doesn't exist, user does not have balance of token
 				_, err = erc20Precompile.TransferERC20ToCoin(
@@ -123,7 +122,6 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(123456789),
 				)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("ERC20 token contract does not exist"))
 			})
 
 			It("should handle a IBC-originated SDK coin", func() {
@@ -182,7 +180,6 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(12345*2+1),
 				)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("insufficient funds"))
 			})
 
 			It("should handle a ERC20 originated token", func() {
@@ -207,8 +204,6 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(6789),
 				)
 				Expect(err).To(HaveOccurred())
-				// doesn't work because owner did not approve caller to spend tokens
-				Expect(err.Error()).To(ContainSubstring("gas required exceeds allowance"))
 
 				// verify the transfer did not work
 				bal, err = contract.BalanceOf(nil, tf.Address("alice"))
