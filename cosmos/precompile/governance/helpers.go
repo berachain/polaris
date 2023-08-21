@@ -172,6 +172,27 @@ func (c *Contract) getProposalsHelper(
 	return proposals, nil
 }
 
+// func (c *Contract) getParamsHelper(
+// 	ctx context.Context,
+// ) (generated.IGovernanceModuleParams, error) {
+// 	res, err := c.querier.Params(ctx, &v1.QueryParamsRequest{})
+// 	if err != nil {
+// 		return generated.IGovernanceModuleParams{}, err
+// 	}
+
+// 	return generated.IGovernanceModuleParams{
+
+func (c *Contract) getConstitutionHelper(
+	ctx context.Context,
+) (string, error) {
+	res, err := c.querier.Constitution(ctx, &v1.QueryConstitutionRequest{})
+	if err != nil {
+		return "", err
+	}
+
+	return res.Constitution, nil
+}
+
 // transformProposalToABIProposal is a helper function to transform a `v1.Proposal`
 // to an `IGovernanceModule.Proposal`.
 func transformProposalToABIProposal(proposal v1.Proposal) generated.IGovernanceModuleProposal {

@@ -127,6 +127,26 @@ func (c *Contract) GetProposals(
 	return c.getProposalsHelper(ctx, proposalStatus)
 }
 
+func (c *Contract) GetProposalDeposits(
+	ctx context.Context,
+	proposalID uint64,
+) ([]generated.IGovernanceModuleDeposit, error) {
+	return c.getProposalDepositsHelper(ctx, proposalID)
+}
+
+func (c *Contract) GetParams(
+	ctx context.Context,
+
+) {
+}
+
+// GetConstitution is the method for the `getConstitution` method of the governance precompile contract.
+func (c *Contract) GetConstitution(
+	ctx context.Context,
+) (string, error) {
+	return c.getConstitutionHelper(ctx)
+}
+
 // unmarshalMsgAndReturnAny unmarshals `[]byte` into a `codectypes.Any` message.
 // TODO: This is a temporary solution until we have a better way to unmarshal messages.
 func unmarshalMsgAndReturnAny(bz []byte) (*codectypes.Any, error) {

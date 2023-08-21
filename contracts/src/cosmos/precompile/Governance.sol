@@ -74,6 +74,16 @@ interface IGovernanceModule {
      */
     function getProposals(int32 proposalStatus) external view returns (Proposal[] memory);
 
+    /**
+     * @dev Get the governance module parameters.
+    */
+    function getParams() external view returns (Cosmos.GovParams memory);
+
+    /**
+     * @dev Get the constitution of the chain.
+    */
+    function getConstitution() external view returns (string);
+
     ////////////////////////////////////////// Structs ///////////////////////////////////////////////////
     /**
      * @dev Represents a governance module `WeightedVoteOption`.
