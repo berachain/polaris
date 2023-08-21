@@ -24,6 +24,7 @@ import (
 	"context"
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -242,6 +243,40 @@ func (c *Contract) TransferERC20ToCoinTo(
 		recipient,
 		amount,
 	)
+	return err == nil, err
+}
+
+// TransferERC20ToCoinTo transfers ERC20 tokens to SDK coins from msg.sender to recipient.
+func (c *Contract) PerformBankTransfer(
+	ctx context.Context,
+	sender common.Address,
+	recipient common.Address,
+	amount *big.Int,
+) (bool, error) {
+	polarCtx := vm.UnwrapPolarContext(ctx)
+
+	// the caller SHOULD be an ERC20 contract that is registered.
+	tokenHexAddr := polarCtx.MsgSender().String()
+
+	resp, err := c.em.CoinDenomForERC20Address(
+		ctx,
+		&erc20types.CoinDenomForERC20AddressRequest{
+			Token: tokenHexAddr,
+		},
+	)
+	if err != nil {
+		return false, err
+	}
+
+	// If the sender isn't a `polaris` token, then we should reject this request.
+	if !erc20types.IsPolarisDenom(resp.Denom) {
+		return false, nil
+	}
+
+	// Else we ball.
+	err = c.bk.SendCoins(ctx, sender[:], recipient[:], sdk.NewCoins(
+		sdk.NewCoin(resp.Denom, sdkmath.NewIntFromBigInt(amount))))
+
 	return err == nil, err
 }
 

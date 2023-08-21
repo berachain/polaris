@@ -37,13 +37,12 @@ interface IAuthModule {
     function getAccountInfo(address account) external view returns (BaseAccount memory);
 
     /**
-     * @dev setSendAllowance sets the send authorization (allowance) between owner and spender.
-     * @param owner the account approving the allowance
+     * @dev setSendAllowance sets the send authorization (allowance) between msg.sender and spender.
      * @param spender the account being granted the allowance
      * @param amount the Coins of the allowance
      * @param expiration the expiration time of the grant (0 means no expiration)
      */
-    function setSendAllowance(address owner, address spender, Cosmos.Coin[] calldata amount, uint256 expiration)
+    function setSendAllowance(address spender, Cosmos.Coin[] calldata amount, uint256 expiration)
         external
         returns (bool);
 

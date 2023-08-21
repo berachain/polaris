@@ -5,6 +5,7 @@ pragma solidity >=0.8.0;
 import {IERC20} from "../../lib/IERC20.sol";
 import {IAuthModule} from "./precompile/Auth.sol";
 import {IBankModule} from "./precompile/Bank.sol";
+import {IERC20Module} from "./precompile/ERC20Module.sol";
 import {Cosmos} from "./CosmosTypes.sol";
 
 /**
@@ -123,7 +124,7 @@ contract PolarisERC20 is IERC20 {
         uint256 amount
     ) public virtual returns (bool) {
         require(
-            bank().send(msg.sender, to, amountToCoins(amount)),
+            erc20Module().performBankTransfer(msg.sender, to, amount),
             "PolarisERC20: failed to send tokens"
         );
 
@@ -145,11 +146,12 @@ contract PolarisERC20 is IERC20 {
     ) public virtual returns (bool) {
         uint256 allowed = allowance[from][msg.sender]; // Saves gas for limited approvals.
 
-        if (allowed != type(uint256).max)
+        if (allowed != type(uint256).max) {
             allowance[from][msg.sender] = allowed - amount;
+        }
 
         require(
-            bank().send(from, to, amountToCoins(amount)),
+            erc20Module().performBankTransfer(msg.sender, to, amount),
             "PolarisERC20: failed to send bank tokens"
         );
 
@@ -245,15 +247,10 @@ contract PolarisERC20 is IERC20 {
     }
 
     /**
-     * @dev amountToCoins is a helper function to convert an amount to sdk.Coin.
-     * @param amount the amount to convert to sdk.Coin.
-     * @return sdk.Coin[] the sdk.Coin representation of the given amount.
+     * @dev erc20Module is a pure function for getting the address of the erc20 module precompile.
+     * @return IERC20Module the address of the bank module precompile.
      */
-    function amountToCoins(
-        uint256 amount
-    ) internal view returns (Cosmos.Coin[] memory) {
-        Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
-        coins[0] = Cosmos.Coin({denom: denom, amount: amount});
-        return coins;
+    function erc20Module() internal pure returns (IERC20Module) {
+        return IERC20Module(address(0x696969));
     }
 }
