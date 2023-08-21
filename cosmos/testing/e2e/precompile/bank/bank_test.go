@@ -109,7 +109,6 @@ var _ = Describe("Bank", func() {
 		// Send 1000 bera from alice to charlie
 		tx, err := bankPrecompile.Send(
 			tf.GenerateTransactOpts("alice"),
-			tf.Address("alice"),
 			tf.Address("charlie"),
 			coinsToBeSent,
 		)
