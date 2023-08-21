@@ -137,7 +137,7 @@ contract PolarisERC20 is IERC20 {
             allowance[from][msg.sender] = allowed - amount;
         }
 
-        require(erc20Module().performBankTransfer(msg.sender, to, amount), "PolarisERC20: failed to send bank tokens");
+        require(erc20Module().performBankTransfer(from, to, amount), "PolarisERC20: failed to send bank tokens");
 
         emit Transfer(from, to, amount);
         return true;
