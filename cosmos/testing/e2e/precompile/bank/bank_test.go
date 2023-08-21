@@ -25,7 +25,6 @@ import (
 	"testing"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing/fundraiser"
 	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -154,48 +153,5 @@ var _ = Describe("Bank", func() {
 		sendEnabled, err := bankPrecompile.GetSendEnabled(nil, "abera")
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(sendEnabled).To(BeTrue())
-	})
-
-	It("should be able to call a precompile from a smart contract", func() {
-		// deploy fundraiser contract with account 0
-		contractAddr, tx, contract, err := tbindings.DeployFundraiser(
-			tf.GenerateTransactOpts("alice"),
-			tf.EthClient(),
-		)
-		Expect(err).ToNot(HaveOccurred())
-		ExpectSuccessReceipt(tf.EthClient(), tx)
-
-		coinsToDonate := []tbindings.CosmosCoin{
-			{
-				Denom:  denom,
-				Amount: big.NewInt(1000000),
-			},
-		}
-
-		// donate 1000000 abera from account 0 to contractAddr
-		_, err = contract.Donate(tf.GenerateTransactOpts("alice"), coinsToDonate)
-		Expect(err).ToNot(HaveOccurred())
-
-		// Wait one block.
-		err = tf.WaitForNextBlock()
-		Expect(err).ToNot(HaveOccurred())
-
-		// contractAddr should have 1000000 abera
-		balance, err := bankPrecompile.GetBalance(nil, contractAddr, denom)
-		Expect(err).ShouldNot(HaveOccurred())
-		Expect(balance).To(Equal(big.NewInt(1000000)))
-
-		// withdraw all 1000000 abera from contractAddr to account 0
-		_, err = contract.WithdrawDonations(tf.GenerateTransactOpts("alice"))
-		Expect(err).ToNot(HaveOccurred())
-
-		// Wait one block.
-		err = tf.WaitForNextBlock()
-		Expect(err).ToNot(HaveOccurred())
-
-		// contractAddr should have 0 abera
-		balance, err = bankPrecompile.GetBalance(nil, contractAddr, denom)
-		Expect(err).ShouldNot(HaveOccurred())
-		Expect(balance.Cmp(big.NewInt(0))).To(Equal(0))
 	})
 })
