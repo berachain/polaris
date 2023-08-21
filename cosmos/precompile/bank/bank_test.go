@@ -37,7 +37,7 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -63,7 +63,7 @@ var _ = Describe("Bank Precompile Test", func() {
 	)
 
 	BeforeEach(func() {
-		ctx, _, bk, _ = testutil.SetupMinimalKeepers()
+		ctx, _, bk, _ = testutils.SetupMinimalKeepers()
 
 		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(bankkeeper.NewMsgServerImpl(bk), bk))
 		addr = sdk.AccAddress([]byte("bank"))
