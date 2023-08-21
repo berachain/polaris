@@ -22,6 +22,7 @@ package erc20
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
@@ -259,26 +260,24 @@ func (c *Contract) PerformBankTransfer(
 	// the caller SHOULD be an ERC20 contract that is registered.
 	tokenHexAddr := polarCtx.MsgSender().String()
 
-	resp, err := c.em.CoinDenomForERC20Address(
+	// We check to see if the denom exists.
+	if resp, err := c.em.CoinDenomForERC20Address(
 		ctx,
 		&erc20types.CoinDenomForERC20AddressRequest{
 			Token: tokenHexAddr,
 		},
-	)
-	if err != nil {
+	); err != nil {
+		// if we error return false
 		return false, err
+	} else if !erc20types.IsPolarisDenom(resp.Denom) {
+		// if the denom is not a PolarisERC20 that is registered. return false
+		return false, errors.New("UNAUTHORIZED")
+	} else {
+		// Else we ball.
+		err := c.bk.SendCoins(ctx, sender[:], recipient[:], sdk.NewCoins(
+			sdk.NewCoin(resp.Denom, sdkmath.NewIntFromBigInt(amount))))
+		return err == nil, err
 	}
-
-	// If the sender isn't a `polaris` token, then we should reject this request.
-	if !erc20types.IsPolarisDenom(resp.Denom) {
-		return false, nil
-	}
-
-	// Else we ball.
-	err = c.bk.SendCoins(ctx, sender[:], recipient[:], sdk.NewCoins(
-		sdk.NewCoin(resp.Denom, sdkmath.NewIntFromBigInt(amount))))
-
-	return err == nil, err
 }
 
 // ==============================================================================
