@@ -102,10 +102,7 @@ contract PolarisERC20 is IERC20 {
      * @param amount the amount of tokens to approve the given address to spend.
      * @return bool true if the approval was successful.
      */
-    function approve(
-        address spender,
-        uint256 amount
-    ) public virtual returns (bool) {
+    function approve(address spender, uint256 amount) public virtual returns (bool) {
         allowance[msg.sender][spender] = amount;
 
         emit Approval(msg.sender, spender, amount);
@@ -119,14 +116,8 @@ contract PolarisERC20 is IERC20 {
      * @param amount the amount of tokens to transfer.
      * @return bool true if the transfer was successful.
      */
-    function transfer(
-        address to,
-        uint256 amount
-    ) public virtual returns (bool) {
-        require(
-            erc20Module().performBankTransfer(msg.sender, to, amount),
-            "PolarisERC20: failed to send tokens"
-        );
+    function transfer(address to, uint256 amount) public virtual returns (bool) {
+        require(erc20Module().performBankTransfer(msg.sender, to, amount), "PolarisERC20: failed to send tokens");
 
         emit Transfer(msg.sender, to, amount);
         return true;
@@ -139,21 +130,14 @@ contract PolarisERC20 is IERC20 {
      * @param amount the amount of tokens to transfer.
      * @return bool true if the transfer was successful.
      */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 amount
-    ) public virtual returns (bool) {
+    function transferFrom(address from, address to, uint256 amount) public virtual returns (bool) {
         uint256 allowed = allowance[from][msg.sender]; // Saves gas for limited approvals.
 
         if (allowed != type(uint256).max) {
             allowance[from][msg.sender] = allowed - amount;
         }
 
-        require(
-            erc20Module().performBankTransfer(msg.sender, to, amount),
-            "PolarisERC20: failed to send bank tokens"
-        );
+        require(erc20Module().performBankTransfer(msg.sender, to, amount), "PolarisERC20: failed to send bank tokens");
 
         emit Transfer(from, to, amount);
         return true;
@@ -163,15 +147,10 @@ contract PolarisERC20 is IERC20 {
                              EIP-2612 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual {
+    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+        public
+        virtual
+    {
         require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
 
         // Unchecked because the only math done is incrementing
@@ -201,10 +180,7 @@ contract PolarisERC20 is IERC20 {
                 s
             );
 
-            require(
-                recoveredAddress != address(0) && recoveredAddress == owner,
-                "INVALID_SIGNER"
-            );
+            require(recoveredAddress != address(0) && recoveredAddress == owner, "INVALID_SIGNER");
 
             allowance[recoveredAddress][spender] = value;
         }
@@ -213,25 +189,19 @@ contract PolarisERC20 is IERC20 {
     }
 
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
-        return
-            block.chainid == INITIAL_CHAIN_ID
-                ? INITIAL_DOMAIN_SEPARATOR
-                : computeDomainSeparator();
+        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : computeDomainSeparator();
     }
 
     function computeDomainSeparator() internal view virtual returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                    ),
-                    keccak256(bytes(denom)),
-                    keccak256("1"),
-                    block.chainid,
-                    address(this)
-                )
-            );
+        return keccak256(
+            abi.encode(
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                keccak256(bytes(denom)),
+                keccak256("1"),
+                block.chainid,
+                address(this)
+            )
+        );
     }
 
     /*//////////////////////////////////////////////////////////////
