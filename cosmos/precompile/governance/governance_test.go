@@ -40,8 +40,8 @@ import (
 
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile/testutil"
-	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	precomtest "pkg.berachain.dev/polaris/cosmos/precompile/test"
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -70,11 +70,11 @@ var _ = Describe("Governance Precompile", func() {
 	)
 
 	BeforeEach(func() {
-		t := testutil.GinkgoTestReporter{}
+		t := precomtest.GinkgoTestReporter{}
 		mockCtrl = gomock.NewController(t)
 		types.SetupCosmosConfig()
-		caller = cosmlib.AddressToAccAddress(testutils.Alice)
-		sdkCtx, bk, gk = testutil.Setup(mockCtrl, caller)
+		caller = cosmlib.AddressToAccAddress(testutil.Alice)
+		ctx, bk, gk = precomtest.Setup(mockCtrl, caller)
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
 			governancekeeper.NewMsgServerImpl(gk),
 			governancekeeper.NewQueryServer(gk),
@@ -104,7 +104,7 @@ var _ = Describe("Governance Precompile", func() {
 		BeforeEach(func() {
 			msg = banktypes.MsgSend{
 				FromAddress: caller.String(),
-				ToAddress:   testutils.Bob.String(),
+				ToAddress:   testutil.Bob.String(),
 				Amount:      sdk.NewCoins(sdk.NewInt64Coin("abera", 100)),
 			}
 		})

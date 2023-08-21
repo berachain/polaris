@@ -140,7 +140,7 @@ var _ = Describe("Distribution Precompile", func() {
 
 		txr := tf.GenerateTransactOpts("alice")
 		amt := big.NewInt(123450000000)
-		tx, err = bankPrecompile.Send(txr, contractAddress, []bbindings.CosmosCoin{
+		tx, err = bankPrecompile.Send(txr, tf.Address("alice"), contractAddress, []bbindings.CosmosCoin{
 			{
 				Denom:  "abera",
 				Amount: amt,

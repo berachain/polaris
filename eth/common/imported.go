@@ -33,7 +33,6 @@ var (
 	AddressLength  = common.AddressLength
 	HashLength     = common.HashLength
 	BytesToAddress = common.BytesToAddress
-	Big0           = common.Big0
 	BigToHash      = common.BigToHash
 	BytesToHash    = common.BytesToHash
 	Bytes2Hex      = common.Bytes2Hex
