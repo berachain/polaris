@@ -55,7 +55,7 @@ var (
 	goVersion              = "1.20.6"
 	precompileContractsDir = "./contracts"
 
-	// Localnet
+	// Localnet.
 	baseImage          = "polard/base:v0.0.0"
 	localnetClientPath = "./cosmos/testing/e2e/polard"
 	localnetDockerPath = localnetClientPath + "/Dockerfile"
