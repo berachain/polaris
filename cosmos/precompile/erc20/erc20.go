@@ -269,7 +269,9 @@ func (c *Contract) PerformBankTransfer(
 	); err != nil {
 		// if we error return false
 		return false, err
-	} else if erc20types.IsPolarisDenom(resp.Denom) {
+	} else if resp.Denom == "" || erc20types.IsPolarisDenom(resp.Denom) {
+		// if the denom doesn't exist, then we have a an authorized caller
+		// and should revert.
 		// if the denom is a PolarisERC20 it means that its ERC20
 		// originated and we should revert.
 		return false, errors.New("UNAUTHORIZED")
