@@ -26,6 +26,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
