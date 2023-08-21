@@ -256,20 +256,14 @@ func (c *Contract) PerformBankTransfer(
 	amount *big.Int,
 ) (bool, error) {
 	polarCtx := vm.UnwrapPolarContext(ctx)
-
-	// the caller SHOULD be an ERC20 contract that is registered.
-	tokenHexAddr := polarCtx.MsgSender().Hex()
-
 	// We check to see if the denom exists.
-	if resp, err := c.em.CoinDenomForERC20Address(
+	if denom, err := c.CoinDenomForERC20Address(
 		ctx,
-		&erc20types.CoinDenomForERC20AddressRequest{
-			Token: tokenHexAddr,
-		},
+		polarCtx.MsgSender(),
 	); err != nil {
 		// if we error return false
 		return false, err
-	} else if resp.Denom == "" || erc20types.IsPolarisDenom(resp.Denom) {
+	} else if denom == "" || erc20types.IsPolarisDenom(denom) {
 		// if the denom doesn't exist, then we have a an authorized caller
 		// and should revert.
 		// if the denom is a PolarisERC20 it means that its ERC20
@@ -281,7 +275,7 @@ func (c *Contract) PerformBankTransfer(
 			ctx, sender[:], recipient[:],
 			sdk.Coins{
 				sdk.Coin{
-					Denom:  resp.Denom,
+					Denom:  denom,
 					Amount: sdkmath.NewIntFromBigInt(amount),
 				},
 			},
