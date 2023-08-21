@@ -371,6 +371,13 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
 }
 
+func (app *SimApp) Close() error {
+	if pl := app.EVMKeeper.GetPolaris(); pl != nil {
+		return pl.StopServices()
+	}
+	return nil
+}
+
 // GetMaccPerms returns a copy of the module account permissions
 //
 // NOTE: This is solely to be used for testing purposes.
