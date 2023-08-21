@@ -234,7 +234,7 @@ func (c *Contract) transferERC20ToCoin(
 		}
 
 		// mint amount Polaris Coins to recipient
-		amount = common.Big0.Sub(balanceAfter, balanceBefore)
+		amount = new(big.Int).Sub(balanceAfter, balanceBefore)
 		if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, recipient, denom, amount); err != nil {
 			return err
 		}
