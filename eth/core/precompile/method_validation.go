@@ -41,6 +41,7 @@ func validateArg(implMethodVar reflect.Value, abiMethodVar reflect.Value) error 
 	//nolint:exhaustive // only the ones we need.
 	switch implMethodVarType.Kind() {
 	case reflect.Array, reflect.Slice:
+		fmt.Println(implMethodVarType.Name(), abiMethodVarType.Name())
 		if implMethodVarType.Elem() != abiMethodVarType.Elem() {
 			// If the array is not a slice/array of structs, return an error.
 			if implMethodVarType.Elem().Kind() != reflect.Struct {

@@ -68,7 +68,18 @@ interface IGovernanceModule {
      */
     function getProposal(uint64 proposalId) external view returns (Proposal memory);
 
+    /**
+     * @dev Get the deposits of the proposal with the given id.
+     */
     function getProposalDeposits(uint64 proposalId) external view returns (Cosmos.Coin[] memory);
+
+    /**
+     * @dev Get the deposits of the proposal with the given id and depositor.
+     */
+    function getProposalDepositsByDepositor(uint64 proposalId, address depositor)
+        external
+        view
+        returns (Cosmos.Coin[] memory);
 
     /**
      * @dev Get proposals with a given status.
@@ -76,18 +87,36 @@ interface IGovernanceModule {
      */
     function getProposals(int32 proposalStatus) external view returns (Proposal[] memory);
 
+    /**
+     * @dev Get the proposal tally result with the given id.
+     */
+    function getProposalTallyResult(uint64 proposalId) external view returns (TallyResult memory);
+
+    /**
+     * @dev Get the proposal votes with the given id.
+     */
+    function getProposalVotes(uint64 proposalId) external view returns (Vote[] memory);
+
+    /**
+     * @dev Get the proposal vote information with the given id and voter.
+     */
+    function getProposalVotesByVoter(uint64 proposalId, address voter) external view returns (Vote memory);
 
     /**
      * @dev Get the governance module parameters.
-    */
-    function getParams() external view returns (Cosmos.GovParams memory);
+     */
+    function getParams() external view returns (Params memory);
+
+    function getVotingParams() external view returns (VotingParams memory);
+
+    function getDepositParams() external view returns (DepositParams memory);
+
+    function getTallyParams() external view returns (TallyParams memory);
 
     /**
      * @dev Get the constitution of the chain.
-    */
-    function getConstitution() external view returns (string);
-
-    
+     */
+    function getConstitution() external view returns (string memory);
 
     ////////////////////////////////////////// Structs ///////////////////////////////////////////////////
     /**
@@ -97,6 +126,17 @@ interface IGovernanceModule {
     struct WeightedVoteOption {
         int32 voteOption;
         string weight;
+    }
+
+    /**
+     * @dev Represents a governance module `Vote`.
+     * Note: this struct is generated in generated/i_staking_module.abigen.go
+     */
+    struct Vote {
+        uint64 proposalId;
+        address voter;
+        WeightedVoteOption[] options;
+        string metadata;
     }
 
     /**
@@ -117,6 +157,55 @@ interface IGovernanceModule {
         string title;
         string summary;
         string proposer;
+    }
+
+    /**
+     * @dev Represents the governance module's parameters.
+     * Note: this struct is generated in generated/i_staking_module.abigen.go
+     */
+    struct Params {
+        Cosmos.Coin[] minDeposit;
+        uint64 maxDepositPeriod;
+        uint64 votingPeriod;
+        string quorum;
+        string threshold;
+        string vetoThreshold;
+        string minInitialDepositRatio;
+        string proposalCancelRatio;
+        string proposalCancelDest;
+        uint64 expeditedVotingPeriod;
+        string expeditedThreshold;
+        Cosmos.Coin[] expeditedMinDeposit;
+        bool burnVoteQuorum;
+        bool burnProposalDepositPrevote;
+        bool burnVoteVeto;
+    }
+
+    /**
+     * @dev Represents the governance module's `VotingParams`.
+     * Note: this struct is generated in generated/i_staking_module.abigen.go
+     */
+    struct VotingParams {
+        uint64 votingPeriod;
+    }
+
+    /**
+     * @dev Represents the governance module's `DepositParams`.
+     * Note: this struct is generated in generated/i_staking_module.abigen.go
+     */
+    struct DepositParams {
+        Cosmos.Coin[] minDeposit;
+        uint64 maxDepositPeriod;
+    }
+
+    /**
+     * @dev Represents the governance module's `TallyParams`.
+     * Note: this struct is generated in generated/i_staking_module.abigen.go
+     */
+    struct TallyParams {
+        string quorum;
+        string threshold;
+        string vetoThreshold;
     }
 
     /**

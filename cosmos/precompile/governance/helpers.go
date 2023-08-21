@@ -25,6 +25,8 @@ import (
 	"fmt"
 	"strconv"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -196,22 +198,225 @@ func (c *Contract) getProposalDepositsHelper(
 	return deposits, nil
 }
 
+// getProposalDepositsByDepositorHelper is a helper function for the `GetProposalDepositsByDepositor` method of the
+// governance precompile contract.
 func (c *Contract) getProposalDepositsByDepositorHelper(
 	ctx context.Context,
 	depositor common.Address,
 	proposalID uint64,
-)
+) ([]generated.CosmosCoin, error) {
+	res, err := c.querier.Deposit(ctx, &v1.QueryDepositRequest{
+		ProposalId: proposalID,
+		Depositor:  cosmlib.Bech32FromEthAddress(depositor),
+	})
+	if err != nil {
+		return nil, err
+	}
 
-// func (c *Contract) getParamsHelper(
-// 	ctx context.Context,
-// ) (generated.IGovernanceModuleParams, error) {
-// 	res, err := c.querier.Params(ctx, &v1.QueryParamsRequest{})
-// 	if err != nil {
-// 		return generated.IGovernanceModuleParams{}, err
-// 	}
+	deposits := make([]generated.CosmosCoin, 0)
+	for _, deposit := range res.Deposit.Amount {
+		deposits = append(deposits, generated.CosmosCoin{
+			Denom:  deposit.Denom,
+			Amount: deposit.Amount.BigInt(),
+		})
+	}
 
-// 	return generated.IGovernanceModuleParams{
+	return deposits, nil
+}
 
+// getProposalTallyResultHelper is a helper function for the `GetProposalTallyResult` method of the
+// governance precompile contract.
+func (c *Contract) getProposalTallyResultHelper(
+	ctx context.Context,
+	proposalID uint64,
+) (generated.IGovernanceModuleTallyResult, error) {
+	res, err := c.querier.TallyResult(ctx, &v1.QueryTallyResultRequest{
+		ProposalId: proposalID,
+	})
+	if err != nil {
+		return generated.IGovernanceModuleTallyResult{}, err
+	}
+
+	return generated.IGovernanceModuleTallyResult{
+		YesCount:        res.Tally.YesCount,
+		AbstainCount:    res.Tally.AbstainCount,
+		NoCount:         res.Tally.NoCount,
+		NoWithVetoCount: res.Tally.NoWithVetoCount,
+	}, nil
+}
+
+// getProposalVotesHelper is a helper function for the `GetProposalVotes` method of the
+// governance precompile contract.
+func (c *Contract) getProposalVotesHelper(
+	ctx context.Context,
+	proposalID uint64,
+	// pagination
+) ([]generated.IGovernanceModuleVote, error) {
+	res, err := c.querier.Votes(ctx, &v1.QueryVotesRequest{
+		ProposalId: proposalID,
+		// Pagination: pagination,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	votes := make([]generated.IGovernanceModuleVote, 0)
+	for _, vote := range res.Votes {
+		voteOptions := make([]generated.IGovernanceModuleWeightedVoteOption, 0)
+		for _, option := range vote.Options {
+			voteOptions = append(
+				voteOptions,
+				generated.IGovernanceModuleWeightedVoteOption{
+					VoteOption: int32(option.Option),
+					Weight:     option.Weight,
+				},
+			)
+		}
+		votes = append(votes, generated.IGovernanceModuleVote{
+			ProposalId: proposalID,
+			Voter:      cosmlib.EthAddressFromBech32(vote.Voter),
+			Options:    voteOptions,
+			Metadata:   vote.Metadata,
+		})
+	}
+
+	return votes, nil
+}
+
+// getProposalVotesByVoterHelper is a helper function for the `GetProposalVotesByVoter` method of the
+// governance precompile contract.
+func (c *Contract) getProposalVotesByVoterHelper(
+	ctx context.Context,
+	proposalID uint64,
+	voter common.Address,
+) (generated.IGovernanceModuleVote, error) {
+	res, err := c.querier.Vote(ctx, &v1.QueryVoteRequest{
+		ProposalId: proposalID,
+		Voter:      cosmlib.Bech32FromEthAddress(voter),
+	})
+	if err != nil {
+		return generated.IGovernanceModuleVote{}, err
+	}
+
+	voteOptions := make([]generated.IGovernanceModuleWeightedVoteOption, 0)
+	for _, option := range res.Vote.Options {
+		voteOptions = append(
+			voteOptions,
+			generated.IGovernanceModuleWeightedVoteOption{
+				VoteOption: int32(option.Option),
+				Weight:     option.Weight,
+			},
+		)
+	}
+	return generated.IGovernanceModuleVote{
+		ProposalId: proposalID,
+		Voter:      voter,
+		Options:    voteOptions,
+		Metadata:   res.Vote.Metadata,
+	}, nil
+}
+
+// getParamsHelper is a helper function for the `GetParams` method of the
+// governance precompile contract.
+func (c *Contract) getParamsHelper(
+	ctx context.Context,
+) (generated.IGovernanceModuleParams, error) {
+	res, err := c.querier.Params(ctx, &v1.QueryParamsRequest{})
+	if err != nil {
+		return generated.IGovernanceModuleParams{}, err
+	}
+
+	minDeposit := make([]generated.CosmosCoin, 0)
+	for _, coin := range res.Params.MinDeposit {
+		minDeposit = append(minDeposit, generated.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
+	}
+	expeditedMinDeposit := make([]generated.CosmosCoin, 0)
+	for _, coin := range res.Params.ExpeditedMinDeposit {
+		expeditedMinDeposit = append(expeditedMinDeposit, generated.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
+	}
+
+	return generated.IGovernanceModuleParams{
+		MinDeposit:                 minDeposit,
+		MaxDepositPeriod:           uint64(res.Params.MaxDepositPeriod.Abs()),
+		VotingPeriod:               uint64(res.Params.VotingPeriod.Abs()),
+		Quorum:                     res.Params.Quorum,
+		Threshold:                  res.Params.Threshold,
+		VetoThreshold:              res.Params.VetoThreshold,
+		MinInitialDepositRatio:     res.Params.MinInitialDepositRatio,
+		ProposalCancelRatio:        res.Params.ProposalCancelRatio,
+		ProposalCancelDest:         res.Params.ProposalCancelDest,
+		ExpeditedVotingPeriod:      uint64(res.Params.ExpeditedVotingPeriod.Abs()),
+		ExpeditedThreshold:         res.Params.ExpeditedThreshold,
+		ExpeditedMinDeposit:        expeditedMinDeposit,
+		BurnVoteQuorum:             res.Params.BurnVoteQuorum,
+		BurnProposalDepositPrevote: res.Params.BurnProposalDepositPrevote,
+		BurnVoteVeto:               res.Params.BurnVoteVeto,
+	}, nil
+}
+
+// getDepositParamsHelper is a helper function for the `GetDepositParams` method of the
+// governance precompile contract.
+func (c *Contract) getDepositParamsHelper(
+	ctx context.Context,
+) (generated.IGovernanceModuleDepositParams, error) {
+	res, err := c.querier.Params(ctx, &v1.QueryParamsRequest{})
+	if err != nil {
+		return generated.IGovernanceModuleDepositParams{}, err
+	}
+
+	minDeposit := make([]generated.CosmosCoin, 0)
+	for _, coin := range res.Params.MinDeposit {
+		minDeposit = append(minDeposit, generated.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
+	}
+
+	return generated.IGovernanceModuleDepositParams{
+		MinDeposit: minDeposit,
+	}, nil
+}
+
+// getVotingParamsHelper is a helper function for the `GetVotingParams` method of the
+// governance precompile contract.
+func (c *Contract) getVotingParamsHelper(
+	ctx context.Context,
+) (generated.IGovernanceModuleVotingParams, error) {
+	res, err := c.querier.Params(ctx, &v1.QueryParamsRequest{})
+	if err != nil {
+		return generated.IGovernanceModuleVotingParams{}, err
+	}
+
+	return generated.IGovernanceModuleVotingParams{
+		VotingPeriod: uint64(res.Params.VotingPeriod.Abs()),
+	}, nil
+}
+
+// getTallyParamsHelper is a helper function for the `GetTallyParams` method of the
+// governance precompile contract.
+func (c *Contract) getTallyParamsHelper(
+	ctx context.Context,
+) (generated.IGovernanceModuleTallyParams, error) {
+	res, err := c.querier.Params(ctx, &v1.QueryParamsRequest{})
+	if err != nil {
+		return generated.IGovernanceModuleTallyParams{}, err
+	}
+
+	return generated.IGovernanceModuleTallyParams{
+		Quorum:        res.Params.Quorum,
+		Threshold:     res.Params.Threshold,
+		VetoThreshold: res.Params.VetoThreshold,
+	}, nil
+}
+
+// getConstitutionHelper is a helper function for the `GetConstitution` method of the
+// governance precompile contract.
 func (c *Contract) getConstitutionHelper(
 	ctx context.Context,
 ) (string, error) {

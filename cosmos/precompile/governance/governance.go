@@ -136,18 +136,69 @@ func (c *Contract) GetProposalDeposits(
 	return c.getProposalDepositsHelper(ctx, proposalID)
 }
 
+// GetProposalDepositsByDepositor is the method for the `getProposalDepositsByDepositor` method
+// of the governance precompile contract.
 func (c *Contract) GetProposalDepositsByDepositor(
 	ctx context.Context,
-	depositor common.Address,
 	proposalID uint64,
+	depositor common.Address,
 ) ([]generated.CosmosCoin, error) {
-	return c.getProposalDepositsByDepositorHelper(ctx, deposity, proposalID)
+	return c.getProposalDepositsByDepositorHelper(ctx, depositor, proposalID)
 }
 
+// GetProposalVotes is the method for the `getProposalVotes` method of the governance precompile contract.
+func (c *Contract) GetProposalTallyResult(
+	ctx context.Context,
+	proposalID uint64,
+) (generated.IGovernanceModuleTallyResult, error) {
+	return c.getProposalTallyResultHelper(ctx, proposalID)
+}
+
+// GetProposalVotes is the method for the `getProposalVotes` method of the governance precompile contract.
+func (c *Contract) GetProposalVotes(
+	ctx context.Context,
+	proposalID uint64,
+) ([]generated.IGovernanceModuleVote, error) {
+	return c.getProposalVotesHelper(ctx, proposalID)
+}
+
+// GetProposalVotesByVoter is the method for the `getProposalVotesByVoter` method of the governance
+// precompile contract.
+func (c *Contract) GetProposalVotesByVoter(
+	ctx context.Context,
+	proposalID uint64,
+	voter common.Address,
+) (generated.IGovernanceModuleVote, error) {
+	return c.getProposalVotesByVoterHelper(ctx, proposalID, voter)
+}
+
+// GetProposalVoteByVoter is the method for the `getProposalVoteByVoter` method of the governance
+// precompile contract.
 func (c *Contract) GetParams(
 	ctx context.Context,
+) (generated.IGovernanceModuleParams, error) {
+	return c.getParamsHelper(ctx)
+}
 
-) {
+// GetDepositParams is the method for the `getDepositParams` method of the governance precompile contract.
+func (c *Contract) GetDepositParams(
+	ctx context.Context,
+) (generated.IGovernanceModuleDepositParams, error) {
+	return c.getDepositParamsHelper(ctx)
+}
+
+// GetVotingParams is the method for the `getVotingParams` method of the governance precompile contract.
+func (c *Contract) GetVotingParams(
+	ctx context.Context,
+) (generated.IGovernanceModuleVotingParams, error) {
+	return c.getVotingParamsHelper(ctx)
+}
+
+// GetTallyParams is the method for the `getTallyParams` method of the governance precompile contract.
+func (c *Contract) GetTallyParams(
+	ctx context.Context,
+) (generated.IGovernanceModuleTallyParams, error) {
+	return c.getTallyParamsHelper(ctx)
 }
 
 // GetConstitution is the method for the `getConstitution` method of the governance precompile contract.
