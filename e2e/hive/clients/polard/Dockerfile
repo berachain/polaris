@@ -29,6 +29,6 @@ RUN export HIVE_CHAIN_ID=2061
 RUN export HIVE_NETWORK_ID=2061
 
 # Export the usual networking ports to allow outside access to the node
-EXPOSE 8545 8546 8547 8551 30303 30303/udp
+EXPOSE 8545 8546 8547 8551
 
 CMD ["bash", "hive-init.sh"]
