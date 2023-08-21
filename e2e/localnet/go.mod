@@ -1,6 +1,6 @@
 module pkg.berachain.dev/polaris/e2e/localnet
 
-go 1.20
+go 1.21
 
 replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230629154458-90866dc0cf0a
 
