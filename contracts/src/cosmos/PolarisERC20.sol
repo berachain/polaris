@@ -12,7 +12,7 @@ import {Cosmos} from "./CosmosTypes.sol";
  *
  * The PolarisERC20 token is used as the ERC20 token representation of IBC-originated coins on
  * Cosmos SDK Polaris chains. Uses the bank module to actually hold account balances and execute
- * transfers. The authz module is used to set approvals and permissions for spends.
+ * transfers. Approvals are handled by the ERC20 contract itself and NOT the `authz` module.
  *
  * @author Berachain Team
  * @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)
@@ -23,6 +23,7 @@ contract PolarisERC20 is IERC20 {
     //////////////////////////////////////////////////////////////*/
 
     string public denom;
+    mapping(address => mapping(address => uint256)) public allowance;
 
     /**
      * @dev name is a public view method for reading the `sdk.Coin` name for this erc20.
@@ -100,19 +101,15 @@ contract PolarisERC20 is IERC20 {
      * @param amount the amount of tokens to approve the given address to spend.
      * @return bool true if the approval was successful.
      */
-    function approve(address spender, uint256 amount) public virtual returns (bool) {
-        require(
-            authz().setSendAllowance(msg.sender, spender, amountToCoins(amount), 0),
-            "PolarisERC20: failed to approve spend"
-        );
+    function approve(
+        address spender,
+        uint256 amount
+    ) public virtual returns (bool) {
+        allowance[msg.sender][spender] = amount;
 
         emit Approval(msg.sender, spender, amount);
 
         return true;
-    }
-
-    function allowance(address owner, address spender) public view virtual returns (uint256) {
-        return authz().getSendAllowance(owner, spender, denom);
     }
 
     /**
@@ -121,8 +118,14 @@ contract PolarisERC20 is IERC20 {
      * @param amount the amount of tokens to transfer.
      * @return bool true if the transfer was successful.
      */
-    function transfer(address to, uint256 amount) public virtual returns (bool) {
-        require(bank().send(msg.sender, to, amountToCoins(amount)), "PolarisERC20: failed to send tokens");
+    function transfer(
+        address to,
+        uint256 amount
+    ) public virtual returns (bool) {
+        require(
+            bank().send(msg.sender, to, amountToCoins(amount)),
+            "PolarisERC20: failed to send tokens"
+        );
 
         emit Transfer(msg.sender, to, amount);
         return true;
@@ -135,9 +138,20 @@ contract PolarisERC20 is IERC20 {
      * @param amount the amount of tokens to transfer.
      * @return bool true if the transfer was successful.
      */
-    function transferFrom(address from, address to, uint256 amount) public virtual returns (bool) {
-        require(amount <= authz().getSendAllowance(from, msg.sender, denom), "PolarisERC20: insufficient approval");
-        require(bank().send(from, to, amountToCoins(amount)), "PolarisERC20: failed to send bank tokens");
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) public virtual returns (bool) {
+        uint256 allowed = allowance[from][msg.sender]; // Saves gas for limited approvals.
+
+        if (allowed != type(uint256).max)
+            allowance[from][msg.sender] = allowed - amount;
+
+        require(
+            bank().send(from, to, amountToCoins(amount)),
+            "PolarisERC20: failed to send bank tokens"
+        );
 
         emit Transfer(from, to, amount);
         return true;
@@ -147,11 +161,16 @@ contract PolarisERC20 is IERC20 {
                              EIP-2612 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
-        public
-        virtual
-    {
-        require(deadline >= block.timestamp, "PolarisERC20: PERMIT_DEADLINE_EXPIRED");
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual {
+        require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
 
         // Unchecked because the only math done is incrementing
         // the owner's nonce which cannot realistically overflow.
@@ -180,31 +199,37 @@ contract PolarisERC20 is IERC20 {
                 s
             );
 
-            require(recoveredAddress != address(0) && recoveredAddress == owner, "PolarisERC20: INVALID_SIGNER");
-
             require(
-                authz().setSendAllowance(recoveredAddress, spender, amountToCoins(value), 0),
-                "PolarisERC20: failed to approve spend"
+                recoveredAddress != address(0) && recoveredAddress == owner,
+                "INVALID_SIGNER"
             );
+
+            allowance[recoveredAddress][spender] = value;
         }
 
         emit Approval(owner, spender, value);
     }
 
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
-        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : computeDomainSeparator();
+        return
+            block.chainid == INITIAL_CHAIN_ID
+                ? INITIAL_DOMAIN_SEPARATOR
+                : computeDomainSeparator();
     }
 
     function computeDomainSeparator() internal view virtual returns (bytes32) {
-        return keccak256(
-            abi.encode(
-                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256(bytes(denom)),
-                keccak256("1"),
-                block.chainid,
-                address(this)
-            )
-        );
+        return
+            keccak256(
+                abi.encode(
+                    keccak256(
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    ),
+                    keccak256(bytes(denom)),
+                    keccak256("1"),
+                    block.chainid,
+                    address(this)
+                )
+            );
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -220,19 +245,13 @@ contract PolarisERC20 is IERC20 {
     }
 
     /**
-     * @dev authz is a pure function for getting the address of the auth(z) module precompile.
-     * @return IAuthModule the address of the auth(z) module precompile.
-     */
-    function authz() internal pure returns (IAuthModule) {
-        return IAuthModule(address(0xBDF49C3C3882102fc017FFb661108c63a836D065));
-    }
-
-    /**
      * @dev amountToCoins is a helper function to convert an amount to sdk.Coin.
      * @param amount the amount to convert to sdk.Coin.
      * @return sdk.Coin[] the sdk.Coin representation of the given amount.
      */
-    function amountToCoins(uint256 amount) internal view returns (Cosmos.Coin[] memory) {
+    function amountToCoins(
+        uint256 amount
+    ) internal view returns (Cosmos.Coin[] memory) {
         Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
         coins[0] = Cosmos.Coin({denom: denom, amount: amount});
         return coins;
