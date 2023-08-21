@@ -107,10 +107,19 @@ interface IGovernanceModule {
      */
     function getParams() external view returns (Params memory);
 
+    /**
+     * @dev Get the governance module voting parameters.
+     */
     function getVotingParams() external view returns (VotingParams memory);
 
+    /**
+     * @dev Get the governance module deposit parameters.
+     */
     function getDepositParams() external view returns (DepositParams memory);
 
+    /**
+     * @dev Get the governance module tally parameters.
+     */
     function getTallyParams() external view returns (TallyParams memory);
 
     /**

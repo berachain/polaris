@@ -325,6 +325,143 @@ var _ = Describe("Governance Precompile", func() {
 					Expect(res).ToNot(BeNil())
 				})
 			})
+			Context("Deposits", func() {
+				var coins sdk.Coins
+				BeforeEach(func() {
+					coins = sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(100)))
+					_, err := gk.AddDeposit(
+						ctx, uint64(2),
+						caller,
+						coins,
+					)
+					Expect(err).ToNot(HaveOccurred())
+				})
+				When("GetProposalDeposits", func() {
+					It("should get the proposal deposits", func() {
+						res, err := contract.GetProposalDeposits(
+							ctx,
+							uint64(2),
+						)
+						Expect(err).ToNot(HaveOccurred())
+						Expect(res).ToNot(BeNil())
+						Expect(res).To(HaveLen(2))
+						Expect(res[0].Denom).To(Equal(coins[0].Denom))
+						Expect(res[0].Amount).To(Equal(coins[0].Amount.BigInt()))
+					})
+				})
+				When("GetProposalDepositsByDepositor", func() {
+					It("should get the proposal deposits by depositor", func() {
+						res, err := contract.GetProposalDepositsByDepositor(
+							ctx,
+							uint64(2),
+							cosmlib.AccAddressToEthAddress(caller),
+						)
+						Expect(err).ToNot(HaveOccurred())
+						Expect(res).ToNot(BeNil())
+						Expect(res).To(HaveLen(1))
+						Expect(res[0].Denom).To(Equal(coins[0].Denom))
+						Expect(res[0].Amount).To(Equal(coins[0].Amount.BigInt()))
+					})
+				})
+			})
+			Context("Votes", func() {
+				var vote generated.IGovernanceModuleVote
+				BeforeEach(func() {
+					vote = generated.IGovernanceModuleVote{
+						ProposalId: uint64(2),
+						Voter:      cosmlib.AccAddressToEthAddress(caller),
+						Options:    []generated.IGovernanceModuleWeightedVoteOption{},
+						Metadata:   "metadata",
+					}
+					err := gk.AddVote(
+						ctx, uint64(2),
+						caller,
+						v1.WeightedVoteOptions{},
+						"metadata",
+					)
+					Expect(err).ToNot(HaveOccurred())
+				})
+				When("GetProposalTallyResult", func() {
+					It("should get the proposal tally result", func() {
+						res, err := contract.GetProposalTallyResult(
+							ctx,
+							uint64(2),
+						)
+						Expect(err).ToNot(HaveOccurred())
+						Expect(res).ToNot(BeNil())
+					})
+				})
+				When("GetProposalVotes", func() {
+					It("should get the proposal votes", func() {
+						res, err := contract.GetProposalVotes(
+							ctx,
+							uint64(2),
+						)
+						Expect(err).ToNot(HaveOccurred())
+						Expect(res).ToNot(BeNil())
+						Expect(res[0]).To(Equal(vote))
+					})
+				})
+				When("GetProposalVotesByVoter", func() {
+					It("should get the proposal votes by voter", func() {
+						res, err := contract.GetProposalVotesByVoter(
+							ctx,
+							uint64(2),
+							cosmlib.AccAddressToEthAddress(caller),
+						)
+						Expect(err).ToNot(HaveOccurred())
+						Expect(res).ToNot(BeNil())
+						Expect(res).To(Equal(vote))
+					})
+				})
+			})
+			When("GetParams", func() {
+				It("should get the params", func() {
+					res, err := contract.GetParams(
+						ctx,
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+				})
+			})
+			When("GetDepositParams", func() {
+				It("should get the deposit params", func() {
+					res, err := contract.GetDepositParams(
+						ctx,
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+				})
+			})
+			When("GetVotingParams", func() {
+				It("should get the voting params", func() {
+					res, err := contract.GetVotingParams(
+						ctx,
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+				})
+			})
+			When("GetTallyParams", func() {
+				It("should get the tally params", func() {
+					res, err := contract.GetTallyParams(
+						ctx,
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+				})
+			})
+			When("GetConstitution", func() {
+				It("should get the constitution", func() {
+					gk.Constitution.Set(ctx, "constitution")
+					res, err := contract.GetConstitution(
+						ctx,
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+					Expect(res).To(Equal("constitution"))
+				})
+			})
 		})
 	})
 })
