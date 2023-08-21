@@ -55,6 +55,7 @@ var _ = Describe("JSON RPC tests", func() {
 		tf = localnet.NewTestFixture(GinkgoT(), localnet.NewFixtureConfig(
 			"../../../cosmos/testing/e2e/polard/config/",
 			"polard/base:v0.0.0",
+			"polard/localnet:v0.0.0",
 			"goodcontainer",
 			"8545/tcp",
 			"8546/tcp",

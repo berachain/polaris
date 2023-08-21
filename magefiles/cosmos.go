@@ -54,6 +54,11 @@ var (
 	valDockerPath          = baseDockerPath + "validator/Dockerfile"
 	goVersion              = "1.21.0"
 	precompileContractsDir = "./contracts"
+
+	// Localnet.
+	baseImage          = "polard/base:v0.0.0"
+	localnetClientPath = "./cosmos/testing/e2e/polard"
+	localnetDockerPath = localnetClientPath + "/Dockerfile"
 )
 
 // Compile-time assertion that we implement the interface correctly.
@@ -117,6 +122,15 @@ func (c Cosmos) DockerX(dockerType, arch string) error {
 
 func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX bool) error {
 	var dockerFilePath string
+	opts := []string{
+		"--build-arg", "GO_VERSION=" + goVersion,
+		"--platform", "linux/" + arch,
+		"--build-arg", "PRECOMPILE_CONTRACTS_DIR=" + precompileContractsDir,
+		"--build-arg", "GOOS=linux",
+		"--build-arg", "GOARCH=" + arch,
+		"--build-arg", "GO_WORK=" + strings.Join(moduleDirs, " "),
+	}
+	buildContext := "."
 	switch dockerType {
 	case "local":
 		dockerFilePath = localDockerPath
@@ -124,6 +138,10 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 		dockerFilePath = seedDockerPath
 	case "validator":
 		dockerFilePath = valDockerPath
+	case "localnet":
+		buildContext = localnetClientPath
+		dockerFilePath = localnetDockerPath
+		opts = append(opts, "--build-arg", "BASE_IMAGE="+baseImage)
 	default:
 		dockerFilePath = execDockerPath
 	}
@@ -133,17 +151,9 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 		"platform", "linux"+"/"+arch,
 		"tag", tag,
 	)
-
+	opts = append(opts, "-f", dockerFilePath, "-t", tag, buildContext)
 	return dockerBuildFn(withX)(
-		"--build-arg", "GO_VERSION="+goVersion,
-		"--platform", "linux/"+arch,
-		"--build-arg", "PRECOMPILE_CONTRACTS_DIR="+precompileContractsDir,
-		"--build-arg", "GOOS=linux",
-		"--build-arg", "GOARCH="+arch,
-		"--build-arg", "GO_WORK="+strings.Join(moduleDirs, " "),
-		"-f", dockerFilePath,
-		"-t", tag,
-		".",
+		opts...,
 	)
 }
 

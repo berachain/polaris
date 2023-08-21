@@ -43,8 +43,8 @@ var _ = Describe("ContainerizedNode", func() {
 	BeforeEach(func() {
 		var err error
 		c, err = localnet.NewContainerizedNode(
-			"localnet",
-			"latest",
+			"polard/localnet",
+			"v0.0.0",
 			"goodcontainer",
 			"8545/tcp",
 			"8546/tcp",
