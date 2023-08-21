@@ -64,7 +64,7 @@ func (c *Contract) transferCoinToERC20(
 	recipient common.Address,
 	amount *big.Int,
 ) error {
-	if amount.Cmp(new(big.Int)) <= 0 {
+	if amount.Cmp(common.Big0) <= 0 {
 		return ErrInvalidAmount
 	}
 
@@ -172,7 +172,7 @@ func (c *Contract) transferERC20ToCoin(
 	recipient common.Address,
 	amount *big.Int,
 ) error {
-	if amount.Cmp(new(big.Int)) <= 0 {
+	if amount.Cmp(common.Big0) <= 0 {
 		return ErrInvalidAmount
 	}
 
@@ -234,7 +234,7 @@ func (c *Contract) transferERC20ToCoin(
 		}
 
 		// mint amount Polaris Coins to recipient
-		amount = new(big.Int).Sub(balanceAfter, balanceBefore)
+		amount = common.Big0.Sub(balanceAfter, balanceBefore)
 		if err = cosmlib.MintCoinsToAddress(sdkCtx, c.bk, erc20types.ModuleName, recipient, denom, amount); err != nil {
 			return err
 		}
