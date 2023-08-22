@@ -23,12 +23,15 @@ package block
 import (
 	"context"
 
+	addresscodec "cosmossdk.io/core/address"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 type StakingKeeper interface {
 	GetValidatorByConsAddr(ctx context.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, err error)
+	ValidatorAddressCodec() addresscodec.Codec
 }
 
 type Validator interface {

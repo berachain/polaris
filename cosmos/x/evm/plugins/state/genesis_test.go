@@ -76,7 +76,7 @@ var _ = Describe("Genesis", func() {
 		Expect(sp.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash(code)))
 		sp.Finalize()
 		Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(5e18)))
-		Expect(sp.GetCode(alice), code)
+		Expect(sp.GetCode(alice)).To(Equal(code))
 
 		// Very exported genesis is equal.
 		var exportedGenesis core.Genesis
