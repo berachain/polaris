@@ -22,7 +22,10 @@ package erc20
 
 import (
 	"context"
+	"errors"
 	"math/big"
+
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -243,6 +246,42 @@ func (c *Contract) TransferERC20ToCoinTo(
 		amount,
 	)
 	return err == nil, err
+}
+
+// PerformBankTransfer transfers ERC20 tokens to SDK coins from msg.sender to recipient.
+func (c *Contract) PerformBankTransfer(
+	ctx context.Context,
+	sender common.Address,
+	recipient common.Address,
+	amount *big.Int,
+) (bool, error) {
+	polarCtx := vm.UnwrapPolarContext(ctx)
+	// We check to see if the denom exists.
+	if denom, err := c.CoinDenomForERC20Address(
+		ctx,
+		polarCtx.MsgSender(),
+	); err != nil {
+		// if we error return false
+		return false, err
+	} else if denom == "" || erc20types.IsPolarisDenom(denom) {
+		// if the denom doesn't exist, then we have a an unauthorized caller
+		// and should revert.
+		// if the denom is a PolarisDenom it means that its ERC20
+		// originated and we should revert.
+		return false, errors.New("UNAUTHORIZED")
+	} else {
+		// Else we ball.
+		err = c.bk.SendCoins(
+			ctx, sender[:], recipient[:],
+			sdk.Coins{
+				sdk.Coin{
+					Denom:  denom,
+					Amount: sdkmath.NewIntFromBigInt(amount),
+				},
+			},
+		)
+		return err == nil, err
+	}
 }
 
 // ==============================================================================
