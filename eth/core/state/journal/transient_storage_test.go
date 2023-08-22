@@ -46,41 +46,48 @@ var _ = Describe("TransientStorage", func() {
 	It("should add without impacting previous state", func() {
 		ts.SetTransientState(alice, key, value)
 		ts.SetTransientState(bob, key, value)
-		Expect(ts.PeekAt(0).Get(bob, key), common.Hash{})
+
+		// manually ensure the first transient state is not overwritten
+		Expect(ts.PeekAt(0).Get(alice, key)).To(Equal(value))
+		Expect(ts.PeekAt(0).Get(bob, key)).To(Equal(common.Hash{}))
+
+		// the current transient state should have all state changes
+		Expect(ts.GetTransientState(alice, key)).To(Equal(value))
+		Expect(ts.GetTransientState(bob, key)).To(Equal(value))
 	})
 
 	It("should have consistent gets and sets", func() {
 		ts.SetTransientState(alice, key, value) // {alice:value}
-		Expect(ts.GetTransientState(alice, key), value)
+		Expect(ts.GetTransientState(alice, key)).To(Equal(value))
 
 		before := ts.Snapshot()
 		ts.SetTransientState(alice, key, value2) // {alice:value2}
-		Expect(ts.GetTransientState(alice, key), value2)
+		Expect(ts.GetTransientState(alice, key)).To(Equal(value2))
 
 		ts.SetTransientState(bob, key, value) // {alice:value2, bob: value}
 		ts.RevertToSnapshot(before)           // {alice:value}
-		Expect(ts.GetTransientState(alice, key), value)
-		Expect(ts.GetTransientState(bob, key), common.Hash{})
+		Expect(ts.GetTransientState(alice, key)).To(Equal(value))
+		Expect(ts.GetTransientState(bob, key)).To(Equal(common.Hash{}))
 	})
 
 	It("should correctly finalize", func() {
 		ts.SetTransientState(alice, key, value)
 		ts.Finalize()
-		Expect(ts.Size(), 0)
+		Expect(ts.Size()).To(Equal(0))
 		Expect(func() { ts.Finalize() }).ToNot(Panic())
 	})
 
 	It("should correctly clone", func() {
 		ts.SetTransientState(bob, key, value)
-		Expect(ts.PeekAt(0).Get(bob, key), common.Hash{})
-		Expect(ts.GetTransientState(bob, key), value)
+		Expect(ts.GetTransientState(alice, key)).To(Equal(common.Hash{}))
+		Expect(ts.GetTransientState(bob, key)).To(Equal(value))
 
 		ts2 := utils.MustGetAs[*transientStorage](ts.Clone())
-		Expect(ts2.PeekAt(0).Get(bob, key), common.Hash{})
-		Expect(ts2.GetTransientState(bob, key), value)
+		Expect(ts2.GetTransientState(alice, key)).To(Equal(common.Hash{}))
+		Expect(ts2.GetTransientState(bob, key)).To(Equal(value))
 
 		ts2.SetTransientState(alice, key, value2)
-		Expect(ts2.GetTransientState(alice, key), value2)
-		Expect(ts.GetTransientState(alice, key), common.Hash{})
+		Expect(ts2.GetTransientState(alice, key)).To(Equal(value2))
+		Expect(ts.GetTransientState(alice, key)).To(Equal(common.Hash{}))
 	})
 })
