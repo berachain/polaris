@@ -434,35 +434,35 @@ var _ = Describe("Staking", func() {
 			When("Calling Helper Methods", func() {
 				When("delegationHelper", func() {
 					It("should fail if the del address is not valid", func() {
-						_, err := contract.getDelegationHelper(
+						_, err := contract.GetDelegation(
 							ctx,
-							sdk.AccAddress(""),
-							val,
+							common.Address{},
+							cosmlib.ValAddressToEthAddress(val),
 						)
 						Expect(err).To(HaveOccurred())
 					})
 					It("should fail if the val address is not valid", func() {
-						_, err := contract.getDelegationHelper(
+						_, err := contract.GetDelegation(
 							ctx,
-							del,
-							sdk.ValAddress(""),
+							cosmlib.AccAddressToEthAddress(del),
+							common.Address{},
 						)
 						Expect(err).To(HaveOccurred())
 					})
 					It("should not error if there is no delegation", func() {
-						vals, err := contract.getDelegationHelper(
+						vals, err := contract.GetDelegation(
 							ctx,
-							del,
-							otherVal,
+							cosmlib.AccAddressToEthAddress(del),
+							cosmlib.ValAddressToEthAddress(otherVal),
 						)
 						Expect(err).ToNot(HaveOccurred())
 						Expect(vals.Cmp(big.NewInt(0))).To(Equal(0))
 					})
 					It("should succeed", func() {
-						_, err := contract.getDelegationHelper(
+						_, err := contract.GetDelegation(
 							ctx,
-							del,
-							val,
+							cosmlib.AccAddressToEthAddress(del),
+							cosmlib.ValAddressToEthAddress(val),
 						)
 						Expect(err).ToNot(HaveOccurred())
 					})
@@ -470,19 +470,19 @@ var _ = Describe("Staking", func() {
 
 				When("getUnbondingDelegationHelper", func() {
 					It("should fail if caller address is wrong", func() {
-						_, err := contract.getUnbondingDelegationHelper(
+						_, err := contract.GetUnbondingDelegation(
 							ctx,
-							sdk.AccAddress([]byte("")),
-							val,
+							common.BytesToAddress([]byte("")),
+							cosmlib.ValAddressToEthAddress(val),
 						)
 						Expect(err).To(HaveOccurred())
 					})
 
 					It("should fail if there is no unbonding delegation", func() {
-						vals, err := contract.getUnbondingDelegationHelper(
+						vals, err := contract.GetUnbondingDelegation(
 							ctx,
-							cosmlib.AddressToAccAddress(caller),
-							otherVal,
+							caller,
+							cosmlib.ValAddressToEthAddress(otherVal),
 						)
 						Expect(err).ToNot(HaveOccurred())
 						Expect(vals).To(BeEmpty())
@@ -499,10 +499,10 @@ var _ = Describe("Staking", func() {
 						)
 						Expect(err).ToNot(HaveOccurred())
 
-						_, err = contract.getUnbondingDelegationHelper(
+						_, err = contract.GetUnbondingDelegation(
 							ctx,
-							cosmlib.AddressToAccAddress(caller),
-							val,
+							caller,
+							cosmlib.ValAddressToEthAddress(val),
 						)
 						Expect(err).ToNot(HaveOccurred())
 					})
