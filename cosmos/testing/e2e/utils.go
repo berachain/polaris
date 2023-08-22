@@ -28,12 +28,13 @@ package utils
 import network "pkg.berachain.dev/polaris/e2e/localnet/network"
 
 const (
-	polardConfigPath  = "polard/config/"
-	polardBaseImage   = "polard/base:v0.0.0"
-	containerName     = "goodcontainer"
-	polardHTTPAddress = "8545/tcp"
-	polardWSAddress   = "8546/tcp"
-	goVersion         = "1.20.6"
+	polardConfigPath    = "polard/config/"
+	polardBaseImage     = "polard/base:v0.0.0"
+	polardLocalnetImage = "polard/localnet:v0.0.0"
+	containerName       = "goodcontainer"
+	polardHTTPAddress   = "8545/tcp"
+	polardWSAddress     = "8546/tcp"
+	goVersion           = "1.21.0"
 )
 
 // NewPolarisFixtureConfig returns a polaris fixture config.
@@ -41,6 +42,7 @@ func NewPolarisFixtureConfig() *network.FixtureConfig {
 	return network.NewFixtureConfig(
 		polardConfigPath,
 		polardBaseImage,
+		polardLocalnetImage,
 		containerName,
 		polardHTTPAddress,
 		polardWSAddress,

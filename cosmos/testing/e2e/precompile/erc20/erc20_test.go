@@ -104,26 +104,20 @@ var _ = Describe("ERC20", func() {
 		When("calling write methods", func() {
 			It("should error on non-existent denoms/tokens", func() {
 				// user does not have balance of bOSMO
-				txr := tf.GenerateTransactOpts("alice")
-				txr.GasLimit = 10000000
-				tx, err := erc20Precompile.TransferCoinToERC20(
-					txr,
+				_, err := erc20Precompile.TransferCoinToERC20(
+					tf.GenerateTransactOpts("alice"),
 					"bOSMO",
 					big.NewInt(123456789),
 				)
-				Expect(err).ToNot(HaveOccurred())
-				ExpectFailedReceipt(tf.EthClient(), tx)
+				Expect(err).To(HaveOccurred())
 
 				// token doesn't exist, user does not have balance of token
-				txr = tf.GenerateTransactOpts("alice")
-				txr.GasLimit = 10000000
-				tx, err = erc20Precompile.TransferERC20ToCoin(
-					txr,
+				_, err = erc20Precompile.TransferERC20ToCoin(
+					tf.GenerateTransactOpts("alice"),
 					common.HexToAddress("0x432423432489230"),
 					big.NewInt(123456789),
 				)
-				Expect(err).ToNot(HaveOccurred())
-				ExpectFailedReceipt(tf.EthClient(), tx) // ERC20 token contract does not exist
+				Expect(err).To(HaveOccurred())
 			})
 
 			It("should handle a IBC-originated SDK coin", func() {
@@ -136,7 +130,6 @@ var _ = Describe("ERC20", func() {
 					big.NewInt(12345),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(tf.WaitForNextBlock()).To(Succeed())
 				ExpectSuccessReceipt(tf.EthClient(), tx)
 
 				// check that the new ERC20 is minted to TestAddress
@@ -146,7 +139,7 @@ var _ = Describe("ERC20", func() {
 				Expect(err).ToNot(HaveOccurred())
 				balance, err := token.BalanceOf(nil, tf.Address("alice"))
 				Expect(err).ToNot(HaveOccurred())
-				Expect(balance).To(Equal(big.NewInt(12345)))
+				Expect(balance).To(Equal(big.NewInt(12345 * 2)))
 
 				// denom already exists, token already exists
 				tx, err = erc20Precompile.TransferCoinToERC20(
@@ -174,18 +167,15 @@ var _ = Describe("ERC20", func() {
 				// check that the new ERC20 is burned from TestAddress
 				balance, err = token.BalanceOf(nil, tf.Address("alice"))
 				Expect(err).ToNot(HaveOccurred())
-				Expect(balance).To(Equal(big.NewInt(12345)))
+				Expect(balance).To(Equal(big.NewInt(12345 * 2)))
 
 				// convert illegal amount back to SDK coin
-				txr := tf.GenerateTransactOpts("alice")
-				txr.GasLimit = 10000000
-				tx, err = erc20Precompile.TransferERC20ToCoin(
-					txr,
+				_, err = erc20Precompile.TransferERC20ToCoin(
+					tf.GenerateTransactOpts("alice"),
 					tokenAddr,
-					big.NewInt(12346),
+					big.NewInt(12345*2+1),
 				)
-				Expect(err).ToNot(HaveOccurred())
-				ExpectFailedReceipt(tf.EthClient(), tx)
+				Expect(err).To(HaveOccurred())
 			})
 
 			It("should handle a ERC20 originated token", func() {
@@ -198,25 +188,19 @@ var _ = Describe("ERC20", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 				ExpectSuccessReceipt(tf.EthClient(), tx)
+
 				// check that the new ERC20 is minted to TestAddress
 				bal, err := contract.BalanceOf(nil, tf.Address("alice"))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(bal).To(Equal(big.NewInt(123456789)))
 
-				// token already exists, try converting to sdk coin
-				txr := tf.GenerateTransactOpts("alice")
-				txr.GasLimit = 10000000
-				tx, err = erc20Precompile.TransferERC20ToCoin(
-					txr,
+				// token already exists, create new Polaris denom
+				_, err = erc20Precompile.TransferERC20ToCoin(
+					tf.GenerateTransactOpts("alice"),
 					token,
 					big.NewInt(6789),
 				)
-				Expect(err).ToNot(HaveOccurred())
-				ExpectFailedReceipt(tf.EthClient(), tx)
-				// doesn't work because alice did not approve ERC20Module to spend tokens
-				// NOTE: if a high gas limit is provided and the estimate gas routine is skipped,
-				// the tx executes without returning an error (i.e. reverting), but the state
-				// changes (for the transfer) are not persisted, as expected.
+				Expect(err).To(HaveOccurred())
 
 				// verify the transfer did not work
 				bal, err = contract.BalanceOf(nil, tf.Address("alice"))
@@ -249,9 +233,10 @@ var _ = Describe("ERC20", func() {
 				Expect(err).ToNot(HaveOccurred())
 				ExpectSuccessReceipt(tf.EthClient(), tx)
 
-				Expect(tf.WaitForNextBlock()).To(Succeed())
+				err = tf.WaitForNextBlock()
+				Expect(err).ToNot(HaveOccurred())
 
-				// check that the new ERC20 is transferred from alice to precompile (escrow)
+				// check that the new ERC20 is transferred from TestAddress to precompile (escrow)
 				bal, err = contract.BalanceOf(nil, tf.Address("alice"))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(bal).To(Equal(big.NewInt(123450000)))
@@ -267,15 +252,12 @@ var _ = Describe("ERC20", func() {
 				Expect(bankBal.Cmp(big.NewInt(6789))).To(Equal(0))
 
 				// convert back to ERC20 token
-				txr = tf.GenerateTransactOpts("alice")
-				txr.GasLimit = 10000000
-				tx, err = erc20Precompile.TransferCoinToERC20(
-					txr,
+				_, err = erc20Precompile.TransferCoinToERC20(
+					tf.GenerateTransactOpts("alice"),
 					denom,
 					big.NewInt(6790),
 				)
-				Expect(err).ToNot(HaveOccurred())
-				ExpectFailedReceipt(tf.EthClient(), tx)
+				Expect(err).To(HaveOccurred()) // not enough funds
 
 				// convert back to ERC20 token
 				tx, err = erc20Precompile.TransferCoinToERC20(
@@ -285,6 +267,9 @@ var _ = Describe("ERC20", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 				ExpectSuccessReceipt(tf.EthClient(), tx)
+
+				err = tf.WaitForNextBlock()
+				Expect(err).ToNot(HaveOccurred())
 
 				// check that Polaris Coin is converted back to ERC20
 				bal, err = contract.BalanceOf(nil, tf.Address("alice"))
@@ -342,7 +327,7 @@ var _ = Describe("ERC20", func() {
 			// check that the new ERC20 is burned from TestAddress
 			balance, err = token.BalanceOf(nil, tf.Address("alice"))
 			Expect(err).ToNot(HaveOccurred())
-			Expect(balance).To(Equal(big.NewInt(12000)))
+			Expect(balance).To(Equal(big.NewInt(12345)))
 		})
 	})
 })

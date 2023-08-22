@@ -21,12 +21,10 @@
 package testapp
 
 import (
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
-	authprecompile "pkg.berachain.dev/polaris/cosmos/precompile/auth"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
 	erc20precompile "pkg.berachain.dev/polaris/cosmos/precompile/erc20"
@@ -41,9 +39,6 @@ func PrecompilesToInject(app *SimApp, customPcs ...ethprecompile.Registrable) fu
 	return func() *ethprecompile.Injector {
 		// Create the precompile injector with the standard precompiles.
 		pcs := ethprecompile.NewPrecompiles([]ethprecompile.Registrable{
-			authprecompile.NewPrecompileContract(
-				authkeeper.NewQueryServer(app.AccountKeeper), app.AuthzKeeper, app.AuthzKeeper,
-			),
 			bankprecompile.NewPrecompileContract(
 				bankkeeper.NewMsgServerImpl(app.BankKeeper),
 				app.BankKeeper,

@@ -22,17 +22,14 @@ package lib
 
 import (
 	"math/big"
-	"time"
 
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
-	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -58,6 +55,16 @@ func SdkCoinToEvmCoin(coin sdk.Coin) libgenerated.CosmosCoin {
 		Denom:  coin.Denom,
 	}
 	return evmCoin
+}
+
+func SdkPageResponseToEvmPageResponse(pageResponse *query.PageResponse) libgenerated.CosmosPageResponse {
+	if pageResponse == nil {
+		return libgenerated.CosmosPageResponse{}
+	}
+	return libgenerated.CosmosPageResponse{
+		NextKey: string(pageResponse.GetNextKey()),
+		Total:   pageResponse.GetTotal(),
+	}
 }
 
 // ExtractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
@@ -87,6 +94,29 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	return sdkCoins, nil
 }
 
+func ExtractPageRequestFromInput(pageRequest any) *query.PageRequest {
+	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
+	// the any type input into the contract's generated type.
+	pageReq, ok := utils.GetAs[struct {
+		Key        string `json:"key"`
+		Offset     uint64 `json:"offset"`
+		Limit      uint64 `json:"limit"`
+		CountTotal bool   `json:"count_total"`
+		Reverse    bool   `json:"reverse"`
+	}](pageRequest)
+	if !ok {
+		return nil
+	}
+
+	return &query.PageRequest{
+		Key:        []byte(pageReq.Key),
+		Offset:     pageReq.Offset,
+		Limit:      pageReq.Limit,
+		CountTotal: pageReq.CountTotal,
+		Reverse:    pageReq.Reverse,
+	}
+}
+
 // ExtractCoinFromInputToCoin converts a coin from input (of type any) into sdk.Coins.
 func ExtractCoinFromInputToCoin(coin any) (sdk.Coin, error) {
 	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
@@ -101,24 +131,6 @@ func ExtractCoinFromInputToCoin(coin any) (sdk.Coin, error) {
 
 	sdkCoin := sdk.NewCoin(amounts.Denom, sdkmath.NewIntFromBigInt(amounts.Amount))
 	return sdkCoin, nil
-}
-
-// GetGrantAsSendAuth maps a list of grants to a list of send authorizations.
-func GetGrantAsSendAuth(
-	grants []*authz.Grant, blocktime time.Time,
-) ([]*banktypes.SendAuthorization, error) {
-	var sendAuths []*banktypes.SendAuthorization
-	for _, grant := range grants {
-		// Check that the expiration is still valid.
-		if grant.Expiration == nil || grant.Expiration.After(blocktime) {
-			sendAuth, ok := utils.GetAs[*banktypes.SendAuthorization](grant.Authorization.GetCachedValue())
-			if !ok {
-				return nil, precompile.ErrInvalidGrantType
-			}
-			sendAuths = append(sendAuths, sendAuth)
-		}
-	}
-	return sendAuths, nil
 }
 
 // SdkUDEToStakingUDE converts a Cosmos SDK Unbonding Delegation Entry list to a geth compatible
@@ -185,22 +197,4 @@ func SdkValidatorsToStakingValidators(vals []stakingtypes.Validator) (
 		}
 	}
 	return valsOut, nil
-}
-
-// SdkAccountToAuthAccount converts a Cosmos SDK Base Account to a geth compatible Base Account.
-func SdkAccountToAuthAccount(acc sdk.AccountI) auth.IAuthModuleBaseAccount {
-	if acc == nil {
-		return auth.IAuthModuleBaseAccount{}
-	}
-
-	var pubKey []byte
-	if pk := acc.GetPubKey(); pk != nil {
-		pubKey = pk.Bytes()
-	}
-	return auth.IAuthModuleBaseAccount{
-		Addr:          AccAddressToEthAddress(acc.GetAddress()),
-		PubKey:        pubKey,
-		AccountNumber: acc.GetAccountNumber(),
-		Sequence:      acc.GetSequence(),
-	}
 }
