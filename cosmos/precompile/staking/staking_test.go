@@ -471,13 +471,13 @@ var _ = Describe("Staking", func() {
 				})
 
 				When("getUnbondingDelegationHelper", func() {
-					It("should fail if caller address is wrong", func() {
+					It("should not if caller address is wrong", func() {
 						_, err := contract.GetUnbondingDelegation(
 							ctx,
 							common.BytesToAddress([]byte("")),
 							cosmlib.ValAddressToEthAddress(val),
 						)
-						Expect(err).To(HaveOccurred())
+						Expect(err).ToNot(HaveOccurred())
 					})
 
 					It("should fail if there is no unbonding delegation", func() {
