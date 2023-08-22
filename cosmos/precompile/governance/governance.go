@@ -22,7 +22,6 @@ package governance
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -77,25 +76,16 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 // SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
-	proposalBz []byte,
-	messageBz []byte,
+	proposalMsg []byte,
 ) (uint64, error) {
-	message, err := unmarshalMsgAndReturnAny(messageBz)
-	if err != nil {
+	// Decode the proposal bytes into  v1.Proposal.
+	var p v1.MsgSubmitProposal
+	if err := p.Unmarshal(proposalMsg); err != nil {
 		return 0, err
 	}
-	// Decode the proposal.
-	var proposal v1.MsgSubmitProposal
-	if err = proposal.Unmarshal(proposalBz); err != nil {
-		return 0, fmt.Errorf("failed to unmarshal proposal: %w", err)
-	}
-	proposal.Messages = []*codectypes.Any{message}
 
-	// Submit the message.
-	res, err := c.msgServer.SubmitProposal(ctx, &proposal)
-	if err != nil {
-		return 0, err
-	}
+	// Create the proposal.
+	res, err := c.msgServer.SubmitProposal(ctx, &p)
 
 	// emit an event at the end of this successful proposal submission
 	polarCtx := vm.UnwrapPolarContext(ctx)
@@ -107,7 +97,8 @@ func (c *Contract) SubmitProposal(
 		),
 	)
 
-	return res.ProposalId, nil
+	// Return the proposal ID.
+	return res.ProposalId, err
 }
 
 // CancelProposal is the method for the `cancelProposal` method of the governance precompile contract.

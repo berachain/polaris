@@ -128,7 +128,7 @@ var _ = Describe("Governance Precompile", func() {
 		It("should fail if the proposal cant be unmarshalled", func() {
 			_, err := contract.SubmitProposal(
 				vm.NewPolarContext(sdk.Context{}, nil, common.Address{}, nil),
-				[]byte("invalid"), nil,
+				[]byte("invalid"),
 			)
 			Expect(err).To(HaveOccurred())
 		})
@@ -147,23 +147,14 @@ var _ = Describe("Governance Precompile", func() {
 				big.NewInt(100),
 			)
 			Expect(err).ToNot(HaveOccurred())
-			message := &banktypes.MsgSend{
-				FromAddress: govAcct.String(),
-				ToAddress:   caller.String(),
-				Amount:      initDeposit,
-			}
-			metadata := "metadata"
-			title := "title"
-			summary := "summary "
-			msgBz, err := message.Marshal()
-			Expect(err).ToNot(HaveOccurred())
+
 			// Create and marshal the proposal.
 			proposal := v1.MsgSubmitProposal{
 				InitialDeposit: initDeposit,
 				Proposer:       caller.String(),
-				Metadata:       metadata,
-				Title:          title,
-				Summary:        summary,
+				Metadata:       "metadata",
+				Title:          "title",
+				Summary:        "summary",
 				Expedited:      false,
 			}
 			proposalBz, err := proposal.Marshal()
@@ -172,7 +163,6 @@ var _ = Describe("Governance Precompile", func() {
 			res, err := contract.SubmitProposal(
 				ctx,
 				proposalBz,
-				msgBz,
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).ToNot(BeNil())
@@ -188,15 +178,14 @@ var _ = Describe("Governance Precompile", func() {
 				Status:   v1.StatusVotingPeriod,
 			})
 			Expect(err).ToNot(HaveOccurred())
-			res, res1, err := contract.CancelProposal(
+			time, height, err := contract.CancelProposal(
 				ctx,
 				uint64(1),
 			)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).ToNot(BeNil())
-			Expect(res1).ToNot(BeNil())
+			Expect(time).ToNot(BeZero())
+			Expect(height).ToNot(BeZero())
 		})
-
 	})
 
 	When("Voting on a proposal", func() {
@@ -220,6 +209,7 @@ var _ = Describe("Governance Precompile", func() {
 			Expect(res).To(BeFalse())
 			Expect(err).To(HaveOccurred())
 		})
+
 		It("should succeed", func() {
 			res, err := contract.Vote(
 				ctx,
@@ -232,7 +222,6 @@ var _ = Describe("Governance Precompile", func() {
 		})
 
 		When("Voting Weight", func() {
-
 			It("should fail if the proposal does not exist", func() {
 				res, err := contract.VoteWeighted(
 					ctx,
@@ -482,4 +471,65 @@ var _ = Describe("Governance Precompile", func() {
 			})
 		})
 	})
+
+	It("Should be able to marshal and unmarshal msgBz", func() {
+		msg := banktypes.MsgSend{
+			FromAddress: sdk.AccAddress([]byte("from")).String(),
+			ToAddress:   sdk.AccAddress([]byte("from")).String(),
+			Amount:      sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(100))),
+		}
+
+		msgAny, err := codectypes.NewAnyWithValue(&msg)
+		Expect(err).ToNot(HaveOccurred())
+
+		msgBz, err := msgAny.Marshal()
+		Expect(err).ToNot(HaveOccurred())
+
+		anys, err := UnmarshalAnyBzSlice([][]byte{msgBz})
+		Expect(err).ToNot(HaveOccurred())
+
+		typeURL := anys[0].GetTypeUrl()
+		Expect(typeURL).To(Equal("/cosmos.bank.v1beta1.MsgSend"))
+	})
+
+	It("Should be able to marshal and unmarshal porposalMsg", func() {
+		// Create the send msg.
+		msg := banktypes.MsgSend{
+			FromAddress: sdk.AccAddress([]byte("from")).String(),
+			ToAddress:   sdk.AccAddress([]byte("from")).String(),
+			Amount:      sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(100))),
+		}
+		msgAny, err := codectypes.NewAnyWithValue(&msg)
+		Expect(err).ToNot(HaveOccurred())
+
+		// Embed the send msg into a proposal.
+		proposal := v1.MsgSubmitProposal{
+			Messages: []*codectypes.Any{msgAny},
+		}
+
+		// Marshal the proposal.
+		pBz, err := proposal.Marshal()
+		Expect(err).ToNot(HaveOccurred())
+
+		// Unmarshal the proposal.
+		var p v1.MsgSubmitProposal
+		err = p.Unmarshal(pBz)
+		Expect(err).ToNot(HaveOccurred())
+	})
 })
+
+// UnmarshalAnyBzSlice unmarshals a slice of bytes into a slice of Any.
+func UnmarshalAnyBzSlice(bzs [][]byte) ([]*codectypes.Any, error) {
+	anys := []*codectypes.Any{}
+	for _, bz := range bzs {
+		var a codectypes.Any
+
+		if err := a.Unmarshal(bz); err != nil {
+			return nil, err
+		}
+
+		anys = append(anys, &a)
+	}
+
+	return anys, nil
+}
