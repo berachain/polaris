@@ -21,6 +21,7 @@
 package polariserc20_test
 
 import (
+	"context"
 	"math/big"
 	"testing"
 
@@ -73,22 +74,18 @@ var _ = Describe("ERC20", func() {
 			err = tf.WaitForNextBlock()
 			Expect(err).ToNot(HaveOccurred())
 
-			// Create a polaris erc20 contract from the address.
-			tokenAddr, tx, token, err := cbindings.DeployPolarisERC20(
-				tf.GenerateTransactOpts("alice"),
-				tf.EthClient(),
-				"bAKT",
-			)
+			// trigger the contract to get deployed.
+			tx, err = swapper.Swap(tf.GenerateTransactOpts("alice"),
+				"bAKT", big.NewInt(1))
 			Expect(err).ToNot(HaveOccurred())
 			ExpectSuccessReceipt(tf.EthClient(), tx)
 
-			tx, err = token.Mint(
-				tf.GenerateTransactOpts("alice"),
-				tf.Address("alice"),
-				big.NewInt(150),
-			)
+			tokenAddr, err = swapper.GetPolarisERC20(nil, "bAKT")
 			Expect(err).ToNot(HaveOccurred())
-			ExpectSuccessReceipt(tf.EthClient(), tx)
+			Expect(tokenAddr.Bytes()).ToNot(Equal(common.Address{}.Bytes()))
+
+			token, err := cbindings.NewPolarisERC20(tokenAddr, tf.EthClient())
+			Expect(err).ToNot(HaveOccurred())
 
 			// Call the polaris erc20 contract to set the allowance of the swapper contract.
 			tx, err = token.Approve(
@@ -98,6 +95,10 @@ var _ = Describe("ERC20", func() {
 			)
 			Expect(err).ToNot(HaveOccurred())
 			ExpectSuccessReceipt(tf.EthClient(), tx)
+
+			code, err := tf.EthClient().CodeAt(context.Background(), tokenAddr, big.NewInt(-1))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(code).ToNot(BeEmpty())
 
 			// Get the current allowance of the swapper contract.
 			res, err := token.Allowance(
@@ -109,8 +110,10 @@ var _ = Describe("ERC20", func() {
 			Expect(res.Cmp(big.NewInt(100))).To(Equal(0))
 
 			// Call the swapper contract to swap the polaris erc20 token from the msg.sender.
+			opts := tf.GenerateTransactOpts("alice")
+			opts.GasLimit = 1000000
 			tx, err = swapper.Deposit(
-				tf.GenerateTransactOpts("alice"),
+				opts,
 				tokenAddr,
 				big.NewInt(50),
 			)

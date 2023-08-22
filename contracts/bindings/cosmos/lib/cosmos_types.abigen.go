@@ -35,10 +35,25 @@ type CosmosCoin struct {
 	Denom  string
 }
 
+// CosmosPageRequest is an auto generated low-level Go binding around an user-defined struct.
+type CosmosPageRequest struct {
+	Key        string
+	Offset     uint64
+	Limit      uint64
+	CountTotal bool
+	Reverse    bool
+}
+
+// CosmosPageResponse is an auto generated low-level Go binding around an user-defined struct.
+type CosmosPageResponse struct {
+	NextKey string
+	Total   uint64
+}
+
 // CosmosTypesMetaData contains all meta data concerning the CosmosTypes contract.
 var CosmosTypesMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin\",\"name\":\"\",\"type\":\"tuple\"}],\"name\":\"coin\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"}]",
-	Bin: "0x608060405234801561000f575f80fd5b5060e18061001c5f395ff3fe6080604052348015600e575f80fd5b50600436106026575f3560e01c80632ff6e5df14602a575b5f80fd5b60406004803603810190603c9190606c565b6042565b005b50565b5f80fd5b5f80fd5b5f80fd5b5f604082840312156063576062604d565b5b81905092915050565b5f60208284031215607e57607d6045565b5b5f82013567ffffffffffffffff81111560985760976049565b5b60a2848285016051565b9150509291505056fea2646970667358221220b9c03f8abee64d7ef385f44ea72abb346e3dd9e15ec4b857fe4a912525b8f2db64736f6c63430008140033",
+	ABI: "[{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin\",\"name\":\"\",\"type\":\"tuple\"}],\"name\":\"coin\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"uint64\",\"name\":\"offset\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"limit\",\"type\":\"uint64\"},{\"internalType\":\"bool\",\"name\":\"countTotal\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"reverse\",\"type\":\"bool\"}],\"internalType\":\"structCosmos.PageRequest\",\"name\":\"\",\"type\":\"tuple\"}],\"name\":\"pageRequest\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"nextKey\",\"type\":\"string\"},{\"internalType\":\"uint64\",\"name\":\"total\",\"type\":\"uint64\"}],\"internalType\":\"structCosmos.PageResponse\",\"name\":\"\",\"type\":\"tuple\"}],\"name\":\"pageResponse\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"}]",
+	Bin: "0x608060405234801561000f575f80fd5b506102118061001d5f395ff3fe608060405234801561000f575f80fd5b506004361061003f575f3560e01c80631acc976f146100435780632ff6e5df1461005f578063426ce1a91461007b575b5f80fd5b61005d600480360381019061005891906100ca565b610097565b005b6100796004803603810190610074919061012f565b61009a565b005b61009560048036038101906100909190610194565b61009d565b005b50565b50565b50565b5f80fd5b5f80fd5b5f80fd5b5f60a082840312156100c1576100c06100a8565b5b81905092915050565b5f602082840312156100df576100de6100a0565b5b5f82013567ffffffffffffffff8111156100fc576100fb6100a4565b5b610108848285016100ac565b91505092915050565b5f60408284031215610126576101256100a8565b5b81905092915050565b5f60208284031215610144576101436100a0565b5b5f82013567ffffffffffffffff811115610161576101606100a4565b5b61016d84828501610111565b91505092915050565b5f6040828403121561018b5761018a6100a8565b5b81905092915050565b5f602082840312156101a9576101a86100a0565b5b5f82013567ffffffffffffffff8111156101c6576101c56100a4565b5b6101d284828501610176565b9150509291505056fea2646970667358221220cd938f1594be90a76ff4980bf8e5eaf239e05e8867ea7e669197172d39f7515c64736f6c63430008140033",
 }
 
 // CosmosTypesABI is the input ABI used to generate the binding from.
@@ -235,4 +250,62 @@ func (_CosmosTypes *CosmosTypesSession) Coin(arg0 CosmosCoin) error {
 // Solidity: function coin((uint256,string) ) pure returns()
 func (_CosmosTypes *CosmosTypesCallerSession) Coin(arg0 CosmosCoin) error {
 	return _CosmosTypes.Contract.Coin(&_CosmosTypes.CallOpts, arg0)
+}
+
+// PageRequest is a free data retrieval call binding the contract method 0x1acc976f.
+//
+// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns()
+func (_CosmosTypes *CosmosTypesCaller) PageRequest(opts *bind.CallOpts, arg0 CosmosPageRequest) error {
+	var out []interface{}
+	err := _CosmosTypes.contract.Call(opts, &out, "pageRequest", arg0)
+
+	if err != nil {
+		return err
+	}
+
+	return err
+
+}
+
+// PageRequest is a free data retrieval call binding the contract method 0x1acc976f.
+//
+// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns()
+func (_CosmosTypes *CosmosTypesSession) PageRequest(arg0 CosmosPageRequest) error {
+	return _CosmosTypes.Contract.PageRequest(&_CosmosTypes.CallOpts, arg0)
+}
+
+// PageRequest is a free data retrieval call binding the contract method 0x1acc976f.
+//
+// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns()
+func (_CosmosTypes *CosmosTypesCallerSession) PageRequest(arg0 CosmosPageRequest) error {
+	return _CosmosTypes.Contract.PageRequest(&_CosmosTypes.CallOpts, arg0)
+}
+
+// PageResponse is a free data retrieval call binding the contract method 0x426ce1a9.
+//
+// Solidity: function pageResponse((string,uint64) ) pure returns()
+func (_CosmosTypes *CosmosTypesCaller) PageResponse(opts *bind.CallOpts, arg0 CosmosPageResponse) error {
+	var out []interface{}
+	err := _CosmosTypes.contract.Call(opts, &out, "pageResponse", arg0)
+
+	if err != nil {
+		return err
+	}
+
+	return err
+
+}
+
+// PageResponse is a free data retrieval call binding the contract method 0x426ce1a9.
+//
+// Solidity: function pageResponse((string,uint64) ) pure returns()
+func (_CosmosTypes *CosmosTypesSession) PageResponse(arg0 CosmosPageResponse) error {
+	return _CosmosTypes.Contract.PageResponse(&_CosmosTypes.CallOpts, arg0)
+}
+
+// PageResponse is a free data retrieval call binding the contract method 0x426ce1a9.
+//
+// Solidity: function pageResponse((string,uint64) ) pure returns()
+func (_CosmosTypes *CosmosTypesCallerSession) PageResponse(arg0 CosmosPageResponse) error {
+	return _CosmosTypes.Contract.PageResponse(&_CosmosTypes.CallOpts, arg0)
 }

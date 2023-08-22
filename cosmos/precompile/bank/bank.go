@@ -184,7 +184,7 @@ func (c *Contract) GetDenomMetadata(
 	return result, nil
 }
 
-// GetSendEnabled implements `getSendEnabled(string[])` method.
+// GetSendEnabled implements `getSendEnabled(string)` method.
 func (c *Contract) GetSendEnabled(
 	ctx context.Context,
 	denom string,
@@ -202,7 +202,7 @@ func (c *Contract) GetSendEnabled(
 	return res.SendEnabled[0].Enabled, nil
 }
 
-// Send implements `send(address,(uint256,string))` method.
+// Send implements `send(address,(uint256,string)[])` method.
 func (c *Contract) Send(
 	ctx context.Context,
 	toAddress common.Address,

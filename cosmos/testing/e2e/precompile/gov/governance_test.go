@@ -34,7 +34,6 @@ import (
 	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing/governance"
-
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
