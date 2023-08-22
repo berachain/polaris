@@ -315,7 +315,7 @@ func (c *Contract) Delegate(
 		return false, err
 	}
 
-	_, err = c.msgServer.Undelegate(ctx, stakingtypes.NewMsgUndelegate(
+	_, err = c.msgServer.Delegate(ctx, stakingtypes.NewMsgDelegate(
 		cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()), /* todo move to codec */
 		cosmlib.AddressToValAddress(validatorAddress).String(),               /* todo move to codec */
 		sdk.Coin{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)},
@@ -334,7 +334,7 @@ func (c *Contract) Undelegate(
 		return false, err
 	}
 
-	_, err = c.msgServer.Delegate(ctx, stakingtypes.NewMsgDelegate(
+	_, err = c.msgServer.Undelegate(ctx, stakingtypes.NewMsgUndelegate(
 		cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()), /* todo move to codec */
 		cosmlib.AddressToValAddress(validatorAddress).String(),               /* todo move to codec */
 		sdk.Coin{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)},

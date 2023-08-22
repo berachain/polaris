@@ -433,21 +433,23 @@ var _ = Describe("Staking", func() {
 		When("GetRedelegations0", func() {
 			When("Calling Helper Methods", func() {
 				When("delegationHelper", func() {
-					It("should fail if the del address is not valid", func() {
-						_, err := contract.GetDelegation(
+					It("should not found if the del address is not valid", func() {
+						res, err := contract.GetDelegation(
 							ctx,
 							common.Address{},
 							cosmlib.ValAddressToEthAddress(val),
 						)
-						Expect(err).To(HaveOccurred())
+						Expect(res.Cmp(big.NewInt(0))).To(Equal(0))
+						Expect(err).ToNot(HaveOccurred())
 					})
-					It("should fail if the val address is not valid", func() {
-						_, err := contract.GetDelegation(
+					It("should not found if the val address is not valid", func() {
+						vals, err := contract.GetDelegation(
 							ctx,
 							cosmlib.AccAddressToEthAddress(del),
 							common.Address{},
 						)
-						Expect(err).To(HaveOccurred())
+						Expect(vals.Cmp(big.NewInt(0))).To(Equal(0))
+						Expect(err).ToNot(HaveOccurred())
 					})
 					It("should not error if there is no delegation", func() {
 						vals, err := contract.GetDelegation(
