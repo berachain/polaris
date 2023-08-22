@@ -88,6 +88,7 @@ interface IStakingModule {
 
     /**
      * @dev Returns all the validators delegated to by the given delegator.
+     * // TODO: pagination
      */
     function getDelegatorValidators(address delegatorAddress) external view returns (Validator[] memory);
 
@@ -126,6 +127,7 @@ interface IStakingModule {
     /**
      * @dev Returns a list of `delegatorAddress`'s redelegating bonds from `srcValidator` to
      * `dstValidator`
+     * // TODO: pagination
      */
     function getRedelegations(address delegatorAddress, address srcValidator, address dstValidator)
         external
