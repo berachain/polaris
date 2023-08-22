@@ -53,11 +53,6 @@ func TestAppSimulationAfterImport(t *testing.T) {
 	}
 	require.NoError(t, err, "simulation setup failed")
 
-	defer func() {
-		require.NoError(t, db.Close())
-		require.NoError(t, os.RemoveAll(dir))
-	}()
-
 	appOptions := make(simtestutil.AppOptionsMap, 0)
 	appOptions[flags.FlagHome] = DefaultNodeHome
 	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
@@ -96,6 +91,10 @@ func TestAppSimulationAfterImport(t *testing.T) {
 
 	exported, err := app.ExportAppStateAndValidators(true, []string{}, []string{})
 	require.NoError(t, err)
+
+	require.NoError(t, app.Close())
+	require.NoError(t, db.Close())
+	require.NoError(t, os.RemoveAll(dir))
 
 	fmt.Printf("importing genesis...\n")
 
