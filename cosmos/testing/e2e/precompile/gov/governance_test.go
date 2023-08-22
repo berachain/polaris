@@ -107,7 +107,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		// Send coins to the wrapper.
 		coins := []bbindings.CosmosCoin{
 			{
-				Denom:  "stake",
+				Denom:  "abgt",
 				Amount: big.NewInt(amt.Int64()),
 			},
 		}
@@ -119,7 +119,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		// Wrapper submits a proposal.
 		prop, _ = propAndMsgBz(tf, cosmlib.AddressToAccAddress(wrapperAddr).String(), amt)
 		txr = tf.GenerateTransactOpts("alice")
-		tx, err = wrapper.Submit(txr, prop, "stake", big.NewInt(amt.Int64()))
+		tx, err = wrapper.Submit(txr, prop, "abgt", big.NewInt(amt.Int64()))
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
@@ -151,6 +151,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 
 		// Call directly.
 		txr = tf.GenerateTransactOpts("alice")
+		txr.GasLimit = 1e6
 		tx, err = precompile.Vote(txr, 1, 1, "metadata")
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
@@ -178,7 +179,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 func propAndMsgBz(tf *network.TestFixture, proposer string, amount sdkmath.Int) ([]byte, []byte) {
 	// Prepare the message.
 	govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
-	initDeposit := sdk.NewCoins(sdk.NewCoin("stake", amount))
+	initDeposit := sdk.NewCoins(sdk.NewCoin("abgt", amount))
 	message := &banktypes.MsgSend{
 		FromAddress: cosmlib.AddressToAccAddress(govAcc).String(),
 		ToAddress:   cosmlib.AddressToAccAddress(tf.Address("alice")).String(),
