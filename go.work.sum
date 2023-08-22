@@ -127,11 +127,11 @@ cloud.google.com/go/vpcaccess v1.7.1/go.mod h1:FogoD46/ZU+JUBX9D606X21EnxiszYi2t
 cloud.google.com/go/webrisk v1.9.1/go.mod h1:4GCmXKcOa2BZcZPn6DCEvE7HypmEJcJkr4mtM+sqYPc=
 cloud.google.com/go/websecurityscanner v1.6.1/go.mod h1:Njgaw3rttgRHXzwCB8kgCYqv5/rGpFCsBOvPbYgszpg=
 cloud.google.com/go/workflows v1.11.1/go.mod h1:Z+t10G1wF7h8LgdY/EmRcQY8ptBD/nvofaL6FqlET6g=
+cosmossdk.io/client/v2 v2.0.0-20230818115413-c402c51a1508 h1:tt5OMwdouv7dkwkWJYxb8I9h322bOxnC9RmK2qGvWMs=
+cosmossdk.io/client/v2 v2.0.0-20230818115413-c402c51a1508/go.mod h1:iHeSk2AT6O8RNGlfcEQq6Yty6Z/6gydQsXXBh5I715Q=
 cosmossdk.io/math v1.0.1/go.mod h1:Ygz4wBHrgc7g0N+8+MrnTfS9LLn9aaTGa9hKopuym5k=
-cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508 h1:R9H1lDpcPSkrLOnt6IDE38o0Wp8xE/+BAxocb0oyX4I=
-cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508/go.mod h1:yjIo3J0QKDo9CJawK1QoTA1hBx0llafVJdPqI0+ry74=
-cosmossdk.io/x/upgrade v0.0.0-20230818115413-c402c51a1508 h1:tZ5fSX+ev+QHQ15457Vhxug8BSZJcHeBhU8DpgwlkCc=
-cosmossdk.io/x/upgrade v0.0.0-20230818115413-c402c51a1508/go.mod h1:M0JWINHzdN0eFHrWMs082akHHSO5muExS+/tNNIOyP8=
+cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508 h1:axKhxRa3M9QW2GdKJUsSyzo44gxcwSOTGeomtkbQClM=
+cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508/go.mod h1:qcJ1zwLIMefpDHZuYSa73yBe/k5HyQ5H1Jg9PWv30Ts=
 gioui.org v0.0.0-20210308172011-57750fc8a0a6/go.mod h1:RSH6KIUZ0p2xy5zHDxgAM4zumjgTw83q2ge/PI+yyw8=
 github.com/AndreasBriese/bbloom v0.0.0-20190306092124-e2d15f34fcf9/go.mod h1:bOvUY6CB00SOBii9/FifXqc0awNKxLFCL/+pkDPuyl8=
 github.com/Azure/azure-sdk-for-go/sdk/azcore v0.21.1/go.mod h1:fBF9PQNqB8scdgpZ3ufzaLntG0AG7C1WjPMsiFOmfHM=
@@ -166,6 +166,7 @@ github.com/andybalholm/brotli v1.0.4/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHG
 github.com/andybalholm/brotli v1.0.5/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
 github.com/apache/arrow/go/v12 v12.0.0/go.mod h1:d+tV/eHZZ7Dz7RPrFKtPK02tpr+c9/PEd/zm8mDS9Vg=
 github.com/apache/thrift v0.16.0/go.mod h1:PHK3hniurgQaNMZYaCLEqXKsYK8upmhPbmdP2FXSqgU=
+github.com/armon/go-metrics v0.4.0/go.mod h1:E6amYzXo6aW1tqzoZGT755KkbgrJsSdpwZ+3JqfkOG4=
 github.com/armon/go-metrics v0.4.1/go.mod h1:E6amYzXo6aW1tqzoZGT755KkbgrJsSdpwZ+3JqfkOG4=
 github.com/aws/aws-sdk-go-v2 v1.9.1/go.mod h1:cK/D0BBs0b/oWPIcX/Z/obahJK1TT7IPVjy53i/mX/4=
 github.com/aws/aws-sdk-go-v2/config v1.1.1/go.mod h1:0XsVy9lBI/BCXm+2Tuvt39YmdHwS5unDQmxZOYe8F5Y=
