@@ -16,8 +16,8 @@ replace (
 require (
 	cosmossdk.io/client/v2 v2.0.0-20230814164444-18a7ff96beaf
 	cosmossdk.io/tools/confix v0.0.0-20230608151552-9b9e319d1abc
-	cosmossdk.io/x/evidence v0.0.0-20230821162920-393dcc1f2a60
-	cosmossdk.io/x/upgrade v0.0.0-20230821162920-393dcc1f2a60
+	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
+	cosmossdk.io/x/upgrade v0.0.0-20230818115413-c402c51a1508
 	pkg.berachain.dev/polaris/cosmos v0.0.0-20230821203048-72ca0eaae730
 	pkg.berachain.dev/polaris/eth v0.0.0-20230821203048-72ca0eaae730
 )
