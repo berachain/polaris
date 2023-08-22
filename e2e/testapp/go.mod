@@ -16,10 +16,10 @@ replace (
 require (
 	cosmossdk.io/client/v2 v2.0.0-20230814164444-18a7ff96beaf
 	cosmossdk.io/tools/confix v0.0.0-20230608151552-9b9e319d1abc
-	cosmossdk.io/x/evidence v0.0.0-20230814164444-18a7ff96beaf
-	cosmossdk.io/x/upgrade v0.0.0-20230814164444-18a7ff96beaf
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20230810045725-b6ed353ceb0e
-	pkg.berachain.dev/polaris/eth v0.0.0-20230810045725-b6ed353ceb0e
+	cosmossdk.io/x/evidence v0.0.0-20230821162920-393dcc1f2a60
+	cosmossdk.io/x/upgrade v0.0.0-20230821162920-393dcc1f2a60
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20230821203048-72ca0eaae730
+	pkg.berachain.dev/polaris/eth v0.0.0-20230821203048-72ca0eaae730
 )
 
 require (
@@ -29,7 +29,7 @@ require (
 	cosmossdk.io/depinject v1.0.0-alpha.4
 	cosmossdk.io/errors v1.0.0 // indirect
 	cosmossdk.io/log v1.2.0
-	cosmossdk.io/math v1.0.1 // indirect
+	cosmossdk.io/math v1.1.2 // indirect
 	cosmossdk.io/store v1.0.0-alpha.1.0.20230728080422-54ed7dab3982
 	cosmossdk.io/x/tx v0.9.1 // indirect
 	github.com/btcsuite/btcd v0.23.4 // indirect
@@ -276,8 +276,8 @@ require (
 	gotest.tools/v3 v3.5.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230720022139-37f587ddf39e // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20230720022139-37f587ddf39e // indirect
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230810045725-b6ed353ceb0e // indirect
+	pkg.berachain.dev/polaris/lib v0.0.0-20230810045725-b6ed353ceb0e // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
