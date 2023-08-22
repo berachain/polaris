@@ -12,8 +12,8 @@ github.com/apapsch/go-jsonmerge/v2 v2.0.0 h1:axGnT1gRIfimI7gJifB699GoE/oq+F2MU7D
 github.com/apapsch/go-jsonmerge/v2 v2.0.0/go.mod h1:lvDnEdqiQrp0O42VQGgmlKpxL1AP2+08jFMw88y4klk=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/berachain/polaris-geth v0.0.0-20230629154458-90866dc0cf0a h1:+FNCMLpyn2dXus4XujVmhCNNv24W0q5qIk00JPH+7w0=
-github.com/berachain/polaris-geth v0.0.0-20230629154458-90866dc0cf0a/go.mod h1:/oo2X/dZLJjf2mJ6YT9wcWxa4nNJDBKDBU6sFIpx1Gs=
+github.com/berachain/polaris-geth v0.0.0-20230822160035-b50afe4022e5 h1:NkA/fd6uDRtdHZJzY8lgJaiHQjSVVmxoOn/FvoWiQGg=
+github.com/berachain/polaris-geth v0.0.0-20230822160035-b50afe4022e5/go.mod h1:sOleKuvS3KgH6rpLX1d100PZWiJMVsGXswyxeCHTplo=
 github.com/bits-and-blooms/bitset v1.8.0 h1:FD+XqgOZDUxxZ8hzoBFuV9+cGWY9CslN6d5MS5JVb4c=
 github.com/bits-and-blooms/bitset v1.8.0/go.mod h1:7hO7Gc7Pp1vODcmWvKMRA9BNmbv6a/7QIWpPxHddWR8=
 github.com/bmatcuk/doublestar v1.1.1/go.mod h1:UD6OnuiIn0yFxxA2le/rnRU1G4RaI4UvFv1sNto9p6w=

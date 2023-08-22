@@ -2,7 +2,7 @@ module pkg.berachain.dev/polaris/e2e/localnet
 
 go 1.21
 
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230629154458-90866dc0cf0a
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230822160035-b50afe4022e5
 
 require (
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.0

@@ -127,11 +127,7 @@ cloud.google.com/go/vpcaccess v1.7.1/go.mod h1:FogoD46/ZU+JUBX9D606X21EnxiszYi2t
 cloud.google.com/go/webrisk v1.9.1/go.mod h1:4GCmXKcOa2BZcZPn6DCEvE7HypmEJcJkr4mtM+sqYPc=
 cloud.google.com/go/websecurityscanner v1.6.1/go.mod h1:Njgaw3rttgRHXzwCB8kgCYqv5/rGpFCsBOvPbYgszpg=
 cloud.google.com/go/workflows v1.11.1/go.mod h1:Z+t10G1wF7h8LgdY/EmRcQY8ptBD/nvofaL6FqlET6g=
-cosmossdk.io/client/v2 v2.0.0-20230818115413-c402c51a1508 h1:tt5OMwdouv7dkwkWJYxb8I9h322bOxnC9RmK2qGvWMs=
-cosmossdk.io/client/v2 v2.0.0-20230818115413-c402c51a1508/go.mod h1:iHeSk2AT6O8RNGlfcEQq6Yty6Z/6gydQsXXBh5I715Q=
 cosmossdk.io/math v1.0.1/go.mod h1:Ygz4wBHrgc7g0N+8+MrnTfS9LLn9aaTGa9hKopuym5k=
-cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508 h1:axKhxRa3M9QW2GdKJUsSyzo44gxcwSOTGeomtkbQClM=
-cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508/go.mod h1:qcJ1zwLIMefpDHZuYSa73yBe/k5HyQ5H1Jg9PWv30Ts=
 gioui.org v0.0.0-20210308172011-57750fc8a0a6/go.mod h1:RSH6KIUZ0p2xy5zHDxgAM4zumjgTw83q2ge/PI+yyw8=
 github.com/AndreasBriese/bbloom v0.0.0-20190306092124-e2d15f34fcf9/go.mod h1:bOvUY6CB00SOBii9/FifXqc0awNKxLFCL/+pkDPuyl8=
 github.com/Azure/azure-sdk-for-go/sdk/azcore v0.21.1/go.mod h1:fBF9PQNqB8scdgpZ3ufzaLntG0AG7C1WjPMsiFOmfHM=
@@ -180,6 +176,8 @@ github.com/aws/aws-sdk-go-v2/service/sts v1.1.1/go.mod h1:Wi0EBZwiz/K44YliU0EKxq
 github.com/aws/smithy-go v1.8.0/go.mod h1:SObp3lf9smib00L/v3U2eAKG8FyQ7iLrJnQiAmR5n+E=
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
 github.com/aymerick/raymond v2.0.3-0.20180322193309-b565731e1464+incompatible/go.mod h1:osfaiScAUVup+UC9Nfq76eWqDhXlp+4UYaA8uhTBO6g=
+github.com/berachain/polaris-geth v0.0.0-20230822160035-b50afe4022e5 h1:NkA/fd6uDRtdHZJzY8lgJaiHQjSVVmxoOn/FvoWiQGg=
+github.com/berachain/polaris-geth v0.0.0-20230822160035-b50afe4022e5/go.mod h1:sOleKuvS3KgH6rpLX1d100PZWiJMVsGXswyxeCHTplo=
 github.com/blang/semver/v4 v4.0.0/go.mod h1:IbckMUScFkM3pff0VJDNKRiT6TG/YpiHIM2yvyW5YoQ=
 github.com/bmatcuk/doublestar v1.1.1 h1:YroD6BJCZBYx06yYFEWvUuKVWQn3vLLQAVmDmvTSaiQ=
 github.com/boombuler/barcode v1.0.0/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
