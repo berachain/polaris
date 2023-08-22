@@ -40,6 +40,7 @@ import (
 	govtestutil "github.com/cosmos/cosmos-sdk/x/gov/testutil"
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -74,6 +75,13 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 	// Create the base app msgRouter.
 	msr := baseapp.NewMsgServiceRouter()
 
+	stakingParams := stakingtypes.DefaultParams()
+	stakingParams.BondDenom = "abgt"
+	err := sk.SetParams(ctx, stakingParams)
+	if err != nil {
+		panic(err)
+	}
+
 	// Create the governance keeper.
 	gk := governancekeeper.NewKeeper(
 		encCfg.Codec,
@@ -94,7 +102,7 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 
 	// Set the Params and first proposal ID.
 	params := v1.DefaultParams()
-	err := gk.Params.Set(ctx, params)
+	err = gk.Params.Set(ctx, params)
 	if err != nil {
 		panic(err)
 	}

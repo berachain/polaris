@@ -325,6 +325,34 @@ var _ = Describe("Staking", func() {
 			})
 		})
 
+		When("GetDelegatorUnbondingDelegations", func() {
+			It("should succeed", func() {
+				// Undelegate.
+				amount, ok := new(big.Int).SetString("1", 10)
+				Expect(ok).To(BeTrue())
+				_, err := contract.Undelegate(
+					ctx,
+					cosmlib.ValAddressToEthAddress(val),
+					amount,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				res, _, err := contract.GetDelegatorUnbondingDelegations(
+					ctx,
+					caller,
+					cbindings.CosmosPageRequest{
+						Key:        "test",
+						Offset:     0,
+						Limit:      10,
+						CountTotal: true,
+						Reverse:    false,
+					},
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).ToNot(BeNil())
+			})
+		})
+
 		When("GetRedelegations", func() {
 			It("should succeed", func() {
 
@@ -390,11 +418,12 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect((del).Cmp(amount)).To(Equal(0))
 
-				redels, err := contract.GetRedelegations(
+				redels, _, err := contract.GetRedelegations(
 					ctx,
 					caller,
 					cosmlib.ValAddressToEthAddress(val),
 					cosmlib.ValAddressToEthAddress(otherVal),
+					cbindings.CosmosPageRequest{},
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(redels).ToNot(BeNil())
@@ -404,56 +433,58 @@ var _ = Describe("Staking", func() {
 		When("GetRedelegations0", func() {
 			When("Calling Helper Methods", func() {
 				When("delegationHelper", func() {
-					It("should fail if the del address is not valid", func() {
-						_, err := contract.getDelegationHelper(
+					It("should not found if the del address is not valid", func() {
+						res, err := contract.GetDelegation(
 							ctx,
-							sdk.AccAddress(""),
-							val,
+							common.Address{},
+							cosmlib.ValAddressToEthAddress(val),
 						)
-						Expect(err).To(HaveOccurred())
+						Expect(res.Cmp(big.NewInt(0))).To(Equal(0))
+						Expect(err).ToNot(HaveOccurred())
 					})
-					It("should fail if the val address is not valid", func() {
-						_, err := contract.getDelegationHelper(
+					It("should not found if the val address is not valid", func() {
+						vals, err := contract.GetDelegation(
 							ctx,
-							del,
-							sdk.ValAddress(""),
+							cosmlib.AccAddressToEthAddress(del),
+							common.Address{},
 						)
-						Expect(err).To(HaveOccurred())
+						Expect(vals.Cmp(big.NewInt(0))).To(Equal(0))
+						Expect(err).ToNot(HaveOccurred())
 					})
 					It("should not error if there is no delegation", func() {
-						vals, err := contract.getDelegationHelper(
+						vals, err := contract.GetDelegation(
 							ctx,
-							del,
-							otherVal,
+							cosmlib.AccAddressToEthAddress(del),
+							cosmlib.ValAddressToEthAddress(otherVal),
 						)
 						Expect(err).ToNot(HaveOccurred())
 						Expect(vals.Cmp(big.NewInt(0))).To(Equal(0))
 					})
 					It("should succeed", func() {
-						_, err := contract.getDelegationHelper(
+						_, err := contract.GetDelegation(
 							ctx,
-							del,
-							val,
+							cosmlib.AccAddressToEthAddress(del),
+							cosmlib.ValAddressToEthAddress(val),
 						)
 						Expect(err).ToNot(HaveOccurred())
 					})
 				})
 
 				When("getUnbondingDelegationHelper", func() {
-					It("should fail if caller address is wrong", func() {
-						_, err := contract.getUnbondingDelegationHelper(
+					It("should not if caller address is wrong", func() {
+						_, err := contract.GetUnbondingDelegation(
 							ctx,
-							sdk.AccAddress([]byte("")),
-							val,
+							common.BytesToAddress([]byte("")),
+							cosmlib.ValAddressToEthAddress(val),
 						)
-						Expect(err).To(HaveOccurred())
+						Expect(err).ToNot(HaveOccurred())
 					})
 
 					It("should fail if there is no unbonding delegation", func() {
-						vals, err := contract.getUnbondingDelegationHelper(
+						vals, err := contract.GetUnbondingDelegation(
 							ctx,
-							cosmlib.AddressToAccAddress(caller),
-							otherVal,
+							caller,
+							cosmlib.ValAddressToEthAddress(otherVal),
 						)
 						Expect(err).ToNot(HaveOccurred())
 						Expect(vals).To(BeEmpty())
@@ -470,10 +501,10 @@ var _ = Describe("Staking", func() {
 						)
 						Expect(err).ToNot(HaveOccurred())
 
-						_, err = contract.getUnbondingDelegationHelper(
+						_, err = contract.GetUnbondingDelegation(
 							ctx,
-							cosmlib.AddressToAccAddress(caller),
-							val,
+							caller,
+							cosmlib.ValAddressToEthAddress(val),
 						)
 						Expect(err).ToNot(HaveOccurred())
 					})
@@ -481,21 +512,23 @@ var _ = Describe("Staking", func() {
 
 				When("getRedelegationHelper", func() {
 					It("should fail if caller address is wrong", func() {
-						_, err := contract.getRedelegationsHelper(
+						_, _, err := contract.GetRedelegations(
 							ctx,
-							sdk.AccAddress([]byte("")),
-							val,
-							otherVal,
+							common.BytesToAddress([]byte("")),
+							cosmlib.ValAddressToEthAddress(val),
+							cosmlib.ValAddressToEthAddress(otherVal),
+							cbindings.CosmosPageRequest{},
 						)
 						Expect(err).To(HaveOccurred())
 					})
 
 					It("should fail if there is no redelegation", func() {
-						_, err := contract.getRedelegationsHelper(
+						_, _, err := contract.GetRedelegations(
 							ctx,
-							cosmlib.AddressToAccAddress(caller),
-							val,
-							otherVal,
+							caller,
+							cosmlib.ValAddressToEthAddress(val),
+							cosmlib.ValAddressToEthAddress(otherVal),
+							cbindings.CosmosPageRequest{},
 						)
 						Expect(err).To(HaveOccurred())
 					})

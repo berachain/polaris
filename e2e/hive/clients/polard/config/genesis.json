@@ -53,6 +53,10 @@
             {
               "denom": "abera",
               "amount": "100000000000000000000000000"
+            },
+            {
+              "denom": "abgt",
+              "amount": "100000000000000000000000000"
             }
           ]
         },
@@ -61,6 +65,10 @@
           "coins": [
             {
               "denom": "abera",
+              "amount": "100000000000000000000000000"
+            },
+            {
+              "denom": "abgt",
               "amount": "100000000000000000000000000"
             }
           ]
@@ -71,6 +79,10 @@
             {
               "denom": "abera",
               "amount": "100000000000000000000000000"
+            },
+            {
+              "denom": "abgt",
+              "amount": "100000000000000000000000000"
             }
           ]
         }
@@ -78,6 +90,10 @@
       "supply": [
         {
           "denom": "abera",
+          "amount": "300000000000000000000000000"
+        },
+        {
+          "denom": "abgt",
           "amount": "300000000000000000000000000"
         }
       ],
@@ -230,7 +246,8 @@
       "deposit_params": {
         "min_deposit": [
           {
-            "denom": "abera"
+            "denom": "abgt",
+            "amount": "0"
           }
         ]
       },
@@ -239,7 +256,7 @@
       "params": {
         "min_deposit": [
           {
-            "denom": "stake",
+            "denom": "abgt",
             "amount": "10000000"
           }
         ],
@@ -255,7 +272,7 @@
         "expedited_threshold": "0.667000000000000000",
         "expedited_min_deposit": [
           {
-            "denom": "stake",
+            "denom": "abgt",
             "amount": "50000000"
           }
         ],
