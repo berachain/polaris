@@ -24,6 +24,9 @@ import (
 	"context"
 	"math/big"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -85,8 +88,22 @@ func (c *Contract) GetValidator(
 func (c *Contract) GetDelegatorValidators(
 	ctx context.Context,
 	delegatorAddr common.Address,
-) ([]generated.IStakingModuleValidator, error) {
-	return c.delegatorValidatorsHelper(ctx, cosmlib.Bech32FromEthAddress(delegatorAddr))
+	pagination any,
+) ([]generated.IStakingModuleValidator, cbindings.CosmosPageResponse, error) {
+	res, err := c.querier.DelegatorValidators(ctx, &stakingtypes.QueryDelegatorValidatorsRequest{
+		DelegatorAddr: cosmlib.Bech32FromEthAddress(delegatorAddr),
+		Pagination:    cosmlib.ExtractPageRequestFromInput(pagination),
+	})
+	if err != nil {
+		return nil, cbindings.CosmosPageResponse{}, err
+	}
+
+	vals, err := cosmlib.SdkValidatorsToStakingValidators(res.GetValidators())
+	if err != nil {
+		return nil, cbindings.CosmosPageResponse{}, err
+	}
+
+	return vals, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
 // GetValidatorDelegations implements the `getValidatorDelegations(address,PageRequest)` method.
@@ -139,13 +156,44 @@ func (c *Contract) GetRedelegations(
 	delegatorAddress common.Address,
 	srcValidator common.Address,
 	dstValidator common.Address,
-) ([]generated.IStakingModuleRedelegationEntry, error) {
-	return c.getRedelegationsHelper(
+	pagination any,
+) ([]generated.IStakingModuleRedelegationEntry, cbindings.CosmosPageResponse, error) {
+	del := cosmlib.Bech32FromEthAddress(delegatorAddress)
+	rsp, err := c.querier.Redelegations(
 		ctx,
-		cosmlib.AddressToAccAddress(delegatorAddress),
-		cosmlib.AddressToValAddress(srcValidator),
-		cosmlib.AddressToValAddress(dstValidator),
+		&stakingtypes.QueryRedelegationsRequest{
+			DelegatorAddr:    cosmlib.Bech32FromEthAddress(delegatorAddress),
+			SrcValidatorAddr: cosmlib.AddressToValAddress(srcValidator).String(),
+			DstValidatorAddr: cosmlib.AddressToValAddress(dstValidator).String(),
+			Pagination:       cosmlib.ExtractPageRequestFromInput(pagination),
+		},
 	)
+	if status.Code(err) == codes.NotFound {
+		return []generated.IStakingModuleRedelegationEntry{}, cbindings.CosmosPageResponse{}, nil
+	} else if err != nil {
+		return nil, cbindings.CosmosPageResponse{}, err
+	}
+
+	var redelegationEntryResponses []stakingtypes.RedelegationEntryResponse
+	for _, r := range rsp.GetRedelegationResponses() {
+		redel := r.GetRedelegation()
+		if redel.DelegatorAddress == del &&
+			redel.ValidatorSrcAddress == srcValidator.String() &&
+			redel.ValidatorDstAddress == dstValidator.String() {
+			redelegationEntryResponses = r.GetEntries()
+			break
+		}
+	}
+	redelegationEntries := make(
+		[]stakingtypes.RedelegationEntry, 0, len(redelegationEntryResponses),
+	)
+	for _, entryRsp := range redelegationEntryResponses {
+		redelegationEntries = append(redelegationEntries, entryRsp.GetRedelegationEntry())
+	}
+
+	return cosmlib.SdkREToStakingRE(redelegationEntries),
+		cosmlib.SdkPageResponseToEvmPageResponse(rsp.Pagination),
+		err
 }
 
 // Delegate implements the `delegate(address,uint256)` method.

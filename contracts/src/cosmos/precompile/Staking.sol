@@ -88,9 +88,11 @@ interface IStakingModule {
 
     /**
      * @dev Returns all the validators delegated to by the given delegator.
-     * // TODO: pagination
      */
-    function getDelegatorValidators(address delegatorAddress) external view returns (Validator[] memory);
+    function getDelegatorValidators(address delegatorAddress, Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (Validator[] memory, Cosmos.PageResponse memory);
 
     /**
      * @dev Returns all the delegations delegated to the given validator.
@@ -127,12 +129,13 @@ interface IStakingModule {
     /**
      * @dev Returns a list of `delegatorAddress`'s redelegating bonds from `srcValidator` to
      * `dstValidator`
-     * // TODO: pagination
      */
-    function getRedelegations(address delegatorAddress, address srcValidator, address dstValidator)
-        external
-        view
-        returns (RedelegationEntry[] memory);
+    function getRedelegations(
+        address delegatorAddress,
+        address srcValidator,
+        address dstValidator,
+        Cosmos.PageRequest calldata pagination
+    ) external view returns (RedelegationEntry[] memory, Cosmos.PageResponse memory);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 

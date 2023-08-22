@@ -140,47 +140,6 @@ func (c *Contract) getDelegatorUnbondingDelegationsHelper(
 	return unbondingDelegations, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
-// getRedelegationsHelper is the helper function for `getRedelegations.
-func (c *Contract) getRedelegationsHelper(
-	ctx context.Context,
-	del sdk.AccAddress,
-	srcValidator sdk.ValAddress,
-	dstValidator sdk.ValAddress,
-) ([]staking.IStakingModuleRedelegationEntry, error) {
-	rsp, err := c.querier.Redelegations(
-		ctx,
-		&stakingtypes.QueryRedelegationsRequest{
-			DelegatorAddr:    del.String(),
-			SrcValidatorAddr: srcValidator.String(),
-			DstValidatorAddr: dstValidator.String(),
-		},
-	)
-	if status.Code(err) == codes.NotFound {
-		return []staking.IStakingModuleRedelegationEntry{}, nil
-	} else if err != nil {
-		return nil, err
-	}
-
-	var redelegationEntryResponses []stakingtypes.RedelegationEntryResponse
-	for _, r := range rsp.GetRedelegationResponses() {
-		redel := r.GetRedelegation()
-		if redel.DelegatorAddress == del.String() &&
-			redel.ValidatorSrcAddress == srcValidator.String() &&
-			redel.ValidatorDstAddress == dstValidator.String() {
-			redelegationEntryResponses = r.GetEntries()
-			break
-		}
-	}
-	redelegationEntries := make(
-		[]stakingtypes.RedelegationEntry, 0, len(redelegationEntryResponses),
-	)
-	for _, entryRsp := range redelegationEntryResponses {
-		redelegationEntries = append(redelegationEntries, entryRsp.GetRedelegationEntry())
-	}
-
-	return cosmlib.SdkREToStakingRE(redelegationEntries), err
-}
-
 // delegateHelper is the helper function for `delegate`.
 func (c *Contract) delegateHelper(
 	ctx context.Context,
@@ -338,26 +297,6 @@ func (c *Contract) validatorHelper(
 
 	// guaranteed not to panic because val is guaranteed to have length 1.
 	return val[0], nil
-}
-
-// accAddr must be the bech32 address of the delegator.
-func (c *Contract) delegatorValidatorsHelper(
-	ctx context.Context,
-	accAddr string,
-) ([]staking.IStakingModuleValidator, error) {
-	res, err := c.querier.DelegatorValidators(ctx, &stakingtypes.QueryDelegatorValidatorsRequest{
-		DelegatorAddr: accAddr,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	vals, err := cosmlib.SdkValidatorsToStakingValidators(res.GetValidators())
-	if err != nil {
-		return nil, err
-	}
-
-	return vals, nil
 }
 
 // bondDenom returns the bond denom from the staking module.
