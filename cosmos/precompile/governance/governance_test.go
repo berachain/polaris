@@ -38,6 +38,7 @@ import (
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
+	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile/testutil"
@@ -317,12 +318,20 @@ var _ = Describe("Governance Precompile", func() {
 					Expect(err).ToNot(HaveOccurred())
 				})
 				It("should get the proposals", func() {
-					res, err := contract.GetProposals(
+					res, pageRes, err := contract.GetProposals(
 						ctx,
 						int32(0),
+						cbindings.CosmosPageRequest{
+							Key:        "test",
+							Offset:     0,
+							Limit:      10,
+							CountTotal: true,
+							Reverse:    false,
+						},
 					)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(res).ToNot(BeNil())
+					Expect(pageRes).ToNot(BeNil())
 				})
 			})
 			Context("Deposits", func() {
@@ -393,13 +402,21 @@ var _ = Describe("Governance Precompile", func() {
 				})
 				When("GetProposalVotes", func() {
 					It("should get the proposal votes", func() {
-						res, err := contract.GetProposalVotes(
+						res, pageRes, err := contract.GetProposalVotes(
 							ctx,
 							uint64(2),
+							cbindings.CosmosPageRequest{
+								Key:        "test",
+								Offset:     0,
+								Limit:      10,
+								CountTotal: true,
+								Reverse:    false,
+							},
 						)
 						Expect(err).ToNot(HaveOccurred())
 						Expect(res).ToNot(BeNil())
 						Expect(res[0]).To(Equal(vote))
+						Expect(pageRes).ToNot(BeNil())
 					})
 				})
 				When("GetProposalVotesByVoter", func() {

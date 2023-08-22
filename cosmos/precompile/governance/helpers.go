@@ -30,6 +30,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
+	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -158,12 +159,14 @@ func (c *Contract) getProposalHelper(
 func (c *Contract) getProposalsHelper(
 	ctx context.Context,
 	proposalStatus int32,
-) ([]generated.IGovernanceModuleProposal, error) {
+	pagination any,
+) ([]generated.IGovernanceModuleProposal, cbindings.CosmosPageResponse, error) {
 	res, err := c.querier.Proposals(ctx, &v1.QueryProposalsRequest{
 		ProposalStatus: v1.ProposalStatus(proposalStatus),
+		Pagination:     cosmlib.ExtractPageRequestFromInput(pagination),
 	})
 	if err != nil {
-		return nil, err
+		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
 	proposals := make([]generated.IGovernanceModuleProposal, 0)
@@ -171,7 +174,7 @@ func (c *Contract) getProposalsHelper(
 		proposals = append(proposals, transformProposalToABIProposal(*proposal))
 	}
 
-	return proposals, nil
+	return proposals, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
 // getProposalDepositsHelper is a helper function for the `GetProposalDeposits` method of the
@@ -249,14 +252,14 @@ func (c *Contract) getProposalTallyResultHelper(
 func (c *Contract) getProposalVotesHelper(
 	ctx context.Context,
 	proposalID uint64,
-	// pagination
-) ([]generated.IGovernanceModuleVote, error) {
+	pagination any,
+) ([]generated.IGovernanceModuleVote, cbindings.CosmosPageResponse, error) {
 	res, err := c.querier.Votes(ctx, &v1.QueryVotesRequest{
 		ProposalId: proposalID,
-		// Pagination: pagination,
+		Pagination: cosmlib.ExtractPageRequestFromInput(pagination),
 	})
 	if err != nil {
-		return nil, err
+		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
 	votes := make([]generated.IGovernanceModuleVote, 0)
@@ -279,7 +282,7 @@ func (c *Contract) getProposalVotesHelper(
 		})
 	}
 
-	return votes, nil
+	return votes, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
 // getProposalVotesByVoterHelper is a helper function for the `GetProposalVotesByVoter` method of the

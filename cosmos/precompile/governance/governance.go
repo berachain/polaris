@@ -30,6 +30,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
+	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
@@ -124,8 +125,9 @@ func (c *Contract) GetProposal(
 func (c *Contract) GetProposals(
 	ctx context.Context,
 	proposalStatus int32,
-) ([]generated.IGovernanceModuleProposal, error) {
-	return c.getProposalsHelper(ctx, proposalStatus)
+	pagination any,
+) ([]generated.IGovernanceModuleProposal, cbindings.CosmosPageResponse, error) {
+	return c.getProposalsHelper(ctx, proposalStatus, pagination)
 }
 
 // GetProposalDeposits is the method for the `getProposalDeposits` method of the governance precompile contract.
@@ -158,8 +160,9 @@ func (c *Contract) GetProposalTallyResult(
 func (c *Contract) GetProposalVotes(
 	ctx context.Context,
 	proposalID uint64,
-) ([]generated.IGovernanceModuleVote, error) {
-	return c.getProposalVotesHelper(ctx, proposalID)
+	pagination any,
+) ([]generated.IGovernanceModuleVote, cbindings.CosmosPageResponse, error) {
+	return c.getProposalVotesHelper(ctx, proposalID, pagination)
 }
 
 // GetProposalVotesByVoter is the method for the `getProposalVotesByVoter` method of the governance

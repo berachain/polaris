@@ -87,8 +87,7 @@ func (c *Contract) getValidatorDelegationsHelper(
 		})
 	}
 
-	pageResponse := cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination)
-	return delegations, pageResponse, nil
+	return delegations, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
 // getUnbondingDelegationHelper is the helper function for `getUnbondingDelegation`.
@@ -108,6 +107,37 @@ func (c *Contract) getUnbondingDelegationHelper(
 	}
 
 	return cosmlib.SdkUDEToStakingUDE(res.GetUnbond().Entries), nil
+}
+
+// getDelegatorUnbondingDelegationsHelper is the helper function for `getDelegatorUnbondingDelegations`.
+func (c *Contract) getDelegatorUnbondingDelegationsHelper(
+	ctx context.Context,
+	del sdk.AccAddress,
+	pagination any,
+) ([]staking.IStakingModuleUnbondingDelegation, cbindings.CosmosPageResponse, error) {
+	res, err := c.querier.DelegatorUnbondingDelegations(ctx, &stakingtypes.QueryDelegatorUnbondingDelegationsRequest{
+		DelegatorAddr: del.String(),
+		Pagination:    cosmlib.ExtractPageRequestFromInput(pagination),
+	})
+	if status.Code(err) == codes.NotFound {
+		return []staking.IStakingModuleUnbondingDelegation{},
+			cbindings.CosmosPageResponse{}, nil
+	} else if err != nil {
+		return nil, cbindings.CosmosPageResponse{}, err
+	}
+
+	unbondingDelegations := make([]staking.IStakingModuleUnbondingDelegation, 0)
+	for _, u := range res.GetUnbondingResponses() {
+		unbondingDelegations = append(unbondingDelegations,
+			staking.IStakingModuleUnbondingDelegation{
+				DelegatorAddress: cosmlib.EthAddressFromBech32(u.DelegatorAddress),
+				ValidatorAddress: cosmlib.EthAddressFromBech32(u.ValidatorAddress),
+				Entries:          cosmlib.SdkUDEToStakingUDE(u.Entries),
+			},
+		)
+	}
+
+	return unbondingDelegations, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
 // getRedelegationsHelper is the helper function for `getRedelegations.

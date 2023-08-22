@@ -116,6 +116,14 @@ interface IStakingModule {
         returns (UnbondingDelegationEntry[] memory);
 
     /**
+     * @dev Returns a list of all unbonding delegations for a given delegator
+     */
+    function getDelegatorUnbondingDelegations(address delegatorAddress, Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (UnbondingDelegation[] memory, Cosmos.PageResponse memory);
+
+    /**
      * @dev Returns a list of `delegatorAddress`'s redelegating bonds from `srcValidator` to
      * `dstValidator`
      */
@@ -221,6 +229,18 @@ interface IStakingModule {
         uint256 balance;
         // unbondingingId incrementing id that uniquely identifies this entry
         uint64 unbondingId;
+    }
+
+    /**
+     * @dev Represents all unbonding bonds of a single delegator with relevant metadata
+     *
+     * Note: the field names of the native struct should match these field names (by camelCase)
+     * Note: we are using the types in precompile/generated
+     */
+    struct UnbondingDelegation {
+        address delegatorAddress;
+        address validatorAddress;
+        UnbondingDelegationEntry[] entries;
     }
 
     /**

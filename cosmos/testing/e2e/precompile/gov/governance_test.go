@@ -140,9 +140,19 @@ var _ = Describe("Call the Precompile Directly", func() {
 		Expect(res2.Id).To(Equal(uint64(1)))
 
 		// Call directly.
-		getProposalsRes, err := precompile.GetProposals(nil, 0)
+		getProposalsRes, pageRes, err := precompile.GetProposals(
+			nil, 0,
+			bindings.CosmosPageRequest{
+				Key:        "test",
+				Offset:     0,
+				Limit:      10,
+				CountTotal: true,
+				Reverse:    false,
+			},
+		)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(getProposalsRes).To(HaveLen(2))
+		Expect(pageRes).ToNot(BeNil())
 
 		// Call via wrapper.
 		wrapperRes, err := wrapper.GetProposals(nil, 0)

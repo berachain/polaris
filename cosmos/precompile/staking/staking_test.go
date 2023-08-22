@@ -325,6 +325,34 @@ var _ = Describe("Staking", func() {
 			})
 		})
 
+		When("GetDelegatorUnbondingDelegations", func() {
+			It("should succeed", func() {
+				// Undelegate.
+				amount, ok := new(big.Int).SetString("1", 10)
+				Expect(ok).To(BeTrue())
+				_, err := contract.Undelegate(
+					ctx,
+					cosmlib.ValAddressToEthAddress(val),
+					amount,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				res, _, err := contract.GetDelegatorUnbondingDelegations(
+					ctx,
+					caller,
+					cbindings.CosmosPageRequest{
+						Key:        "test",
+						Offset:     0,
+						Limit:      10,
+						CountTotal: true,
+						Reverse:    false,
+					},
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).ToNot(BeNil())
+			})
+		})
+
 		When("GetRedelegations", func() {
 			It("should succeed", func() {
 

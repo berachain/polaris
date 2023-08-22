@@ -85,7 +85,10 @@ interface IGovernanceModule {
      * @dev Get proposals with a given status.
      * @param proposalStatus The status of the proposals to get.
      */
-    function getProposals(int32 proposalStatus) external view returns (Proposal[] memory);
+    function getProposals(int32 proposalStatus, Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (Proposal[] memory, Cosmos.PageResponse memory);
 
     /**
      * @dev Get the proposal tally result with the given id.
@@ -95,7 +98,10 @@ interface IGovernanceModule {
     /**
      * @dev Get the proposal votes with the given id.
      */
-    function getProposalVotes(uint64 proposalId) external view returns (Vote[] memory);
+    function getProposalVotes(uint64 proposalId, Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (Vote[] memory, Cosmos.PageResponse memory);
 
     /**
      * @dev Get the proposal vote information with the given id and voter.

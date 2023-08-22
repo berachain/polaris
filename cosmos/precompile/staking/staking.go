@@ -122,6 +122,17 @@ func (c *Contract) GetUnbondingDelegation(
 	)
 }
 
+// GetDelegatorUnbondingDelegations implements the `getDelegatorUnbondingDelegations(address)` method.
+func (c *Contract) GetDelegatorUnbondingDelegations(
+	ctx context.Context,
+	delegatorAddress common.Address,
+	pagination any,
+) ([]generated.IStakingModuleUnbondingDelegation, cbindings.CosmosPageResponse, error) {
+	return c.getDelegatorUnbondingDelegationsHelper(
+		ctx, cosmlib.AddressToAccAddress(delegatorAddress), pagination,
+	)
+}
+
 // GetRedelegations implements the `getRedelegations(address,address)` method.
 func (c *Contract) GetRedelegations(
 	ctx context.Context,
