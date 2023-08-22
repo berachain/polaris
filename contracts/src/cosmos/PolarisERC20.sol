@@ -3,7 +3,6 @@
 pragma solidity >=0.8.0;
 
 import {IERC20} from "../../lib/IERC20.sol";
-import {IAuthModule} from "./precompile/Auth.sol";
 import {IBankModule} from "./precompile/Bank.sol";
 import {IERC20Module} from "./precompile/ERC20Module.sol";
 import {Cosmos} from "./CosmosTypes.sol";
