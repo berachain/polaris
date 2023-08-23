@@ -6,10 +6,11 @@ import (
 	"os"
 	"testing"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/log"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -20,15 +21,21 @@ import (
 	simcli "github.com/cosmos/cosmos-sdk/x/simulation/client/cli"
 )
 
-// SimAppChainID hardcoded chainID for simulation
+// SimAppChainID hardcoded chainID for simulation.
 const SimAppChainID = "simulation-app"
 
 var FlagEnableStreamingValue bool
 
-// Get flags every time the simulator is run
-func init() {
+// Get flags every time the simulator is run.
+func setup() {
 	simcli.GetSimulatorFlags()
 	flag.BoolVar(&FlagEnableStreamingValue, "EnableStreaming", false, "Enable streaming service")
+}
+
+func TestMain(m *testing.M) {
+	setup()
+	code := m.Run()
+	os.Exit(code)
 }
 
 // fauxMerkleModeOpt returns a BaseApp option to use a dbStoreAdapter instead of
@@ -83,11 +90,11 @@ func TestAppSimulationAfterImport(t *testing.T) {
 	}
 
 	if stopEarly {
-		fmt.Println("can't export or import a zero-validator genesis, exiting test...")
+		t.Log("can't export or import a zero-validator genesis, exiting test...")
 		return
 	}
 
-	fmt.Printf("exporting genesis...\n")
+	t.Log("exporting genesis...\n")
 
 	exported, err := app.ExportAppStateAndValidators(true, []string{}, []string{})
 	require.NoError(t, err)
@@ -96,9 +103,15 @@ func TestAppSimulationAfterImport(t *testing.T) {
 	require.NoError(t, db.Close())
 	require.NoError(t, os.RemoveAll(dir))
 
-	fmt.Printf("importing genesis...\n")
+	t.Log("importing genesis...\n")
 
-	newDB, newDir, _, _, err := simtestutil.SetupSimulation(config, "leveldb-app-sim-2", "Simulation-2", simcli.FlagVerboseValue, simcli.FlagEnabledValue)
+	newDB, newDir, _, _, err := simtestutil.SetupSimulation(
+		config,
+		"leveldb-app-sim-2",
+		"Simulation-2",
+		simcli.FlagVerboseValue,
+		simcli.FlagEnabledValue,
+	)
 	require.NoError(t, err, "simulation setup failed")
 
 	defer func() {
@@ -106,13 +119,22 @@ func TestAppSimulationAfterImport(t *testing.T) {
 		require.NoError(t, os.RemoveAll(newDir))
 	}()
 
-	newApp := NewPolarisApp(log.NewNopLogger(), newDB, nil, true, appOptions, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
+	newApp := NewPolarisApp(
+		log.NewNopLogger(),
+		newDB,
+		nil,
+		true,
+		appOptions,
+		fauxMerkleModeOpt,
+		baseapp.SetChainID(SimAppChainID),
+	)
 	require.Equal(t, "SimApp", newApp.Name())
 
-	newApp.InitChain(&abci.RequestInitChain{
+	_, err = newApp.InitChain(&abci.RequestInitChain{
 		AppStateBytes: exported.AppState,
 		ChainId:       SimAppChainID,
 	})
+	require.NoError(t, err)
 
 	_, _, err = simulation.SimulateFromSeed(
 		t,
