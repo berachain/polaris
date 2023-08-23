@@ -43,15 +43,16 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
-type AddressConverter interface {
+type ValidatorStore interface {
 	ValidatorAddressCodec() address.Codec
+	ValidatorByConsAddr(ctx context.Context, addr sdk.ConsAddress) (stakingtypes.ValidatorI, error)
 }
 
 // Contract is the precompile contract for the staking module.
 type Contract struct {
 	ethprecompile.BaseContract
 
-	ac        AddressConverter
+	vs        ValidatorStore
 	msgServer stakingtypes.MsgServer
 	querier   stakingtypes.QueryServer
 }
@@ -63,10 +64,21 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 			generated.StakingModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName)),
 		),
-		ac:        sk,
+		vs:        sk,
 		msgServer: stakingkeeper.NewMsgServerImpl(sk),
 		querier:   stakingkeeper.Querier{Keeper: sk},
 	}
+}
+
+func (c *Contract) ValAddressFromConsAddress(
+	ctx context.Context,
+	consAddress []byte,
+) (common.Address, error) {
+	val, err := c.vs.ValidatorByConsAddr(ctx, sdk.ConsAddress(consAddress))
+	if err != nil {
+		return common.Address{}, err
+	}
+	return cosmlib.ValAddressToEthAddress(c.vs.ValidatorAddressCodec(), val.GetOperator())
 }
 
 // GetActiveValidators implements the `getActiveValidators(PageRequest)` method.
@@ -86,7 +98,7 @@ func (c *Contract) GetActiveValidators(
 	addrs := make([]common.Address, 0, len(res.Validators))
 	for _, val := range res.Validators {
 		var valAddr common.Address
-		valAddr, err = cosmlib.ValAddressToEthAddress(c.ac.ValidatorAddressCodec(), val.OperatorAddress)
+		valAddr, err = cosmlib.ValAddressToEthAddress(c.vs.ValidatorAddressCodec(), val.OperatorAddress)
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
@@ -124,7 +136,7 @@ func (c *Contract) GetValidator(
 	ctx context.Context,
 	validatorAddress common.Address,
 ) (generated.IStakingModuleValidator, error) {
-	valAddr, err := cosmlib.AddressToValAddress(c.ac.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return generated.IStakingModuleValidator{}, err
 	}
@@ -174,7 +186,7 @@ func (c *Contract) GetValidatorDelegations(
 	validatorAddress common.Address,
 	pagination any,
 ) ([]generated.IStakingModuleDelegation, cbindings.CosmosPageResponse, error) {
-	valAddr, err := cosmlib.AddressToValAddress(c.ac.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
@@ -205,7 +217,7 @@ func (c *Contract) GetDelegation(
 	delegatorAddress common.Address,
 	validatorAddress common.Address,
 ) (*big.Int, error) {
-	valAddr, err := cosmlib.AddressToValAddress(c.ac.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -234,7 +246,7 @@ func (c *Contract) GetUnbondingDelegation(
 	delegatorAddress common.Address,
 	validatorAddress common.Address,
 ) ([]generated.IStakingModuleUnbondingDelegationEntry, error) {
-	valAddr, err := cosmlib.AddressToValAddress(c.ac.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +283,7 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 	unbondingDelegations := make([]generated.IStakingModuleUnbondingDelegation, 0)
 	for _, u := range res.GetUnbondingResponses() {
 		var valAddr common.Address
-		if valAddr, err = cosmlib.ValAddressToEthAddress(c.ac.ValidatorAddressCodec(), u.ValidatorAddress); err != nil {
+		if valAddr, err = cosmlib.ValAddressToEthAddress(c.vs.ValidatorAddressCodec(), u.ValidatorAddress); err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
 		unbondingDelegations = append(unbondingDelegations,
@@ -295,11 +307,11 @@ func (c *Contract) GetRedelegations(
 	pagination any,
 ) ([]generated.IStakingModuleRedelegationEntry, cbindings.CosmosPageResponse, error) {
 	del := cosmlib.Bech32FromEthAddress(delegatorAddress)
-	srcValAddr, err := cosmlib.AddressToValAddress(c.ac.ValidatorAddressCodec(), srcValidator)
+	srcValAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), srcValidator)
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
-	destValAddr, err := cosmlib.AddressToValAddress(c.ac.ValidatorAddressCodec(), dstValidator)
+	destValAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), dstValidator)
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
@@ -350,7 +362,7 @@ func (c *Contract) Delegate(
 	if err != nil {
 		return false, err
 	}
-	valAddr, err := cosmlib.AddressToValAddress(c.ac.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return false, err
 	}
@@ -372,7 +384,7 @@ func (c *Contract) Undelegate(
 	if err != nil {
 		return false, err
 	}
-	valAddr, err := cosmlib.AddressToValAddress(c.ac.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return false, err
 	}
@@ -395,11 +407,11 @@ func (c *Contract) BeginRedelegate(
 	if err != nil {
 		return false, err
 	}
-	srcValAddr, err := cosmlib.AddressToValAddress(c.ac.ValidatorAddressCodec(), srcValidator)
+	srcValAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), srcValidator)
 	if err != nil {
 		return false, err
 	}
-	destValAddr, err := cosmlib.AddressToValAddress(c.ac.ValidatorAddressCodec(), dstValidator)
+	destValAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), dstValidator)
 	if err != nil {
 		return false, err
 	}
@@ -426,7 +438,7 @@ func (c *Contract) CancelUnbondingDelegation(
 	if err != nil {
 		return false, err
 	}
-	valAddr, err := cosmlib.AddressToValAddress(c.ac.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return false, err
 	}
