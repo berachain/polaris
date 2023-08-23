@@ -253,8 +253,8 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 
 	unbondingDelegations := make([]generated.IStakingModuleUnbondingDelegation, 0)
 	for _, u := range res.GetUnbondingResponses() {
-		bz, err := c.ac.ValidatorAddressCodec().StringToBytes(u.ValidatorAddress)
-		if err != nil {
+		var bz []byte
+		if bz, err = c.ac.ValidatorAddressCodec().StringToBytes(u.ValidatorAddress); err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
 		unbondingDelegations = append(unbondingDelegations,
