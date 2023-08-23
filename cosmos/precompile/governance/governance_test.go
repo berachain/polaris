@@ -38,6 +38,7 @@ import (
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
+	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile/testutil"
@@ -125,9 +126,9 @@ var _ = Describe("Governance Precompile", func() {
 
 	When("submitting proposal handler", func() {
 		It("should fail if the proposal cant be unmarshalled", func() {
-			_, err := contract.submitProposalHelper(
+			_, err := contract.SubmitProposal(
 				vm.NewPolarContext(sdk.Context{}, nil, common.Address{}, nil),
-				[]byte("invalid"), nil,
+				[]byte("invalid"),
 			)
 			Expect(err).To(HaveOccurred())
 		})
@@ -146,23 +147,14 @@ var _ = Describe("Governance Precompile", func() {
 				big.NewInt(100),
 			)
 			Expect(err).ToNot(HaveOccurred())
-			message := &banktypes.MsgSend{
-				FromAddress: govAcct.String(),
-				ToAddress:   caller.String(),
-				Amount:      initDeposit,
-			}
-			metadata := "metadata"
-			title := "title"
-			summary := "summary "
-			msgBz, err := message.Marshal()
-			Expect(err).ToNot(HaveOccurred())
+
 			// Create and marshal the proposal.
 			proposal := v1.MsgSubmitProposal{
 				InitialDeposit: initDeposit,
 				Proposer:       caller.String(),
-				Metadata:       metadata,
-				Title:          title,
-				Summary:        summary,
+				Metadata:       "metadata",
+				Title:          "title",
+				Summary:        "summary",
 				Expedited:      false,
 			}
 			proposalBz, err := proposal.Marshal()
@@ -171,7 +163,6 @@ var _ = Describe("Governance Precompile", func() {
 			res, err := contract.SubmitProposal(
 				ctx,
 				proposalBz,
-				msgBz,
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).ToNot(BeNil())
@@ -187,15 +178,14 @@ var _ = Describe("Governance Precompile", func() {
 				Status:   v1.StatusVotingPeriod,
 			})
 			Expect(err).ToNot(HaveOccurred())
-			res, res1, err := contract.CancelProposal(
+			time, height, err := contract.CancelProposal(
 				ctx,
 				uint64(1),
 			)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).ToNot(BeNil())
-			Expect(res1).ToNot(BeNil())
+			Expect(time).ToNot(BeZero())
+			Expect(height).ToNot(BeZero())
 		})
-
 	})
 
 	When("Voting on a proposal", func() {
@@ -219,6 +209,7 @@ var _ = Describe("Governance Precompile", func() {
 			Expect(res).To(BeFalse())
 			Expect(err).To(HaveOccurred())
 		})
+
 		It("should succeed", func() {
 			res, err := contract.Vote(
 				ctx,
@@ -231,7 +222,6 @@ var _ = Describe("Governance Precompile", func() {
 		})
 
 		When("Voting Weight", func() {
-
 			It("should fail if the proposal does not exist", func() {
 				res, err := contract.VoteWeighted(
 					ctx,
@@ -317,14 +307,229 @@ var _ = Describe("Governance Precompile", func() {
 					Expect(err).ToNot(HaveOccurred())
 				})
 				It("should get the proposals", func() {
-					res, err := contract.GetProposals(
+					res, pageRes, err := contract.GetProposals(
 						ctx,
 						int32(0),
+						cbindings.CosmosPageRequest{
+							Key:        "test",
+							Offset:     0,
+							Limit:      10,
+							CountTotal: true,
+							Reverse:    false,
+						},
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+					Expect(pageRes).ToNot(BeNil())
+				})
+			})
+			Context("Deposits", func() {
+				var coins sdk.Coins
+				BeforeEach(func() {
+					coins = sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(100)))
+					_, err := gk.AddDeposit(
+						ctx, uint64(2),
+						caller,
+						coins,
+					)
+					Expect(err).ToNot(HaveOccurred())
+				})
+				When("GetProposalDeposits", func() {
+					It("should get the proposal deposits", func() {
+						res, err := contract.GetProposalDeposits(
+							ctx,
+							uint64(2),
+						)
+						Expect(err).ToNot(HaveOccurred())
+						Expect(res).ToNot(BeNil())
+						Expect(res).To(HaveLen(2))
+						Expect(res[0].Denom).To(Equal(coins[0].Denom))
+						Expect(res[0].Amount).To(Equal(coins[0].Amount.BigInt()))
+					})
+				})
+				When("GetProposalDepositsByDepositor", func() {
+					It("should get the proposal deposits by depositor", func() {
+						res, err := contract.GetProposalDepositsByDepositor(
+							ctx,
+							uint64(2),
+							cosmlib.AccAddressToEthAddress(caller),
+						)
+						Expect(err).ToNot(HaveOccurred())
+						Expect(res).ToNot(BeNil())
+						Expect(res).To(HaveLen(1))
+						Expect(res[0].Denom).To(Equal(coins[0].Denom))
+						Expect(res[0].Amount).To(Equal(coins[0].Amount.BigInt()))
+					})
+				})
+			})
+			Context("Votes", func() {
+				var vote generated.IGovernanceModuleVote
+				BeforeEach(func() {
+					vote = generated.IGovernanceModuleVote{
+						ProposalId: uint64(2),
+						Voter:      cosmlib.AccAddressToEthAddress(caller),
+						Options:    []generated.IGovernanceModuleWeightedVoteOption{},
+						Metadata:   "metadata",
+					}
+					err := gk.AddVote(
+						ctx, uint64(2),
+						caller,
+						v1.WeightedVoteOptions{},
+						"metadata",
+					)
+					Expect(err).ToNot(HaveOccurred())
+				})
+				When("GetProposalTallyResult", func() {
+					It("should get the proposal tally result", func() {
+						res, err := contract.GetProposalTallyResult(
+							ctx,
+							uint64(2),
+						)
+						Expect(err).ToNot(HaveOccurred())
+						Expect(res).ToNot(BeNil())
+					})
+				})
+				When("GetProposalVotes", func() {
+					It("should get the proposal votes", func() {
+						res, pageRes, err := contract.GetProposalVotes(
+							ctx,
+							uint64(2),
+							cbindings.CosmosPageRequest{
+								Key:        "test",
+								Offset:     0,
+								Limit:      10,
+								CountTotal: true,
+								Reverse:    false,
+							},
+						)
+						Expect(err).ToNot(HaveOccurred())
+						Expect(res).ToNot(BeNil())
+						Expect(res[0]).To(Equal(vote))
+						Expect(pageRes).ToNot(BeNil())
+					})
+				})
+				When("GetProposalVotesByVoter", func() {
+					It("should get the proposal votes by voter", func() {
+						res, err := contract.GetProposalVotesByVoter(
+							ctx,
+							uint64(2),
+							cosmlib.AccAddressToEthAddress(caller),
+						)
+						Expect(err).ToNot(HaveOccurred())
+						Expect(res).ToNot(BeNil())
+						Expect(res).To(Equal(vote))
+					})
+				})
+			})
+			When("GetParams", func() {
+				It("should get the params", func() {
+					res, err := contract.GetParams(
+						ctx,
 					)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(res).ToNot(BeNil())
 				})
 			})
+			When("GetDepositParams", func() {
+				It("should get the deposit params", func() {
+					res, err := contract.GetDepositParams(
+						ctx,
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+				})
+			})
+			When("GetVotingParams", func() {
+				It("should get the voting params", func() {
+					res, err := contract.GetVotingParams(
+						ctx,
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+				})
+			})
+			When("GetTallyParams", func() {
+				It("should get the tally params", func() {
+					res, err := contract.GetTallyParams(
+						ctx,
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+				})
+			})
+			When("GetConstitution", func() {
+				It("should get the constitution", func() {
+					err := gk.Constitution.Set(ctx, "constitution")
+					Expect(err).ToNot(HaveOccurred())
+					res, err := contract.GetConstitution(
+						ctx,
+					)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).ToNot(BeNil())
+					Expect(res).To(Equal("constitution"))
+				})
+			})
 		})
 	})
+
+	It("Should be able to marshal and unmarshal msgBz", func() {
+		msg := banktypes.MsgSend{
+			FromAddress: sdk.AccAddress([]byte("from")).String(),
+			ToAddress:   sdk.AccAddress([]byte("from")).String(),
+			Amount:      sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(100))),
+		}
+
+		msgAny, err := codectypes.NewAnyWithValue(&msg)
+		Expect(err).ToNot(HaveOccurred())
+
+		msgBz, err := msgAny.Marshal()
+		Expect(err).ToNot(HaveOccurred())
+
+		anys, err := UnmarshalAnyBzSlice([][]byte{msgBz})
+		Expect(err).ToNot(HaveOccurred())
+
+		typeURL := anys[0].GetTypeUrl()
+		Expect(typeURL).To(Equal("/cosmos.bank.v1beta1.MsgSend"))
+	})
+
+	It("Should be able to marshal and unmarshal porposalMsg", func() {
+		// Create the send msg.
+		msg := banktypes.MsgSend{
+			FromAddress: sdk.AccAddress([]byte("from")).String(),
+			ToAddress:   sdk.AccAddress([]byte("from")).String(),
+			Amount:      sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(100))),
+		}
+		msgAny, err := codectypes.NewAnyWithValue(&msg)
+		Expect(err).ToNot(HaveOccurred())
+
+		// Embed the send msg into a proposal.
+		proposal := v1.MsgSubmitProposal{
+			Messages: []*codectypes.Any{msgAny},
+		}
+
+		// Marshal the proposal.
+		pBz, err := proposal.Marshal()
+		Expect(err).ToNot(HaveOccurred())
+
+		// Unmarshal the proposal.
+		var p v1.MsgSubmitProposal
+		err = p.Unmarshal(pBz)
+		Expect(err).ToNot(HaveOccurred())
+	})
 })
+
+// UnmarshalAnyBzSlice unmarshals a slice of bytes into a slice of Any.
+func UnmarshalAnyBzSlice(bzs [][]byte) ([]*codectypes.Any, error) {
+	anys := []*codectypes.Any{}
+	for _, bz := range bzs {
+		var a codectypes.Any
+
+		if err := a.Unmarshal(bz); err != nil {
+			return nil, err
+		}
+
+		anys = append(anys, &a)
+	}
+
+	return anys, nil
+}

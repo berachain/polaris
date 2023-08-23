@@ -27,9 +27,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -197,4 +199,40 @@ func SdkValidatorsToStakingValidators(vals []stakingtypes.Validator) (
 		}
 	}
 	return valsOut, nil
+}
+
+// SdkProposalToGovProposal is a helper function to transform a `v1.Proposal` to an
+// `IGovernanceModule.Proposal`.
+func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModuleProposal {
+	message := make([]byte, 0)
+	for _, msg := range proposal.Messages {
+		message = append(message, msg.Value...)
+	}
+
+	totalDeposit := make([]governance.CosmosCoin, 0)
+	for _, coin := range proposal.TotalDeposit {
+		totalDeposit = append(totalDeposit, governance.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
+	}
+
+	return governance.IGovernanceModuleProposal{
+		Id:      proposal.Id,
+		Message: message,
+		Status:  int32(proposal.Status), // Status is an alias for int32.
+		FinalTallyResult: governance.IGovernanceModuleTallyResult{
+			YesCount:        proposal.FinalTallyResult.YesCount,
+			AbstainCount:    proposal.FinalTallyResult.AbstainCount,
+			NoCount:         proposal.FinalTallyResult.NoCount,
+			NoWithVetoCount: proposal.FinalTallyResult.NoWithVetoCount,
+		},
+		SubmitTime:     uint64(proposal.SubmitTime.Unix()),
+		DepositEndTime: uint64(proposal.DepositEndTime.Unix()),
+		TotalDeposit:   totalDeposit,
+		Metadata:       proposal.Metadata,
+		Title:          proposal.Title,
+		Summary:        proposal.Summary,
+		Proposer:       proposal.Proposer,
+	}
 }

@@ -89,7 +89,10 @@ interface IStakingModule {
     /**
      * @dev Returns all the validators delegated to by the given delegator.
      */
-    function getDelegatorValidators(address delegatorAddress) external view returns (Validator[] memory);
+    function getDelegatorValidators(address delegatorAddress, Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (Validator[] memory, Cosmos.PageResponse memory);
 
     /**
      * @dev Returns all the delegations delegated to the given validator.
@@ -116,13 +119,23 @@ interface IStakingModule {
         returns (UnbondingDelegationEntry[] memory);
 
     /**
+     * @dev Returns a list of all unbonding delegations for a given delegator
+     */
+    function getDelegatorUnbondingDelegations(address delegatorAddress, Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (UnbondingDelegation[] memory, Cosmos.PageResponse memory);
+
+    /**
      * @dev Returns a list of `delegatorAddress`'s redelegating bonds from `srcValidator` to
      * `dstValidator`
      */
-    function getRedelegations(address delegatorAddress, address srcValidator, address dstValidator)
-        external
-        view
-        returns (RedelegationEntry[] memory);
+    function getRedelegations(
+        address delegatorAddress,
+        address srcValidator,
+        address dstValidator,
+        Cosmos.PageRequest calldata pagination
+    ) external view returns (RedelegationEntry[] memory, Cosmos.PageResponse memory);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
@@ -221,6 +234,18 @@ interface IStakingModule {
         uint256 balance;
         // unbondingingId incrementing id that uniquely identifies this entry
         uint64 unbondingId;
+    }
+
+    /**
+     * @dev Represents all unbonding bonds of a single delegator with relevant metadata
+     *
+     * Note: the field names of the native struct should match these field names (by camelCase)
+     * Note: we are using the types in precompile/generated
+     */
+    struct UnbondingDelegation {
+        address delegatorAddress;
+        address validatorAddress;
+        UnbondingDelegationEntry[] entries;
     }
 
     /**

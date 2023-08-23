@@ -119,6 +119,10 @@
               "amount": "1000000000000000000"
             },
             {
+              "denom": "abgt",
+              "amount": "1000000000000000000"
+            },
+            {
               "denom": "asupply",
               "amount": "1000000000000000000"
             },
@@ -177,6 +181,10 @@
           "amount": "369000002000000000000000100"
         },
         {
+          "denom": "abgt",
+          "amount": "1000000000000000000"
+        },
+        {
           "denom": "asupply",
           "amount": "1000000000000000000"
         },
@@ -231,6 +239,36 @@
           ],
           "base": "bera",
           "display": "bera"
+        },
+        {
+          "name": "Berachain bgt",
+          "symbol": "BGT",
+          "description": "The BGT.",
+          "denom_units": [
+            {
+              "denom": "bgt",
+              "exponent": 0,
+              "aliases": [
+                "bgt"
+              ]
+            },
+            {
+              "denom": "nbgt",
+              "exponent": 9,
+              "aliases": [
+                "nanobgt"
+              ]
+            },
+            {
+              "denom": "abgt",
+              "exponent": 18,
+              "aliases": [
+                "attobgt"
+              ]
+            }
+          ],
+          "base": "bgt",
+          "display": "bgt"
         },
         {
           "name": "Osmosis",
@@ -460,7 +498,8 @@
       "deposit_params": {
         "min_deposit": [
           {
-            "denom": "abera"
+            "denom": "abgt",
+            "amount": "0"
           }
         ]
       },
@@ -469,7 +508,7 @@
       "params": {
         "min_deposit": [
           {
-            "denom": "stake",
+            "denom": "abgt",
             "amount": "10000000"
           }
         ],
@@ -485,7 +524,7 @@
         "expedited_threshold": "0.667000000000000000",
         "expedited_min_deposit": [
           {
-            "denom": "stake",
+            "denom": "abgt",
             "amount": "50000000"
           }
         ],
