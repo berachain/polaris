@@ -246,10 +246,14 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 
 	unbondingDelegations := make([]generated.IStakingModuleUnbondingDelegation, 0)
 	for _, u := range res.GetUnbondingResponses() {
+		valAddress, err := sdk.ValAddressFromBech32(u.ValidatorAddress)
+		if err != nil {
+			return nil, cbindings.CosmosPageResponse{}, err
+		}
 		unbondingDelegations = append(unbondingDelegations,
 			generated.IStakingModuleUnbondingDelegation{
 				DelegatorAddress: cosmlib.EthAddressFromBech32(u.DelegatorAddress),
-				ValidatorAddress: cosmlib.EthAddressFromBech32(u.ValidatorAddress),
+				ValidatorAddress: cosmlib.ValAddressToEthAddress(valAddress),
 				Entries:          cosmlib.SdkUDEToStakingUDE(u.Entries),
 			},
 		)
