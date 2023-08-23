@@ -27,6 +27,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -42,10 +43,15 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
+type AddressConverter interface {
+	ValidatorAddressCodec() address.Codec
+}
+
 // Contract is the precompile contract for the staking module.
 type Contract struct {
 	ethprecompile.BaseContract
 
+	ac        AddressConverter
 	msgServer stakingtypes.MsgServer
 	querier   stakingtypes.QueryServer
 }
@@ -57,6 +63,7 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 			generated.StakingModuleMetaData.ABI,
 			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName)),
 		),
+		ac:        sk,
 		msgServer: stakingkeeper.NewMsgServerImpl(sk),
 		querier:   stakingkeeper.Querier{Keeper: sk},
 	}
@@ -246,14 +253,14 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 
 	unbondingDelegations := make([]generated.IStakingModuleUnbondingDelegation, 0)
 	for _, u := range res.GetUnbondingResponses() {
-		valAddress, err := sdk.ValAddressFromBech32(u.ValidatorAddress)
+		bz, err := c.ac.ValidatorAddressCodec().StringToBytes(u.ValidatorAddress)
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
 		unbondingDelegations = append(unbondingDelegations,
 			generated.IStakingModuleUnbondingDelegation{
 				DelegatorAddress: cosmlib.EthAddressFromBech32(u.DelegatorAddress),
-				ValidatorAddress: cosmlib.ValAddressToEthAddress(valAddress),
+				ValidatorAddress: common.BytesToAddress(bz),
 				Entries:          cosmlib.SdkUDEToStakingUDE(u.Entries),
 			},
 		)
