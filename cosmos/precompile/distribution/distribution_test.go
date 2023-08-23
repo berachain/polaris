@@ -44,6 +44,7 @@ import (
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
+	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -230,10 +231,13 @@ var _ = Describe("Distribution Precompile Test", func() {
 					testutil.Alice,
 					big.NewInt(0),
 				)
+				var valAddr common.Address
+				valAddr, err := cosmlib.ValAddressToEthAddress(sk.ValidatorAddressCodec(), val.OperatorAddress)
+				Expect(err).ToNot(HaveOccurred())
 				res, err := contract.WithdrawDelegatorReward(
 					pCtx,
 					cosmlib.AccAddressToEthAddress(addr),
-					cosmlib.ValAddressToEthAddress(valAddr),
+					valAddr,
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res[0].Denom).To(Equal(sdk.DefaultBondDenom))
