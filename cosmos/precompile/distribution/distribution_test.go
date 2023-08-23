@@ -231,6 +231,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 					big.NewInt(0),
 				)
 				valAddress, err := cosmlib.ValAddressToEthAddress(sk.ValidatorAddressCodec(), valAddr.String())
+				Expect(err).ToNot(HaveOccurred())
 				res, err := contract.WithdrawDelegatorReward(
 					pCtx,
 					cosmlib.AccAddressToEthAddress(addr),

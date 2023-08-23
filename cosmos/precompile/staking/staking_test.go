@@ -43,7 +43,6 @@ import (
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/core/vm/mock"
-	"pkg.berachain.dev/polaris/lib/utils"
 	libutils "pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -85,7 +84,7 @@ var _ = Describe("Staking", func() {
 	BeforeEach(func() {
 		sdkCtx, _, bk, sk = testutil.SetupMinimalKeepers()
 		skPtr := &sk
-		contract = utils.MustGetAs[*Contract](NewPrecompileContract(skPtr))
+		contract = libutils.MustGetAs[*Contract](NewPrecompileContract(skPtr))
 		sf = ethprecompile.NewStatefulFactory()
 	})
 
@@ -157,14 +156,14 @@ var _ = Describe("Staking", func() {
 			validator, err = NewValidator(val, PKs[0])
 			Expect(err).ToNot(HaveOccurred())
 			valConsAddr = sdk.ConsAddress(PKs[0].Address())
-			sk.SetValidator(ctx, validator)
-			sk.SetValidatorByConsAddr(ctx, validator)
+			Expect(sk.SetValidator(ctx, validator)).To(Succeed())
+			Expect(sk.SetValidatorByConsAddr(ctx, validator)).To(Succeed())
 
 			otherValidator, err = NewValidator(otherVal, PKs[1])
 			Expect(err).ToNot(HaveOccurred())
 			otherValConsAddr = sdk.ConsAddress(PKs[1].Address())
-			sk.SetValidator(ctx, otherValidator)
-			sk.SetValidatorByConsAddr(ctx, otherValidator)
+			Expect(sk.SetValidator(ctx, otherValidator)).To(Succeed())
+			Expect(sk.SetValidatorByConsAddr(ctx, otherValidator)).To(Succeed())
 
 			validator, _ = validator.AddTokensFromDel(sdkmath.NewIntFromBigInt(amount))
 			otherValidator, _ = otherValidator.AddTokensFromDel(sdkmath.NewIntFromBigInt(amount))
