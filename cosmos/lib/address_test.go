@@ -21,11 +21,11 @@
 package lib_test
 
 import (
+	"cosmossdk.io/core/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -33,9 +33,9 @@ import (
 )
 
 var _ = Describe("Address", func() {
-	var sk stakingkeeper.Keeper
+	var valCodec address.Codec
 	BeforeEach(func() {
-		_, _, _, sk = testutil.SetupMinimalKeepers()
+		valCodec = addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix())
 	})
 	It("should return the correct address", func() {
 		addr := common.HexToAddress("0xCd8c4Cb0C7f93a2B74B3e522a1C7BE35bE1Fbc73")
@@ -44,17 +44,14 @@ var _ = Describe("Address", func() {
 		Expect(err).NotTo(HaveOccurred())
 		addr2 := cosmlib.AccAddressToEthAddress(acc)
 		Expect(addr.String()).To(Equal(addr2.String()))
-		valAddr1 := cosmlib.MustValAddressToEthAddress(
-			sk.ValidatorAddressCodec(),
-			bech32,
-		)
+		valAddr1 := cosmlib.MustValAddressToEthAddress(valCodec, sdk.ValAddress(acc).String())
 		Expect(addr.String()).To(Equal(valAddr1.String()))
 
 		ethAddr := cosmlib.AddressToAccAddress(addr)
 		bech322 := sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32AccountAddrPrefix(), ethAddr.Bytes())
 		Expect(bech322).To(Equal(bech32))
 
-		ethAddr2 := cosmlib.MustAddressToValAddress(sk.ValidatorAddressCodec(), addr)
+		ethAddr2 := cosmlib.MustAddressToValAddress(valCodec, addr)
 		bech3222 := sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32ValidatorAddrPrefix(), ethAddr2.Bytes())
 		Expect(bech3222).To(Equal("cosmosvaloper1ekxyevx8lyazka9nu532r3a7xklpl0rnhhvl3k"))
 	})
