@@ -70,6 +70,14 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 	}
 }
 
+func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
+	return ethprecompile.ValueDecoders{
+		stakingtypes.AttributeKeyValidator:    c.ConvertValAddressFromBech32,
+		stakingtypes.AttributeKeySrcValidator: c.ConvertValAddressFromBech32,
+		stakingtypes.AttributeKeyDstValidator: c.ConvertValAddressFromBech32,
+	}
+}
+
 func (c *Contract) ValAddressFromConsAddress(
 	ctx context.Context,
 	consAddress []byte,
@@ -462,4 +470,11 @@ func (c *Contract) bondDenom(ctx context.Context) (string, error) {
 	}
 
 	return res.Params.BondDenom, nil
+}
+
+// ConvertValAddressFromBech32 converts a bech32 string representing a validator address to a
+// common.Address.
+func (c *Contract) ConvertValAddressFromBech32(attributeValue string) (any, error) {
+	// extract the sdk.ValAddress from string value
+	return cosmlib.ValAddressToEthAddress(c.vs.ValidatorAddressCodec(), attributeValue)
 }

@@ -185,6 +185,15 @@ var _ = Describe("Staking", func() {
 
 		When("ValAddrFromConsAddr") // TODO
 
+		// TODO
+		// It("should correctly convert ValAddress to common.Address", func() {
+		// 	valAddr := sdk.ValAddress([]byte("alice"))
+		// 	gethValue, err := ConvertValAddressFromBech32(valAddr.String())
+		// 	Expect(err).ToNot(HaveOccurred())
+		// 	valAddrVal := libutils.MustGetAs[common.Address](gethValue)
+		// 	Expect(valAddrVal).To(Equal(cosmlib.ValAddressToEthAddress(valAddr)))
+		// })
+
 		When("Delegate", func() {
 
 			It("should succeed", func() {
