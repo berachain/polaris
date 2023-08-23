@@ -22,9 +22,10 @@ package lib_test
 
 import (
 	"cosmossdk.io/core/address"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
 
