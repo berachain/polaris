@@ -42,7 +42,10 @@ import (
 )
 
 // SimAppChainID hardcoded chainID for simulation.
-const SimAppChainID = "simulation-app"
+const (
+	SimAppChainID = "simulation-app"
+	Bech32Prefix  = "cosmos"
+)
 
 var FlagEnableStreamingValue bool
 
@@ -84,7 +87,16 @@ func TestAppSimulationAfterImport(t *testing.T) {
 	appOptions[flags.FlagHome] = fmt.Sprintf("%d/%s", config.Seed, DefaultNodeHome)
 	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
-	app := NewPolarisApp(logger, db, nil, true, appOptions, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
+	app := NewPolarisApp(
+		logger,
+		db,
+		nil,
+		true,
+		Bech32Prefix,
+		appOptions,
+		fauxMerkleModeOpt,
+		baseapp.SetChainID(SimAppChainID),
+	)
 	require.Equal(t, "SimApp", app.Name())
 
 	// Run randomized simulation
@@ -144,6 +156,7 @@ func TestAppSimulationAfterImport(t *testing.T) {
 		newDB,
 		nil,
 		true,
+		Bech32Prefix,
 		appOptions,
 		fauxMerkleModeOpt,
 		baseapp.SetChainID(SimAppChainID),
