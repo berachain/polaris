@@ -105,7 +105,6 @@ var _ = Describe("Factory", func() {
 		It("should correctly build a log for valid event", func() {
 			event := sdk.NewEvent(
 				"cancel_unbonding_delegation",
-				sdk.NewAttribute("validator", valAddr.String()),
 				sdk.NewAttribute("amount", amt.String()),
 				sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
 				sdk.NewAttribute("delegator", delAddr.String()),
@@ -114,14 +113,13 @@ var _ = Describe("Factory", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(log).ToNot(BeNil())
 			Expect(log.Address).To(Equal(common.BytesToAddress([]byte{0x01})))
-			Expect(log.Topics).To(HaveLen(3))
+			Expect(log.Topics).To(HaveLen(2))
 			Expect(log.Topics[0]).To(Equal(
 				crypto.Keccak256Hash(
-					[]byte("CancelUnbondingDelegation(address,address,(uint256,string)[],int64)"),
+					[]byte("CancelUnbondingDelegation(address,(uint256,string)[],int64)"),
 				),
 			))
-			Expect(log.Topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
-			Expect(log.Topics[2]).To(Equal(common.BytesToHash(delAddr.Bytes())))
+			Expect(log.Topics[1]).To(Equal(common.BytesToHash(delAddr.Bytes())))
 			packedData, err := mockDefaultAbiEvent().Inputs.NonIndexed().Pack(
 				cosmlib.SdkCoinsToEvmCoins(sdk.NewCoins(amt)), creationHeight,
 			)
