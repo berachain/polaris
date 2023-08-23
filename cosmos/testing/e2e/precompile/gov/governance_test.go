@@ -86,16 +86,16 @@ var _ = Describe("Call the Precompile Directly", func() {
 
 		// Alice Submits a proposal.
 		amt := sdkmath.NewInt(100000000)
-		prop, msg := propAndMsgBz(cosmlib.AddressToAccAddress(tf.Address("alice")).String(), amt)
+		prop, _ := propAndMsgBz(cosmlib.AddressToAccAddress(tf.Address("alice")).String(), amt)
 		txr := tf.GenerateTransactOpts("alice")
-		tx, err = precompile.SubmitProposal(txr, prop, msg)
+		tx, err = precompile.SubmitProposal(txr, prop)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Send coins to the wrapper.
 		coins := []bbindings.CosmosCoin{
 			{
-				Denom:  "stake",
+				Denom:  "abgt",
 				Amount: big.NewInt(amt.Int64()),
 			},
 		}
@@ -105,9 +105,9 @@ var _ = Describe("Call the Precompile Directly", func() {
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wrapper submits a proposal.
-		prop, msg = propAndMsgBz(cosmlib.AddressToAccAddress(wrapperAddr).String(), amt)
+		prop, _ = propAndMsgBz(cosmlib.AddressToAccAddress(wrapperAddr).String(), amt)
 		txr = tf.GenerateTransactOpts("alice")
-		tx, err = wrapper.Submit(txr, prop, msg, "stake", big.NewInt(amt.Int64()))
+		tx, err = wrapper.Submit(txr, prop, "abgt", big.NewInt(amt.Int64()))
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
@@ -140,9 +140,19 @@ var _ = Describe("Call the Precompile Directly", func() {
 		Expect(res2.Id).To(Equal(uint64(1)))
 
 		// Call directly.
-		getProposalsRes, err := precompile.GetProposals(nil, 0)
+		getProposalsRes, pageRes, err := precompile.GetProposals(
+			nil, 0,
+			bindings.CosmosPageRequest{
+				Key:        "test",
+				Offset:     0,
+				Limit:      10,
+				CountTotal: true,
+				Reverse:    false,
+			},
+		)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(getProposalsRes).To(HaveLen(2))
+		Expect(pageRes).ToNot(BeNil())
 
 		// Call via wrapper.
 		wrapperRes, err := wrapper.GetProposals(nil, 0)
@@ -178,7 +188,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 func propAndMsgBz(proposer string, amount sdkmath.Int) ([]byte, []byte) {
 	// Prepare the message.
 	govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
-	initDeposit := sdk.NewCoins(sdk.NewCoin("stake", amount))
+	initDeposit := sdk.NewCoins(sdk.NewCoin("abgt", amount))
 	message := &banktypes.MsgSend{
 		FromAddress: cosmlib.AddressToAccAddress(govAcc).String(),
 		ToAddress:   cosmlib.AddressToAccAddress(tf.Address("alice")).String(),
