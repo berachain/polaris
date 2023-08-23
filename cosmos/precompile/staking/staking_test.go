@@ -183,6 +183,8 @@ var _ = Describe("Staking", func() {
 
 		})
 
+		When("ValAddrFromConsAddr") // TODO
+
 		When("Delegate", func() {
 
 			It("should succeed", func() {
