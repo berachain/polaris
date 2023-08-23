@@ -54,7 +54,7 @@ func TestAppSimulationAfterImport(t *testing.T) {
 	require.NoError(t, err, "simulation setup failed")
 
 	appOptions := make(simtestutil.AppOptionsMap, 0)
-	appOptions[flags.FlagHome] = DefaultNodeHome
+	appOptions[flags.FlagHome] = fmt.Sprintf("%d/%s", config.Seed, DefaultNodeHome)
 	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
 	app := NewPolarisApp(logger, db, nil, true, appOptions, fauxMerkleModeOpt, baseapp.SetChainID(SimAppChainID))
