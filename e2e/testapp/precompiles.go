@@ -44,6 +44,7 @@ func PrecompilesToInject(app *SimApp, customPcs ...ethprecompile.Registrable) fu
 				app.BankKeeper,
 			),
 			distrprecompile.NewPrecompileContract(
+				app.StakingKeeper,
 				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
 				distrkeeper.NewQuerier(app.DistrKeeper),
 			),

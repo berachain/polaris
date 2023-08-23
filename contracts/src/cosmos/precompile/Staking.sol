@@ -66,6 +66,11 @@ interface IStakingModule {
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
     /**
+     * @dev Returns the operator address of the validator for the given consensus address.
+     */
+    function valAddressFromConsAddress(bytes calldata consAddress) external pure returns (address);
+
+    /**
      * @dev Returns a list of active validator addresses.
      */
     function getActiveValidators(Cosmos.PageRequest calldata pagination)

@@ -21,6 +21,8 @@
 package lib
 
 import (
+	"cosmossdk.io/core/address"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -50,8 +52,22 @@ func ConsAddressToEthAddress(consAddress sdk.ConsAddress) common.Address {
 }
 
 // ValAddressToEthAddress converts a Cosmos SDK `ValAddress` to an Ethereum `Address`.
-func ValAddressToEthAddress(valAddress sdk.ValAddress) common.Address {
-	return common.BytesToAddress(valAddress)
+func ValAddressToEthAddress(codec address.Codec, valAddress string) (common.Address, error) {
+	valBz, err := codec.StringToBytes(valAddress)
+	if err != nil {
+		return common.Address{}, err
+	}
+	return common.BytesToAddress(valBz), nil
+}
+
+// MustValAddressToEthAddress converts a Cosmos SDK `ValAddress` to an Ethereum `Address`.
+// It panics if the conversion fails.
+func MustValAddressToEthAddress(codec address.Codec, valAddress string) common.Address {
+	address, err := ValAddressToEthAddress(codec, valAddress)
+	if err != nil {
+		panic(err)
+	}
+	return address
 }
 
 // AddressToAccAddress converts an Ethereum `Address` to a Cosmos SDK `AccAddress`.
@@ -65,6 +81,20 @@ func AddressToConsAddress(ethAddress common.Address) sdk.ConsAddress {
 }
 
 // AddressToValAddress converts an Ethereum `Address` to a Cosmos SDK `ValAddress`.
-func AddressToValAddress(ethAddress common.Address) sdk.ValAddress {
-	return ethAddress.Bytes()
+func AddressToValAddress(codec address.Codec, ethAddress common.Address) (sdk.ValAddress, error) {
+	ethStr, err := codec.BytesToString(ethAddress.Bytes())
+	if err != nil {
+		return sdk.ValAddress{}, err
+	}
+	return sdk.ValAddressFromBech32(ethStr)
+}
+
+// MustAddressToValAddress converts an Ethereum `Address` to a Cosmos SDK `ValAddress`.
+// It panics if the conversion fails.
+func MustAddressToValAddress(codec address.Codec, ethAddress common.Address) sdk.ValAddress {
+	valAddr, err := AddressToValAddress(codec, ethAddress)
+	if err != nil {
+		panic(err)
+	}
+	return valAddr
 }
