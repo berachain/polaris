@@ -116,6 +116,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		// Set up the contracts and keepers.
 		ctx, dk, sk, bk = setup()
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
+			sk,
 			distrkeeper.NewMsgServerImpl(*dk),
 			distrkeeper.NewQuerier(*dk),
 		))
@@ -258,7 +259,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		})
 		When("Base Precompile Features", func() {
 			It("Should not have custom value decoders", func() {
-				Expect(contract.CustomValueDecoders()).To(BeNil())
+				Expect(contract.CustomValueDecoders()).To(HaveLen(1))
 			})
 
 		})
