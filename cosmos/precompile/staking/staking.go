@@ -46,7 +46,6 @@ import (
 type ValidatorStore interface {
 	ValidatorAddressCodec() address.Codec
 	ValidatorByConsAddr(ctx context.Context, addr sdk.ConsAddress) (stakingtypes.ValidatorI, error)
-
 	ConsensusAddressCodec() address.Codec
 }
 
