@@ -47,8 +47,22 @@ func Bech32FromEthAddress(ethAddr common.Address) string {
 }
 
 // ConsAddressToEthAddress converts a Cosmos SDK `ConsAddress` to an Ethereum `Address`.
-func ConsAddressToEthAddress(consAddress sdk.ConsAddress) common.Address {
-	return common.BytesToAddress(consAddress)
+func ConsAddressToEthAddress(codec address.Codec, consAddress string) (common.Address, error) {
+	consBz, err := codec.StringToBytes(consAddress)
+	if err != nil {
+		return common.Address{}, err
+	}
+	return common.BytesToAddress(consBz), nil
+}
+
+// MustConsAddressToEthAddress converts a Cosmos SDK `ConsAddress` to an Ethereum `Address`.
+// It panics if the conversion fails.
+func MustConsAddressToEthAddress(codec address.Codec, consAddress string) common.Address {
+	address, err := ConsAddressToEthAddress(codec, consAddress)
+	if err != nil {
+		panic(err)
+	}
+	return address
 }
 
 // ValAddressToEthAddress converts a Cosmos SDK `ValAddress` to an Ethereum `Address`.
@@ -76,8 +90,22 @@ func AddressToAccAddress(ethAddress common.Address) sdk.AccAddress {
 }
 
 // AddressToConsAddress converts an Ethereum `Address` to a Cosmos SDK `ConsAddress`.
-func AddressToConsAddress(ethAddress common.Address) sdk.ConsAddress {
-	return ethAddress.Bytes()
+func AddressToConsAddress(codec address.Codec, ethAddress common.Address) (sdk.ConsAddress, error) {
+	ethStr, err := codec.BytesToString(ethAddress.Bytes())
+	if err != nil {
+		return sdk.ConsAddress{}, err
+	}
+	return sdk.ConsAddressFromBech32(ethStr)
+}
+
+// MustAddressToConsAddress converts an Ethereum `Address` to a Cosmos SDK `ConsAddress`.
+// It panics if the conversion fails.
+func MustAddressToConsAddress(codec address.Codec, ethAddress common.Address) sdk.ConsAddress {
+	consAddr, err := AddressToConsAddress(codec, ethAddress)
+	if err != nil {
+		panic(err)
+	}
+	return consAddr
 }
 
 // AddressToValAddress converts an Ethereum `Address` to a Cosmos SDK `ValAddress`.
