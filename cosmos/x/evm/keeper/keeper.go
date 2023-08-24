@@ -31,6 +31,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
+	"pkg.berachain.dev/polaris/cosmos/config"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
@@ -81,33 +82,19 @@ func NewKeeper(
 
 // Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
 func (k *Keeper) Setup(
+	cfg config.Config,
 	_ *storetypes.KVStoreKey,
 	qc func(height int64, prove bool) (sdk.Context, error),
-	polarisConfigPath string,
-	polarisDataDir string,
 	logger log.Logger,
 ) {
 	// Setup plugins in the Host
 	k.host.Setup(k.storeKey, nil, k.ak, qc)
-
-	// Build the Polaris EVM Provider
-	cfg, err := polar.LoadConfigFromFilePath(polarisConfigPath)
-	// TODO: fix properly.
-	if err != nil || cfg.GPO == nil {
-		// TODO: log warning for this case.
-		logger.Error("failed to load polaris config", "falling back to defaults")
-		cfg = polar.DefaultConfig()
-	}
-
-	// TODO: PARSE POLARIS.TOML CORRECT AGAIN
-	nodeCfg := polar.DefaultGethNodeConfig()
-	nodeCfg.DataDir = polarisDataDir
-	node, err := polar.NewGethNetworkingStack(nodeCfg)
+	node, err := polar.NewGethNetworkingStack(&cfg.Node)
 	if err != nil {
 		panic(err)
 	}
 
-	k.polaris = polar.NewWithNetworkingStack(cfg, k.host, node, ethlog.FuncHandler(
+	k.polaris = polar.NewWithNetworkingStack(&cfg.Polar, k.host, node, ethlog.FuncHandler(
 		func(r *ethlog.Record) error {
 			polarisGethLogger := logger.With("module", "polaris-geth")
 			switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.

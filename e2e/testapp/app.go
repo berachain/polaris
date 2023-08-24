@@ -33,6 +33,8 @@ import (
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 
+	polar "pkg.berachain.dev/polaris/eth/polar"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -62,6 +64,7 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
@@ -235,13 +238,28 @@ func NewPolarisApp(
 	if !ok || homePath == "" {
 		homePath = DefaultNodeHome
 	}
+
+	// Build the Polaris EVM Provider
+	cfg, err := polar.LoadConfigFromFilePath(homePath + "/config/polaris.toml")
+	// TODO: fix properly.
+	if err != nil || cfg.GPO == nil {
+		// TODO: log warning for this case.
+		logger.Error("failed to load polaris config", "falling back to defaults")
+		cfg = polar.DefaultConfig()
+	}
+
+	// TODO: PARSE POLARIS.TOML CORRECT AGAIN
+	nodeCfg := polar.DefaultGethNodeConfig()
+	nodeCfg.DataDir = homePath + "/data/polaris"
+
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
+		evmconfig.Config{
+			Node:  *nodeCfg,
+			Polar: *cfg,
+		},
 		nil,
 		app.CreateQueryContext,
-		// TODO: clean this up.
-		homePath+"/config/polaris.toml",
-		homePath+"/data/polaris",
 		logger,
 	)
 	opt := ante.HandlerOptions{

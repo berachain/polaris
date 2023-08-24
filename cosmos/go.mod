@@ -36,7 +36,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.10
 	github.com/spf13/cobra v1.7.0
-	github.com/spf13/viper v1.16.0 // indirect
+	github.com/spf13/viper v1.16.0
 	github.com/tidwall/btree v1.6.0
 	google.golang.org/genproto v0.0.0-20230803162519-f966b187b2e5 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230726155614-23370e0ffb3e
