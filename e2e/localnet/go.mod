@@ -2,7 +2,8 @@ module pkg.berachain.dev/polaris/e2e/localnet
 
 go 1.21
 
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230629154458-90866dc0cf0a
+// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230824153638-497f3de05c05
 
 require (
 	github.com/docker/docker v23.0.3+incompatible
