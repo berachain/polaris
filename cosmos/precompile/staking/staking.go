@@ -214,6 +214,7 @@ func (c *Contract) GetValidatorDelegations(
 		delegations = append(delegations, generated.IStakingModuleDelegation{
 			Delegator: cosmlib.EthAddressFromBech32(d.Delegation.DelegatorAddress),
 			Balance:   d.Balance.Amount.BigInt(),
+			Shares:    d.Delegation.Shares.BigInt(),
 		})
 	}
 

@@ -277,6 +277,9 @@ interface IStakingModule {
      */
     struct Delegation {
         address delegator;
+        // tokens
         uint256 balance;
+        // shares
+        uint256 shares;
     }
 }
