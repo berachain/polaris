@@ -131,7 +131,7 @@ func (c *Contract) GetBondedValidatorsByPower(
 		err  error
 	)
 
-	c.vs.IterateBondedValidatorsByPower(
+	iteratorErr := c.vs.IterateBondedValidatorsByPower(
 		ctx,
 		func(_ int64, validator stakingtypes.ValidatorI) bool {
 			var valOperAddr common.Address
@@ -145,6 +145,10 @@ func (c *Contract) GetBondedValidatorsByPower(
 			return false
 		},
 	)
+	if iteratorErr != nil {
+		return nil, iteratorErr
+	}
+
 	return vals, err
 }
 
