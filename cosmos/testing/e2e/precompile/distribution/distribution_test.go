@@ -104,7 +104,7 @@ var _ = Describe("Distribution Precompile", func() {
 	})
 	It("should be able to get delegator reward", func() {
 		// Delegate some tokens to an active validator.
-		validators, _, err := stakingPrecompile.GetActiveValidators(nil, sbindings.CosmosPageRequest{})
+		validators, _, err := stakingPrecompile.GetBondedValidators(nil, sbindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		val := validators[0]
 		delegateAmt := big.NewInt(123450000000)
@@ -150,7 +150,7 @@ var _ = Describe("Distribution Precompile", func() {
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Delegate some tokens to a validator.
-		validators, _, err := stakingPrecompile.GetActiveValidators(nil, sbindings.CosmosPageRequest{})
+		validators, _, err := stakingPrecompile.GetBondedValidators(nil, sbindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		val := validators[0]
 		amt = big.NewInt(123450000000)

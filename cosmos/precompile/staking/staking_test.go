@@ -593,7 +593,7 @@ var _ = Describe("Staking", func() {
 				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
 
 				// Get the active validators.
-				res, _, err := contract.GetActiveValidators(ctx, cbindings.CosmosPageRequest{})
+				res, _, err := contract.GetBondedValidators(ctx, cbindings.CosmosPageRequest{})
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
 				Expect(res[0]).To(Equal(valAddr))

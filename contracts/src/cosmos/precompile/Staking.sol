@@ -71,20 +71,26 @@ interface IStakingModule {
     function valAddressFromConsAddress(bytes calldata consAddress) external pure returns (address);
 
     /**
-     * @dev Returns a list of active validator addresses.
-     */
-    function getActiveValidators(Cosmos.PageRequest calldata pagination)
-        external
-        view
-        returns (address[] memory, Cosmos.PageResponse memory);
-
-    /**
      * @dev Returns a list of all active validators.
      */
     function getValidators(Cosmos.PageRequest calldata pagination)
         external
         view
         returns (Validator[] memory, Cosmos.PageResponse memory);
+
+    /**
+     * @dev Returns a list of bonded validator (operator) addresses.
+     */
+    function getBondedValidators(Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (address[] memory, Cosmos.PageResponse memory);
+
+    /**
+     * @dev Returns a list of bonded validator (operator) addresses, sorted by power (stake) in
+     * descending order.
+     */
+    function getBondedValidatorsByPower() external view returns (address[] memory);
 
     /**
      * @dev Returns the validator at the given address.
