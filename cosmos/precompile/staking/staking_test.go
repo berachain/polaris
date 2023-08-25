@@ -272,7 +272,7 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
 				Expect(res[0].Delegator).To(Equal(cosmlib.AccAddressToEthAddress(del)))
-				Expect(res[0].Shares).To(Equal(new(big.Int).Mul(big.NewInt(9), big.NewInt(1e18))))
+				Expect(res[0].Balance.Cmp(big.NewInt(9))).To(Equal(0))
 			})
 			It("should succeed without pagination", func() {
 				res, _, err := contract.GetValidatorDelegations(
@@ -283,7 +283,7 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
 				Expect(res[0].Delegator).To(Equal(cosmlib.AccAddressToEthAddress(del)))
-				Expect(res[0].Shares).To(Equal(new(big.Int).Mul(big.NewInt(9), big.NewInt(1e18))))
+				Expect(res[0].Balance.Cmp(big.NewInt(9))).To(Equal(0))
 			})
 		})
 

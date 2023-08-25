@@ -213,7 +213,7 @@ func (c *Contract) GetValidatorDelegations(
 	for _, d := range res.GetDelegationResponses() {
 		delegations = append(delegations, generated.IStakingModuleDelegation{
 			Delegator: cosmlib.EthAddressFromBech32(d.Delegation.DelegatorAddress),
-			Shares:    d.Delegation.Shares.BigInt(),
+			Balance:   d.Balance.Amount.BigInt(),
 		})
 	}
 
