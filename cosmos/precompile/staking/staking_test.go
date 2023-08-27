@@ -272,6 +272,7 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
 				Expect(res[0].Delegator).To(Equal(cosmlib.AccAddressToEthAddress(del)))
+				Expect(res[0].Balance.Cmp(big.NewInt(9))).To(Equal(0))
 				Expect(res[0].Shares).To(Equal(new(big.Int).Mul(big.NewInt(9), big.NewInt(1e18))))
 			})
 			It("should succeed without pagination", func() {
@@ -283,6 +284,7 @@ var _ = Describe("Staking", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
 				Expect(res[0].Delegator).To(Equal(cosmlib.AccAddressToEthAddress(del)))
+				Expect(res[0].Balance.Cmp(big.NewInt(9))).To(Equal(0))
 				Expect(res[0].Shares).To(Equal(new(big.Int).Mul(big.NewInt(9), big.NewInt(1e18))))
 			})
 		})
@@ -591,7 +593,7 @@ var _ = Describe("Staking", func() {
 				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
 
 				// Get the active validators.
-				res, _, err := contract.GetActiveValidators(ctx, cbindings.CosmosPageRequest{})
+				res, _, err := contract.GetBondedValidators(ctx, cbindings.CosmosPageRequest{})
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
 				Expect(res[0]).To(Equal(valAddr))

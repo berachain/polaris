@@ -69,7 +69,7 @@ contract LiquidStaking is ERC20 {
      */
     function getActiveValidators() public view returns (address[] memory) {
         Cosmos.PageRequest memory pageReq;
-        (address[] memory addrs,) = staking.getActiveValidators(pageReq);
+        (address[] memory addrs,) = staking.getBondedValidators(pageReq);
         return addrs;
     }
 
@@ -81,7 +81,7 @@ contract LiquidStaking is ERC20 {
         if (amount == 0) revert ZeroAmount();
         // Get the first active validator as an example.
         Cosmos.PageRequest memory pageReq;
-        (address[] memory addrs,) = staking.getActiveValidators(pageReq);
+        (address[] memory addrs,) = staking.getBondedValidators(pageReq);
         address validatorAddress = addrs[0];
 
         // Delegate the amount to the validator.
