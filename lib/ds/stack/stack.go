@@ -91,8 +91,9 @@ func (s *stack[T]) PopToSize(newSize int) T {
 	}
 
 	s.size = newSize
+	lastElemPopped := s.buf[s.size]
 	s.shrinkIfRequired()
-	return s.buf[s.size]
+	return lastElemPopped
 }
 
 // expandIfRequired expands the stack if the size is equal to the capacity.
