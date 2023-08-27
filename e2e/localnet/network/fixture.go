@@ -31,11 +31,10 @@ import (
 
 	ginkgo "github.com/onsi/ginkgo/v2"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
@@ -219,11 +218,11 @@ func (tf *TestFixture) setupTestAccounts(config *FixtureConfig) error {
 		} `json:"app_state"`
 	}](genBz).AppState.GenUtil.GenTxs[0].Body.Messages[0].ValidatorAddress
 	types.SetupCosmosConfig()
-	acc, err := sdk.ValAddressFromBech32(valAddr)
+	_, _, _, sk := testutil.SetupMinimalKeepers()
+	tf.valAddr, err = cosmlib.ValAddressToEthAddress(sk.ValidatorAddressCodec(), valAddr)
 	if err != nil {
 		return err
 	}
-	tf.valAddr = cosmlib.ValAddressToEthAddress(acc)
 
 	return nil
 }

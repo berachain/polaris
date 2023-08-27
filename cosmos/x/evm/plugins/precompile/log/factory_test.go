@@ -27,8 +27,10 @@ import (
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
@@ -39,15 +41,20 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var sk stakingkeeper.Keeper
+
 var _ = Describe("Factory", func() {
-	var f *Factory
-	var valAddr sdk.ValAddress
-	var delAddr sdk.AccAddress
-	var amt sdk.Coin
-	var creationHeight int64
-	var pc *mock.StatefulImplMock
+	var (
+		f              *Factory
+		valAddr        sdk.ValAddress
+		delAddr        sdk.AccAddress
+		amt            sdk.Coin
+		creationHeight int64
+		pc             *mock.StatefulImplMock
+	)
 
 	BeforeEach(func() {
+		_, _, _, sk = testutil.SetupMinimalKeepers()
 		valAddr = sdk.ValAddress([]byte("alice"))
 		delAddr = sdk.AccAddress([]byte("bob"))
 		creationHeight = int64(10)
@@ -98,7 +105,6 @@ var _ = Describe("Factory", func() {
 		It("should correctly build a log for valid event", func() {
 			event := sdk.NewEvent(
 				"cancel_unbonding_delegation",
-				sdk.NewAttribute("validator", valAddr.String()),
 				sdk.NewAttribute("amount", amt.String()),
 				sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
 				sdk.NewAttribute("delegator", delAddr.String()),
@@ -107,14 +113,13 @@ var _ = Describe("Factory", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(log).ToNot(BeNil())
 			Expect(log.Address).To(Equal(common.BytesToAddress([]byte{0x01})))
-			Expect(log.Topics).To(HaveLen(3))
+			Expect(log.Topics).To(HaveLen(2))
 			Expect(log.Topics[0]).To(Equal(
 				crypto.Keccak256Hash(
-					[]byte("CancelUnbondingDelegation(address,address,(uint256,string)[],int64)"),
+					[]byte("CancelUnbondingDelegation(address,(uint256,string)[],int64)"),
 				),
 			))
-			Expect(log.Topics[1]).To(Equal(common.BytesToHash(valAddr.Bytes())))
-			Expect(log.Topics[2]).To(Equal(common.BytesToHash(delAddr.Bytes())))
+			Expect(log.Topics[1]).To(Equal(common.BytesToHash(delAddr.Bytes())))
 			packedData, err := mockDefaultAbiEvent().Inputs.NonIndexed().Pack(
 				cosmlib.SdkCoinsToEvmCoins(sdk.NewCoins(amt)), creationHeight,
 			)
@@ -208,11 +213,7 @@ var _ = Describe("Factory", func() {
 
 			badCvd = make(precompile.ValueDecoders)
 			badCvd["custom_validator"] = func(val string) (any, error) {
-				valAddress, err2 := sdk.ValAddressFromBech32(val)
-				if err2 != nil {
-					return nil, err
-				}
-				return cosmlib.ValAddressToEthAddress(valAddress), nil
+				return cosmlib.ValAddressToEthAddress(sk.ValidatorAddressCodec(), val)
 			}
 			badCvd["custom_amount"] = func(val string) (any, error) {
 				return nil, errors.New("invalid amount")
@@ -296,11 +297,7 @@ func mockCustomAbiEvent() map[string]abi.Event {
 
 var cvd = precompile.ValueDecoders{
 	"custom_validator": func(val string) (any, error) {
-		valAddress, err := sdk.ValAddressFromBech32(val)
-		if err != nil {
-			return nil, err
-		}
-		return cosmlib.ValAddressToEthAddress(valAddress), nil
+		return cosmlib.ValAddressToEthAddress(sk.ValidatorAddressCodec(), val)
 	},
 	"custom_amount": func(val string) (any, error) {
 		coin, err := sdk.ParseCoinNormalized(val)
