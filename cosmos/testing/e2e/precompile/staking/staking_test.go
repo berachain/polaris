@@ -84,7 +84,7 @@ var _ = Describe("Staking", func() {
 	})
 
 	It("should call functions on the precompile directly", func() {
-		validators, _, err := stakingPrecompile.GetActiveValidators(nil, bindings.CosmosPageRequest{})
+		validators, _, err := stakingPrecompile.GetBondedValidators(nil, bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(validators).To(ContainElement(validator))
 
