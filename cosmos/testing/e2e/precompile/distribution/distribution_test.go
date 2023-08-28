@@ -32,7 +32,6 @@ import (
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/distribution"
 	sbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -67,7 +66,7 @@ var _ = Describe("Distribution Precompile", func() {
 		stakingPrecompile, _ = sbindings.NewStakingModule(
 			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient())
 		bankPrecompile, _ = bbindings.NewBankModule(
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
+			common.BytesToAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 			tf.EthClient(),
 		)
 	})
@@ -96,7 +95,7 @@ var _ = Describe("Distribution Precompile", func() {
 	})
 	It("should be able to set withdraw address with ethereum address", func() {
 		addr := sdk.AccAddress("addr")
-		ethAddr := cosmlib.AccAddressToEthAddress(addr)
+		ethAddr := common.BytesToAddress(addr)
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.SetWithdrawAddress(txr, ethAddr)
 		Expect(err).ToNot(HaveOccurred())
@@ -179,7 +178,7 @@ var _ = Describe("Distribution Precompile", func() {
 
 		// Set the withdraw address.
 		addr := sdk.AccAddress("addr")
-		ethAddr := cosmlib.AccAddressToEthAddress(addr)
+		ethAddr := common.BytesToAddress(addr)
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = contract.SetWithdrawAddress(txr, ethAddr)
 		Expect(err).ToNot(HaveOccurred())

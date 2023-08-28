@@ -26,7 +26,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -201,5 +200,5 @@ func getTxSenderNonce(tx sdk.Tx) (common.Address, uint64) {
 	if err != nil || len(sigs) == 0 {
 		return common.Address{}, 0
 	}
-	return cosmlib.AccAddressToEthAddress(sdk.AccAddress(sigs[0].PubKey.Address())), sigs[0].Sequence
+	return common.BytesToAddress(sdk.AccAddress(sigs[0].PubKey.Address())), sigs[0].Sequence
 }

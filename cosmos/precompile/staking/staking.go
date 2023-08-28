@@ -66,7 +66,7 @@ func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.StakingModuleMetaData.ABI,
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName)),
+			common.BytesToAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName)),
 		),
 		vs:        sk,
 		msgServer: stakingkeeper.NewMsgServerImpl(sk),
@@ -86,11 +86,11 @@ func (c *Contract) ValAddressFromConsAddress(
 	ctx context.Context,
 	consAddress []byte,
 ) (common.Address, error) {
-	val, err := c.vs.ValidatorByConsAddr(ctx, sdk.ConsAddress(consAddress))
+	val, err := c.vs.ValidatorByConsAddr(ctx, consAddress)
 	if err != nil {
 		return common.Address{}, err
 	}
-	return cosmlib.ValAddressToEthAddress(c.vs.ValidatorAddressCodec(), val.GetOperator())
+	return cosmlib.EthAddressFromString(c.vs.ValidatorAddressCodec(), val.GetOperator())
 }
 
 // GetBondedValidators implements the `getBondedValidators(PageRequest)` method.
@@ -110,7 +110,7 @@ func (c *Contract) GetBondedValidators(
 	addrs := make([]common.Address, 0, len(res.Validators))
 	for _, val := range res.Validators {
 		var valAddr common.Address
-		valAddr, err = cosmlib.ValAddressToEthAddress(c.vs.ValidatorAddressCodec(), val.OperatorAddress)
+		valAddr, err = cosmlib.EthAddressFromString(c.vs.ValidatorAddressCodec(), val.OperatorAddress)
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
@@ -135,7 +135,7 @@ func (c *Contract) GetBondedValidatorsByPower(
 		ctx,
 		func(_ int64, validator stakingtypes.ValidatorI) bool {
 			var valOperAddr common.Address
-			valOperAddr, err = cosmlib.ValAddressToEthAddress(
+			valOperAddr, err = cosmlib.EthAddressFromString(
 				c.vs.ValidatorAddressCodec(), validator.GetOperator(),
 			)
 			if err != nil {
@@ -165,7 +165,9 @@ func (c *Contract) GetValidators(
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
-	vals, err := cosmlib.SdkValidatorsToStakingValidators(res.GetValidators())
+	vals, err := cosmlib.SdkValidatorsToStakingValidators(
+		c.vs.ValidatorAddressCodec(), res.GetValidators(),
+	)
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
@@ -178,19 +180,19 @@ func (c *Contract) GetValidator(
 	ctx context.Context,
 	validatorAddress common.Address,
 ) (generated.IStakingModuleValidator, error) {
-	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return generated.IStakingModuleValidator{}, err
 	}
 	res, err := c.querier.Validator(ctx, &stakingtypes.QueryValidatorRequest{
-		ValidatorAddr: valAddr.String(),
+		ValidatorAddr: valAddr,
 	})
 	if err != nil {
 		return generated.IStakingModuleValidator{}, err
 	}
 
 	val, err := cosmlib.SdkValidatorsToStakingValidators(
-		[]stakingtypes.Validator{res.GetValidator()},
+		c.vs.ValidatorAddressCodec(), []stakingtypes.Validator{res.GetValidator()},
 	)
 	if err != nil {
 		return generated.IStakingModuleValidator{}, err
@@ -206,15 +208,21 @@ func (c *Contract) GetDelegatorValidators(
 	delegatorAddr common.Address,
 	pagination any,
 ) ([]generated.IStakingModuleValidator, cbindings.CosmosPageResponse, error) {
+	delegator, err := cosmlib.AccStringFromEthAddress(delegatorAddr)
+	if err != nil {
+		return nil, cbindings.CosmosPageResponse{}, err
+	}
 	res, err := c.querier.DelegatorValidators(ctx, &stakingtypes.QueryDelegatorValidatorsRequest{
-		DelegatorAddr: cosmlib.Bech32FromEthAddress(delegatorAddr),
+		DelegatorAddr: delegator,
 		Pagination:    cosmlib.ExtractPageRequestFromInput(pagination),
 	})
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
-	vals, err := cosmlib.SdkValidatorsToStakingValidators(res.GetValidators())
+	vals, err := cosmlib.SdkValidatorsToStakingValidators(
+		c.vs.ValidatorAddressCodec(), res.GetValidators(),
+	)
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
@@ -228,12 +236,12 @@ func (c *Contract) GetValidatorDelegations(
 	validatorAddress common.Address,
 	pagination any,
 ) ([]generated.IStakingModuleDelegation, cbindings.CosmosPageResponse, error) {
-	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
 	res, err := c.querier.ValidatorDelegations(ctx, &stakingtypes.QueryValidatorDelegationsRequest{
-		ValidatorAddr: valAddr.String(),
+		ValidatorAddr: valAddr,
 		Pagination:    cosmlib.ExtractPageRequestFromInput(pagination),
 	})
 	if status.Code(err) == codes.NotFound {
@@ -244,8 +252,13 @@ func (c *Contract) GetValidatorDelegations(
 
 	delegations := make([]generated.IStakingModuleDelegation, 0)
 	for _, d := range res.GetDelegationResponses() {
+		var delegator common.Address
+		delegator, err = cosmlib.EthAdressFromAccString(d.Delegation.DelegatorAddress)
+		if err != nil {
+			return nil, cbindings.CosmosPageResponse{}, err
+		}
 		delegations = append(delegations, generated.IStakingModuleDelegation{
-			Delegator: cosmlib.EthAddressFromBech32(d.Delegation.DelegatorAddress),
+			Delegator: delegator,
 			Balance:   d.Balance.Amount.BigInt(),
 			Shares:    d.Delegation.Shares.BigInt(),
 		})
@@ -260,13 +273,18 @@ func (c *Contract) GetDelegation(
 	delegatorAddress common.Address,
 	validatorAddress common.Address,
 ) (*big.Int, error) {
-	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return nil, err
 	}
+	delAddr, err := cosmlib.AccStringFromEthAddress(delegatorAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.Delegation(ctx, &stakingtypes.QueryDelegationRequest{
-		DelegatorAddr: cosmlib.AddressToAccAddress(delegatorAddress).String(),
-		ValidatorAddr: valAddr.String(),
+		DelegatorAddr: delAddr,
+		ValidatorAddr: valAddr,
 	})
 	if status.Code(err) == codes.NotFound {
 		// handle the case where the delegation does not exist
@@ -289,13 +307,18 @@ func (c *Contract) GetUnbondingDelegation(
 	delegatorAddress common.Address,
 	validatorAddress common.Address,
 ) ([]generated.IStakingModuleUnbondingDelegationEntry, error) {
-	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return nil, err
 	}
+	delAddr, err := cosmlib.AccStringFromEthAddress(delegatorAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.UnbondingDelegation(ctx, &stakingtypes.QueryUnbondingDelegationRequest{
-		DelegatorAddr: cosmlib.AddressToAccAddress(delegatorAddress).String(),
-		ValidatorAddr: valAddr.String(),
+		DelegatorAddr: delAddr,
+		ValidatorAddr: valAddr,
 	})
 	if status.Code(err) == codes.NotFound {
 		return []generated.IStakingModuleUnbondingDelegationEntry{}, nil
@@ -312,8 +335,13 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 	delegatorAddress common.Address,
 	pagination any,
 ) ([]generated.IStakingModuleUnbondingDelegation, cbindings.CosmosPageResponse, error) {
+	delAddr, err := cosmlib.AccStringFromEthAddress(delegatorAddress)
+	if err != nil {
+		return nil, cbindings.CosmosPageResponse{}, err
+	}
+
 	res, err := c.querier.DelegatorUnbondingDelegations(ctx, &stakingtypes.QueryDelegatorUnbondingDelegationsRequest{
-		DelegatorAddr: cosmlib.Bech32FromEthAddress(delegatorAddress),
+		DelegatorAddr: delAddr,
 		Pagination:    cosmlib.ExtractPageRequestFromInput(pagination),
 	})
 	if status.Code(err) == codes.NotFound {
@@ -325,13 +353,23 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 
 	unbondingDelegations := make([]generated.IStakingModuleUnbondingDelegation, 0)
 	for _, u := range res.GetUnbondingResponses() {
-		var valAddr common.Address
-		if valAddr, err = cosmlib.ValAddressToEthAddress(c.vs.ValidatorAddressCodec(), u.ValidatorAddress); err != nil {
+		var (
+			valAddr   common.Address
+			delegator common.Address
+		)
+
+		valAddr, err = cosmlib.EthAddressFromString(c.vs.ValidatorAddressCodec(), u.ValidatorAddress)
+		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
+		delegator, err = cosmlib.EthAdressFromAccString(u.DelegatorAddress)
+		if err != nil {
+			return nil, cbindings.CosmosPageResponse{}, err
+		}
+
 		unbondingDelegations = append(unbondingDelegations,
 			generated.IStakingModuleUnbondingDelegation{
-				DelegatorAddress: cosmlib.EthAddressFromBech32(u.DelegatorAddress),
+				DelegatorAddress: delegator,
 				ValidatorAddress: valAddr,
 				Entries:          cosmlib.SdkUDEToStakingUDE(u.Entries),
 			},
@@ -349,21 +387,25 @@ func (c *Contract) GetRedelegations(
 	dstValidator common.Address,
 	pagination any,
 ) ([]generated.IStakingModuleRedelegationEntry, cbindings.CosmosPageResponse, error) {
-	del := cosmlib.Bech32FromEthAddress(delegatorAddress)
-	srcValAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), srcValidator)
+	delAddr, err := cosmlib.AccStringFromEthAddress(delegatorAddress)
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
-	destValAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), dstValidator)
+	srcValAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), srcValidator)
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
+	destValAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), dstValidator)
+	if err != nil {
+		return nil, cbindings.CosmosPageResponse{}, err
+	}
+
 	rsp, err := c.querier.Redelegations(
 		ctx,
 		&stakingtypes.QueryRedelegationsRequest{
-			DelegatorAddr:    cosmlib.Bech32FromEthAddress(delegatorAddress),
-			SrcValidatorAddr: srcValAddr.String(),
-			DstValidatorAddr: destValAddr.String(),
+			DelegatorAddr:    delAddr,
+			SrcValidatorAddr: srcValAddr,
+			DstValidatorAddr: destValAddr,
 			Pagination:       cosmlib.ExtractPageRequestFromInput(pagination),
 		},
 	)
@@ -376,7 +418,7 @@ func (c *Contract) GetRedelegations(
 	var redelegationEntryResponses []stakingtypes.RedelegationEntryResponse
 	for _, r := range rsp.GetRedelegationResponses() {
 		redel := r.GetRedelegation()
-		if redel.DelegatorAddress == del &&
+		if redel.DelegatorAddress == delAddr &&
 			redel.ValidatorSrcAddress == srcValidator.String() &&
 			redel.ValidatorDstAddress == dstValidator.String() {
 			redelegationEntryResponses = r.GetEntries()
@@ -405,13 +447,18 @@ func (c *Contract) Delegate(
 	if err != nil {
 		return false, err
 	}
-	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return false, err
 	}
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	if err != nil {
+		return false, err
+	}
+
 	_, err = c.msgServer.Delegate(ctx, stakingtypes.NewMsgDelegate(
-		cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()), /* todo move to codec */
-		valAddr.String(), /* todo move to codec */
+		caller,
+		valAddr,
 		sdk.Coin{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)},
 	))
 	return err == nil, err
@@ -427,13 +474,18 @@ func (c *Contract) Undelegate(
 	if err != nil {
 		return false, err
 	}
-	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return false, err
 	}
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	if err != nil {
+		return false, err
+	}
+
 	_, err = c.msgServer.Undelegate(ctx, stakingtypes.NewMsgUndelegate(
-		cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()), /* todo move to codec */
-		valAddr.String(), /* todo move to codec */
+		caller,
+		valAddr,
 		sdk.Coin{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)},
 	))
 	return err == nil, err
@@ -450,20 +502,25 @@ func (c *Contract) BeginRedelegate(
 	if err != nil {
 		return false, err
 	}
-	srcValAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), srcValidator)
+	srcValAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), srcValidator)
 	if err != nil {
 		return false, err
 	}
-	destValAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), dstValidator)
+	destValAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), dstValidator)
 	if err != nil {
 		return false, err
 	}
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	if err != nil {
+		return false, err
+	}
+
 	_, err = c.msgServer.BeginRedelegate(
 		ctx,
 		stakingtypes.NewMsgBeginRedelegate(
-			cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()), /* todo move to codec */
-			srcValAddr.String(),  /* todo move to codec */
-			destValAddr.String(), /* todo move to codec */
+			caller,
+			srcValAddr,
+			destValAddr,
 			sdk.Coin{Denom: bondDenom, Amount: sdkmath.NewIntFromBigInt(amount)},
 		),
 	)
@@ -481,15 +538,20 @@ func (c *Contract) CancelUnbondingDelegation(
 	if err != nil {
 		return false, err
 	}
-	valAddr, err := cosmlib.AddressToValAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
+	valAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), validatorAddress)
 	if err != nil {
 		return false, err
 	}
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	if err != nil {
+		return false, err
+	}
+
 	_, err = c.msgServer.CancelUnbondingDelegation(
 		ctx,
 		stakingtypes.NewMsgCancelUnbondingDelegation(
-			cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()), /* todo move to codec */
-			valAddr.String(), /* todo move to codec */
+			caller,
+			valAddr,
 			creationHeight,
 			sdk.Coin{Denom: bondDenom, Amount: sdkmath.NewIntFromBigInt(amount)},
 		),
@@ -511,5 +573,5 @@ func (c *Contract) bondDenom(ctx context.Context) (string, error) {
 // common.Address.
 func (c *Contract) ConvertValAddressFromBech32(attributeValue string) (any, error) {
 	// extract the sdk.ValAddress from string value
-	return cosmlib.ValAddressToEthAddress(c.vs.ValidatorAddressCodec(), attributeValue)
+	return cosmlib.EthAddressFromString(c.vs.ValidatorAddressCodec(), attributeValue)
 }

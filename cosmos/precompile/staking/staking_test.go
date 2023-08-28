@@ -141,11 +141,11 @@ var _ = Describe("Staking", func() {
 			delegates, validators := createValAddrs(2)
 			del, val, otherVal = delegates[0], validators[0], validators[1]
 			var err error
-			valAddr, err = cosmlib.ValAddressToEthAddress(sk.ValidatorAddressCodec(), val.String())
+			valAddr, err = cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), val.String())
 			Expect(err).ToNot(HaveOccurred())
-			otherValAddr, err = cosmlib.ValAddressToEthAddress(sk.ValidatorAddressCodec(), otherVal.String())
+			otherValAddr, err = cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), otherVal.String())
 			Expect(err).ToNot(HaveOccurred())
-			caller = cosmlib.AccAddressToEthAddress(del)
+			caller = common.BytesToAddress(del)
 
 			amount, ok := new(big.Int).SetString("22000000000000000000", 10) // 22 tokens.
 			Expect(ok).To(BeTrue())
@@ -199,11 +199,11 @@ var _ = Describe("Staking", func() {
 
 		When("ValAddrFromConsAddr", func() {
 			It("should find based on cons addr", func() {
-				valOperAddr, err := contract.ValAddressFromConsAddress(ctx, valConsAddr.Bytes())
+				valOperAddr, err := contract.ValAddressFromConsAddress(ctx, valConsAddr)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(valOperAddr).To(Equal(valAddr))
 
-				otherValOperAddr, err := contract.ValAddressFromConsAddress(ctx, otherValConsAddr.Bytes())
+				otherValOperAddr, err := contract.ValAddressFromConsAddress(ctx, otherValConsAddr)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(otherValOperAddr).To(Equal(otherValAddr))
 			})
@@ -214,7 +214,7 @@ var _ = Describe("Staking", func() {
 			gethValue, err := contract.ConvertValAddressFromBech32(val)
 			Expect(err).ToNot(HaveOccurred())
 			valAddrVal := libutils.MustGetAs[common.Address](gethValue)
-			Expect(valAddrVal).To(Equal(cosmlib.MustValAddressToEthAddress(sk.ValidatorAddressCodec(), val)))
+			Expect(valAddrVal).To(Equal(cosmlib.MustEthAddressFromString(sk.ValidatorAddressCodec(), val)))
 		})
 
 		When("Delegate", func() {
@@ -249,7 +249,7 @@ var _ = Describe("Staking", func() {
 			It("should return the correct delegation", func() {
 				res, err := contract.GetDelegation(
 					ctx,
-					cosmlib.AccAddressToEthAddress(del), valAddr,
+					common.BytesToAddress(del), valAddr,
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(Equal(big.NewInt(9))) // should have correct shares
@@ -271,7 +271,7 @@ var _ = Describe("Staking", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
-				Expect(res[0].Delegator).To(Equal(cosmlib.AccAddressToEthAddress(del)))
+				Expect(res[0].Delegator).To(Equal(common.BytesToAddress(del)))
 				Expect(res[0].Balance.Cmp(big.NewInt(9))).To(Equal(0))
 				Expect(res[0].Shares).To(Equal(new(big.Int).Mul(big.NewInt(9), big.NewInt(1e18))))
 			})
@@ -283,7 +283,7 @@ var _ = Describe("Staking", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
-				Expect(res[0].Delegator).To(Equal(cosmlib.AccAddressToEthAddress(del)))
+				Expect(res[0].Delegator).To(Equal(common.BytesToAddress(del)))
 				Expect(res[0].Balance.Cmp(big.NewInt(9))).To(Equal(0))
 				Expect(res[0].Shares).To(Equal(new(big.Int).Mul(big.NewInt(9), big.NewInt(1e18))))
 			})
@@ -398,7 +398,7 @@ var _ = Describe("Staking", func() {
 				err := FundAccount(
 					sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 					bk,
-					cosmlib.AddressToAccAddress(caller),
+					caller.Bytes(),
 					sdk.NewCoins(
 						sdk.NewCoin(
 							"stake",
@@ -481,7 +481,7 @@ var _ = Describe("Staking", func() {
 					It("should not found if the val address is not valid", func() {
 						vals, err := contract.GetDelegation(
 							ctx,
-							cosmlib.AccAddressToEthAddress(del),
+							common.BytesToAddress(del),
 							common.Address{},
 						)
 						Expect(vals.Cmp(big.NewInt(0))).To(Equal(0))
@@ -490,7 +490,7 @@ var _ = Describe("Staking", func() {
 					It("should not error if there is no delegation", func() {
 						vals, err := contract.GetDelegation(
 							ctx,
-							cosmlib.AccAddressToEthAddress(del),
+							common.BytesToAddress(del),
 							otherValAddr,
 						)
 						Expect(err).ToNot(HaveOccurred())
@@ -499,7 +499,7 @@ var _ = Describe("Staking", func() {
 					It("should succeed", func() {
 						_, err := contract.GetDelegation(
 							ctx,
-							cosmlib.AccAddressToEthAddress(del),
+							common.BytesToAddress(del),
 							valAddr,
 						)
 						Expect(err).ToNot(HaveOccurred())
