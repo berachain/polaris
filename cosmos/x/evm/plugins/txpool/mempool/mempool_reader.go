@@ -49,27 +49,28 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 		if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
 			addr := coretypes.GetSender(ethTx)
 			pendingNonce := pendingNonces[addr]
+			txNonce := ethTx.Nonce()
 			switch {
 			case pendingNonce == 0:
-				// If its the first tx, set the pending nonce to the nonce of the tx.
-				txNonce := ethTx.Nonce()
 				// If on the first lookup the nonce delta is more than 0, then there is a gap
 				// and thus no pending transactions, but there are queued transactions. We
 				// continue.
 				if sdbNonce := etp.nr.GetNonce(addr); txNonce-sdbNonce >= 1 {
 					continue
 				}
-				// this is a pending tx, add it to the pending map.
+				// If its the first tx, set the pending nonce to the nonce of the tx and add it to
+				// the pending map.
 				pendingNonces[addr] = txNonce
 				pending[addr] = append(pending[addr], ethTx)
-			case ethTx.Nonce() == pendingNonce+1:
+			case txNonce == pendingNonce+1:
 				// If its not the first tx, but the nonce is the same as the pending nonce, add
 				// it to the list.
+				pendingNonces[addr] = txNonce
 				pending[addr] = append(pending[addr], ethTx)
-				pendingNonces[addr] = pendingNonce + 1
 			default:
-				// If we see an out of order nonce, we break since the rest should be "queued".
-				break
+				// If we see an out of order nonce, we do not add the tx to the pending list, since
+				// the rest of the txs should be "queued".
+				continue
 			}
 		}
 	}
