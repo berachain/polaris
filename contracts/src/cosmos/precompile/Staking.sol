@@ -68,7 +68,7 @@ interface IStakingModule {
     /**
      * @dev Returns the operator address of the validator for the given consensus address.
      */
-    function valAddressFromConsAddress(address consAddress) external pure returns (address);
+    function valAddressFromConsAddress(bytes calldata consAddr) external pure returns (address);
 
     /**
      * @dev Returns a list of all active validators.
@@ -185,8 +185,8 @@ interface IStakingModule {
      * @dev Represents a validator.
      */
     struct Validator {
-        address operatorAddress;
-        address consensusAddress;
+        address operatorAddr;
+        bytes consAddr;
         bool jailed;
         string status;
         uint256 tokens;

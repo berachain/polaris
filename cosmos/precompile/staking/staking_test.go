@@ -199,11 +199,11 @@ var _ = Describe("Staking", func() {
 
 		When("ValAddrFromConsAddr", func() {
 			It("should find based on cons addr", func() {
-				valOperAddr, err := contract.ValAddressFromConsAddress(ctx, common.BytesToAddress(valConsAddr))
+				valOperAddr, err := contract.ValAddressFromConsAddress(ctx, valConsAddr)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(valOperAddr).To(Equal(valAddr))
 
-				otherValOperAddr, err := contract.ValAddressFromConsAddress(ctx, common.BytesToAddress(otherValConsAddr))
+				otherValOperAddr, err := contract.ValAddressFromConsAddress(ctx, otherValConsAddr)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(otherValOperAddr).To(Equal(otherValAddr))
 			})

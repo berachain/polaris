@@ -35,7 +35,6 @@ import (
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -183,15 +182,15 @@ func SdkValidatorsToStakingValidators(valAddrCodec address.Codec, vals []staking
 			return nil, err
 		}
 		valsOut[i] = staking.IStakingModuleValidator{
-			OperatorAddress:  operEthAddr,
-			ConsensusAddress: common.BytesToAddress(pubKey.Address()),
-			Jailed:           val.Jailed,
-			Status:           val.Status.String(),
-			Tokens:           val.Tokens.BigInt(),
-			DelegatorShares:  val.DelegatorShares.BigInt(),
-			Description:      staking.IStakingModuleDescription(val.Description),
-			UnbondingHeight:  val.UnbondingHeight,
-			UnbondingTime:    val.UnbondingTime.String(),
+			OperatorAddr:    operEthAddr,
+			ConsAddr:        pubKey.Address(),
+			Jailed:          val.Jailed,
+			Status:          val.Status.String(),
+			Tokens:          val.Tokens.BigInt(),
+			DelegatorShares: val.DelegatorShares.BigInt(),
+			Description:     staking.IStakingModuleDescription(val.Description),
+			UnbondingHeight: val.UnbondingHeight,
+			UnbondingTime:   val.UnbondingTime.String(),
 			Commission: staking.IStakingModuleCommission{
 				CommissionRates: staking.IStakingModuleCommissionRates{
 					Rate:          val.Commission.CommissionRates.Rate.BigInt(),

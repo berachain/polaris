@@ -99,7 +99,7 @@ var _ = Describe("Staking", func() {
 		delVals, _, err := stakingPrecompile.GetDelegatorValidators(nil, tf.Address("alice"), bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delVals).To(HaveLen(1))
-		Expect(delVals[0].OperatorAddress).To(Equal(validator))
+		Expect(delVals[0].OperatorAddr).To(Equal(validator))
 
 		undelegateAmt := new(big.Int).Div(delegateAmt, big.NewInt(2))
 		tx, err = stakingPrecompile.Undelegate(
@@ -124,11 +124,11 @@ var _ = Describe("Staking", func() {
 		vals, _, err := stakingPrecompile.GetValidators(nil, bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(vals).To(HaveLen(1))
-		Expect(vals[0].OperatorAddress).To(Equal(validator))
+		Expect(vals[0].OperatorAddr).To(Equal(validator))
 
 		val, err := stakingPrecompile.GetValidator(nil, validator)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(val.OperatorAddress).To(Equal(vals[0].OperatorAddress))
+		Expect(val.OperatorAddr).To(Equal(vals[0].OperatorAddr))
 	})
 
 	It("should be able to call a precompile from a smart contract", func() {

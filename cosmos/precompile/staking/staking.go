@@ -84,9 +84,9 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 
 func (c *Contract) ValAddressFromConsAddress(
 	ctx context.Context,
-	consAddress common.Address,
+	consAddress []byte,
 ) (common.Address, error) {
-	val, err := c.vs.ValidatorByConsAddr(ctx, sdk.ConsAddress(consAddress.Bytes()))
+	val, err := c.vs.ValidatorByConsAddr(ctx, consAddress)
 	if err != nil {
 		return common.Address{}, err
 	}
