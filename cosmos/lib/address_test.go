@@ -41,13 +41,13 @@ var _ = Describe("Address", func() {
 	})
 
 	It("should convert directly from eth to acc bech32 and vice versa", func() {
-		Expect(cosmlib.MustEthAddressFromAccBech32(bech32)).To(Equal(addr))
-		Expect(cosmlib.MustAccBech32FromEthAddress(addr)).To(Equal(bech32))
+		Expect(cosmlib.MustEthAddressFromAccString(bech32)).To(Equal(addr))
+		Expect(cosmlib.MustAccStringFromEthAddress(addr)).To(Equal(bech32))
 
 		acc, err := sdk.AccAddressFromBech32(bech32)
 		Expect(err).NotTo(HaveOccurred())
 
-		addr2 := cosmlib.MustEthAddressFromAccBech32(acc.String())
+		addr2 := cosmlib.MustEthAddressFromAccString(acc.String())
 		Expect(addr.String()).To(Equal(addr2.String()))
 
 		bech32Str := sdk.MustBech32ifyAddressBytes(
@@ -59,10 +59,10 @@ var _ = Describe("Address", func() {
 	It("should return the correct val/cons address", func() {
 		valCodec := addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix())
 
-		valBech32 := cosmlib.MustBech32FromEthAddress(valCodec, addr)
+		valBech32 := cosmlib.MustStringFromEthAddress(valCodec, addr)
 		valAddr, err := sdk.ValAddressFromBech32(valBech32)
 		Expect(err).ToNot(HaveOccurred())
-		valEthAddr := cosmlib.MustEthAddressFromBech32(valCodec, valAddr.String())
+		valEthAddr := cosmlib.MustEthAddressFromString(valCodec, valAddr.String())
 		Expect(addr.String()).To(Equal(valEthAddr.String()))
 
 		bech32Str := sdk.MustBech32ifyAddressBytes(

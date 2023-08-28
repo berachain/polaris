@@ -174,7 +174,7 @@ func SdkValidatorsToStakingValidators(valAddrCodec address.Codec, vals []staking
 ) {
 	valsOut := make([]staking.IStakingModuleValidator, len(vals))
 	for i, val := range vals {
-		operEthAddr, err := EthAddressFromBech32(valAddrCodec, val.OperatorAddress)
+		operEthAddr, err := EthAddressFromString(valAddrCodec, val.OperatorAddress)
 		if err != nil {
 			return nil, err
 		}

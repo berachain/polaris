@@ -104,7 +104,7 @@ func (c *Contract) CancelProposal(
 	ctx context.Context,
 	id uint64,
 ) (uint64, uint64, error) {
-	caller, err := cosmlib.AccBech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
 	if err != nil {
 		return 0, 0, err
 	}
@@ -127,7 +127,7 @@ func (c *Contract) Vote(
 	options int32,
 	metadata string,
 ) (bool, error) {
-	caller, err := cosmlib.AccBech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
 	if err != nil {
 		return false, err
 	}
@@ -156,7 +156,7 @@ func (c *Contract) VoteWeighted(
 			Weight: option.Weight,
 		}
 	}
-	caller, err := cosmlib.AccBech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
 	if err != nil {
 		return false, err
 	}
@@ -237,7 +237,7 @@ func (c *Contract) GetProposalDepositsByDepositor(
 	proposalID uint64,
 	depositor common.Address,
 ) ([]generated.CosmosCoin, error) {
-	depositorBech32, err := cosmlib.AccBech32FromEthAddress(depositor)
+	depositorBech32, err := cosmlib.AccStringFromEthAddress(depositor)
 	if err != nil {
 		return nil, err
 	}
@@ -308,7 +308,7 @@ func (c *Contract) GetProposalVotes(
 			)
 		}
 		var voter common.Address
-		voter, err = cosmlib.EthAddressFromAccBech32(vote.Voter)
+		voter, err = cosmlib.EthAdressFromAccString(vote.Voter)
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
@@ -330,7 +330,7 @@ func (c *Contract) GetProposalVotesByVoter(
 	proposalID uint64,
 	voter common.Address,
 ) (generated.IGovernanceModuleVote, error) {
-	voterBech32, err := cosmlib.AccBech32FromEthAddress(voter)
+	voterBech32, err := cosmlib.AccStringFromEthAddress(voter)
 	if err != nil {
 		return generated.IGovernanceModuleVote{}, err
 	}

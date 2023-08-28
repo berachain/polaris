@@ -102,7 +102,7 @@ func ConvertSdkCoins(attributeValue string) (any, error) {
 // ConvertAccAddressFromBech32 is a `precompile.ValueDecoder`.
 func ConvertAccAddressFromBech32(attributeValue string) (any, error) {
 	// extract the sdk.AccAddress from string value
-	return cosmlib.EthAddressFromAccBech32(attributeValue)
+	return cosmlib.EthAdressFromAccString(attributeValue)
 }
 
 // ConvertInt64 converts a creation height (from the Cosmos SDK staking module) `string`

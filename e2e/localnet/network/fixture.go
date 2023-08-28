@@ -219,7 +219,7 @@ func (tf *TestFixture) setupTestAccounts(config *FixtureConfig) error {
 	}](genBz).AppState.GenUtil.GenTxs[0].Body.Messages[0].ValidatorAddress
 	types.SetupCosmosConfig()
 	_, _, _, sk := testutil.SetupMinimalKeepers()
-	tf.valAddr, err = cosmlib.EthAddressFromBech32(sk.ValidatorAddressCodec(), valAddr)
+	tf.valAddr, err = cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), valAddr)
 	if err != nil {
 		return err
 	}

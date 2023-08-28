@@ -233,7 +233,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 					testutil.Alice,
 					big.NewInt(0),
 				)
-				valAddress, err := cosmlib.EthAddressFromBech32(sk.ValidatorAddressCodec(), valAddr.String())
+				valAddress, err := cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), valAddr.String())
 				Expect(err).ToNot(HaveOccurred())
 				res, err := contract.WithdrawDelegatorReward(
 					pCtx,

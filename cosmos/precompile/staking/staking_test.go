@@ -141,9 +141,9 @@ var _ = Describe("Staking", func() {
 			delegates, validators := createValAddrs(2)
 			del, val, otherVal = delegates[0], validators[0], validators[1]
 			var err error
-			valAddr, err = cosmlib.EthAddressFromBech32(sk.ValidatorAddressCodec(), val.String())
+			valAddr, err = cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), val.String())
 			Expect(err).ToNot(HaveOccurred())
-			otherValAddr, err = cosmlib.EthAddressFromBech32(sk.ValidatorAddressCodec(), otherVal.String())
+			otherValAddr, err = cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), otherVal.String())
 			Expect(err).ToNot(HaveOccurred())
 			caller = common.BytesToAddress(del)
 
@@ -214,7 +214,7 @@ var _ = Describe("Staking", func() {
 			gethValue, err := contract.ConvertValAddressFromBech32(val)
 			Expect(err).ToNot(HaveOccurred())
 			valAddrVal := libutils.MustGetAs[common.Address](gethValue)
-			Expect(valAddrVal).To(Equal(cosmlib.MustEthAddressFromBech32(sk.ValidatorAddressCodec(), val)))
+			Expect(valAddrVal).To(Equal(cosmlib.MustEthAddressFromString(sk.ValidatorAddressCodec(), val)))
 		})
 
 		When("Delegate", func() {

@@ -65,7 +65,7 @@ var _ = Describe("GRPC Query Server", func() {
 
 		// check the denom doesn't exist
 		resp, err := qs.CoinDenomForERC20Address(ctx, &types.CoinDenomForERC20AddressRequest{
-			Token: cosmlib.MustAccBech32FromEthAddress(tokenAddr),
+			Token: cosmlib.MustAccStringFromEthAddress(tokenAddr),
 		})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(resp.Denom).To(BeEmpty())
@@ -75,7 +75,7 @@ var _ = Describe("GRPC Query Server", func() {
 
 		// check the denom exists
 		resp, err = qs.CoinDenomForERC20Address(ctx, &types.CoinDenomForERC20AddressRequest{
-			Token: cosmlib.MustAccBech32FromEthAddress(tokenAddr),
+			Token: cosmlib.MustAccStringFromEthAddress(tokenAddr),
 		})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(resp.Denom).To(Equal(types.NewPolarisDenomForAddress(tokenAddr)))
@@ -100,6 +100,6 @@ var _ = Describe("GRPC Query Server", func() {
 			Denom: denom,
 		})
 		Expect(err).ToNot(HaveOccurred())
-		Expect(resp.Token).To(Equal(cosmlib.MustAccBech32FromEthAddress(tokenAddr)))
+		Expect(resp.Token).To(Equal(cosmlib.MustAccStringFromEthAddress(tokenAddr)))
 	})
 })

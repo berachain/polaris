@@ -62,7 +62,7 @@ func (c *Contract) GetBalance(
 	accountAddress common.Address,
 	denom string,
 ) (*big.Int, error) {
-	accAddr, err := cosmlib.AccBech32FromEthAddress(accountAddress)
+	accAddr, err := cosmlib.AccStringFromEthAddress(accountAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (c *Contract) GetAllBalances(
 	ctx context.Context,
 	accountAddress common.Address,
 ) ([]lib.CosmosCoin, error) {
-	accAddr, err := cosmlib.AccBech32FromEthAddress(accountAddress)
+	accAddr, err := cosmlib.AccStringFromEthAddress(accountAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (c *Contract) GetSpendableBalance(
 	accountAddress common.Address,
 	denom string,
 ) (*big.Int, error) {
-	accAddr, err := cosmlib.AccBech32FromEthAddress(accountAddress)
+	accAddr, err := cosmlib.AccStringFromEthAddress(accountAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (c *Contract) GetAllSpendableBalances(
 	ctx context.Context,
 	accountAddress common.Address,
 ) ([]lib.CosmosCoin, error) {
-	accAddr, err := cosmlib.AccBech32FromEthAddress(accountAddress)
+	accAddr, err := cosmlib.AccStringFromEthAddress(accountAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -231,11 +231,11 @@ func (c *Contract) Send(
 	if err != nil {
 		return false, err
 	}
-	caller, err := cosmlib.AccBech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
 	if err != nil {
 		return false, err
 	}
-	toAddr, err := cosmlib.AccBech32FromEthAddress(toAddress)
+	toAddr, err := cosmlib.AccStringFromEthAddress(toAddress)
 	if err != nil {
 		return false, err
 	}
