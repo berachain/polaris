@@ -27,14 +27,11 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
 	"pkg.berachain.dev/polaris/eth/common"
 
@@ -50,7 +47,6 @@ func TestStakingPrecompile(t *testing.T) {
 
 var _ = Describe("Staking", func() {
 	var (
-		sk                stakingkeeper.Keeper
 		tf                *network.TestFixture
 		stakingPrecompile *bindings.StakingModule
 		bankPrecompile    *bbindings.BankModule
@@ -59,8 +55,6 @@ var _ = Describe("Staking", func() {
 	)
 
 	BeforeEach(func() {
-		_, _, _, sk = testutil.SetupMinimalKeepers()
-
 		// Setup the network and clients here.
 		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 
@@ -68,7 +62,7 @@ var _ = Describe("Staking", func() {
 		stakingPrecompile, _ = bindings.NewStakingModule(
 			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient())
 		bankPrecompile, _ = bbindings.NewBankModule(
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
+			common.BytesToAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 			tf.EthClient(),
 		)
 	})
@@ -105,10 +99,7 @@ var _ = Describe("Staking", func() {
 		delVals, _, err := stakingPrecompile.GetDelegatorValidators(nil, tf.Address("alice"), bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delVals).To(HaveLen(1))
-		Expect(cosmlib.MustValAddressToEthAddress(
-			sk.ValidatorAddressCodec(),
-			delVals[0].OperatorAddress,
-		)).To(Equal(validator))
+		Expect(delVals[0].OperatorAddr).To(Equal(validator))
 
 		undelegateAmt := new(big.Int).Div(delegateAmt, big.NewInt(2))
 		tx, err = stakingPrecompile.Undelegate(
@@ -133,14 +124,11 @@ var _ = Describe("Staking", func() {
 		vals, _, err := stakingPrecompile.GetValidators(nil, bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(vals).To(HaveLen(1))
-		Expect(cosmlib.MustValAddressToEthAddress(
-			sk.ValidatorAddressCodec(),
-			vals[0].OperatorAddress,
-		)).To(Equal(validator))
+		Expect(vals[0].OperatorAddr).To(Equal(validator))
 
 		val, err := stakingPrecompile.GetValidator(nil, validator)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(val.OperatorAddress).To(Equal(vals[0].OperatorAddress))
+		Expect(val.OperatorAddr).To(Equal(vals[0].OperatorAddr))
 	})
 
 	It("should be able to call a precompile from a smart contract", func() {

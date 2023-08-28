@@ -102,5 +102,5 @@ func (c *Contract) WithdrawDelegatorReward(
 // common.Address.
 func (c *Contract) ConvertValAddressFromBech32(attributeValue string) (any, error) {
 	// extract the sdk.ValAddress from string value
-	return cosmlib.ValAddressToEthAddress(c.vs.ValidatorAddressCodec(), attributeValue)
+	return cosmlib.EthAddressFromString(c.vs.ValidatorAddressCodec(), attributeValue)
 }

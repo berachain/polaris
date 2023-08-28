@@ -24,10 +24,8 @@ import (
 	"context"
 	"strconv"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
@@ -59,7 +57,7 @@ func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.GovernanceModuleMetaData.ABI,
 			// Precompile Address: 0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
+			common.BytesToAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
 		),
 		msgServer: m,
 		querier:   q,
@@ -106,9 +104,14 @@ func (c *Contract) CancelProposal(
 	ctx context.Context,
 	id uint64,
 ) (uint64, uint64, error) {
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	if err != nil {
+		return 0, 0, err
+	}
+
 	res, err := c.msgServer.CancelProposal(ctx, &v1.MsgCancelProposal{
 		ProposalId: id,
-		Proposer:   cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()),
+		Proposer:   caller,
 	})
 	if err != nil {
 		return 0, 0, err
@@ -124,9 +127,14 @@ func (c *Contract) Vote(
 	options int32,
 	metadata string,
 ) (bool, error) {
-	_, err := c.msgServer.Vote(ctx, &v1.MsgVote{
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	if err != nil {
+		return false, err
+	}
+
+	_, err = c.msgServer.Vote(ctx, &v1.MsgVote{
 		ProposalId: proposalID,
-		Voter:      cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()),
+		Voter:      caller,
 		Option:     v1.VoteOption(options),
 		Metadata:   metadata,
 	})
@@ -148,11 +156,15 @@ func (c *Contract) VoteWeighted(
 			Weight: option.Weight,
 		}
 	}
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	if err != nil {
+		return false, err
+	}
 
-	_, err := c.msgServer.VoteWeighted(
+	_, err = c.msgServer.VoteWeighted(
 		ctx, &v1.MsgVoteWeighted{
 			ProposalId: proposalID,
-			Voter:      cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()),
+			Voter:      caller,
 			Options:    msgOptions,
 			Metadata:   metadata,
 		},
@@ -225,9 +237,14 @@ func (c *Contract) GetProposalDepositsByDepositor(
 	proposalID uint64,
 	depositor common.Address,
 ) ([]generated.CosmosCoin, error) {
+	depositorBech32, err := cosmlib.AccStringFromEthAddress(depositor)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.Deposit(ctx, &v1.QueryDepositRequest{
 		ProposalId: proposalID,
-		Depositor:  cosmlib.Bech32FromEthAddress(depositor),
+		Depositor:  depositorBech32,
 	})
 	if err != nil {
 		return nil, err
@@ -290,9 +307,14 @@ func (c *Contract) GetProposalVotes(
 				},
 			)
 		}
+		var voter common.Address
+		voter, err = cosmlib.EthAdressFromAccString(vote.Voter)
+		if err != nil {
+			return nil, cbindings.CosmosPageResponse{}, err
+		}
 		votes = append(votes, generated.IGovernanceModuleVote{
 			ProposalId: proposalID,
-			Voter:      cosmlib.EthAddressFromBech32(vote.Voter),
+			Voter:      voter,
 			Options:    voteOptions,
 			Metadata:   vote.Metadata,
 		})
@@ -308,9 +330,14 @@ func (c *Contract) GetProposalVotesByVoter(
 	proposalID uint64,
 	voter common.Address,
 ) (generated.IGovernanceModuleVote, error) {
+	voterBech32, err := cosmlib.AccStringFromEthAddress(voter)
+	if err != nil {
+		return generated.IGovernanceModuleVote{}, err
+	}
+
 	res, err := c.querier.Vote(ctx, &v1.QueryVoteRequest{
 		ProposalId: proposalID,
-		Voter:      cosmlib.Bech32FromEthAddress(voter),
+		Voter:      voterBech32,
 	})
 	if err != nil {
 		return generated.IGovernanceModuleVote{}, err
@@ -440,18 +467,4 @@ func (c *Contract) GetConstitution(
 	}
 
 	return res.Constitution, nil
-}
-
-// unmarshalMsgAndReturnAny unmarshals `[]byte` into a `codectypes.Any` message.
-// TODO: This is a temporary solution until we have a better way to unmarshal messages.
-func unmarshalMsgAndReturnAny(bz []byte) (*codectypes.Any, error) {
-	var msg banktypes.MsgSend
-	if err := msg.Unmarshal(bz); err != nil {
-		return nil, err
-	}
-	anyValue, err := codectypes.NewAnyWithValue(&msg)
-	if err != nil {
-		return nil, err
-	}
-	return anyValue, nil
 }

@@ -23,6 +23,7 @@ package lib
 import (
 	"math/big"
 
+	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -167,18 +168,22 @@ func SdkREToStakingRE(re []stakingtypes.RedelegationEntry) []staking.IStakingMod
 
 // SdkValidatorsToStakingValidators converts a Cosmos SDK Validator list to a geth compatible list
 // of Validators.
-func SdkValidatorsToStakingValidators(vals []stakingtypes.Validator) (
+func SdkValidatorsToStakingValidators(valAddrCodec address.Codec, vals []stakingtypes.Validator) (
 	[]staking.IStakingModuleValidator, error,
 ) {
 	valsOut := make([]staking.IStakingModuleValidator, len(vals))
 	for i, val := range vals {
+		operEthAddr, err := EthAddressFromString(valAddrCodec, val.OperatorAddress)
+		if err != nil {
+			return nil, err
+		}
 		pubKey, err := val.ConsPubKey()
 		if err != nil {
 			return nil, err
 		}
 		valsOut[i] = staking.IStakingModuleValidator{
-			OperatorAddress: val.OperatorAddress,
-			ConsensusPubkey: pubKey.Bytes(),
+			OperatorAddr:    operEthAddr,
+			ConsAddr:        pubKey.Address(),
 			Jailed:          val.Jailed,
 			Status:          val.Status.String(),
 			Tokens:          val.Tokens.BigInt(),

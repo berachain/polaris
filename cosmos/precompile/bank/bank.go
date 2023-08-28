@@ -49,7 +49,7 @@ func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) *Co
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			bankgenerated.BankModuleMetaData.ABI,
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
+			common.BytesToAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 		),
 		msgServer: ms,
 		querier:   qs,
@@ -62,8 +62,13 @@ func (c *Contract) GetBalance(
 	accountAddress common.Address,
 	denom string,
 ) (*big.Int, error) {
+	accAddr, err := cosmlib.AccStringFromEthAddress(accountAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.Balance(ctx, &banktypes.QueryBalanceRequest{
-		Address: cosmlib.Bech32FromEthAddress(accountAddress),
+		Address: accAddr,
 		Denom:   denom,
 	})
 	if err != nil {
@@ -79,9 +84,13 @@ func (c *Contract) GetAllBalances(
 	ctx context.Context,
 	accountAddress common.Address,
 ) ([]lib.CosmosCoin, error) {
-	// todo: add pagination here
+	accAddr, err := cosmlib.AccStringFromEthAddress(accountAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
-		Address: cosmlib.Bech32FromEthAddress(accountAddress),
+		Address: accAddr,
 	})
 	if err != nil {
 		return nil, err
@@ -96,8 +105,13 @@ func (c *Contract) GetSpendableBalance(
 	accountAddress common.Address,
 	denom string,
 ) (*big.Int, error) {
+	accAddr, err := cosmlib.AccStringFromEthAddress(accountAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.SpendableBalanceByDenom(ctx, &banktypes.QuerySpendableBalanceByDenomRequest{
-		Address: cosmlib.Bech32FromEthAddress(accountAddress),
+		Address: accAddr,
 		Denom:   denom,
 	})
 	if err != nil {
@@ -113,8 +127,13 @@ func (c *Contract) GetAllSpendableBalances(
 	ctx context.Context,
 	accountAddress common.Address,
 ) ([]lib.CosmosCoin, error) {
+	accAddr, err := cosmlib.AccStringFromEthAddress(accountAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.SpendableBalances(ctx, &banktypes.QuerySpendableBalancesRequest{
-		Address: cosmlib.Bech32FromEthAddress(accountAddress),
+		Address: accAddr,
 	})
 	if err != nil {
 		return nil, err
@@ -212,10 +231,18 @@ func (c *Contract) Send(
 	if err != nil {
 		return false, err
 	}
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	if err != nil {
+		return false, err
+	}
+	toAddr, err := cosmlib.AccStringFromEthAddress(toAddress)
+	if err != nil {
+		return false, err
+	}
 
 	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
-		FromAddress: cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()),
-		ToAddress:   cosmlib.Bech32FromEthAddress(toAddress),
+		FromAddress: caller,
+		ToAddress:   toAddr,
 		Amount:      amount,
 	})
 	return err == nil, err

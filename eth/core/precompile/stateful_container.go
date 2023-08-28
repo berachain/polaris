@@ -94,6 +94,6 @@ func (sc *statefulContainer) Run(
 // unneeded input from interface.
 //
 // RequiredGas implements PrecompileContainer.
-func (sc *statefulContainer) RequiredGas(_ []byte) uint64 {
+func (sc *statefulContainer) RequiredGas([]byte) uint64 {
 	return 0
 }
