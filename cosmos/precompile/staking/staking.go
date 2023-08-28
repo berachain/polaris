@@ -47,6 +47,9 @@ type ValidatorStore interface {
 	ValidatorAddressCodec() address.Codec
 	ValidatorByConsAddr(ctx context.Context, addr sdk.ConsAddress) (stakingtypes.ValidatorI, error)
 	ConsensusAddressCodec() address.Codec
+	IterateBondedValidatorsByPower(
+		ctx context.Context, fn func(index int64, validator stakingtypes.ValidatorI) bool,
+	) error
 }
 
 // Contract is the precompile contract for the staking module.
@@ -90,8 +93,8 @@ func (c *Contract) ValAddressFromConsAddress(
 	return cosmlib.ValAddressToEthAddress(c.vs.ValidatorAddressCodec(), val.GetOperator())
 }
 
-// GetActiveValidators implements the `getActiveValidators(PageRequest)` method.
-func (c *Contract) GetActiveValidators(
+// GetBondedValidators implements the `getBondedValidators(PageRequest)` method.
+func (c *Contract) GetBondedValidators(
 	ctx context.Context,
 	pagination any,
 ) ([]common.Address, cbindings.CosmosPageResponse, error) {
@@ -117,6 +120,36 @@ func (c *Contract) GetActiveValidators(
 
 	pageResponse := cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination)
 	return addrs, pageResponse, nil
+}
+
+// GetBondedValidatorsByPoweer implements the `getBondedValidatorsByPower()` method.
+func (c *Contract) GetBondedValidatorsByPower(
+	ctx context.Context,
+) ([]common.Address, error) {
+	var (
+		vals []common.Address
+		err  error
+	)
+
+	iteratorErr := c.vs.IterateBondedValidatorsByPower(
+		ctx,
+		func(_ int64, validator stakingtypes.ValidatorI) bool {
+			var valOperAddr common.Address
+			valOperAddr, err = cosmlib.ValAddressToEthAddress(
+				c.vs.ValidatorAddressCodec(), validator.GetOperator(),
+			)
+			if err != nil {
+				return true
+			}
+			vals = append(vals, valOperAddr)
+			return false
+		},
+	)
+	if iteratorErr != nil {
+		return nil, iteratorErr
+	}
+
+	return vals, err
 }
 
 // GetValidators implements the `getValidators(PageRequest)` method.
@@ -213,6 +246,7 @@ func (c *Contract) GetValidatorDelegations(
 	for _, d := range res.GetDelegationResponses() {
 		delegations = append(delegations, generated.IStakingModuleDelegation{
 			Delegator: cosmlib.EthAddressFromBech32(d.Delegation.DelegatorAddress),
+			Balance:   d.Balance.Amount.BigInt(),
 			Shares:    d.Delegation.Shares.BigInt(),
 		})
 	}
