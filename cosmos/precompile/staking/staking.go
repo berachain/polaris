@@ -252,7 +252,8 @@ func (c *Contract) GetValidatorDelegations(
 
 	delegations := make([]generated.IStakingModuleDelegation, 0)
 	for _, d := range res.GetDelegationResponses() {
-		delegator, err := cosmlib.EthAddressFromAccBech32(d.Delegation.DelegatorAddress)
+		var delegator common.Address
+		delegator, err = cosmlib.EthAddressFromAccBech32(d.Delegation.DelegatorAddress)
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
@@ -352,18 +353,23 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 
 	unbondingDelegations := make([]generated.IStakingModuleUnbondingDelegation, 0)
 	for _, u := range res.GetUnbondingResponses() {
-		valAddr, err := cosmlib.EthAddressFromBech32(c.vs.ValidatorAddressCodec(), u.ValidatorAddress)
+		var (
+			valAddr   common.Address
+			delegator common.Address
+		)
+
+		valAddr, err = cosmlib.EthAddressFromBech32(c.vs.ValidatorAddressCodec(), u.ValidatorAddress)
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
-		delAddr, err := cosmlib.EthAddressFromAccBech32(u.DelegatorAddress)
+		delegator, err = cosmlib.EthAddressFromAccBech32(u.DelegatorAddress)
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
 
 		unbondingDelegations = append(unbondingDelegations,
 			generated.IStakingModuleUnbondingDelegation{
-				DelegatorAddress: delAddr,
+				DelegatorAddress: delegator,
 				ValidatorAddress: valAddr,
 				Entries:          cosmlib.SdkUDEToStakingUDE(u.Entries),
 			},

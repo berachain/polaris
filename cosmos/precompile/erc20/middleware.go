@@ -127,7 +127,8 @@ func (c *Contract) transferCoinToERC20(
 		// subesequent occurrence of Polaris coins
 
 		// convert ERC20 token bech32 address to common.Address
-		token, err := cosmlib.EthAddressFromAccBech32(resp.Token)
+		var token common.Address
+		token, err = cosmlib.EthAddressFromAccBech32(resp.Token)
 		if err != nil {
 			return err
 		}
@@ -174,7 +175,6 @@ func (c *Contract) transferERC20ToCoin(
 	if amount.Cmp(common.Big0) <= 0 {
 		return ErrInvalidAmount
 	}
-
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// get SDK/Polaris coin denomination pairing with ERC20 token

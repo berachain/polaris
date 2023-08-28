@@ -307,7 +307,8 @@ func (c *Contract) GetProposalVotes(
 				},
 			)
 		}
-		voter, err := cosmlib.EthAddressFromAccBech32(vote.Voter)
+		var voter common.Address
+		voter, err = cosmlib.EthAddressFromAccBech32(vote.Voter)
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
