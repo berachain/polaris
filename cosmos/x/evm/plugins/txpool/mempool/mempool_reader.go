@@ -55,10 +55,10 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 		txNonce := ethTx.Nonce()
 		if (pendingNonce == 0 && txNonce == etp.nr.GetNonce(addr)+1) ||
 			(pendingNonce > 0 && txNonce == pendingNonce+1) {
-			// If on the first tx for sender (pendingNonce == 0), the nonce delta the tx nonce must
-			// be exactly 1 greater than the current nonce in the statedb.
+			// If on the first tx for sender (pendingNonce == 0), the tx nonce must be exactly 1
+			// greater than the current nonce in the statedb.
 
-			// If its not the first tx, the nonce must be equivalent to the pending nonce.
+			// If its not the first tx, the tx nonce must be equivalent to the pending nonce.
 
 			// Set the pending nonce to the nonce of the tx and add it to the pending map.
 			pendingNonces[addr] = txNonce
