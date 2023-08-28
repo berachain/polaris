@@ -38,11 +38,18 @@ func (k *Keeper) ERC20AddressForCoinDenom(
 	ctx context.Context, req *types.ERC20AddressForCoinDenomRequest,
 ) (*types.ERC20AddressForCoinDenomResponse, error) {
 	tokenAddr := k.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetAddressForDenom(req.Denom)
-	var token string
+	var (
+		token string
+		err   error
+	)
+
 	if (tokenAddr == common.Address{}) {
 		token = ""
 	} else {
-		token = cosmlib.Bech32FromEthAddress(tokenAddr)
+		token, err = cosmlib.AccBech32FromEthAddress(tokenAddr)
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	return &types.ERC20AddressForCoinDenomResponse{Token: token}, nil
@@ -52,14 +59,12 @@ func (k *Keeper) ERC20AddressForCoinDenom(
 func (k *Keeper) CoinDenomForERC20Address(
 	ctx context.Context, req *types.CoinDenomForERC20AddressRequest,
 ) (*types.CoinDenomForERC20AddressResponse, error) {
-	addr, err := sdk.AccAddressFromBech32(req.Token)
+	addr, err := cosmlib.EthAddressFromAccBech32(req.Token)
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.CoinDenomForERC20AddressResponse{
-		Denom: k.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetDenomForAddress(
-			cosmlib.AccAddressToEthAddress(addr),
-		),
+		Denom: k.DenomKVStore(sdk.UnwrapSDKContext(ctx)).GetDenomForAddress(addr),
 	}, nil
 }

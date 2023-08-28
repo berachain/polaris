@@ -40,6 +40,7 @@ import (
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/common"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -231,11 +232,11 @@ var _ = Describe("Distribution Precompile Test", func() {
 					testutil.Alice,
 					big.NewInt(0),
 				)
-				valAddress, err := cosmlib.ValAddressToEthAddress(sk.ValidatorAddressCodec(), valAddr.String())
+				valAddress, err := cosmlib.EthAddressFromBech32(sk.ValidatorAddressCodec(), valAddr.String())
 				Expect(err).ToNot(HaveOccurred())
 				res, err := contract.WithdrawDelegatorReward(
 					pCtx,
-					cosmlib.AccAddressToEthAddress(addr),
+					common.BytesToAddress(addr),
 					valAddress,
 				)
 				Expect(err).ToNot(HaveOccurred())

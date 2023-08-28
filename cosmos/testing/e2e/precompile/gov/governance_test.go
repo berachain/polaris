@@ -86,7 +86,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 
 		// Alice Submits a proposal.
 		amt := sdkmath.NewInt(100000000)
-		prop, _ := propAndMsgBz(cosmlib.AddressToAccAddress(tf.Address("alice")).String(), amt)
+		prop, _ := propAndMsgBz(cosmlib.MustAccBech32FromEthAddress(tf.Address("alice")), amt)
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err = precompile.SubmitProposal(txr, prop)
 		Expect(err).ToNot(HaveOccurred())
@@ -105,7 +105,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wrapper submits a proposal.
-		prop, _ = propAndMsgBz(cosmlib.AddressToAccAddress(wrapperAddr).String(), amt)
+		prop, _ = propAndMsgBz(cosmlib.MustAccBech32FromEthAddress(wrapperAddr), amt)
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = wrapper.Submit(txr, prop, "abgt", big.NewInt(amt.Int64()))
 		Expect(err).ToNot(HaveOccurred())
@@ -190,8 +190,8 @@ func propAndMsgBz(proposer string, amount sdkmath.Int) ([]byte, []byte) {
 	govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
 	initDeposit := sdk.NewCoins(sdk.NewCoin("abgt", amount))
 	message := &banktypes.MsgSend{
-		FromAddress: cosmlib.AddressToAccAddress(govAcc).String(),
-		ToAddress:   cosmlib.AddressToAccAddress(tf.Address("alice")).String(),
+		FromAddress: cosmlib.MustAccBech32FromEthAddress(govAcc),
+		ToAddress:   cosmlib.MustAccBech32FromEthAddress(tf.Address("alice")),
 		Amount:      initDeposit,
 	}
 	messageBz, err := message.Marshal()

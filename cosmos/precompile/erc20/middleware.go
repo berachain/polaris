@@ -83,8 +83,8 @@ func (c *Contract) transferCoinToERC20(
 		// send bank-module backed tokens from owner to recipient
 		if err := c.bk.SendCoins(
 			sdkCtx,
-			cosmlib.AddressToAccAddress(owner),
-			cosmlib.AddressToAccAddress(recipient),
+			owner.Bytes(),
+			recipient.Bytes(),
 			sdk.Coins{{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)}},
 		); err != nil {
 			return err
@@ -127,14 +127,13 @@ func (c *Contract) transferCoinToERC20(
 		// subesequent occurrence of Polaris coins
 
 		// convert ERC20 token bech32 address to common.Address
-		var tokenAcc sdk.AccAddress
-		if tokenAcc, err = sdk.AccAddressFromBech32(resp.Token); err != nil {
+		token, err := cosmlib.EthAddressFromAccBech32(resp.Token)
+		if err != nil {
 			return err
 		}
-		token := cosmlib.AccAddressToEthAddress(tokenAcc)
 
 		// return an error if the ERC20 token contract does not exist to revert the tx
-		if !c.ak.HasAccount(ctx, cosmlib.AddressToAccAddress(token)) {
+		if !c.ak.HasAccount(ctx, token.Bytes()) {
 			return ErrTokenDoesNotExist
 		}
 
@@ -179,9 +178,13 @@ func (c *Contract) transferERC20ToCoin(
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// get SDK/Polaris coin denomination pairing with ERC20 token
+	tokenAccAddr, err := cosmlib.AccBech32FromEthAddress(token)
+	if err != nil {
+		return err
+	}
 	resp, err := c.em.CoinDenomForERC20Address(
 		ctx, &erc20types.CoinDenomForERC20AddressRequest{
-			Token: cosmlib.Bech32FromEthAddress(token),
+			Token: tokenAccAddr,
 		},
 	)
 	if err != nil {
@@ -197,7 +200,7 @@ func (c *Contract) transferERC20ToCoin(
 	//nolint:nestif // readability.
 	if erc20types.IsPolarisDenom(denom) { // transferring ERC20 originated tokens to Polaris coins
 		// return an error if the ERC20 token contract does not exist to revert the tx
-		if !c.ak.HasAccount(ctx, cosmlib.AddressToAccAddress(token)) {
+		if !c.ak.HasAccount(ctx, token.Bytes()) {
 			return ErrTokenDoesNotExist
 		}
 
@@ -242,8 +245,8 @@ func (c *Contract) transferERC20ToCoin(
 		// send bank module-backed tokens from owner to recipient
 		if err = c.bk.SendCoins(
 			sdkCtx,
-			cosmlib.AddressToAccAddress(owner),
-			cosmlib.AddressToAccAddress(recipient),
+			owner.Bytes(),
+			recipient.Bytes(),
 			sdk.Coins{{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)}},
 		); err != nil {
 			return err

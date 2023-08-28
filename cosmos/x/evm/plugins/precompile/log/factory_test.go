@@ -213,7 +213,7 @@ var _ = Describe("Factory", func() {
 
 			badCvd = make(precompile.ValueDecoders)
 			badCvd["custom_validator"] = func(val string) (any, error) {
-				return cosmlib.ValAddressToEthAddress(sk.ValidatorAddressCodec(), val)
+				return cosmlib.EthAddressFromBech32(sk.ValidatorAddressCodec(), val)
 			}
 			badCvd["custom_amount"] = func(val string) (any, error) {
 				return nil, errors.New("invalid amount")
@@ -297,7 +297,7 @@ func mockCustomAbiEvent() map[string]abi.Event {
 
 var cvd = precompile.ValueDecoders{
 	"custom_validator": func(val string) (any, error) {
-		return cosmlib.ValAddressToEthAddress(sk.ValidatorAddressCodec(), val)
+		return cosmlib.EthAddressFromBech32(sk.ValidatorAddressCodec(), val)
 	},
 	"custom_amount": func(val string) (any, error) {
 		coin, err := sdk.ParseCoinNormalized(val)
