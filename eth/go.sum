@@ -436,10 +436,10 @@ gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 nullprogram.com/x/optparse v1.0.0/go.mod h1:KdyPE+Igbe0jQUrVfMqDMeJQIJZEuyV7pjYmp6pbG50=
-pkg.berachain.dev/polaris/contracts v0.0.0-20230818205502-77067cdf29c1 h1:ZljN5zxCI4niwVabZCANLcymNa5oaLvCebOKwKPSxSI=
-pkg.berachain.dev/polaris/contracts v0.0.0-20230818205502-77067cdf29c1/go.mod h1:8zDOkBocmktbCvpmsIhQQJ7TFif1kz6MpYVJMqyDRUU=
-pkg.berachain.dev/polaris/lib v0.0.0-20230818205502-77067cdf29c1 h1:/wT5+KK+4yZb9XSunB9ypDebFx1e12YL0EGtcH+mSpU=
-pkg.berachain.dev/polaris/lib v0.0.0-20230818205502-77067cdf29c1/go.mod h1:JZtndZdLnGavd5b+IiHYew5nMAOoL968nE2cTxk+dEI=
+pkg.berachain.dev/polaris/contracts v0.0.0-20230827184022-e3cec7a2c178 h1:MGHPDgY930CRmW1UMPICSg73nRfX/lRdXV2h+w0s/zk=
+pkg.berachain.dev/polaris/contracts v0.0.0-20230827184022-e3cec7a2c178/go.mod h1:ceCUUKQ1GkDJqXjAmeOrjJ/8AEqdUip466n8G4UCgjM=
+pkg.berachain.dev/polaris/lib v0.0.0-20230827184022-e3cec7a2c178 h1:A+7mk8r9a5jEq3Xp/AZoP6i0mFTJFn/zqSxcDntdak0=
+pkg.berachain.dev/polaris/lib v0.0.0-20230827184022-e3cec7a2c178/go.mod h1:+3IkGuGJ/kV2d90ImTqPSrI9g+M6nV0eX1MAmtIfFZA=
 rsc.io/pdf v0.1.1/go.mod h1:n8OzWcQ6Sp37PL01nO98y4iUCRdTGarVfzxY20ICaU4=
 rsc.io/tmplfunc v0.0.3 h1:53XFQh69AfOa8Tw0Jm7t+GV7KZhOi6jzsCzTtKbMvzU=
 rsc.io/tmplfunc v0.0.3/go.mod h1:AG3sTPzElb1Io3Yg4voV9AGZJuleGAwaVRxL9M49PhA=
