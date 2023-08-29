@@ -118,7 +118,7 @@ var _ = Describe("Staking", func() {
 
 	When("CustomValueDecoders", func() {
 		It("should be a no-op", func() {
-			Expect(contract.CustomValueDecoders()).To(HaveLen(3))
+			Expect(contract.CustomValueDecoders()).To(HaveLen(4))
 		})
 	})
 
