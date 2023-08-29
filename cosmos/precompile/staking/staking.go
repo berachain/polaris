@@ -79,9 +79,10 @@ func NewPrecompileContract(ak cosmlib.AccountKeeper, sk *stakingkeeper.Keeper) *
 
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		stakingtypes.AttributeKeyValidator:    c.ConvertValAddressFromBech32,
-		stakingtypes.AttributeKeySrcValidator: c.ConvertValAddressFromBech32,
-		stakingtypes.AttributeKeyDstValidator: c.ConvertValAddressFromBech32,
+		stakingtypes.AttributeKeyDelegator:    c.ConvertAccAddressFromString,
+		stakingtypes.AttributeKeyValidator:    c.ConvertValAddressFromString,
+		stakingtypes.AttributeKeySrcValidator: c.ConvertValAddressFromString,
+		stakingtypes.AttributeKeyDstValidator: c.ConvertValAddressFromString,
 	}
 }
 
@@ -573,9 +574,16 @@ func (c *Contract) bondDenom(ctx context.Context) (string, error) {
 	return res.Params.BondDenom, nil
 }
 
-// ConvertValAddressFromBech32 converts a bech32 string representing a validator address to a
+// ConvertValAddressFromString converts a Cosmos string representing a validator address to a
 // common.Address.
-func (c *Contract) ConvertValAddressFromBech32(attributeValue string) (any, error) {
-	// extract the sdk.ValAddress from string value
+func (c *Contract) ConvertValAddressFromString(attributeValue string) (any, error) {
+	// extract the sdk.ValAddress from string value as common.Address
 	return cosmlib.EthAddressFromString(c.vs.ValidatorAddressCodec(), attributeValue)
+}
+
+// ConvertAccAddressFromString converts a Cosmos string representing a account address to a
+// common.Address.
+func (c *Contract) ConvertAccAddressFromString(attributeValue string) (any, error) {
+	// extract the sdk.AccAddress from string value as common.Address
+	return cosmlib.EthAddressFromString(c.accAddrCodec, attributeValue)
 }

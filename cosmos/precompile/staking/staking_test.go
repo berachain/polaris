@@ -212,7 +212,7 @@ var _ = Describe("Staking", func() {
 
 		It("should correctly convert ValAddress to common.Address", func() {
 			val := sdk.ValAddress([]byte("alice")).String()
-			gethValue, err := contract.ConvertValAddressFromBech32(val)
+			gethValue, err := contract.ConvertValAddressFromString(val)
 			Expect(err).ToNot(HaveOccurred())
 			valAddrVal := libutils.MustGetAs[common.Address](gethValue)
 			Expect(valAddrVal).To(Equal(cosmlib.MustEthAddressFromString(sk.ValidatorAddressCodec(), val)))

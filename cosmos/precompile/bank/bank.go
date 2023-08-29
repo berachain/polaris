@@ -62,6 +62,17 @@ func NewPrecompileContract(
 	}
 }
 
+func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
+	return ethprecompile.ValueDecoders{
+		banktypes.AttributeKeySender:    c.ConvertAccAddressFromString,
+		banktypes.AttributeKeyRecipient: c.ConvertAccAddressFromString,
+		banktypes.AttributeKeySpender:   c.ConvertAccAddressFromString,
+		banktypes.AttributeKeyReceiver:  c.ConvertAccAddressFromString,
+		banktypes.AttributeKeyMinter:    c.ConvertAccAddressFromString,
+		banktypes.AttributeKeyBurner:    c.ConvertAccAddressFromString,
+	}
+}
+
 // GetBalance implements `getBalance(address,string)` method.
 func (c *Contract) GetBalance(
 	ctx context.Context,
@@ -254,4 +265,11 @@ func (c *Contract) Send(
 		Amount:      amount,
 	})
 	return err == nil, err
+}
+
+// ConvertAccAddressFromString converts a Cosmos string representing a account address to a
+// common.Address.
+func (c *Contract) ConvertAccAddressFromString(attributeValue string) (any, error) {
+	// extract the sdk.AccAddress from string value as common.Address
+	return cosmlib.EthAddressFromString(c.addressCodec, attributeValue)
 }
