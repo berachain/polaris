@@ -122,8 +122,6 @@ type (
 	TxPoolPlugin interface {
 		// SetBaseFee sets the base fee of the transaction pool.
 		SetBaseFee(*big.Int)
-		// GetBaseFee returns the current base fee of the transaction pool.
-		GetBaseFee() *big.Int
 		// SendTx submits the tx to the transaction pool.
 		SendTx(tx *types.Transaction) error
 		// Pending returns all pending transactions in the transaction pool.

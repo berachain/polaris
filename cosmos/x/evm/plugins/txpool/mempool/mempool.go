@@ -60,7 +60,7 @@ type EthTxPool struct {
 // NewPolarisEthereumTxPool creates a new Ethereum transaction pool.
 func NewPolarisEthereumTxPool() *EthTxPool {
 	tpp := EthereumTxPriorityPolicy{
-		baseFee: new(big.Int).SetUint64(0),
+		baseFee: big.NewInt(0),
 	}
 	config := mempool.PriorityNonceMempoolConfig[*big.Int]{
 		TxReplacement: EthereumTxReplacePolicy[*big.Int]{
@@ -91,15 +91,5 @@ func (etp *EthTxPool) SetNonceRetriever(nr NonceRetriever) {
 
 // SetBaseFee updates the base fee in the priority policy.
 func (etp *EthTxPool) SetBaseFee(baseFee *big.Int) {
-	if etp.priorityPolicy != nil {
-		etp.priorityPolicy.baseFee = baseFee
-	}
-}
-
-// GetBaseFee returns the current base fee used for mempool tx priority.
-func (etp *EthTxPool) GetBaseFee() *big.Int {
-	if etp.priorityPolicy != nil {
-		return etp.priorityPolicy.baseFee
-	}
-	return nil
+	etp.priorityPolicy.baseFee = baseFee
 }
