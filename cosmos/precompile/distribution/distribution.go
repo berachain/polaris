@@ -24,7 +24,7 @@ import (
 	"context"
 
 	"cosmossdk.io/core/address"
-
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
@@ -148,8 +148,9 @@ func (c *Contract) GetAllDelegatorRewards(
 		return nil, err
 	}
 
+	cacheCtx, _ := sdk.UnwrapSDKContext(ctx).CacheContext()
 	res, err := c.querier.DelegationTotalRewards(
-		ctx,
+		cacheCtx,
 		&distributiontypes.QueryDelegationTotalRewardsRequest{
 			DelegatorAddress: delAddr,
 		},
@@ -191,8 +192,10 @@ func (c *Contract) GetTotalDelegatorReward(
 	if err != nil {
 		return nil, err
 	}
+
+	cacheCtx, _ := sdk.UnwrapSDKContext(ctx).CacheContext()
 	res, err := c.querier.DelegationTotalRewards(
-		ctx,
+		cacheCtx,
 		&distributiontypes.QueryDelegationTotalRewardsRequest{
 			DelegatorAddress: delAddr,
 		},
