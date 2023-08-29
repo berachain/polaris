@@ -109,7 +109,7 @@ var _ = Describe("Distribution Precompile", func() {
 		delegateAmt := big.NewInt(123450000000)
 		txr := tf.GenerateTransactOpts("alice")
 		txr.Value = delegateAmt
-		tx, err := stakingPrecompile.Delegate(txr, val, delegateAmt)
+		tx, err := stakingPrecompile.Delegate(txr, val.OperatorAddr, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
@@ -121,7 +121,7 @@ var _ = Describe("Distribution Precompile", func() {
 
 		// Withdraw the rewards.
 		txr = tf.GenerateTransactOpts("alice")
-		tx, err = precompile.WithdrawDelegatorReward(txr, tf.Address("alice"), val)
+		tx, err = precompile.WithdrawDelegatorReward(txr, tf.Address("alice"), val.OperatorAddr)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 	})
@@ -155,7 +155,7 @@ var _ = Describe("Distribution Precompile", func() {
 		amt = big.NewInt(123450000000)
 		txr = tf.GenerateTransactOpts("alice")
 		txr.Value = amt
-		tx, err = contract.Delegate(txr, val)
+		tx, err = contract.Delegate(txr, val.OperatorAddr)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
@@ -167,7 +167,7 @@ var _ = Describe("Distribution Precompile", func() {
 
 		// Withdraw the rewards.
 		txr = tf.GenerateTransactOpts("alice")
-		tx, err = contract.WithdrawRewards(txr, contractAddress, val)
+		tx, err = contract.WithdrawRewards(txr, contractAddress, val.OperatorAddr)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
