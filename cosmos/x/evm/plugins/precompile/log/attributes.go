@@ -26,8 +26,6 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -56,17 +54,17 @@ const (
 var defaultCosmosValueDecoders = precompile.ValueDecoders{
 	sdk.AttributeKeyAmount:                  ConvertSdkCoins,
 	stakingtypes.AttributeKeyCreationHeight: ConvertInt64,
-	stakingtypes.AttributeKeyDelegator:      ConvertAccAddressFromBech32,
-	banktypes.AttributeKeySender:            ConvertAccAddressFromBech32,
-	banktypes.AttributeKeyRecipient:         ConvertAccAddressFromBech32,
-	banktypes.AttributeKeySpender:           ConvertAccAddressFromBech32,
-	banktypes.AttributeKeyReceiver:          ConvertAccAddressFromBech32,
-	banktypes.AttributeKeyMinter:            ConvertAccAddressFromBech32,
-	banktypes.AttributeKeyBurner:            ConvertAccAddressFromBech32,
-	distrtypes.AttributeKeyWithdrawAddress:  ConvertAccAddressFromBech32,
-	govtypes.AttributeKeyProposalID:         ConvertUint64,
-	govtypes.AttributeKeyProposalMessages:   ReturnStringAsIs,
-	govtypes.AttributeKeyOption:             ReturnStringAsIs,
+	// stakingtypes.AttributeKeyDelegator:      ConvertAccAddressFromBech32,
+	// banktypes.AttributeKeySender:            ConvertAccAddressFromBech32,
+	// banktypes.AttributeKeyRecipient:         ConvertAccAddressFromBech32,
+	// banktypes.AttributeKeySpender:           ConvertAccAddressFromBech32,
+	// banktypes.AttributeKeyReceiver:          ConvertAccAddressFromBech32,
+	// banktypes.AttributeKeyMinter:            ConvertAccAddressFromBech32,
+	// banktypes.AttributeKeyBurner:            ConvertAccAddressFromBech32,
+	// distrtypes.AttributeKeyWithdrawAddress:  ConvertAccAddressFromBech32,
+	govtypes.AttributeKeyProposalID:       ConvertUint64,
+	govtypes.AttributeKeyProposalMessages: ReturnStringAsIs,
+	govtypes.AttributeKeyOption:           ReturnStringAsIs,
 }
 
 // ==============================================================================
@@ -77,9 +75,10 @@ var defaultCosmosValueDecoders = precompile.ValueDecoders{
 // valueDecoders.
 var (
 	_ precompile.ValueDecoder = ConvertSdkCoins
-	_ precompile.ValueDecoder = ConvertAccAddressFromBech32
 	_ precompile.ValueDecoder = ConvertInt64
+	_ precompile.ValueDecoder = ConvertUint64
 	_ precompile.ValueDecoder = ReturnStringAsIs
+	_ precompile.ValueDecoder = ConvertCommonHexAddress
 )
 
 // ConvertSdkCoins converts the string representation of an `sdk.Coins` to a `[]generated.CosmosCoin`.
@@ -94,15 +93,6 @@ func ConvertSdkCoins(attributeValue string) (any, error) {
 	// convert to geth compatible coins
 	evmCoins := cosmlib.SdkCoinsToEvmCoins(coins)
 	return evmCoins, nil
-}
-
-// ConvertAccAddressFromBech32 converts a bech32 string representing an account address to a
-// common.Address.
-//
-// ConvertAccAddressFromBech32 is a `precompile.ValueDecoder`.
-func ConvertAccAddressFromBech32(attributeValue string) (any, error) {
-	// extract the sdk.AccAddress from string value
-	return cosmlib.EthAdressFromAccString(attributeValue)
 }
 
 // ConvertInt64 converts a creation height (from the Cosmos SDK staking module) `string`

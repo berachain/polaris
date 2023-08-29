@@ -21,61 +21,13 @@
 package lib
 
 import (
-	"errors"
-
 	"cosmossdk.io/core/address"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
 ///////////////////////////////////////////////////////////////////////////////
-// AccAddress
-///////////////////////////////////////////////////////////////////////////////
-
-// EthAdressFromAccString converts a string acc address to an Ethereum `Address`. NOTE: Do NOT use
-// for val or cons address.
-func EthAdressFromAccString(accAddress string) (common.Address, error) {
-	addr, err := sdk.AccAddressFromBech32(accAddress)
-	if err != nil {
-		return common.Address{}, err
-	}
-	return common.BytesToAddress(addr), nil
-}
-
-// MustEthAddressFromAccString converts a string acc address to an Ethereum `Address`.
-// Panics if conversion fails. NOTE: Do NOT use for val or cons address.
-func MustEthAddressFromAccString(accAddress string) common.Address {
-	addr, err := EthAdressFromAccString(accAddress)
-	if err != nil {
-		panic(err)
-	}
-	return addr
-}
-
-// AccStringFromEthAddress converts Ethereum `Address` to a string. NOTE: Do NOT use for val
-// or cons address.
-func AccStringFromEthAddress(ethAddr common.Address) (string, error) {
-	accStr := sdk.AccAddress(ethAddr.Bytes()).String()
-	if accStr == "" {
-		return "", errors.New("empty bech32 address")
-	}
-	return accStr, nil
-}
-
-// MustAccStringFromEthAddress converts Ethereum `Address` to a string. Panics if the
-// conversion fails. NOTE: Do NOT use for val or cons address.
-func MustAccStringFromEthAddress(ethAddr common.Address) string {
-	accStr, err := AccStringFromEthAddress(ethAddr)
-	if err != nil {
-		panic(err)
-	}
-	return accStr
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// ValAddress and ConsAddress
+// AccAddress, ValAddress, ConsAddress
 ///////////////////////////////////////////////////////////////////////////////
 
 // EthAddressFromString converts a Cosmos SDK (val/cons)address string to an Ethereum `Address`.

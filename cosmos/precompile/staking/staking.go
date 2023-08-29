@@ -56,21 +56,23 @@ type ValidatorStore interface {
 type Contract struct {
 	ethprecompile.BaseContract
 
-	vs        ValidatorStore
-	msgServer stakingtypes.MsgServer
-	querier   stakingtypes.QueryServer
+	accAddrCodec address.Codec
+	vs           ValidatorStore
+	msgServer    stakingtypes.MsgServer
+	querier      stakingtypes.QueryServer
 }
 
 // NewContract is the constructor of the staking contract.
-func NewPrecompileContract(sk *stakingkeeper.Keeper) *Contract {
+func NewPrecompileContract(ak cosmlib.AccountKeeper, sk *stakingkeeper.Keeper) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.StakingModuleMetaData.ABI,
 			common.BytesToAddress(authtypes.NewModuleAddress(stakingtypes.ModuleName)),
 		),
-		vs:        sk,
-		msgServer: stakingkeeper.NewMsgServerImpl(sk),
-		querier:   stakingkeeper.Querier{Keeper: sk},
+		accAddrCodec: ak.AddressCodec(),
+		vs:           sk,
+		msgServer:    stakingkeeper.NewMsgServerImpl(sk),
+		querier:      stakingkeeper.Querier{Keeper: sk},
 	}
 }
 
@@ -201,7 +203,7 @@ func (c *Contract) GetDelegatorValidators(
 	delegatorAddr common.Address,
 	pagination any,
 ) ([]generated.IStakingModuleValidator, cbindings.CosmosPageResponse, error) {
-	delegator, err := cosmlib.AccStringFromEthAddress(delegatorAddr)
+	delegator, err := cosmlib.StringFromEthAddress(c.accAddrCodec, delegatorAddr)
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
@@ -246,7 +248,7 @@ func (c *Contract) GetValidatorDelegations(
 	delegations := make([]generated.IStakingModuleDelegation, 0)
 	for _, d := range res.GetDelegationResponses() {
 		var delegator common.Address
-		delegator, err = cosmlib.EthAdressFromAccString(d.Delegation.DelegatorAddress)
+		delegator, err = cosmlib.EthAddressFromString(c.accAddrCodec, d.Delegation.DelegatorAddress)
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
@@ -270,7 +272,7 @@ func (c *Contract) GetDelegation(
 	if err != nil {
 		return nil, err
 	}
-	delAddr, err := cosmlib.AccStringFromEthAddress(delegatorAddress)
+	delAddr, err := cosmlib.StringFromEthAddress(c.accAddrCodec, delegatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -304,7 +306,7 @@ func (c *Contract) GetUnbondingDelegation(
 	if err != nil {
 		return nil, err
 	}
-	delAddr, err := cosmlib.AccStringFromEthAddress(delegatorAddress)
+	delAddr, err := cosmlib.StringFromEthAddress(c.accAddrCodec, delegatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -328,7 +330,7 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 	delegatorAddress common.Address,
 	pagination any,
 ) ([]generated.IStakingModuleUnbondingDelegation, cbindings.CosmosPageResponse, error) {
-	delAddr, err := cosmlib.AccStringFromEthAddress(delegatorAddress)
+	delAddr, err := cosmlib.StringFromEthAddress(c.accAddrCodec, delegatorAddress)
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
@@ -355,7 +357,7 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
-		delegator, err = cosmlib.EthAdressFromAccString(u.DelegatorAddress)
+		delegator, err = cosmlib.EthAddressFromString(c.accAddrCodec, u.DelegatorAddress)
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
@@ -380,7 +382,7 @@ func (c *Contract) GetRedelegations(
 	dstValidator common.Address,
 	pagination any,
 ) ([]generated.IStakingModuleRedelegationEntry, cbindings.CosmosPageResponse, error) {
-	delAddr, err := cosmlib.AccStringFromEthAddress(delegatorAddress)
+	delAddr, err := cosmlib.StringFromEthAddress(c.accAddrCodec, delegatorAddress)
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
@@ -444,7 +446,9 @@ func (c *Contract) Delegate(
 	if err != nil {
 		return false, err
 	}
-	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	caller, err := cosmlib.StringFromEthAddress(
+		c.accAddrCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+	)
 	if err != nil {
 		return false, err
 	}
@@ -471,7 +475,9 @@ func (c *Contract) Undelegate(
 	if err != nil {
 		return false, err
 	}
-	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	caller, err := cosmlib.StringFromEthAddress(
+		c.accAddrCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+	)
 	if err != nil {
 		return false, err
 	}
@@ -503,7 +509,9 @@ func (c *Contract) BeginRedelegate(
 	if err != nil {
 		return false, err
 	}
-	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	caller, err := cosmlib.StringFromEthAddress(
+		c.accAddrCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+	)
 	if err != nil {
 		return false, err
 	}
@@ -535,7 +543,9 @@ func (c *Contract) CancelUnbondingDelegation(
 	if err != nil {
 		return false, err
 	}
-	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	caller, err := cosmlib.StringFromEthAddress(
+		c.accAddrCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+	)
 	if err != nil {
 		return false, err
 	}

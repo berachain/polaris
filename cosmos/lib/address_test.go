@@ -41,6 +41,8 @@ var _ = Describe("Address", func() {
 	})
 
 	It("should convert directly from eth to acc bech32 and vice versa", func() {
+		
+
 		Expect(cosmlib.MustEthAddressFromAccString(bech32)).To(Equal(addr))
 		Expect(cosmlib.MustAccStringFromEthAddress(addr)).To(Equal(bech32))
 

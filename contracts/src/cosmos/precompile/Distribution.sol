@@ -41,6 +41,8 @@ interface IDistributionModule {
      */
     function withdrawDelegatorReward(address delegator, address validator) external returns (Cosmos.Coin[] memory);
 
+    function getDelegatorReward(address delegator, address validator) external view returns (Cosmos.Coin[] memory);
+
     /**
      * @dev Emitted by the distribution module when `amount` is withdrawn from a delegation with
      * `validator` as rewards.

@@ -225,7 +225,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 		})
 
 		When("Withdraw Delegator Rewards common address", func() {
-
 			It("Success", func() {
 				pCtx := vm.NewPolarContext(
 					ctx,
@@ -235,17 +234,24 @@ var _ = Describe("Distribution Precompile Test", func() {
 				)
 				valAddress, err := cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), valAddr.String())
 				Expect(err).ToNot(HaveOccurred())
-				res, err := contract.WithdrawDelegatorReward(
+
+				res1, err := contract.GetDelegatorReward(pCtx, common.BytesToAddress(addr), valAddress)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res1[0].Denom).To(Equal(sdk.DefaultBondDenom))
+				rewards, _ := tokens.TruncateDecimal()
+				Expect(res1[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
+
+				res2, err := contract.WithdrawDelegatorReward(
 					pCtx,
 					common.BytesToAddress(addr),
 					valAddress,
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res[0].Denom).To(Equal(sdk.DefaultBondDenom))
-				rewards, _ := tokens.TruncateDecimal()
-				Expect(res[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
+				Expect(res2[0].Denom).To(Equal(sdk.DefaultBondDenom))
+				Expect(res2[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
 			})
 		})
+
 		When("Reading Params", func() {
 			It("Should get if withdraw forwarding is enabled", func() {
 				pCtx := vm.NewPolarContext(
@@ -259,6 +265,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 				Expect(res).To(BeTrue())
 			})
 		})
+
 		When("Base Precompile Features", func() {
 			It("Should not have custom value decoders", func() {
 				Expect(contract.CustomValueDecoders()).To(HaveLen(1))

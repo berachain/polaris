@@ -40,6 +40,7 @@ func PrecompilesToInject(app *SimApp, customPcs ...ethprecompile.Registrable) fu
 		// Create the precompile injector with the standard precompiles.
 		pcs := ethprecompile.NewPrecompiles([]ethprecompile.Registrable{
 			bankprecompile.NewPrecompileContract(
+				app.AccountKeeper,
 				bankkeeper.NewMsgServerImpl(app.BankKeeper),
 				app.BankKeeper,
 			),

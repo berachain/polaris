@@ -70,18 +70,19 @@ func (c *Contract) SetWithdrawAddress(
 	ctx context.Context,
 	withdrawAddress common.Address,
 ) (bool, error) {
-	return c.setWithdrawAddressHelper(
-		ctx,
-		sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes()),
-		sdk.AccAddress(withdrawAddress.Bytes()),
-	)
+	_, err := c.msgServer.SetWithdrawAddress(ctx, &distributiontypes.MsgSetWithdrawAddress{
+		DelegatorAddress: sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes()).String(),
+		WithdrawAddress:  sdk.AccAddress(withdrawAddress.Bytes()).String(),
+	})
+	return err == nil, err
 }
 
 // GetWithdrawEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
 func (c *Contract) GetWithdrawEnabled(
 	ctx context.Context,
 ) (bool, error) {
-	return c.getWithdrawAddrEnabled(ctx)
+	res, err := c.querier.Params(ctx, &distributiontypes.QueryParamsRequest{})
+	return res.Params.WithdrawAddrEnabled, err
 }
 
 // WithdrawDelegatorReward is the precompile contract method for the
@@ -91,11 +92,48 @@ func (c *Contract) WithdrawDelegatorReward(
 	delegator common.Address,
 	validator common.Address,
 ) ([]lib.CosmosCoin, error) {
-	return c.withdrawDelegatorRewardsHelper(
-		ctx,
-		sdk.AccAddress(delegator.Bytes()),
-		sdk.ValAddress(validator.Bytes()),
-	)
+	res, err := c.msgServer.WithdrawDelegatorReward(ctx, &distributiontypes.MsgWithdrawDelegatorReward{
+		DelegatorAddress: sdk.AccAddress(delegator.Bytes()).String(),
+		ValidatorAddress: sdk.AccAddress(validator.Bytes()).String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	amount := make([]lib.CosmosCoin, 0)
+	for _, coin := range res.Amount {
+		amount = append(amount, lib.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
+	}
+
+	return amount, nil
+}
+
+// GetDelegatorReward implements `getDelegatorReward(address,address)`.
+func (c *Contract) GetDelegatorReward(
+	ctx context.Context,
+	delegator common.Address,
+	validator common.Address,
+) ([]lib.CosmosCoin, error) {
+	res, err := c.querier.DelegationRewards(ctx, &distributiontypes.QueryDelegationRewardsRequest{
+		DelegatorAddress: sdk.AccAddress(delegator.Bytes()).String(),
+		ValidatorAddress: sdk.AccAddress(validator.Bytes()).String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	amount := make([]lib.CosmosCoin, 0)
+	for _, coin := range res.Rewards {
+		amount = append(amount, lib.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
+	}
+
+	return amount, nil
 }
 
 // ConvertValAddressFromBech32 converts a bech32 string representing a validator address to a
