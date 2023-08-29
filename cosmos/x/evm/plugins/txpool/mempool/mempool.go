@@ -48,6 +48,9 @@ type WrappedGethTxPool struct {
 	pendingBaseFee *big.Int
 	signer         coretypes.Signer
 
+	// serializer converts eth txs to sdk txs when being iterated over.
+	serializer SdkTxSerializer
+
 	// iterator is used to iterate over the txpool.
 	iterator *iterator
 }
@@ -60,7 +63,7 @@ func NewWrappedGethTxPool() *WrappedGethTxPool {
 // Setup sets the chain config and sdk tx serializer on the wrapped Geth TxPool.
 func (gtp *WrappedGethTxPool) Setup(txPool *txpool.TxPool, serializer SdkTxSerializer) {
 	gtp.TxPool = txPool
-	gtp.iterator = newIterator(serializer)
+	gtp.serializer = serializer
 }
 
 // Prepare prepares the txpool for the next pending block.
@@ -97,7 +100,7 @@ func (gtp *WrappedGethTxPool) InsertSync(_ context.Context, tx sdk.Tx) error {
 // Remove is called when a transaction is removed from the mempool.
 func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-		if !gtp.iterator.empty {
+		if gtp.iterator != nil && gtp.iterator.Tx() != nil {
 			gtp.iterator.txs.Pop()
 		} else if gtp.RemoveTx(ethTx.Hash(), true) < 1 {
 			// remove from the pending queue of txs in the geth mempool.
@@ -113,18 +116,21 @@ func (gtp *WrappedGethTxPool) Remove(tx sdk.Tx) error {
 // Select returns an Iterator over the app-side mempool. If txs are specified, then they shall be
 // incorporated into the Iterator. The Iterator must closed by the caller.
 func (gtp *WrappedGethTxPool) Select(context.Context, [][]byte) sdkmempool.Iterator {
-	if gtp.TxPool == nil {
-		// not processing txs yet
-		return nil
-	}
-
 	// return nil if there are no pending txs
-	if pending, _ := gtp.Stats(); pending == 0 {
+	pendingTxs := gtp.Pending(true)
+	if len(pendingTxs) == 0 {
 		return nil
 	}
 
-	// return the iterator over the pending txs, sorted by price and nonce
-	gtp.iterator.reset(gtp.Pending(true), gtp.pendingBaseFee, gtp.signer)
+	// return an iterator over the pending txs, sorted by price and nonce
+	gtp.iterator = &iterator{
+		txs: coretypes.NewTransactionsByPriceAndNonce(
+			gtp.signer,
+			pendingTxs,
+			gtp.pendingBaseFee,
+		),
+		serializer: gtp.serializer,
+	}
 	return gtp.iterator
 }
 
