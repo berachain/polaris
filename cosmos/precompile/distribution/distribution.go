@@ -23,7 +23,7 @@ package distribution
 import (
 	"context"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/core/address"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
@@ -39,23 +39,28 @@ import (
 type Contract struct {
 	ethprecompile.BaseContract
 
-	vs        staking.ValidatorStore
-	msgServer distributiontypes.MsgServer
-	querier   distributiontypes.QueryServer
+	addressCodec address.Codec
+	vs           staking.ValidatorStore
+	msgServer    distributiontypes.MsgServer
+	querier      distributiontypes.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the distribution module precompile contract.
 func NewPrecompileContract(
-	vs staking.ValidatorStore, m distributiontypes.MsgServer, q distributiontypes.QueryServer,
+	ak cosmlib.AccountKeeper,
+	vs staking.ValidatorStore,
+	m distributiontypes.MsgServer,
+	q distributiontypes.QueryServer,
 ) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.DistributionModuleMetaData.ABI,
 			common.BytesToAddress([]byte{0x69}),
 		),
-		vs:        vs,
-		msgServer: m,
-		querier:   q,
+		addressCodec: ak.AddressCodec(),
+		vs:           vs,
+		msgServer:    m,
+		querier:      q,
 	}
 }
 
@@ -70,9 +75,20 @@ func (c *Contract) SetWithdrawAddress(
 	ctx context.Context,
 	withdrawAddress common.Address,
 ) (bool, error) {
-	_, err := c.msgServer.SetWithdrawAddress(ctx, &distributiontypes.MsgSetWithdrawAddress{
-		DelegatorAddress: sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes()).String(),
-		WithdrawAddress:  sdk.AccAddress(withdrawAddress.Bytes()).String(),
+	delAddr, err := cosmlib.StringFromEthAddress(
+		c.addressCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+	)
+	if err != nil {
+		return false, err
+	}
+	withdrawAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, withdrawAddress)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = c.msgServer.SetWithdrawAddress(ctx, &distributiontypes.MsgSetWithdrawAddress{
+		DelegatorAddress: delAddr,
+		WithdrawAddress:  withdrawAddr,
 	})
 	return err == nil, err
 }
@@ -92,9 +108,18 @@ func (c *Contract) WithdrawDelegatorReward(
 	delegator common.Address,
 	validator common.Address,
 ) ([]lib.CosmosCoin, error) {
+	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
+	if err != nil {
+		return nil, err
+	}
+	valAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, validator)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.msgServer.WithdrawDelegatorReward(ctx, &distributiontypes.MsgWithdrawDelegatorReward{
-		DelegatorAddress: sdk.AccAddress(delegator.Bytes()).String(),
-		ValidatorAddress: sdk.AccAddress(validator.Bytes()).String(),
+		DelegatorAddress: delAddr,
+		ValidatorAddress: valAddr,
 	})
 	if err != nil {
 		return nil, err
@@ -117,9 +142,18 @@ func (c *Contract) GetDelegatorReward(
 	delegator common.Address,
 	validator common.Address,
 ) ([]lib.CosmosCoin, error) {
+	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
+	if err != nil {
+		return nil, err
+	}
+	valAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, validator)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.DelegationRewards(ctx, &distributiontypes.QueryDelegationRewardsRequest{
-		DelegatorAddress: sdk.AccAddress(delegator.Bytes()).String(),
-		ValidatorAddress: sdk.AccAddress(validator.Bytes()).String(),
+		DelegatorAddress: delAddr,
+		ValidatorAddress: valAddr,
 	})
 	if err != nil {
 		return nil, err

@@ -84,6 +84,10 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 	}
 
 	// Create the governance keeper.
+	authority, err := ak.AddressCodec().BytesToString(authtypes.NewModuleAddress(governancetypes.ModuleName))
+	if err != nil {
+		panic(err)
+	}
 	gk := governancekeeper.NewKeeper(
 		encCfg.Codec,
 		runtime.NewKVStoreService(storetypes.NewKVStoreKey(governancetypes.StoreKey)),
@@ -93,7 +97,7 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 		dk,
 		msr,
 		governancetypes.DefaultConfig(),
-		authtypes.NewModuleAddress(governancetypes.ModuleName).String(),
+		authority,
 	)
 
 	// Register the msg Service Handlers.

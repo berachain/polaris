@@ -414,8 +414,8 @@ func (c *Contract) GetRedelegations(
 	for _, r := range rsp.GetRedelegationResponses() {
 		redel := r.GetRedelegation()
 		if redel.DelegatorAddress == delAddr &&
-			redel.ValidatorSrcAddress == srcValidator.String() &&
-			redel.ValidatorDstAddress == dstValidator.String() {
+			redel.ValidatorSrcAddress == srcValAddr &&
+			redel.ValidatorDstAddress == destValAddr {
 			redelegationEntryResponses = r.GetEntries()
 			break
 		}
