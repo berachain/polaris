@@ -107,7 +107,7 @@ var _ = Describe("EthTxPool", func() {
 
 			for i := 1; i < 27; i++ {
 				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
-				err := etp.Insert(ctx, tx)
+				err = etp.Insert(ctx, tx)
 				Expect(err).ToNot(HaveOccurred())
 				if i < 26 {
 					Expect(etp.Nonce(addr1)).To(Equal(uint64(i + 1)))
@@ -115,9 +115,32 @@ var _ = Describe("EthTxPool", func() {
 					Expect(etp.Nonce(addr1)).To(Equal(uint64(28)))
 				}
 			}
+
 			pending, queued = etp.Content()
 			Expect(queued[addr1]).To(BeEmpty())
 			Expect(pending[addr1]).To(HaveLen(27))
+
+			_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(30)})
+			err = etp.Insert(ctx, tx)
+			Expect(err).ToNot(HaveOccurred())
+
+			pending, queued = etp.Content()
+			Expect(queued[addr1]).To(HaveLen(1))
+			Expect(pending[addr1]).To(HaveLen(27))
+
+			_, tx = buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(28)})
+			err = etp.Insert(ctx, tx)
+			Expect(err).ToNot(HaveOccurred())
+
+			pending, queued = etp.Content()
+			Expect(queued[addr1]).To(HaveLen(1))
+			Expect(pending[addr1]).To(HaveLen(28))
+
+			for i := 100; i < 280; i++ {
+				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+				err = etp.Insert(ctx, tx)
+				Expect(err).ToNot(HaveOccurred())
+			}
 		})
 
 		It("should return pending/queued txs with correct nonces", func() {

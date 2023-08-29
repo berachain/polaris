@@ -43,7 +43,6 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 
 	// We want to cache the transaction for lookup.
 	if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-
 		sender := coretypes.GetSender(ethTx)
 		nonce := ethTx.Nonce()
 

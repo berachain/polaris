@@ -199,7 +199,7 @@ func (etp *EthTxPool) Content() (
 ) {
 	var pending, queued map[common.Address]coretypes.Transactions
 	var wg = sync.WaitGroup{}
-	wg.Add(2)
+	wg.Add(2) //nolint:gomnd // not random.
 
 	go func() {
 		defer wg.Done()
