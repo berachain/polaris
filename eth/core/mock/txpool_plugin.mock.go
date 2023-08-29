@@ -32,6 +32,9 @@ var _ ethcore.TxPoolPlugin = &TxPoolPluginMock{}
 //			GetFunc: func(hash common.Hash) *types.Transaction {
 //				panic("mock out the Get method")
 //			},
+//			GetBaseFeeFunc: func() *big.Int {
+//				panic("mock out the GetBaseFee method")
+//			},
 //			NonceFunc: func(address common.Address) uint64 {
 //				panic("mock out the Nonce method")
 //			},
@@ -66,6 +69,9 @@ type TxPoolPluginMock struct {
 	// GetFunc mocks the Get method.
 	GetFunc func(hash common.Hash) *types.Transaction
 
+	// GetBaseFeeFunc mocks the GetBaseFee method.
+	GetBaseFeeFunc func() *big.Int
+
 	// NonceFunc mocks the Nonce method.
 	NonceFunc func(address common.Address) uint64
 
@@ -99,6 +105,9 @@ type TxPoolPluginMock struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
+		// GetBaseFee holds details about calls to the GetBaseFee method.
+		GetBaseFee []struct {
+		}
 		// Nonce holds details about calls to the Nonce method.
 		Nonce []struct {
 			// Address is the address argument value.
@@ -131,6 +140,7 @@ type TxPoolPluginMock struct {
 	lockContent              sync.RWMutex
 	lockContentFrom          sync.RWMutex
 	lockGet                  sync.RWMutex
+	lockGetBaseFee           sync.RWMutex
 	lockNonce                sync.RWMutex
 	lockPending              sync.RWMutex
 	lockSendTx               sync.RWMutex
@@ -227,6 +237,33 @@ func (mock *TxPoolPluginMock) GetCalls() []struct {
 	mock.lockGet.RLock()
 	calls = mock.calls.Get
 	mock.lockGet.RUnlock()
+	return calls
+}
+
+// GetBaseFee calls GetBaseFeeFunc.
+func (mock *TxPoolPluginMock) GetBaseFee() *big.Int {
+	if mock.GetBaseFeeFunc == nil {
+		panic("TxPoolPluginMock.GetBaseFeeFunc: method is nil but TxPoolPlugin.GetBaseFee was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetBaseFee.Lock()
+	mock.calls.GetBaseFee = append(mock.calls.GetBaseFee, callInfo)
+	mock.lockGetBaseFee.Unlock()
+	return mock.GetBaseFeeFunc()
+}
+
+// GetBaseFeeCalls gets all the calls that were made to GetBaseFee.
+// Check the length with:
+//
+//	len(mockedTxPoolPlugin.GetBaseFeeCalls())
+func (mock *TxPoolPluginMock) GetBaseFeeCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetBaseFee.RLock()
+	calls = mock.calls.GetBaseFee
+	mock.lockGetBaseFee.RUnlock()
 	return calls
 }
 
