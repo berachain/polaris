@@ -52,12 +52,26 @@ var _ = Describe("JSON RPC tests", func() {
 	)
 
 	BeforeEach(func() {
-		tf = localnet.NewTestFixture(GinkgoT())
+		tf = localnet.NewTestFixture(GinkgoT(), localnet.NewFixtureConfig(
+			"../../../cosmos/testing/e2e/polard/config/",
+			"polard/base:v0.0.0",
+			"polard/localnet:v0.0.0",
+			"goodcontainer",
+			"8545/tcp",
+			"8546/tcp",
+			"1.21.0",
+		))
 		Expect(tf).ToNot(BeNil())
 		client = tf.EthClient()
 	})
 
 	AfterEach(func() {
+		// Dump logs and stop the containter here.
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := tf.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
 		Expect(tf.Teardown()).To(Succeed())
 	})
 

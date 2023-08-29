@@ -66,14 +66,31 @@ interface IStakingModule {
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
     /**
-     * @dev Returns a list of active validator addresses.
+     * @dev Returns the operator address of the validator for the given consensus address.
      */
-    function getActiveValidators() external view returns (address[] memory);
+    function valAddressFromConsAddress(bytes calldata consAddr) external pure returns (address);
 
     /**
      * @dev Returns a list of all active validators.
      */
-    function getValidators() external view returns (Validator[] memory);
+    function getValidators(Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (Validator[] memory, Cosmos.PageResponse memory);
+
+    /**
+     * @dev Returns a list of bonded validator (operator) addresses.
+     */
+    function getBondedValidators(Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (address[] memory, Cosmos.PageResponse memory);
+
+    /**
+     * @dev Returns a list of bonded validator (operator) addresses, sorted by power (stake) in
+     * descending order.
+     */
+    function getBondedValidatorsByPower() external view returns (address[] memory);
 
     /**
      * @dev Returns the validator at the given address.
@@ -83,7 +100,19 @@ interface IStakingModule {
     /**
      * @dev Returns all the validators delegated to by the given delegator.
      */
-    function getDelegatorValidators(address delegatorAddress) external view returns (Validator[] memory);
+    function getDelegatorValidators(address delegatorAddress, Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (Validator[] memory, Cosmos.PageResponse memory);
+
+    /**
+     * @dev Returns all the delegations delegated to the given validator.
+     * Note: if pagination is not a valid page request, it will execute without pagination
+     */
+    function getValidatorDelegations(address validatorAddress, Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (Delegation[] memory, Cosmos.PageResponse memory);
 
     /**
      * @dev Returns the `amount` of tokens currently delegated by `delegatorAddress` to
@@ -101,13 +130,23 @@ interface IStakingModule {
         returns (UnbondingDelegationEntry[] memory);
 
     /**
+     * @dev Returns a list of all unbonding delegations for a given delegator
+     */
+    function getDelegatorUnbondingDelegations(address delegatorAddress, Cosmos.PageRequest calldata pagination)
+        external
+        view
+        returns (UnbondingDelegation[] memory, Cosmos.PageResponse memory);
+
+    /**
      * @dev Returns a list of `delegatorAddress`'s redelegating bonds from `srcValidator` to
      * `dstValidator`
      */
-    function getRedelegations(address delegatorAddress, address srcValidator, address dstValidator)
-        external
-        view
-        returns (RedelegationEntry[] memory);
+    function getRedelegations(
+        address delegatorAddress,
+        address srcValidator,
+        address dstValidator,
+        Cosmos.PageRequest calldata pagination
+    ) external view returns (RedelegationEntry[] memory, Cosmos.PageResponse memory);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
@@ -146,8 +185,8 @@ interface IStakingModule {
      * @dev Represents a validator.
      */
     struct Validator {
-        string operatorAddress;
-        bytes consensusPubkey;
+        address operatorAddr;
+        bytes consAddr;
         bool jailed;
         string status;
         uint256 tokens;
@@ -209,6 +248,18 @@ interface IStakingModule {
     }
 
     /**
+     * @dev Represents all unbonding bonds of a single delegator with relevant metadata
+     *
+     * Note: the field names of the native struct should match these field names (by camelCase)
+     * Note: we are using the types in precompile/generated
+     */
+    struct UnbondingDelegation {
+        address delegatorAddress;
+        address validatorAddress;
+        UnbondingDelegationEntry[] entries;
+    }
+
+    /**
      * @dev Represents a redelegation entry with relevant metadata
      *
      * Note: the field names of the native struct should match these field names (by camelCase)
@@ -225,5 +276,16 @@ interface IStakingModule {
         uint256 sharesDst;
         // unbondingId is the incrementing id that uniquely identifies this entry
         uint64 unbondingId;
+    }
+
+    /**
+     * @dev Represents a single delegation.
+     */
+    struct Delegation {
+        address delegator;
+        // tokens
+        uint256 balance;
+        // shares
+        uint256 shares;
     }
 }

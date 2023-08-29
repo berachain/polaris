@@ -28,7 +28,8 @@ import (
 
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/distribution"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -38,28 +39,29 @@ import (
 type Contract struct {
 	ethprecompile.BaseContract
 
+	vs        staking.ValidatorStore
 	msgServer distributiontypes.MsgServer
 	querier   distributiontypes.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the distribution module precompile contract.
 func NewPrecompileContract(
-	m distributiontypes.MsgServer, q distributiontypes.QueryServer,
+	vs staking.ValidatorStore, m distributiontypes.MsgServer, q distributiontypes.QueryServer,
 ) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.DistributionModuleMetaData.ABI,
 			common.BytesToAddress([]byte{0x69}),
 		),
+		vs:        vs,
 		msgServer: m,
 		querier:   q,
 	}
 }
 
-// CustomValueDecoders overrides the `coreprecompile.StatefulImpl` interface.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		distributiontypes.AttributeKeyWithdrawAddress: log.ConvertAccAddressFromBech32,
+		distributiontypes.AttributeKeyValidator: c.ConvertValAddressFromBech32,
 	}
 }
 
@@ -94,4 +96,11 @@ func (c *Contract) WithdrawDelegatorReward(
 		sdk.AccAddress(delegator.Bytes()),
 		sdk.ValAddress(validator.Bytes()),
 	)
+}
+
+// ConvertValAddressFromBech32 converts a bech32 string representing a validator address to a
+// common.Address.
+func (c *Contract) ConvertValAddressFromBech32(attributeValue string) (any, error) {
+	// extract the sdk.ValAddress from string value
+	return cosmlib.EthAddressFromString(c.vs.ValidatorAddressCodec(), attributeValue)
 }

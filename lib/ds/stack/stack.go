@@ -15,7 +15,9 @@
 //nolint:ireturn // Stack uses generics.
 package stack
 
-import "pkg.berachain.dev/polaris/lib/ds"
+import (
+	"pkg.berachain.dev/polaris/lib/ds"
+)
 
 const (
 	resizeRatio = 2
@@ -88,11 +90,14 @@ func (s *stack[T]) Pop() T {
 func (s *stack[T]) PopToSize(newSize int) T {
 	if newSize > s.size {
 		panic("newSize out of bounds")
+	} else if newSize == s.size {
+		t := new(T)
+		return *t
 	}
-
 	s.size = newSize
+	lastElemPopped := s.buf[s.size]
 	s.shrinkIfRequired()
-	return s.buf[s.size]
+	return lastElemPopped
 }
 
 // expandIfRequired expands the stack if the size is equal to the capacity.

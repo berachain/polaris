@@ -24,11 +24,12 @@ import (
 	"testing"
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	utils "pkg.berachain.dev/polaris/e2e/localnet/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 func TestMiscellaneousPrecompile(t *testing.T) {
@@ -41,12 +42,17 @@ var _ = Describe("Miscellaneous Precompile Tests", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT())
+		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 	})
 
 	AfterEach(func() {
-		err := tf.Teardown()
-		Expect(err).ToNot(HaveOccurred())
+		// Dump logs and stop the containter here.
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := tf.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	Describe("calling a precompile from the constructor", func() {
@@ -58,7 +64,7 @@ var _ = Describe("Miscellaneous Precompile Tests", func() {
 			err = tf.WaitForNextBlock()
 			Expect(err).NotTo(HaveOccurred())
 
-			utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+			ExpectSuccessReceipt(tf.EthClient(), tx)
 			Expect(contract).ToNot(BeNil())
 			Expect(addr).ToNot(BeEmpty())
 

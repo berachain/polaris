@@ -26,7 +26,6 @@ import (
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
-	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -60,19 +59,9 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 	if err != nil {
 		return nil, err
 	}
-	pk := ethsecp256k1.PubKey{Key: pkBz}
 
 	// Create the WrappedEthereumTransaction message.
 	wrappedEthTx := types.NewFromTransaction(signedTx)
-
-	// fuck cosmos on god fr fr: https://github.com/cosmos/cosmos-sdk/pull/16340/files
-	// https://github.com/cosmos/cosmos-sdk/issues/16112
-	// this signer change should be reverted imo.
-	wrappedEthTx.HackyFixCauseCosmos, err = sdk.Bech32ifyAddressBytes(
-		sdk.GetConfig().GetBech32AccountAddrPrefix(), pk.Address())
-	if err != nil {
-		return nil, err
-	}
 	sig, err := wrappedEthTx.GetSignature()
 	if err != nil {
 		return nil, err
@@ -83,15 +72,13 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 		signingtypes.SignatureV2{
 			Sequence: signedTx.Nonce(),
 			Data: &signingtypes.SingleSignatureData{
-				// TODO: this is ghetto af.
-				SignMode: signingtypes.SignMode(int32(evmante.SignMode_SIGN_MODE_ETHEREUM)),
 				// We retrieve the hash of the signed transaction from the ethereum transaction
 				// objects, as this was the bytes that were signed. We pass these into the
 				// SingleSignatureData as the SignModeHandler needs to know what data was signed
 				// over so that it can verify the signature in the ante handler.
 				Signature: sig,
 			},
-			PubKey: &pk,
+			PubKey: &ethsecp256k1.PubKey{Key: pkBz},
 		},
 	); err != nil {
 		return nil, err

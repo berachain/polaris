@@ -43,13 +43,13 @@ var _ = Describe("ContainerizedNode", func() {
 	BeforeEach(func() {
 		var err error
 		c, err = localnet.NewContainerizedNode(
-			"localnet",
-			"latest",
+			"polard/localnet",
+			"v0.0.0",
 			"goodcontainer",
 			"8545/tcp",
 			"8546/tcp",
 			[]string{
-				"GO_VERSION=1.20.6",
+				"GO_VERSION=1.21.0",
 				"BASE_IMAGE=polard/base:v0.0.0",
 			},
 		)
@@ -58,13 +58,18 @@ var _ = Describe("ContainerizedNode", func() {
 	})
 
 	AfterEach(func() {
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := c.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
 		Expect(c.Stop()).To(Succeed())
 		Expect(c.Remove()).To(Succeed())
 	})
 
 	It("should wait for a certain block height", func() {
 		Expect(c.WaitForBlock(1)).To(MatchError("block height already passed"))
-		Expect(c.WaitForBlock(7)).To(Succeed())
+		Expect(c.WaitForBlock(12)).To(Succeed())
 		Expect(c.WaitForNextBlock()).To(Succeed())
 	})
 

@@ -21,6 +21,7 @@
 package polariserc20_test
 
 import (
+	"context"
 	"math/big"
 	"testing"
 
@@ -28,6 +29,7 @@ import (
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
+	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -45,12 +47,17 @@ var _ = Describe("ERC20", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT())
+		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 	})
 
 	AfterEach(func() {
-		err := tf.Teardown()
-		Expect(err).ToNot(HaveOccurred())
+		// Dump logs and stop the containter here.
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := tf.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	Describe("deploy a polaris erc20 and call it from another contract", func() {
@@ -67,22 +74,18 @@ var _ = Describe("ERC20", func() {
 			err = tf.WaitForNextBlock()
 			Expect(err).ToNot(HaveOccurred())
 
-			// Create a polaris erc20 contract from the address.
-			tokenAddr, tx, token, err := cbindings.DeployPolarisERC20(
-				tf.GenerateTransactOpts("alice"),
-				tf.EthClient(),
-				"bAKT",
-			)
+			// trigger the contract to get deployed.
+			tx, err = swapper.Swap(tf.GenerateTransactOpts("alice"),
+				"bAKT", big.NewInt(1))
 			Expect(err).ToNot(HaveOccurred())
 			ExpectSuccessReceipt(tf.EthClient(), tx)
 
-			tx, err = token.Mint(
-				tf.GenerateTransactOpts("alice"),
-				tf.Address("alice"),
-				big.NewInt(150),
-			)
+			tokenAddr, err = swapper.GetPolarisERC20(nil, "bAKT")
 			Expect(err).ToNot(HaveOccurred())
-			ExpectSuccessReceipt(tf.EthClient(), tx)
+			Expect(tokenAddr.Bytes()).ToNot(Equal(common.Address{}.Bytes()))
+
+			token, err := cbindings.NewPolarisERC20(tokenAddr, tf.EthClient())
+			Expect(err).ToNot(HaveOccurred())
 
 			// Call the polaris erc20 contract to set the allowance of the swapper contract.
 			tx, err = token.Approve(
@@ -92,6 +95,10 @@ var _ = Describe("ERC20", func() {
 			)
 			Expect(err).ToNot(HaveOccurred())
 			ExpectSuccessReceipt(tf.EthClient(), tx)
+
+			code, err := tf.EthClient().CodeAt(context.Background(), tokenAddr, big.NewInt(-1))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(code).ToNot(BeEmpty())
 
 			// Get the current allowance of the swapper contract.
 			res, err := token.Allowance(
@@ -103,8 +110,10 @@ var _ = Describe("ERC20", func() {
 			Expect(res.Cmp(big.NewInt(100))).To(Equal(0))
 
 			// Call the swapper contract to swap the polaris erc20 token from the msg.sender.
+			opts := tf.GenerateTransactOpts("alice")
+			opts.GasLimit = 1000000
 			tx, err = swapper.Deposit(
-				tf.GenerateTransactOpts("alice"),
+				opts,
 				tokenAddr,
 				big.NewInt(50),
 			)
@@ -120,5 +129,33 @@ var _ = Describe("ERC20", func() {
 			Expect(res.Cmp(big.NewInt(50))).To(Equal(0))
 		})
 
+		It("should still include reverted transactions in a block", func() {
+			// originate a ERC20 token
+			contract, _ := DeployERC20(tf.GenerateTransactOpts("alice"), tf.EthClient())
+
+			// mint some tokens to bob
+			tx, err := contract.Mint(
+				tf.GenerateTransactOpts("bob"), tf.Address("bob"), big.NewInt(123456789),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectSuccessReceipt(tf.EthClient(), tx)
+
+			// check that the new ERC20 is minted to bob
+			bal, err := contract.BalanceOf(nil, tf.Address("bob"))
+			Expect(err).ToNot(HaveOccurred())
+			Expect(bal).To(Equal(big.NewInt(123456789)))
+
+			// ensure alice cannot transferFrom bob's account
+			txr := tf.GenerateTransactOpts("alice")
+			txr.GasLimit = 1000000
+			tx, err = contract.TransferFrom(
+				txr,
+				tf.Address("bob"),
+				tf.Address("alice"),
+				big.NewInt(6789),
+			)
+			Expect(err).ToNot(HaveOccurred())
+			ExpectFailedReceipt(tf.EthClient(), tx)
+		})
 	})
 })

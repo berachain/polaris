@@ -25,9 +25,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
-	"pkg.berachain.dev/polaris/eth/common"
 
 	coretypes "github.com/ethereum/go-ethereum/core/types"
+
+	"pkg.berachain.dev/polaris/eth/common"
 )
 
 // iterator is used to iterate over the transactions in the sdk mempool.

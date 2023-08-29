@@ -22,17 +22,17 @@ package lib
 
 import (
 	"math/big"
-	"time"
 
+	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
-	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/auth"
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -46,12 +46,28 @@ import (
 func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []libgenerated.CosmosCoin {
 	evmCoins := make([]libgenerated.CosmosCoin, len(sdkCoins))
 	for i, coin := range sdkCoins {
-		evmCoins[i] = libgenerated.CosmosCoin{
-			Amount: coin.Amount.BigInt(),
-			Denom:  coin.Denom,
-		}
+		evmCoins[i] = SdkCoinToEvmCoin(coin)
 	}
 	return evmCoins
+}
+
+// SdkCoinsToEvmCoin converts sdk.Coin into libgenerated.CosmosCoin.
+func SdkCoinToEvmCoin(coin sdk.Coin) libgenerated.CosmosCoin {
+	evmCoin := libgenerated.CosmosCoin{
+		Amount: coin.Amount.BigInt(),
+		Denom:  coin.Denom,
+	}
+	return evmCoin
+}
+
+func SdkPageResponseToEvmPageResponse(pageResponse *query.PageResponse) libgenerated.CosmosPageResponse {
+	if pageResponse == nil {
+		return libgenerated.CosmosPageResponse{}
+	}
+	return libgenerated.CosmosPageResponse{
+		NextKey: string(pageResponse.GetNextKey()),
+		Total:   pageResponse.GetTotal(),
+	}
 }
 
 // ExtractCoinsFromInput converts coins from input (of type any) into sdk.Coins.
@@ -81,40 +97,43 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 	return sdkCoins, nil
 }
 
-// SdkCoinsToUnnamedCoins converts sdk.Coins into an unnamed struct.
-func SdkCoinsToUnnamedCoins(coins sdk.Coins) any {
-	unnamedCoins := []struct {
-		Amount *big.Int `json:"amount"`
-		Denom  string   `json:"denom"`
-	}{}
-	for _, coin := range coins {
-		unnamedCoins = append(unnamedCoins, struct {
-			Amount *big.Int `json:"amount"`
-			Denom  string   `json:"denom"`
-		}{
-			Amount: coin.Amount.BigInt(),
-			Denom:  coin.Denom,
-		})
+func ExtractPageRequestFromInput(pageRequest any) *query.PageRequest {
+	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
+	// the any type input into the contract's generated type.
+	pageReq, ok := utils.GetAs[struct {
+		Key        string `json:"key"`
+		Offset     uint64 `json:"offset"`
+		Limit      uint64 `json:"limit"`
+		CountTotal bool   `json:"count_total"`
+		Reverse    bool   `json:"reverse"`
+	}](pageRequest)
+	if !ok {
+		return nil
 	}
-	return unnamedCoins
+
+	return &query.PageRequest{
+		Key:        []byte(pageReq.Key),
+		Offset:     pageReq.Offset,
+		Limit:      pageReq.Limit,
+		CountTotal: pageReq.CountTotal,
+		Reverse:    pageReq.Reverse,
+	}
 }
 
-// GetGrantAsSendAuth maps a list of grants to a list of send authorizations.
-func GetGrantAsSendAuth(
-	grants []*authz.Grant, blocktime time.Time,
-) ([]*banktypes.SendAuthorization, error) {
-	var sendAuths []*banktypes.SendAuthorization
-	for _, grant := range grants {
-		// Check that the expiration is still valid.
-		if grant.Expiration == nil || grant.Expiration.After(blocktime) {
-			sendAuth, ok := utils.GetAs[*banktypes.SendAuthorization](grant.Authorization.GetCachedValue())
-			if !ok {
-				return nil, precompile.ErrInvalidGrantType
-			}
-			sendAuths = append(sendAuths, sendAuth)
-		}
+// ExtractCoinFromInputToCoin converts a coin from input (of type any) into sdk.Coins.
+func ExtractCoinFromInputToCoin(coin any) (sdk.Coin, error) {
+	// note: we have to use unnamed struct here, otherwise the compiler cannot cast
+	// the any type input into IBankModuleCoin.
+	amounts, ok := utils.GetAs[struct {
+		Amount *big.Int `json:"amount"`
+		Denom  string   `json:"denom"`
+	}](coin)
+	if !ok {
+		return sdk.Coin{}, precompile.ErrInvalidCoin
 	}
-	return sendAuths, nil
+
+	sdkCoin := sdk.NewCoin(amounts.Denom, sdkmath.NewIntFromBigInt(amounts.Amount))
+	return sdkCoin, nil
 }
 
 // SdkUDEToStakingUDE converts a Cosmos SDK Unbonding Delegation Entry list to a geth compatible
@@ -149,18 +168,22 @@ func SdkREToStakingRE(re []stakingtypes.RedelegationEntry) []staking.IStakingMod
 
 // SdkValidatorsToStakingValidators converts a Cosmos SDK Validator list to a geth compatible list
 // of Validators.
-func SdkValidatorsToStakingValidators(vals []stakingtypes.Validator) (
+func SdkValidatorsToStakingValidators(valAddrCodec address.Codec, vals []stakingtypes.Validator) (
 	[]staking.IStakingModuleValidator, error,
 ) {
 	valsOut := make([]staking.IStakingModuleValidator, len(vals))
 	for i, val := range vals {
+		operEthAddr, err := EthAddressFromString(valAddrCodec, val.OperatorAddress)
+		if err != nil {
+			return nil, err
+		}
 		pubKey, err := val.ConsPubKey()
 		if err != nil {
 			return nil, err
 		}
 		valsOut[i] = staking.IStakingModuleValidator{
-			OperatorAddress: val.OperatorAddress,
-			ConsensusPubkey: pubKey.Bytes(),
+			OperatorAddr:    operEthAddr,
+			ConsAddr:        pubKey.Address(),
 			Jailed:          val.Jailed,
 			Status:          val.Status.String(),
 			Tokens:          val.Tokens.BigInt(),
@@ -183,20 +206,40 @@ func SdkValidatorsToStakingValidators(vals []stakingtypes.Validator) (
 	return valsOut, nil
 }
 
-// SdkAccountToAuthAccount converts a Cosmos SDK Base Account to a geth compatible Base Account.
-func SdkAccountToAuthAccount(acc sdk.AccountI) auth.IAuthModuleBaseAccount {
-	if acc == nil {
-		return auth.IAuthModuleBaseAccount{}
+// SdkProposalToGovProposal is a helper function to transform a `v1.Proposal` to an
+// `IGovernanceModule.Proposal`.
+func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModuleProposal {
+	message := make([]byte, 0)
+	for _, msg := range proposal.Messages {
+		message = append(message, msg.Value...)
 	}
 
-	var pubKey []byte
-	if pk := acc.GetPubKey(); pk != nil {
-		pubKey = pk.Bytes()
+	totalDeposit := make([]governance.CosmosCoin, 0)
+	for _, coin := range proposal.TotalDeposit {
+		totalDeposit = append(totalDeposit, governance.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
 	}
-	return auth.IAuthModuleBaseAccount{
-		Addr:          AccAddressToEthAddress(acc.GetAddress()),
-		PubKey:        pubKey,
-		AccountNumber: acc.GetAccountNumber(),
-		Sequence:      acc.GetSequence(),
+
+	return governance.IGovernanceModuleProposal{
+		Id:      proposal.Id,
+		Message: message,
+		Status:  int32(proposal.Status), // Status is an alias for int32.
+		FinalTallyResult: governance.IGovernanceModuleTallyResult{
+			YesCount:        proposal.FinalTallyResult.YesCount,
+			AbstainCount:    proposal.FinalTallyResult.AbstainCount,
+			NoCount:         proposal.FinalTallyResult.NoCount,
+			NoWithVetoCount: proposal.FinalTallyResult.NoWithVetoCount,
+		},
+		SubmitTime:      uint64(proposal.SubmitTime.Unix()),
+		DepositEndTime:  uint64(proposal.DepositEndTime.Unix()),
+		VotingStartTime: uint64(proposal.VotingStartTime.Unix()),
+		VotingEndTime:   uint64(proposal.VotingEndTime.Unix()),
+		TotalDeposit:    totalDeposit,
+		Metadata:        proposal.Metadata,
+		Title:           proposal.Title,
+		Summary:         proposal.Summary,
+		Proposer:        proposal.Proposer,
 	}
 }

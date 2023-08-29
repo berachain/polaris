@@ -40,9 +40,11 @@ import (
 	govtestutil "github.com/cosmos/cosmos-sdk/x/gov/testutil"
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/eth/common"
 
 	//nolint:stylecheck,revive // Ginkgo is the testing framework.
 	. "github.com/onsi/ginkgo/v2"
@@ -74,6 +76,13 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 	// Create the base app msgRouter.
 	msr := baseapp.NewMsgServiceRouter()
 
+	stakingParams := stakingtypes.DefaultParams()
+	stakingParams.BondDenom = "abgt"
+	err := sk.SetParams(ctx, stakingParams)
+	if err != nil {
+		panic(err)
+	}
+
 	// Create the governance keeper.
 	gk := governancekeeper.NewKeeper(
 		encCfg.Codec,
@@ -94,7 +103,7 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 
 	// Set the Params and first proposal ID.
 	params := v1.DefaultParams()
-	err := gk.Params.Set(ctx, params)
+	err = gk.Params.Set(ctx, params)
 	if err != nil {
 		panic(err)
 	}
@@ -103,7 +112,7 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 	// Fund the caller with some coins.
 	err = lib.MintCoinsToAddress(
 		//nolint:gomnd // magic number is fine here.
-		ctx, bk, governancetypes.ModuleName, lib.AccAddressToEthAddress(caller), "abera", big.NewInt(100000000),
+		ctx, bk, governancetypes.ModuleName, common.BytesToAddress(caller), "abera", big.NewInt(100000000),
 	)
 	if err != nil {
 		panic(err)

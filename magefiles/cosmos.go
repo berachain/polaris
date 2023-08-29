@@ -47,13 +47,18 @@ var (
 	// Variables.
 	imageName              = "polard"
 	imageVersion           = "v0.0.0"
-	baseDockerPath         = "./cosmos/docker/"
+	baseDockerPath         = "./e2e/testapp/docker/"
 	execDockerPath         = baseDockerPath + "base.Dockerfile"
 	localDockerPath        = baseDockerPath + "local/Dockerfile"
 	seedDockerPath         = baseDockerPath + "seed/Dockerfile"
 	valDockerPath          = baseDockerPath + "validator/Dockerfile"
-	goVersion              = "1.20.6"
+	goVersion              = "1.21.0"
 	precompileContractsDir = "./contracts"
+
+	// Localnet.
+	baseImage          = "polard/base:v0.0.0"
+	localnetClientPath = "./cosmos/testing/e2e/polard"
+	localnetDockerPath = localnetClientPath + "/Dockerfile"
 )
 
 // Compile-time assertion that we implement the interface correctly.
@@ -73,7 +78,7 @@ func (Cosmos) directory() string {
 
 // Starts a local development net and builds it if necessary.
 func Start() error {
-	return sh.RunV("./cosmos/init.sh")
+	return sh.RunV("./e2e/testapp/entrypoint.sh")
 }
 
 // Builds the Cosmos SDK chain.
@@ -84,7 +89,7 @@ func (Cosmos) Build() error {
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
 		"-o", generateOutDirectory(cmd),
-		"./cosmos/simapp/" + cmd,
+		"./e2e/testapp/" + cmd,
 	}
 	return goBuild(args...)
 }
@@ -108,7 +113,7 @@ func (c Cosmos) Docker(dockerType, arch string) error {
 }
 
 func (c Cosmos) RunDockerLocal() error {
-	return dockerRun("-p", "8545:8545", "polard-local:v0.0.0")
+	return dockerRun("-p", "8545:8545", "polard/local:v0.0.0")
 }
 
 func (c Cosmos) DockerX(dockerType, arch string) error {
@@ -117,6 +122,15 @@ func (c Cosmos) DockerX(dockerType, arch string) error {
 
 func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX bool) error {
 	var dockerFilePath string
+	opts := []string{
+		"--build-arg", "GO_VERSION=" + goVersion,
+		"--platform", "linux/" + arch,
+		"--build-arg", "PRECOMPILE_CONTRACTS_DIR=" + precompileContractsDir,
+		"--build-arg", "GOOS=linux",
+		"--build-arg", "GOARCH=" + arch,
+		"--build-arg", "GO_WORK=" + strings.Join(moduleDirs, " "),
+	}
+	buildContext := "."
 	switch dockerType {
 	case "local":
 		dockerFilePath = localDockerPath
@@ -124,6 +138,10 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 		dockerFilePath = seedDockerPath
 	case "validator":
 		dockerFilePath = valDockerPath
+	case "localnet":
+		buildContext = localnetClientPath
+		dockerFilePath = localnetDockerPath
+		opts = append(opts, "--build-arg", "BASE_IMAGE="+baseImage)
 	default:
 		dockerFilePath = execDockerPath
 	}
@@ -133,17 +151,9 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 		"platform", "linux"+"/"+arch,
 		"tag", tag,
 	)
-
+	opts = append(opts, "-f", dockerFilePath, "-t", tag, buildContext)
 	return dockerBuildFn(withX)(
-		"--build-arg", "GO_VERSION="+goVersion,
-		"--platform", "linux/"+arch,
-		"--build-arg", "PRECOMPILE_CONTRACTS_DIR="+precompileContractsDir,
-		"--build-arg", "GOOS=linux",
-		"--build-arg", "GOARCH="+arch,
-		"--build-arg", "GO_WORK="+strings.Join(moduleDirs, " "),
-		"-f", dockerFilePath,
-		"-t", tag,
-		".",
+		opts...,
 	)
 }
 
@@ -178,7 +188,7 @@ func (Cosmos) Install() error {
 	args := []string{
 		generateBuildTags(),
 		generateLinkerFlags(production, statically),
-		"./cosmos/simapp/polard",
+		"./e2e/testapp/polard",
 	}
 
 	return goInstall(args...)
@@ -194,7 +204,7 @@ func (c Cosmos) Test() error {
 		return err
 	}
 
-	return TestIntegration()
+	return TestE2E()
 }
 
 // Runs all unit tests for the Cosmos SDK chain.
@@ -209,10 +219,10 @@ func (c Cosmos) TestUnitRace() error {
 	return testUnitRace(c.directory())
 }
 
-// Runs all integration for the Cosmos SDK chain.
-func (c Cosmos) TestIntegration() error {
-	LogGreen("Running integration tests for the Cosmos SDK chain.")
-	return testIntegration(c.directory() + "/testing/integration")
+// Runs all e2e tests for the Cosmos SDK chain.
+func (c Cosmos) TestE2E() error {
+	LogGreen("Running e2e tests for the Cosmos SDK chain.")
+	return testE2E(c.directory() + "/testing/e2e")
 }
 
 func (c Cosmos) TestHive(sim string) error {

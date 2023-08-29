@@ -38,7 +38,7 @@ import (
 
 const (
 	defaultTimeout = 30 * time.Second
-	nodeStartTime  = 5 * time.Second
+	nodeStartTime  = 10 * time.Second
 )
 
 // ContainerizedNode is an interface for a containerized network.
@@ -53,6 +53,7 @@ type ContainerizedNode interface {
 	EthWsClient() *ethclient.Client
 	WaitForBlock(number uint64) error
 	WaitForNextBlock() error
+	DumpLogs() (string, error)
 }
 
 // containerizedNode implements ContainerizedNode.
@@ -153,6 +154,11 @@ func (c *containerizedNode) Reset() error {
 // Remove removes the node.
 func (c *containerizedNode) Remove() error {
 	return c.containerClient.Remove()
+}
+
+func (c *containerizedNode) DumpLogs() (string, error) {
+	logsBz, err := c.containerClient.GetContainerLogs()
+	return string(logsBz), err
 }
 
 // GetHTTPEndpoint returns the HTTP endpoint of the node.

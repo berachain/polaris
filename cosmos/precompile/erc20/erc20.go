@@ -22,9 +22,13 @@ package erc20
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos"
@@ -42,6 +46,7 @@ import (
 type Contract struct {
 	ethprecompile.BaseContract
 
+	ak authkeeper.AccountKeeperI
 	bk bankkeeper.Keeper
 	em ERC20Module
 
@@ -50,7 +55,9 @@ type Contract struct {
 }
 
 // NewPrecompileContract returns a new instance of the auth module precompile contract.
-func NewPrecompileContract(bk bankkeeper.Keeper, em ERC20Module) ethprecompile.StatefulImpl {
+func NewPrecompileContract(
+	ak authkeeper.AccountKeeperI, bk bankkeeper.Keeper, em ERC20Module,
+) ethprecompile.StatefulImpl {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			cpbindings.ERC20ModuleMetaData.ABI,
@@ -59,6 +66,7 @@ func NewPrecompileContract(bk bankkeeper.Keeper, em ERC20Module) ethprecompile.S
 			// ),
 			common.HexToAddress("0x696969"), // TODO: module addresses are broken
 		),
+		ak:              ak,
 		bk:              bk,
 		em:              em,
 		polarisERC20ABI: abi.MustUnmarshalJSON(cbindings.PolarisERC20MetaData.ABI),
@@ -69,10 +77,10 @@ func NewPrecompileContract(bk bankkeeper.Keeper, em ERC20Module) ethprecompile.S
 // CustomValueDecoders implements StatefulImpl.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		erc20types.AttributeKeyToken:     ConvertCommonHexAddress,
+		erc20types.AttributeKeyToken:     log.ConvertCommonHexAddress,
 		erc20types.AttributeKeyDenom:     log.ReturnStringAsIs,
-		erc20types.AttributeKeyOwner:     ConvertCommonHexAddress,
-		erc20types.AttributeKeyRecipient: ConvertCommonHexAddress,
+		erc20types.AttributeKeyOwner:     log.ConvertCommonHexAddress,
+		erc20types.AttributeKeyRecipient: log.ConvertCommonHexAddress,
 	}
 }
 
@@ -81,10 +89,15 @@ func (c *Contract) CoinDenomForERC20Address(
 	ctx context.Context,
 	token common.Address,
 ) (string, error) {
+	tokenBech32, err := cosmlib.AccStringFromEthAddress(token)
+	if err != nil {
+		return "", err
+	}
+
 	resp, err := c.em.CoinDenomForERC20Address(
 		ctx,
 		&erc20types.CoinDenomForERC20AddressRequest{
-			Token: cosmlib.Bech32FromEthAddress(token),
+			Token: tokenBech32,
 		},
 	)
 	if err != nil {
@@ -109,13 +122,12 @@ func (c *Contract) Erc20AddressForCoinDenom(
 		return common.Address{}, err
 	}
 
-	tokenAddr := common.Address{}
+	var tokenAddr common.Address
 	if resp.Token != "" {
-		var tokenAccAddr sdk.AccAddress
-		if tokenAccAddr, err = sdk.AccAddressFromBech32(resp.Token); err != nil {
+		tokenAddr, err = cosmlib.EthAdressFromAccString(resp.Token)
+		if err != nil {
 			return common.Address{}, err
 		}
-		tokenAddr = cosmlib.AccAddressToEthAddress(tokenAccAddr)
 	}
 
 	return tokenAddr, nil
@@ -240,15 +252,45 @@ func (c *Contract) TransferERC20ToCoinTo(
 	return err == nil, err
 }
 
+// PerformBankTransfer transfers ERC20 tokens to SDK coins from msg.sender to recipient.
+func (c *Contract) PerformBankTransfer(
+	ctx context.Context,
+	sender common.Address,
+	recipient common.Address,
+	amount *big.Int,
+) (bool, error) {
+	polarCtx := vm.UnwrapPolarContext(ctx)
+	// We check to see if the denom exists.
+	if denom, err := c.CoinDenomForERC20Address(
+		ctx,
+		polarCtx.MsgSender(),
+	); err != nil {
+		// if we error return false
+		return false, err
+	} else if denom == "" || erc20types.IsPolarisDenom(denom) {
+		// if the denom doesn't exist, then we have a an unauthorized caller
+		// and should revert.
+		// if the denom is a PolarisDenom it means that its ERC20
+		// originated and we should revert.
+		return false, errors.New("UNAUTHORIZED")
+	} else {
+		// Else we ball.
+		err = c.bk.SendCoins(
+			ctx, sender[:], recipient[:],
+			sdk.Coins{
+				sdk.Coin{
+					Denom:  denom,
+					Amount: sdkmath.NewIntFromBigInt(amount),
+				},
+			},
+		)
+		return err == nil, err
+	}
+}
+
 // ==============================================================================
 // Event Attribute Value Decoders
 // ==============================================================================
 
 // ConvertCommonHexAddress is a value decoder.
-var _ ethprecompile.ValueDecoder = ConvertCommonHexAddress
-
-// ConvertCommonHexAddress transfers a common hex address attribute to a common.Address and returns
-// it as type any.
-func ConvertCommonHexAddress(attributeValue string) (any, error) {
-	return common.HexToAddress(attributeValue), nil
-}
+var _ ethprecompile.ValueDecoder = log.ConvertCommonHexAddress

@@ -25,20 +25,19 @@ import (
 	"testing"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	utils "pkg.berachain.dev/polaris/e2e/localnet/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 func TestStakingPrecompile(t *testing.T) {
@@ -57,24 +56,29 @@ var _ = Describe("Staking", func() {
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
-		tf = network.NewTestFixture(GinkgoT())
+		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 
 		validator = tf.ValAddr()
 		stakingPrecompile, _ = bindings.NewStakingModule(
 			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient())
 		bankPrecompile, _ = bbindings.NewBankModule(
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
+			common.BytesToAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 			tf.EthClient(),
 		)
 	})
 
 	AfterEach(func() {
-		err := tf.Teardown()
-		Expect(err).ToNot(HaveOccurred())
+		// Dump logs and stop the containter here.
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := tf.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	It("should call functions on the precompile directly", func() {
-		validators, err := stakingPrecompile.GetActiveValidators(nil)
+		validators, _, err := stakingPrecompile.GetBondedValidators(nil, bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(validators).To(ContainElement(validator))
 
@@ -86,18 +90,16 @@ var _ = Describe("Staking", func() {
 		txr.Value = delegateAmt
 		tx, err := stakingPrecompile.Delegate(txr, validator, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		delegated, err = stakingPrecompile.GetDelegation(nil, tf.Address("alice"), validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
 
-		delVals, err := stakingPrecompile.GetDelegatorValidators(nil, tf.Address("alice"))
+		delVals, _, err := stakingPrecompile.GetDelegatorValidators(nil, tf.Address("alice"), bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delVals).To(HaveLen(1))
-		delValAddr, err := sdk.ValAddressFromBech32(delVals[0].OperatorAddress)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(cosmlib.ValAddressToEthAddress(delValAddr)).To(Equal(validator))
+		Expect(delVals[0].OperatorAddr).To(Equal(validator))
 
 		undelegateAmt := new(big.Int).Div(delegateAmt, big.NewInt(2))
 		tx, err = stakingPrecompile.Undelegate(
@@ -106,7 +108,7 @@ var _ = Describe("Staking", func() {
 			undelegateAmt,
 		)
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		ude, err := stakingPrecompile.GetUnbondingDelegation(
 			nil,
@@ -119,16 +121,14 @@ var _ = Describe("Staking", func() {
 		Expect(ude[0].CompletionTime).ToNot(BeEmpty())
 		Expect(ude[0].Balance.Cmp(undelegateAmt)).To(Equal(0))
 
-		vals, err := stakingPrecompile.GetValidators(nil)
+		vals, _, err := stakingPrecompile.GetValidators(nil, bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(vals).To(HaveLen(1))
-		valAddr, err := sdk.ValAddressFromBech32(vals[0].OperatorAddress)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(cosmlib.ValAddressToEthAddress(valAddr)).To(Equal(validator))
+		Expect(vals[0].OperatorAddr).To(Equal(validator))
 
 		val, err := stakingPrecompile.GetValidator(nil, validator)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(val.OperatorAddress).To(Equal(vals[0].OperatorAddress))
+		Expect(val.OperatorAddr).To(Equal(vals[0].OperatorAddr))
 	})
 
 	It("should be able to call a precompile from a smart contract", func() {
@@ -139,7 +139,7 @@ var _ = Describe("Staking", func() {
 			"MTK",
 		)
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		delegated, err := stakingPrecompile.GetDelegation(nil, contractAddr, validator)
 		Expect(err).ToNot(HaveOccurred())
@@ -159,7 +159,7 @@ var _ = Describe("Staking", func() {
 			},
 		})
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Send tokens to the contract to delegate and mint LSD.
 		txr = tf.GenerateTransactOpts("alice")
@@ -167,7 +167,7 @@ var _ = Describe("Staking", func() {
 		txr.Value = delegateAmt
 		tx, err = contract.Delegate(txr, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wait for a couple blocks to query.
 		time.Sleep(4 * time.Second)

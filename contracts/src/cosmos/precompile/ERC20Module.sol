@@ -119,4 +119,13 @@ interface IERC20Module {
      * @param amount the amount of tokens to transfer
      */
     function transferERC20ToCoinTo(IERC20 token, address recipient, uint256 amount) external returns (bool);
+
+    /**
+     * @dev performBankTransfer performs a bank transfer.
+     * @dev it is assumed `msg.sender` is a PolarisERC20 contract.
+     * @param owner the user who is getting their balance decreased.
+     * @param recipient the user who is gettting their balance increased.
+     * @param amount the amount of coins to transfer.
+     */
+    function performBankTransfer(address owner, address recipient, uint256 amount) external returns (bool);
 }

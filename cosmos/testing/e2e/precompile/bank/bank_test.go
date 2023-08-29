@@ -25,12 +25,13 @@ import (
 	"testing"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
+	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
-	"pkg.berachain.dev/polaris/e2e/localnet/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 func TestCosmosPrecompiles(t *testing.T) {
@@ -49,18 +50,24 @@ var _ = Describe("Bank", func() {
 	)
 
 	BeforeEach(func() {
-		tf = localnet.NewTestFixture(GinkgoT())
+		// Setup the network and clients here.
+		tf = localnet.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
 		bankPrecompile, _ = bindings.NewBankModule(
 			common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient())
 	})
 
 	AfterEach(func() {
-		err := tf.Teardown()
-		Expect(err).ShouldNot(HaveOccurred())
+		// Dump logs and stop the containter here.
+		if !CurrentSpecReport().Failure.IsZero() {
+			logs, err := tf.DumpLogs()
+			Expect(err).ToNot(HaveOccurred())
+			GinkgoWriter.Println(logs)
+		}
+		Expect(tf.Teardown()).To(Succeed())
 	})
 
 	It("should call functions on the precompile directly", func() {
-		numberOfDenoms := 7
+		numberOfDenoms := 8
 		coinsToBeSent := []bindings.CosmosCoin{
 			{
 				Denom:  denom,
@@ -100,15 +107,13 @@ var _ = Describe("Bank", func() {
 		Expect(balance.Cmp(big.NewInt(1000000000000000000))).To(Equal(0))
 
 		// Send 1000 bera from alice to charlie
-		opts := tf.GenerateTransactOpts("alice")
-		opts.GasLimit = 10000000
 		tx, err := bankPrecompile.Send(
-			opts,
+			tf.GenerateTransactOpts("alice"),
 			tf.Address("charlie"),
 			coinsToBeSent,
 		)
 		Expect(err).ShouldNot(HaveOccurred())
-		utils.ExpectSuccessReceipt(tf.EthClient(), tx)
+		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wait one block.
 		err = tf.WaitForNextBlock()

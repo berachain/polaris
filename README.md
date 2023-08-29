@@ -34,7 +34,7 @@ Polaris is built with several core principles in mind:
 2. **Configurability**: We want Polaris to be accessible to as many teams and use cases as possible. To support this, our framework is highly configurable, allowing you to tailor it to your specific needs.
 3. **Performance**: In today's competitive crypto landscape, performance is key. Polaris is optimized to deliver the highest levels of performance and efficiency.
 4. **Contributor Friendliness**: We believe that open collaboration is key to driving innovation in blockchain development. While Polaris is currently licensed under BUSL-1.1, we plan to adjust our licensing to support contributor-based schemes as we approach production readiness.
-5. **Memes**: If ur PR doesn't have a meme in it like idk sry bro, gg wp ghlf.
+5. **Memes**: If ur PR doesn't have a meme in it like idk sry bro, gg wp glhf.
 
 ## Documentation
 
@@ -50,6 +50,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 ├── <a href="./contracts">contracts</a>: Contracts and bindings for Polaris (and hosts).
 ├── <a href="./docs">docs</a>: Documentation for Polaris.
 ├── <a href="./cosmos">cosmos</a>: Polaris integrated into a Cosmos-SDK based chain.
+├── <a href="./e2e">e2e</a>: End-to-end testing utilities.
 ├── <a href="./eth">eth</a>: The Core of the Polaris Ethereum Framework.
 ├── <a href="./lib">lib</a>: A collection of libraries used throughout the repo.
 ├── <a href="./magefiles">magefiles</a>: Build scripts and utils.
@@ -60,7 +61,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 
 [Golang 1.20+](https://go.dev/doc/install) and [Foundry](https://book.getfoundry.sh/getting-started/installation) are required for Polaris.
 
-1. Install [Go 1.20+ from the official site](https://go.dev/dl/) or the method of your choice. Ensure that your `GOPATH` and `GOBIN` environment variables are properly set up by using the following commands:
+1. Install [go 1.21+ from the official site](https://go.dev/dl/) or the method of your choice. Ensure that your `GOPATH` and `GOBIN` environment variables are properly set up by using the following commands:
 
    For Ubuntu:
 

@@ -31,10 +31,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/txpool"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
@@ -48,8 +48,6 @@ type Keeper struct {
 	polaris *polar.Polaris
 	// The (unexposed) key used to access the store from the Context.
 	storeKey storetypes.StoreKey
-	// authority is the bech32 address that is allowed to execute governance proposals.
-	authority string
 	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
 	host Host
 
@@ -62,16 +60,14 @@ func NewKeeper(
 	ak state.AccountKeeper,
 	sk block.StakingKeeper,
 	storeKey storetypes.StoreKey,
-	authority string,
 	ethTxMempool sdkmempool.Mempool,
 	pcs func() *ethprecompile.Injector,
 ) *Keeper {
 	// We setup the keeper with some Cosmos standard sauce.
 	k := &Keeper{
-		ak:        ak,
-		authority: authority,
-		storeKey:  storeKey,
-		lock:      true,
+		ak:       ak,
+		storeKey: storeKey,
+		lock:     true,
 	}
 
 	k.host = NewHost(
@@ -141,7 +137,7 @@ func (k *Keeper) GetHost() Host {
 // starting the networking stack and txpool service.
 func (k *Keeper) StartServices(clientContext client.Context) {
 	// spin lock until the first block is being processed
-	for ; k.lock; time.Sleep(100 * time.Millisecond) {
+	for ; k.lock; time.Sleep(1000 * time.Millisecond) { //nolint:gomnd // 100ms is fine.
 		continue
 	}
 
@@ -161,12 +157,12 @@ func (k *Keeper) StartServices(clientContext client.Context) {
 // TODO: Remove these, because they're hacky af.
 // Required temporarily for BGT plugin.
 func (k *Keeper) GetBalance(ctx sdk.Context, addr sdk.AccAddress) *big.Int {
-	ethAddr := cosmlib.AccAddressToEthAddress(addr)
+	ethAddr := common.BytesToAddress(addr)
 	return new(big.Int).SetBytes(ctx.KVStore(k.storeKey).Get(state.BalanceKeyFor(ethAddr)))
 }
 
 func (k *Keeper) SetBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.Int) {
-	ethAddr := cosmlib.AccAddressToEthAddress(addr)
+	ethAddr := common.BytesToAddress(addr)
 	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), amount.Bytes())
 }
 
@@ -174,7 +170,7 @@ func (k *Keeper) AddBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.In
 	if amount.Sign() == 0 {
 		return
 	}
-	ethAddr := cosmlib.AccAddressToEthAddress(addr)
+	ethAddr := common.BytesToAddress(addr)
 	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), new(big.Int).Add(k.GetBalance(ctx, addr), amount).Bytes())
 }
 
@@ -182,6 +178,6 @@ func (k *Keeper) SubBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.In
 	if amount.Sign() == 0 {
 		return
 	}
-	ethAddr := cosmlib.AccAddressToEthAddress(addr)
+	ethAddr := common.BytesToAddress(addr)
 	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), new(big.Int).Sub(k.GetBalance(ctx, addr), amount).Bytes())
 }

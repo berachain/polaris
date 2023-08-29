@@ -27,6 +27,7 @@ import (
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
@@ -91,7 +92,11 @@ func (p *plugin) GetNewBlockMetadata(number uint64) (common.Address, uint64) {
 	if err != nil {
 		panic(err)
 	}
-	return common.BytesToAddress(val.GetOperator()), uint64(cometHeader.Time.UTC().Unix())
+	valBz, err := p.sk.ValidatorAddressCodec().StringToBytes(val.GetOperator())
+	if err != nil {
+		panic(err)
+	}
+	return common.BytesToAddress(valBz), uint64(cometHeader.Time.UTC().Unix())
 }
 
 func (p *plugin) Name() string {

@@ -23,7 +23,6 @@ package localnet
 import (
 	"context"
 	"crypto/ecdsa"
-	"errors"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -34,15 +33,63 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/lib/encoding"
 )
 
 const (
-	relativeKeysPath   = "../config/ethkeys/"
-	relativeValKeyFile = "../config/priv_validator_key.json"
+	relativeKeysPath = "ethkeys/"
+	genFilePath      = "genesis.json"
 )
+
+// FixtureConfig is a type defining the configuration of a TestFixture.
+type FixtureConfig struct {
+	path string
+
+	baseImage     string
+	localnetImage string
+
+	containerName string
+	httpAddress   string
+	wsAdddress    string
+	goVersion     string
+}
+
+// NewFixtureConfig creates a new FixtureConfig and infers the config directory
+// absolute path from given relative path.
+// requires: the configRelativePath to be relative to the file calling NewFixtureConfig.
+func NewFixtureConfig(
+	configRelativePath,
+	baseImage,
+	localnetImage,
+	containerName,
+	httpAddress,
+	wsAdddress,
+	goVersion string,
+) *FixtureConfig {
+	// Get file path of the caller of NewFixtureConfig.
+	_, caller, _, ok := runtime.Caller(1)
+	if !ok {
+		panic("failed to get caller")
+	}
+	configPath, err := filepath.Abs(filepath.Join(filepath.Dir(caller), configRelativePath))
+	if err != nil {
+		panic(err)
+	}
+	return &FixtureConfig{
+		path:          configPath,
+		baseImage:     baseImage,
+		localnetImage: localnetImage,
+		containerName: containerName,
+		httpAddress:   httpAddress,
+		wsAdddress:    wsAdddress,
+		goVersion:     goVersion,
+	}
+}
 
 // TestFixture is a testing fixture that runs a single Polaris validator node in a Docker container.
 type TestFixture struct {
@@ -53,26 +100,27 @@ type TestFixture struct {
 }
 
 // NewTestFixture creates a new TestFixture.
-func NewTestFixture(t ginkgo.FullGinkgoTInterface) *TestFixture {
+func NewTestFixture(t ginkgo.FullGinkgoTInterface, config *FixtureConfig) *TestFixture {
 	tf := &TestFixture{
 		t:       t,
 		keysMap: make(map[string]*ecdsa.PrivateKey),
 	}
 
-	err := tf.setupTestAccounts()
+	err := tf.setupTestAccounts(config)
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	localnetImage := strings.Split(config.localnetImage, ":")
 	tf.ContainerizedNode, err = NewContainerizedNode(
-		"localnet",
-		"latest",
-		"goodcontainer",
-		"8545/tcp",
-		"8546/tcp",
+		localnetImage[0],
+		localnetImage[1],
+		config.containerName,
+		config.httpAddress,
+		config.wsAdddress,
 		[]string{
-			"GO_VERSION=1.20.6",
-			"BASE_IMAGE=polard/base:v0.0.0",
+			"GO_VERSION=" + config.goVersion,
+			"BASE_IMAGE=" + config.baseImage,
 		},
 	)
 	if err != nil {
@@ -130,16 +178,9 @@ func (tf *TestFixture) ValAddr() common.Address {
 }
 
 // setupTestAccounts loads the test account private keys and validator public key.
-func (tf *TestFixture) setupTestAccounts() error {
-	// get the absolute path of the current file
-	_, absFilePath, _, ok := runtime.Caller(1)
-	if !ok {
-		return errors.New("unable to get key files")
-	}
-	absDirPath := filepath.Dir(absFilePath)
-
+func (tf *TestFixture) setupTestAccounts(config *FixtureConfig) error {
 	// read the test account private keys from the keys directory
-	keysPath := filepath.Join(absDirPath, relativeKeysPath)
+	keysPath := filepath.Join(config.path, relativeKeysPath)
 	keyFiles, err := os.ReadDir(filepath.Clean(keysPath))
 	if err != nil {
 		return err
@@ -156,17 +197,32 @@ func (tf *TestFixture) setupTestAccounts() error {
 		tf.keysMap[strings.Split(keyFileName, ".")[0]] = privKey
 	}
 
-	// read the validator public key from the validator key file
-	valKeyFile := filepath.Join(absDirPath, relativeValKeyFile)
-	valBz, err := os.ReadFile(filepath.Clean(valKeyFile))
+	// read the validator public key from the genesis file
+	genFile := filepath.Join(config.path, genFilePath)
+	genBz, err := os.ReadFile(filepath.Clean(genFile))
 	if err != nil {
 		return err
 	}
-	tf.valAddr = common.HexToAddress(
-		encoding.MustUnmarshalJSON[struct {
-			Address string `json:"address"`
-		}](valBz).Address,
-	)
+
+	valAddr := encoding.MustUnmarshalJSON[struct {
+		AppState struct {
+			GenUtil struct {
+				GenTxs []struct {
+					Body struct {
+						Messages []struct {
+							ValidatorAddress string `json:"validator_address"`
+						} `json:"messages"`
+					} `json:"body"`
+				} `json:"gen_txs"`
+			} `json:"genutil"`
+		} `json:"app_state"`
+	}](genBz).AppState.GenUtil.GenTxs[0].Body.Messages[0].ValidatorAddress
+	types.SetupCosmosConfig()
+	_, _, _, sk := testutil.SetupMinimalKeepers()
+	tf.valAddr, err = cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), valAddr)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

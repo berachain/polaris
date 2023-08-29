@@ -44,10 +44,10 @@ var _ = Describe("precompileLog", func() {
 		}).ToNot(Panic())
 		Expect(pl.RegistryKey()).To(Equal("cancel_unbonding_delegation"))
 		Expect(pl.id).To(Equal(crypto.Keccak256Hash(
-			[]byte("CancelUnbondingDelegation(address,address,(uint256,string)[],int64)"),
+			[]byte("CancelUnbondingDelegation(address,(uint256,string)[],int64)"),
 		)))
 		Expect(pl.precompileAddr).To(Equal(common.BytesToAddress([]byte{1})))
-		Expect(pl.indexedInputs).To(HaveLen(2))
+		Expect(pl.indexedInputs).To(HaveLen(1))
 		Expect(pl.nonIndexedInputs).To(HaveLen(2))
 	})
 })
@@ -78,11 +78,6 @@ func mockDefaultAbiEvent() abi.Event {
 		"CancelUnbondingDelegation",
 		false,
 		abi.Arguments{
-			{
-				Name:    "validator",
-				Type:    addrType,
-				Indexed: true,
-			},
 			{
 				Name:    "delegator",
 				Type:    addrType,

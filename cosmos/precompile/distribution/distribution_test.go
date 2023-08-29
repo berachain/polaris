@@ -41,6 +41,8 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
@@ -116,6 +118,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		// Set up the contracts and keepers.
 		ctx, dk, sk, bk = setup()
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
+			sk,
 			distrkeeper.NewMsgServerImpl(*dk),
 			distrkeeper.NewQuerier(*dk),
 		))
@@ -230,10 +233,12 @@ var _ = Describe("Distribution Precompile Test", func() {
 					testutil.Alice,
 					big.NewInt(0),
 				)
+				valAddress, err := cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), valAddr.String())
+				Expect(err).ToNot(HaveOccurred())
 				res, err := contract.WithdrawDelegatorReward(
 					pCtx,
-					cosmlib.AccAddressToEthAddress(addr),
-					cosmlib.ValAddressToEthAddress(valAddr),
+					common.BytesToAddress(addr),
+					valAddress,
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res[0].Denom).To(Equal(sdk.DefaultBondDenom))
@@ -255,8 +260,8 @@ var _ = Describe("Distribution Precompile Test", func() {
 			})
 		})
 		When("Base Precompile Features", func() {
-			It("Should have custom value decoders", func() {
-				Expect(contract.CustomValueDecoders()).ToNot(BeNil())
+			It("Should not have custom value decoders", func() {
+				Expect(contract.CustomValueDecoders()).To(HaveLen(1))
 			})
 
 		})
