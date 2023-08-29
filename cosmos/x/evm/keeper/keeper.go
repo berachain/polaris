@@ -35,6 +35,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/txpool"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
@@ -136,10 +137,14 @@ func (k *Keeper) GetHost() Host {
 // StartServices waits until the first block is being processed for the lock to unlock before
 // starting the networking stack and txpool service.
 func (k *Keeper) StartServices(clientContext client.Context) {
+	// Set the Polaris blockchain.
+	k.polaris.SetBlockchain(core.NewChain(k.host))
+
 	// spin lock until the first block is being processed
 	for ; k.lock; time.Sleep(1000 * time.Millisecond) { //nolint:gomnd // 100ms is fine.
 		continue
 	}
+
 	// start the txpool service
 	txpool := txpool.NewTxPool(
 		txpool.DefaultConfig, k.host.GetConfigurationPlugin().ChainConfig(), k.polaris.Blockchain(),

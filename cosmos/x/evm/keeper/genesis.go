@@ -38,9 +38,6 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 		}
 	}
 
-	// Set the Polaris blockchain.
-	k.polaris.SetBlockchain(core.NewChain(k.host))
-
 	return nil
 }
 

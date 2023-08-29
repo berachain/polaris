@@ -124,6 +124,7 @@ var _ = Describe("Processor", func() {
 		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000000000)).
 			WithKVGasConfig(storetypes.GasConfig{}).
 			WithBlockHeight(1)
+
 		err = k.BeginBlocker(ctx)
 		Expect(err).ToNot(HaveOccurred())
 	})
