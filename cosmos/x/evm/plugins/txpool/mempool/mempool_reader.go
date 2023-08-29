@@ -48,7 +48,7 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
 		tx := iter.Tx()
 		if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
-			fmt.Println(ethTx.Nonce())
+			fmt.Println("GETTING NONCE FROM ITER", ethTx.Nonce())
 			addr := coretypes.GetSender(ethTx)
 			pendingNonce := pendingNonces[addr]
 			switch {
