@@ -22,13 +22,13 @@ package mempool
 
 import (
 	"context"
-	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // Insert is called when a transaction is added to the mempool.
@@ -48,12 +48,13 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 
 		// Reject txs with a nonce lower than the nonce reported by the statedb.
 		if sdbNonce := etp.nr.GetNonce(sender); sdbNonce > nonce {
-			return errors.New("nonce too low")
+			return errorslib.Wrap(etp.PriorityNonceMempool.Remove(tx), "nonce too low")
 		}
 
-		// Delete old hash.
-		hash := etp.nonceToHash[sender][nonce]
-		delete(etp.ethTxCache, hash)
+		// Delete old hash if the sender has a tx with the same nonce.
+		if senderNonceHash := etp.nonceToHash[sender]; senderNonceHash != nil {
+			delete(etp.ethTxCache, senderNonceHash[nonce])
+		}
 
 		// Add new hash.
 		newHash := ethTx.Hash()

@@ -54,7 +54,7 @@ var _ = Describe("plugin", func() {
 
 		// tx 1
 		p.gasMeter = storetypes.NewGasMeter(1000)
-		err := p.ConsumeGas(500)
+		err := p.ConsumeTxGas(500)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(500)))
 		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(500)))
@@ -70,7 +70,7 @@ var _ = Describe("plugin", func() {
 		// tx 2
 		p.gasMeter = storetypes.NewGasMeter(1000)
 		Expect(p.BlockGasConsumed()).To(Equal(uint64(250)))
-		err = p.ConsumeGas(1000)
+		err = p.ConsumeTxGas(1000)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(1000)))
 		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(0)))
@@ -82,7 +82,7 @@ var _ = Describe("plugin", func() {
 		// tx 3
 		p.gasMeter = storetypes.NewGasMeter(1000)
 		Expect(p.BlockGasConsumed()).To(Equal(uint64(1250)))
-		err = p.ConsumeGas(250)
+		err = p.ConsumeTxGas(250)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(p.gasMeter.GasConsumed()).To(Equal(uint64(250)))
 		Expect(p.gasMeter.GasRemaining()).To(Equal(uint64(750)))
@@ -93,17 +93,17 @@ var _ = Describe("plugin", func() {
 	It("should error on overconsumption in tx", func() {
 		p.gasMeter = storetypes.NewGasMeter(1000)
 		p.blockGasMeter = storetypes.NewGasMeter(p.gasMeter.GasRemaining() * 2)
-		err := p.ConsumeGas(p.gasMeter.GasRemaining())
+		err := p.ConsumeTxGas(p.gasMeter.GasRemaining())
 		Expect(err).ToNot(HaveOccurred())
-		err = p.ConsumeGas(1)
+		err = p.ConsumeTxGas(1)
 		Expect(err.Error()).To(Equal("out of gas"))
 	})
 
 	It("should error on uint64 overflow", func() {
 		p.blockGasMeter = storetypes.NewInfiniteGasMeter()
-		err := p.ConsumeGas(math.MaxUint64)
+		err := p.ConsumeTxGas(math.MaxUint64)
 		Expect(err).ToNot(HaveOccurred())
-		err = p.ConsumeGas(1)
+		err = p.ConsumeTxGas(1)
 		Expect(err.Error()).To(Equal("gas uint64 overflow"))
 	})
 
@@ -113,14 +113,14 @@ var _ = Describe("plugin", func() {
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 1
-		err := p.ConsumeGas(1000)
+		err := p.ConsumeTxGas(1000)
 		Expect(err).ToNot(HaveOccurred())
 		blockGasMeter.ConsumeGas(1000, "") // finalize tx 1
 
 		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
 
 		// tx 2
-		err = p.ConsumeGas(1000)
+		err = p.ConsumeTxGas(1000)
 		Expect(err.Error()).To(Equal("block is out of gas"))
 	})
 })

@@ -54,7 +54,7 @@ import (
 )
 
 func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey) (stakingtypes.Validator, error) {
-	return stakingtypes.NewValidator(operator, pubKey, stakingtypes.Description{})
+	return stakingtypes.NewValidator(operator.String() /* todo move to codec */, pubKey, stakingtypes.Description{})
 }
 
 var (
@@ -90,12 +90,12 @@ var _ = Describe("Processor", func() {
 		k = keeper.NewKeeper(
 			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
-			"authority",
 			evmmempool.NewPolarisEthereumTxPool(),
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
+		ctx = ctx.WithBlockHeight(0)
 		for _, plugin := range k.GetHost().GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
 			if hasInitGenesis {
@@ -105,7 +105,7 @@ var _ = Describe("Processor", func() {
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
-		sk.SetValidator(ctx, validator)
+		Expect(sk.SetValidator(ctx, validator)).To(Succeed())
 		sc = staking.NewPrecompileContract(&sk)
 		k.Setup(storetypes.NewKVStoreKey("offchain-evm"), nil, "", GinkgoT().TempDir(), log.NewNopLogger())
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
@@ -118,7 +118,7 @@ var _ = Describe("Processor", func() {
 
 		// Set header's consensus address to match the validator's.
 		header := ctx.BlockHeader()
-		header.ProposerAddress = consAddr.Bytes()
+		header.ProposerAddress = consAddr
 		ctx = ctx.WithBlockHeader(header)
 
 		ctx = ctx.WithBlockGasMeter(storetypes.NewGasMeter(100000000000000)).

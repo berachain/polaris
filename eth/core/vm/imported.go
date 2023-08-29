@@ -36,6 +36,7 @@ type (
 	GetHashFunc         = vm.GetHashFunc
 	PrecompileContainer = vm.PrecompiledContract
 	PrecompileManager   = vm.PrecompileManager
+	PrecompileEVM       = vm.PrecompileEVM
 	TransferFunc        = vm.TransferFunc
 	TxContext           = vm.TxContext
 )
@@ -44,6 +45,7 @@ var (
 	NewGethEVMWithPrecompiles     = vm.NewEVMWithPrecompiles
 	ErrOutOfGas                   = vm.ErrOutOfGas
 	ErrExecutionReverted          = vm.ErrExecutionReverted
+	ErrWriteProtection            = vm.ErrWriteProtection
 	PrecompiledContractsBerlin    = vm.PrecompiledContractsBerlin
 	PrecompiledContractsByzantium = vm.PrecompiledContractsByzantium
 	PrecompiledContractsHomestead = vm.PrecompiledContractsHomestead

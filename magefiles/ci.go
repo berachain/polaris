@@ -50,11 +50,18 @@ func TestUnit() error {
 }
 
 func testUnit(path string) error {
-	return ginkgoTest("--skip", ".*integration.*", "./"+path+"/...")
+	return ginkgoTest(
+		"--skip", ".*e2e.*",
+		"./"+path+"/...",
+	)
 }
 
 func testUnitRace(path string) error {
-	return ginkgoTest("--race", "--skip", ".*integration.*", "./"+path+"/...")
+	return ginkgoTest(
+		"--race",
+		"--skip", ".*e2e.*",
+		"./"+path+"/...",
+	)
 }
 
 // Runs the unit tests with coverage.
@@ -63,7 +70,7 @@ func TestUnitCover() error {
 		return err
 	}
 	args := []string{
-		"--skip", ".*integration.*",
+		"--skip", ".*e2e.*",
 	}
 	LogGreen("Running all unit tests with coverage...")
 	return ginkgoTest(append(coverArgs, args...)...)
@@ -75,7 +82,7 @@ func TestUnitRace() error {
 		return err
 	}
 	args := []string{
-		"--skip", ".*integration.*",
+		"--skip", ".*e2e.*",
 	}
 	LogGreen("Running all unit tests with --race...")
 	return ginkgoTest(append(raceArgs, args...)...)
@@ -98,37 +105,20 @@ func testUnitBenchmark() error {
 	return goTest(args...)
 }
 
-// Runs the integration tests.
-func TestIntegration() error {
+// Runs the e2e tests.
+func TestE2E() error {
 	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
-	LogGreen("Running all integration tests")
-	return testIntegration(".")
+	LogGreen("Running all e2e tests")
+	return testE2E(".")
 }
 
-func testIntegration(path string) error {
+func testE2E(path string) error {
 	args := []string{
 		"-timeout", "30m",
-		"--focus", ".*integration.*", path + "/...",
-	}
-	return ginkgoTest(args...)
-}
-
-// Runs the integration tests with coverage.
-func TestIntegrationCover() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
-	LogGreen("Running all integration tests with coverage")
-	return testIntegrationCover()
-}
-
-func testIntegrationCover() error {
-	args := []string{
-		"-timeout", "30m",
-		"-coverprofile=coverage-testintegrationcover.txt",
-		"--focus", ".*integration.*",
+		"--skip", ".*localnet.*",
+		"--focus", ".*e2e.*", path + "/...",
 	}
 	return ginkgoTest(args...)
 }

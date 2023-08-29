@@ -22,7 +22,6 @@ package polar
 
 import (
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
@@ -142,8 +141,8 @@ func (pl *Polaris) StartServices() error {
 	go func() {
 		// TODO: unhack this.
 		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
-		if pl.stack.Start() != nil {
-			os.Exit(1)
+		if err := pl.stack.Start(); err != nil {
+			panic(err)
 		}
 	}()
 	return nil

@@ -18,16 +18,17 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile_test
+package precompile
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -35,74 +36,95 @@ import (
 )
 
 var (
-	mockPrecompile, _ = solidity.MockPrecompileMetaData.GetAbi()
+	_, _ = solidity.MockPrecompileMetaData.GetAbi()
 )
 
 var _ = Describe("Container Factories", func() {
-
 	Context("Stateless Container Factory", func() {
-		var scf *precompile.StatelessFactory
+		var scf *StatelessFactory
 
 		BeforeEach(func() {
-			scf = precompile.NewStatelessFactory()
+			scf = NewStatelessFactory()
 		})
 
 		It("should build stateless precompile containers", func() {
-			pc, err := scf.Build(&mockStateless{&mockBase{}}, nil)
+			pc, err := scf.Build(&mockStateless{}, nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockBase{}, nil)
-			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: StatelessContainerImpl"))
+			Expect(err.Error()).To(Equal("wrong container factory for this precompile implementation: StatelessImpl"))
 		})
 	})
 
 	Context("Stateful Container Factory", func() {
-		var scf *precompile.StatefulFactory
+		var scf *StatefulFactory
 
 		BeforeEach(func() {
-			scf = precompile.NewStatefulFactory()
+			scf = NewStatefulFactory()
 		})
 
 		It("should correctly build stateful containers and log events", func() {
 			pc, err := scf.Build(&mockStateful{&mockBase{}}, nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(pc).ToNot(BeNil())
-
-			_, err = scf.Build(&mockStateless{&mockBase{}}, nil)
-			Expect(err.Error()).To(Equal("this precompile contract implementation is not implemented: StatefulContainerImpl"))
+			statelessFactory := NewStatelessFactory()
+			_, err = statelessFactory.Build(&mockStateless{}, nil)
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 
 	Context("Bad Stateful Container", func() {
-		var scf *precompile.StatefulFactory
+		var scf *StatefulFactory
 
 		BeforeEach(func() {
-			scf = precompile.NewStatefulFactory()
+			scf = NewStatefulFactory()
 		})
 
 		It("should error on missing precompile method for ABI method", func() {
-			_, err := scf.Build(&badMockStateful{&mockStateful{&mockBase{}}}, nil)
-			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial()"))
+			_, err := scf.Build(&badMockStateful{&mockBase{}}, nil)
+			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial"))
 		})
+	})
 
-		It("should error on invalid precompile methods", func() {
-			_, err := scf.Build(&invalidMockStateful{&mockStateful{&mockBase{}}}, nil)
-			Expect(err.Error()).To(Equal("incomplete precompile Method"))
+	Context("Overloaded Stateful Container", func() {
+		It("should construct a stateful container with overloaded methods", func() {
+			scf := NewStatefulFactory()
+			os := &mockStateful{&mockBase{}}
+			stateful, err := scf.Build(os, nil)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(stateful).ToNot(BeNil())
 		})
 	})
 })
 
 // MOCKS BELOW.
 
+// ============================================================================
+
+// mockBase is the base contract for STATEFUL impls.
 type mockBase struct{}
 
 func (mb *mockBase) RegistryKey() common.Address {
 	return common.Address{}
 }
 
-type mockStateless struct {
-	*mockBase
+func (mb *mockBase) ABIMethods() map[string]abi.Method { return nil }
+
+func (mb *mockBase) ABIEvents() map[string]abi.Event { return nil }
+
+// CustomValueDecoders should return a map of event attribute keys to value decoder
+// functions. This is used to decode event attribute values that require custom decoding
+// logic.
+func (mb *mockBase) CustomValueDecoders() ValueDecoders { return nil }
+
+func (mb *mockBase) SetPlugin(_ Plugin) {}
+
+// ============================================================================.
+type mockStateless struct{}
+
+func (ms *mockStateless) RegistryKey() common.Address {
+	return common.Address{}
 }
 
 func (ms *mockStateless) RequiredGas(_ []byte) uint64 {
@@ -110,66 +132,82 @@ func (ms *mockStateless) RequiredGas(_ []byte) uint64 {
 }
 
 func (ms *mockStateless) Run(
-	_ context.Context, _ precompile.EVM, _ []byte,
-	_ common.Address, _ *big.Int, _ bool,
+	_ context.Context, _ vm.PrecompileEVM, _ []byte,
+	_ common.Address, _ *big.Int,
 ) ([]byte, error) {
 	return nil, nil
 }
 
-func (ms *mockStateless) WithStateDB(vm.GethStateDB) vm.PrecompileContainer {
-	return ms
-}
-
+// ============================================================================.
 type mockStateful struct {
 	*mockBase
 }
 
-func (ms *mockStateful) ABIMethods() map[string]abi.Method {
-	return map[string]abi.Method{
-		"getOutput": mockPrecompile.Methods["getOutput"],
-	}
-}
-
-func (ms *mockStateful) PrecompileMethods() precompile.Methods {
-	return precompile.Methods{
-		{
-			AbiSig:      "getOutput(string)",
-			Execute:     getOutput,
-			RequiredGas: 1,
-		},
-	}
+func (ms *mockStateful) RegistryKey() common.Address {
+	return common.HexToAddress("0x696969696969")
 }
 
 func (ms *mockStateful) ABIEvents() map[string]abi.Event {
-	return nil
+	return mock.Events
 }
 
-func (ms *mockStateful) CustomValueDecoders() precompile.ValueDecoders {
-	return nil
+func (ms *mockStateful) ABIMethods() map[string]abi.Method {
+	return mock.Methods
 }
 
-func (ms *mockStateful) SetPlugin(precompile.Plugin) {}
+func (ms *mockStateful) GetOutput(
+	ctx context.Context,
+	str string,
+) ([]mockObject, error) {
+	vm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
+	return []mockObject{
+		{
+			CreationHeight: big.NewInt(1),
+			TimeStamp:      str,
+		},
+	}, nil
+}
 
+func (ms *mockStateful) GetOutputPartial(
+	_ context.Context,
+) (*mockObject, error) {
+	return &mockObject{}, errors.New("err during precompile execution")
+}
+
+func (ms *mockStateful) ContractFuncAddrInput(
+	_ context.Context,
+	_ common.Address,
+) (*big.Int, error) {
+	return big.NewInt(12112), nil
+}
+
+func (ms *mockStateful) ContractFuncStrInput(
+	_ context.Context,
+	_ string,
+) (bool, error) {
+	return true, nil
+}
+
+func (ms *mockStateful) OverloadedFunc(_ context.Context) (*big.Int, error) {
+	return big.NewInt(69), nil
+}
+
+func (ms *mockStateful) OverloadedFunc0(_ context.Context, _ *big.Int) (*big.Int, error) {
+	return big.NewInt(420), nil
+}
+
+// ============================================================================.
 type badMockStateful struct {
-	*mockStateful
+	*mockBase
+}
+
+func (bms *badMockStateful) GetOutput(_ context.Context, _ string) ([]mockObject, error) {
+	return nil, nil
 }
 
 func (bms *badMockStateful) ABIMethods() map[string]abi.Method {
 	return map[string]abi.Method{
 		"getOutput":        mock.Methods["getOutput"],
 		"getOutputPartial": mock.Methods["getOutputPartial"],
-	}
-}
-
-type invalidMockStateful struct {
-	*mockStateful
-}
-
-func (ims *invalidMockStateful) PrecompileMethods() precompile.Methods {
-	return precompile.Methods{
-		{
-			AbiSig:      "getOutput(string)",
-			RequiredGas: 1,
-		},
 	}
 }

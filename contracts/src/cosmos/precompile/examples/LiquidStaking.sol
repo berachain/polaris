@@ -27,6 +27,7 @@ pragma solidity ^0.8.17;
 
 import {IStakingModule} from "../Staking.sol";
 import {ERC20} from "../../../../lib/ERC20.sol";
+import {Cosmos} from "../../CosmosTypes.sol";
 
 /**
  * @dev LiquidStaking is a contract that allows users to delegate their Base Denom to a validator
@@ -67,7 +68,9 @@ contract LiquidStaking is ERC20 {
      * @dev Returns all active validators.
      */
     function getActiveValidators() public view returns (address[] memory) {
-        return staking.getActiveValidators();
+        Cosmos.PageRequest memory pageReq;
+        (address[] memory addrs,) = staking.getBondedValidators(pageReq);
+        return addrs;
     }
 
     /**
@@ -77,7 +80,9 @@ contract LiquidStaking is ERC20 {
     function delegate(uint256 amount) public payable {
         if (amount == 0) revert ZeroAmount();
         // Get the first active validator as an example.
-        address validatorAddress = staking.getActiveValidators()[0];
+        Cosmos.PageRequest memory pageReq;
+        (address[] memory addrs,) = staking.getBondedValidators(pageReq);
+        address validatorAddress = addrs[0];
 
         // Delegate the amount to the validator.
         bool success = staking.delegate(validatorAddress, amount);

@@ -25,23 +25,33 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
+
+// TODO: Add these functions to the EVM object itself to allow enforcing calls into
+// EVM automatically (i.e. precompile cannot bypass these calls to enter the EVM via call/create
+// when in read-only mode). Use gas pool to consume gas rather than Cosmos gas meter.
 
 // DeployOnEVMFromPrecompile deploys an EVM contract from a precompile contract.
 func DeployOnEVMFromPrecompile(
 	ctx sdk.Context,
 	plugin ethprecompile.Plugin,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	deployer common.Address,
 	contract abi.ABI,
 	endowment *big.Int,
 	contractCode string, // hex-encoded string
 	constructorArgs ...any,
 ) (common.Address, []byte, error) {
+	if utils.MustGetAs[precompile.MultiStore](ctx.MultiStore()).IsReadOnly() {
+		return common.Address{}, nil, vm.ErrWriteProtection
+	}
+
 	plugin.EnableReentrancy(evm)
 	defer plugin.DisableReentrancy(evm)
 
@@ -64,7 +74,7 @@ func DeployOnEVMFromPrecompile(
 func CallEVMFromPrecompile(
 	ctx sdk.Context,
 	plugin ethprecompile.Plugin,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	caller common.Address,
 	address common.Address,
 	contract abi.ABI,
@@ -72,6 +82,10 @@ func CallEVMFromPrecompile(
 	methodName string,
 	args ...any,
 ) ([]byte, error) {
+	if utils.MustGetAs[precompile.MultiStore](ctx.MultiStore()).IsReadOnly() {
+		return nil, vm.ErrWriteProtection
+	}
+
 	plugin.EnableReentrancy(evm)
 	defer plugin.DisableReentrancy(evm)
 
@@ -94,7 +108,7 @@ func CallEVMFromPrecompile(
 func CallEVMFromPrecompileUnpackArgs(
 	ctx sdk.Context,
 	plugin ethprecompile.Plugin,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	caller common.Address,
 	address common.Address,
 	contract abi.ABI,
@@ -115,7 +129,7 @@ func CallEVMFromPrecompileUnpackArgs(
 func StaticCallEVMFromPrecompileUnpackArgs(
 	ctx sdk.Context,
 	plugin ethprecompile.Plugin,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	caller common.Address,
 	address common.Address,
 	contract abi.ABI,

@@ -191,13 +191,12 @@ pkg/**/.*.yaml
 
 # forge
 */**/solidity-files-cache.json
-contracts/out/**/*.bin
-contracts/out/**/*.json
-contracts/out/lib/
 contracts/out/
 */**/broadcast
 */**/*.bin
-*/**/*.json
+
+# e2e
+e2e/**/*.txt
 
 # hive
 !e2e/hive/**/*.json
@@ -233,3 +232,9 @@ typechain-types
 cache
 artifacts
 
+# hardhat
+**/cache/
+
+# integration testing coverage
+coverage-testunitcover.txt
+coverage-teste2ecover.txt

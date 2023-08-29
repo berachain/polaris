@@ -51,19 +51,13 @@ contract GovernanceWrapper {
     /**
      * @dev Submit a proposal.
      * @param proposal The proposal.
-     * @param message The message.
      */
-    function submit(bytes calldata proposal, bytes calldata message, string calldata denom, uint256 amount)
-        external
-        payable
-        returns (uint64)
-    {
+    function submit(bytes calldata proposal, string calldata denom, uint256 amount) external payable returns (uint64) {
         // Send the deposit amount to the contract.
         Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
         coins[0].denom = denom;
         coins[0].amount = amount;
-        bank.send(msg.sender, address(this), coins);
-        return governanceModule.submitProposal(proposal, message);
+        return governanceModule.submitProposal(proposal);
     }
 
     /**
@@ -79,7 +73,9 @@ contract GovernanceWrapper {
      * @param proposalStatus The proposal status.
      */
     function getProposals(int32 proposalStatus) external view returns (IGovernanceModule.Proposal[] memory) {
-        return governanceModule.getProposals(proposalStatus);
+        Cosmos.PageRequest memory pageReq;
+        (IGovernanceModule.Proposal[] memory proposals,) = governanceModule.getProposals(proposalStatus, pageReq);
+        return proposals;
     }
 
     /**

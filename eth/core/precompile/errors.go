@@ -23,14 +23,6 @@ package precompile
 import "errors"
 
 var (
-	// ErrIncompleteMethod is returned when a `FnAndGas` has missing, or nil, required fields.
-	ErrIncompleteMethod = errors.New("incomplete precompile Method")
-
-	// ErrAbiSigInvalid is returned when a user-provided ABI signature (`FnAndGas.AbiSig`) does
-	// not match the Go-Ethereum style function signatures. Please check
-	// core/vm/precompile/container/types.go for more information.
-	ErrAbiSigInvalid = errors.New("user-provided ABI signature invalid: ")
-
 	// ErrMethodNotFound is returned when the precompile method is not found.
 	ErrMethodNotFound = errors.New("precompile method not found in contract ABI")
 
@@ -44,7 +36,7 @@ var (
 
 	// ErrWrongContainerFactory is returned when the wrong precompile container factory is used
 	// to build a precompile contract.
-	ErrWrongContainerFactory = errors.New("this precompile contract implementation is not implemented")
+	ErrWrongContainerFactory = errors.New("wrong container factory for this precompile implementation")
 
 	// ErrNoPrecompileMethodForABIMethod is returned when no precompile method is provided for a
 	// corresponding ABI method.

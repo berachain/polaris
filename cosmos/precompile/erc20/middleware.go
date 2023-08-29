@@ -30,6 +30,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	abi "github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
@@ -44,19 +45,29 @@ const (
 	transferFrom = `transferFrom`
 )
 
-// ErrTokenDoesNotExist is returned when a token contract does not exist.
-var ErrTokenDoesNotExist = errors.New("ERC20 token contract does not exist")
+var (
+	// ErrTokenDoesNotExist is returned when a token contract does not exist.
+	ErrTokenDoesNotExist = errors.New("ERC20 token contract does not exist")
+	// ErrInvalidAmount is returned when an amount is invalid.
+	ErrInvalidAmount = errors.New("amount is negative or 0")
+)
 
 // transferCoinToERC20 transfers SDK/Polaris coins to ERC20 tokens for an owner.
+//
+//nolint:funlen // okay.
 func (c *Contract) transferCoinToERC20(
 	ctx context.Context,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	value *big.Int,
 	denom string,
 	owner common.Address,
 	recipient common.Address,
 	amount *big.Int,
 ) error {
+	if amount.Cmp(common.Big0) <= 0 {
+		return ErrInvalidAmount
+	}
+
 	var (
 		sdkCtx         = sdk.UnwrapSDKContext(ctx)
 		isPolarisDenom = erc20types.IsPolarisDenom(denom)
@@ -72,9 +83,9 @@ func (c *Contract) transferCoinToERC20(
 		// send bank-module backed tokens from owner to recipient
 		if err := c.bk.SendCoins(
 			sdkCtx,
-			cosmlib.AddressToAccAddress(owner),
-			cosmlib.AddressToAccAddress(recipient),
-			sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(amount))),
+			owner.Bytes(),
+			recipient.Bytes(),
+			sdk.Coins{{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)}},
 		); err != nil {
 			return err
 		}
@@ -116,14 +127,14 @@ func (c *Contract) transferCoinToERC20(
 		// subesequent occurrence of Polaris coins
 
 		// convert ERC20 token bech32 address to common.Address
-		var tokenAcc sdk.AccAddress
-		if tokenAcc, err = sdk.AccAddressFromBech32(resp.Token); err != nil {
+		var token common.Address
+		token, err = cosmlib.EthAdressFromAccString(resp.Token)
+		if err != nil {
 			return err
 		}
-		token := cosmlib.AccAddressToEthAddress(tokenAcc)
 
 		// return an error if the ERC20 token contract does not exist to revert the tx
-		if !evm.GetStateDB().Exist(token) {
+		if !c.ak.HasAccount(ctx, token.Bytes()) {
 			return ErrTokenDoesNotExist
 		}
 
@@ -155,18 +166,25 @@ func (c *Contract) transferCoinToERC20(
 func (c *Contract) transferERC20ToCoin(
 	ctx context.Context,
 	_ common.Address,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	token common.Address,
 	owner common.Address,
 	recipient common.Address,
 	amount *big.Int,
 ) error {
+	if amount.Cmp(common.Big0) <= 0 {
+		return ErrInvalidAmount
+	}
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// get SDK/Polaris coin denomination pairing with ERC20 token
+	tokenAccAddr, err := cosmlib.AccStringFromEthAddress(token)
+	if err != nil {
+		return err
+	}
 	resp, err := c.em.CoinDenomForERC20Address(
 		ctx, &erc20types.CoinDenomForERC20AddressRequest{
-			Token: cosmlib.Bech32FromEthAddress(token),
+			Token: tokenAccAddr,
 		},
 	)
 	if err != nil {
@@ -182,7 +200,7 @@ func (c *Contract) transferERC20ToCoin(
 	//nolint:nestif // readability.
 	if erc20types.IsPolarisDenom(denom) { // transferring ERC20 originated tokens to Polaris coins
 		// return an error if the ERC20 token contract does not exist to revert the tx
-		if !evm.GetStateDB().Exist(token) {
+		if !c.ak.HasAccount(ctx, token.Bytes()) {
 			return ErrTokenDoesNotExist
 		}
 
@@ -227,9 +245,9 @@ func (c *Contract) transferERC20ToCoin(
 		// send bank module-backed tokens from owner to recipient
 		if err = c.bk.SendCoins(
 			sdkCtx,
-			cosmlib.AddressToAccAddress(owner),
-			cosmlib.AddressToAccAddress(recipient),
-			sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(amount))),
+			owner.Bytes(),
+			recipient.Bytes(),
+			sdk.Coins{{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)}},
 		); err != nil {
 			return err
 		}
@@ -252,7 +270,7 @@ func (c *Contract) transferERC20ToCoin(
 func getBalanceOf(
 	ctx sdk.Context,
 	plugin ethprecompile.Plugin,
-	evm ethprecompile.EVM,
+	evm vm.PrecompileEVM,
 	caller common.Address,
 	contractAddr common.Address,
 	contract abi.ABI,

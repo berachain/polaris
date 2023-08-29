@@ -77,6 +77,7 @@ func (l *logs) SetTxContext(thash common.Hash, ti int) {
 	l.txIndex = ti
 }
 
+// TxIndex returns the current transaction index.
 func (l *logs) TxIndex() int {
 	return l.txIndex
 }

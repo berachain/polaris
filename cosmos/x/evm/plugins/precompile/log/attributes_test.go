@@ -31,7 +31,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/eth/common"
 	libutils "pkg.berachain.dev/polaris/lib/utils"
 
@@ -85,7 +84,7 @@ var _ = Describe("Attributes", func() {
 			Expect(coins).To(Equal([]libgenerated.CosmosCoin{}))
 
 			// 0 amount coins
-			coins, err = ConvertSdkCoins(sdk.NewCoins(sdk.NewCoin("denom", sdk.NewInt(0))).String())
+			coins, err = ConvertSdkCoins(sdk.NewCoins(sdk.NewCoin("denom", sdkmath.NewInt(0))).String())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(coins).To(Equal([]libgenerated.CosmosCoin{}))
 		})
@@ -96,14 +95,6 @@ var _ = Describe("Attributes", func() {
 			Expect(err).ToNot(HaveOccurred())
 			int64Val := libutils.MustGetAs[int64](gethValue)
 			Expect(int64Val).To(Equal(int64(55)))
-		})
-
-		It("should correctly convert ValAddress to common.Address", func() {
-			valAddr := sdk.ValAddress([]byte("alice"))
-			gethValue, err := ConvertValAddressFromBech32(valAddr.String())
-			Expect(err).ToNot(HaveOccurred())
-			valAddrVal := libutils.MustGetAs[common.Address](gethValue)
-			Expect(valAddrVal).To(Equal(cosmlib.ValAddressToEthAddress(valAddr)))
 		})
 
 		It("should correctly convert AccAddress to common.Address", func() {

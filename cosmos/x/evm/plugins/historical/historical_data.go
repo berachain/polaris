@@ -31,6 +31,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
@@ -132,10 +133,12 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	store := p.ctx.KVStore(p.storeKey)
 	numBz := prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
 	if numBz == nil {
-		numBz = sdk.Uint64ToBigEndian(0)
+		return nil, core.ErrBlockNotFound
 	}
+
 	blockBz := prefix.NewStore(store, []byte{types.BlockNumKeyToBlockPrefix}).Get(numBz)
 	block := &coretypes.Block{}
+
 	err := rlp.DecodeBytes(blockBz, block)
 	if err != nil {
 		return nil, err
@@ -148,7 +151,7 @@ func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEn
 	// get tx from off chain.
 	tleBz := prefix.NewStore(p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
 	if tleBz == nil {
-		return nil, fmt.Errorf("failed to find tx %s", txHash.Hex())
+		return nil, core.ErrTxNotFound
 	}
 	tle := &coretypes.TxLookupEntry{}
 	err := tle.UnmarshalBinary(tleBz)

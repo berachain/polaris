@@ -69,6 +69,8 @@ type (
 		GetNewBlockMetadata(uint64) (common.Address, uint64)
 		// GetHeaderByNumber returns the block header at the given block number.
 		GetHeaderByNumber(uint64) (*types.Header, error)
+		// GetHeaderByHash returns the block header with the given block hash.
+		GetHeaderByHash(common.Hash) (*types.Header, error)
 		// StoreHeader stores the block header at the given block number.
 		StoreHeader(*types.Header) error
 		// BaseFee returns the base fee of the current block.
@@ -93,15 +95,13 @@ type (
 		// GasPlugin implements `libtypes.Resettable`. Calling `Reset` should reset the
 		// GasPlugin to a default state
 		libtypes.Resettable
-		// ConsumeGas consumes the supplied amount of gas. It should not panic due to a
+		// ConsumeTxGas consumes the supplied amount of gas. It should not panic due to a
 		// GasOverflow and should return `core.ErrOutOfGas` if the amount of gas remaining is
 		// less than the amount requested. If the requested amount is greater than the amount of
 		// gas remaining in the block, it should return core.ErrBlockOutOfGas.
-		ConsumeGas(uint64) error
-		// GasRemaining returns the amount of gas remaining for the current transaction.
-		GasRemaining() uint64
-		// GasConsumed returns the amount of gas used by the current transaction.
-		GasConsumed() uint64
+		ConsumeTxGas(uint64) error
+		// TxGasRemaining returns the amount of gas remaining for the current transaction.
+		TxGasRemaining() uint64
 		// BlockGasConsumed returns the amount of gas used during the current block. The value
 		// returned should NOT include any gas consumed during this transaction.
 		// It should not panic.

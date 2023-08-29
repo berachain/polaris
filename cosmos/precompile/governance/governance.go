@@ -22,22 +22,25 @@ package governance
 
 import (
 	"context"
-	"math/big"
+	"strconv"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
+	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+)
+
+const (
+	EventTypeProposalSubmitted = `proposal_submitted`
+	AttributeProposalSender    = `proposal_sender`
 )
 
 // Contract is the precompile contract for the governance module.
@@ -54,189 +57,414 @@ func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.GovernanceModuleMetaData.ABI,
 			// Precompile Address: 0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
+			common.BytesToAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
 		),
 		msgServer: m,
 		querier:   q,
 	}
 }
 
-// PrecompileMethods implements the `ethprecompile.StatefulImpl` interface.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{
-		{
-			AbiSig:  "submitProposal(bytes,bytes)",
-			Execute: c.SubmitProposal,
-		},
-		{
-			AbiSig:  "cancelProposal(uint64)",
-			Execute: c.CancelProposal,
-		},
-		{
-			AbiSig:  "vote(uint64,int32,string)",
-			Execute: c.Vote,
-		},
-		{
-			AbiSig:  "voteWeighted(uint64,(int32,string)[],string)",
-			Execute: c.VoteWeighted,
-		},
-		{
-			AbiSig:  "getProposal(uint64)",
-			Execute: c.GetProposal,
-		},
-		{
-			AbiSig:  "getProposals(int32)",
-			Execute: c.GetProposals,
-		},
-	}
-}
-
 // CustomValueDecoders implements the `ethprecompile.StatefulImpl` interface.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		govtypes.AttributeKeyProposalID:       log.ConvertUint64,
-		govtypes.AttributeKeyProposalMessages: log.ReturnStringAsIs,
-		govtypes.AttributeKeyOption:           log.ReturnStringAsIs,
+		AttributeProposalSender: log.ConvertCommonHexAddress,
 	}
 }
 
 // SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	proposalBz, ok := utils.GetAs[[]byte](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidBytes
+	proposalMsg []byte,
+) (uint64, error) {
+	// Decode the proposal bytes into  v1.Proposal.
+	var p v1.MsgSubmitProposal
+	if err := p.Unmarshal(proposalMsg); err != nil {
+		return 0, err
 	}
-	messageBz, ok := utils.GetAs[[]byte](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidBytes
-	}
-	message, err := unmarshalMsgAndReturnAny(messageBz)
-	if err != nil {
-		return nil, err
-	}
-	return c.submitProposalHelper(ctx, proposalBz, []*codectypes.Any{message})
+
+	// Create the proposal.
+	res, err := c.msgServer.SubmitProposal(ctx, &p)
+
+	// emit an event at the end of this successful proposal submission
+	polarCtx := vm.UnwrapPolarContext(ctx)
+	sdk.UnwrapSDKContext(polarCtx.Context()).EventManager().EmitEvent(
+		sdk.NewEvent(
+			EventTypeProposalSubmitted,
+			sdk.NewAttribute(govtypes.AttributeKeyProposalID, strconv.FormatUint(res.ProposalId, 10)),
+			sdk.NewAttribute(AttributeProposalSender, polarCtx.MsgSender().Hex()),
+		),
+	)
+
+	// Return the proposal ID.
+	return res.ProposalId, err
 }
 
 // CancelProposal is the method for the `cancelProposal` method of the governance precompile contract.
 func (c *Contract) CancelProposal(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	id, ok := utils.GetAs[uint64](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidUint64
+	id uint64,
+) (uint64, uint64, error) {
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	if err != nil {
+		return 0, 0, err
 	}
-	proposer := sdk.AccAddress(caller.Bytes())
 
-	return c.cancelProposalHelper(ctx, proposer, id)
+	res, err := c.msgServer.CancelProposal(ctx, &v1.MsgCancelProposal{
+		ProposalId: id,
+		Proposer:   caller,
+	})
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return uint64(res.CanceledTime.Unix()), res.CanceledHeight, nil
 }
 
 // Vote is the method for the `vote` method of the governance precompile contract.
 func (c *Contract) Vote(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	proposalID, ok := utils.GetAs[uint64](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidUint64
+	proposalID uint64,
+	options int32,
+	metadata string,
+) (bool, error) {
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	if err != nil {
+		return false, err
 	}
-	options, ok := utils.GetAs[int32](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidInt32
-	}
-	metadata, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	voter := sdk.AccAddress(caller.Bytes())
 
-	return c.voteHelper(ctx, voter, proposalID, options, metadata)
+	_, err = c.msgServer.Vote(ctx, &v1.MsgVote{
+		ProposalId: proposalID,
+		Voter:      caller,
+		Option:     v1.VoteOption(options),
+		Metadata:   metadata,
+	})
+	return err == nil, err
 }
 
 // VoteWeighted is the method for the `voteWeighted` method of the governance precompile contract.
 func (c *Contract) VoteWeighted(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	proposalID, ok := utils.GetAs[uint64](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidBigInt
+	proposalID uint64,
+	options []generated.IGovernanceModuleWeightedVoteOption,
+	metadata string,
+) (bool, error) {
+	// Convert the options to v1.WeightedVoteOption.
+	msgOptions := make([]*v1.WeightedVoteOption, len(options))
+	for i, option := range options {
+		msgOptions[i] = &v1.WeightedVoteOption{
+			Option: v1.VoteOption(option.VoteOption),
+			Weight: option.Weight,
+		}
 	}
-	options, ok := utils.GetAs[[]generated.IGovernanceModuleWeightedVoteOption](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidOptions
+	caller, err := cosmlib.AccStringFromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender())
+	if err != nil {
+		return false, err
 	}
-	metadata, ok := utils.GetAs[string](args[2])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	voter := sdk.AccAddress(caller.Bytes())
-	return c.voteWeightedHelper(ctx, voter, proposalID, options, metadata)
+
+	_, err = c.msgServer.VoteWeighted(
+		ctx, &v1.MsgVoteWeighted{
+			ProposalId: proposalID,
+			Voter:      caller,
+			Options:    msgOptions,
+			Metadata:   metadata,
+		},
+	)
+	return err == nil, err
 }
 
 // GetProposal is the method for the `getProposal` method of the governance precompile contract.
 func (c *Contract) GetProposal(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	proposalID, ok := utils.GetAs[uint64](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidUint64
+	proposalID uint64,
+) (generated.IGovernanceModuleProposal, error) {
+	res, err := c.querier.Proposal(ctx, &v1.QueryProposalRequest{
+		ProposalId: proposalID,
+	})
+	if err != nil {
+		return generated.IGovernanceModuleProposal{}, err
 	}
-
-	return c.getProposalHelper(ctx, proposalID)
+	return cosmlib.SdkProposalToGovProposal(*res.Proposal), nil
 }
 
 // GetProposals is the method for the `getProposal` method of the governance precompile contract.
 func (c *Contract) GetProposals(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	proposalStatus, ok := utils.GetAs[int32](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidInt32
+	proposalStatus int32,
+	pagination any,
+) ([]generated.IGovernanceModuleProposal, cbindings.CosmosPageResponse, error) {
+	res, err := c.querier.Proposals(ctx, &v1.QueryProposalsRequest{
+		ProposalStatus: v1.ProposalStatus(proposalStatus),
+		Pagination:     cosmlib.ExtractPageRequestFromInput(pagination),
+	})
+	if err != nil {
+		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
-	return c.getProposalsHelper(ctx, proposalStatus)
+	proposals := make([]generated.IGovernanceModuleProposal, 0)
+	for _, proposal := range res.Proposals {
+		proposals = append(proposals, cosmlib.SdkProposalToGovProposal(*proposal))
+	}
+
+	return proposals, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
-// unmarshalMsgAndReturnAny unmarshals `[]byte` into a `codectypes.Any` message.
-// TODO: This is a temporary solution until we have a better way to unmarshal messages.
-func unmarshalMsgAndReturnAny(bz []byte) (*codectypes.Any, error) {
-	var msg banktypes.MsgSend
-	if err := msg.Unmarshal(bz); err != nil {
-		return nil, err
-	}
-	anyValue, err := codectypes.NewAnyWithValue(&msg)
+// GetProposalDeposits is the method for the `getProposalDeposits` method of the governance precompile contract.
+func (c *Contract) GetProposalDeposits(
+	ctx context.Context,
+	proposalID uint64,
+) ([]generated.CosmosCoin, error) {
+	res, err := c.querier.Proposal(ctx, &v1.QueryProposalRequest{
+		ProposalId: proposalID,
+	})
 	if err != nil {
 		return nil, err
 	}
-	return anyValue, nil
+	deposits := make([]generated.CosmosCoin, 0)
+	for _, deposit := range res.Proposal.TotalDeposit {
+		deposits = append(deposits, generated.CosmosCoin{
+			Denom:  deposit.Denom,
+			Amount: deposit.Amount.BigInt(),
+		})
+	}
+
+	return deposits, nil
+}
+
+// GetProposalDepositsByDepositor is the method for the `getProposalDepositsByDepositor` method
+// of the governance precompile contract.
+func (c *Contract) GetProposalDepositsByDepositor(
+	ctx context.Context,
+	proposalID uint64,
+	depositor common.Address,
+) ([]generated.CosmosCoin, error) {
+	depositorBech32, err := cosmlib.AccStringFromEthAddress(depositor)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := c.querier.Deposit(ctx, &v1.QueryDepositRequest{
+		ProposalId: proposalID,
+		Depositor:  depositorBech32,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	deposits := make([]generated.CosmosCoin, 0)
+	for _, deposit := range res.Deposit.Amount {
+		deposits = append(deposits, generated.CosmosCoin{
+			Denom:  deposit.Denom,
+			Amount: deposit.Amount.BigInt(),
+		})
+	}
+
+	return deposits, nil
+}
+
+// GetProposalVotes is the method for the `getProposalVotes` method of the governance precompile contract.
+func (c *Contract) GetProposalTallyResult(
+	ctx context.Context,
+	proposalID uint64,
+) (generated.IGovernanceModuleTallyResult, error) {
+	res, err := c.querier.TallyResult(ctx, &v1.QueryTallyResultRequest{
+		ProposalId: proposalID,
+	})
+	if err != nil {
+		return generated.IGovernanceModuleTallyResult{}, err
+	}
+
+	return generated.IGovernanceModuleTallyResult{
+		YesCount:        res.Tally.YesCount,
+		AbstainCount:    res.Tally.AbstainCount,
+		NoCount:         res.Tally.NoCount,
+		NoWithVetoCount: res.Tally.NoWithVetoCount,
+	}, nil
+}
+
+// GetProposalVotes is the method for the `getProposalVotes` method of the governance precompile contract.
+func (c *Contract) GetProposalVotes(
+	ctx context.Context,
+	proposalID uint64,
+	pagination any,
+) ([]generated.IGovernanceModuleVote, cbindings.CosmosPageResponse, error) {
+	res, err := c.querier.Votes(ctx, &v1.QueryVotesRequest{
+		ProposalId: proposalID,
+		Pagination: cosmlib.ExtractPageRequestFromInput(pagination),
+	})
+	if err != nil {
+		return nil, cbindings.CosmosPageResponse{}, err
+	}
+
+	votes := make([]generated.IGovernanceModuleVote, 0)
+	for _, vote := range res.Votes {
+		voteOptions := make([]generated.IGovernanceModuleWeightedVoteOption, 0)
+		for _, option := range vote.Options {
+			voteOptions = append(
+				voteOptions,
+				generated.IGovernanceModuleWeightedVoteOption{
+					VoteOption: int32(option.Option),
+					Weight:     option.Weight,
+				},
+			)
+		}
+		var voter common.Address
+		voter, err = cosmlib.EthAdressFromAccString(vote.Voter)
+		if err != nil {
+			return nil, cbindings.CosmosPageResponse{}, err
+		}
+		votes = append(votes, generated.IGovernanceModuleVote{
+			ProposalId: proposalID,
+			Voter:      voter,
+			Options:    voteOptions,
+			Metadata:   vote.Metadata,
+		})
+	}
+
+	return votes, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
+}
+
+// GetProposalVotesByVoter is the method for the `getProposalVotesByVoter` method of the governance
+// precompile contract.
+func (c *Contract) GetProposalVotesByVoter(
+	ctx context.Context,
+	proposalID uint64,
+	voter common.Address,
+) (generated.IGovernanceModuleVote, error) {
+	voterBech32, err := cosmlib.AccStringFromEthAddress(voter)
+	if err != nil {
+		return generated.IGovernanceModuleVote{}, err
+	}
+
+	res, err := c.querier.Vote(ctx, &v1.QueryVoteRequest{
+		ProposalId: proposalID,
+		Voter:      voterBech32,
+	})
+	if err != nil {
+		return generated.IGovernanceModuleVote{}, err
+	}
+
+	voteOptions := make([]generated.IGovernanceModuleWeightedVoteOption, 0)
+	for _, option := range res.Vote.Options {
+		voteOptions = append(
+			voteOptions,
+			generated.IGovernanceModuleWeightedVoteOption{
+				VoteOption: int32(option.Option),
+				Weight:     option.Weight,
+			},
+		)
+	}
+	return generated.IGovernanceModuleVote{
+		ProposalId: proposalID,
+		Voter:      voter,
+		Options:    voteOptions,
+		Metadata:   res.Vote.Metadata,
+	}, nil
+}
+
+// GetProposalVoteByVoter is the method for the `getProposalVoteByVoter` method of the governance
+// precompile contract.
+func (c *Contract) GetParams(
+	ctx context.Context,
+) (generated.IGovernanceModuleParams, error) {
+	res, err := c.querier.Params(ctx, &v1.QueryParamsRequest{})
+	if err != nil {
+		return generated.IGovernanceModuleParams{}, err
+	}
+
+	minDeposit := make([]generated.CosmosCoin, 0)
+	for _, coin := range res.Params.MinDeposit {
+		minDeposit = append(minDeposit, generated.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
+	}
+	expeditedMinDeposit := make([]generated.CosmosCoin, 0)
+	for _, coin := range res.Params.ExpeditedMinDeposit {
+		expeditedMinDeposit = append(expeditedMinDeposit, generated.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
+	}
+
+	return generated.IGovernanceModuleParams{
+		MinDeposit:                 minDeposit,
+		MaxDepositPeriod:           uint64(res.Params.MaxDepositPeriod.Abs()),
+		VotingPeriod:               uint64(res.Params.VotingPeriod.Abs()),
+		Quorum:                     res.Params.Quorum,
+		Threshold:                  res.Params.Threshold,
+		VetoThreshold:              res.Params.VetoThreshold,
+		MinInitialDepositRatio:     res.Params.MinInitialDepositRatio,
+		ProposalCancelRatio:        res.Params.ProposalCancelRatio,
+		ProposalCancelDest:         res.Params.ProposalCancelDest,
+		ExpeditedVotingPeriod:      uint64(res.Params.ExpeditedVotingPeriod.Abs()),
+		ExpeditedThreshold:         res.Params.ExpeditedThreshold,
+		ExpeditedMinDeposit:        expeditedMinDeposit,
+		BurnVoteQuorum:             res.Params.BurnVoteQuorum,
+		BurnProposalDepositPrevote: res.Params.BurnProposalDepositPrevote,
+		BurnVoteVeto:               res.Params.BurnVoteVeto,
+	}, nil
+}
+
+// GetDepositParams is the method for the `getDepositParams` method of the governance precompile contract.
+func (c *Contract) GetDepositParams(
+	ctx context.Context,
+) (generated.IGovernanceModuleDepositParams, error) {
+	res, err := c.querier.Params(ctx, &v1.QueryParamsRequest{})
+	if err != nil {
+		return generated.IGovernanceModuleDepositParams{}, err
+	}
+
+	minDeposit := make([]generated.CosmosCoin, 0)
+	for _, coin := range res.Params.MinDeposit {
+		minDeposit = append(minDeposit, generated.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
+	}
+
+	return generated.IGovernanceModuleDepositParams{
+		MinDeposit: minDeposit,
+	}, nil
+}
+
+// GetVotingParams is the method for the `getVotingParams` method of the governance precompile contract.
+func (c *Contract) GetVotingParams(
+	ctx context.Context,
+) (generated.IGovernanceModuleVotingParams, error) {
+	res, err := c.querier.Params(ctx, &v1.QueryParamsRequest{})
+	if err != nil {
+		return generated.IGovernanceModuleVotingParams{}, err
+	}
+
+	return generated.IGovernanceModuleVotingParams{
+		VotingPeriod: uint64(res.Params.VotingPeriod.Abs()),
+	}, nil
+}
+
+// GetTallyParams is the method for the `getTallyParams` method of the governance precompile contract.
+func (c *Contract) GetTallyParams(
+	ctx context.Context,
+) (generated.IGovernanceModuleTallyParams, error) {
+	res, err := c.querier.Params(ctx, &v1.QueryParamsRequest{})
+	if err != nil {
+		return generated.IGovernanceModuleTallyParams{}, err
+	}
+
+	return generated.IGovernanceModuleTallyParams{
+		Quorum:        res.Params.Quorum,
+		Threshold:     res.Params.Threshold,
+		VetoThreshold: res.Params.VetoThreshold,
+	}, nil
+}
+
+// GetConstitution is the method for the `getConstitution` method of the governance precompile contract.
+func (c *Contract) GetConstitution(
+	ctx context.Context,
+) (string, error) {
+	res, err := c.querier.Constitution(ctx, &v1.QueryConstitutionRequest{})
+	if err != nil {
+		return "", err
+	}
+
+	return res.Constitution, nil
 }

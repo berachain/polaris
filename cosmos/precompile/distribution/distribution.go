@@ -22,171 +22,85 @@ package distribution
 
 import (
 	"context"
-	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/distribution"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
+	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
+	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // Contract is the precompile contract for the distribution module.
 type Contract struct {
 	ethprecompile.BaseContract
 
+	vs        staking.ValidatorStore
 	msgServer distributiontypes.MsgServer
 	querier   distributiontypes.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the distribution module precompile contract.
 func NewPrecompileContract(
-	m distributiontypes.MsgServer, q distributiontypes.QueryServer,
+	vs staking.ValidatorStore, m distributiontypes.MsgServer, q distributiontypes.QueryServer,
 ) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.DistributionModuleMetaData.ABI,
 			common.BytesToAddress([]byte{0x69}),
 		),
+		vs:        vs,
 		msgServer: m,
 		querier:   q,
 	}
 }
 
-// CustomValueDecoders overrides the `coreprecompile.StatefulImpl` interface.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		distributiontypes.AttributeKeyWithdrawAddress: log.ConvertAccAddressFromBech32,
-	}
-}
-
-// PrecompileMethods implements the `coreprecompile.StatefulImpl` interface.
-func (c *Contract) PrecompileMethods() ethprecompile.Methods {
-	return ethprecompile.Methods{
-		{
-			AbiSig:  "setWithdrawAddress(address)",
-			Execute: c.SetWithdrawAddress,
-		},
-		{
-			AbiSig:  "setWithdrawAddress(string)",
-			Execute: c.SetWithdrawAddressBech32,
-		},
-		{
-			AbiSig:  "withdrawDelegatorReward(address,address)",
-			Execute: c.WithdrawDelegatorReward,
-		},
-		{
-			AbiSig:  "withdrawDelegatorReward(string,string)",
-			Execute: c.SetWithdrawAddressBech32,
-		},
-		{
-			AbiSig:  "getWithdrawEnabled()",
-			Execute: c.GetWithdrawAddrEnabled,
-		},
+		distributiontypes.AttributeKeyValidator: c.ConvertValAddressFromBech32,
 	}
 }
 
 // SetWithdrawAddress is the precompile contract method for the `setWithdrawAddress(address)` method.
 func (c *Contract) SetWithdrawAddress(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	withdrawAddr, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
-	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), sdk.AccAddress(withdrawAddr.Bytes()))
+	withdrawAddress common.Address,
+) (bool, error) {
+	return c.setWithdrawAddressHelper(
+		ctx,
+		sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes()),
+		sdk.AccAddress(withdrawAddress.Bytes()),
+	)
 }
 
-// SetWithdrawAddressBech32 is the precompile contract method for the `setWithdrawAddress(string)` method.
-func (c *Contract) SetWithdrawAddressBech32(
+// GetWithdrawEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
+func (c *Contract) GetWithdrawEnabled(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	caller common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	withdrawAddr, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	addr, err := sdk.AccAddressFromBech32(withdrawAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.setWithdrawAddressHelper(ctx, sdk.AccAddress(caller.Bytes()), addr)
+) (bool, error) {
+	return c.getWithdrawAddrEnabled(ctx)
 }
 
-// WithdrawDelegatorReward is the precompile contract method for the `withdrawDelegatorReward(address,address)`
-// method.
+// WithdrawDelegatorReward is the precompile contract method for the
+// `withdrawDelegatorReward(address,address)` method.
 func (c *Contract) WithdrawDelegatorReward(
 	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	delegator, ok := utils.GetAs[common.Address](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-	validator, ok := utils.GetAs[common.Address](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidHexAddress
-	}
-
-	return c.withdrawDelegatorRewardsHelper(ctx, sdk.AccAddress(delegator.Bytes()), sdk.ValAddress(validator.Bytes()))
+	delegator common.Address,
+	validator common.Address,
+) ([]lib.CosmosCoin, error) {
+	return c.withdrawDelegatorRewardsHelper(
+		ctx,
+		sdk.AccAddress(delegator.Bytes()),
+		sdk.ValAddress(validator.Bytes()),
+	)
 }
 
-// WithdrawDelegatorRewardBech32 is the precompile contract method for the `withdrawDelegatorReward(string,string)`.
-func (c *Contract) WithdrawDelegatorRewardBech32(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	args ...any,
-) ([]any, error) {
-	delegator, ok := utils.GetAs[string](args[0])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	validator, ok := utils.GetAs[string](args[1])
-	if !ok {
-		return nil, precompile.ErrInvalidString
-	}
-	delegatorAddr, err := sdk.AccAddressFromBech32(delegator)
-	if err != nil {
-		return nil, err
-	}
-	validatorAddr, err := sdk.ValAddressFromBech32(validator)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.withdrawDelegatorRewardsHelper(ctx, delegatorAddr, validatorAddr)
-}
-
-// GetWithdrawAddrEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
-func (c *Contract) GetWithdrawAddrEnabled(
-	ctx context.Context,
-	_ ethprecompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	_ ...any,
-) ([]any, error) {
-	return c.getWithdrawAddrEnabled(ctx)
+// ConvertValAddressFromBech32 converts a bech32 string representing a validator address to a
+// common.Address.
+func (c *Contract) ConvertValAddressFromBech32(attributeValue string) (any, error) {
+	// extract the sdk.ValAddress from string value
+	return cosmlib.EthAddressFromString(c.vs.ValidatorAddressCodec(), attributeValue)
 }

@@ -47,8 +47,8 @@ func (e Eth) TestUnit() error {
 	return testUnit(e.directory())
 }
 
-// Runs all integration for the Cosmos SDK chain.
-func (e Eth) TestIntegration() error {
-	LogGreen("Running all Polaris Ethereum integration tests...")
-	return testIntegration(e.directory())
+// Runs all e2e tests for the Cosmos SDK chain.
+func (e Eth) TestE2E() error {
+	LogGreen("Running all Polaris Ethereum e2e tests...")
+	return testE2E(e.directory())
 }

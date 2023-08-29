@@ -21,6 +21,7 @@
 package staking
 
 import (
+	"context"
 	"math/big"
 	"testing"
 
@@ -33,13 +34,16 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/lib/utils"
+	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/core/vm/mock"
+	libutils "pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -58,7 +62,7 @@ func createValAddrs(count int) ([]sdk.AccAddress, []sdk.ValAddress) {
 }
 
 func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey) (stakingtypes.Validator, error) {
-	return stakingtypes.NewValidator(operator, pubKey, stakingtypes.Description{})
+	return stakingtypes.NewValidator(operator.String() /* todo move to codec */, pubKey, stakingtypes.Description{})
 }
 
 var (
@@ -70,15 +74,18 @@ var _ = Describe("Staking", func() {
 		sk stakingkeeper.Keeper
 		bk bankkeeper.BaseKeeper
 
-		ctx sdk.Context
+		sdkCtx sdk.Context
 
 		contract *Contract
+
+		sf *ethprecompile.StatefulFactory
 	)
 
 	BeforeEach(func() {
-		ctx, _, bk, sk = testutil.SetupMinimalKeepers()
+		sdkCtx, _, bk, sk = testutil.SetupMinimalKeepers()
 		skPtr := &sk
-		contract = utils.MustGetAs[*Contract](NewPrecompileContract(skPtr))
+		contract = libutils.MustGetAs[*Contract](NewPrecompileContract(skPtr))
+		sf = ethprecompile.NewStatefulFactory()
 	})
 
 	When("AbiMethods", func() {
@@ -93,7 +100,8 @@ var _ = Describe("Staking", func() {
 
 	When("PrecompileMethods", func() {
 		It("should return the correct methods", func() {
-			Expect(contract.PrecompileMethods()).To(HaveLen(len(contract.ABIMethods())))
+			_, err := sf.Build(contract, nil)
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 
@@ -109,42 +117,76 @@ var _ = Describe("Staking", func() {
 
 	When("CustomValueDecoders", func() {
 		It("should be a no-op", func() {
-			Expect(contract.CustomValueDecoders()).To(BeNil())
+			Expect(contract.CustomValueDecoders()).To(HaveLen(3))
 		})
 	})
 
 	When("Calling Precompile Methods", func() {
 		var (
-			del       sdk.AccAddress
-			val       sdk.ValAddress
-			validator stakingtypes.Validator
-			otherVal  sdk.ValAddress
-			caller    common.Address
+			del              sdk.AccAddress
+			val              sdk.ValAddress
+			valAddr          common.Address
+			valConsAddr      sdk.ConsAddress
+			otherValAddr     common.Address
+			validator        stakingtypes.Validator
+			otherValidator   stakingtypes.Validator
+			otherVal         sdk.ValAddress
+			otherValConsAddr sdk.ConsAddress
+			caller           common.Address
+			mockEVM          *mock.PrecompileEVMMock
+			ctx              context.Context
 		)
 
 		BeforeEach(func() {
 			delegates, validators := createValAddrs(2)
 			del, val, otherVal = delegates[0], validators[0], validators[1]
-			caller = cosmlib.AccAddressToEthAddress(del)
+			var err error
+			valAddr, err = cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), val.String())
+			Expect(err).ToNot(HaveOccurred())
+			otherValAddr, err = cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), otherVal.String())
+			Expect(err).ToNot(HaveOccurred())
+			caller = common.BytesToAddress(del)
 
 			amount, ok := new(big.Int).SetString("22000000000000000000", 10) // 22 tokens.
 			Expect(ok).To(BeTrue())
-			var err error
+
+			mockEVM = mock.NewEVM()
+			ctx = vm.NewPolarContext(sdkCtx, mockEVM, caller, big.NewInt(0))
+
 			validator, err = NewValidator(val, PKs[0])
 			Expect(err).ToNot(HaveOccurred())
-			otherValidator, err := NewValidator(otherVal, PKs[1])
+			valConsAddr = sdk.ConsAddress(PKs[0].Address())
+			Expect(sk.SetValidator(ctx, validator)).To(Succeed())
+			Expect(sk.SetValidatorByConsAddr(ctx, validator)).To(Succeed())
+
+			otherValidator, err = NewValidator(otherVal, PKs[1])
 			Expect(err).ToNot(HaveOccurred())
+			otherValConsAddr = sdk.ConsAddress(PKs[1].Address())
+			Expect(sk.SetValidator(ctx, otherValidator)).To(Succeed())
+			Expect(sk.SetValidatorByConsAddr(ctx, otherValidator)).To(Succeed())
+
 			validator, _ = validator.AddTokensFromDel(sdkmath.NewIntFromBigInt(amount))
 			otherValidator, _ = otherValidator.AddTokensFromDel(sdkmath.NewIntFromBigInt(amount))
-			validator = stakingkeeper.TestingUpdateValidator(&sk, ctx, validator, true)
-			stakingkeeper.TestingUpdateValidator(&sk, ctx, otherValidator, true)
 
-			delegation := stakingtypes.NewDelegation(del, val, sdkmath.LegacyNewDec(9))
-			sk.SetDelegation(ctx, delegation)
+			validator = stakingkeeper.TestingUpdateValidator(
+				&sk,
+				sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
+				validator,
+				true,
+			)
+			otherValidator = stakingkeeper.TestingUpdateValidator(
+				&sk,
+				sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
+				otherValidator,
+				true,
+			)
+
+			delegation := stakingtypes.NewDelegation(del.String(), val.String(), sdkmath.LegacyNewDec(9))
+			Expect(sk.SetDelegation(ctx, delegation)).To(Succeed())
 
 			// Check that the delegation was created.
-			res, found := sk.GetDelegation(ctx, del, val)
-			Expect(found).To(BeTrue())
+			res, err := sk.GetDelegation(ctx, del, val)
+			Expect(err).ToNot(HaveOccurred())
 			Expect(res).To(Equal(delegation))
 
 			// Set the denom.
@@ -155,39 +197,33 @@ var _ = Describe("Staking", func() {
 
 		})
 
-		When("DelegateAddrInput", func() {
-			It("should fail if input is not a common.Address", func() {
-				res, err := contract.DelegateAddrInput(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					true,
-					"0x",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
+		When("ValAddrFromConsAddr", func() {
+			It("should find based on cons addr", func() {
+				valOperAddr, err := contract.ValAddressFromConsAddress(ctx, valConsAddr)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(valOperAddr).To(Equal(valAddr))
 
-			It("should fail if the amount is not a *big.Int", func() {
-				res, err := contract.DelegateAddrInput(
-					ctx,
-					nil,
-					caller,
-					big.NewInt(0),
-					true,
-					cosmlib.ValAddressToEthAddress(val),
-					"amount",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
-				Expect(res).To(BeNil())
+				otherValOperAddr, err := contract.ValAddressFromConsAddress(ctx, otherValConsAddr)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(otherValOperAddr).To(Equal(otherValAddr))
 			})
+		})
+
+		It("should correctly convert ValAddress to common.Address", func() {
+			val := sdk.ValAddress([]byte("alice")).String()
+			gethValue, err := contract.ConvertValAddressFromBech32(val)
+			Expect(err).ToNot(HaveOccurred())
+			valAddrVal := libutils.MustGetAs[common.Address](gethValue)
+			Expect(valAddrVal).To(Equal(cosmlib.MustEthAddressFromString(sk.ValidatorAddressCodec(), val)))
+		})
+
+		When("Delegate", func() {
 
 			It("should succeed", func() {
 				amountToDelegate, ok := new(big.Int).SetString("22000000000000000000", 10)
 				Expect(ok).To(BeTrue())
 				err := FundAccount(
-					ctx,
+					sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 					bk,
 					del,
 					sdk.NewCoins(
@@ -199,781 +235,312 @@ var _ = Describe("Staking", func() {
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				_, err = contract.DelegateAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					cosmlib.ValAddressToEthAddress(val),
+				_, err = contract.Delegate(
+					ctx,
+					valAddr,
 					amountToDelegate,
 				)
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})
 
-		When("DelegateStringInput", func() {
-			It("should fail if input is not a string", func() {
-				res, err := contract.DelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					90909,
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
+		When("GetDelegation", func() {
 
-			It("should fail if the amount is not a *big.Int", func() {
-				res, err := contract.DelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					"amount",
+			It("should return the correct delegation", func() {
+				res, err := contract.GetDelegation(
+					ctx,
+					common.BytesToAddress(del), valAddr,
 				)
-				Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
-				Expect(res).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).To(Equal(big.NewInt(9))) // should have correct shares
 			})
+		})
 
-			It("should fail if the string is not a valid address", func() {
-				res, err := contract.DelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					"invalid",
-					big.NewInt(0),
+		When("GetValidatorDelegations", func() {
+			It("should return the validators correct delegations", func() {
+				res, _, err := contract.GetValidatorDelegations(
+					ctx,
+					valAddr,
+					cbindings.CosmosPageRequest{
+						Key:        "test",
+						Offset:     0,
+						Limit:      10,
+						CountTotal: true,
+						Reverse:    false,
+					},
 				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).To(HaveLen(1))
+				Expect(res[0].Delegator).To(Equal(common.BytesToAddress(del)))
+				Expect(res[0].Balance.Cmp(big.NewInt(9))).To(Equal(0))
+				Expect(res[0].Shares).To(Equal(new(big.Int).Mul(big.NewInt(9), big.NewInt(1e18))))
 			})
+			It("should succeed without pagination", func() {
+				res, _, err := contract.GetValidatorDelegations(
+					ctx,
+					valAddr,
+					cbindings.CosmosPageRequest{},
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).To(HaveLen(1))
+				Expect(res[0].Delegator).To(Equal(common.BytesToAddress(del)))
+				Expect(res[0].Balance.Cmp(big.NewInt(9))).To(Equal(0))
+				Expect(res[0].Shares).To(Equal(new(big.Int).Mul(big.NewInt(9), big.NewInt(1e18))))
+			})
+		})
+
+		When("Undelegate", func() {
 
 			It("should succeed", func() {
-				amountToDelegate, ok := new(big.Int).SetString("22000000000000000000", 10)
-				Expect(ok).To(BeTrue())
-				err := FundAccount(
+				_, err := contract.Undelegate(
 					ctx,
+					valAddr,
+					big.NewInt(1),
+				)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		When("BeginRedelegations", func() {
+
+			It("should succeed", func() {
+				_, err := contract.BeginRedelegate(
+					ctx,
+					valAddr,
+					otherValAddr,
+					big.NewInt(1),
+				)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		When("CancelUnbondingDelegation", func() {
+			It("should succeed", func() {
+				creationHeight := sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()).BlockHeight()
+				amount, ok := new(big.Int).SetString("1", 10)
+				Expect(ok).To(BeTrue())
+
+				// Undelegate.
+				_, err := contract.Undelegate(
+					ctx,
+					valAddr,
+					amount,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				_, err = contract.CancelUnbondingDelegation(
+					ctx,
+					valAddr,
+					amount,
+					creationHeight,
+				)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		When("GetUnbondingDelegation", func() {
+
+			It("should succeed", func() {
+				// Undelegate.
+				amount, ok := new(big.Int).SetString("1", 10)
+				Expect(ok).To(BeTrue())
+				_, err := contract.Undelegate(
+					ctx,
+					valAddr,
+					amount,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				res, err := contract.GetUnbondingDelegation(
+					ctx,
+					caller,
+					valAddr,
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).ToNot(BeNil())
+			})
+		})
+
+		When("GetDelegatorUnbondingDelegations", func() {
+			It("should succeed", func() {
+				// Undelegate.
+				amount, ok := new(big.Int).SetString("1", 10)
+				Expect(ok).To(BeTrue())
+				_, err := contract.Undelegate(
+					ctx,
+					valAddr,
+					amount,
+				)
+				Expect(err).ToNot(HaveOccurred())
+
+				res, _, err := contract.GetDelegatorUnbondingDelegations(
+					ctx,
+					caller,
+					cbindings.CosmosPageRequest{
+						Key:        "test",
+						Offset:     0,
+						Limit:      10,
+						CountTotal: true,
+						Reverse:    false,
+					},
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res).ToNot(BeNil())
+			})
+		})
+
+		When("GetRedelegations", func() {
+			It("should succeed", func() {
+
+				amount, ok := new(big.Int).SetString("220000000000000000000", 10)
+				Expect(ok).To(BeTrue())
+
+				err := FundAccount(
+					sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 					bk,
-					del,
+					caller.Bytes(),
 					sdk.NewCoins(
 						sdk.NewCoin(
 							"stake",
-							sdkmath.NewIntFromBigInt(amountToDelegate),
+							sdkmath.NewIntFromBigInt(amount),
 						),
 					),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
-				_, err = contract.DelegateStringInput(
+				validator.Status = stakingtypes.Bonded
+				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
+
+				ret, err := contract.Delegate(
 					ctx,
-					nil,
+					valAddr,
+					amount,
+				)
+				Expect(ret).To(BeTrue())
+				Expect(err).ToNot(HaveOccurred())
+
+				del, err := contract.GetDelegation(ctx,
 					caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					amountToDelegate,
+					valAddr,
 				)
 				Expect(err).ToNot(HaveOccurred())
-			})
-		})
 
-		When("GetDelegationAddrInput", func() {
-			It("should return an error if the input del is not a common.Address", func() {
-				res, err := contract.GetDelegationAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					"0x", cosmlib.ValAddressToEthAddress(val),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
+				Expect(del.Cmp(new(big.Int).Add(amount, big.NewInt(9)))).To(Equal(0))
 
-			It("should return an error if the val address is not common.address", func() {
-				res, err := contract.GetDelegationAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					cosmlib.AccAddressToEthAddress(del), "0x",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
+				otherValidator.Status = stakingtypes.Bonded
 
-			It("should return the correct delegation", func() {
-				res, err := contract.GetDelegationAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					cosmlib.AccAddressToEthAddress(del), cosmlib.ValAddressToEthAddress(val),
-				)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(res[0]).To(Equal(big.NewInt(9))) // should have correct shares
-			})
-		})
+				Expect(sk.SetValidator(ctx, otherValidator)).To(Succeed())
 
-		When("GetDelegationStringInput", func() {
-			It("should error if not string", func() {
-				res, err := contract.GetDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					0, val.String(),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
-
-			It("should error if the val address is not a string", func() {
-				res, err := contract.GetDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					del.String(), 0,
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
-
-			It("should error if del not bech32", func() {
-				res, err := contract.GetDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					"0x", val.String(),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should return an error if the val is not bech32", func() {
-				res, err := contract.GetDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					del.String(), "0x",
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should return the correct delegation", func() {
-				res, err := contract.GetDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					del.String(), val.String(),
-				)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(res[0]).To(Equal(big.NewInt(9))) // should have correct shares
-			})
-		})
-
-		When("UndelegateAddrInput", func() {
-			It("should fail if the input is not a common.Address", func() {
-				res, err := contract.UndelegateAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					"0x",
-					big.NewInt(0),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the amount is not a *big.Int", func() {
-				res, err := contract.UndelegateAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					cosmlib.ValAddressToEthAddress(val),
-					"amount",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
-				Expect(res).To(BeNil())
-			})
-
-			It("should succeed", func() {
-				_, err := contract.UndelegateAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					cosmlib.ValAddressToEthAddress(val),
-					big.NewInt(1),
-				)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
-		When("UndelegateStringInput", func() {
-			It("should fail if the input is not a string", func() {
-				res, err := contract.UndelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					90909,
-					big.NewInt(0),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the amount is not a *big.Int", func() {
-				res, err := contract.UndelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					val.String(),
-					"amount",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the address is not of type bech32", func() {
-				res, err := contract.UndelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					"0x",
-					big.NewInt(0),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should succeed", func() {
-				_, err := contract.UndelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					val.String(),
-					big.NewInt(1),
-				)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
-		When("BeginRedelegationsAddrInput", func() {
-			It("should fail if the srcValue is not a common.Address", func() {
-				res, err := contract.BeginRedelegateAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					10,
-					cosmlib.ValAddressToEthAddress(val),
-					big.NewInt(1),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the dstValue is not a common.Address", func() {
-				res, err := contract.BeginRedelegateAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					cosmlib.ValAddressToEthAddress(val),
-					10,
-					big.NewInt(1),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the amount is not a *big.Int", func() {
-				res, err := contract.BeginRedelegateAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					cosmlib.ValAddressToEthAddress(val),
-					cosmlib.ValAddressToEthAddress(val),
-					"amount",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
-				Expect(res).To(BeNil())
-			})
-
-			It("should succeed", func() {
-				_, err := contract.BeginRedelegateAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					cosmlib.ValAddressToEthAddress(val),
-					cosmlib.ValAddressToEthAddress(otherVal),
-					big.NewInt(1),
-				)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
-		When("BeginRedelegationsStringInput", func() {
-			It("should fail if the srcValue is not a string", func() {
-				res, err := contract.BeginRedelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					10,
-					val.String(),
-					big.NewInt(1),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the dstValue is not a string", func() {
-				res, err := contract.BeginRedelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					10,
-					big.NewInt(1),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the amount is not a *big.Int", func() {
-				res, err := contract.BeginRedelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					otherVal.String(),
-					"amount",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the srcValue is not of type bech32", func() {
-				res, err := contract.BeginRedelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					"0x",
-					val.String(),
-					big.NewInt(1),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the dstValue is not of type bech32", func() {
-				res, err := contract.BeginRedelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					"0x",
-					big.NewInt(1),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should succeed", func() {
-				_, err := contract.BeginRedelegateStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					otherVal.String(),
-					big.NewInt(1),
-				)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
-		When("CancelUnbondingDelegationAddrInput", func() {
-			It("should fail if the address is not a common.Address", func() {
-				res, err := contract.CancelUnbondingDelegationAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					"cosmlib.ValAddressToEthAddress(val)",
-					big.NewInt(1),
-					int64(1),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the amount is not a *big.Int", func() {
-				res, err := contract.CancelUnbondingDelegationAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					cosmlib.ValAddressToEthAddress(val),
-					"amount",
-					int64(1),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if creation height is not an int64", func() {
-				res, err := contract.CancelUnbondingDelegationAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					cosmlib.ValAddressToEthAddress(val),
-					big.NewInt(1),
-					"height",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidInt64))
-				Expect(res).To(BeNil())
-			})
-
-			It("should succeed", func() {
-				creationHeight := ctx.BlockHeight()
-				amount, ok := new(big.Int).SetString("1", 10)
-				Expect(ok).To(BeTrue())
-
-				// Undelegate.
-				_, err := contract.UndelegateAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					cosmlib.ValAddressToEthAddress(val),
+				ret, err = contract.BeginRedelegate(
+					ctx,
+					valAddr,
+					otherValAddr,
 					amount,
 				)
+				Expect(ret).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 
-				_, err = contract.CancelUnbondingDelegationAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					cosmlib.ValAddressToEthAddress(val),
-					amount,
-					creationHeight,
-				)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
-		When("CancelUnbondingDelegationStringInput", func() {
-			It("should fail if the address is not a string", func() {
-				res, err := contract.CancelUnbondingDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					10,
-					big.NewInt(1),
-					int64(1),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the amount is not a *big.Int", func() {
-				res, err := contract.CancelUnbondingDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					"amount",
-					int64(1),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidBigInt))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if creation height is not an int64", func() {
-				res, err := contract.CancelUnbondingDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					big.NewInt(1),
-					"height",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidInt64))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if the address is not a bech32 address", func() {
-				res, err := contract.CancelUnbondingDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					"0x",
-					big.NewInt(1),
-					int64(1),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should succeed", func() {
-				creationHeight := ctx.BlockHeight()
-				amount, ok := new(big.Int).SetString("1", 10)
-				Expect(ok).To(BeTrue())
-
-				// Undelegate.
-				_, err := contract.UndelegateAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					cosmlib.ValAddressToEthAddress(val),
-					amount,
-				)
-				Expect(err).ToNot(HaveOccurred())
-
-				_, err = contract.CancelUnbondingDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					val.String(),
-					amount,
-					creationHeight,
-				)
-				Expect(err).ToNot(HaveOccurred())
-			})
-		})
-
-		When("GetUnbondingDelegationAddrInput", func() {
-			It("should fail if address is not a common.Address", func() {
-				res, err := contract.GetUnbondingDelegationAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
+				del, err = contract.GetDelegation(ctx,
 					caller,
-					"cosmlib.ValAddressToEthAddress(val)",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
-
-			It("should succeed", func() {
-				// Undelegate.
-				amount, ok := new(big.Int).SetString("1", 10)
-				Expect(ok).To(BeTrue())
-				_, err := contract.UndelegateAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					cosmlib.ValAddressToEthAddress(val),
-					amount,
+					valAddr,
 				)
 				Expect(err).ToNot(HaveOccurred())
+				Expect((del).Cmp(big.NewInt(9))).To(Equal(0))
 
-				res, err := contract.GetUnbondingDelegationAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
+				del, err = contract.GetDelegation(ctx,
 					caller,
-					cosmlib.ValAddressToEthAddress(val),
+					otherValAddr,
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res).ToNot(BeNil())
-			})
-		})
+				Expect((del).Cmp(amount)).To(Equal(0))
 
-		When("GetUnbondingDelegationStringInput", func() {
-			It("should fail if address is not a string", func() {
-				res, err := contract.GetUnbondingDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					10,
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if address is not a bech32 address", func() {
-				res, err := contract.GetUnbondingDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					"0x",
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should succeed", func() {
-				// Undelegate.
-				amount, ok := new(big.Int).SetString("1", 10)
-				Expect(ok).To(BeTrue())
-				_, err := contract.UndelegateAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					false,
-					cosmlib.ValAddressToEthAddress(val),
-					amount,
-				)
-				Expect(err).ToNot(HaveOccurred())
-
-				res, err := contract.GetUnbondingDelegationStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					cosmlib.AddressToAccAddress(caller).String(),
-					val.String(),
-				)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(res).ToNot(BeNil())
-			})
-		})
-
-		When("GetRedelegationsAddrInput", func() {
-			It("should fail if address is not a common.Address", func() {
-				res, err := contract.GetRedelegationsAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
+				redels, _, err := contract.GetRedelegations(
+					ctx,
 					caller,
-					"cosmlib.ValAddressToEthAddress(val)",
-					cosmlib.ValAddressToEthAddress(val),
+					valAddr,
+					otherValAddr,
+					cbindings.CosmosPageRequest{},
 				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if dst address is not a common.Address", func() {
-				res, err := contract.GetRedelegationsAddrInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					cosmlib.ValAddressToEthAddress(val),
-					"cosmlib.ValAddressToEthAddress(val)",
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidHexAddress))
-				Expect(res).To(BeNil())
+				Expect(err).ToNot(HaveOccurred())
+				Expect(redels).ToNot(BeNil())
 			})
 		})
 
-		When("GetRedelegationsStringInput", func() {
-			It("should fail if src address is not a string", func() {
-				res, err := contract.GetRedelegationsStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					10,
-					otherVal.String(),
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if dst address is not a string", func() {
-				res, err := contract.GetRedelegationsStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					val.String(),
-					10,
-				)
-				Expect(err).To(MatchError(precompile.ErrInvalidString))
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if src address is not a bech32 address", func() {
-				res, err := contract.GetRedelegationsStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					cosmlib.AddressToAccAddress(caller).String(),
-					"0x",
-					otherVal.String(),
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
-			It("should fail if dst address is not a bech32 address", func() {
-				res, err := contract.GetRedelegationsStringInput(
-					ctx, nil, caller,
-					big.NewInt(0),
-					true,
-					cosmlib.AddressToAccAddress(caller).String(),
-					val.String(),
-					"0x",
-				)
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(BeNil())
-			})
-
+		When("GetRedelegations0", func() {
 			When("Calling Helper Methods", func() {
 				When("delegationHelper", func() {
-					It("should fail if the del address is not valid", func() {
-						_, err := contract.getDelegationHelper(
+					It("should not found if the del address is not valid", func() {
+						res, err := contract.GetDelegation(
 							ctx,
-							sdk.AccAddress(""),
-							val,
+							common.Address{},
+							valAddr,
 						)
-						Expect(err).To(HaveOccurred())
+						Expect(res.Cmp(big.NewInt(0))).To(Equal(0))
+						Expect(err).ToNot(HaveOccurred())
 					})
-					It("should fail if the val address is not valid", func() {
-						_, err := contract.getDelegationHelper(
+					It("should not found if the val address is not valid", func() {
+						vals, err := contract.GetDelegation(
 							ctx,
-							del,
-							sdk.ValAddress(""),
+							common.BytesToAddress(del),
+							common.Address{},
 						)
-						Expect(err).To(HaveOccurred())
+						Expect(vals.Cmp(big.NewInt(0))).To(Equal(0))
+						Expect(err).ToNot(HaveOccurred())
 					})
 					It("should not error if there is no delegation", func() {
-						vals, err := contract.getDelegationHelper(
+						vals, err := contract.GetDelegation(
 							ctx,
-							del,
-							otherVal,
+							common.BytesToAddress(del),
+							otherValAddr,
 						)
 						Expect(err).ToNot(HaveOccurred())
-						del := utils.MustGetAs[*big.Int](vals[0])
-						Expect(del.Cmp(big.NewInt(0))).To(Equal(0))
+						Expect(vals.Cmp(big.NewInt(0))).To(Equal(0))
 					})
 					It("should succeed", func() {
-						_, err := contract.getDelegationHelper(
+						_, err := contract.GetDelegation(
 							ctx,
-							del,
-							val,
+							common.BytesToAddress(del),
+							valAddr,
 						)
 						Expect(err).ToNot(HaveOccurred())
 					})
 				})
 
 				When("getUnbondingDelegationHelper", func() {
-					It("should fail if caller address is wrong", func() {
-						_, err := contract.getUnbondingDelegationHelper(
+					It("should not if caller address is wrong", func() {
+						_, err := contract.GetUnbondingDelegation(
 							ctx,
-							sdk.AccAddress([]byte("")),
-							val,
+							common.BytesToAddress([]byte("")),
+							valAddr,
 						)
-						Expect(err).To(HaveOccurred())
+						Expect(err).ToNot(HaveOccurred())
 					})
 
 					It("should fail if there is no unbonding delegation", func() {
-						vals, err := contract.getUnbondingDelegationHelper(
+						vals, err := contract.GetUnbondingDelegation(
 							ctx,
-							cosmlib.AddressToAccAddress(caller),
-							otherVal,
+							caller,
+							otherValAddr,
 						)
 						Expect(err).ToNot(HaveOccurred())
-						_, ok := utils.GetAs[[]stakingtypes.UnbondingDelegationEntry](vals[0])
-						Expect(ok).To(BeTrue())
+						Expect(vals).To(BeEmpty())
 					})
 
 					It("should succeed", func() {
 						// Undelegate.
 						amount, ok := new(big.Int).SetString("1", 10)
 						Expect(ok).To(BeTrue())
-						_, err := contract.UndelegateAddrInput(
+						_, err := contract.Undelegate(
 							ctx,
-							nil,
-							caller,
-							big.NewInt(0),
-							false,
-							cosmlib.ValAddressToEthAddress(val),
+							valAddr,
 							amount,
 						)
 						Expect(err).ToNot(HaveOccurred())
 
-						_, err = contract.getUnbondingDelegationHelper(
+						_, err = contract.GetUnbondingDelegation(
 							ctx,
-							cosmlib.AddressToAccAddress(caller),
-							val,
+							caller,
+							valAddr,
 						)
 						Expect(err).ToNot(HaveOccurred())
 					})
@@ -981,21 +548,23 @@ var _ = Describe("Staking", func() {
 
 				When("getRedelegationHelper", func() {
 					It("should fail if caller address is wrong", func() {
-						_, err := contract.getRedelegationsHelper(
+						_, _, err := contract.GetRedelegations(
 							ctx,
-							sdk.AccAddress([]byte("")),
-							val,
-							otherVal,
+							common.BytesToAddress([]byte("")),
+							valAddr,
+							otherValAddr,
+							cbindings.CosmosPageRequest{},
 						)
 						Expect(err).To(HaveOccurred())
 					})
 
 					It("should fail if there is no redelegation", func() {
-						_, err := contract.getRedelegationsHelper(
+						_, _, err := contract.GetRedelegations(
 							ctx,
-							cosmlib.AddressToAccAddress(caller),
-							val,
-							otherVal,
+							caller,
+							valAddr,
+							otherValAddr,
+							cbindings.CosmosPageRequest{},
 						)
 						Expect(err).To(HaveOccurred())
 					})
@@ -1005,14 +574,10 @@ var _ = Describe("Staking", func() {
 						amount, ok := new(big.Int).SetString("1", 10)
 						Expect(ok).To(BeTrue())
 
-						_, err := contract.BeginRedelegateAddrInput(
+						_, err := contract.BeginRedelegate(
 							ctx,
-							nil,
-							caller,
-							big.NewInt(0),
-							false,
-							cosmlib.ValAddressToEthAddress(val),
-							cosmlib.ValAddressToEthAddress(otherVal),
+							valAddr,
+							otherValAddr,
 							amount,
 						)
 						Expect(err).ToNot(HaveOccurred())
@@ -1025,14 +590,13 @@ var _ = Describe("Staking", func() {
 			It("gets active validators", func() {
 				// Set the validator to be bonded.
 				validator.Status = stakingtypes.Bonded
-				sk.SetValidator(ctx, validator)
+				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
 
 				// Get the active validators.
-				res, err := contract.GetActiveValidators(ctx, nil, caller, big.NewInt(0), true)
+				res, _, err := contract.GetBondedValidators(ctx, cbindings.CosmosPageRequest{})
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
-				addrs := utils.MustGetAs[[]common.Address](res[0])
-				Expect(addrs[0]).To(Equal(cosmlib.ValAddressToEthAddress(val)))
+				Expect(res[0]).To(Equal(valAddr))
 			})
 		})
 	})

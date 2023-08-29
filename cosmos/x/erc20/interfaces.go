@@ -23,6 +23,8 @@ package erc20
 import (
 	"context"
 
+	addresscodec "cosmossdk.io/core/address"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -52,5 +54,6 @@ type BankKeeper interface {
 }
 
 type StakingKeeper interface {
-	GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, found bool)
+	GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, err error)
+	ValidatorAddressCodec() addresscodec.Codec
 }

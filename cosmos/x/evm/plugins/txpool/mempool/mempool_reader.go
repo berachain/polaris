@@ -26,7 +26,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -38,10 +37,9 @@ func (etp *EthTxPool) Get(hash common.Hash) *coretypes.Transaction {
 }
 
 // Pending is called when txs in the mempool are retrieved.
+//
+// NOT THREAD SAFE.
 func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
-
 	pendingNonces := make(map[common.Address]uint64)
 	pending := make(map[common.Address]coretypes.Transactions)
 
@@ -79,10 +77,9 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 }
 
 // queued retrieves the content of the mempool.
+//
+// NOT THREAD SAFE.
 func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
-
 	pendingNonces := make(map[common.Address]uint64)
 	queued := make(map[common.Address]coretypes.Transactions)
 
@@ -122,9 +119,10 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 
 // Nonce returns the nonce for the given address from the mempool if the address has sent a tx
 // in the mempool.
+//
+// NOT THREAD SAFE.
 func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 	pendingNonces := make(map[common.Address]uint64)
-	etp.mu.RLock()
 
 	// search for the last pending tx for the given address
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
@@ -152,9 +150,6 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 		}
 	}
 
-	// We move this here instead of defer as a slight optimization.
-	etp.mu.RUnlock()
-
 	// if the addr has no eth txs, fallback to the nonce retriever db
 	if _, ok := pendingNonces[addr]; !ok {
 		return etp.nr.GetNonce(addr)
@@ -165,12 +160,11 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 }
 
 // Stats returns the number of currently pending and queued (locally created) transactions.
+//
+// NOT THREAD SAFE.
 func (etp *EthTxPool) Stats() (int, int) {
 	var pendingTxsLen, queuedTxsLen int
 	pending, queued := etp.Content()
-
-	etp.mu.RLock()
-	defer etp.mu.RUnlock()
 
 	for _, txs := range pending {
 		pendingTxsLen += len(txs)
@@ -183,6 +177,8 @@ func (etp *EthTxPool) Stats() (int, int) {
 
 // ContentFrom retrieves the data content of the transaction pool, returning the pending as well as
 // queued transactions of this address, grouped by nonce.
+//
+// NOT THREAD SAFE.
 func (etp *EthTxPool) ContentFrom(addr common.Address) (coretypes.Transactions, coretypes.Transactions) {
 	pending, queued := etp.Content()
 	return pending[addr], queued[addr]
@@ -190,6 +186,8 @@ func (etp *EthTxPool) ContentFrom(addr common.Address) (coretypes.Transactions, 
 
 // Content retrieves the data content of the transaction pool, returning all the pending as well as
 // queued transactions, grouped by account and nonce.
+//
+// NOT THREAD SAFE.
 func (etp *EthTxPool) Content() (
 	map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions,
 ) {
@@ -202,5 +200,5 @@ func getTxSenderNonce(tx sdk.Tx) (common.Address, uint64) {
 	if err != nil || len(sigs) == 0 {
 		return common.Address{}, 0
 	}
-	return cosmlib.AccAddressToEthAddress(sdk.AccAddress(sigs[0].PubKey.Address())), sigs[0].Sequence
+	return common.BytesToAddress(sdk.AccAddress(sigs[0].PubKey.Address())), sigs[0].Sequence
 }

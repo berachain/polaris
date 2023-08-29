@@ -26,4 +26,10 @@ type (
 	StatePlugin interface {
 		SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
 	}
+
+	MultiStore interface {
+		storetypes.MultiStore
+		IsReadOnly() bool
+		SetReadOnly(bool)
+	}
 )

@@ -18,62 +18,62 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package precompile_test
+package precompile
 
 import (
 	"context"
 	"math/big"
+	"reflect"
 
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/core/vm"
+	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Method", func() {
-	Context("Basic - ValidateBasic Tests", func() {
-		It("should error on missing Abi function signature", func() {
-			methodMissingSig := &precompile.Method{
-				Execute:     mockExecutable,
-				RequiredGas: 10,
-			}
-			err := methodMissingSig.ValidateBasic()
-			Expect(err).To(HaveOccurred())
-		})
+	Context("Calling the method", func() {
+		It("should be able to call the Method's executable", func() {
+			sc := &mockStatefulWithMethod{&mockBase{}, false}
+			execute, found := reflect.TypeOf(sc).MethodByName("MockExecutable")
+			Expect(found).To(BeTrue())
+			method := newMethod(
+				sc,
+				abi.Method{},
+				execute,
+			)
+			ctx := vm.NewPolarContext(
+				context.Background(),
+				vmmock.NewEVM(),
+				common.Address{1},
+				big.NewInt(0),
+			)
 
-		It("should error on missing precompile executable", func() {
-			methodMissingFunc := &precompile.Method{
-				AbiSig:      "contractFunc(address)",
-				RequiredGas: 10,
-			}
-			err := methodMissingFunc.ValidateBasic()
-			Expect(err).To(HaveOccurred())
-		})
-
-		It("should error on given abi method", func() {
-			methodMissingFunc := &precompile.Method{
-				AbiSig:      "contractFunc(address)",
-				RequiredGas: 10,
-				Execute:     mockExecutable,
-				AbiMethod:   &abi.Method{},
-			}
-			err := methodMissingFunc.ValidateBasic()
-			Expect(err).To(HaveOccurred())
+			// due to how the go "reflect" package works, we need to pass in the `stateful` in the
+			// method call as the first parameter to thef function. this is taken care of for the
+			// caller of the precompile under the hood, and users dont have to worry when
+			// implementing their own precompiles.
+			res, err := method.Call(ctx, []byte{0, 0, 0, 0})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res).To(BeNil())
+			Expect(sc.executableCalled).To(BeTrue())
 		})
 	})
 })
 
 // MOCKS BELOW.
 
-func mockExecutable(
+type mockStatefulWithMethod struct {
+	*mockBase
+	executableCalled bool
+}
+
+func (ms *mockStatefulWithMethod) MockExecutable(
 	_ context.Context,
-	_ precompile.EVM,
-	_ common.Address,
-	_ *big.Int,
-	_ bool,
-	_ ...any,
-) ([]any, error) {
-	return nil, nil
+) any {
+	ms.executableCalled = true
+	return nil
 }

@@ -30,17 +30,17 @@ import (
 )
 
 // setWithdrawAddressHelper is a helper function for the `SetWithdrawAddress` method.
-func (c *Contract) setWithdrawAddressHelper(ctx context.Context, delegator, withdrawer sdk.AccAddress) ([]any, error) {
+func (c *Contract) setWithdrawAddressHelper(ctx context.Context, delegator, withdrawer sdk.AccAddress) (bool, error) {
 	_, err := c.msgServer.SetWithdrawAddress(ctx, &distributiontypes.MsgSetWithdrawAddress{
 		DelegatorAddress: delegator.String(),
 		WithdrawAddress:  withdrawer.String(),
 	})
-	return []any{err == nil}, err
+	return err == nil, err
 }
 
-func (c *Contract) getWithdrawAddrEnabled(ctx context.Context) ([]any, error) {
+func (c *Contract) getWithdrawAddrEnabled(ctx context.Context) (bool, error) {
 	res, err := c.querier.Params(ctx, &distributiontypes.QueryParamsRequest{})
-	return []any{res.Params.WithdrawAddrEnabled}, err
+	return res.Params.WithdrawAddrEnabled, err
 }
 
 // withdrawDelegatorRewards is a helper function for the `WithdrawDelegatorRewards` method.
@@ -48,13 +48,13 @@ func (c *Contract) withdrawDelegatorRewardsHelper(
 	ctx context.Context,
 	delegator sdk.AccAddress,
 	validator sdk.ValAddress,
-) ([]any, error) {
+) ([]libgenerated.CosmosCoin, error) {
 	res, err := c.msgServer.WithdrawDelegatorReward(ctx, &distributiontypes.MsgWithdrawDelegatorReward{
 		DelegatorAddress: delegator.String(),
 		ValidatorAddress: validator.String(),
 	})
 	if err != nil {
-		return nil, err
+		return []libgenerated.CosmosCoin{}, err
 	}
 
 	amount := make([]libgenerated.CosmosCoin, 0)
@@ -65,5 +65,5 @@ func (c *Contract) withdrawDelegatorRewardsHelper(
 		})
 	}
 
-	return []any{amount}, nil
+	return amount, nil
 }

@@ -51,7 +51,8 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 			"evm execution",
 			"tx_hash", tx.Hash(),
 			"error", execResult.Err,
-			"gas_consumed", sCtx.GasMeter().GasConsumed())
+			"gas_consumed", sCtx.GasMeter().GasConsumed(),
+		)
 	} else {
 		k.Logger(sdk.UnwrapSDKContext(ctx)).Debug(
 			"evm execution",

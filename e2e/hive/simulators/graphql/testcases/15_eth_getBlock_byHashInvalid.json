@@ -1,24 +1,11 @@
 {
   "request": "{block (hash : \"0x123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0\") {number } }",
-  "responses": [{
-    "errors": [
-      {
-        "message": "Exception while fetching data (/block) : Block hash 0x123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0 was not found",
-        "locations": [
-          {
-            "line": 1,
-            "column": 2
-          }
-        ],
-        "path": [
-          "block"
-        ],
-        "extensions": {
-          "classification": "DataFetchingException"
-        }
+  "responses": [
+    {
+      "data": {
+        "block": null
       }
-    ],
-    "data": null
-  }],
-  "statusCode": 400
+    }
+  ],
+  "statusCode": 200
 }

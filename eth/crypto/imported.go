@@ -35,6 +35,7 @@ var (
 	DigestLength            = crypto.DigestLength
 	EthSign                 = crypto.Sign
 	EthSecp256k1Sign        = secp256k1.Sign
+	LoadECDSA               = crypto.LoadECDSA
 	FromECDSA               = crypto.FromECDSA
 	GenerateEthKey          = crypto.GenerateKey
 	ValidateSignatureValues = crypto.ValidateSignatureValues

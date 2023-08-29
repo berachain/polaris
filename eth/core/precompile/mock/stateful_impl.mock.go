@@ -25,9 +25,6 @@ import (
 //			CustomValueDecodersFunc: func() precompile.ValueDecoders {
 //				panic("mock out the CustomValueDecoders method")
 //			},
-//			PrecompileMethodsFunc: func() precompile.Methods {
-//				panic("mock out the PrecompileMethods method")
-//			},
 //			RegistryKeyFunc: func() common.Address {
 //				panic("mock out the RegistryKey method")
 //			},
@@ -50,9 +47,6 @@ type StatefulImplMock struct {
 	// CustomValueDecodersFunc mocks the CustomValueDecoders method.
 	CustomValueDecodersFunc func() precompile.ValueDecoders
 
-	// PrecompileMethodsFunc mocks the PrecompileMethods method.
-	PrecompileMethodsFunc func() precompile.Methods
-
 	// RegistryKeyFunc mocks the RegistryKey method.
 	RegistryKeyFunc func() common.Address
 
@@ -70,9 +64,6 @@ type StatefulImplMock struct {
 		// CustomValueDecoders holds details about calls to the CustomValueDecoders method.
 		CustomValueDecoders []struct {
 		}
-		// PrecompileMethods holds details about calls to the PrecompileMethods method.
-		PrecompileMethods []struct {
-		}
 		// RegistryKey holds details about calls to the RegistryKey method.
 		RegistryKey []struct {
 		}
@@ -85,7 +76,6 @@ type StatefulImplMock struct {
 	lockABIEvents           sync.RWMutex
 	lockABIMethods          sync.RWMutex
 	lockCustomValueDecoders sync.RWMutex
-	lockPrecompileMethods   sync.RWMutex
 	lockRegistryKey         sync.RWMutex
 	lockSetPlugin           sync.RWMutex
 }
@@ -168,33 +158,6 @@ func (mock *StatefulImplMock) CustomValueDecodersCalls() []struct {
 	mock.lockCustomValueDecoders.RLock()
 	calls = mock.calls.CustomValueDecoders
 	mock.lockCustomValueDecoders.RUnlock()
-	return calls
-}
-
-// PrecompileMethods calls PrecompileMethodsFunc.
-func (mock *StatefulImplMock) PrecompileMethods() precompile.Methods {
-	if mock.PrecompileMethodsFunc == nil {
-		panic("StatefulImplMock.PrecompileMethodsFunc: method is nil but StatefulImpl.PrecompileMethods was just called")
-	}
-	callInfo := struct {
-	}{}
-	mock.lockPrecompileMethods.Lock()
-	mock.calls.PrecompileMethods = append(mock.calls.PrecompileMethods, callInfo)
-	mock.lockPrecompileMethods.Unlock()
-	return mock.PrecompileMethodsFunc()
-}
-
-// PrecompileMethodsCalls gets all the calls that were made to PrecompileMethods.
-// Check the length with:
-//
-//	len(mockedStatefulImpl.PrecompileMethodsCalls())
-func (mock *StatefulImplMock) PrecompileMethodsCalls() []struct {
-} {
-	var calls []struct {
-	}
-	mock.lockPrecompileMethods.RLock()
-	calls = mock.calls.PrecompileMethods
-	mock.lockPrecompileMethods.RUnlock()
 	return calls
 }
 
