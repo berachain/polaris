@@ -22,7 +22,6 @@ package distribution
 
 import (
 	"context"
-	"fmt"
 
 	"cosmossdk.io/core/address"
 
@@ -158,9 +157,8 @@ func (c *Contract) GetAllDelegatorRewards(
 		return nil, err
 	}
 
-	var rewards []generated.IDistributionModuleValidatorReward
+	rewards := make([]generated.IDistributionModuleValidatorReward, 0, len(res.Rewards))
 	for _, reward := range res.Rewards {
-		fmt.Println("reward", reward)
 		var amount []generated.CosmosCoin
 		for _, coin := range reward.Reward {
 			amount = append(amount, generated.CosmosCoin{
@@ -168,7 +166,8 @@ func (c *Contract) GetAllDelegatorRewards(
 				Amount: coin.Amount.TruncateInt().BigInt(),
 			})
 		}
-		valAddr, err := cosmlib.EthAddressFromString(
+		var valAddr common.Address
+		valAddr, err = cosmlib.EthAddressFromString(
 			c.vs.ValidatorAddressCodec(), reward.ValidatorAddress,
 		)
 		if err != nil {
@@ -201,7 +200,7 @@ func (c *Contract) GetTotalDelegatorReward(
 		return nil, err
 	}
 
-	var amount []lib.CosmosCoin
+	amount := make([]lib.CosmosCoin, 0, len(res.Total))
 	for _, coin := range res.Total {
 		amount = append(amount, lib.CosmosCoin{
 			Denom:  coin.Denom,
