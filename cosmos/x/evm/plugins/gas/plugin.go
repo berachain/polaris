@@ -24,7 +24,6 @@ import (
 	"context"
 	"math"
 
-	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -37,7 +36,6 @@ import (
 const (
 	// gasMeterDescriptor is the descriptor for the gas meter used in the plugin.
 	gasMeterDescriptor = `polaris-gas-plugin`
-	pluginName         = `gas`
 )
 
 // Plugin is the interface that must be implemented by the plugin.
@@ -49,9 +47,6 @@ type Plugin interface {
 // plugin wraps a Cosmos context and utilize's the underlying `GasMeter` and `BlockGasMeter`
 // to implement the core.GasPlugin interface.
 type plugin struct {
-	// log is the logger for the plugin.
-	logger log.Logger
-
 	gasMeter        storetypes.GasMeter
 	blockGasMeter   storetypes.GasMeter
 	consensusMaxGas uint64
@@ -60,14 +55,6 @@ type plugin struct {
 // NewPlugin creates a new instance of the gas plugin from a given context.
 func NewPlugin() Plugin {
 	return &plugin{}
-}
-
-func (p *plugin) SetLogger(logger log.Logger) {
-	p.logger = logger
-}
-
-func (p *plugin) Name() string {
-	return pluginName
 }
 
 // Prepare implements the core.GasPlugin interface.

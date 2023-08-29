@@ -48,13 +48,8 @@ type Plugin interface {
 // plugin represents the transaction pool plugin.
 type plugin struct {
 	*mempool.WrappedGethTxPool
-
 	*handler
-
 	serializer *serializer
-
-	// log is the logger for the plugin.
-	logger log.Logger
 }
 
 // NewPlugin returns a new transaction pool plugin.
@@ -68,11 +63,7 @@ func NewPlugin(wrappedGethTxPool *mempool.WrappedGethTxPool) Plugin {
 func (p *plugin) Start(txpool *txpool.TxPool, ctx client.Context) {
 	p.serializer = newSerializer(ctx)
 	p.WrappedGethTxPool.Setup(txpool, p.serializer)
-	p.handler = newHandler(ctx, txpool, p.serializer, p.logger)
-}
-
-func (p *plugin) SetLogger(logger log.Logger) {
-	p.logger = logger
+	p.handler = newHandler(ctx, txpool, p.serializer, log.NewNopLogger())
 }
 
 func (p *plugin) Name() string {

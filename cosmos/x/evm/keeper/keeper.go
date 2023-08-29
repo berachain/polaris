@@ -140,7 +140,6 @@ func (k *Keeper) StartServices(clientContext client.Context) {
 	for ; k.lock; time.Sleep(1000 * time.Millisecond) { //nolint:gomnd // 100ms is fine.
 		continue
 	}
-
 	// start the txpool service
 	txpool := txpool.NewTxPool(
 		txpool.DefaultConfig, k.host.GetConfigurationPlugin().ChainConfig(), k.polaris.Blockchain(),
