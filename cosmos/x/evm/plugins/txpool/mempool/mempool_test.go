@@ -137,7 +137,7 @@ var _ = Describe("EthTxPool", func() {
 			Expect(pending[addr1]).To(HaveLen(28))
 
 			for i := 100; i < 200; i++ {
-				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+				_, tx = buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
 				err = etp.Insert(ctx, tx)
 				Expect(err).ToNot(HaveOccurred())
 			}
