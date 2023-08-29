@@ -43,7 +43,9 @@ func (etp *EthTxPool) Get(hash common.Hash) *coretypes.Transaction {
 func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 	pendingNonces := make(map[common.Address]uint64)
 	pending := make(map[common.Address]coretypes.Transactions)
-
+	etp.mu.RLock()
+	defer etp.mu.RUnlock()
+iterLabel:
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
 		tx := iter.Tx()
 		if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
@@ -69,7 +71,7 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 				pendingNonces[addr] = pendingNonce + 1
 			default:
 				// If we see an out of order nonce, we break since the rest should be "queued".
-				break
+				break iterLabel
 			}
 		}
 	}
@@ -83,7 +85,8 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 	pendingNonces := make(map[common.Address]uint64)
 	queued := make(map[common.Address]coretypes.Transactions)
-
+	etp.mu.RLock()
+	defer etp.mu.RUnlock()
 	// After the lock is released we can iterate over the mempool.
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
 		if ethTx := evmtypes.GetAsEthTx(iter.Tx()); ethTx != nil {
@@ -123,10 +126,12 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 //
 // NOT THREAD SAFE.
 func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
-	exit := false
 	pendingNonces := make(map[common.Address]uint64)
 
 	// search for the last pending tx for the given address
+	etp.mu.RLock()
+	defer etp.mu.RUnlock()
+iterLabel:
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
 		txAddr, txNonce := getTxSenderNonce(iter.Tx())
 		if addr != txAddr {
@@ -148,11 +153,7 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 			pendingNonces[addr]++
 		case txNonce > pendingNonce+1:
 			// As soon as we see a non contiguous nonce we break.
-			exit = true
-		}
-
-		if exit {
-			break
+			break iterLabel
 		}
 	}
 

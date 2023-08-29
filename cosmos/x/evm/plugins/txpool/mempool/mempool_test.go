@@ -33,6 +33,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
@@ -56,6 +57,7 @@ func TestEthPool(t *testing.T) {
 
 var (
 	ctx     sdk.Context
+	ak      authkeeper.AccountKeeper
 	sp      core.StatePlugin
 	etp     *EthTxPool
 	key1, _ = crypto.GenerateEthKey()
@@ -67,7 +69,8 @@ var (
 var _ = Describe("EthTxPool", func() {
 
 	BeforeEach(func() {
-		sCtx, ak, _, _ := testutil.SetupMinimalKeepers()
+		var sCtx sdk.Context
+		sCtx, ak, _, _ = testutil.SetupMinimalKeepers()
 		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
 		ctx = sCtx
 		sp.Reset(ctx)
@@ -145,6 +148,36 @@ var _ = Describe("EthTxPool", func() {
 			pending, queued = etp.Content()
 			Expect(queued[addr1]).To(HaveLen(101))
 			Expect(pending[addr1]).To(HaveLen(28))
+
+			// remove the 27th nonce, it should queue the 28th
+			err = etp.Remove(tx1)
+			Expect(err).ToNot(HaveOccurred())
+
+			// increase queued 1 (the 28th), decrease pending (the 27th)
+			pending, queued = etp.Content()
+			Expect(queued[addr1]).To(HaveLen(102))
+			Expect(pending[addr1]).To(HaveLen(26))
+			var counter = 0
+			txs := make([]sdk.Tx, 0)
+			for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
+				tx = iter.Tx()
+				txs = append(txs, tx)
+				counter++
+				if counter >= 5 {
+					break
+				}
+			}
+
+			for _, tx := range txs {
+				// Simulate transaction processing.
+				err = etp.Remove(tx)
+				Expect(err).ToNot(HaveOccurred())
+				sp.SetNonce(addr1, sp.GetNonce(addr1)+uint64(1))
+			}
+
+			pending, _ = etp.Content()
+			Expect(queued[addr1]).To(HaveLen(102))
+			Expect(pending[addr1]).To(HaveLen(21))
 		})
 
 		It("should return pending/queued txs with correct nonces", func() {
