@@ -136,7 +136,7 @@ var _ = Describe("EthTxPool", func() {
 			Expect(queued[addr1]).To(HaveLen(1))
 			Expect(pending[addr1]).To(HaveLen(28))
 
-			for i := 100; i < 200; i++ {
+			for i := 32; i < 132; i++ {
 				_, tx = buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
 				err = etp.Insert(ctx, tx)
 				Expect(err).ToNot(HaveOccurred())
@@ -172,9 +172,50 @@ var _ = Describe("EthTxPool", func() {
 				sp.SetNonce(addr1, sp.GetNonce(addr1)+uint64(1))
 			}
 
-			pending, _ = etp.Content()
+			pending, queued = etp.Content()
 			Expect(queued[addr1]).To(HaveLen(102))
 			Expect(pending[addr1]).To(HaveLen(21))
+
+			// Remove the remaining txs
+			txs2 := make([]sdk.Tx, 0)
+			counter = 0
+			for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
+				tx = iter.Tx()
+				counter++
+				txs2 = append(txs2, tx)
+
+				if counter >= 21 {
+					break
+				}
+			}
+
+			for _, tx2 := range txs2 {
+				err = etp.Remove(tx2)
+				Expect(err).ToNot(HaveOccurred())
+				sp.SetNonce(addr1, sp.GetNonce(addr1)+uint64(1))
+			}
+
+			pending, queued = etp.Content()
+			Expect(queued[addr1]).To(HaveLen(102))
+			Expect(pending[addr1]).To(BeEmpty())
+
+			// Re-Insert the 27th nonce.
+			err = etp.Insert(ctx, tx1)
+			Expect(err).ToNot(HaveOccurred())
+
+			// Insert the 29th nonce.
+			_, tx29 := buildTx(key1, &coretypes.LegacyTx{Nonce: 29})
+			err = etp.Insert(ctx, tx29)
+			Expect(err).ToNot(HaveOccurred())
+
+			// Insert the 31st nonce.
+			_, tx31 := buildTx(key1, &coretypes.LegacyTx{Nonce: 31})
+			err = etp.Insert(ctx, tx31)
+			Expect(err).ToNot(HaveOccurred())
+
+			pending, queued = etp.Content()
+			Expect(queued[addr1]).To(BeEmpty())
+			Expect(pending[addr1]).To(HaveLen(105))
 		})
 
 		It("should return pending/queued txs with correct nonces", func() {

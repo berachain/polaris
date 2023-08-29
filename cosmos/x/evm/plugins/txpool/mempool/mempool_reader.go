@@ -45,7 +45,6 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 	pending := make(map[common.Address]coretypes.Transactions)
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
-iterLabel:
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
 		tx := iter.Tx()
 		if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
@@ -70,8 +69,8 @@ iterLabel:
 				pending[addr] = append(pending[addr], ethTx)
 				pendingNonces[addr] = pendingNonce + 1
 			default:
-				// If we see an out of order nonce, we break since the rest should be "queued".
-				break iterLabel
+				// If we see an out of order nonce, we continue to ensure we collect for all addresses.
+				continue
 			}
 		}
 	}
@@ -126,7 +125,7 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 //
 // NOT THREAD SAFE.
 func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
-	pendingNonces := make(map[common.Address]uint64)
+	pendingNonce := uint64(0)
 
 	// search for the last pending tx for the given address
 	etp.mu.RLock()
@@ -137,20 +136,19 @@ iterLabel:
 		if addr != txAddr {
 			continue
 		}
-		pendingNonce, ok := pendingNonces[addr]
 		switch {
-		case !ok:
+		case pendingNonce == 0:
 			// If on the first lookup the nonce delta is more than 0, then there is a gap
 			// and thus no pending transactions, but there are queued transactions.
 			if sdbNonce := etp.nr.GetNonce(addr); txNonce-sdbNonce >= 1 {
 				return sdbNonce
 			}
 			// this is a pending tx, add it to the pending map.
-			pendingNonces[addr] = txNonce
+			pendingNonce = txNonce
 		case txNonce == pendingNonce+1:
 			// If we are still contiguous and the nonce is the same as the pending nonce,
 			// increment the pending nonce.
-			pendingNonces[addr]++
+			pendingNonce++
 		case txNonce > pendingNonce+1:
 			// As soon as we see a non contiguous nonce we break.
 			break iterLabel
@@ -158,12 +156,12 @@ iterLabel:
 	}
 
 	// if the addr has no eth txs, fallback to the nonce retriever db
-	if _, ok := pendingNonces[addr]; !ok {
+	if pendingNonce == 0 {
 		return etp.nr.GetNonce(addr)
 	}
 
 	// pending nonce is 1 more than the current nonce
-	return pendingNonces[addr] + 1
+	return pendingNonce + 1
 }
 
 // Stats returns the number of currently pending and queued (locally created) transactions.
