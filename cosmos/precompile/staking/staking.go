@@ -97,7 +97,7 @@ func (c *Contract) ValAddressFromConsAddress(
 func (c *Contract) GetBondedValidators(
 	ctx context.Context,
 	pagination any,
-) ([]common.Address, cbindings.CosmosPageResponse, error) {
+) ([]generated.IStakingModuleValidator, cbindings.CosmosPageResponse, error) {
 	res, err := c.querier.Validators(ctx, &stakingtypes.QueryValidatorsRequest{
 		Status:     stakingtypes.BondStatusBonded,
 		Pagination: cosmlib.ExtractPageRequestFromInput(pagination),
@@ -106,20 +106,14 @@ func (c *Contract) GetBondedValidators(
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
-	// Iterate over all validators and return their addresses.
-	addrs := make([]common.Address, 0, len(res.Validators))
-	for _, val := range res.Validators {
-		var valAddr common.Address
-		valAddr, err = cosmlib.EthAddressFromString(c.vs.ValidatorAddressCodec(), val.OperatorAddress)
-		if err != nil {
-			return nil, cbindings.CosmosPageResponse{}, err
-		}
-
-		addrs = append(addrs, valAddr)
+	vals, err := cosmlib.SdkValidatorsToStakingValidators(
+		c.vs.ValidatorAddressCodec(), res.GetValidators(),
+	)
+	if err != nil {
+		return nil, cbindings.CosmosPageResponse{}, err
 	}
-
 	pageResponse := cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination)
-	return addrs, pageResponse, nil
+	return vals, pageResponse, nil
 }
 
 // GetBondedValidatorsByPoweer implements the `getBondedValidatorsByPower()` method.
@@ -158,7 +152,6 @@ func (c *Contract) GetValidators(
 	pagination any,
 ) ([]generated.IStakingModuleValidator, cbindings.CosmosPageResponse, error) {
 	res, err := c.querier.Validators(ctx, &stakingtypes.QueryValidatorsRequest{
-		Status:     stakingtypes.BondStatusBonded,
 		Pagination: cosmlib.ExtractPageRequestFromInput(pagination),
 	})
 	if err != nil {
