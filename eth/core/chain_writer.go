@@ -82,9 +82,6 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 
 	bc.logger.Info("preparing evm block", "seal_hash", header.Hash())
 
-	// We update the base fee in the txpool to the next base fee.
-	bc.tp.SetBaseFee(header.BaseFee)
-
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	bc.processor.Prepare(
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
@@ -174,6 +171,9 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	// Send chain events.
 	bc.chainFeed.Send(ChainEvent{Block: block, Hash: blockHash, Logs: logs})
 	bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
+
+	// We update the base fee in the txpool to the next base fee, by pre calculating it for the next block.
+	bc.tp.SetBaseFee(misc.CalcBaseFee(bc.Config(), block.Header()))
 
 	return nil
 }
