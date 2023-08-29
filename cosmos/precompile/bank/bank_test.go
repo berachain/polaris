@@ -30,6 +30,7 @@ import (
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -59,14 +60,17 @@ var _ = Describe("Bank Precompile Test", func() {
 		contract *bank.Contract
 		addr     sdk.AccAddress
 		factory  *log.Factory
+		ak       authkeeper.AccountKeeperI
 		bk       bankkeeper.BaseKeeper
 		ctx      context.Context
 	)
 
 	BeforeEach(func() {
-		ctx, _, bk, _ = testutils.SetupMinimalKeepers()
+		ctx, ak, bk, _ = testutils.SetupMinimalKeepers()
 
-		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(bankkeeper.NewMsgServerImpl(bk), bk))
+		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(
+			ak, bankkeeper.NewMsgServerImpl(bk), bk),
+		)
 		addr = sdk.AccAddress([]byte("bank"))
 
 		// Register the events.

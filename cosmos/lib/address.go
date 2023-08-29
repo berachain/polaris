@@ -30,7 +30,7 @@ import (
 // AccAddress, ValAddress, ConsAddress
 ///////////////////////////////////////////////////////////////////////////////
 
-// EthAddressFromString converts a Cosmos SDK (val/cons)address string to an Ethereum `Address`.
+// EthAddressFromString converts a Cosmos SDK address string to an Ethereum `Address`.
 func EthAddressFromString(codec address.Codec, addr string) (common.Address, error) {
 	bz, err := codec.StringToBytes(addr)
 	if err != nil {
@@ -39,8 +39,8 @@ func EthAddressFromString(codec address.Codec, addr string) (common.Address, err
 	return common.BytesToAddress(bz), nil
 }
 
-// MustEthAddressFromString converts a Cosmos SDK (val/cons)address string to an Ethereum
-// `Address`. It panics if the conversion fails.
+// MustEthAddressFromString converts a Cosmos SDK address string to an Ethereum `Address`. It
+// panics if the conversion fails.
 func MustEthAddressFromString(codec address.Codec, addr string) common.Address {
 	address, err := EthAddressFromString(codec, addr)
 	if err != nil {
@@ -49,13 +49,13 @@ func MustEthAddressFromString(codec address.Codec, addr string) common.Address {
 	return address
 }
 
-// StringFromEthAddress converts an Ethereum `Address` to a Cosmos SDK (val/cons)address string.
+// StringFromEthAddress converts an Ethereum `Address` to a Cosmos SDK address string.
 func StringFromEthAddress(codec address.Codec, ethAddress common.Address) (string, error) {
 	return codec.BytesToString(ethAddress.Bytes())
 }
 
-// MustStringFromEthAddress converts an Ethereum `Address` to a Cosmos SDK (val/cons)address
-// string. It panics if the conversion fails.
+// MustStringFromEthAddress converts an Ethereum `Address` to a Cosmos SDK address string. It
+// panics if the conversion fails.
 func MustStringFromEthAddress(codec address.Codec, ethAddress common.Address) string {
 	addr, err := StringFromEthAddress(codec, ethAddress)
 	if err != nil {

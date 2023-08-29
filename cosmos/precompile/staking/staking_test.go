@@ -30,6 +30,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -71,6 +72,7 @@ var (
 
 var _ = Describe("Staking", func() {
 	var (
+		ak authkeeper.AccountKeeperI
 		sk stakingkeeper.Keeper
 		bk bankkeeper.BaseKeeper
 
@@ -82,9 +84,8 @@ var _ = Describe("Staking", func() {
 	)
 
 	BeforeEach(func() {
-		sdkCtx, _, bk, sk = testutil.SetupMinimalKeepers()
-		skPtr := &sk
-		contract = libutils.MustGetAs[*Contract](NewPrecompileContract(skPtr))
+		sdkCtx, ak, bk, sk = testutil.SetupMinimalKeepers()
+		contract = libutils.MustGetAs[*Contract](NewPrecompileContract(ak, &sk))
 		sf = ethprecompile.NewStatefulFactory()
 	})
 

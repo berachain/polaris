@@ -32,6 +32,7 @@ import (
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmostestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distribution "github.com/cosmos/cosmos-sdk/x/distribution"
@@ -70,7 +71,13 @@ func (g GinkgoTestReporter) Fatalf(format string, args ...interface{}) {
 	Fail(fmt.Sprintf(format, args...))
 }
 
-func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeeper.BaseKeeper) {
+func setup() (
+	sdk.Context,
+	authkeeper.AccountKeeperI,
+	*distrkeeper.Keeper,
+	*stakingkeeper.Keeper,
+	*bankkeeper.BaseKeeper,
+) {
 	ctx, ak, bk, sk := testutil.SetupMinimalKeepers()
 
 	encCfg := cosmostestutil.MakeTestEncodingConfig(
@@ -94,7 +101,7 @@ func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeep
 
 	err = dk.FeePool.Set(ctx, distributiontypes.InitialFeePool())
 	Expect(err).ToNot(HaveOccurred())
-	return ctx, &dk, &sk, &bk
+	return ctx, ak, &dk, &sk, &bk
 }
 
 var _ = Describe("Distribution Precompile Test", func() {
@@ -105,6 +112,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		amt      sdk.Coin
 
 		ctx sdk.Context
+		ak  authkeeper.AccountKeeperI
 		dk  *distrkeeper.Keeper
 		sk  *stakingkeeper.Keeper
 		bk  *bankkeeper.BaseKeeper
@@ -116,9 +124,9 @@ var _ = Describe("Distribution Precompile Test", func() {
 		amt = sdk.NewCoin("abera", sdkmath.NewInt(100))
 
 		// Set up the contracts and keepers.
-		ctx, dk, sk, bk = setup()
+		ctx, ak, dk, sk, bk = setup()
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
-			sk,
+			ak, sk,
 			distrkeeper.NewMsgServerImpl(*dk),
 			distrkeeper.NewQuerier(*dk),
 		))

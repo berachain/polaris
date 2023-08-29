@@ -31,6 +31,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -62,7 +63,9 @@ func (g GinkgoTestReporter) Fatalf(format string, args ...interface{}) {
 }
 
 // Helper functions for setting up the tests.
-func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkeeper.Keeper, *governancekeeper.Keeper) {
+func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (
+	sdk.Context, authkeeper.AccountKeeperI, bankkeeper.Keeper, *governancekeeper.Keeper,
+) {
 	// Setup the keepers and context.
 	ctx, ak, bk, sk := testutil.SetupMinimalKeepers()
 	dk := govtestutil.NewMockDistributionKeeper(ctrl)
@@ -122,7 +125,7 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 		panic(err)
 	}
 
-	return ctx, bk, gk
+	return ctx, ak, bk, gk
 }
 
 func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
