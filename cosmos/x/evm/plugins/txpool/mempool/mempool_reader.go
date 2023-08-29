@@ -69,7 +69,7 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 				pendingNonces[addr] = pendingNonce + 1
 			default:
 				// If we see an out of order nonce, we break since the rest should be "queued".
-				continue
+				break
 			}
 		}
 	}
