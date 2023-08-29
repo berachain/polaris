@@ -33,7 +33,6 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
@@ -57,7 +56,6 @@ func TestEthPool(t *testing.T) {
 
 var (
 	ctx     sdk.Context
-	ak      authkeeper.AccountKeeper
 	sp      core.StatePlugin
 	etp     *EthTxPool
 	key1, _ = crypto.GenerateEthKey()
@@ -69,8 +67,7 @@ var (
 var _ = Describe("EthTxPool", func() {
 
 	BeforeEach(func() {
-		var sCtx sdk.Context
-		sCtx, ak, _, _ = testutil.SetupMinimalKeepers()
+		sCtx, ak, _, _ := testutil.SetupMinimalKeepers()
 		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
 		ctx = sCtx
 		sp.Reset(ctx)
