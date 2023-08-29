@@ -22,7 +22,6 @@ package mempool
 
 import (
 	"context"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -47,8 +46,6 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 
 		sender := coretypes.GetSender(ethTx)
 		nonce := ethTx.Nonce()
-
-		fmt.Println("INSERT NONCE", nonce)
 
 		// Reject txs with a nonce lower than the nonce reported by the statedb.
 		if sdbNonce := etp.nr.GetNonce(sender); sdbNonce > nonce {
