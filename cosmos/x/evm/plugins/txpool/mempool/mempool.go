@@ -26,8 +26,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"github.com/ethereum/go-ethereum/params"
-
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -62,7 +60,7 @@ type EthTxPool struct {
 // NewPolarisEthereumTxPool creates a new Ethereum transaction pool.
 func NewPolarisEthereumTxPool() *EthTxPool {
 	tpp := EthereumTxPriorityPolicy{
-		baseFee: new(big.Int).SetUint64(params.InitialBaseFee),
+		baseFee: new(big.Int).SetUint64(0),
 	}
 	config := mempool.PriorityNonceMempoolConfig[*big.Int]{
 		TxReplacement: EthereumTxReplacePolicy[*big.Int]{

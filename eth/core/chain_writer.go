@@ -67,6 +67,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	if number >= 1 && parent == nil {
 		parent = bc.GetHeaderByNumber(number - 1)
 	}
+
 	baseFee := bc.tp.GetBaseFee()
 	if baseFee == nil {
 		baseFee = misc.CalcBaseFee(bc.Config(), parent)
