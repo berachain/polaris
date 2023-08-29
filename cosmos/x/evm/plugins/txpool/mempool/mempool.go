@@ -26,6 +26,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
+	"github.com/ethereum/go-ethereum/params"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -60,7 +61,7 @@ type EthTxPool struct {
 // NewPolarisEthereumTxPool creates a new Ethereum transaction pool.
 func NewPolarisEthereumTxPool() *EthTxPool {
 	tpp := EthereumTxPriorityPolicy{
-		baseFee: big.NewInt(0),
+		baseFee: new(big.Int).SetUint64(params.InitialBaseFee),
 	}
 	config := mempool.PriorityNonceMempoolConfig[*big.Int]{
 		TxReplacement: EthereumTxReplacePolicy[*big.Int]{
@@ -91,5 +92,15 @@ func (etp *EthTxPool) SetNonceRetriever(nr NonceRetriever) {
 
 // SetBaseFee updates the base fee in the priority policy.
 func (etp *EthTxPool) SetBaseFee(baseFee *big.Int) {
-	etp.priorityPolicy.baseFee = baseFee
+	if etp.priorityPolicy != nil {
+		etp.priorityPolicy.baseFee = baseFee
+	}
+}
+
+// GetBaseFee returns the current base fee used for mempool tx priority.
+func (etp *EthTxPool) GetBaseFee() *big.Int {
+	if etp.priorityPolicy != nil {
+		return etp.priorityPolicy.baseFee
+	}
+	return nil
 }

@@ -67,6 +67,10 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	if number >= 1 && parent == nil {
 		parent = bc.GetHeaderByNumber(number - 1)
 	}
+	baseFee := bc.tp.GetBaseFee()
+	if baseFee == nil {
+		baseFee = misc.CalcBaseFee(bc.Config(), parent)
+	}
 
 	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
 	// and block nonce (Nonce) on the new header.
@@ -77,7 +81,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
-		BaseFee:    misc.CalcBaseFee(bc.Config(), parent),
+		BaseFee:    baseFee,
 	}
 
 	bc.logger.Info("preparing evm block", "seal_hash", header.Hash())
