@@ -26,6 +26,7 @@ import (
 
 	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
+
 	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"

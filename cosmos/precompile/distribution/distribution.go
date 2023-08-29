@@ -24,6 +24,7 @@ import (
 	"context"
 
 	"cosmossdk.io/core/address"
+
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"

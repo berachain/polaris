@@ -25,6 +25,7 @@ import (
 	"math/big"
 
 	"cosmossdk.io/core/address"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
