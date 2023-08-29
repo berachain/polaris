@@ -22,6 +22,7 @@ package mempool
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -47,6 +48,7 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
 		tx := iter.Tx()
 		if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
+			fmt.Println(ethTx.Nonce())
 			addr := coretypes.GetSender(ethTx)
 			pendingNonce := pendingNonces[addr]
 			switch {
@@ -69,7 +71,7 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 				pendingNonces[addr] = pendingNonce + 1
 			default:
 				// If we see an out of order nonce, we break since the rest should be "queued".
-				break
+				continue
 			}
 		}
 	}
@@ -123,6 +125,7 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 //
 // NOT THREAD SAFE.
 func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
+	exit := false
 	pendingNonces := make(map[common.Address]uint64)
 
 	// search for the last pending tx for the given address
@@ -147,6 +150,10 @@ func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
 			pendingNonces[addr]++
 		case txNonce > pendingNonce+1:
 			// As soon as we see a non contiguous nonce we break.
+			exit = true
+		}
+
+		if exit {
 			break
 		}
 	}

@@ -97,6 +97,29 @@ var _ = Describe("EthTxPool", func() {
 			Expect(err.Error()).To(ContainSubstring("nonce too low"))
 		})
 
+		FIt("should handle out of order nonces", func() {
+			_, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 27})
+			err := etp.Insert(ctx, tx1)
+			Expect(err).ToNot(HaveOccurred())
+			pending, queued := etp.Content()
+			Expect(pending).To(BeEmpty())
+			Expect(queued).To(HaveLen(1))
+
+			for i := 1; i < 27; i++ {
+				_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: uint64(i)})
+				err := etp.Insert(ctx, tx)
+				Expect(err).ToNot(HaveOccurred())
+				if i < 26 {
+					Expect(etp.Nonce(addr1)).To(Equal(uint64(i + 1)))
+				} else {
+					Expect(etp.Nonce(addr1)).To(Equal(uint64(28)))
+				}
+			}
+			pending, queued = etp.Content()
+			Expect(queued).To(BeEmpty())
+			Expect(len(pending)).To(Equal(27))
+		})
+
 		It("should return pending/queued txs with correct nonces", func() {
 			ethTx1, tx1 := buildTx(key1, &coretypes.LegacyTx{Nonce: 1})
 			ethTx2, tx2 := buildTx(key2, &coretypes.LegacyTx{Nonce: 2})
