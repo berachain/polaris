@@ -31,7 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
-	. "github.com/onsi/gomega" //nolint:stylecheck,revive,gostaticcheck  // Gomega makes sense in tests.
+	. "github.com/onsi/gomega" //nolint:stylecheck,revive  // Gomega makes sense in tests.
 )
 
 const (

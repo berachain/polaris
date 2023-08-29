@@ -38,4 +38,3 @@ func NewGenesisState(params Params) *GenesisState {
 		Params: params,
 	}
 }
-
