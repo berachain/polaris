@@ -44,7 +44,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -158,7 +157,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 	})
 
 	When("SetWithdrawAddress", func() {
-
 		It("should succeed", func() {
 			pCtx := vm.NewPolarContext(
 				ctx,
@@ -179,6 +177,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 	When("Withdraw Delegator Rewards", func() {
 		var addr sdk.AccAddress
 		var tokens sdk.DecCoins
+		var val stakingtypes.Validator
 
 		BeforeEach(func() {
 			// Set the previous proposer.
@@ -192,7 +191,8 @@ var _ = Describe("Distribution Precompile Test", func() {
 			valConsAddr0 := sdk.ConsAddress(valConsPk0.Address())
 			valAddr = sdk.ValAddress(valConsAddr0)
 			addr = sdk.AccAddress(valAddr)
-			val, err := distrtestutil.CreateValidator(valConsPk0, sdkmath.NewInt(100))
+			var err error
+			val, err = distrtestutil.CreateValidator(valConsPk0, sdkmath.NewInt(100))
 			Expect(err).ToNot(HaveOccurred())
 
 			// Set the validator.
@@ -240,19 +240,20 @@ var _ = Describe("Distribution Precompile Test", func() {
 					testutil.Alice,
 					big.NewInt(0),
 				)
-				valAddress, err := cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), valAddr.String())
-				Expect(err).ToNot(HaveOccurred())
 
-				res1, err := contract.GetDelegatorReward(pCtx, common.BytesToAddress(addr), valAddress)
+				res1, err := contract.GetTotalDelegatorReward(pCtx, common.BytesToAddress(addr))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res1[0].Denom).To(Equal(sdk.DefaultBondDenom))
 				rewards, _ := tokens.TruncateDecimal()
-				Expect(res1[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
+				Expect(res1[0].Amount.Cmp(rewards[0].Amount.BigInt())).To(Equal(0))
+
+				res3, err := contract.GetAllDelegatorRewards(pCtx, common.BytesToAddress(addr))
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res3[0].Validator).To(Equal(common.BytesToAddress(valAddr)))
+				Expect(res3[0].Rewards[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
 
 				res2, err := contract.WithdrawDelegatorReward(
-					pCtx,
-					common.BytesToAddress(addr),
-					valAddress,
+					pCtx, common.BytesToAddress(addr), common.BytesToAddress(valAddr),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res2[0].Denom).To(Equal(sdk.DefaultBondDenom))

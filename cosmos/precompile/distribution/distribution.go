@@ -22,6 +22,7 @@ package distribution
 
 import (
 	"context"
+	"fmt"
 
 	"cosmossdk.io/core/address"
 
@@ -113,7 +114,7 @@ func (c *Contract) WithdrawDelegatorReward(
 	if err != nil {
 		return nil, err
 	}
-	valAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, validator)
+	valAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), validator)
 	if err != nil {
 		return nil, err
 	}
@@ -137,37 +138,76 @@ func (c *Contract) WithdrawDelegatorReward(
 	return amount, nil
 }
 
-// GetDelegatorReward implements `getDelegatorReward(address,address)`.
-func (c *Contract) GetDelegatorReward(
+// GetDelegatorReward implements `getAllDelegatorRewards(address)`.
+func (c *Contract) GetAllDelegatorRewards(
 	ctx context.Context,
 	delegator common.Address,
-	validator common.Address,
+) ([]generated.IDistributionModuleValidatorReward, error) {
+	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := c.querier.DelegationTotalRewards(
+		ctx,
+		&distributiontypes.QueryDelegationTotalRewardsRequest{
+			DelegatorAddress: delAddr,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var rewards []generated.IDistributionModuleValidatorReward
+	for _, reward := range res.Rewards {
+		fmt.Println("reward", reward)
+		var amount []generated.CosmosCoin
+		for _, coin := range reward.Reward {
+			amount = append(amount, generated.CosmosCoin{
+				Denom:  coin.Denom,
+				Amount: coin.Amount.TruncateInt().BigInt(),
+			})
+		}
+		valAddr, err := cosmlib.EthAddressFromString(
+			c.vs.ValidatorAddressCodec(), reward.ValidatorAddress,
+		)
+		if err != nil {
+			return nil, err
+		}
+		rewards = append(rewards, generated.IDistributionModuleValidatorReward{
+			Validator: valAddr,
+			Rewards:   amount,
+		})
+	}
+	return rewards, nil
+}
+
+// GetDelegatorReward implements `getTotalDelegatorReward(address)`.
+func (c *Contract) GetTotalDelegatorReward(
+	ctx context.Context,
+	delegator common.Address,
 ) ([]lib.CosmosCoin, error) {
 	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
 	if err != nil {
 		return nil, err
 	}
-	valAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, validator)
+	res, err := c.querier.DelegationTotalRewards(
+		ctx,
+		&distributiontypes.QueryDelegationTotalRewardsRequest{
+			DelegatorAddress: delAddr,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := c.querier.DelegationRewards(ctx, &distributiontypes.QueryDelegationRewardsRequest{
-		DelegatorAddress: delAddr,
-		ValidatorAddress: valAddr,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	amount := make([]lib.CosmosCoin, 0)
-	for _, coin := range res.Rewards {
+	var amount []lib.CosmosCoin
+	for _, coin := range res.Total {
 		amount = append(amount, lib.CosmosCoin{
 			Denom:  coin.Denom,
-			Amount: coin.Amount.BigInt(),
+			Amount: coin.Amount.TruncateInt().BigInt(),
 		})
 	}
-
 	return amount, nil
 }
 

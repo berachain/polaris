@@ -32,14 +32,6 @@ import (
 // AccountKeeper defines the expected account keeper.
 type AccountKeeper interface {
 	AddressCodec() addresscodec.Codec
-	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) sdk.AccountI
-	GetModuleAddress(moduleName string) sdk.AccAddress
-	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
-	GetAccount(ctx sdk.Context, addr sdk.AccAddress) sdk.AccountI
-	HasAccount(ctx sdk.Context, addr sdk.AccAddress) bool
-	SetAccount(ctx sdk.Context, account sdk.AccountI)
-	RemoveAccount(ctx sdk.Context, account sdk.AccountI)
-	IterateAccounts(ctx sdk.Context, cb func(account sdk.AccountI) bool)
 }
 
 // BankKeeper defines the expected bank keeper.
