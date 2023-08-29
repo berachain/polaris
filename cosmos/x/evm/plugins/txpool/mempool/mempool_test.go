@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"context"
 	"crypto/ecdsa"
-	"fmt"
 	"math/big"
 	"sync"
 	"testing"
@@ -35,9 +34,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/ethereum/go-ethereum/ethclient"
 
-	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
@@ -98,64 +95,6 @@ var _ = Describe("EthTxPool", func() {
 			err := etp.Insert(ctx, tx1)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("nonce too low"))
-		})
-
-		FIt("", func() {
-			client, err := ethclient.Dial("https://devnet.beraswillmakeit.com")
-			if err != nil {
-				panic(err)
-			}
-
-			sc, err := staking.NewStakingModuleCaller(
-				common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), client,
-			)
-			if err != nil {
-				panic(err)
-			}
-
-			vals, rsp, err := sc.GetValidators(nil, staking.CosmosPageRequest{
-				Key:        "",
-				Offset:     0,
-				Limit:      1,
-				CountTotal: true,
-				Reverse:    false,
-			})
-			if err != nil {
-				panic(err)
-			}
-			fmt.Println("page response", rsp)
-			fmt.Println("ALL VALS", vals)
-
-			panic("ssee logs")
-
-			// privKeyBz := common.FromHex("0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306")
-			// privKey, err := crypto.ToECDSA(privKeyBz)
-			// if err != nil {
-			// 	panic(err)
-			// }
-			// gp, err := client.SuggestGasPrice(context.Background())
-			// if err != nil {
-			// 	panic(err)
-			// }
-			// tx := types.NewTransaction(
-			// 	0,
-			// 	common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"),
-			// 	big.NewInt(1000000),
-			// 	1000000,
-			// 	gp,
-			// 	nil,
-			// )
-			// chainID, err := client.ChainID(context.Background())
-			// if err != nil {
-			// 	panic(err)
-			// }
-			// signedTx, err := types.SignTx(tx, types.LatestSignerForChainID(chainID), privKey)
-			// if err != nil {
-			// 	panic(err)
-			// }
-			// err = client.SendTransaction(context.Background(), signedTx)
-			// fmt.Println("err", err)
-			// panic("see logs")
 		})
 
 		It("should return pending/queued txs with correct nonces", func() {
