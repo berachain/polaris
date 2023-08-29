@@ -22,6 +22,7 @@ package mempool
 
 import (
 	"context"
+	"sync"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -191,7 +192,22 @@ func (etp *EthTxPool) ContentFrom(addr common.Address) (coretypes.Transactions, 
 func (etp *EthTxPool) Content() (
 	map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions,
 ) {
-	return etp.Pending(false), etp.queued()
+	var pending, queued map[common.Address]coretypes.Transactions
+	var wg = sync.WaitGroup{}
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		pending = etp.Pending(false)
+	}()
+
+	go func() {
+		defer wg.Done()
+		queued = etp.queued()
+	}()
+
+	wg.Wait()
+	return pending, queued
 }
 
 // getTxSenderNonce returns the sender address (as an Eth address) and the nonce of the given tx.
