@@ -94,7 +94,6 @@ func NewBackend(
 
 // ChainConfig returns the chain configuration.
 func (b *backend) ChainConfig() *params.ChainConfig {
-	b.logger.Debug("called eth.rpc.backend.ChainConfig")
 	return b.polar.blockchain.Config()
 }
 
@@ -106,16 +105,6 @@ func (b *backend) CurrentHeader() *types.Header {
 // CurrentBlock returns the current block from the local chain.
 func (b *backend) CurrentBlock() *types.Header {
 	return b.polar.blockchain.CurrentHeader()
-}
-
-// SyncProgress returns the current progress of the sync algorithm.
-func (b *backend) SyncProgress() ethereum.SyncProgress {
-	// Consider implementing this in the future.
-	b.logger.Warn("called eth.rpc.backend.SyncProgress", "sync_progress", "not implemented")
-	return ethereum.SyncProgress{
-		CurrentBlock: 0,
-		HighestBlock: 0,
-	}
 }
 
 // SuggestGasTipCap returns the recommended gas tip cap for a new transaction.
@@ -549,14 +538,34 @@ func (b *backend) Version() string {
 	return chainID.String()
 }
 
-func (b *backend) Listening() bool {
-	// TODO: Implement your code here
-	return true
+// SyncProgress returns the current progress of the sync algorithm.
+func (b *backend) SyncProgress() ethereum.SyncProgress {
+	sp, err := b.polar.engine.SyncProgress(context.Background())
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.SyncProgress", "err", err)
+		return ethereum.SyncProgress{}
+	}
+	return sp
 }
 
+// Listening returns whether the node is listening for connections.
+func (b *backend) Listening() bool {
+	listening, err := b.polar.engine.Listening(context.Background())
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.Listening", "err", err)
+		return false
+	}
+	return listening
+}
+
+// PeerCount returns the number of connected peers.
 func (b *backend) PeerCount() hexutil.Uint {
-	// TODO: Implement your code here
-	return 1
+	peerCount, err := b.polar.engine.PeerCount(context.Background())
+	if err != nil {
+		b.logger.Error("eth.rpc.backend.PeerCount", "err", err)
+		return hexutil.Uint(0)
+	}
+	return hexutil.Uint(peerCount)
 }
 
 // ClientVersion returns the current client version.

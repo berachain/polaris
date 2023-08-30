@@ -35,8 +35,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
-const pluginName = `block`
-
 type Plugin interface {
 	plugins.Base
 	plugins.HasGenesis
@@ -97,8 +95,4 @@ func (p *plugin) GetNewBlockMetadata(number uint64) (common.Address, uint64) {
 		panic(err)
 	}
 	return common.BytesToAddress(valBz), uint64(cometHeader.Time.UTC().Unix())
-}
-
-func (p *plugin) Name() string {
-	return pluginName
 }

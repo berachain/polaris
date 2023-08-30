@@ -21,7 +21,10 @@
 package core
 
 import (
+	"context"
 	"math/big"
+
+	"github.com/ethereum/go-ethereum"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
@@ -81,6 +84,17 @@ type (
 		libtypes.Preparable
 		// ChainConfig returns the current chain configuration of the Polaris EVM.
 		ChainConfig() *params.ChainConfig
+	}
+
+	// EnginePlugin defines methods that allow the chain to have insight into the underlying
+	// consensus engine of the host chain.
+	EnginePlugin interface {
+		// SyncProgress returns the current sync progress of the host chain.
+		SyncProgress(ctx context.Context) (ethereum.SyncProgress, error)
+		// IsListening returns whether or not the host chain is listening for new blocks.
+		Listening(ctx context.Context) (bool, error)
+		// PeerCount returns the current number of peers connected to the host chain.
+		PeerCount(ctx context.Context) (uint64, error)
 	}
 
 	// GasPlugin is an interface that allows the Polaris EVM to consume gas on the host chain.

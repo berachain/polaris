@@ -150,7 +150,9 @@ func (k *Keeper) StartServices(clientContext client.Context) {
 		txpool.DefaultConfig, k.host.GetConfigurationPlugin().ChainConfig(), k.polaris.Blockchain(),
 	)
 	k.polaris.SetTxPool(txpool)
+	k.polaris.SetEngine(k.host.GetEnginePlugin())
 	k.host.GetTxPoolPlugin().Start(txpool, clientContext)
+	k.host.GetEnginePlugin().Start(clientContext)
 
 	// start the networking stack (json-rpc, graphql, etc.)
 	if err := k.polaris.StartServices(); err != nil {

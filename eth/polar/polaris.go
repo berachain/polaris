@@ -78,6 +78,9 @@ type Polaris struct {
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the blockchain.
 	backend Backend
 
+	// engine represents the consensus engine for the backend.
+	engine core.EnginePlugin
+
 	// filterSystem is the filter system that is used by the filter API.
 	// TODO: relocate
 	filterSystem *filters.FilterSystem
@@ -150,6 +153,10 @@ func (pl *Polaris) StartServices() error {
 		}
 	}()
 	return nil
+}
+
+func (pl *Polaris) SetEngine(engine core.EnginePlugin) {
+	pl.engine = engine
 }
 
 func (pl *Polaris) SetTxPool(txPool *txpool.TxPool) {

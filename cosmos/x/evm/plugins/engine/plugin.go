@@ -18,19 +18,13 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package txpool
+package engine
 
 import (
-	"math/big"
-
-	"cosmossdk.io/log"
-
 	"github.com/cosmos/cosmos-sdk/client"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
-	"pkg.berachain.dev/polaris/eth/core/txpool"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 // Compile-time type assertion.
@@ -39,27 +33,21 @@ var _ Plugin = (*plugin)(nil)
 // Plugin defines the required functions of the transaction pool plugin.
 type Plugin interface {
 	plugins.Base
-	Start(*txpool.TxPool, client.Context)
-	Prepare(*big.Int, coretypes.Signer)
+	core.EnginePlugin
+	Start(client.Context)
 }
 
 // plugin represents the transaction pool plugin.
 type plugin struct {
-	*mempool.WrappedGethTxPool
-	*handler
-	serializer *serializer
+	*cometBftView
 }
 
 // NewPlugin returns a new transaction pool plugin.
-func NewPlugin(wrappedGethTxPool *mempool.WrappedGethTxPool) Plugin {
-	return &plugin{
-		WrappedGethTxPool: wrappedGethTxPool,
-	}
+func NewPlugin() Plugin {
+	return &plugin{}
 }
 
 // Setup implements the Plugin interface.
-func (p *plugin) Start(txpool *txpool.TxPool, ctx client.Context) {
-	p.serializer = newSerializer(ctx)
-	p.WrappedGethTxPool.Setup(txpool, p.serializer)
-	p.handler = newHandler(ctx, txpool, p.serializer, log.NewNopLogger())
+func (p *plugin) Start(ctx client.Context) {
+	p.cometBftView = newSyncView(ctx)
 }
