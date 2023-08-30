@@ -100,7 +100,7 @@ var _ = Describe("Governance Precompile", func() {
 	It("Should have precompile tests and custom value decoders", func() {
 		_, err := sf.Build(contract, nil)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(contract.CustomValueDecoders()).To(HaveLen(1))
+		Expect(contract.CustomValueDecoders()).To(HaveLen(2))
 	})
 
 	When("Unmarshal message and return any", func() {

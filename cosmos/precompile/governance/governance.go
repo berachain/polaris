@@ -187,7 +187,7 @@ func (c *Contract) VoteWeighted(
 	metadata string,
 ) (bool, error) {
 	// Convert the options to v1.WeightedVoteOption.
-	msgOptions := make([]*v1.WeightedVoteOption, 0, len(options))
+	msgOptions := make([]*v1.WeightedVoteOption, len(options))
 	for i, option := range options {
 		msgOptions[i] = &v1.WeightedVoteOption{
 			Option: v1.VoteOption(option.VoteOption),
