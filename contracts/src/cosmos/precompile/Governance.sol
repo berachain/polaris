@@ -249,10 +249,9 @@ interface IGovernanceModule {
 
     /**
      * @dev Emitted by the governance module when `AddVote` is called in the msg server.
-     * @param proposalId The id of the proposal.
-     * @param option The option voted on.
+     * @param proposalVote The vote that was voted on for a proposal.
      */
-    event ProposalVote(uint64 indexed proposalId, string option);
+    event ProposalVoted(Vote proposalVote);
 
     /**
      * @dev Emitted by the governance module when `cancelProposal` is called.
