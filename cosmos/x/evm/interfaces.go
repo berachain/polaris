@@ -31,6 +31,7 @@ import (
 
 // AccountKeeper defines the expected account keeper.
 type AccountKeeper interface {
+	AddressCodec() addresscodec.Codec
 	NewAccountWithAddress(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
 	GetModuleAddress(moduleName string) sdk.AccAddress
 	GetSequence(context.Context, sdk.AccAddress) (uint64, error)

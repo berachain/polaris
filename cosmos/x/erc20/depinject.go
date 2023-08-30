@@ -45,7 +45,8 @@ type DepInjectInput struct {
 	Config    *modulev1alpha1.Module
 	Key       *store.KVStoreKey
 
-	BankKeeper BankKeeper
+	AccountKeeper AccountKeeper
+	BankKeeper    BankKeeper
 }
 
 // DepInjectOutput is the output for the dep inject framework.
@@ -67,6 +68,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 
 	k := keeper.NewKeeper(
 		in.Key,
+		in.AccountKeeper,
 		in.BankKeeper,
 		authority,
 	)

@@ -89,7 +89,7 @@ func (c *Contract) CoinDenomForERC20Address(
 	ctx context.Context,
 	token common.Address,
 ) (string, error) {
-	tokenBech32, err := cosmlib.AccStringFromEthAddress(token)
+	tokenBech32, err := cosmlib.StringFromEthAddress(c.ak.AddressCodec(), token)
 	if err != nil {
 		return "", err
 	}
@@ -124,7 +124,7 @@ func (c *Contract) Erc20AddressForCoinDenom(
 
 	var tokenAddr common.Address
 	if resp.Token != "" {
-		tokenAddr, err = cosmlib.EthAdressFromAccString(resp.Token)
+		tokenAddr, err = cosmlib.EthAddressFromString(c.ak.AddressCodec(), resp.Token)
 		if err != nil {
 			return common.Address{}, err
 		}

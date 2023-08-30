@@ -32,6 +32,7 @@ import (
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmostestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distribution "github.com/cosmos/cosmos-sdk/x/distribution"
@@ -43,7 +44,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -70,7 +70,13 @@ func (g GinkgoTestReporter) Fatalf(format string, args ...interface{}) {
 	Fail(fmt.Sprintf(format, args...))
 }
 
-func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeeper.BaseKeeper) {
+func setup() (
+	sdk.Context,
+	authkeeper.AccountKeeperI,
+	*distrkeeper.Keeper,
+	*stakingkeeper.Keeper,
+	*bankkeeper.BaseKeeper,
+) {
 	ctx, ak, bk, sk := testutil.SetupMinimalKeepers()
 
 	encCfg := cosmostestutil.MakeTestEncodingConfig(
@@ -94,7 +100,7 @@ func setup() (sdk.Context, *distrkeeper.Keeper, *stakingkeeper.Keeper, *bankkeep
 
 	err = dk.FeePool.Set(ctx, distributiontypes.InitialFeePool())
 	Expect(err).ToNot(HaveOccurred())
-	return ctx, &dk, &sk, &bk
+	return ctx, ak, &dk, &sk, &bk
 }
 
 var _ = Describe("Distribution Precompile Test", func() {
@@ -105,6 +111,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		amt      sdk.Coin
 
 		ctx sdk.Context
+		ak  authkeeper.AccountKeeperI
 		dk  *distrkeeper.Keeper
 		sk  *stakingkeeper.Keeper
 		bk  *bankkeeper.BaseKeeper
@@ -116,9 +123,9 @@ var _ = Describe("Distribution Precompile Test", func() {
 		amt = sdk.NewCoin("abera", sdkmath.NewInt(100))
 
 		// Set up the contracts and keepers.
-		ctx, dk, sk, bk = setup()
+		ctx, ak, dk, sk, bk = setup()
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
-			sk,
+			ak, sk,
 			distrkeeper.NewMsgServerImpl(*dk),
 			distrkeeper.NewQuerier(*dk),
 		))
@@ -150,7 +157,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 	})
 
 	When("SetWithdrawAddress", func() {
-
 		It("should succeed", func() {
 			pCtx := vm.NewPolarContext(
 				ctx,
@@ -171,6 +177,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 	When("Withdraw Delegator Rewards", func() {
 		var addr sdk.AccAddress
 		var tokens sdk.DecCoins
+		var val stakingtypes.Validator
 
 		BeforeEach(func() {
 			// Set the previous proposer.
@@ -184,7 +191,8 @@ var _ = Describe("Distribution Precompile Test", func() {
 			valConsAddr0 := sdk.ConsAddress(valConsPk0.Address())
 			valAddr = sdk.ValAddress(valConsAddr0)
 			addr = sdk.AccAddress(valAddr)
-			val, err := distrtestutil.CreateValidator(valConsPk0, sdkmath.NewInt(100))
+			var err error
+			val, err = distrtestutil.CreateValidator(valConsPk0, sdkmath.NewInt(100))
 			Expect(err).ToNot(HaveOccurred())
 
 			// Set the validator.
@@ -225,7 +233,6 @@ var _ = Describe("Distribution Precompile Test", func() {
 		})
 
 		When("Withdraw Delegator Rewards common address", func() {
-
 			It("Success", func() {
 				pCtx := vm.NewPolarContext(
 					ctx,
@@ -233,19 +240,27 @@ var _ = Describe("Distribution Precompile Test", func() {
 					testutil.Alice,
 					big.NewInt(0),
 				)
-				valAddress, err := cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), valAddr.String())
+
+				res1, err := contract.GetTotalDelegatorReward(pCtx, common.BytesToAddress(addr))
 				Expect(err).ToNot(HaveOccurred())
-				res, err := contract.WithdrawDelegatorReward(
-					pCtx,
-					common.BytesToAddress(addr),
-					valAddress,
+				Expect(res1[0].Denom).To(Equal(sdk.DefaultBondDenom))
+				rewards, _ := tokens.TruncateDecimal()
+				Expect(res1[0].Amount.Cmp(rewards[0].Amount.BigInt())).To(Equal(0))
+
+				res3, err := contract.GetAllDelegatorRewards(pCtx, common.BytesToAddress(addr))
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res3[0].Validator).To(Equal(common.BytesToAddress(valAddr)))
+				Expect(res3[0].Rewards[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
+
+				res2, err := contract.WithdrawDelegatorReward(
+					pCtx, common.BytesToAddress(addr), common.BytesToAddress(valAddr),
 				)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(res[0].Denom).To(Equal(sdk.DefaultBondDenom))
-				rewards, _ := tokens.TruncateDecimal()
-				Expect(res[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
+				Expect(res2[0].Denom).To(Equal(sdk.DefaultBondDenom))
+				Expect(res2[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
 			})
 		})
+
 		When("Reading Params", func() {
 			It("Should get if withdraw forwarding is enabled", func() {
 				pCtx := vm.NewPolarContext(
@@ -259,9 +274,10 @@ var _ = Describe("Distribution Precompile Test", func() {
 				Expect(res).To(BeTrue())
 			})
 		})
+
 		When("Base Precompile Features", func() {
 			It("Should not have custom value decoders", func() {
-				Expect(contract.CustomValueDecoders()).To(HaveLen(1))
+				Expect(contract.CustomValueDecoders()).To(HaveLen(2))
 			})
 
 		})

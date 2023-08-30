@@ -41,13 +41,15 @@ var _ = Describe("Address", func() {
 	})
 
 	It("should convert directly from eth to acc bech32 and vice versa", func() {
-		Expect(cosmlib.MustEthAddressFromAccString(bech32)).To(Equal(addr))
-		Expect(cosmlib.MustAccStringFromEthAddress(addr)).To(Equal(bech32))
+		accCodec := addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix())
+
+		Expect(cosmlib.MustEthAddressFromString(accCodec, bech32)).To(Equal(addr))
+		Expect(cosmlib.MustStringFromEthAddress(accCodec, addr)).To(Equal(bech32))
 
 		acc, err := sdk.AccAddressFromBech32(bech32)
 		Expect(err).NotTo(HaveOccurred())
 
-		addr2 := cosmlib.MustEthAddressFromAccString(acc.String())
+		addr2 := cosmlib.MustEthAddressFromString(accCodec, acc.String())
 		Expect(addr.String()).To(Equal(addr2.String()))
 
 		bech32Str := sdk.MustBech32ifyAddressBytes(

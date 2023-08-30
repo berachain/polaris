@@ -46,7 +46,7 @@ func (k *Keeper) ERC20AddressForCoinDenom(
 	if (tokenAddr == common.Address{}) {
 		token = ""
 	} else {
-		token, err = cosmlib.AccStringFromEthAddress(tokenAddr)
+		token, err = cosmlib.StringFromEthAddress(k.addressCodec, tokenAddr)
 	}
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (k *Keeper) ERC20AddressForCoinDenom(
 func (k *Keeper) CoinDenomForERC20Address(
 	ctx context.Context, req *types.CoinDenomForERC20AddressRequest,
 ) (*types.CoinDenomForERC20AddressResponse, error) {
-	addr, err := cosmlib.EthAdressFromAccString(req.Token)
+	addr, err := cosmlib.EthAddressFromString(k.addressCodec, req.Token)
 	if err != nil {
 		return nil, err
 	}

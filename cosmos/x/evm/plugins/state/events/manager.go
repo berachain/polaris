@@ -141,7 +141,6 @@ func (m *manager) RevertToSnapshot(id int) {
 }
 
 // Finalize implements `libtypes.Finalizable`.
-// TODO: clear the events once not needed?
 func (m *manager) Finalize() {}
 
 // convertToLog builds an Eth log from the given Cosmos event and adds it to the logs journal.

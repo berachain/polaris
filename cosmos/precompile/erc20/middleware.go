@@ -128,7 +128,7 @@ func (c *Contract) transferCoinToERC20(
 
 		// convert ERC20 token bech32 address to common.Address
 		var token common.Address
-		token, err = cosmlib.EthAdressFromAccString(resp.Token)
+		token, err = cosmlib.EthAddressFromString(c.ak.AddressCodec(), resp.Token)
 		if err != nil {
 			return err
 		}
@@ -178,7 +178,7 @@ func (c *Contract) transferERC20ToCoin(
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// get SDK/Polaris coin denomination pairing with ERC20 token
-	tokenAccAddr, err := cosmlib.AccStringFromEthAddress(token)
+	tokenAccAddr, err := cosmlib.StringFromEthAddress(c.ak.AddressCodec(), token)
 	if err != nil {
 		return err
 	}
