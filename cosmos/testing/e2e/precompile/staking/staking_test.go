@@ -80,7 +80,7 @@ var _ = Describe("Staking", func() {
 	It("should call functions on the precompile directly", func() {
 		validators, _, err := stakingPrecompile.GetBondedValidators(nil, bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
-		Expect(validators).To(ContainElement(validator))
+		Expect(validators[0].OperatorAddr).To(Equal(validator))
 
 		delegated, err := stakingPrecompile.GetDelegation(nil, tf.Address("alice"), validator)
 		Expect(err).ToNot(HaveOccurred())
