@@ -55,7 +55,7 @@ type Contract struct {
 }
 
 // NewPrecompileContract creates a new precompile contract for the governance module.
-func NewPrecompileContract(ak cosmlib.AccountKeeper, m v1.MsgServer, q v1.QueryServer) *Contract {
+func NewPrecompileContract(ak cosmlib.CodecProvider, m v1.MsgServer, q v1.QueryServer) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.GovernanceModuleMetaData.ABI,

@@ -49,7 +49,7 @@ type Contract struct {
 
 // NewPrecompileContract returns a new instance of the bank precompile contract.
 func NewPrecompileContract(
-	ak cosmlib.AccountKeeper, ms banktypes.MsgServer, qs banktypes.QueryServer,
+	ak cosmlib.CodecProvider, ms banktypes.MsgServer, qs banktypes.QueryServer,
 ) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(

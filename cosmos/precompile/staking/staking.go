@@ -64,7 +64,7 @@ type Contract struct {
 }
 
 // NewContract is the constructor of the staking contract.
-func NewPrecompileContract(ak cosmlib.AccountKeeper, sk *stakingkeeper.Keeper) *Contract {
+func NewPrecompileContract(ak cosmlib.CodecProvider, sk *stakingkeeper.Keeper) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.StakingModuleMetaData.ABI,

@@ -28,7 +28,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type AccountKeeper interface {
+type CodecProvider interface {
 	AddressCodec() address.Codec
 }
 

@@ -49,7 +49,7 @@ type Contract struct {
 
 // NewPrecompileContract returns a new instance of the distribution module precompile contract.
 func NewPrecompileContract(
-	ak cosmlib.AccountKeeper,
+	ak cosmlib.CodecProvider,
 	vs staking.ValidatorStore,
 	m distributiontypes.MsgServer,
 	q distributiontypes.QueryServer,
