@@ -86,6 +86,7 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res).To(BeTrue())
 	})
+
 	It("should be able to set withdraw address with cosmos address", func() {
 		addr := sdk.AccAddress("addr")
 		txr := tf.GenerateTransactOpts("alice")
@@ -93,6 +94,7 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 	})
+
 	It("should be able to set withdraw address with ethereum address", func() {
 		addr := sdk.AccAddress("addr")
 		ethAddr := common.BytesToAddress(addr)
@@ -101,6 +103,7 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 	})
+
 	It("should be able to get delegator reward", func() {
 		// Delegate some tokens to an active validator.
 		validators, _, err := stakingPrecompile.GetBondedValidators(nil, sbindings.CosmosPageRequest{})
@@ -113,11 +116,18 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
-		// Wait for the 2 block to be produced, to make sure there are rewards.
-		err = tf.WaitForNextBlock()
+		// Wait for 2 blocks to be produced, to make sure there are rewards.
+		for i := 0; i < 2; i++ {
+			Expect(tf.WaitForNextBlock()).To(Succeed())
+		}
+
+		// Preview the withdraw rewards.
+		rewards, err := precompile.GetTotalDelegatorReward(nil, tf.Address("alice"))
 		Expect(err).ToNot(HaveOccurred())
-		err = tf.WaitForNextBlock()
-		Expect(err).ToNot(HaveOccurred())
+		Expect(rewards).ToNot(BeNil())
+		for _, reward := range rewards {
+			Expect(reward.Amount.Cmp(new(big.Int))).To(Equal(1))
+		}
 
 		// Withdraw the rewards.
 		txr = tf.GenerateTransactOpts("alice")

@@ -597,7 +597,7 @@ var _ = Describe("Staking", func() {
 				res, _, err := contract.GetBondedValidators(ctx, cbindings.CosmosPageRequest{})
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res).To(HaveLen(1))
-				Expect(res[0]).To(Equal(valAddr))
+				Expect(res[0].OperatorAddr).To(Equal(valAddr))
 			})
 		})
 	})
