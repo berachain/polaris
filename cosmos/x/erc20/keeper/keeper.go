@@ -23,6 +23,7 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/core/address"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
@@ -35,21 +36,24 @@ import (
 
 // Keeper of this module maintains collections of erc20.
 type Keeper struct {
-	storeKey   storetypes.StoreKey
-	bankKeeper BankKeeper
-	authority  sdk.AccAddress
+	storeKey     storetypes.StoreKey
+	addressCodec address.Codec
+	bankKeeper   BankKeeper
+	authority    sdk.AccAddress
 }
 
 // NewKeeper creates new instances of the erc20 Keeper.
 func NewKeeper(
 	storeKey storetypes.StoreKey,
+	ak AccountKeeper,
 	bk BankKeeper,
 	authority sdk.AccAddress,
 ) *Keeper {
 	return &Keeper{
-		storeKey:   storeKey,
-		bankKeeper: bk,
-		authority:  authority,
+		storeKey:     storeKey,
+		addressCodec: ak.AddressCodec(),
+		bankKeeper:   bk,
+		authority:    authority,
 	}
 }
 

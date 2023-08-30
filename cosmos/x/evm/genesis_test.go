@@ -62,7 +62,7 @@ var _ = Describe("", func() {
 		ethGen = core.DefaultGenesis
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
 		ctx = ctx.WithBlockHeight(0)
-		sc = staking.NewPrecompileContract(&sk)
+		sc = staking.NewPrecompileContract(ak, &sk)
 		k = keeper.NewKeeper(
 			ak, sk,
 			storetypes.NewKVStoreKey("evm"),

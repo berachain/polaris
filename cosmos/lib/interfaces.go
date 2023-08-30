@@ -23,8 +23,14 @@ package lib
 import (
 	"context"
 
+	"cosmossdk.io/core/address"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
+
+type CodecProvider interface {
+	AddressCodec() address.Codec
+}
 
 type BankKeeper interface {
 	SendCoinsFromModuleToAccount(ctx context.Context, senderModule string,

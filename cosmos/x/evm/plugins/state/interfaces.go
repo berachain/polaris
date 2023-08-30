@@ -23,6 +23,7 @@ package state
 import (
 	"context"
 
+	"cosmossdk.io/core/address"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -61,6 +62,7 @@ type ControllableMultiStore interface {
 
 // AccountKeeper defines the expected account keeper.
 type AccountKeeper interface {
+	AddressCodec() address.Codec
 	NewAccountWithAddress(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
 	GetModuleAddress(moduleName string) sdk.AccAddress
 	GetSequence(context.Context, sdk.AccAddress) (uint64, error)

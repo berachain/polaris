@@ -84,7 +84,7 @@ interface IStakingModule {
     function getBondedValidators(Cosmos.PageRequest calldata pagination)
         external
         view
-        returns (address[] memory, Cosmos.PageResponse memory);
+        returns (Validator[] memory, Cosmos.PageResponse memory);
 
     /**
      * @dev Returns a list of bonded validator (operator) addresses, sorted by power (stake) in

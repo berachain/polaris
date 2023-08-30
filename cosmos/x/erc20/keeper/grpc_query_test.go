@@ -41,12 +41,13 @@ var _ = Describe("GRPC Query Server", func() {
 	var k *keeper.Keeper
 	var qs types.QueryServiceServer
 	var ctx sdk.Context
+	var ak keeper.AccountKeeper
 	var bk keeper.BankKeeper
 
 	BeforeEach(func() {
-		ctx, _, bk, _ = utils.SetupMinimalKeepers()
+		ctx, ak, bk, _ = utils.SetupMinimalKeepers()
 		k = keeper.NewKeeper(
-			storetypes.NewKVStoreKey("erc20"), bk, authtypes.NewModuleAddress(govtypes.ModuleName),
+			storetypes.NewKVStoreKey("erc20"), ak, bk, authtypes.NewModuleAddress(govtypes.ModuleName),
 		)
 		qs = k
 	})
@@ -65,7 +66,7 @@ var _ = Describe("GRPC Query Server", func() {
 
 		// check the denom doesn't exist
 		resp, err := qs.CoinDenomForERC20Address(ctx, &types.CoinDenomForERC20AddressRequest{
-			Token: cosmlib.MustAccStringFromEthAddress(tokenAddr),
+			Token: cosmlib.MustStringFromEthAddress(ak.AddressCodec(), tokenAddr),
 		})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(resp.Denom).To(BeEmpty())
@@ -75,7 +76,7 @@ var _ = Describe("GRPC Query Server", func() {
 
 		// check the denom exists
 		resp, err = qs.CoinDenomForERC20Address(ctx, &types.CoinDenomForERC20AddressRequest{
-			Token: cosmlib.MustAccStringFromEthAddress(tokenAddr),
+			Token: cosmlib.MustStringFromEthAddress(ak.AddressCodec(), tokenAddr),
 		})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(resp.Denom).To(Equal(types.NewPolarisDenomForAddress(tokenAddr)))
@@ -100,6 +101,6 @@ var _ = Describe("GRPC Query Server", func() {
 			Denom: denom,
 		})
 		Expect(err).ToNot(HaveOccurred())
-		Expect(resp.Token).To(Equal(cosmlib.MustAccStringFromEthAddress(tokenAddr)))
+		Expect(resp.Token).To(Equal(cosmlib.MustStringFromEthAddress(ak.AddressCodec(), tokenAddr)))
 	})
 })
