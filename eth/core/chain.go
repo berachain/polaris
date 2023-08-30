@@ -34,8 +34,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
-// By default we are storing up to 1024 items in each cache.
-const defaultCacheSize = 1024
+// By default we are storing up to 512 items in each cache.
+const defaultCacheSize = 512
 
 // Compile-time check to ensure that `blockchain` implements the `Blockchain` api.
 var _ Blockchain = (*blockchain)(nil)
