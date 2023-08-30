@@ -442,7 +442,7 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // ==============================================================================
 
 func (b *backend) SendTx(_ context.Context, signedTx *types.Transaction) error {
-	return b.polar.txPool.AddRemote(signedTx)
+	return b.polar.txPool.AddRemotes([]*types.Transaction{signedTx})[0]
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
