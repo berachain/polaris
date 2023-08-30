@@ -137,6 +137,7 @@ func (k *Keeper) GetHost() Host {
 // StartServices waits until the first block is being processed for the lock to unlock before
 // starting the networking stack and txpool service.
 func (k *Keeper) StartServices(clientContext client.Context) {
+	// Set the Polaris blockchain.
 	k.SetupBlockchain()
 
 	// spin lock until the first block is being processed
