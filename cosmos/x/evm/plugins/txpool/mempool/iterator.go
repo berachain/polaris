@@ -21,29 +21,53 @@
 package mempool
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	coretypes "github.com/ethereum/go-ethereum/core/types"
+
+	"pkg.berachain.dev/polaris/eth/common"
 )
 
 // iterator is used to iterate over the transactions in the sdk mempool.
 type iterator struct {
-	txs        *coretypes.TransactionsByPriceAndNonce
+	txs *coretypes.TransactionsByPriceAndNonce
+
+	// serializer converts eth txs to sdk txs when being iterated over.
 	serializer SdkTxSerializer
+
+	empty bool
+}
+
+func newIterator(serializer SdkTxSerializer) *iterator {
+	return &iterator{
+		serializer: serializer,
+	}
+}
+
+func (i *iterator) reset(
+	pendingTxs map[common.Address]coretypes.Transactions,
+	pendingBaseFee *big.Int,
+	signer coretypes.Signer,
+) {
+	i.txs = coretypes.NewTransactionsByPriceAndNonce(signer, pendingTxs, pendingBaseFee)
+	i.empty = false
 }
 
 // Tx implements sdkmempool.Iterator.
 func (i *iterator) Tx() sdk.Tx {
 	ethTx := i.txs.Peek()
 	if ethTx == nil {
-		// should never hit this case because the immediately before call to Next() should return
-		// nil
+		// should never hit this case because the immediately before call to Next() should set
+		// empty to true
 		return nil
 	}
 
 	sdkTx, err := i.serializer.SerializeToSdkTx(ethTx)
 	if err != nil {
+		// TODO: handle nil tx, could cause downstream panic
 		// gtp.logger.Error("eth tx could not be serialized to sdk tx:", err)
 		return nil
 	}
@@ -56,7 +80,9 @@ func (i *iterator) Next() sdkmempool.Iterator {
 	i.txs.Shift()
 
 	if i.txs.Peek() == nil {
-		i = nil
+		i.empty = true
+		return nil
 	}
+
 	return i
 }
