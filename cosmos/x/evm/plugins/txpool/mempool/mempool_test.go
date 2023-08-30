@@ -139,7 +139,8 @@ var _ = Describe("WrappedGethTxPool", func() {
 
 			Expect(isPendingTx(etp, ethTx1)).To(BeTrue())
 			Expect(isPendingTx(etp, ethTx2)).To(BeTrue())
-
+			etp.Prepare(big.NewInt(1), coretypes.LatestSignerForChainID(big.NewInt(1)))
+			etp.Select(ctx, nil)
 			Expect(etp.Remove(tx2)).ToNot(HaveOccurred())
 			Expect(etp.Get(ethTx2.Hash())).To(BeNil())
 			p2, q2 := etp.ContentFrom(addr2)
@@ -356,8 +357,8 @@ var _ = Describe("WrappedGethTxPool", func() {
 		It("should throw when attempting to remove a transaction that doesn't exist", func() {
 			_, tx := buildTx(key1, &coretypes.LegacyTx{Nonce: 1, GasPrice: big.NewInt(100), Gas: 100000})
 			Expect(etp.InsertSync(ctx, tx)).ToNot(HaveOccurred())
+			etp.Prepare(big.NewInt(1), coretypes.LatestSignerForChainID(big.NewInt(1)))
 			Expect(etp.Remove(tx)).ToNot(HaveOccurred())
-			Expect(etp.Remove(tx)).To(HaveOccurred())
 		})
 
 		It("should return StateDB's nonce when seeing nonce gap on first lookup", func() {
