@@ -5,9 +5,9 @@ go 1.21
 toolchain go1.21.0
 
 replace (
-	cosmossdk.io/x/evidence => github.com/rollkit/cosmos-sdk/x/evidence v0.0.0-20230721012257-443317a43b03
+	// cosmossdk.io/x/evidence => github.com/rollkit/cosmos-sdk/x/evidence v0.0.0-20230721012257-443317a43b03
 	// github.com/cometbft/cometbft => github.com/rollkit/cometbft v0.0.0-20230614163111-d6a8d2c98cc0
-	github.com/cosmos/cosmos-sdk => github.com/rollkit/cosmos-sdk v0.50.0-rc.0-rollkit-v0.11.0-rc0-no-fraud-proofs
+	github.com/cosmos/cosmos-sdk => github.com/rollkit/cosmos-sdk v0.50.0-rc.0-rollkit-v0.11.0-rc0-no-fraud-proofs-test
 	//v0.46.0-beta2.0.20230721012257-443317a43b03
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230824153638-497f3de05c05
