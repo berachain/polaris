@@ -176,6 +176,16 @@ var _ = Describe("Call the Precompile Directly", func() {
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Call directly.
+		votes, _, err := precompile.GetProposalVotes(nil, 1, bindings.CosmosPageRequest{})
+		Expect(err).ToNot(HaveOccurred())
+		Expect(votes).To(HaveLen(2))
+
+		// Call directly.
+		aliceVote, err := precompile.GetProposalVotesByVoter(nil, 1, tf.Address("alice"))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(aliceVote.Voter).To(Equal(tf.Address("alice")))
+
+		// Call directly.
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = precompile.CancelProposal(txr, 1)
 		Expect(err).ToNot(HaveOccurred())

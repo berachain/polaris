@@ -22,6 +22,7 @@ package governance
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
 	"cosmossdk.io/core/address"
@@ -42,7 +43,9 @@ import (
 
 const (
 	EventTypeProposalSubmitted = `proposal_submitted`
+	EventTypeProposalVoted     = `proposal_voted`
 	AttributeProposalSender    = `proposal_sender`
+	AttributeProposalVote      = `proposal_vote`
 )
 
 // Contract is the precompile contract for the governance module.
@@ -72,6 +75,7 @@ func NewPrecompileContract(ak cosmlib.CodecProvider, m v1.MsgServer, q v1.QueryS
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
 		AttributeProposalSender: log.ConvertCommonHexAddress,
+		AttributeProposalVote:   ConvertStringToVote,
 	}
 }
 
@@ -140,13 +144,39 @@ func (c *Contract) Vote(
 		return false, err
 	}
 
-	_, err = c.msgServer.Vote(ctx, &v1.MsgVote{
+	// Submit the vote.
+	if _, err = c.msgServer.Vote(ctx, &v1.MsgVote{
 		ProposalId: proposalID,
 		Voter:      caller,
 		Option:     v1.VoteOption(options),
 		Metadata:   metadata,
+	}); err != nil {
+		return false, err
+	}
+
+	// Emit the proposal voted event.
+	voteBz, err := json.Marshal(generated.IGovernanceModuleVote{
+		ProposalId: proposalID,
+		Voter:      vm.UnwrapPolarContext(ctx).MsgSender(),
+		Options: []generated.IGovernanceModuleWeightedVoteOption{
+			{
+				VoteOption: options,
+				Weight:     "",
+			},
+		},
+		Metadata: metadata,
 	})
-	return err == nil, err
+	if err != nil {
+		return false, err
+	}
+	sdk.UnwrapSDKContext(ctx).EventManager().EmitEvent(
+		sdk.NewEvent(
+			EventTypeProposalVoted,
+			sdk.NewAttribute(AttributeProposalVote, string(voteBz)),
+		),
+	)
+
+	return true, nil
 }
 
 // VoteWeighted is the method for the `voteWeighted` method of the governance precompile contract.
@@ -171,15 +201,36 @@ func (c *Contract) VoteWeighted(
 		return false, err
 	}
 
-	_, err = c.msgServer.VoteWeighted(
+	// Submit the vote.
+	if _, err = c.msgServer.VoteWeighted(
 		ctx, &v1.MsgVoteWeighted{
 			ProposalId: proposalID,
 			Voter:      caller,
 			Options:    msgOptions,
 			Metadata:   metadata,
 		},
+	); err != nil {
+		return false, err
+	}
+
+	// Emit the proposal voted event.
+	voteBz, err := json.Marshal(generated.IGovernanceModuleVote{
+		ProposalId: proposalID,
+		Voter:      vm.UnwrapPolarContext(ctx).MsgSender(),
+		Options:    options,
+		Metadata:   metadata,
+	})
+	if err != nil {
+		return false, err
+	}
+	sdk.UnwrapSDKContext(ctx).EventManager().EmitEvent(
+		sdk.NewEvent(
+			EventTypeProposalVoted,
+			sdk.NewAttribute(AttributeProposalVote, string(voteBz)),
+		),
 	)
-	return err == nil, err
+
+	return true, nil
 }
 
 // GetProposal is the method for the `getProposal` method of the governance precompile contract.
@@ -477,4 +528,13 @@ func (c *Contract) GetConstitution(
 	}
 
 	return res.Constitution, nil
+}
+
+// ConvertStringToVote converts a string (json marshalled) Vote into a geth-binding Vote type.
+func ConvertStringToVote(attributeValue string) (any, error) {
+	var vote generated.IGovernanceModuleVote
+	if err := json.Unmarshal([]byte(attributeValue), &vote); err != nil {
+		return nil, err
+	}
+	return vote, nil
 }
