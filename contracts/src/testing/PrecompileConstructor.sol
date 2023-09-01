@@ -34,6 +34,6 @@ contract PrecompileConstructor {
 
     constructor() {
         // should not revert
-        stakingModule.getValidator(address(0x0));
+        stakingModule.getBondedValidatorsByPower();
     }
 }
