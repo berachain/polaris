@@ -133,6 +133,11 @@ func (k *Keeper) GetHost() Host {
 	return k.host
 }
 
+// GetPolaris returns the Polaris instance.
+func (k *Keeper) GetPolaris() *polar.Polaris {
+	return k.polaris
+}
+
 func (k *Keeper) SetClientCtx(clientContext client.Context) {
 	k.host.GetTxPoolPlugin().(txpool.Plugin).SetClientContext(clientContext)
 	// TODO: move this

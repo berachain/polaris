@@ -1,3 +1,5 @@
+#!/usr/bin/make -f
+
 # Makefile
 
 # Specify the default target if none is provided
@@ -19,3 +21,10 @@ codeqlbuild:
 # Rule to setup the project. This is a special case because it's not a Mage target.
 setup:
 	@go run magefiles/setup/setup.go
+
+BINDIR ?= $(GOPATH)/bin
+CURRENT_DIR = $(shell pwd)
+
+test-sim-after-import:
+	@echo "Running application simulation-after-import. This may take several minutes..."
+	@cd ${CURRENT_DIR}/e2e/testapp && $(BINDIR)/runsim -Jobs=4 -SimAppPkg=. -ExitOnFail 50 5 TestAppSimulationAfterImport
