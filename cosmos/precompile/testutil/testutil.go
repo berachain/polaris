@@ -31,6 +31,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -44,6 +45,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/lib"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/eth/common"
 
 	//nolint:stylecheck,revive // Ginkgo is the testing framework.
 	. "github.com/onsi/ginkgo/v2"
@@ -61,7 +63,9 @@ func (g GinkgoTestReporter) Fatalf(format string, args ...interface{}) {
 }
 
 // Helper functions for setting up the tests.
-func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkeeper.Keeper, *governancekeeper.Keeper) {
+func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (
+	sdk.Context, authkeeper.AccountKeeperI, bankkeeper.Keeper, *governancekeeper.Keeper,
+) {
 	// Setup the keepers and context.
 	ctx, ak, bk, sk := testutil.SetupMinimalKeepers()
 	dk := govtestutil.NewMockDistributionKeeper(ctrl)
@@ -83,6 +87,10 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 	}
 
 	// Create the governance keeper.
+	authority, err := ak.AddressCodec().BytesToString(authtypes.NewModuleAddress(governancetypes.ModuleName))
+	if err != nil {
+		panic(err)
+	}
 	gk := governancekeeper.NewKeeper(
 		encCfg.Codec,
 		runtime.NewKVStoreService(storetypes.NewKVStoreKey(governancetypes.StoreKey)),
@@ -92,7 +100,7 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 		dk,
 		msr,
 		governancetypes.DefaultConfig(),
-		authtypes.NewModuleAddress(governancetypes.ModuleName).String(),
+		authority,
 	)
 
 	// Register the msg Service Handlers.
@@ -111,13 +119,13 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (sdk.Context, bankkee
 	// Fund the caller with some coins.
 	err = lib.MintCoinsToAddress(
 		//nolint:gomnd // magic number is fine here.
-		ctx, bk, governancetypes.ModuleName, lib.AccAddressToEthAddress(caller), "abera", big.NewInt(100000000),
+		ctx, bk, governancetypes.ModuleName, common.BytesToAddress(caller), "abera", big.NewInt(100000000),
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	return ctx, bk, gk
+	return ctx, ak, bk, gk
 }
 
 func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {

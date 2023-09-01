@@ -44,7 +44,7 @@ var _ = Describe("precompileLog", func() {
 		}).ToNot(Panic())
 		Expect(pl.RegistryKey()).To(Equal("cancel_unbonding_delegation"))
 		Expect(pl.id).To(Equal(crypto.Keccak256Hash(
-			[]byte("CancelUnbondingDelegation(address,(uint256,string)[],int64)"),
+			[]byte("CancelUnbondingDelegation(string,(uint256,string)[],int64)"),
 		)))
 		Expect(pl.precompileAddr).To(Equal(common.BytesToAddress([]byte{1})))
 		Expect(pl.indexedInputs).To(HaveLen(1))
@@ -55,7 +55,6 @@ var _ = Describe("precompileLog", func() {
 // MOCKS BELOW.
 
 func mockDefaultAbiEvent() abi.Event {
-	addrType, _ := abi.NewType("address", "address", nil)
 	coinType, _ := abi.NewType("tuple[]", "structIStakingModule.Coin[]", []abi.ArgumentMarshaling{
 		{
 			Name:         "amount",
@@ -73,14 +72,15 @@ func mockDefaultAbiEvent() abi.Event {
 		},
 	})
 	int64Type, _ := abi.NewType("int64", "int64", nil)
+	strType, _ := abi.NewType("string", "string", nil)
 	return abi.NewEvent(
 		"CancelUnbondingDelegation",
 		"CancelUnbondingDelegation",
 		false,
 		abi.Arguments{
 			{
-				Name:    "delegator",
-				Type:    addrType,
+				Name:    "option",
+				Type:    strType,
 				Indexed: true,
 			},
 			{

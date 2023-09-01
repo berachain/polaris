@@ -22,12 +22,13 @@ package governance
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"cosmossdk.io/core/address"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
@@ -42,27 +43,31 @@ import (
 
 const (
 	EventTypeProposalSubmitted = `proposal_submitted`
+	EventTypeProposalVoted     = `proposal_voted`
 	AttributeProposalSender    = `proposal_sender`
+	AttributeProposalVote      = `proposal_vote`
 )
 
 // Contract is the precompile contract for the governance module.
 type Contract struct {
 	ethprecompile.BaseContract
 
-	msgServer v1.MsgServer
-	querier   v1.QueryServer
+	addressCodec address.Codec
+	msgServer    v1.MsgServer
+	querier      v1.QueryServer
 }
 
 // NewPrecompileContract creates a new precompile contract for the governance module.
-func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
+func NewPrecompileContract(ak cosmlib.CodecProvider, m v1.MsgServer, q v1.QueryServer) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.GovernanceModuleMetaData.ABI,
 			// Precompile Address: 0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
+			common.BytesToAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
 		),
-		msgServer: m,
-		querier:   q,
+		addressCodec: ak.AddressCodec(),
+		msgServer:    m,
+		querier:      q,
 	}
 }
 
@@ -70,6 +75,7 @@ func NewPrecompileContract(m v1.MsgServer, q v1.QueryServer) *Contract {
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
 		AttributeProposalSender: log.ConvertCommonHexAddress,
+		AttributeProposalVote:   ConvertStringToVote,
 	}
 }
 
@@ -106,9 +112,16 @@ func (c *Contract) CancelProposal(
 	ctx context.Context,
 	id uint64,
 ) (uint64, uint64, error) {
+	caller, err := cosmlib.StringFromEthAddress(
+		c.addressCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+	)
+	if err != nil {
+		return 0, 0, err
+	}
+
 	res, err := c.msgServer.CancelProposal(ctx, &v1.MsgCancelProposal{
 		ProposalId: id,
-		Proposer:   cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()),
+		Proposer:   caller,
 	})
 	if err != nil {
 		return 0, 0, err
@@ -124,13 +137,46 @@ func (c *Contract) Vote(
 	options int32,
 	metadata string,
 ) (bool, error) {
-	_, err := c.msgServer.Vote(ctx, &v1.MsgVote{
+	caller, err := cosmlib.StringFromEthAddress(
+		c.addressCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+	)
+	if err != nil {
+		return false, err
+	}
+
+	// Submit the vote.
+	if _, err = c.msgServer.Vote(ctx, &v1.MsgVote{
 		ProposalId: proposalID,
-		Voter:      cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()),
+		Voter:      caller,
 		Option:     v1.VoteOption(options),
 		Metadata:   metadata,
+	}); err != nil {
+		return false, err
+	}
+
+	// Emit the proposal voted event.
+	voteBz, err := json.Marshal(generated.IGovernanceModuleVote{
+		ProposalId: proposalID,
+		Voter:      vm.UnwrapPolarContext(ctx).MsgSender(),
+		Options: []generated.IGovernanceModuleWeightedVoteOption{
+			{
+				VoteOption: options,
+				Weight:     "",
+			},
+		},
+		Metadata: metadata,
 	})
-	return err == nil, err
+	if err != nil {
+		return false, err
+	}
+	sdk.UnwrapSDKContext(ctx).EventManager().EmitEvent(
+		sdk.NewEvent(
+			EventTypeProposalVoted,
+			sdk.NewAttribute(AttributeProposalVote, string(voteBz)),
+		),
+	)
+
+	return true, nil
 }
 
 // VoteWeighted is the method for the `voteWeighted` method of the governance precompile contract.
@@ -148,16 +194,43 @@ func (c *Contract) VoteWeighted(
 			Weight: option.Weight,
 		}
 	}
+	caller, err := cosmlib.StringFromEthAddress(
+		c.addressCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+	)
+	if err != nil {
+		return false, err
+	}
 
-	_, err := c.msgServer.VoteWeighted(
+	// Submit the vote.
+	if _, err = c.msgServer.VoteWeighted(
 		ctx, &v1.MsgVoteWeighted{
 			ProposalId: proposalID,
-			Voter:      cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()),
+			Voter:      caller,
 			Options:    msgOptions,
 			Metadata:   metadata,
 		},
+	); err != nil {
+		return false, err
+	}
+
+	// Emit the proposal voted event.
+	voteBz, err := json.Marshal(generated.IGovernanceModuleVote{
+		ProposalId: proposalID,
+		Voter:      vm.UnwrapPolarContext(ctx).MsgSender(),
+		Options:    options,
+		Metadata:   metadata,
+	})
+	if err != nil {
+		return false, err
+	}
+	sdk.UnwrapSDKContext(ctx).EventManager().EmitEvent(
+		sdk.NewEvent(
+			EventTypeProposalVoted,
+			sdk.NewAttribute(AttributeProposalVote, string(voteBz)),
+		),
 	)
-	return err == nil, err
+
+	return true, nil
 }
 
 // GetProposal is the method for the `getProposal` method of the governance precompile contract.
@@ -225,9 +298,14 @@ func (c *Contract) GetProposalDepositsByDepositor(
 	proposalID uint64,
 	depositor common.Address,
 ) ([]generated.CosmosCoin, error) {
+	depositorBech32, err := cosmlib.StringFromEthAddress(c.addressCodec, depositor)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.Deposit(ctx, &v1.QueryDepositRequest{
 		ProposalId: proposalID,
-		Depositor:  cosmlib.Bech32FromEthAddress(depositor),
+		Depositor:  depositorBech32,
 	})
 	if err != nil {
 		return nil, err
@@ -290,9 +368,14 @@ func (c *Contract) GetProposalVotes(
 				},
 			)
 		}
+		var voter common.Address
+		voter, err = cosmlib.EthAddressFromString(c.addressCodec, vote.Voter)
+		if err != nil {
+			return nil, cbindings.CosmosPageResponse{}, err
+		}
 		votes = append(votes, generated.IGovernanceModuleVote{
 			ProposalId: proposalID,
-			Voter:      cosmlib.EthAddressFromBech32(vote.Voter),
+			Voter:      voter,
 			Options:    voteOptions,
 			Metadata:   vote.Metadata,
 		})
@@ -308,9 +391,14 @@ func (c *Contract) GetProposalVotesByVoter(
 	proposalID uint64,
 	voter common.Address,
 ) (generated.IGovernanceModuleVote, error) {
+	voterBech32, err := cosmlib.StringFromEthAddress(c.addressCodec, voter)
+	if err != nil {
+		return generated.IGovernanceModuleVote{}, err
+	}
+
 	res, err := c.querier.Vote(ctx, &v1.QueryVoteRequest{
 		ProposalId: proposalID,
-		Voter:      cosmlib.Bech32FromEthAddress(voter),
+		Voter:      voterBech32,
 	})
 	if err != nil {
 		return generated.IGovernanceModuleVote{}, err
@@ -442,16 +530,11 @@ func (c *Contract) GetConstitution(
 	return res.Constitution, nil
 }
 
-// unmarshalMsgAndReturnAny unmarshals `[]byte` into a `codectypes.Any` message.
-// TODO: This is a temporary solution until we have a better way to unmarshal messages.
-func unmarshalMsgAndReturnAny(bz []byte) (*codectypes.Any, error) {
-	var msg banktypes.MsgSend
-	if err := msg.Unmarshal(bz); err != nil {
+// ConvertStringToVote converts a string (json marshalled) Vote into a geth-binding Vote type.
+func ConvertStringToVote(attributeValue string) (any, error) {
+	var vote generated.IGovernanceModuleVote
+	if err := json.Unmarshal([]byte(attributeValue), &vote); err != nil {
 		return nil, err
 	}
-	anyValue, err := codectypes.NewAnyWithValue(&msg)
-	if err != nil {
-		return nil, err
-	}
-	return anyValue, nil
+	return vote, nil
 }

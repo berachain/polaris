@@ -23,8 +23,14 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/core/address"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
+
+type AccountKeeper interface {
+	AddressCodec() address.Codec
+}
 
 // BankKeeper defines the expected bank keeper.
 type BankKeeper interface {

@@ -24,6 +24,8 @@ import (
 	"context"
 	"math/big"
 
+	"cosmossdk.io/core/address"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -40,19 +42,34 @@ import (
 type Contract struct {
 	ethprecompile.BaseContract
 
-	msgServer banktypes.MsgServer
-	querier   banktypes.QueryServer
+	addressCodec address.Codec
+	msgServer    banktypes.MsgServer
+	querier      banktypes.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the bank precompile contract.
-func NewPrecompileContract(ms banktypes.MsgServer, qs banktypes.QueryServer) *Contract {
+func NewPrecompileContract(
+	ak cosmlib.CodecProvider, ms banktypes.MsgServer, qs banktypes.QueryServer,
+) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			bankgenerated.BankModuleMetaData.ABI,
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
+			common.BytesToAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 		),
-		msgServer: ms,
-		querier:   qs,
+		addressCodec: ak.AddressCodec(),
+		msgServer:    ms,
+		querier:      qs,
+	}
+}
+
+func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
+	return ethprecompile.ValueDecoders{
+		banktypes.AttributeKeySender:    c.ConvertAccAddressFromString,
+		banktypes.AttributeKeyRecipient: c.ConvertAccAddressFromString,
+		banktypes.AttributeKeySpender:   c.ConvertAccAddressFromString,
+		banktypes.AttributeKeyReceiver:  c.ConvertAccAddressFromString,
+		banktypes.AttributeKeyMinter:    c.ConvertAccAddressFromString,
+		banktypes.AttributeKeyBurner:    c.ConvertAccAddressFromString,
 	}
 }
 
@@ -62,8 +79,13 @@ func (c *Contract) GetBalance(
 	accountAddress common.Address,
 	denom string,
 ) (*big.Int, error) {
+	accAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, accountAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.Balance(ctx, &banktypes.QueryBalanceRequest{
-		Address: cosmlib.Bech32FromEthAddress(accountAddress),
+		Address: accAddr,
 		Denom:   denom,
 	})
 	if err != nil {
@@ -79,9 +101,13 @@ func (c *Contract) GetAllBalances(
 	ctx context.Context,
 	accountAddress common.Address,
 ) ([]lib.CosmosCoin, error) {
-	// todo: add pagination here
+	accAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, accountAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
-		Address: cosmlib.Bech32FromEthAddress(accountAddress),
+		Address: accAddr,
 	})
 	if err != nil {
 		return nil, err
@@ -96,8 +122,13 @@ func (c *Contract) GetSpendableBalance(
 	accountAddress common.Address,
 	denom string,
 ) (*big.Int, error) {
+	accAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, accountAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.SpendableBalanceByDenom(ctx, &banktypes.QuerySpendableBalanceByDenomRequest{
-		Address: cosmlib.Bech32FromEthAddress(accountAddress),
+		Address: accAddr,
 		Denom:   denom,
 	})
 	if err != nil {
@@ -113,8 +144,13 @@ func (c *Contract) GetAllSpendableBalances(
 	ctx context.Context,
 	accountAddress common.Address,
 ) ([]lib.CosmosCoin, error) {
+	accAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, accountAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.querier.SpendableBalances(ctx, &banktypes.QuerySpendableBalancesRequest{
-		Address: cosmlib.Bech32FromEthAddress(accountAddress),
+		Address: accAddr,
 	})
 	if err != nil {
 		return nil, err
@@ -212,11 +248,28 @@ func (c *Contract) Send(
 	if err != nil {
 		return false, err
 	}
+	caller, err := cosmlib.StringFromEthAddress(
+		c.addressCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+	)
+	if err != nil {
+		return false, err
+	}
+	toAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, toAddress)
+	if err != nil {
+		return false, err
+	}
 
 	_, err = c.msgServer.Send(ctx, &banktypes.MsgSend{
-		FromAddress: cosmlib.Bech32FromEthAddress(vm.UnwrapPolarContext(ctx).MsgSender()),
-		ToAddress:   cosmlib.Bech32FromEthAddress(toAddress),
+		FromAddress: caller,
+		ToAddress:   toAddr,
 		Amount:      amount,
 	})
 	return err == nil, err
+}
+
+// ConvertAccAddressFromString converts a Cosmos string representing a account address to a
+// common.Address.
+func (c *Contract) ConvertAccAddressFromString(attributeValue string) (any, error) {
+	// extract the sdk.AccAddress from string value as common.Address
+	return cosmlib.EthAddressFromString(c.addressCodec, attributeValue)
 }

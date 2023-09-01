@@ -32,6 +32,7 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	governancekeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -61,6 +62,7 @@ func TestGovernancePrecompile(t *testing.T) {
 var _ = Describe("Governance Precompile", func() {
 	var (
 		sdkCtx   sdk.Context
+		ak       authkeeper.AccountKeeperI
 		bk       bankkeeper.Keeper
 		gk       *governancekeeper.Keeper
 		caller   sdk.AccAddress
@@ -74,9 +76,10 @@ var _ = Describe("Governance Precompile", func() {
 		t := testutil.GinkgoTestReporter{}
 		mockCtrl = gomock.NewController(t)
 		types.SetupCosmosConfig()
-		caller = cosmlib.AddressToAccAddress(testutils.Alice)
-		sdkCtx, bk, gk = testutil.Setup(mockCtrl, caller)
+		caller = testutils.Alice.Bytes()
+		sdkCtx, ak, bk, gk = testutil.Setup(mockCtrl, caller)
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
+			ak,
 			governancekeeper.NewMsgServerImpl(gk),
 			governancekeeper.NewQueryServer(gk),
 		))
@@ -85,7 +88,7 @@ var _ = Describe("Governance Precompile", func() {
 		ctx = vm.NewPolarContext(
 			sdkCtx,
 			nil,
-			cosmlib.AccAddressToEthAddress(caller),
+			common.BytesToAddress(caller),
 			big.NewInt(0),
 		)
 	})
@@ -97,7 +100,7 @@ var _ = Describe("Governance Precompile", func() {
 	It("Should have precompile tests and custom value decoders", func() {
 		_, err := sf.Build(contract, nil)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(contract.CustomValueDecoders()).To(HaveLen(1))
+		Expect(contract.CustomValueDecoders()).To(HaveLen(2))
 	})
 
 	When("Unmarshal message and return any", func() {
@@ -142,7 +145,7 @@ var _ = Describe("Governance Precompile", func() {
 				sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 				bk,
 				governancetypes.ModuleName,
-				cosmlib.AccAddressToEthAddress(govAcct),
+				common.BytesToAddress(govAcct),
 				"abera",
 				big.NewInt(100),
 			)
@@ -352,7 +355,7 @@ var _ = Describe("Governance Precompile", func() {
 						res, err := contract.GetProposalDepositsByDepositor(
 							ctx,
 							uint64(2),
-							cosmlib.AccAddressToEthAddress(caller),
+							common.BytesToAddress(caller),
 						)
 						Expect(err).ToNot(HaveOccurred())
 						Expect(res).ToNot(BeNil())
@@ -367,7 +370,7 @@ var _ = Describe("Governance Precompile", func() {
 				BeforeEach(func() {
 					vote = generated.IGovernanceModuleVote{
 						ProposalId: uint64(2),
-						Voter:      cosmlib.AccAddressToEthAddress(caller),
+						Voter:      common.BytesToAddress(caller),
 						Options:    []generated.IGovernanceModuleWeightedVoteOption{},
 						Metadata:   "metadata",
 					}
@@ -413,7 +416,7 @@ var _ = Describe("Governance Precompile", func() {
 						res, err := contract.GetProposalVotesByVoter(
 							ctx,
 							uint64(2),
-							cosmlib.AccAddressToEthAddress(caller),
+							common.BytesToAddress(caller),
 						)
 						Expect(err).ToNot(HaveOccurred())
 						Expect(res).ToNot(BeNil())
@@ -472,26 +475,6 @@ var _ = Describe("Governance Precompile", func() {
 		})
 	})
 
-	It("Should be able to marshal and unmarshal msgBz", func() {
-		msg := banktypes.MsgSend{
-			FromAddress: sdk.AccAddress([]byte("from")).String(),
-			ToAddress:   sdk.AccAddress([]byte("from")).String(),
-			Amount:      sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(100))),
-		}
-
-		msgAny, err := codectypes.NewAnyWithValue(&msg)
-		Expect(err).ToNot(HaveOccurred())
-
-		msgBz, err := msgAny.Marshal()
-		Expect(err).ToNot(HaveOccurred())
-
-		anys, err := UnmarshalAnyBzSlice([][]byte{msgBz})
-		Expect(err).ToNot(HaveOccurred())
-
-		typeURL := anys[0].GetTypeUrl()
-		Expect(typeURL).To(Equal("/cosmos.bank.v1beta1.MsgSend"))
-	})
-
 	It("Should be able to marshal and unmarshal porposalMsg", func() {
 		// Create the send msg.
 		msg := banktypes.MsgSend{
@@ -518,18 +501,15 @@ var _ = Describe("Governance Precompile", func() {
 	})
 })
 
-// UnmarshalAnyBzSlice unmarshals a slice of bytes into a slice of Any.
-func UnmarshalAnyBzSlice(bzs [][]byte) ([]*codectypes.Any, error) {
-	anys := []*codectypes.Any{}
-	for _, bz := range bzs {
-		var a codectypes.Any
-
-		if err := a.Unmarshal(bz); err != nil {
-			return nil, err
-		}
-
-		anys = append(anys, &a)
+// unmarshalMsgAndReturnAny unmarshals `[]byte` into a `codectypes.Any` message.
+func unmarshalMsgAndReturnAny(bz []byte) (*codectypes.Any, error) {
+	var msg banktypes.MsgSend
+	if err := msg.Unmarshal(bz); err != nil {
+		return nil, err
 	}
-
-	return anys, nil
+	anyValue, err := codectypes.NewAnyWithValue(&msg)
+	if err != nil {
+		return nil, err
+	}
+	return anyValue, nil
 }

@@ -23,6 +23,7 @@ package lib
 import (
 	"math/big"
 
+	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -167,18 +168,22 @@ func SdkREToStakingRE(re []stakingtypes.RedelegationEntry) []staking.IStakingMod
 
 // SdkValidatorsToStakingValidators converts a Cosmos SDK Validator list to a geth compatible list
 // of Validators.
-func SdkValidatorsToStakingValidators(vals []stakingtypes.Validator) (
+func SdkValidatorsToStakingValidators(valAddrCodec address.Codec, vals []stakingtypes.Validator) (
 	[]staking.IStakingModuleValidator, error,
 ) {
 	valsOut := make([]staking.IStakingModuleValidator, len(vals))
 	for i, val := range vals {
+		operEthAddr, err := EthAddressFromString(valAddrCodec, val.OperatorAddress)
+		if err != nil {
+			return nil, err
+		}
 		pubKey, err := val.ConsPubKey()
 		if err != nil {
 			return nil, err
 		}
 		valsOut[i] = staking.IStakingModuleValidator{
-			OperatorAddress: val.OperatorAddress,
-			ConsensusPubkey: pubKey.Bytes(),
+			OperatorAddr:    operEthAddr,
+			ConsAddr:        pubKey.Address(),
 			Jailed:          val.Jailed,
 			Status:          val.Status.String(),
 			Tokens:          val.Tokens.BigInt(),
@@ -227,12 +232,14 @@ func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModule
 			NoCount:         proposal.FinalTallyResult.NoCount,
 			NoWithVetoCount: proposal.FinalTallyResult.NoWithVetoCount,
 		},
-		SubmitTime:     uint64(proposal.SubmitTime.Unix()),
-		DepositEndTime: uint64(proposal.DepositEndTime.Unix()),
-		TotalDeposit:   totalDeposit,
-		Metadata:       proposal.Metadata,
-		Title:          proposal.Title,
-		Summary:        proposal.Summary,
-		Proposer:       proposal.Proposer,
+		SubmitTime:      uint64(proposal.SubmitTime.Unix()),
+		DepositEndTime:  uint64(proposal.DepositEndTime.Unix()),
+		VotingStartTime: uint64(proposal.VotingStartTime.Unix()),
+		VotingEndTime:   uint64(proposal.VotingEndTime.Unix()),
+		TotalDeposit:    totalDeposit,
+		Metadata:        proposal.Metadata,
+		Title:           proposal.Title,
+		Summary:         proposal.Summary,
+		Proposer:        proposal.Proposer,
 	}
 }

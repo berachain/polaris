@@ -32,7 +32,6 @@ import (
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/distribution"
 	sbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -67,7 +66,7 @@ var _ = Describe("Distribution Precompile", func() {
 		stakingPrecompile, _ = sbindings.NewStakingModule(
 			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient())
 		bankPrecompile, _ = bbindings.NewBankModule(
-			cosmlib.AccAddressToEthAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
+			common.BytesToAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 			tf.EthClient(),
 		)
 	})
@@ -87,6 +86,7 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res).To(BeTrue())
 	})
+
 	It("should be able to set withdraw address with cosmos address", func() {
 		addr := sdk.AccAddress("addr")
 		txr := tf.GenerateTransactOpts("alice")
@@ -94,14 +94,16 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 	})
+
 	It("should be able to set withdraw address with ethereum address", func() {
 		addr := sdk.AccAddress("addr")
-		ethAddr := cosmlib.AccAddressToEthAddress(addr)
+		ethAddr := common.BytesToAddress(addr)
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err := precompile.SetWithdrawAddress(txr, ethAddr)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 	})
+
 	It("should be able to get delegator reward", func() {
 		// Delegate some tokens to an active validator.
 		validators, _, err := stakingPrecompile.GetBondedValidators(nil, sbindings.CosmosPageRequest{})
@@ -110,19 +112,26 @@ var _ = Describe("Distribution Precompile", func() {
 		delegateAmt := big.NewInt(123450000000)
 		txr := tf.GenerateTransactOpts("alice")
 		txr.Value = delegateAmt
-		tx, err := stakingPrecompile.Delegate(txr, val, delegateAmt)
+		tx, err := stakingPrecompile.Delegate(txr, val.OperatorAddr, delegateAmt)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
-		// Wait for the 2 block to be produced, to make sure there are rewards.
-		err = tf.WaitForNextBlock()
+		// Wait for 2 blocks to be produced, to make sure there are rewards.
+		for i := 0; i < 2; i++ {
+			Expect(tf.WaitForNextBlock()).To(Succeed())
+		}
+
+		// Preview the withdraw rewards.
+		rewards, err := precompile.GetTotalDelegatorReward(nil, tf.Address("alice"))
 		Expect(err).ToNot(HaveOccurred())
-		err = tf.WaitForNextBlock()
-		Expect(err).ToNot(HaveOccurred())
+		Expect(rewards).ToNot(BeNil())
+		for _, reward := range rewards {
+			Expect(reward.Amount.Cmp(new(big.Int))).To(Equal(1))
+		}
 
 		// Withdraw the rewards.
 		txr = tf.GenerateTransactOpts("alice")
-		tx, err = precompile.WithdrawDelegatorReward(txr, tf.Address("alice"), val)
+		tx, err = precompile.WithdrawDelegatorReward(txr, tf.Address("alice"), val.OperatorAddr)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 	})
@@ -156,7 +165,7 @@ var _ = Describe("Distribution Precompile", func() {
 		amt = big.NewInt(123450000000)
 		txr = tf.GenerateTransactOpts("alice")
 		txr.Value = amt
-		tx, err = contract.Delegate(txr, val)
+		tx, err = contract.Delegate(txr, val.OperatorAddr)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
@@ -168,7 +177,7 @@ var _ = Describe("Distribution Precompile", func() {
 
 		// Withdraw the rewards.
 		txr = tf.GenerateTransactOpts("alice")
-		tx, err = contract.WithdrawRewards(txr, contractAddress, val)
+		tx, err = contract.WithdrawRewards(txr, contractAddress, val.OperatorAddr)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
@@ -179,7 +188,7 @@ var _ = Describe("Distribution Precompile", func() {
 
 		// Set the withdraw address.
 		addr := sdk.AccAddress("addr")
-		ethAddr := cosmlib.AccAddressToEthAddress(addr)
+		ethAddr := common.BytesToAddress(addr)
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = contract.SetWithdrawAddress(txr, ethAddr)
 		Expect(err).ToNot(HaveOccurred())

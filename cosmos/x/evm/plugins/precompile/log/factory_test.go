@@ -107,7 +107,7 @@ var _ = Describe("Factory", func() {
 				"cancel_unbonding_delegation",
 				sdk.NewAttribute("amount", amt.String()),
 				sdk.NewAttribute("creation_height", strconv.FormatInt(creationHeight, 10)),
-				sdk.NewAttribute("delegator", delAddr.String()),
+				sdk.NewAttribute("option", delAddr.String()),
 			)
 			log, err := f.Build(&event)
 			Expect(err).ToNot(HaveOccurred())
@@ -116,10 +116,10 @@ var _ = Describe("Factory", func() {
 			Expect(log.Topics).To(HaveLen(2))
 			Expect(log.Topics[0]).To(Equal(
 				crypto.Keccak256Hash(
-					[]byte("CancelUnbondingDelegation(address,(uint256,string)[],int64)"),
+					[]byte("CancelUnbondingDelegation(string,(uint256,string)[],int64)"),
 				),
 			))
-			Expect(log.Topics[1]).To(Equal(common.BytesToHash(delAddr.Bytes())))
+			Expect(log.Topics[1]).To(Equal(crypto.Keccak256Hash([]byte(delAddr.String()))))
 			packedData, err := mockDefaultAbiEvent().Inputs.NonIndexed().Pack(
 				cosmlib.SdkCoinsToEvmCoins(sdk.NewCoins(amt)), creationHeight,
 			)
@@ -213,7 +213,7 @@ var _ = Describe("Factory", func() {
 
 			badCvd = make(precompile.ValueDecoders)
 			badCvd["custom_validator"] = func(val string) (any, error) {
-				return cosmlib.ValAddressToEthAddress(sk.ValidatorAddressCodec(), val)
+				return cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), val)
 			}
 			badCvd["custom_amount"] = func(val string) (any, error) {
 				return nil, errors.New("invalid amount")
@@ -297,7 +297,7 @@ func mockCustomAbiEvent() map[string]abi.Event {
 
 var cvd = precompile.ValueDecoders{
 	"custom_validator": func(val string) (any, error) {
-		return cosmlib.ValAddressToEthAddress(sk.ValidatorAddressCodec(), val)
+		return cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), val)
 	},
 	"custom_amount": func(val string) (any, error) {
 		coin, err := sdk.ParseCoinNormalized(val)

@@ -68,7 +68,7 @@ interface IStakingModule {
     /**
      * @dev Returns the operator address of the validator for the given consensus address.
      */
-    function valAddressFromConsAddress(bytes calldata consAddress) external pure returns (address);
+    function valAddressFromConsAddress(bytes calldata consAddr) external pure returns (address);
 
     /**
      * @dev Returns a list of all active validators.
@@ -84,7 +84,7 @@ interface IStakingModule {
     function getBondedValidators(Cosmos.PageRequest calldata pagination)
         external
         view
-        returns (address[] memory, Cosmos.PageResponse memory);
+        returns (Validator[] memory, Cosmos.PageResponse memory);
 
     /**
      * @dev Returns a list of bonded validator (operator) addresses, sorted by power (stake) in
@@ -185,8 +185,8 @@ interface IStakingModule {
      * @dev Represents a validator.
      */
     struct Validator {
-        string operatorAddress;
-        bytes consensusPubkey;
+        address operatorAddr;
+        bytes consAddr;
         bool jailed;
         string status;
         uint256 tokens;
