@@ -9,7 +9,7 @@ require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/holiman/uint256 v1.2.3
-	github.com/onsi/ginkgo/v2 v2.11.0
+	github.com/onsi/ginkgo/v2 v2.12.0
 	github.com/onsi/gomega v1.27.10
 	golang.org/x/text v0.12.0
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230827184022-e3cec7a2c178
@@ -64,7 +64,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
-	github.com/google/pprof v0.0.0-20230817174616-7a8ec2ada47b // indirect
+	github.com/google/pprof v0.0.0-20230901174712-0191c66da455 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/graph-gophers/graphql-go v1.5.0 // indirect

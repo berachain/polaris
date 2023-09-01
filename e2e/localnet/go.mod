@@ -8,7 +8,7 @@ replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.
 require (
 	github.com/docker/docker v24.0.4+incompatible
 	github.com/ethereum/go-ethereum v1.12.0
-	github.com/onsi/ginkgo/v2 v2.11.0
+	github.com/onsi/ginkgo/v2 v2.12.0
 	github.com/onsi/gomega v1.27.10
 	github.com/ory/dockertest v3.3.5+incompatible
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230827184022-e3cec7a2c178
@@ -96,7 +96,7 @@ require (
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/orderedcode v0.0.1 // indirect
-	github.com/google/pprof v0.0.0-20230817174616-7a8ec2ada47b // indirect
+	github.com/google/pprof v0.0.0-20230901174712-0191c66da455 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect

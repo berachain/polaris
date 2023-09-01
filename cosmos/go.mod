@@ -33,7 +33,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/holiman/uint256 v1.2.3 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
-	github.com/onsi/ginkgo/v2 v2.11.0
+	github.com/onsi/ginkgo/v2 v2.12.0
 	github.com/onsi/gomega v1.27.10
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0 // indirect
@@ -135,7 +135,7 @@ require (
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/orderedcode v0.0.1 // indirect
-	github.com/google/pprof v0.0.0-20230817174616-7a8ec2ada47b // indirect
+	github.com/google/pprof v0.0.0-20230901174712-0191c66da455 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
