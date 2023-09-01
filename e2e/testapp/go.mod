@@ -16,8 +16,8 @@ require (
 	cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/upgrade v0.0.0-20230818115413-c402c51a1508
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20230821203048-72ca0eaae730
-	pkg.berachain.dev/polaris/eth v0.0.0-20230821203048-72ca0eaae730
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20230830221145-a6c6454d3697
+	pkg.berachain.dev/polaris/eth v0.0.0-20230830221145-a6c6454d3697
 )
 
 require (
@@ -26,16 +26,16 @@ require (
 	cosmossdk.io/core v0.10.0
 	cosmossdk.io/depinject v1.0.0-alpha.4
 	cosmossdk.io/errors v1.0.0 // indirect
-	cosmossdk.io/log v1.2.0
+	cosmossdk.io/log v1.2.1
 	cosmossdk.io/math v1.1.2 // indirect
-	cosmossdk.io/store v1.0.0-alpha.1.0.20230728080422-54ed7dab3982
+	cosmossdk.io/store v1.0.0-rc.0
 	cosmossdk.io/x/tx v0.9.1 // indirect
 	github.com/btcsuite/btcd v0.23.4 // indirect
 	github.com/btcsuite/btcd/btcutil v1.1.3 // indirect
 	github.com/cometbft/cometbft v0.38.0-rc3
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
-	github.com/cosmos/cosmos-sdk v0.50.0-rc.0
+	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230831181921-878e00a9bb6e
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogoproto v1.4.11 // indirect
 	github.com/ethereum/go-ethereum v1.12.0 // indirect
@@ -93,7 +93,7 @@ require (
 	github.com/consensys/gnark-crypto v0.11.2 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
-	github.com/cosmos/iavl v1.0.0-beta.2 // indirect
+	github.com/cosmos/iavl v1.0.0-rc.1 // indirect
 	github.com/cosmos/ics23/go v0.10.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
@@ -225,7 +225,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -274,8 +273,8 @@ require (
 	gotest.tools/v3 v3.5.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230810045725-b6ed353ceb0e // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20230810045725-b6ed353ceb0e // indirect
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230827184022-e3cec7a2c178 // indirect
+	pkg.berachain.dev/polaris/lib v0.0.0-20230827184022-e3cec7a2c178 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )

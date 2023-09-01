@@ -52,7 +52,7 @@ require (
 	github.com/breml/errchkjson v0.3.1 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/bufbuild/connect-go v1.5.2 // indirect
-	github.com/bufbuild/protocompile v0.5.1 // indirect
+	github.com/bufbuild/protocompile v0.6.0 // indirect
 	github.com/butuzov/ireturn v0.2.0 // indirect
 	github.com/butuzov/mirror v1.1.0 // indirect
 	github.com/bytedance/sonic v1.10.0 // indirect
@@ -162,6 +162,7 @@ require (
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
 	github.com/jdxcode/netrc v0.0.0-20221124155335-4616370d1a84 // indirect
 	github.com/jgautheron/goconst v1.5.1 // indirect
+	github.com/jhump/protoreflect v1.15.2 // indirect
 	github.com/jingyugao/rowserrcheck v1.1.1 // indirect
 	github.com/jirfag/go-printf-func-name v0.0.0-20200119135958-7558a9eaa5af // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
