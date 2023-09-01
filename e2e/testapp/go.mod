@@ -16,6 +16,7 @@ require (
 	cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/upgrade v0.0.0-20230818115413-c402c51a1508
+	github.com/stretchr/testify v1.8.4
 	pkg.berachain.dev/polaris/cosmos v0.0.0-20230830221145-a6c6454d3697
 	pkg.berachain.dev/polaris/eth v0.0.0-20230830221145-a6c6454d3697
 )
