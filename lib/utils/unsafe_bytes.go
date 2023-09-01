@@ -35,9 +35,9 @@ import (
 func UnsafeStrToBytes(s string) []byte {
 	var buf []byte
 	//#nosec:G103 tHe uSe oF uNsAfE cALLs shOuLd Be AuDiTeD
-	sHdr := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	sHdr := (*reflect.StringHeader)(unsafe.Pointer(&s)) //nolint:staticcheck // deprecated change later.
 	//#nosec:G103 tHe uSe oF uNsAfE cALLs shOuLd Be AuDiTeD
-	bufHdr := (*reflect.SliceHeader)(unsafe.Pointer(&buf))
+	bufHdr := (*reflect.SliceHeader)(unsafe.Pointer(&buf)) //nolint:staticcheck // deprecated change later.
 	bufHdr.Data = sHdr.Data
 	bufHdr.Cap = sHdr.Len
 	bufHdr.Len = sHdr.Len
