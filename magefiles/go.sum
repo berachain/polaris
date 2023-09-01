@@ -126,6 +126,7 @@ github.com/bufbuild/buf v1.15.1/go.mod h1:TQeGKam1QMfHy/xsSnnMpxN3JK5HBb6aNvZj4m
 github.com/bufbuild/connect-go v1.5.2 h1:G4EZd5gF1U1ZhhbVJXplbuUnfKpBZ5j5izqIwu2g2W8=
 github.com/bufbuild/connect-go v1.5.2/go.mod h1:GmMJYR6orFqD0Y6ZgX8pwQ8j9baizDrIQMm1/a6LnHk=
 github.com/bufbuild/protocompile v0.6.0 h1:Uu7WiSQ6Yj9DbkdnOe7U4mNKp58y9WDMKDn28/ZlunY=
+github.com/bufbuild/protocompile v0.6.0/go.mod h1:YNP35qEYoYGme7QMtz5SBCoN4kL4g12jTtjuzRNdjpE=
 github.com/butuzov/ireturn v0.2.0 h1:kCHi+YzC150GE98WFuZQu9yrTn6GEydO2AuPLbTgnO4=
 github.com/butuzov/ireturn v0.2.0/go.mod h1:Wh6Zl3IMtTpaIKbmwzqi6olnM9ptYQxxVacMsOEFPoc=
 github.com/butuzov/mirror v1.1.0 h1:ZqX54gBVMXu78QLoiqdwpl2mgmoOJTk7s4p4o+0avZI=
@@ -497,6 +498,7 @@ github.com/jdxcode/netrc v0.0.0-20221124155335-4616370d1a84/go.mod h1:Zi/ZFkEqFH
 github.com/jgautheron/goconst v1.5.1 h1:HxVbL1MhydKs8R8n/HE5NPvzfaYmQJA3o879lE4+WcM=
 github.com/jgautheron/goconst v1.5.1/go.mod h1:aAosetZ5zaeC/2EfMeRswtxUFBpe2Hr7HzkgX4fanO4=
 github.com/jhump/protoreflect v1.15.2 h1:7YppbATX94jEt9KLAc5hICx4h6Yt3SaavhQRsIUEHP0=
+github.com/jhump/protoreflect v1.15.2/go.mod h1:4ORHmSBmlCW8fh3xHmJMGyul1zNqZK4Elxc8qKP+p1k=
 github.com/jingyugao/rowserrcheck v1.1.1 h1:zibz55j/MJtLsjP1OF4bSdgXxwL1b+Vn7Tjzq7gFzUs=
 github.com/jingyugao/rowserrcheck v1.1.1/go.mod h1:4yvlZSDb3IyDTUZJUmpZfm2Hwok+Dtp+nu2qOq+er9c=
 github.com/jirfag/go-printf-func-name v0.0.0-20200119135958-7558a9eaa5af h1:KA9BjwUk7KlCh6S9EAGWBt1oExIUv9WyNCiRz5amv48=
