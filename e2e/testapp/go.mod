@@ -12,10 +12,10 @@ replace (
 )
 
 require (
-	cosmossdk.io/client/v2 v2.0.0-20230901095449-5621d9d80736
-	cosmossdk.io/tools/confix v0.0.0-20230901095449-5621d9d80736
-	cosmossdk.io/x/evidence v0.0.0-20230901095449-5621d9d80736
-	cosmossdk.io/x/upgrade v0.0.0-20230901095449-5621d9d80736
+	cosmossdk.io/client/v2 v2.0.0-20230831181921-878e00a9bb6e
+	cosmossdk.io/tools/confix v0.0.0-20230831181921-878e00a9bb6e
+	cosmossdk.io/x/evidence v0.0.0-20230831181921-878e00a9bb6e
+	cosmossdk.io/x/upgrade v0.0.0-20230831181921-878e00a9bb6e
 	github.com/stretchr/testify v1.8.4
 	pkg.berachain.dev/polaris/cosmos v0.0.0-20230821203048-72ca0eaae730
 	pkg.berachain.dev/polaris/eth v0.0.0-20230821203048-72ca0eaae730
