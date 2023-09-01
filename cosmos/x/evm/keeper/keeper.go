@@ -165,6 +165,11 @@ func (k *Keeper) SetupBlockchain() {
 	k.polaris.SetBlockchain(core.NewChain(k.host))
 }
 
+// GetPolaris returns the Polaris instance.
+func (k *Keeper) GetPolaris() *polar.Polaris {
+	return k.polaris
+}
+
 // TODO: Remove these, because they're hacky af.
 // Required temporarily for BGT plugin.
 func (k *Keeper) GetBalance(ctx sdk.Context, addr sdk.AccAddress) *big.Int {

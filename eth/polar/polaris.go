@@ -58,6 +58,8 @@ type NetworkingStack interface {
 
 	// Start starts the networking stack.
 	Start() error
+
+	Close() error
 }
 
 // Polaris is the only object that an implementing chain should use.
@@ -169,4 +171,7 @@ func (pl *Polaris) SetBlockchain(bc core.Blockchain) {
 
 func (pl *Polaris) Blockchain() core.Blockchain {
 	return pl.blockchain
+
+func (pl *Polaris) StopServices() error {
+	return pl.stack.Close()
 }
