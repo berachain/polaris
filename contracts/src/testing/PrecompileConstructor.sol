@@ -26,19 +26,14 @@
 pragma solidity >=0.8.4;
 
 import {IERC20} from "../../lib/IERC20.sol";
-import {IERC20Module} from "../cosmos/precompile/ERC20Module.sol";
+import {IStakingModule} from "../cosmos/precompile/Staking.sol";
 
 // An example of calling a precompile from the contract's constructor.
 contract PrecompileConstructor {
-    IERC20Module public immutable erc20Module = IERC20Module(0x0000000000000000000000000000000000696969);
-    IERC20 public abera;
-    string public denom;
+    IStakingModule public immutable stakingModule = IStakingModule(0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF);
 
     constructor() {
-        bool success = erc20Module.transferCoinToERC20From("abera", msg.sender, msg.sender, 123456789);
-        require(success, "failed to transfer abera");
-        abera = erc20Module.erc20AddressForCoinDenom("abera");
-        denom = erc20Module.coinDenomForERC20Address(abera);
-        require(keccak256(bytes(denom)) == keccak256(bytes("abera")), "returned the wrong denom");
+        // should not revert
+        stakingModule.getValidator(address(0x0));
     }
 }

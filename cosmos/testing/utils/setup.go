@@ -54,7 +54,6 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
 	"pkg.berachain.dev/polaris/cosmos/types"
-	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	coremock "pkg.berachain.dev/polaris/eth/core/mock"
@@ -146,7 +145,6 @@ func SetupMinimalKeepers() (
 			stakingtypes.NotBondedPoolName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 			stakingtypes.BondedPoolName:    {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 			evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
-			erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 			stakingtypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
 			govtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 			distrtypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
