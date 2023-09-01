@@ -171,6 +171,7 @@ func (pl *Polaris) SetBlockchain(bc core.Blockchain) {
 
 func (pl *Polaris) Blockchain() core.Blockchain {
 	return pl.blockchain
+}
 
 func (pl *Polaris) StopServices() error {
 	return pl.stack.Close()
