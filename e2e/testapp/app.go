@@ -127,6 +127,7 @@ func NewPolarisApp(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
+	bech32Prefix string,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *SimApp {
@@ -136,7 +137,7 @@ func NewPolarisApp(
 		ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
-			AppConfig,
+			MakeAppConfig(bech32Prefix),
 			depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners),
 			depinject.Supply(
 				// supply the application options
@@ -366,6 +367,13 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
+}
+
+func (app *SimApp) Close() error {
+	if pl := app.EVMKeeper.GetPolaris(); pl != nil {
+		return pl.StopServices()
+	}
+	return nil
 }
 
 // GetMaccPerms returns a copy of the module account permissions

@@ -79,7 +79,8 @@ func NewRootCmd() *cobra.Command {
 		moduleBasicManager module.BasicManager
 	)
 
-	if err := depinject.Inject(depinject.Configs(testapp.AppConfig,
+	if err := depinject.Inject(depinject.Configs(
+		testapp.MakeAppConfig(""),
 		depinject.Supply(evmmempool.NewPolarisEthereumTxPool(), log.NewNopLogger()),
 		depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners)),
 		&interfaceRegistry,
@@ -268,6 +269,7 @@ func newApp(
 
 	return testapp.NewPolarisApp(
 		logger, db, traceStore, true,
+		"",
 		appOpts,
 		baseappOptions...,
 	)
@@ -302,13 +304,13 @@ func appExport(
 
 	var testApp *testapp.SimApp
 	if height != -1 {
-		testApp = testapp.NewPolarisApp(logger, db, traceStore, false, appOpts)
+		testApp = testapp.NewPolarisApp(logger, db, traceStore, false, "", appOpts)
 
 		if err := testApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		testApp = testapp.NewPolarisApp(logger, db, traceStore, true, appOpts)
+		testApp = testapp.NewPolarisApp(logger, db, traceStore, true, "", appOpts)
 	}
 
 	return testApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

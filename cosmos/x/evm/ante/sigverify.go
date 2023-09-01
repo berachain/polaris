@@ -25,6 +25,7 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -45,6 +46,9 @@ func SigVerificationGasConsumer(
 ) error {
 	// Then check to see if the pubkey is a secp256k1 pubkey
 	switch pubkey := sig.PubKey.(type) {
+	case *secp256k1.PubKey:
+		meter.ConsumeGas(secp256k1GasCostEIP155, "ante verify: secp256k1")
+		return nil
 	case *ethsecp256k1.PubKey:
 		meter.ConsumeGas(secp256k1GasCostEIP155, "ante verify: secp256k1")
 		return nil

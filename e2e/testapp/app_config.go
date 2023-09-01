@@ -107,7 +107,17 @@ var (
 	}
 
 	// application configuration (used by depinject).
-	AppConfig = depinject.Configs(appconfig.Compose(&appv1alpha1.Config{
+	AppConfig = MakeAppConfig("")
+)
+
+// MakeAppConfig for making an application configuration.
+//
+//nolint:funlen // long config
+func MakeAppConfig(bech32Prefix string) depinject.Config {
+	if len(bech32Prefix) == 0 {
+		bech32Prefix = "polar"
+	}
+	return depinject.Configs(appconfig.Compose(&appv1alpha1.Config{
 		Modules: []*appv1alpha1.ModuleConfig{
 			{
 				Name: runtime.ModuleName,
@@ -172,7 +182,7 @@ var (
 			{
 				Name: authtypes.ModuleName,
 				Config: appconfig.WrapAny(&authmodulev1.Module{
-					Bech32Prefix:             "polar",
+					Bech32Prefix:             bech32Prefix,
 					ModuleAccountPermissions: moduleAccPerms,
 					// By default modules authority is the governance module. This is configurable with the following:
 					// Authority: "group", // A custom module authority can be set using a module name
@@ -258,4 +268,4 @@ var (
 				),
 			},
 		))
-)
+}
