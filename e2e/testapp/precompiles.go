@@ -27,7 +27,6 @@ import (
 
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
-	erc20precompile "pkg.berachain.dev/polaris/cosmos/precompile/erc20"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
 	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -49,9 +48,6 @@ func PrecompilesToInject(app *SimApp, customPcs ...ethprecompile.Registrable) fu
 				app.StakingKeeper,
 				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
 				distrkeeper.NewQuerier(app.DistrKeeper),
-			),
-			erc20precompile.NewPrecompileContract(
-				app.AccountKeeper, app.BankKeeper, app.ERC20Keeper,
 			),
 			govprecompile.NewPrecompileContract(
 				app.AccountKeeper,

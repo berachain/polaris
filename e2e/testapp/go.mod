@@ -12,13 +12,12 @@ replace (
 )
 
 require (
-	cosmossdk.io/client/v2 v2.0.0-20230831181921-878e00a9bb6e
-	cosmossdk.io/tools/confix v0.0.0-20230831181921-878e00a9bb6e
-	cosmossdk.io/x/evidence v0.0.0-20230831181921-878e00a9bb6e
-	cosmossdk.io/x/upgrade v0.0.0-20230831181921-878e00a9bb6e
-	github.com/stretchr/testify v1.8.4
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20230821203048-72ca0eaae730
-	pkg.berachain.dev/polaris/eth v0.0.0-20230821203048-72ca0eaae730
+	cosmossdk.io/client/v2 v2.0.0-20230818115413-c402c51a1508
+	cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508
+	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
+	cosmossdk.io/x/upgrade v0.0.0-20230818115413-c402c51a1508
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20230830221145-a6c6454d3697
+	pkg.berachain.dev/polaris/eth v0.0.0-20230830221145-a6c6454d3697
 )
 
 require (
@@ -229,7 +228,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -277,8 +275,8 @@ require (
 	gotest.tools/v3 v3.5.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230810045725-b6ed353ceb0e // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20230810045725-b6ed353ceb0e // indirect
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230827184022-e3cec7a2c178 // indirect
+	pkg.berachain.dev/polaris/lib v0.0.0-20230827184022-e3cec7a2c178 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )

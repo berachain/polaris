@@ -29,12 +29,7 @@ package contracts
 //go:generate abigen --pkg bank --abi ./out/Bank.sol/IBankModule.abi.json --bin ./out/Bank.sol/IBankModule.bin --out ./bindings/cosmos/precompile/bank/i_bank_module.abigen.go --type BankModule
 //go:generate abigen --pkg distribution --abi ./out/Distribution.sol/IDistributionModule.abi.json --bin ./out/Distribution.sol/IDistributionModule.bin --out ./bindings/cosmos/precompile/distribution/i_distribution_module.abigen.go --type DistributionModule --exc "IBankModuleCoin"
 //go:generate abigen --pkg governance --abi ./out/Governance.sol/IGovernanceModule.abi.json --bin ./out/Governance.sol/IGovernanceModule.bin --out ./bindings/cosmos/precompile/governance/i_governance_module.abigen.go --type GovernanceModule
-//go:generate abigen --pkg erc20 --abi ./out/ERC20Module.sol/IERC20Module.abi.json --bin ./out/ERC20Module.sol/IERC20Module.bin --out ./bindings/cosmos/precompile/erc20/i_erc20_module.abigen.go --type ERC20Module
-
-//go:generate abigen --pkg cosmos --abi ./out/PolarisERC20.sol/PolarisERC20.abi.json --bin ./out/PolarisERC20.sol/PolarisERC20.bin --out ./bindings/cosmos/polaris_erc20.abigen.go --type PolarisERC20
-
 //go:generate abigen --pkg lib --abi ./out/CosmosTypes.sol/CosmosTypes.abi.json --bin ./out/CosmosTypes.sol/CosmosTypes.bin --out ./bindings/cosmos/lib/cosmos_types.abigen.go --type CosmosTypes
-
 //go:generate abigen --pkg testing --abi ./out/SolmateERC20.sol/SolmateERC20.abi.json --bin ./out/SolmateERC20.sol/SolmateERC20.bin --out ./bindings/testing/solmate_erc20.abigen.go --type SolmateERC20
 //go:generate abigen --pkg testing --abi ./out/MockPrecompileInterface.sol/MockPrecompileInterface.abi.json --out ./bindings/testing/mock_precompile_interface.abigen.go --type MockPrecompile
 //go:generate abigen --pkg testing --abi ./out/PrecompileConstructor.sol/PrecompileConstructor.abi.json --bin ./out/PrecompileConstructor.sol/PrecompileConstructor.bin --out ./bindings/testing/precompile_constructor.abigen.go --type PrecompileConstructor

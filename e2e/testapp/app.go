@@ -63,7 +63,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
-	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
@@ -104,8 +103,7 @@ type SimApp struct {
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
 	// polaris keepers
-	EVMKeeper   *evmkeeper.Keeper
-	ERC20Keeper *erc20keeper.Keeper
+	EVMKeeper *evmkeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -194,7 +192,6 @@ func NewPolarisApp(
 		&app.EvidenceKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.EVMKeeper,
-		&app.ERC20Keeper,
 	); err != nil {
 		panic(err)
 	}
