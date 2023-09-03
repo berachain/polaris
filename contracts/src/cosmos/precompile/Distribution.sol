@@ -34,6 +34,8 @@ interface IDistributionModule {
 
     function getWithdrawEnabled() external view returns (bool);
 
+    function getWithdrawAddress(address delegtor) external view returns (address);
+
     /**
      * @dev Withdraw the rewrads accumulated by the caller(msg.sender). Returns the rewards claimed.
      * @param delegator The delegator to withdraw the rewards from.
