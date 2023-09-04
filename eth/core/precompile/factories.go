@@ -111,10 +111,10 @@ func (sf *StatefulFactory) Build(
 // This function matches each Go implementation of the precompile to the ABI's respective function.
 // It searches for the ABI function in the Go precompile contract and performs basic validation on
 // the implemented function.
-func buildIdsToMethods(si StatefulImpl, contractImpl reflect.Value) (map[string]*method, error) {
+func buildIdsToMethods(si StatefulImpl, contractImpl reflect.Value) (map[[4]byte]*method, error) {
 	precompileABI := si.ABIMethods()
 	contractImplType := contractImpl.Type()
-	idsToMethods := make(map[string]*method)
+	idsToMethods := make(map[[4]byte]*method)
 	for m := 0; m < contractImplType.NumMethod(); m++ {
 		implMethod := contractImplType.Method(m)
 
@@ -126,13 +126,14 @@ func buildIdsToMethods(si StatefulImpl, contractImpl reflect.Value) (map[string]
 			continue // nothing in the abi matches our go method.
 		}
 
+		var methodID = [4]byte(precompileABI[methodName].ID[0:4])
 		method := newMethod(si, precompileABI[methodName], implMethod)
-		idsToMethods[utils.UnsafeBytesToStr(precompileABI[methodName].ID)] = method
+		idsToMethods[methodID] = method
 	}
 
 	// verify that every abi method has a corresponding precompile implementation
 	for _, abiMethod := range precompileABI {
-		if _, found := idsToMethods[utils.UnsafeBytesToStr(abiMethod.ID)]; !found {
+		if _, found := idsToMethods[[4]byte(abiMethod.ID[:4])]; !found {
 			return nil, errorslib.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Name)
 		}
 	}
