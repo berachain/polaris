@@ -126,14 +126,13 @@ func buildIdsToMethods(si StatefulImpl, contractImpl reflect.Value) (map[[4]byte
 			continue // nothing in the abi matches our go method.
 		}
 
-		var methodID = [4]byte(precompileABI[methodName].ID[0:4])
 		method := newMethod(si, precompileABI[methodName], implMethod)
-		idsToMethods[methodID] = method
+		idsToMethods[[4]byte(precompileABI[methodName].ID)] = method
 	}
 
 	// verify that every abi method has a corresponding precompile implementation
 	for _, abiMethod := range precompileABI {
-		if _, found := idsToMethods[[4]byte(abiMethod.ID[:4])]; !found {
+		if _, found := idsToMethods[[4]byte(abiMethod.ID)]; !found {
 			return nil, errorslib.Wrap(ErrNoPrecompileMethodForABIMethod, abiMethod.Name)
 		}
 	}
