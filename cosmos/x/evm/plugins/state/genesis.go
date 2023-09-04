@@ -71,6 +71,7 @@ func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 			account.Storage = make(map[common.Hash]common.Hash)
 		}
 		account.Balance = p.GetBalance(address)
+		account.Nonce = p.GetNonce(address)
 		ethGen.Alloc[address] = account
 		return false
 	})
@@ -88,6 +89,7 @@ func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 
 		account.Code = p.GetCode(address)
 		account.Balance = p.GetBalance(address)
+		account.Nonce = p.GetNonce(address)
 		ethGen.Alloc[address] = account
 
 		return false
@@ -100,6 +102,7 @@ func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 			account = core.GenesisAccount{}
 		}
 		account.Code = p.GetCode(address)
+		account.Nonce = p.GetNonce(address)
 		ethGen.Alloc[address] = account
 
 		return false
