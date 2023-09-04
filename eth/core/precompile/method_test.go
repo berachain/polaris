@@ -64,17 +64,6 @@ var _ = Describe("Method", func() {
 	})
 })
 
-var _ = Describe("Test MethoID", func() {
-	It("should work", func() {
-		x := make([]byte, 0)
-		x = append(x, 0x12)
-		x = append(x, 0x34)
-		x = append(x, 0x56)
-		x = append(x, 0x78)
-		Expect([4]byte(x)).To(Equal([4]byte{0x12, 0x34, 0x56, 0x78}))
-	})
-})
-
 // MOCKS BELOW.
 
 type mockStatefulWithMethod struct {
