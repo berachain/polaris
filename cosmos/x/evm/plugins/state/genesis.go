@@ -48,6 +48,9 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 				p.SetState(address, k, v)
 			}
 		}
+		if account.Nonce != 0 {
+			p.SetNonce(address, account.Nonce)
+		}
 	}
 	p.Finalize()
 }
@@ -85,6 +88,18 @@ func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 
 		account.Code = p.GetCode(address)
 		account.Balance = p.GetBalance(address)
+		ethGen.Alloc[address] = account
+
+		return false
+	})
+
+	// Iterate Code and set the genesis accounts.
+	p.IterateCode(func(address common.Address, codeHash common.Hash) bool {
+		account, ok := ethGen.Alloc[address]
+		if !ok {
+			account = core.GenesisAccount{}
+		}
+		account.Code = p.GetCode(address)
 		ethGen.Alloc[address] = account
 
 		return false

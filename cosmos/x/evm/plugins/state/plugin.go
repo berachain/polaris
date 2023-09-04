@@ -363,6 +363,27 @@ func (p *plugin) SetCode(addr common.Address, code []byte) {
 	}
 }
 
+// IterateCode iterates over all the contract code, and calls the given function.
+func (p *plugin) IterateCode(fn func(addr common.Address, value common.Hash) bool) {
+	it := storetypes.KVStorePrefixIterator(
+		p.cms.GetKVStore(p.storeKey),
+		[]byte{types.CodeHashKeyPrefix},
+	)
+	defer func() {
+		if err := it.Close(); err != nil {
+			p.savedErr = err
+		}
+	}()
+
+	for ; it.Valid(); it.Next() {
+		k := it.Key()
+		addr := AddressFromCodeHashKey(k)
+		if fn(addr, p.GetCodeHash(addr)) {
+			break
+		}
+	}
+}
+
 // =============================================================================
 // Storage
 // =============================================================================
