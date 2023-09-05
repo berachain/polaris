@@ -96,6 +96,33 @@ func (c *Contract) SetWithdrawAddress(
 	return err == nil, err
 }
 
+// GetWithdrawAddress is the precompile contract method for the `getWithdrawAddress(address)` method.
+func (c *Contract) GetWithdrawAddress(
+	ctx context.Context,
+	delegator common.Address,
+) (common.Address, error) {
+	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	resp, err := c.querier.DelegatorWithdrawAddress(
+		ctx,
+		&distributiontypes.QueryDelegatorWithdrawAddressRequest{
+			DelegatorAddress: delAddr,
+		},
+	)
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	withdrawAddr, err := cosmlib.EthAddressFromString(c.addressCodec, resp.WithdrawAddress)
+	if err != nil {
+		return common.Address{}, err
+	}
+	return withdrawAddr, nil
+}
+
 // GetWithdrawEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
 func (c *Contract) GetWithdrawEnabled(
 	ctx context.Context,
