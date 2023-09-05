@@ -41,7 +41,7 @@ type statefulContainer struct {
 	// method signatures) to native precompile functions. The signature key is provided by the
 	// precompile creator and must exactly match the signature in the geth abi.Method.Sig field
 	// (geth abi format). Please check core/precompile/container/method.go for more information.
-	idsToMethods map[[4]byte]*method
+	idsToMethods map[methodID]*method
 	// receive      *Method // TODO: implement
 	// fallback     *Method // TODO: implement
 
@@ -50,7 +50,7 @@ type statefulContainer struct {
 // NewStatefulContainer creates and returns a new `statefulContainer` with the given method ids
 // precompile functions map.
 func NewStatefulContainer(
-	si StatefulImpl, idsToMethods map[[4]byte]*method,
+	si StatefulImpl, idsToMethods map[methodID]*method,
 ) (vm.PrecompileContainer, error) {
 	if idsToMethods == nil {
 		return nil, ErrContainerHasNoMethods
@@ -77,9 +77,7 @@ func (sc *statefulContainer) Run(
 	}
 
 	// Extract the method ID from the input and load the method.
-
-	methodID := input[:NumBytesMethodID]
-	method, found := sc.idsToMethods[[4]byte(methodID)]
+	method, found := sc.idsToMethods[methodID(input)]
 	if !found {
 		return nil, ErrMethodNotFound
 	}

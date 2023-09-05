@@ -71,7 +71,7 @@ var _ = Describe("Test MethoID", func() {
 		x = append(x, 0x34)
 		x = append(x, 0x56)
 		x = append(x, 0x78)
-		Expect([4]byte(x)).To(Equal([4]byte{0x12, 0x34, 0x56, 0x78}))
+		Expect(methodID(x)).To(Equal(methodID{0x12, 0x34, 0x56, 0x78}))
 	})
 })
 
