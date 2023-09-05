@@ -30,14 +30,8 @@ jobs:
   ci:
     strategy:
       matrix:
-        args:
-          [
-            "build",
-            "lint",
-            "testunitrace",
-            "testunitcover",
-          ]
-        os: [ubuntu-latest]
+        args: ["build", "lint", "testunitrace", "testunitcover"]
+        os: [polaris-linux-latest]
         go-version: [1.21.0]
     runs-on: ${{ matrix.os }}
     steps:
@@ -77,8 +71,8 @@ jobs:
         if: ${{ matrix.args == 'testunitcover' }}
 
   codecov:
-    name: codecov(uploader, ubuntu-latest)
-    runs-on: ubuntu-latest
+    name: codecov(uploader, polaris-linux-latest)
+    runs-on: polaris-linux-latest
     needs: ci
     steps:
       - name: Checkout
