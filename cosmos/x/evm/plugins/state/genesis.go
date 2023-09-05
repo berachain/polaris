@@ -103,6 +103,9 @@ func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 		}
 		account.Code = p.GetCode(address)
 		account.Nonce = p.GetNonce(address)
+		if account.Balance == nil {
+			account.Balance = big.NewInt(0)
+		}
 		ethGen.Alloc[address] = account
 
 		return false
