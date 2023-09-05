@@ -86,7 +86,7 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	}
 }
 
-func (c *Contract) ValAddressFromConsAddress(
+func (c *Contract) GetValAddressFromConsAddress(
 	ctx context.Context,
 	consAddress []byte,
 ) (common.Address, error) {

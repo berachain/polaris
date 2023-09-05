@@ -29,7 +29,7 @@ require (
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/golang/mock v1.6.0
-	github.com/golang/protobuf v1.5.3
+	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/holiman/uint256 v1.2.3 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
@@ -39,13 +39,13 @@ require (
 	github.com/spf13/viper v1.16.0 // indirect
 	github.com/tidwall/btree v1.6.0
 	google.golang.org/genproto v0.0.0-20230803162519-f966b187b2e5 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20230726155614-23370e0ffb3e
+	google.golang.org/genproto/googleapis/api v0.0.0-20230726155614-23370e0ffb3e // indirect
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230827184022-e3cec7a2c178
-	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230827184022-e3cec7a2c178
-	pkg.berachain.dev/polaris/eth v0.0.0-20230827184022-e3cec7a2c178
-	pkg.berachain.dev/polaris/lib v0.0.0-20230827184022-e3cec7a2c178
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230830221145-a6c6454d3697
+	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230830221145-a6c6454d3697
+	pkg.berachain.dev/polaris/eth v0.0.0-20230830221145-a6c6454d3697
+	pkg.berachain.dev/polaris/lib v0.0.0-20230830221145-a6c6454d3697
 )
 
 require (
