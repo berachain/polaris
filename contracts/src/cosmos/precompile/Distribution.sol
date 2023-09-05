@@ -32,7 +32,16 @@ interface IDistributionModule {
      */
     function setWithdrawAddress(address withdrawAddress) external returns (bool);
 
+    /**
+     * @dev Returns whether withdrawing delegation rewards is enabled.
+     */
     function getWithdrawEnabled() external view returns (bool);
+
+    /**
+     * @dev Returns the address that will receive the deligation rewards.
+     * @param delegator the delegator for which the withdraw address is returned.
+     */
+    function getWithdrawAddress(address delegator) external view returns (address);
 
     /**
      * @dev Withdraw the rewrads accumulated by the caller(msg.sender). Returns the rewards claimed.

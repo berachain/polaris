@@ -18,18 +18,20 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-# This code is licensed under the terms of the MIT license.
+# This code is licensed under the terms of the MIT license https://opensource.org/license/mit
+# Copyright (c) 2021 Marat Reymers
 
-## Golden config for golangci-lint v1.50.1
+## Golden config for golangci-lint v1.54.2
 #
 # This is the best config for golangci-lint based on my experience and opinion.
 # It is very strict, but not extremely strict.
-# Feel free to adopt and change it for your needs.
+# Feel free to adapt and change it for your needs.
 
 run:
   # Timeout for analysis, e.g. 30s, 5m.
   # Default: 1m
   timeout: 3m
+
 
 # This file contains only configs which differ from defaults.
 # All possible options can be found here https://github.com/golangci/golangci-lint/blob/master/.golangci.reference.yml
@@ -94,6 +96,7 @@ linters-settings:
     # Default: 40
     statements: 50
 
+
   gci:
     sections:
       - standard # Standard section: captures all standard packages.
@@ -109,7 +112,7 @@ linters-settings:
     skip-generated: true
 
   gocognit:
-    # Minimal code complexity to report
+    # Minimal code complexity to report.
     # Default: 30 (but we recommend 10-20)
     min-complexity: 20
 
@@ -143,24 +146,6 @@ linters-settings:
       - prometheus.ExponentialBucketsRange
       - prometheus.LinearBuckets
 
-  gomodguard:
-    blocked:
-      # List of blocked modules.
-      # Default: []
-      modules:
-        - github.com/golang/protobuf:
-            recommendations:
-              - google.golang.org/protobuf
-            reason: "see https://developers.google.com/protocol-buffers/docs/reference/go/faq#modules"
-        - github.com/satori/go.uuid:
-            recommendations:
-              - github.com/google/uuid
-            reason: "satori's package is not maintained"
-        - github.com/gofrs/uuid:
-            recommendations:
-              - github.com/google/uuid
-            reason: "gofrs' package is not go module"
-
   govet:
     # Enable all analyzers.
     # Default: false
@@ -191,7 +176,7 @@ linters-settings:
   nolintlint:
     # Exclude following linters from requiring an explanation.
     # Default: []
-    allow-no-explanation: [funlen, gocognit, lll]
+    allow-no-explanation: [ funlen, gocognit, lll ]
     # Enable to require an explanation of nonzero length after each nolint directive.
     # Default: false
     require-explanation: true
@@ -247,10 +232,10 @@ linters:
     - gocyclo # computes and checks the cyclomatic complexity of functions
     - godot # checks if comments end in a period
     - goheader # checks is file header matches to pattern
-    # - goimports # in addition to fixing imports, goimports also formats your code in the same style as gofmt
+    - goimports # in addition to fixing imports, goimports also formats your code in the same style as gofmt
     - gomnd # detects magic numbers
     # - gomoddirectives # manages the use of 'replace', 'retract', and 'excludes' directives in go.mod
-    - gomodguard # allow and block lists linter for direct Go module dependencies. This is different from depguard where there are different block types for example version constraints and module recommendations
+    # - gomodguard # allow and block lists linter for direct Go module dependencies. This is different from depguard where there are different block types for example version constraints and module recommendations
     - goprintffuncname # checks that printf-like functions are named with f at the end
     - gosec # inspects source code for security problems
     - importas # enforces consistent import aliases
@@ -284,14 +269,14 @@ linters:
     - whitespace # detects leading and trailing whitespace
 
     ## you may want to enable
-    #- decorder # checks declaration order and count of types, constants, variables and functions
+    - decorder # checks declaration order and count of types, constants, variables and functions
     #- exhaustruct # checks if all structure fields are initialized
-    #- gci # controls golang package import order and makes it always deterministic
+    - gci # controls golang package import order and makes it always deterministic
     #- godox # detects FIXME, TODO and other comment keywords
-    #- goheader # checks is file header matches to pattern
+    - goheader # checks is file header matches to pattern
     #- interfacebloat # checks the number of methods inside an interface
     #- ireturn # accept interfaces, return concrete types
-    #- prealloc # [premature optimization, but can be used in some cases] finds slice declarations that could potentially be preallocated
+    - prealloc # [premature optimization, but can be used in some cases] finds slice declarations that could potentially be preallocated
     #- varnamelen # [great idea, but too many false positives] checks that the length of a variable's name matches its scope
     #- wrapcheck # checks that errors returned from external packages are wrapped
 
