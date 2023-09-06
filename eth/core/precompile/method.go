@@ -32,7 +32,7 @@ import (
 )
 
 // methodID is a fixed length byte array that represents the method ID of a precompile method.
-type methodID = [NumBytesMethodID]byte
+type methodID [NumBytesMethodID]byte
 
 /**
  * 	Welcome to Stateful Precompiled Contracts! To build a stateful precompile, you must implement
