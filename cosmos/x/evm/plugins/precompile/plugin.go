@@ -148,6 +148,9 @@ func (p *plugin) Run(
 	defer RecoveryHandler(&err)
 
 	// use a precompile-specific gas meter for dynamic consumption
+	if pc.RequiredGas(input) > suppliedGas {
+		return nil, 0, vm.ErrOutOfGas
+	}
 	gm := storetypes.NewGasMeter(suppliedGas)
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
