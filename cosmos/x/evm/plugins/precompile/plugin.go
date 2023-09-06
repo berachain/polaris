@@ -147,10 +147,11 @@ func (p *plugin) Run(
 	// recover from any WriteProtection or OutOfGas panic for the EVM to handle as a vm error
 	defer RecoveryHandler(&err)
 
-	// use a precompile-specific gas meter for dynamic consumption
+	// handle edge case when not enough gas is provided for even the required gas
 	if pc.RequiredGas(input) > suppliedGas {
 		return nil, 0, vm.ErrOutOfGas
 	}
+	// use a precompile-specific gas meter for dynamic consumption
 	gm := storetypes.NewGasMeter(suppliedGas)
 	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
 
