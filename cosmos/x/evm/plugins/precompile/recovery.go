@@ -42,6 +42,8 @@ func RecoveryHandler(err *error) {
 		case utils.Implements[storetypes.ErrorGasOverflow](panicked):
 			fallthrough
 		case utils.Implements[storetypes.ErrorOutOfGas](panicked):
+			fallthrough
+		case utils.Implements[storetypes.ErrorNegativeGasConsumed](panicked):
 			*err = vm.ErrOutOfGas
 		default:
 			// any other type of panic value is ignored and passed up the call stack
