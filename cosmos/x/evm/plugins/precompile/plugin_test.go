@@ -101,14 +101,16 @@ var _ = Describe("plugin", func() {
 	})
 
 	It("should catch panics and return a geth error type", func() {
-		_, remainingGas, err := p.Run(e, &mockPanicking{err: storetypes.ErrorNegativeGasConsumed{Descriptor: "henlo"}}, []byte{}, addr, new(big.Int), 30, false)
+		_, remainingGas, err := p.Run(e,
+			&mockPanicking{err: storetypes.ErrorNegativeGasConsumed{Descriptor: "henlo"}},
+			[]byte{}, addr, new(big.Int), 30, false)
 		Expect(err).To(MatchError(vm.ErrOutOfGas.Error()))
 		Expect(remainingGas).To(Equal(uint64(0)))
 	})
 
-	It("should catch panics and propogate", func() {
+	It("should catch panics and propagate", func() {
 		Expect(func() {
-			p.Run(e, &mockPanicking{
+			_, _, _ = p.Run(e, &mockPanicking{
 				err: errors.New("error"),
 			}, []byte{}, addr, new(big.Int), 30, false)
 		},
@@ -201,17 +203,17 @@ type mockPanicking struct {
 	err any
 } // at addr 1
 
-func (ms *mockPanicking) RegistryKey() common.Address {
+func (mp *mockPanicking) RegistryKey() common.Address {
 	return addr
 }
 
-func (ms *mockPanicking) Run(
-	ctx context.Context, _ vm.PrecompileEVM, _ []byte,
+func (mp *mockPanicking) Run(
+	_ context.Context, _ vm.PrecompileEVM, _ []byte,
 	_ common.Address, _ *big.Int,
 ) ([]byte, error) {
-	panic(ms.err)
+	panic(mp.err)
 }
 
-func (msf *mockPanicking) RequiredGas(_ []byte) uint64 {
+func (*mockPanicking) RequiredGas(_ []byte) uint64 {
 	return 1
 }
