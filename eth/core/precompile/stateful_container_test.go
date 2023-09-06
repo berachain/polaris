@@ -29,7 +29,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
-	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -159,33 +158,33 @@ var (
 	contractFuncStrInputFunc, _  = reflect.TypeOf(mockStatefulDummy).MethodByName("ContractFuncStrInput")
 	overloadedFunc, _            = reflect.TypeOf(mockStatefulDummy).MethodByName("OverloadedFunc")
 	overloadedFunc0, _           = reflect.TypeOf(mockStatefulDummy).MethodByName("OverloadedFunc0")
-	mockIdsToMethods             = map[string]*method{
-		utils.UnsafeBytesToStr(getOutputABI.ID): newMethod(
+	mockIdsToMethods             = map[methodID]*method{
+		methodID(getOutputABI.ID): newMethod(
 			mockStatefulDummy,
 			getOutputABI,
 			getOutputFunc,
 		),
-		utils.UnsafeBytesToStr(getOutputPartialABI.ID): newMethod(
+		methodID(getOutputPartialABI.ID): newMethod(
 			mockStatefulDummy,
 			getOutputPartialABI,
 			getOutputPartialFunc,
 		),
-		utils.UnsafeBytesToStr(contractFuncAddrABI.ID): newMethod(
+		methodID(contractFuncAddrABI.ID): newMethod(
 			mockStatefulDummy,
 			contractFuncAddrABI,
 			contractFuncAddrInputFunc,
 		),
-		utils.UnsafeBytesToStr(contractFuncStrABI.ID): newMethod(
+		methodID(contractFuncStrABI.ID): newMethod(
 			mockStatefulDummy,
 			contractFuncStrABI,
 			contractFuncStrInputFunc,
 		),
-		utils.UnsafeBytesToStr(overloadedFuncABI.ID): newMethod(
+		methodID(overloadedFuncABI.ID): newMethod(
 			mockStatefulDummy,
 			overloadedFuncABI,
 			overloadedFunc,
 		),
-		utils.UnsafeBytesToStr(contractFuncStrABI.ID): newMethod(
+		methodID(contractFuncStrABI.ID): newMethod(
 			mockStatefulDummy,
 			overloadedFunc0ABI,
 			overloadedFunc0,
