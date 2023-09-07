@@ -122,7 +122,7 @@ echo $DA_BLOCK_HEIGHT
 NAMESPACE_ID=$(openssl rand -hex 10)
 echo $NAMESPACE_ID
 
-AUTH_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJwdWJsaWMiLCJyZWFkIiwid3JpdGUiLCJhZG1pbiJdfQ.q7G-zutgxTyM3dGX_wyTZBqizzOpAlpF3S1GqdFavDE"
+AUTH_TOKEN="$(docker exec $(docker ps -q) celestia bridge --node.store /bridge  auth admin)"
 
 #$(echo $RANDOM | md5sum | head -c 16; echo;)
 
