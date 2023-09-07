@@ -82,11 +82,12 @@ func (sc *statefulContainer) Run(
 		return nil, ErrMethodNotFound
 	}
 
-	// If the method is read-only (view/pure), snapshot so any state changes after the call are not
-	// persisted.
+	// If the method is read-only (view/pure), snapshot so any state changes made during the call
+	// are not persisted.
 	if method.abiMethod.IsConstant() {
-		snapshot := evm.GetStateDB().Snapshot()
-		defer func() { evm.GetStateDB().RevertToSnapshot(snapshot) }()
+		sdb := evm.GetStateDB()
+		snapshot := sdb.Snapshot()
+		defer func() { sdb.RevertToSnapshot(snapshot) }()
 	}
 
 	// Execute the method with the reflected ctx and raw input
