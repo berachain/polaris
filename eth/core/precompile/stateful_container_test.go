@@ -115,6 +115,7 @@ var _ = Describe("Stateful Container", func() {
 			var inputs []byte
 			inputs, err = getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
+
 			var ret []byte
 			ret, err = sc.Run(
 				ctx,
@@ -124,6 +125,7 @@ var _ = Describe("Stateful Container", func() {
 				vm.UnwrapPolarContext(ctx).MsgValue(),
 			)
 			Expect(err).ToNot(HaveOccurred())
+
 			var outputs []interface{}
 			outputs, err = getOutputABI.Outputs.Unpack(ret)
 			Expect(err).ToNot(HaveOccurred())
@@ -137,6 +139,10 @@ var _ = Describe("Stateful Container", func() {
 			Expect(
 				reflect.ValueOf(outputs[0]).Index(0).FieldByName("TimeStamp").Interface().(string),
 			).To(Equal("string"))
+
+			// view method should not be able to add logs to the statedb
+			Expect(vm.UnwrapPolarContext(ctx).Evm().GetStateDB().GetLogs(
+				common.Hash{}, 0, common.Hash{})).To(BeEmpty())
 		})
 	})
 })

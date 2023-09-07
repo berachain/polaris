@@ -43,6 +43,8 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 	pendingNonces := make(map[common.Address]uint64)
 	pending := make(map[common.Address]coretypes.Transactions)
 
+	etp.mu.RLock()
+	defer etp.mu.RUnlock()
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
 		tx := iter.Tx()
 		if ethTx := evmtypes.GetAsEthTx(tx); ethTx != nil {
@@ -84,6 +86,8 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 	queued := make(map[common.Address]coretypes.Transactions)
 
 	// After the lock is released we can iterate over the mempool.
+	etp.mu.RLock()
+	defer etp.mu.RUnlock()
 	for iter := etp.PriorityNonceMempool.Select(context.Background(), nil); iter != nil; iter = iter.Next() {
 		if ethTx := evmtypes.GetAsEthTx(iter.Tx()); ethTx != nil {
 			addr := coretypes.GetSender(ethTx)
@@ -122,6 +126,8 @@ func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
 //
 // NOT THREAD SAFE.
 func (etp *EthTxPool) Nonce(addr common.Address) uint64 {
+	etp.mu.RLock()
+	defer etp.mu.RUnlock()
 	pendingNonces := make(map[common.Address]uint64)
 
 	// search for the last pending tx for the given address
