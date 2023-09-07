@@ -83,7 +83,8 @@ func (sc *statefulContainer) Run(
 	}
 
 	// If the method is read-only (view/pure), snapshot so any state changes made during the call
-	// are not persisted.
+	// are not persisted. NOTE: this may not be the best place to handle state mutability, but it
+	// gets the job done.
 	if method.abiMethod.IsConstant() {
 		sdb := evm.GetStateDB()
 		snapshot := sdb.Snapshot()
