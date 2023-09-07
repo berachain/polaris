@@ -129,6 +129,12 @@ func (p *plugin) Run(
 	ms := utils.MustGetAs[MultiStore](ctx.MultiStore())
 	cem := utils.MustGetAs[state.ControllableEventManager](ctx.EventManager())
 
+	requiredGas := pc.RequiredGas(input)
+	// handle edge case when not enough gas is provided for even the required gas
+	if requiredGas > suppliedGas {
+		return nil, 0, vm.ErrOutOfGas
+	}
+
 	// make sure the readOnly is only set if we aren't in readOnly yet, which also makes sure that
 	// the readOnly flag isn't removed for child calls (taken from geth core/vm/interepreter.go)
 	if readOnly && !ms.IsReadOnly() {
@@ -149,7 +155,7 @@ func (p *plugin) Run(
 
 	// use a precompile-specific gas meter for dynamic consumption
 	gm := storetypes.NewGasMeter(suppliedGas)
-	gm.ConsumeGas(pc.RequiredGas(input), "RequiredGas")
+	gm.ConsumeGas(requiredGas, "precompile required gas")
 
 	// run the precompile container
 	ret, err = pc.Run(
