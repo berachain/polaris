@@ -29,13 +29,14 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// RecoveryHandler is used to recover from any WriteProtection and OutOfGas panics that occur
-// during precompile execution; the handler modifies the given error to be returned to the caller.
-// Any other type of panic is propogated up to the caller.
+// RecoveryHandler is used to recover from any WriteProtection and gas consumption panics that
+// occur during precompile execution; the handler modifies the given error to be returned to the
+// caller. Any other type of panic is propogated up to the caller via panic.
 func RecoveryHandler(err *error) {
 	if panicked := recover(); panicked != nil {
 		// NOTE: this only propagates an error back to the EVM if the type of the given panic
-		// is ErrWriteProtection, Cosmos ErrorOutOfGas, or Cosmos ErrorGasOverflow
+		// is ErrWriteProtection, Cosmos ErrorOutOfGas, Cosmos ErrorGasOverflow, or Cosmos
+		// ErrorNegativeGasConsumed.
 		switch {
 		case utils.Implements[error](panicked) && errors.Is(utils.MustGetAs[error](panicked), vm.ErrWriteProtection):
 			*err = vm.ErrWriteProtection
