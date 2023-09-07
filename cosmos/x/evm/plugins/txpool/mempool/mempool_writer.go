@@ -43,7 +43,7 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	}
 
 	// Call the base mempool's Insert method
-	if err := etp.PriorityNonceMempool.Insert(ctx, tx); err != nil {
+	if err = etp.PriorityNonceMempool.Insert(ctx, tx); err != nil {
 		return err
 	}
 
