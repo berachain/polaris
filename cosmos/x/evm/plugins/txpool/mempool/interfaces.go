@@ -20,11 +20,17 @@
 
 package mempool
 
-import "pkg.berachain.dev/polaris/eth/common"
+import (
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+)
 
 type (
 	// NonceRetriever is used to retrieve a nonce from the db.
 	NonceRetriever interface {
+		// used to directly retrieve a nonce during queries.
 		GetNonce(addr common.Address) uint64
+		// used to verify nonce during insertion into mempool.
+		StateAtBlockNumber(number uint64) (core.StatePlugin, error)
 	}
 )
