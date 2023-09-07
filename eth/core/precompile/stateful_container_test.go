@@ -111,7 +111,7 @@ var _ = Describe("Stateful Container", func() {
 			))
 		})
 
-		FIt("should return properly for valid method calls", func() {
+		It("should return properly for valid method calls", func() {
 			var inputs []byte
 			inputs, err = getOutputABI.Inputs.Pack("string")
 			Expect(err).ToNot(HaveOccurred())
