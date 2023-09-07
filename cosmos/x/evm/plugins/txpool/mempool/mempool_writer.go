@@ -36,8 +36,14 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	etp.mu.Lock()
 	defer etp.mu.Unlock()
 
+	// TODO: do this once per block. This is a temporary solution.
+	sp, err := etp.nr.StateAtBlockNumber(uint64(sdk.UnwrapSDKContext(ctx).BlockHeight()))
+	if err != nil {
+		return err
+	}
+
 	// Call the base mempool's Insert method
-	if err := etp.PriorityNonceMempool.Insert(ctx, tx); err != nil {
+	if err = etp.PriorityNonceMempool.Insert(ctx, tx); err != nil {
 		return err
 	}
 
@@ -47,7 +53,7 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 		nonce := ethTx.Nonce()
 
 		// Reject txs with a nonce lower than the nonce reported by the statedb.
-		if sdbNonce := etp.nr.GetNonce(sender); sdbNonce > nonce {
+		if sdbNonce := sp.GetNonce(sender); sdbNonce > nonce {
 			return errorslib.Wrap(etp.PriorityNonceMempool.Remove(tx), "nonce too low")
 		}
 

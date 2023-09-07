@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/ecdsa"
+	"errors"
 	"math/big"
 	"sync"
 	"testing"
@@ -40,7 +41,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
@@ -56,7 +56,7 @@ func TestEthPool(t *testing.T) {
 
 var (
 	ctx     sdk.Context
-	sp      core.StatePlugin
+	sp      state.Plugin
 	etp     *EthTxPool
 	key1, _ = crypto.GenerateEthKey()
 	addr1   = crypto.PubkeyToAddress(key1.PublicKey)
@@ -70,6 +70,7 @@ var _ = Describe("EthTxPool", func() {
 		sCtx, ak, _, _ := testutil.SetupMinimalKeepers()
 		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
 		ctx = sCtx
+		sp.SetQueryContextFn(mockQueryContext)
 		sp.Reset(ctx)
 		sp.SetNonce(addr1, 1)
 		sp.SetNonce(addr2, 2)
@@ -491,3 +492,18 @@ func (m *mockSdkTx) GetSigners() ([][]byte, error)                  { return m.s
 func (m *mockSdkTx) GetPubKeys() ([]cryptotypes.PubKey, error) { return m.pubKeys, nil }
 
 func (m *mockSdkTx) GetSignaturesV2() ([]signing.SignatureV2, error) { return m.signatures, nil }
+
+func mockQueryContext(height int64, _ bool) (sdk.Context, error) {
+	if height <= 0 {
+		return sdk.Context{}, errors.New("cannot query context at this height")
+	}
+	newCtx := testutil.NewContext().WithBlockHeight(height)
+	header := &coretypes.Header{Number: big.NewInt(height)}
+	headerBz, err := coretypes.MarshalHeader(header)
+	if err != nil {
+		return sdk.Context{}, err
+	}
+	newCtx.KVStore(testutil.EvmKey).Set([]byte{evmtypes.HeaderKey}, headerBz)
+	newCtx.KVStore(testutil.EvmKey).Set(header.Hash().Bytes(), header.Number.Bytes())
+	return newCtx, nil
+}
