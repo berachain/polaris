@@ -33,6 +33,7 @@ import (
 
 // NewEmptyStateDB creates a new `StateDBMock` instance.
 func NewEmptyStateDB() *PolarisStateDBMock {
+	logs := []*types.Log{}
 	mockedPolarisStateDB := &PolarisStateDBMock{
 		AddAddressToAccessListFunc: func(addr common.Address) {
 
@@ -41,7 +42,7 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 
 		},
 		AddLogFunc: func(log *types.Log) {
-
+			logs = append(logs, log)
 		},
 		AddPreimageFunc: func(hash common.Hash, bytes []byte) {
 
@@ -89,7 +90,7 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 			return common.Hash{}
 		},
 		GetLogsFunc: func(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log {
-			return []*types.Log{}
+			return logs
 		},
 		GetNonceFunc: func(address common.Address) uint64 {
 			return 0
@@ -110,7 +111,7 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 			// no-op
 		},
 		RevertToSnapshotFunc: func(n int) {
-
+			logs = []*types.Log{}
 		},
 		SetCodeFunc: func(address common.Address, bytes []byte) {
 
@@ -137,11 +138,11 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		},
 	}
 	mockedPolarisStateDB.LogsFunc = func() []*types.Log {
-		logs := []*types.Log{}
+		ret := []*types.Log{}
 		for _, l := range mockedPolarisStateDB.AddLogCalls() {
-			logs = append(logs, l.Log)
+			ret = append(ret, l.Log)
 		}
-		return logs
+		return ret
 	}
 	return mockedPolarisStateDB
 }
