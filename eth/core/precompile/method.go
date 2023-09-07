@@ -31,6 +31,9 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
+// methodID is a fixed length byte array that represents the method ID of a precompile method.
+type methodID [NumBytesMethodID]byte
+
 /**
  * 	Welcome to Stateful Precompiled Contracts! To build a stateful precompile, you must implement
  *  the `StatefulImpl` interface in `interfaces.go`; below are the suggested steps to

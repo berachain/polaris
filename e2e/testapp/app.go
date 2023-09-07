@@ -63,7 +63,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
-	erc20keeper "pkg.berachain.dev/polaris/cosmos/x/erc20/keeper"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
@@ -104,8 +103,7 @@ type SimApp struct {
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
 	// polaris keepers
-	EVMKeeper   *evmkeeper.Keeper
-	ERC20Keeper *erc20keeper.Keeper
+	EVMKeeper *evmkeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -129,6 +127,7 @@ func NewPolarisApp(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
+	bech32Prefix string,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *SimApp {
@@ -138,7 +137,7 @@ func NewPolarisApp(
 		ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
-			AppConfig,
+			MakeAppConfig(bech32Prefix),
 			depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners),
 			depinject.Supply(
 				// supply the application options
@@ -193,7 +192,6 @@ func NewPolarisApp(
 		&app.EvidenceKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.EVMKeeper,
-		&app.ERC20Keeper,
 	); err != nil {
 		panic(err)
 	}
@@ -369,6 +367,13 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
+}
+
+func (app *SimApp) Close() error {
+	if pl := app.EVMKeeper.GetPolaris(); pl != nil {
+		return pl.StopServices()
+	}
+	return nil
 }
 
 // GetMaccPerms returns a copy of the module account permissions

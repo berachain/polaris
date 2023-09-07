@@ -32,6 +32,7 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	governancekeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -61,6 +62,7 @@ func TestGovernancePrecompile(t *testing.T) {
 var _ = Describe("Governance Precompile", func() {
 	var (
 		sdkCtx   sdk.Context
+		ak       authkeeper.AccountKeeperI
 		bk       bankkeeper.Keeper
 		gk       *governancekeeper.Keeper
 		caller   sdk.AccAddress
@@ -75,8 +77,9 @@ var _ = Describe("Governance Precompile", func() {
 		mockCtrl = gomock.NewController(t)
 		types.SetupCosmosConfig()
 		caller = testutils.Alice.Bytes()
-		sdkCtx, bk, gk = testutil.Setup(mockCtrl, caller)
+		sdkCtx, ak, bk, gk = testutil.Setup(mockCtrl, caller)
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
+			ak,
 			governancekeeper.NewMsgServerImpl(gk),
 			governancekeeper.NewQueryServer(gk),
 		))
@@ -97,7 +100,7 @@ var _ = Describe("Governance Precompile", func() {
 	It("Should have precompile tests and custom value decoders", func() {
 		_, err := sf.Build(contract, nil)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(contract.CustomValueDecoders()).To(HaveLen(1))
+		Expect(contract.CustomValueDecoders()).To(HaveLen(2))
 	})
 
 	When("Unmarshal message and return any", func() {

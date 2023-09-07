@@ -31,7 +31,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
-	"pkg.berachain.dev/polaris/eth/common"
 	libutils "pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -95,14 +94,6 @@ var _ = Describe("Attributes", func() {
 			Expect(err).ToNot(HaveOccurred())
 			int64Val := libutils.MustGetAs[int64](gethValue)
 			Expect(int64Val).To(Equal(int64(55)))
-		})
-
-		It("should correctly convert AccAddress to common.Address", func() {
-			accAddr := sdk.AccAddress([]byte("alice"))
-			gethValue, err := ConvertAccAddressFromBech32(accAddr.String())
-			Expect(err).ToNot(HaveOccurred())
-			accAddrVal := libutils.MustGetAs[common.Address](gethValue)
-			Expect(accAddrVal).To(Equal(common.BytesToAddress(accAddr)))
 		})
 
 		It("should correctly convert string to uint64", func() {

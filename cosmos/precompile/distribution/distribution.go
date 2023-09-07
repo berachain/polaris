@@ -23,7 +23,8 @@ package distribution
 import (
 	"context"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/core/address"
+
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
@@ -39,29 +40,35 @@ import (
 type Contract struct {
 	ethprecompile.BaseContract
 
-	vs        staking.ValidatorStore
-	msgServer distributiontypes.MsgServer
-	querier   distributiontypes.QueryServer
+	addressCodec address.Codec
+	vs           staking.ValidatorStore
+	msgServer    distributiontypes.MsgServer
+	querier      distributiontypes.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the distribution module precompile contract.
 func NewPrecompileContract(
-	vs staking.ValidatorStore, m distributiontypes.MsgServer, q distributiontypes.QueryServer,
+	ak cosmlib.CodecProvider,
+	vs staking.ValidatorStore,
+	m distributiontypes.MsgServer,
+	q distributiontypes.QueryServer,
 ) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.DistributionModuleMetaData.ABI,
 			common.BytesToAddress([]byte{0x69}),
 		),
-		vs:        vs,
-		msgServer: m,
-		querier:   q,
+		addressCodec: ak.AddressCodec(),
+		vs:           vs,
+		msgServer:    m,
+		querier:      q,
 	}
 }
 
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		distributiontypes.AttributeKeyValidator: c.ConvertValAddressFromBech32,
+		distributiontypes.AttributeKeyValidator:       c.ConvertValAddressFromString,
+		distributiontypes.AttributeKeyWithdrawAddress: c.ConvertAccAddressFromString,
 	}
 }
 
@@ -70,18 +77,57 @@ func (c *Contract) SetWithdrawAddress(
 	ctx context.Context,
 	withdrawAddress common.Address,
 ) (bool, error) {
-	return c.setWithdrawAddressHelper(
-		ctx,
-		sdk.AccAddress(vm.UnwrapPolarContext(ctx).MsgSender().Bytes()),
-		sdk.AccAddress(withdrawAddress.Bytes()),
+	delAddr, err := cosmlib.StringFromEthAddress(
+		c.addressCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
 	)
+	if err != nil {
+		return false, err
+	}
+	withdrawAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, withdrawAddress)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = c.msgServer.SetWithdrawAddress(ctx, &distributiontypes.MsgSetWithdrawAddress{
+		DelegatorAddress: delAddr,
+		WithdrawAddress:  withdrawAddr,
+	})
+	return err == nil, err
+}
+
+// GetWithdrawAddress is the precompile contract method for the `getWithdrawAddress(address)` method.
+func (c *Contract) GetWithdrawAddress(
+	ctx context.Context,
+	delegator common.Address,
+) (common.Address, error) {
+	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	resp, err := c.querier.DelegatorWithdrawAddress(
+		ctx,
+		&distributiontypes.QueryDelegatorWithdrawAddressRequest{
+			DelegatorAddress: delAddr,
+		},
+	)
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	withdrawAddr, err := cosmlib.EthAddressFromString(c.addressCodec, resp.WithdrawAddress)
+	if err != nil {
+		return common.Address{}, err
+	}
+	return withdrawAddr, nil
 }
 
 // GetWithdrawEnabled is the precompile contract method for the `getWithdrawEnabled()` method.
 func (c *Contract) GetWithdrawEnabled(
 	ctx context.Context,
 ) (bool, error) {
-	return c.getWithdrawAddrEnabled(ctx)
+	res, err := c.querier.Params(ctx, &distributiontypes.QueryParamsRequest{})
+	return res.Params.WithdrawAddrEnabled, err
 }
 
 // WithdrawDelegatorReward is the precompile contract method for the
@@ -91,16 +137,118 @@ func (c *Contract) WithdrawDelegatorReward(
 	delegator common.Address,
 	validator common.Address,
 ) ([]lib.CosmosCoin, error) {
-	return c.withdrawDelegatorRewardsHelper(
-		ctx,
-		sdk.AccAddress(delegator.Bytes()),
-		sdk.ValAddress(validator.Bytes()),
-	)
+	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
+	if err != nil {
+		return nil, err
+	}
+	valAddr, err := cosmlib.StringFromEthAddress(c.vs.ValidatorAddressCodec(), validator)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := c.msgServer.WithdrawDelegatorReward(ctx, &distributiontypes.MsgWithdrawDelegatorReward{
+		DelegatorAddress: delAddr,
+		ValidatorAddress: valAddr,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	amount := make([]lib.CosmosCoin, 0)
+	for _, coin := range res.Amount {
+		amount = append(amount, lib.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.BigInt(),
+		})
+	}
+
+	return amount, nil
 }
 
-// ConvertValAddressFromBech32 converts a bech32 string representing a validator address to a
+// GetDelegatorReward implements `getAllDelegatorRewards(address)`.
+func (c *Contract) GetAllDelegatorRewards(
+	ctx context.Context,
+	delegator common.Address,
+) ([]generated.IDistributionModuleValidatorReward, error) {
+	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := c.querier.DelegationTotalRewards( // performs writes to the context kv stores
+		ctx,
+		&distributiontypes.QueryDelegationTotalRewardsRequest{
+			DelegatorAddress: delAddr,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	rewards := make([]generated.IDistributionModuleValidatorReward, 0, len(res.Rewards))
+	for _, reward := range res.Rewards {
+		var amount []generated.CosmosCoin
+		for _, coin := range reward.Reward {
+			amount = append(amount, generated.CosmosCoin{
+				Denom:  coin.Denom,
+				Amount: coin.Amount.TruncateInt().BigInt(),
+			})
+		}
+		var valAddr common.Address
+		valAddr, err = cosmlib.EthAddressFromString(
+			c.vs.ValidatorAddressCodec(), reward.ValidatorAddress,
+		)
+		if err != nil {
+			return nil, err
+		}
+		rewards = append(rewards, generated.IDistributionModuleValidatorReward{
+			Validator: valAddr,
+			Rewards:   amount,
+		})
+	}
+	return rewards, nil
+}
+
+// GetDelegatorReward implements `getTotalDelegatorReward(address)`.
+func (c *Contract) GetTotalDelegatorReward(
+	ctx context.Context,
+	delegator common.Address,
+) ([]lib.CosmosCoin, error) {
+	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := c.querier.DelegationTotalRewards( // performs writes to the context kv stores
+		ctx,
+		&distributiontypes.QueryDelegationTotalRewardsRequest{
+			DelegatorAddress: delAddr,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	amount := make([]lib.CosmosCoin, 0, len(res.Total))
+	for _, coin := range res.Total {
+		amount = append(amount, lib.CosmosCoin{
+			Denom:  coin.Denom,
+			Amount: coin.Amount.TruncateInt().BigInt(),
+		})
+	}
+	return amount, nil
+}
+
+// ConvertValAddressFromBech32 converts a Cosmos string representing a validator address to a
 // common.Address.
-func (c *Contract) ConvertValAddressFromBech32(attributeValue string) (any, error) {
-	// extract the sdk.ValAddress from string value
+func (c *Contract) ConvertValAddressFromString(attributeValue string) (any, error) {
+	// extract the sdk.ValAddress from string value as common.Address
 	return cosmlib.EthAddressFromString(c.vs.ValidatorAddressCodec(), attributeValue)
+}
+
+// ConvertAccAddressFromString converts a Cosmos string representing a account address to a
+// common.Address.
+func (c *Contract) ConvertAccAddressFromString(attributeValue string) (any, error) {
+	// extract the sdk.AccAddress from string value as common.Address
+	return cosmlib.EthAddressFromString(c.addressCodec, attributeValue)
 }

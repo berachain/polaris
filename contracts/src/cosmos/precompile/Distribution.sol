@@ -32,14 +32,35 @@ interface IDistributionModule {
      */
     function setWithdrawAddress(address withdrawAddress) external returns (bool);
 
+    /**
+     * @dev Returns whether withdrawing delegation rewards is enabled.
+     */
     function getWithdrawEnabled() external view returns (bool);
 
     /**
-     * @dev Withdraw the rewrads accumilated by the caller(msg.sender). Returns the rewards claimed.
+     * @dev Returns the address that will receive the deligation rewards.
+     * @param delegator the delegator for which the withdraw address is returned.
+     */
+    function getWithdrawAddress(address delegator) external view returns (address);
+
+    /**
+     * @dev Withdraw the rewrads accumulated by the caller(msg.sender). Returns the rewards claimed.
      * @param delegator The delegator to withdraw the rewards from.
      * @param validator The validator to withdraw the rewards from.
      */
     function withdrawDelegatorReward(address delegator, address validator) external returns (Cosmos.Coin[] memory);
+
+    /**
+     * @dev Returns the all rewards accumulated by the delegator.
+     * @param delegator The delegator to retrieve the totalRewards for.
+     */
+    function getAllDelegatorRewards(address delegator) external view returns (ValidatorReward[] memory);
+
+    /**
+     * @dev Returns the total rewards accumulated by the delegator.
+     * @param delegator The delegator to retrieve the totalRewards for.
+     */
+    function getTotalDelegatorReward(address delegator) external view returns (Cosmos.Coin[] memory);
 
     /**
      * @dev Emitted by the distribution module when `amount` is withdrawn from a delegation with
@@ -55,4 +76,9 @@ interface IDistributionModule {
      * @param withdrawAddress The address to set as the withdraw address.
      */
     event SetWithdrawAddress(address indexed withdrawAddress);
+
+    struct ValidatorReward {
+        address validator;
+        Cosmos.Coin[] rewards;
+    }
 }

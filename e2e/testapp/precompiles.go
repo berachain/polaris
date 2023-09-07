@@ -27,7 +27,6 @@ import (
 
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
-	erc20precompile "pkg.berachain.dev/polaris/cosmos/precompile/erc20"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
 	stakingprecompile "pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -40,22 +39,22 @@ func PrecompilesToInject(app *SimApp, customPcs ...ethprecompile.Registrable) fu
 		// Create the precompile injector with the standard precompiles.
 		pcs := ethprecompile.NewPrecompiles([]ethprecompile.Registrable{
 			bankprecompile.NewPrecompileContract(
+				app.AccountKeeper,
 				bankkeeper.NewMsgServerImpl(app.BankKeeper),
 				app.BankKeeper,
 			),
 			distrprecompile.NewPrecompileContract(
+				app.AccountKeeper,
 				app.StakingKeeper,
 				distrkeeper.NewMsgServerImpl(app.DistrKeeper),
 				distrkeeper.NewQuerier(app.DistrKeeper),
 			),
-			erc20precompile.NewPrecompileContract(
-				app.AccountKeeper, app.BankKeeper, app.ERC20Keeper,
-			),
 			govprecompile.NewPrecompileContract(
+				app.AccountKeeper,
 				govkeeper.NewMsgServerImpl(app.GovKeeper),
 				govkeeper.NewQueryServer(app.GovKeeper),
 			),
-			stakingprecompile.NewPrecompileContract(app.StakingKeeper),
+			stakingprecompile.NewPrecompileContract(app.AccountKeeper, app.StakingKeeper),
 		}...)
 
 		// Add the custom precompiles to the injector.

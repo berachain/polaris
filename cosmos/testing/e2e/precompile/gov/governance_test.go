@@ -24,8 +24,10 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
 
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -35,6 +37,7 @@ import (
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
+	cosmtypes "pkg.berachain.dev/polaris/cosmos/types"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -57,6 +60,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		wrapper        *tbindings.GovernanceWrapper
 		bankPrecompile *bbindings.BankModule
 		wrapperAddr    common.Address
+		accCodec       = addresscodec.NewBech32Codec(cosmtypes.Bech32PrefixAccAddr)
 	)
 
 	BeforeEach(func() {
@@ -86,7 +90,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 
 		// Alice Submits a proposal.
 		amt := sdkmath.NewInt(100000000)
-		prop, _ := propAndMsgBz(cosmlib.MustAccStringFromEthAddress(tf.Address("alice")), amt)
+		prop, _ := propAndMsgBz(accCodec, cosmlib.MustStringFromEthAddress(accCodec, tf.Address("alice")), amt)
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err = precompile.SubmitProposal(txr, prop)
 		Expect(err).ToNot(HaveOccurred())
@@ -105,7 +109,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wrapper submits a proposal.
-		prop, _ = propAndMsgBz(cosmlib.MustAccStringFromEthAddress(wrapperAddr), amt)
+		prop, _ = propAndMsgBz(accCodec, cosmlib.MustStringFromEthAddress(accCodec, wrapperAddr), amt)
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = wrapper.Submit(txr, prop, "abgt", big.NewInt(amt.Int64()))
 		Expect(err).ToNot(HaveOccurred())
@@ -172,6 +176,16 @@ var _ = Describe("Call the Precompile Directly", func() {
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Call directly.
+		votes, _, err := precompile.GetProposalVotes(nil, 1, bindings.CosmosPageRequest{})
+		Expect(err).ToNot(HaveOccurred())
+		Expect(votes).To(HaveLen(2))
+
+		// Call directly.
+		aliceVote, err := precompile.GetProposalVotesByVoter(nil, 1, tf.Address("alice"))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(aliceVote.Voter).To(Equal(tf.Address("alice")))
+
+		// Call directly.
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = precompile.CancelProposal(txr, 1)
 		Expect(err).ToNot(HaveOccurred())
@@ -185,13 +199,13 @@ var _ = Describe("Call the Precompile Directly", func() {
 	})
 })
 
-func propAndMsgBz(proposer string, amount sdkmath.Int) ([]byte, []byte) {
+func propAndMsgBz(accCodec address.Codec, proposer string, amount sdkmath.Int) ([]byte, []byte) {
 	// Prepare the message.
 	govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
 	initDeposit := sdk.NewCoins(sdk.NewCoin("abgt", amount))
 	message := &banktypes.MsgSend{
-		FromAddress: cosmlib.MustAccStringFromEthAddress(govAcc),
-		ToAddress:   cosmlib.MustAccStringFromEthAddress(tf.Address("alice")),
+		FromAddress: cosmlib.MustStringFromEthAddress(accCodec, govAcc),
+		ToAddress:   cosmlib.MustStringFromEthAddress(accCodec, tf.Address("alice")),
 		Amount:      initDeposit,
 	}
 	messageBz, err := message.Marshal()

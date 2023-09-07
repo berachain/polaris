@@ -53,7 +53,6 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
 	"pkg.berachain.dev/polaris/cosmos/types"
-	erc20types "pkg.berachain.dev/polaris/cosmos/x/erc20/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 )
@@ -129,6 +128,11 @@ func SetupMinimalKeepers() (
 		authz.AppModuleBasic{},
 	)
 
+	addrCodec := addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix())
+	authority, err := addrCodec.BytesToString(authtypes.NewModuleAddress(govtypes.ModuleName))
+	if err != nil {
+		panic(err)
+	}
 	ak := authkeeper.NewAccountKeeper(
 		encodingConfig.Codec,
 		runtime.NewKVStoreService(AccKey),
@@ -137,15 +141,14 @@ func SetupMinimalKeepers() (
 			stakingtypes.NotBondedPoolName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 			stakingtypes.BondedPoolName:    {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 			evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
-			erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 			stakingtypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
 			govtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 			distrtypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		},
 		// TODO: switch to eip-55 fuck bech32.
-		addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
+		addrCodec,
 		types.Bech32Prefix,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authority,
 	)
 
 	bk := bankkeeper.NewBaseKeeper(
@@ -153,7 +156,7 @@ func SetupMinimalKeepers() (
 		runtime.NewKVStoreService(BankKey),
 		ak,
 		nil,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authority,
 		log.NewTestLogger(&testing.T{}),
 	)
 
@@ -162,7 +165,7 @@ func SetupMinimalKeepers() (
 		runtime.NewKVStoreService(StakingKey),
 		ak,
 		bk,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authority,
 		addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
 	)
