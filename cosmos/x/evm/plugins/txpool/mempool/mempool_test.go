@@ -497,13 +497,13 @@ func mockQueryContext(height int64, _ bool) (sdk.Context, error) {
 	if height <= 0 {
 		return sdk.Context{}, errors.New("cannot query context at this height")
 	}
-	ctx := testutil.NewContext().WithBlockHeight(height)
+	newCtx := testutil.NewContext().WithBlockHeight(height)
 	header := &coretypes.Header{Number: big.NewInt(height)}
 	headerBz, err := coretypes.MarshalHeader(header)
 	if err != nil {
 		return sdk.Context{}, err
 	}
-	ctx.KVStore(testutil.EvmKey).Set([]byte{evmtypes.HeaderKey}, headerBz)
-	ctx.KVStore(testutil.EvmKey).Set(header.Hash().Bytes(), header.Number.Bytes())
-	return ctx, nil
+	newCtx.KVStore(testutil.EvmKey).Set([]byte{evmtypes.HeaderKey}, headerBz)
+	newCtx.KVStore(testutil.EvmKey).Set(header.Hash().Bytes(), header.Number.Bytes())
+	return newCtx, nil
 }
