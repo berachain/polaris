@@ -36,6 +36,7 @@ func (etp *EthTxPool) Insert(ctx context.Context, tx sdk.Tx) error {
 	etp.mu.Lock()
 	defer etp.mu.Unlock()
 
+	// TODO: do this once per block. This is a temporary solution.
 	sp, err := etp.nr.StateAtBlockNumber(uint64(sdk.UnwrapSDKContext(ctx).BlockHeight()))
 	if err != nil {
 		return err
