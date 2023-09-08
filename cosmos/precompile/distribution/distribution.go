@@ -25,6 +25,7 @@ import (
 
 	"cosmossdk.io/core/address"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
@@ -175,8 +176,12 @@ func (c *Contract) GetAllDelegatorRewards(
 		return nil, err
 	}
 
+	// NOTE: CacheContext is necessary here because this is a view method (EVM static call), but
+	// the Cosmos SDK distribution module's querier performs writes to the context kv stores. The
+	// cache context is never committed and discarded after this function call.
+	cacheCtx, _ := sdk.UnwrapSDKContext(ctx).CacheContext()
 	res, err := c.querier.DelegationTotalRewards( // performs writes to the context kv stores
-		ctx,
+		cacheCtx,
 		&distributiontypes.QueryDelegationTotalRewardsRequest{
 			DelegatorAddress: delAddr,
 		},
@@ -219,8 +224,12 @@ func (c *Contract) GetTotalDelegatorReward(
 		return nil, err
 	}
 
+	// NOTE: CacheContext is necessary here because this is a view method (EVM static call), but
+	// the Cosmos SDK distribution module's querier performs writes to the context kv stores. The
+	// cache context is never committed and discarded after this function call.
+	cacheCtx, _ := sdk.UnwrapSDKContext(ctx).CacheContext()
 	res, err := c.querier.DelegationTotalRewards( // performs writes to the context kv stores
-		ctx,
+		cacheCtx,
 		&distributiontypes.QueryDelegationTotalRewardsRequest{
 			DelegatorAddress: delAddr,
 		},

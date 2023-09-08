@@ -37,7 +37,7 @@ type MockPrecompileInterfaceObject struct {
 
 // MockPrecompileMetaData contains all meta data concerning the MockPrecompile contract.
 var MockPrecompileMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"contractFunc\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"ans\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"str\",\"type\":\"string\"}],\"name\":\"contractFuncStr\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"str\",\"type\":\"string\"}],\"name\":\"getOutput\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"creationHeight\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"timeStamp\",\"type\":\"string\"}],\"internalType\":\"structMockPrecompileInterface.Object[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getOutputPartial\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"creationHeight\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"timeStamp\",\"type\":\"string\"}],\"internalType\":\"structMockPrecompileInterface.Object\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"overloadedFunc\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"ans\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"overloadedFunc\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"ans\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"contractFunc\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"ans\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"str\",\"type\":\"string\"}],\"name\":\"contractFuncStr\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"str\",\"type\":\"string\"}],\"name\":\"getOutput\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"creationHeight\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"timeStamp\",\"type\":\"string\"}],\"internalType\":\"structMockPrecompileInterface.Object[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getOutputPartial\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"creationHeight\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"timeStamp\",\"type\":\"string\"}],\"internalType\":\"structMockPrecompileInterface.Object\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"overloadedFunc\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"ans\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"}],\"name\":\"overloadedFunc\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"ans\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // MockPrecompileABI is the input ABI used to generate the binding from.
@@ -186,68 +186,6 @@ func (_MockPrecompile *MockPrecompileTransactorRaw) Transact(opts *bind.Transact
 	return _MockPrecompile.Contract.contract.Transact(opts, method, params...)
 }
 
-// GetOutput is a free data retrieval call binding the contract method 0xb5c11fc2.
-//
-// Solidity: function getOutput(string str) view returns((uint256,string)[])
-func (_MockPrecompile *MockPrecompileCaller) GetOutput(opts *bind.CallOpts, str string) ([]MockPrecompileInterfaceObject, error) {
-	var out []interface{}
-	err := _MockPrecompile.contract.Call(opts, &out, "getOutput", str)
-
-	if err != nil {
-		return *new([]MockPrecompileInterfaceObject), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new([]MockPrecompileInterfaceObject)).(*[]MockPrecompileInterfaceObject)
-
-	return out0, err
-
-}
-
-// GetOutput is a free data retrieval call binding the contract method 0xb5c11fc2.
-//
-// Solidity: function getOutput(string str) view returns((uint256,string)[])
-func (_MockPrecompile *MockPrecompileSession) GetOutput(str string) ([]MockPrecompileInterfaceObject, error) {
-	return _MockPrecompile.Contract.GetOutput(&_MockPrecompile.CallOpts, str)
-}
-
-// GetOutput is a free data retrieval call binding the contract method 0xb5c11fc2.
-//
-// Solidity: function getOutput(string str) view returns((uint256,string)[])
-func (_MockPrecompile *MockPrecompileCallerSession) GetOutput(str string) ([]MockPrecompileInterfaceObject, error) {
-	return _MockPrecompile.Contract.GetOutput(&_MockPrecompile.CallOpts, str)
-}
-
-// GetOutputPartial is a free data retrieval call binding the contract method 0x7acaaeb9.
-//
-// Solidity: function getOutputPartial() view returns((uint256,string))
-func (_MockPrecompile *MockPrecompileCaller) GetOutputPartial(opts *bind.CallOpts) (MockPrecompileInterfaceObject, error) {
-	var out []interface{}
-	err := _MockPrecompile.contract.Call(opts, &out, "getOutputPartial")
-
-	if err != nil {
-		return *new(MockPrecompileInterfaceObject), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(MockPrecompileInterfaceObject)).(*MockPrecompileInterfaceObject)
-
-	return out0, err
-
-}
-
-// GetOutputPartial is a free data retrieval call binding the contract method 0x7acaaeb9.
-//
-// Solidity: function getOutputPartial() view returns((uint256,string))
-func (_MockPrecompile *MockPrecompileSession) GetOutputPartial() (MockPrecompileInterfaceObject, error) {
-	return _MockPrecompile.Contract.GetOutputPartial(&_MockPrecompile.CallOpts)
-}
-
-// GetOutputPartial is a free data retrieval call binding the contract method 0x7acaaeb9.
-//
-// Solidity: function getOutputPartial() view returns((uint256,string))
-func (_MockPrecompile *MockPrecompileCallerSession) GetOutputPartial() (MockPrecompileInterfaceObject, error) {
-	return _MockPrecompile.Contract.GetOutputPartial(&_MockPrecompile.CallOpts)
-}
-
 // ContractFunc is a paid mutator transaction binding the contract method 0xc7dda0b9.
 //
 // Solidity: function contractFunc(address addr) returns(uint256 ans)
@@ -288,6 +226,48 @@ func (_MockPrecompile *MockPrecompileSession) ContractFuncStr(str string) (*type
 // Solidity: function contractFuncStr(string str) returns(bool)
 func (_MockPrecompile *MockPrecompileTransactorSession) ContractFuncStr(str string) (*types.Transaction, error) {
 	return _MockPrecompile.Contract.ContractFuncStr(&_MockPrecompile.TransactOpts, str)
+}
+
+// GetOutput is a paid mutator transaction binding the contract method 0xb5c11fc2.
+//
+// Solidity: function getOutput(string str) returns((uint256,string)[])
+func (_MockPrecompile *MockPrecompileTransactor) GetOutput(opts *bind.TransactOpts, str string) (*types.Transaction, error) {
+	return _MockPrecompile.contract.Transact(opts, "getOutput", str)
+}
+
+// GetOutput is a paid mutator transaction binding the contract method 0xb5c11fc2.
+//
+// Solidity: function getOutput(string str) returns((uint256,string)[])
+func (_MockPrecompile *MockPrecompileSession) GetOutput(str string) (*types.Transaction, error) {
+	return _MockPrecompile.Contract.GetOutput(&_MockPrecompile.TransactOpts, str)
+}
+
+// GetOutput is a paid mutator transaction binding the contract method 0xb5c11fc2.
+//
+// Solidity: function getOutput(string str) returns((uint256,string)[])
+func (_MockPrecompile *MockPrecompileTransactorSession) GetOutput(str string) (*types.Transaction, error) {
+	return _MockPrecompile.Contract.GetOutput(&_MockPrecompile.TransactOpts, str)
+}
+
+// GetOutputPartial is a paid mutator transaction binding the contract method 0x7acaaeb9.
+//
+// Solidity: function getOutputPartial() returns((uint256,string))
+func (_MockPrecompile *MockPrecompileTransactor) GetOutputPartial(opts *bind.TransactOpts) (*types.Transaction, error) {
+	return _MockPrecompile.contract.Transact(opts, "getOutputPartial")
+}
+
+// GetOutputPartial is a paid mutator transaction binding the contract method 0x7acaaeb9.
+//
+// Solidity: function getOutputPartial() returns((uint256,string))
+func (_MockPrecompile *MockPrecompileSession) GetOutputPartial() (*types.Transaction, error) {
+	return _MockPrecompile.Contract.GetOutputPartial(&_MockPrecompile.TransactOpts)
+}
+
+// GetOutputPartial is a paid mutator transaction binding the contract method 0x7acaaeb9.
+//
+// Solidity: function getOutputPartial() returns((uint256,string))
+func (_MockPrecompile *MockPrecompileTransactorSession) GetOutputPartial() (*types.Transaction, error) {
+	return _MockPrecompile.Contract.GetOutputPartial(&_MockPrecompile.TransactOpts)
 }
 
 // OverloadedFunc is a paid mutator transaction binding the contract method 0x1e61d5aa.
