@@ -42,10 +42,10 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230726155614-23370e0ffb3e // indirect
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230830221145-a6c6454d3697
-	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230830221145-a6c6454d3697
-	pkg.berachain.dev/polaris/eth v0.0.0-20230830221145-a6c6454d3697
-	pkg.berachain.dev/polaris/lib v0.0.0-20230830221145-a6c6454d3697
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230907215015-1928f4a21413
+	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230907215015-1928f4a21413
+	pkg.berachain.dev/polaris/eth v0.0.0-20230907215015-1928f4a21413
+	pkg.berachain.dev/polaris/lib v0.0.0-20230907215015-1928f4a21413
 )
 
 require (
@@ -185,7 +185,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/pointerstructure v1.2.1 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
-	github.com/moby/term v0.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
