@@ -82,15 +82,6 @@ func (sc *statefulContainer) Run(
 		return nil, ErrMethodNotFound
 	}
 
-	// If the method is read-only (view/pure), snapshot so any state changes made during the call
-	// are not persisted. NOTE: this may not be the best place to handle state mutability, but it
-	// gets the job done.
-	if method.abiMethod.IsConstant() {
-		sdb := evm.GetStateDB()
-		snapshot := sdb.Snapshot()
-		defer func() { sdb.RevertToSnapshot(snapshot) }()
-	}
-
 	// Execute the method with the reflected ctx and raw input
 	return method.Call(
 		vm.NewPolarContext(ctx, evm, caller, value),
