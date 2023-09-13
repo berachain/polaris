@@ -45,7 +45,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("", func() {
+var _ = FDescribe("", func() {
 	var (
 		cdc    codec.JSONCodec
 		ctx    sdk.Context

@@ -110,7 +110,7 @@ func (k *Keeper) Setup(
 		panic(err)
 	}
 
-	k.polaris = polar.NewWithNetworkingStack(cfg, k.host, node, ethlog.FuncHandler(
+	k.polaris = polar.NewWithNetworkingStack(cfg, node, ethlog.FuncHandler(
 		func(r *ethlog.Record) error {
 			polarisGethLogger := logger.With("module", "polaris-geth")
 			switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
