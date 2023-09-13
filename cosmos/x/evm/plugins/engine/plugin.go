@@ -51,3 +51,6 @@ func NewPlugin() Plugin {
 func (p *plugin) Start(ctx client.Context) {
 	p.cometBftView = newSyncView(ctx)
 }
+
+// IsPlugin implements the Plugin interface.
+func (plugin) IsPlugin() {}

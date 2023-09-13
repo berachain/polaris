@@ -32,6 +32,7 @@ import (
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -40,6 +41,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/txpool"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/polar"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 type Keeper struct {
@@ -108,7 +110,7 @@ func (k *Keeper) Setup(
 		panic(err)
 	}
 
-	k.polaris = polar.NewWithNetworkingStack(cfg, node, ethlog.FuncHandler(
+	k.polaris = polar.NewWithNetworkingStack(cfg, k.host, node, ethlog.FuncHandler(
 		func(r *ethlog.Record) error {
 			polarisGethLogger := logger.With("module", "polaris-geth")
 			switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
@@ -152,7 +154,7 @@ func (k *Keeper) StartServices(clientContext client.Context) {
 	k.polaris.SetTxPool(txpool)
 	k.polaris.SetEngine(k.host.GetEnginePlugin())
 	k.host.GetTxPoolPlugin().Start(txpool, clientContext)
-	k.host.GetEnginePlugin().Start(clientContext)
+	utils.MustGetAs[engine.Plugin](k.host.GetEnginePlugin()).Start(clientContext)
 
 	// start the networking stack (json-rpc, graphql, etc.)
 	if err := k.polaris.StartServices(); err != nil {

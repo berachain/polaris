@@ -90,12 +90,15 @@ type Polaris struct {
 
 func NewWithNetworkingStack(
 	cfg *Config,
+	host core.PolarisHostChain,
 	stack NetworkingStack,
 	logHandler log.Handler,
 ) *Polaris {
 	pl := &Polaris{
-		cfg:   cfg,
-		stack: stack,
+		cfg:        cfg,
+		blockchain: core.NewChain(host),
+		stack:      stack,
+		engine:     host.GetEnginePlugin(),
 	}
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we

@@ -40,6 +40,8 @@ type PolarisHostChain interface {
 	GetBlockPlugin() BlockPlugin
 	// GetConfigurationPlugin returns the `ConfigurationPlugin` of the Polaris host chain.
 	GetConfigurationPlugin() ConfigurationPlugin
+	// GetEnginePlugin() returns the `EnginePlugin` of the Polaris host chain.
+	GetEnginePlugin() EnginePlugin
 	// GetGasPlugin returns the `GasPlugin` of the Polaris host chain.
 	GetGasPlugin() GasPlugin
 	// GetHistoricalPlugin returns the OPTIONAL `HistoricalPlugin` of the Polaris host chain.

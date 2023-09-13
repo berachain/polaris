@@ -166,7 +166,7 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 	// check the historical plugin
 	block, err := bc.hp.GetBlockByHash(hash)
 	if block == nil || err != nil {
-		bc.logger.Warn("failed to get block from historical plugin", "block", block, "err", err)
+		bc.logger.Debug("failed to get block from historical plugin", "block", block, "err", err)
 		return nil
 	}
 

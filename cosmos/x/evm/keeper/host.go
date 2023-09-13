@@ -50,7 +50,6 @@ var _ core.PolarisHostChain = (*host)(nil)
 type Host interface {
 	core.PolarisHostChain
 	GetTxPoolPlugin() txpool.Plugin
-	GetEnginePlugin() engine.Plugin
 	GetAllPlugins() []plugins.Base
 	Setup(
 		storetypes.StoreKey,
@@ -124,8 +123,8 @@ func (h *host) GetConfigurationPlugin() core.ConfigurationPlugin {
 	return h.cp
 }
 
-// GetGasPlugin returns the gas plugin.
-func (h *host) GetEnginePlugin() engine.Plugin {
+// GetEnginePlugin returns the engine plugin.
+func (h *host) GetEnginePlugin() core.EnginePlugin {
 	return h.ep
 }
 
