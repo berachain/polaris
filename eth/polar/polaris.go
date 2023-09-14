@@ -75,6 +75,9 @@ type Polaris struct {
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the blockchain.
 	backend Backend
 
+	// engine represents the consensus engine for the backend.
+	engine core.EnginePlugin
+
 	// filterSystem is the filter system that is used by the filter API.
 	// TODO: relocate
 	filterSystem *filters.FilterSystem
@@ -90,6 +93,7 @@ func NewWithNetworkingStack(
 		cfg:        cfg,
 		blockchain: core.NewChain(host),
 		stack:      stack,
+		engine:     host.GetEnginePlugin(),
 	}
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
