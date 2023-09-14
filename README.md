@@ -19,6 +19,8 @@
   </a>
   <a href="https://twitter.com/berachain" target="_blank">
     <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/berachain">
+  <a href="https://discord.gg/berachain">
+   <img src="https://img.shields.io/discord/984015101017346058?color=%235865F2&label=Discord&logo=discord&logoColor=%23fff" alt="Discord">
   </a>
 </div>
 
