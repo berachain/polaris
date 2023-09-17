@@ -18,13 +18,13 @@ require (
 	cosmossdk.io/log v1.2.1
 	cosmossdk.io/math v1.1.2
 	cosmossdk.io/store v1.0.0-rc.0
-	cosmossdk.io/x/tx v0.9.1
+	cosmossdk.io/x/tx v0.10.0
 	github.com/btcsuite/btcd v0.23.4
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/cometbft/cometbft v0.38.0
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
-	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230913190856-32969cf7cc60
+	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230913215410-e5781a9d028d
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/ethereum/go-ethereum v1.12.0
