@@ -15,14 +15,14 @@ require (
 	cosmossdk.io/client/v2 v2.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
-	cosmossdk.io/x/upgrade v0.0.0-20230913151411-15ce0cb1ad33
+	cosmossdk.io/x/upgrade v0.0.0-20230818115413-c402c51a1508
 	github.com/stretchr/testify v1.8.4
 	pkg.berachain.dev/polaris/cosmos v0.0.0-20230830221145-a6c6454d3697
 	pkg.berachain.dev/polaris/eth v0.0.0-20230830221145-a6c6454d3697
 )
 
 require (
-	cosmossdk.io/api v0.7.1-0.20230820170544-1bd37053e0c0
+	cosmossdk.io/api v0.7.1
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/core v0.11.0
 	cosmossdk.io/depinject v1.0.0-alpha.4
@@ -36,7 +36,7 @@ require (
 	github.com/cometbft/cometbft v0.38.0
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
-	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230913215410-e5781a9d028d
+	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230915171831-2196edacb99d
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogoproto v1.4.11 // indirect
 	github.com/ethereum/go-ethereum v1.12.0 // indirect
@@ -52,7 +52,7 @@ require (
 	github.com/tidwall/btree v1.7.0 // indirect
 	google.golang.org/genproto v0.0.0-20230803162519-f966b187b2e5 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230726155614-23370e0ffb3e // indirect
-	google.golang.org/grpc v1.58.0 // indirect
+	google.golang.org/grpc v1.58.1 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
 
@@ -267,7 +267,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.134.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230913181813-007df8e322eb // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
