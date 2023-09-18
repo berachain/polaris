@@ -85,6 +85,9 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		GetCommittedStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 			return common.Hash{}
 		},
+		GetLogsFunc: func(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log {
+			return []*types.Log{}
+		},
 		GetNonceFunc: func(address common.Address) uint64 {
 			return 0
 		},
@@ -127,15 +130,14 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 
 		},
 		SelfDestructFunc: func(address common.Address) {
-			return
 		},
 	}
-	// mockedPolarisStateDB.Logs = func() []*types.Log {
-	// 	logs := []*types.Log{}
-	// 	for _, l := range mockedPolarisStateDB.AddLogCalls() {
-	// 		logs = append(logs, l.Log)
-	// 	}
-	// 	return logs
-	// }
+	mockedPolarisStateDB.LogsFunc = func() []*types.Log {
+		logs := []*types.Log{}
+		for _, l := range mockedPolarisStateDB.AddLogCalls() {
+			logs = append(logs, l.Log)
+		}
+		return logs
+	}
 	return mockedPolarisStateDB
 }

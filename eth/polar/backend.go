@@ -310,7 +310,7 @@ func (b *backend) StateAndHeaderByNumber(ctx context.Context,
 		return nil, nil, err
 	}
 
-	return stateAtBlock.(state.StateDBI), header, nil
+	return stateAtBlock, header, nil
 }
 
 func (b *backend) StateAndHeaderByNumberOrHash(
@@ -393,14 +393,24 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 }
 
 // GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.
-func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state state.StateDBI, header *types.Header, vmConfig *vm.Config, blockContext *vm.BlockContext) (*vm.GethEVM, func() error) {
+func (b *backend) GetEVM(_ context.Context, msg *core.Message,
+	state state.StateDBI, header *types.Header, vmConfig *vm.Config,
+	blockCtx *vm.BlockContext,
+) (*vm.GethEVM, func() error) {
 	if vmConfig == nil {
 		b.logger.Debug("eth.rpc.backend.GetEVM", "vmConfig", "nil")
 		vmConfig = b.polar.blockchain.GetVMConfig()
 	}
 	txContext := core.NewEVMTxContext(msg)
-	return b.polar.blockchain.GetEVM(ctx, txContext,
-		utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig), state.Error
+	var context vm.BlockContext
+	if blockCtx != nil {
+		context = *blockCtx
+	} else {
+		context = core.NewEVMBlockContext(header, b.polar.blockchain, nil)
+	}
+
+	return b.polar.blockchain.GetEVM(context, txContext,
+		utils.MustGetAs[vm.PolarisStateDB](state), vmConfig), state.Error
 }
 
 // GetBlockContext returns a new block context to be used by a EVM.

@@ -108,7 +108,7 @@ func (s *selfDestructs) SelfDestruct(addr common.Address) {
 	s.journal.Push(&addr)
 }
 
-func (s *selfDestructs) Selfdestruct6780(addr common.Address) {
+func (s *selfDestructs) Selfdestruct6780(_ common.Address) {
 	// TODO: IMPLEMENT EIP-6780
 }
 

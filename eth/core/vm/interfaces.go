@@ -22,8 +22,6 @@ package vm
 
 import (
 	"context"
-
-	"pkg.berachain.dev/polaris/eth/common"
 )
 
 type (
@@ -33,8 +31,5 @@ type (
 		GethStateDB
 		// GetContext returns the current context of the state plugin.
 		GetContext() context.Context
-		SetTxContext(common.Hash, int)
-		Finalise(bool)
-		Commit(uint64, bool) (common.Hash, error)
 	}
 )

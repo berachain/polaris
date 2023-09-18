@@ -6,6 +6,7 @@ package mock
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"math/big"
@@ -47,8 +48,20 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			CommitFunc: func(v uint64, b bool) (common.Hash, error) {
 //				panic("mock out the Commit method")
 //			},
+//			CopyFunc: func() state.StateDBI {
+//				panic("mock out the Copy method")
+//			},
 //			CreateAccountFunc: func(address common.Address)  {
 //				panic("mock out the CreateAccount method")
+//			},
+//			DatabaseFunc: func() state.Database {
+//				panic("mock out the Database method")
+//			},
+//			DumpFunc: func(opts *state.DumpConfig) []byte {
+//				panic("mock out the Dump method")
+//			},
+//			DumpToCollectorFunc: func(c state.DumpCollector, conf *state.DumpConfig) []byte {
+//				panic("mock out the DumpToCollector method")
 //			},
 //			EmptyFunc: func(address common.Address) bool {
 //				panic("mock out the Empty method")
@@ -59,7 +72,7 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			ExistFunc: func(address common.Address) bool {
 //				panic("mock out the Exist method")
 //			},
-//			FinaliseFunc: func(b bool)  {
+//			FinaliseFunc: func(deleteEmptyObjects bool)  {
 //				panic("mock out the Finalise method")
 //			},
 //			GetBalanceFunc: func(address common.Address) *big.Int {
@@ -80,8 +93,14 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			GetContextFunc: func() context.Context {
 //				panic("mock out the GetContext method")
 //			},
+//			GetLogsFunc: func(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log {
+//				panic("mock out the GetLogs method")
+//			},
 //			GetNonceFunc: func(address common.Address) uint64 {
 //				panic("mock out the GetNonce method")
+//			},
+//			GetOrNewStateObjectFunc: func(addr common.Address) *state.StateObject {
+//				panic("mock out the GetOrNewStateObject method")
 //			},
 //			GetRefundFunc: func() uint64 {
 //				panic("mock out the GetRefund method")
@@ -89,14 +108,32 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetState method")
 //			},
+//			GetStorageRootFunc: func(addr common.Address) common.Hash {
+//				panic("mock out the GetStorageRoot method")
+//			},
 //			GetTransientStateFunc: func(addr common.Address, key common.Hash) common.Hash {
 //				panic("mock out the GetTransientState method")
 //			},
 //			HasSelfDestructedFunc: func(address common.Address) bool {
 //				panic("mock out the HasSelfDestructed method")
 //			},
+//			IntermediateRootFunc: func(deleteEmptyObjects bool) common.Hash {
+//				panic("mock out the IntermediateRoot method")
+//			},
+//			IteratorDumpFunc: func(opts *state.DumpConfig) state.IteratorDump {
+//				panic("mock out the IteratorDump method")
+//			},
+//			LogsFunc: func() []*types.Log {
+//				panic("mock out the Logs method")
+//			},
+//			PreimagesFunc: func() map[common.Hash][]byte {
+//				panic("mock out the Preimages method")
+//			},
 //			PrepareFunc: func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)  {
 //				panic("mock out the Prepare method")
+//			},
+//			RawDumpFunc: func(opts *state.DumpConfig) state.Dump {
+//				panic("mock out the RawDump method")
 //			},
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
@@ -107,6 +144,9 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			Selfdestruct6780Func: func(address common.Address)  {
 //				panic("mock out the Selfdestruct6780 method")
 //			},
+//			SetBalanceFunc: func(addr common.Address, amount *big.Int)  {
+//				panic("mock out the SetBalance method")
+//			},
 //			SetCodeFunc: func(address common.Address, bytes []byte)  {
 //				panic("mock out the SetCode method")
 //			},
@@ -116,10 +156,13 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash)  {
 //				panic("mock out the SetState method")
 //			},
+//			SetStorageFunc: func(addr common.Address, storage map[common.Hash]common.Hash)  {
+//				panic("mock out the SetStorage method")
+//			},
 //			SetTransientStateFunc: func(addr common.Address, key common.Hash, value common.Hash)  {
 //				panic("mock out the SetTransientState method")
 //			},
-//			SetTxContextFunc: func(hash common.Hash, n int)  {
+//			SetTxContextFunc: func(thash common.Hash, ti int)  {
 //				panic("mock out the SetTxContext method")
 //			},
 //			SlotInAccessListFunc: func(addr common.Address, slot common.Hash) (bool, bool) {
@@ -128,11 +171,20 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			SnapshotFunc: func() int {
 //				panic("mock out the Snapshot method")
 //			},
+//			StartPrefetcherFunc: func(namespace string)  {
+//				panic("mock out the StartPrefetcher method")
+//			},
+//			StopPrefetcherFunc: func()  {
+//				panic("mock out the StopPrefetcher method")
+//			},
 //			SubBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
 //				panic("mock out the SubBalance method")
 //			},
 //			SubRefundFunc: func(v uint64)  {
 //				panic("mock out the SubRefund method")
+//			},
+//			TxIndexFunc: func() int {
+//				panic("mock out the TxIndex method")
 //			},
 //		}
 //
@@ -165,8 +217,20 @@ type PolarisStateDBMock struct {
 	// CommitFunc mocks the Commit method.
 	CommitFunc func(v uint64, b bool) (common.Hash, error)
 
+	// CopyFunc mocks the Copy method.
+	CopyFunc func() state.StateDBI
+
 	// CreateAccountFunc mocks the CreateAccount method.
 	CreateAccountFunc func(address common.Address)
+
+	// DatabaseFunc mocks the Database method.
+	DatabaseFunc func() state.Database
+
+	// DumpFunc mocks the Dump method.
+	DumpFunc func(opts *state.DumpConfig) []byte
+
+	// DumpToCollectorFunc mocks the DumpToCollector method.
+	DumpToCollectorFunc func(c state.DumpCollector, conf *state.DumpConfig) []byte
 
 	// EmptyFunc mocks the Empty method.
 	EmptyFunc func(address common.Address) bool
@@ -178,7 +242,7 @@ type PolarisStateDBMock struct {
 	ExistFunc func(address common.Address) bool
 
 	// FinaliseFunc mocks the Finalise method.
-	FinaliseFunc func(b bool)
+	FinaliseFunc func(deleteEmptyObjects bool)
 
 	// GetBalanceFunc mocks the GetBalance method.
 	GetBalanceFunc func(address common.Address) *big.Int
@@ -198,8 +262,14 @@ type PolarisStateDBMock struct {
 	// GetContextFunc mocks the GetContext method.
 	GetContextFunc func() context.Context
 
+	// GetLogsFunc mocks the GetLogs method.
+	GetLogsFunc func(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log
+
 	// GetNonceFunc mocks the GetNonce method.
 	GetNonceFunc func(address common.Address) uint64
+
+	// GetOrNewStateObjectFunc mocks the GetOrNewStateObject method.
+	GetOrNewStateObjectFunc func(addr common.Address) *state.StateObject
 
 	// GetRefundFunc mocks the GetRefund method.
 	GetRefundFunc func() uint64
@@ -207,14 +277,32 @@ type PolarisStateDBMock struct {
 	// GetStateFunc mocks the GetState method.
 	GetStateFunc func(address common.Address, hash common.Hash) common.Hash
 
+	// GetStorageRootFunc mocks the GetStorageRoot method.
+	GetStorageRootFunc func(addr common.Address) common.Hash
+
 	// GetTransientStateFunc mocks the GetTransientState method.
 	GetTransientStateFunc func(addr common.Address, key common.Hash) common.Hash
 
 	// HasSelfDestructedFunc mocks the HasSelfDestructed method.
 	HasSelfDestructedFunc func(address common.Address) bool
 
+	// IntermediateRootFunc mocks the IntermediateRoot method.
+	IntermediateRootFunc func(deleteEmptyObjects bool) common.Hash
+
+	// IteratorDumpFunc mocks the IteratorDump method.
+	IteratorDumpFunc func(opts *state.DumpConfig) state.IteratorDump
+
+	// LogsFunc mocks the Logs method.
+	LogsFunc func() []*types.Log
+
+	// PreimagesFunc mocks the Preimages method.
+	PreimagesFunc func() map[common.Hash][]byte
+
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList)
+
+	// RawDumpFunc mocks the RawDump method.
+	RawDumpFunc func(opts *state.DumpConfig) state.Dump
 
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
@@ -225,6 +313,9 @@ type PolarisStateDBMock struct {
 	// Selfdestruct6780Func mocks the Selfdestruct6780 method.
 	Selfdestruct6780Func func(address common.Address)
 
+	// SetBalanceFunc mocks the SetBalance method.
+	SetBalanceFunc func(addr common.Address, amount *big.Int)
+
 	// SetCodeFunc mocks the SetCode method.
 	SetCodeFunc func(address common.Address, bytes []byte)
 
@@ -234,11 +325,14 @@ type PolarisStateDBMock struct {
 	// SetStateFunc mocks the SetState method.
 	SetStateFunc func(address common.Address, hash1 common.Hash, hash2 common.Hash)
 
+	// SetStorageFunc mocks the SetStorage method.
+	SetStorageFunc func(addr common.Address, storage map[common.Hash]common.Hash)
+
 	// SetTransientStateFunc mocks the SetTransientState method.
 	SetTransientStateFunc func(addr common.Address, key common.Hash, value common.Hash)
 
 	// SetTxContextFunc mocks the SetTxContext method.
-	SetTxContextFunc func(hash common.Hash, n int)
+	SetTxContextFunc func(thash common.Hash, ti int)
 
 	// SlotInAccessListFunc mocks the SlotInAccessList method.
 	SlotInAccessListFunc func(addr common.Address, slot common.Hash) (bool, bool)
@@ -246,11 +340,20 @@ type PolarisStateDBMock struct {
 	// SnapshotFunc mocks the Snapshot method.
 	SnapshotFunc func() int
 
+	// StartPrefetcherFunc mocks the StartPrefetcher method.
+	StartPrefetcherFunc func(namespace string)
+
+	// StopPrefetcherFunc mocks the StopPrefetcher method.
+	StopPrefetcherFunc func()
+
 	// SubBalanceFunc mocks the SubBalance method.
 	SubBalanceFunc func(address common.Address, intMoqParam *big.Int)
 
 	// SubRefundFunc mocks the SubRefund method.
 	SubRefundFunc func(v uint64)
+
+	// TxIndexFunc mocks the TxIndex method.
+	TxIndexFunc func() int
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -302,10 +405,28 @@ type PolarisStateDBMock struct {
 			// B is the b argument value.
 			B bool
 		}
+		// Copy holds details about calls to the Copy method.
+		Copy []struct {
+		}
 		// CreateAccount holds details about calls to the CreateAccount method.
 		CreateAccount []struct {
 			// Address is the address argument value.
 			Address common.Address
+		}
+		// Database holds details about calls to the Database method.
+		Database []struct {
+		}
+		// Dump holds details about calls to the Dump method.
+		Dump []struct {
+			// Opts is the opts argument value.
+			Opts *state.DumpConfig
+		}
+		// DumpToCollector holds details about calls to the DumpToCollector method.
+		DumpToCollector []struct {
+			// C is the c argument value.
+			C state.DumpCollector
+			// Conf is the conf argument value.
+			Conf *state.DumpConfig
 		}
 		// Empty holds details about calls to the Empty method.
 		Empty []struct {
@@ -322,8 +443,8 @@ type PolarisStateDBMock struct {
 		}
 		// Finalise holds details about calls to the Finalise method.
 		Finalise []struct {
-			// B is the b argument value.
-			B bool
+			// DeleteEmptyObjects is the deleteEmptyObjects argument value.
+			DeleteEmptyObjects bool
 		}
 		// GetBalance holds details about calls to the GetBalance method.
 		GetBalance []struct {
@@ -355,10 +476,24 @@ type PolarisStateDBMock struct {
 		// GetContext holds details about calls to the GetContext method.
 		GetContext []struct {
 		}
+		// GetLogs holds details about calls to the GetLogs method.
+		GetLogs []struct {
+			// Hash is the hash argument value.
+			Hash common.Hash
+			// BlockNumber is the blockNumber argument value.
+			BlockNumber uint64
+			// BlockHash is the blockHash argument value.
+			BlockHash common.Hash
+		}
 		// GetNonce holds details about calls to the GetNonce method.
 		GetNonce []struct {
 			// Address is the address argument value.
 			Address common.Address
+		}
+		// GetOrNewStateObject holds details about calls to the GetOrNewStateObject method.
+		GetOrNewStateObject []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
 		}
 		// GetRefund holds details about calls to the GetRefund method.
 		GetRefund []struct {
@@ -369,6 +504,11 @@ type PolarisStateDBMock struct {
 			Address common.Address
 			// Hash is the hash argument value.
 			Hash common.Hash
+		}
+		// GetStorageRoot holds details about calls to the GetStorageRoot method.
+		GetStorageRoot []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
 		}
 		// GetTransientState holds details about calls to the GetTransientState method.
 		GetTransientState []struct {
@@ -381,6 +521,22 @@ type PolarisStateDBMock struct {
 		HasSelfDestructed []struct {
 			// Address is the address argument value.
 			Address common.Address
+		}
+		// IntermediateRoot holds details about calls to the IntermediateRoot method.
+		IntermediateRoot []struct {
+			// DeleteEmptyObjects is the deleteEmptyObjects argument value.
+			DeleteEmptyObjects bool
+		}
+		// IteratorDump holds details about calls to the IteratorDump method.
+		IteratorDump []struct {
+			// Opts is the opts argument value.
+			Opts *state.DumpConfig
+		}
+		// Logs holds details about calls to the Logs method.
+		Logs []struct {
+		}
+		// Preimages holds details about calls to the Preimages method.
+		Preimages []struct {
 		}
 		// Prepare holds details about calls to the Prepare method.
 		Prepare []struct {
@@ -397,6 +553,11 @@ type PolarisStateDBMock struct {
 			// TxAccesses is the txAccesses argument value.
 			TxAccesses types.AccessList
 		}
+		// RawDump holds details about calls to the RawDump method.
+		RawDump []struct {
+			// Opts is the opts argument value.
+			Opts *state.DumpConfig
+		}
 		// RevertToSnapshot holds details about calls to the RevertToSnapshot method.
 		RevertToSnapshot []struct {
 			// N is the n argument value.
@@ -411,6 +572,13 @@ type PolarisStateDBMock struct {
 		Selfdestruct6780 []struct {
 			// Address is the address argument value.
 			Address common.Address
+		}
+		// SetBalance holds details about calls to the SetBalance method.
+		SetBalance []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
+			// Amount is the amount argument value.
+			Amount *big.Int
 		}
 		// SetCode holds details about calls to the SetCode method.
 		SetCode []struct {
@@ -435,6 +603,13 @@ type PolarisStateDBMock struct {
 			// Hash2 is the hash2 argument value.
 			Hash2 common.Hash
 		}
+		// SetStorage holds details about calls to the SetStorage method.
+		SetStorage []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
+			// Storage is the storage argument value.
+			Storage map[common.Hash]common.Hash
+		}
 		// SetTransientState holds details about calls to the SetTransientState method.
 		SetTransientState []struct {
 			// Addr is the addr argument value.
@@ -446,10 +621,10 @@ type PolarisStateDBMock struct {
 		}
 		// SetTxContext holds details about calls to the SetTxContext method.
 		SetTxContext []struct {
-			// Hash is the hash argument value.
-			Hash common.Hash
-			// N is the n argument value.
-			N int
+			// Thash is the thash argument value.
+			Thash common.Hash
+			// Ti is the ti argument value.
+			Ti int
 		}
 		// SlotInAccessList holds details about calls to the SlotInAccessList method.
 		SlotInAccessList []struct {
@@ -460,6 +635,14 @@ type PolarisStateDBMock struct {
 		}
 		// Snapshot holds details about calls to the Snapshot method.
 		Snapshot []struct {
+		}
+		// StartPrefetcher holds details about calls to the StartPrefetcher method.
+		StartPrefetcher []struct {
+			// Namespace is the namespace argument value.
+			Namespace string
+		}
+		// StopPrefetcher holds details about calls to the StopPrefetcher method.
+		StopPrefetcher []struct {
 		}
 		// SubBalance holds details about calls to the SubBalance method.
 		SubBalance []struct {
@@ -473,6 +656,9 @@ type PolarisStateDBMock struct {
 			// V is the v argument value.
 			V uint64
 		}
+		// TxIndex holds details about calls to the TxIndex method.
+		TxIndex []struct {
+		}
 	}
 	lockAddAddressToAccessList sync.RWMutex
 	lockAddBalance             sync.RWMutex
@@ -482,7 +668,11 @@ type PolarisStateDBMock struct {
 	lockAddSlotToAccessList    sync.RWMutex
 	lockAddressInAccessList    sync.RWMutex
 	lockCommit                 sync.RWMutex
+	lockCopy                   sync.RWMutex
 	lockCreateAccount          sync.RWMutex
+	lockDatabase               sync.RWMutex
+	lockDump                   sync.RWMutex
+	lockDumpToCollector        sync.RWMutex
 	lockEmpty                  sync.RWMutex
 	lockError                  sync.RWMutex
 	lockExist                  sync.RWMutex
@@ -493,24 +683,37 @@ type PolarisStateDBMock struct {
 	lockGetCodeSize            sync.RWMutex
 	lockGetCommittedState      sync.RWMutex
 	lockGetContext             sync.RWMutex
+	lockGetLogs                sync.RWMutex
 	lockGetNonce               sync.RWMutex
+	lockGetOrNewStateObject    sync.RWMutex
 	lockGetRefund              sync.RWMutex
 	lockGetState               sync.RWMutex
+	lockGetStorageRoot         sync.RWMutex
 	lockGetTransientState      sync.RWMutex
 	lockHasSelfDestructed      sync.RWMutex
+	lockIntermediateRoot       sync.RWMutex
+	lockIteratorDump           sync.RWMutex
+	lockLogs                   sync.RWMutex
+	lockPreimages              sync.RWMutex
 	lockPrepare                sync.RWMutex
+	lockRawDump                sync.RWMutex
 	lockRevertToSnapshot       sync.RWMutex
 	lockSelfDestruct           sync.RWMutex
 	lockSelfdestruct6780       sync.RWMutex
+	lockSetBalance             sync.RWMutex
 	lockSetCode                sync.RWMutex
 	lockSetNonce               sync.RWMutex
 	lockSetState               sync.RWMutex
+	lockSetStorage             sync.RWMutex
 	lockSetTransientState      sync.RWMutex
 	lockSetTxContext           sync.RWMutex
 	lockSlotInAccessList       sync.RWMutex
 	lockSnapshot               sync.RWMutex
+	lockStartPrefetcher        sync.RWMutex
+	lockStopPrefetcher         sync.RWMutex
 	lockSubBalance             sync.RWMutex
 	lockSubRefund              sync.RWMutex
+	lockTxIndex                sync.RWMutex
 }
 
 // AddAddressToAccessList calls AddAddressToAccessListFunc.
@@ -785,6 +988,33 @@ func (mock *PolarisStateDBMock) CommitCalls() []struct {
 	return calls
 }
 
+// Copy calls CopyFunc.
+func (mock *PolarisStateDBMock) Copy() state.StateDBI {
+	if mock.CopyFunc == nil {
+		panic("PolarisStateDBMock.CopyFunc: method is nil but PolarisStateDB.Copy was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockCopy.Lock()
+	mock.calls.Copy = append(mock.calls.Copy, callInfo)
+	mock.lockCopy.Unlock()
+	return mock.CopyFunc()
+}
+
+// CopyCalls gets all the calls that were made to Copy.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.CopyCalls())
+func (mock *PolarisStateDBMock) CopyCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockCopy.RLock()
+	calls = mock.calls.Copy
+	mock.lockCopy.RUnlock()
+	return calls
+}
+
 // CreateAccount calls CreateAccountFunc.
 func (mock *PolarisStateDBMock) CreateAccount(address common.Address) {
 	if mock.CreateAccountFunc == nil {
@@ -814,6 +1044,101 @@ func (mock *PolarisStateDBMock) CreateAccountCalls() []struct {
 	mock.lockCreateAccount.RLock()
 	calls = mock.calls.CreateAccount
 	mock.lockCreateAccount.RUnlock()
+	return calls
+}
+
+// Database calls DatabaseFunc.
+func (mock *PolarisStateDBMock) Database() state.Database {
+	if mock.DatabaseFunc == nil {
+		panic("PolarisStateDBMock.DatabaseFunc: method is nil but PolarisStateDB.Database was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockDatabase.Lock()
+	mock.calls.Database = append(mock.calls.Database, callInfo)
+	mock.lockDatabase.Unlock()
+	return mock.DatabaseFunc()
+}
+
+// DatabaseCalls gets all the calls that were made to Database.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.DatabaseCalls())
+func (mock *PolarisStateDBMock) DatabaseCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockDatabase.RLock()
+	calls = mock.calls.Database
+	mock.lockDatabase.RUnlock()
+	return calls
+}
+
+// Dump calls DumpFunc.
+func (mock *PolarisStateDBMock) Dump(opts *state.DumpConfig) []byte {
+	if mock.DumpFunc == nil {
+		panic("PolarisStateDBMock.DumpFunc: method is nil but PolarisStateDB.Dump was just called")
+	}
+	callInfo := struct {
+		Opts *state.DumpConfig
+	}{
+		Opts: opts,
+	}
+	mock.lockDump.Lock()
+	mock.calls.Dump = append(mock.calls.Dump, callInfo)
+	mock.lockDump.Unlock()
+	return mock.DumpFunc(opts)
+}
+
+// DumpCalls gets all the calls that were made to Dump.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.DumpCalls())
+func (mock *PolarisStateDBMock) DumpCalls() []struct {
+	Opts *state.DumpConfig
+} {
+	var calls []struct {
+		Opts *state.DumpConfig
+	}
+	mock.lockDump.RLock()
+	calls = mock.calls.Dump
+	mock.lockDump.RUnlock()
+	return calls
+}
+
+// DumpToCollector calls DumpToCollectorFunc.
+func (mock *PolarisStateDBMock) DumpToCollector(c state.DumpCollector, conf *state.DumpConfig) []byte {
+	if mock.DumpToCollectorFunc == nil {
+		panic("PolarisStateDBMock.DumpToCollectorFunc: method is nil but PolarisStateDB.DumpToCollector was just called")
+	}
+	callInfo := struct {
+		C    state.DumpCollector
+		Conf *state.DumpConfig
+	}{
+		C:    c,
+		Conf: conf,
+	}
+	mock.lockDumpToCollector.Lock()
+	mock.calls.DumpToCollector = append(mock.calls.DumpToCollector, callInfo)
+	mock.lockDumpToCollector.Unlock()
+	return mock.DumpToCollectorFunc(c, conf)
+}
+
+// DumpToCollectorCalls gets all the calls that were made to DumpToCollector.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.DumpToCollectorCalls())
+func (mock *PolarisStateDBMock) DumpToCollectorCalls() []struct {
+	C    state.DumpCollector
+	Conf *state.DumpConfig
+} {
+	var calls []struct {
+		C    state.DumpCollector
+		Conf *state.DumpConfig
+	}
+	mock.lockDumpToCollector.RLock()
+	calls = mock.calls.DumpToCollector
+	mock.lockDumpToCollector.RUnlock()
 	return calls
 }
 
@@ -909,19 +1234,19 @@ func (mock *PolarisStateDBMock) ExistCalls() []struct {
 }
 
 // Finalise calls FinaliseFunc.
-func (mock *PolarisStateDBMock) Finalise(b bool) {
+func (mock *PolarisStateDBMock) Finalise(deleteEmptyObjects bool) {
 	if mock.FinaliseFunc == nil {
 		panic("PolarisStateDBMock.FinaliseFunc: method is nil but PolarisStateDB.Finalise was just called")
 	}
 	callInfo := struct {
-		B bool
+		DeleteEmptyObjects bool
 	}{
-		B: b,
+		DeleteEmptyObjects: deleteEmptyObjects,
 	}
 	mock.lockFinalise.Lock()
 	mock.calls.Finalise = append(mock.calls.Finalise, callInfo)
 	mock.lockFinalise.Unlock()
-	mock.FinaliseFunc(b)
+	mock.FinaliseFunc(deleteEmptyObjects)
 }
 
 // FinaliseCalls gets all the calls that were made to Finalise.
@@ -929,10 +1254,10 @@ func (mock *PolarisStateDBMock) Finalise(b bool) {
 //
 //	len(mockedPolarisStateDB.FinaliseCalls())
 func (mock *PolarisStateDBMock) FinaliseCalls() []struct {
-	B bool
+	DeleteEmptyObjects bool
 } {
 	var calls []struct {
-		B bool
+		DeleteEmptyObjects bool
 	}
 	mock.lockFinalise.RLock()
 	calls = mock.calls.Finalise
@@ -1131,6 +1456,46 @@ func (mock *PolarisStateDBMock) GetContextCalls() []struct {
 	return calls
 }
 
+// GetLogs calls GetLogsFunc.
+func (mock *PolarisStateDBMock) GetLogs(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log {
+	if mock.GetLogsFunc == nil {
+		panic("PolarisStateDBMock.GetLogsFunc: method is nil but PolarisStateDB.GetLogs was just called")
+	}
+	callInfo := struct {
+		Hash        common.Hash
+		BlockNumber uint64
+		BlockHash   common.Hash
+	}{
+		Hash:        hash,
+		BlockNumber: blockNumber,
+		BlockHash:   blockHash,
+	}
+	mock.lockGetLogs.Lock()
+	mock.calls.GetLogs = append(mock.calls.GetLogs, callInfo)
+	mock.lockGetLogs.Unlock()
+	return mock.GetLogsFunc(hash, blockNumber, blockHash)
+}
+
+// GetLogsCalls gets all the calls that were made to GetLogs.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.GetLogsCalls())
+func (mock *PolarisStateDBMock) GetLogsCalls() []struct {
+	Hash        common.Hash
+	BlockNumber uint64
+	BlockHash   common.Hash
+} {
+	var calls []struct {
+		Hash        common.Hash
+		BlockNumber uint64
+		BlockHash   common.Hash
+	}
+	mock.lockGetLogs.RLock()
+	calls = mock.calls.GetLogs
+	mock.lockGetLogs.RUnlock()
+	return calls
+}
+
 // GetNonce calls GetNonceFunc.
 func (mock *PolarisStateDBMock) GetNonce(address common.Address) uint64 {
 	if mock.GetNonceFunc == nil {
@@ -1160,6 +1525,38 @@ func (mock *PolarisStateDBMock) GetNonceCalls() []struct {
 	mock.lockGetNonce.RLock()
 	calls = mock.calls.GetNonce
 	mock.lockGetNonce.RUnlock()
+	return calls
+}
+
+// GetOrNewStateObject calls GetOrNewStateObjectFunc.
+func (mock *PolarisStateDBMock) GetOrNewStateObject(addr common.Address) *state.StateObject {
+	if mock.GetOrNewStateObjectFunc == nil {
+		panic("PolarisStateDBMock.GetOrNewStateObjectFunc: method is nil but PolarisStateDB.GetOrNewStateObject was just called")
+	}
+	callInfo := struct {
+		Addr common.Address
+	}{
+		Addr: addr,
+	}
+	mock.lockGetOrNewStateObject.Lock()
+	mock.calls.GetOrNewStateObject = append(mock.calls.GetOrNewStateObject, callInfo)
+	mock.lockGetOrNewStateObject.Unlock()
+	return mock.GetOrNewStateObjectFunc(addr)
+}
+
+// GetOrNewStateObjectCalls gets all the calls that were made to GetOrNewStateObject.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.GetOrNewStateObjectCalls())
+func (mock *PolarisStateDBMock) GetOrNewStateObjectCalls() []struct {
+	Addr common.Address
+} {
+	var calls []struct {
+		Addr common.Address
+	}
+	mock.lockGetOrNewStateObject.RLock()
+	calls = mock.calls.GetOrNewStateObject
+	mock.lockGetOrNewStateObject.RUnlock()
 	return calls
 }
 
@@ -1223,6 +1620,38 @@ func (mock *PolarisStateDBMock) GetStateCalls() []struct {
 	mock.lockGetState.RLock()
 	calls = mock.calls.GetState
 	mock.lockGetState.RUnlock()
+	return calls
+}
+
+// GetStorageRoot calls GetStorageRootFunc.
+func (mock *PolarisStateDBMock) GetStorageRoot(addr common.Address) common.Hash {
+	if mock.GetStorageRootFunc == nil {
+		panic("PolarisStateDBMock.GetStorageRootFunc: method is nil but PolarisStateDB.GetStorageRoot was just called")
+	}
+	callInfo := struct {
+		Addr common.Address
+	}{
+		Addr: addr,
+	}
+	mock.lockGetStorageRoot.Lock()
+	mock.calls.GetStorageRoot = append(mock.calls.GetStorageRoot, callInfo)
+	mock.lockGetStorageRoot.Unlock()
+	return mock.GetStorageRootFunc(addr)
+}
+
+// GetStorageRootCalls gets all the calls that were made to GetStorageRoot.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.GetStorageRootCalls())
+func (mock *PolarisStateDBMock) GetStorageRootCalls() []struct {
+	Addr common.Address
+} {
+	var calls []struct {
+		Addr common.Address
+	}
+	mock.lockGetStorageRoot.RLock()
+	calls = mock.calls.GetStorageRoot
+	mock.lockGetStorageRoot.RUnlock()
 	return calls
 }
 
@@ -1294,6 +1723,124 @@ func (mock *PolarisStateDBMock) HasSelfDestructedCalls() []struct {
 	return calls
 }
 
+// IntermediateRoot calls IntermediateRootFunc.
+func (mock *PolarisStateDBMock) IntermediateRoot(deleteEmptyObjects bool) common.Hash {
+	if mock.IntermediateRootFunc == nil {
+		panic("PolarisStateDBMock.IntermediateRootFunc: method is nil but PolarisStateDB.IntermediateRoot was just called")
+	}
+	callInfo := struct {
+		DeleteEmptyObjects bool
+	}{
+		DeleteEmptyObjects: deleteEmptyObjects,
+	}
+	mock.lockIntermediateRoot.Lock()
+	mock.calls.IntermediateRoot = append(mock.calls.IntermediateRoot, callInfo)
+	mock.lockIntermediateRoot.Unlock()
+	return mock.IntermediateRootFunc(deleteEmptyObjects)
+}
+
+// IntermediateRootCalls gets all the calls that were made to IntermediateRoot.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.IntermediateRootCalls())
+func (mock *PolarisStateDBMock) IntermediateRootCalls() []struct {
+	DeleteEmptyObjects bool
+} {
+	var calls []struct {
+		DeleteEmptyObjects bool
+	}
+	mock.lockIntermediateRoot.RLock()
+	calls = mock.calls.IntermediateRoot
+	mock.lockIntermediateRoot.RUnlock()
+	return calls
+}
+
+// IteratorDump calls IteratorDumpFunc.
+func (mock *PolarisStateDBMock) IteratorDump(opts *state.DumpConfig) state.IteratorDump {
+	if mock.IteratorDumpFunc == nil {
+		panic("PolarisStateDBMock.IteratorDumpFunc: method is nil but PolarisStateDB.IteratorDump was just called")
+	}
+	callInfo := struct {
+		Opts *state.DumpConfig
+	}{
+		Opts: opts,
+	}
+	mock.lockIteratorDump.Lock()
+	mock.calls.IteratorDump = append(mock.calls.IteratorDump, callInfo)
+	mock.lockIteratorDump.Unlock()
+	return mock.IteratorDumpFunc(opts)
+}
+
+// IteratorDumpCalls gets all the calls that were made to IteratorDump.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.IteratorDumpCalls())
+func (mock *PolarisStateDBMock) IteratorDumpCalls() []struct {
+	Opts *state.DumpConfig
+} {
+	var calls []struct {
+		Opts *state.DumpConfig
+	}
+	mock.lockIteratorDump.RLock()
+	calls = mock.calls.IteratorDump
+	mock.lockIteratorDump.RUnlock()
+	return calls
+}
+
+// Logs calls LogsFunc.
+func (mock *PolarisStateDBMock) Logs() []*types.Log {
+	if mock.LogsFunc == nil {
+		panic("PolarisStateDBMock.LogsFunc: method is nil but PolarisStateDB.Logs was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockLogs.Lock()
+	mock.calls.Logs = append(mock.calls.Logs, callInfo)
+	mock.lockLogs.Unlock()
+	return mock.LogsFunc()
+}
+
+// LogsCalls gets all the calls that were made to Logs.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.LogsCalls())
+func (mock *PolarisStateDBMock) LogsCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockLogs.RLock()
+	calls = mock.calls.Logs
+	mock.lockLogs.RUnlock()
+	return calls
+}
+
+// Preimages calls PreimagesFunc.
+func (mock *PolarisStateDBMock) Preimages() map[common.Hash][]byte {
+	if mock.PreimagesFunc == nil {
+		panic("PolarisStateDBMock.PreimagesFunc: method is nil but PolarisStateDB.Preimages was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockPreimages.Lock()
+	mock.calls.Preimages = append(mock.calls.Preimages, callInfo)
+	mock.lockPreimages.Unlock()
+	return mock.PreimagesFunc()
+}
+
+// PreimagesCalls gets all the calls that were made to Preimages.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.PreimagesCalls())
+func (mock *PolarisStateDBMock) PreimagesCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockPreimages.RLock()
+	calls = mock.calls.Preimages
+	mock.lockPreimages.RUnlock()
+	return calls
+}
+
 // Prepare calls PrepareFunc.
 func (mock *PolarisStateDBMock) Prepare(rules params.Rules, sender common.Address, coinbase common.Address, dest *common.Address, precompiles []common.Address, txAccesses types.AccessList) {
 	if mock.PrepareFunc == nil {
@@ -1343,6 +1890,38 @@ func (mock *PolarisStateDBMock) PrepareCalls() []struct {
 	mock.lockPrepare.RLock()
 	calls = mock.calls.Prepare
 	mock.lockPrepare.RUnlock()
+	return calls
+}
+
+// RawDump calls RawDumpFunc.
+func (mock *PolarisStateDBMock) RawDump(opts *state.DumpConfig) state.Dump {
+	if mock.RawDumpFunc == nil {
+		panic("PolarisStateDBMock.RawDumpFunc: method is nil but PolarisStateDB.RawDump was just called")
+	}
+	callInfo := struct {
+		Opts *state.DumpConfig
+	}{
+		Opts: opts,
+	}
+	mock.lockRawDump.Lock()
+	mock.calls.RawDump = append(mock.calls.RawDump, callInfo)
+	mock.lockRawDump.Unlock()
+	return mock.RawDumpFunc(opts)
+}
+
+// RawDumpCalls gets all the calls that were made to RawDump.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.RawDumpCalls())
+func (mock *PolarisStateDBMock) RawDumpCalls() []struct {
+	Opts *state.DumpConfig
+} {
+	var calls []struct {
+		Opts *state.DumpConfig
+	}
+	mock.lockRawDump.RLock()
+	calls = mock.calls.RawDump
+	mock.lockRawDump.RUnlock()
 	return calls
 }
 
@@ -1439,6 +2018,42 @@ func (mock *PolarisStateDBMock) Selfdestruct6780Calls() []struct {
 	mock.lockSelfdestruct6780.RLock()
 	calls = mock.calls.Selfdestruct6780
 	mock.lockSelfdestruct6780.RUnlock()
+	return calls
+}
+
+// SetBalance calls SetBalanceFunc.
+func (mock *PolarisStateDBMock) SetBalance(addr common.Address, amount *big.Int) {
+	if mock.SetBalanceFunc == nil {
+		panic("PolarisStateDBMock.SetBalanceFunc: method is nil but PolarisStateDB.SetBalance was just called")
+	}
+	callInfo := struct {
+		Addr   common.Address
+		Amount *big.Int
+	}{
+		Addr:   addr,
+		Amount: amount,
+	}
+	mock.lockSetBalance.Lock()
+	mock.calls.SetBalance = append(mock.calls.SetBalance, callInfo)
+	mock.lockSetBalance.Unlock()
+	mock.SetBalanceFunc(addr, amount)
+}
+
+// SetBalanceCalls gets all the calls that were made to SetBalance.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.SetBalanceCalls())
+func (mock *PolarisStateDBMock) SetBalanceCalls() []struct {
+	Addr   common.Address
+	Amount *big.Int
+} {
+	var calls []struct {
+		Addr   common.Address
+		Amount *big.Int
+	}
+	mock.lockSetBalance.RLock()
+	calls = mock.calls.SetBalance
+	mock.lockSetBalance.RUnlock()
 	return calls
 }
 
@@ -1554,6 +2169,42 @@ func (mock *PolarisStateDBMock) SetStateCalls() []struct {
 	return calls
 }
 
+// SetStorage calls SetStorageFunc.
+func (mock *PolarisStateDBMock) SetStorage(addr common.Address, storage map[common.Hash]common.Hash) {
+	if mock.SetStorageFunc == nil {
+		panic("PolarisStateDBMock.SetStorageFunc: method is nil but PolarisStateDB.SetStorage was just called")
+	}
+	callInfo := struct {
+		Addr    common.Address
+		Storage map[common.Hash]common.Hash
+	}{
+		Addr:    addr,
+		Storage: storage,
+	}
+	mock.lockSetStorage.Lock()
+	mock.calls.SetStorage = append(mock.calls.SetStorage, callInfo)
+	mock.lockSetStorage.Unlock()
+	mock.SetStorageFunc(addr, storage)
+}
+
+// SetStorageCalls gets all the calls that were made to SetStorage.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.SetStorageCalls())
+func (mock *PolarisStateDBMock) SetStorageCalls() []struct {
+	Addr    common.Address
+	Storage map[common.Hash]common.Hash
+} {
+	var calls []struct {
+		Addr    common.Address
+		Storage map[common.Hash]common.Hash
+	}
+	mock.lockSetStorage.RLock()
+	calls = mock.calls.SetStorage
+	mock.lockSetStorage.RUnlock()
+	return calls
+}
+
 // SetTransientState calls SetTransientStateFunc.
 func (mock *PolarisStateDBMock) SetTransientState(addr common.Address, key common.Hash, value common.Hash) {
 	if mock.SetTransientStateFunc == nil {
@@ -1595,21 +2246,21 @@ func (mock *PolarisStateDBMock) SetTransientStateCalls() []struct {
 }
 
 // SetTxContext calls SetTxContextFunc.
-func (mock *PolarisStateDBMock) SetTxContext(hash common.Hash, n int) {
+func (mock *PolarisStateDBMock) SetTxContext(thash common.Hash, ti int) {
 	if mock.SetTxContextFunc == nil {
 		panic("PolarisStateDBMock.SetTxContextFunc: method is nil but PolarisStateDB.SetTxContext was just called")
 	}
 	callInfo := struct {
-		Hash common.Hash
-		N    int
+		Thash common.Hash
+		Ti    int
 	}{
-		Hash: hash,
-		N:    n,
+		Thash: thash,
+		Ti:    ti,
 	}
 	mock.lockSetTxContext.Lock()
 	mock.calls.SetTxContext = append(mock.calls.SetTxContext, callInfo)
 	mock.lockSetTxContext.Unlock()
-	mock.SetTxContextFunc(hash, n)
+	mock.SetTxContextFunc(thash, ti)
 }
 
 // SetTxContextCalls gets all the calls that were made to SetTxContext.
@@ -1617,12 +2268,12 @@ func (mock *PolarisStateDBMock) SetTxContext(hash common.Hash, n int) {
 //
 //	len(mockedPolarisStateDB.SetTxContextCalls())
 func (mock *PolarisStateDBMock) SetTxContextCalls() []struct {
-	Hash common.Hash
-	N    int
+	Thash common.Hash
+	Ti    int
 } {
 	var calls []struct {
-		Hash common.Hash
-		N    int
+		Thash common.Hash
+		Ti    int
 	}
 	mock.lockSetTxContext.RLock()
 	calls = mock.calls.SetTxContext
@@ -1693,6 +2344,65 @@ func (mock *PolarisStateDBMock) SnapshotCalls() []struct {
 	return calls
 }
 
+// StartPrefetcher calls StartPrefetcherFunc.
+func (mock *PolarisStateDBMock) StartPrefetcher(namespace string) {
+	if mock.StartPrefetcherFunc == nil {
+		panic("PolarisStateDBMock.StartPrefetcherFunc: method is nil but PolarisStateDB.StartPrefetcher was just called")
+	}
+	callInfo := struct {
+		Namespace string
+	}{
+		Namespace: namespace,
+	}
+	mock.lockStartPrefetcher.Lock()
+	mock.calls.StartPrefetcher = append(mock.calls.StartPrefetcher, callInfo)
+	mock.lockStartPrefetcher.Unlock()
+	mock.StartPrefetcherFunc(namespace)
+}
+
+// StartPrefetcherCalls gets all the calls that were made to StartPrefetcher.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.StartPrefetcherCalls())
+func (mock *PolarisStateDBMock) StartPrefetcherCalls() []struct {
+	Namespace string
+} {
+	var calls []struct {
+		Namespace string
+	}
+	mock.lockStartPrefetcher.RLock()
+	calls = mock.calls.StartPrefetcher
+	mock.lockStartPrefetcher.RUnlock()
+	return calls
+}
+
+// StopPrefetcher calls StopPrefetcherFunc.
+func (mock *PolarisStateDBMock) StopPrefetcher() {
+	if mock.StopPrefetcherFunc == nil {
+		panic("PolarisStateDBMock.StopPrefetcherFunc: method is nil but PolarisStateDB.StopPrefetcher was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockStopPrefetcher.Lock()
+	mock.calls.StopPrefetcher = append(mock.calls.StopPrefetcher, callInfo)
+	mock.lockStopPrefetcher.Unlock()
+	mock.StopPrefetcherFunc()
+}
+
+// StopPrefetcherCalls gets all the calls that were made to StopPrefetcher.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.StopPrefetcherCalls())
+func (mock *PolarisStateDBMock) StopPrefetcherCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockStopPrefetcher.RLock()
+	calls = mock.calls.StopPrefetcher
+	mock.lockStopPrefetcher.RUnlock()
+	return calls
+}
+
 // SubBalance calls SubBalanceFunc.
 func (mock *PolarisStateDBMock) SubBalance(address common.Address, intMoqParam *big.Int) {
 	if mock.SubBalanceFunc == nil {
@@ -1758,5 +2468,32 @@ func (mock *PolarisStateDBMock) SubRefundCalls() []struct {
 	mock.lockSubRefund.RLock()
 	calls = mock.calls.SubRefund
 	mock.lockSubRefund.RUnlock()
+	return calls
+}
+
+// TxIndex calls TxIndexFunc.
+func (mock *PolarisStateDBMock) TxIndex() int {
+	if mock.TxIndexFunc == nil {
+		panic("PolarisStateDBMock.TxIndexFunc: method is nil but PolarisStateDB.TxIndex was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockTxIndex.Lock()
+	mock.calls.TxIndex = append(mock.calls.TxIndex, callInfo)
+	mock.lockTxIndex.Unlock()
+	return mock.TxIndexFunc()
+}
+
+// TxIndexCalls gets all the calls that were made to TxIndex.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.TxIndexCalls())
+func (mock *PolarisStateDBMock) TxIndexCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockTxIndex.RLock()
+	calls = mock.calls.TxIndex
+	mock.lockTxIndex.RUnlock()
 	return calls
 }

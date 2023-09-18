@@ -21,7 +21,6 @@
 package core
 
 import (
-	"context"
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -34,7 +33,7 @@ import (
 type ChainResources interface {
 	StateAtBlockNumber(uint64) (vm.GethStateDB, error)
 	GetVMConfig() *vm.Config
-	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
+	GetEVM(vm.BlockContext, vm.TxContext, vm.PolarisStateDB, *vm.Config) *vm.GethEVM
 	NewEVMBlockContext(header *types.Header) *vm.BlockContext
 }
 
@@ -52,12 +51,10 @@ func (bc *blockchain) StateAtBlockNumber(number uint64) (vm.GethStateDB, error) 
 // StateProcessor to acquire a new EVM at the start of every block. As well as by the backend to
 // acquire an EVM for running gas estimations, eth_call etc.
 func (bc *blockchain) GetEVM(
-	_ context.Context, txContext vm.TxContext, state vm.PolarisStateDB,
-	header *types.Header, vmConfig *vm.Config,
+	blockCtx vm.BlockContext, txContext vm.TxContext, state vm.PolarisStateDB, vmConfig *vm.Config,
 ) *vm.GethEVM {
-	chainCfg := bc.processor.cp.ChainConfig() // TODO: get chain config at height.
 	return vm.NewGethEVMWithPrecompiles(
-		*bc.NewEVMBlockContext(header), txContext, state, chainCfg, *vmConfig, bc.processor.pp,
+		blockCtx, txContext, state, bc.cp.ChainConfig(), *vmConfig, bc.processor.pp,
 	)
 }
 

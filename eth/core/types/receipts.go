@@ -32,7 +32,9 @@ import (
 )
 
 // DeriveReceiptsFromBlock is a helper function for deriving receipts from a block.
-func DeriveReceiptsFromBlock(chainConfig *params.ChainConfig, receipts types.Receipts, block *types.Block) (types.Receipts, error) {
+func DeriveReceiptsFromBlock(
+	chainConfig *params.ChainConfig, receipts types.Receipts, block *types.Block,
+) (types.Receipts, error) {
 	// calculate the blobGasPrice according to the excess blob gas.
 	var blobGasPrice = new(big.Int)
 	if chainConfig.IsCancun(block.Number(), block.Time()) {
@@ -41,7 +43,8 @@ func DeriveReceiptsFromBlock(chainConfig *params.ChainConfig, receipts types.Rec
 
 	// Derive receipts from block.
 	if err := receipts.DeriveFields(
-		chainConfig, block.Hash(), block.Number().Uint64(), block.Time(), block.BaseFee(), blobGasPrice, block.Transactions(),
+		chainConfig, block.Hash(), block.Number().Uint64(), block.Time(),
+		block.BaseFee(), blobGasPrice, block.Transactions(),
 	); err != nil {
 		return nil, err
 	}

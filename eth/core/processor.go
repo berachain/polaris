@@ -29,7 +29,6 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
@@ -150,7 +149,7 @@ func (sp *StateProcessor) ProcessTransaction(
 
 	// Inshallah we will be able to apply the transaction.
 	receipt, result, err := ApplyTransactionWithEVMWithResult(
-		sp.evm, sp.cp.ChainConfig(), gasPool, sp.statedb.(state.StateDBI), sp.header.BaseFee,
+		sp.evm, sp.cp.ChainConfig(), gasPool, sp.statedb, sp.header.BaseFee,
 		sp.header.Number, sp.sealhash, sp.header.Time, tx, &sp.header.GasUsed,
 	)
 	if err != nil {
