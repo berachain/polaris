@@ -42,7 +42,7 @@ var _ = Describe("Logs", func() {
 	BeforeEach(func() {
 		l = utils.MustGetAs[*logs](NewLogs())
 		l.SetTxContext(thash, int(ti))
-		Expect(l.Capacity()).To(Equal(32))
+		Expect(l.journal.Capacity()).To(Equal(32))
 	})
 
 	It("should have the correct registry key", func() {
@@ -52,21 +52,21 @@ var _ = Describe("Logs", func() {
 	When("adding logs", func() {
 		BeforeEach(func() {
 			l.AddLog(&coretypes.Log{Address: a1})
-			Expect(l.Size()).To(Equal(1))
-			Expect(l.PeekAt(0).Address).To(Equal(a1))
-			Expect(l.PeekAt(0).TxHash).To(Equal(thash))
-			Expect(l.PeekAt(0).TxIndex).To(Equal(ti))
+			Expect(l.journal.Size()).To(Equal(1))
+			Expect(l.journal.PeekAt(0).Address).To(Equal(a1))
+			Expect(l.journal.PeekAt(0).TxHash).To(Equal(thash))
+			Expect(l.journal.PeekAt(0).TxIndex).To(Equal(ti))
 		})
 
 		It("should correctly snapshot and revert", func() {
 			id := l.Snapshot()
 
 			l.AddLog(&coretypes.Log{Address: a2})
-			Expect(l.Size()).To(Equal(2))
-			Expect(l.PeekAt(1).Address).To(Equal(a2))
+			Expect(l.journal.Size()).To(Equal(2))
+			Expect(l.journal.PeekAt(1).Address).To(Equal(a2))
 
 			l.RevertToSnapshot(id)
-			Expect(l.Size()).To(Equal(1))
+			Expect(l.journal.Size()).To(Equal(1))
 		})
 
 		It("should correctly get logs", func() {
@@ -88,18 +88,18 @@ var _ = Describe("Logs", func() {
 
 		It("should correctly clone", func() {
 			l.AddLog(&coretypes.Log{Address: a2})
-			Expect(l.Size()).To(Equal(2))
-			Expect(l.PeekAt(1).Address).To(Equal(a2))
+			Expect(l.journal.Size()).To(Equal(2))
+			Expect(l.journal.PeekAt(1).Address).To(Equal(a2))
 
 			l2 := utils.MustGetAs[*logs](l.Clone())
-			Expect(l2.Size()).To(Equal(2))
-			Expect(l2.PeekAt(0).Address).To(Equal(a1))
-			Expect(l2.PeekAt(1).Address).To(Equal(a2))
+			Expect(l2.journal.Size()).To(Equal(2))
+			Expect(l2.journal.PeekAt(0).Address).To(Equal(a1))
+			Expect(l2.journal.PeekAt(1).Address).To(Equal(a2))
 
 			l2.AddLog(&coretypes.Log{Address: a3})
-			Expect(l2.Size()).To(Equal(3))
-			Expect(l2.PeekAt(2).Address).To(Equal(a3))
-			Expect(l.Size()).To(Equal(2))
+			Expect(l2.journal.Size()).To(Equal(3))
+			Expect(l2.journal.PeekAt(2).Address).To(Equal(a3))
+			Expect(l.journal.Size()).To(Equal(2))
 		})
 	})
 })

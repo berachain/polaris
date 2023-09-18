@@ -283,8 +283,9 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash rpc.Blo
 	return nil, errors.New("invalid arguments; neither block nor hash specified")
 }
 
-func (b *backend) StateAndHeaderByNumber(ctx context.Context,
-	number rpc.BlockNumber) (state.StateDBI, *types.Header, error) {
+func (b *backend) StateAndHeaderByNumber(
+	ctx context.Context, number rpc.BlockNumber,
+) (state.StateDBI, *types.Header, error) {
 	// TODO: handling pending better
 	// // Pending state is only known by the miner
 	// if number == rpc.PendingBlockNumber {
@@ -304,13 +305,13 @@ func (b *backend) StateAndHeaderByNumber(ctx context.Context,
 	b.logger.Debug("called eth.rpc.backend.StateAndHeaderByNumber", "header", header)
 
 	// StateAtBlockNumber returns nil if the number is not found
-	stateAtBlock, err := b.polar.blockchain.StateAtBlockNumber(header.Number.Uint64())
+	state, err := b.polar.blockchain.StateAtBlockNumber(header.Number.Uint64())
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.StateAndHeaderByNumber", "number", number, "err", err)
 		return nil, nil, err
 	}
 
-	return stateAtBlock, header, nil
+	return state, header, nil
 }
 
 func (b *backend) StateAndHeaderByNumberOrHash(

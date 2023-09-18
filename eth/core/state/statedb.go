@@ -21,6 +21,8 @@
 package state
 
 import (
+	"fmt"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state/journal"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -173,10 +175,18 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 
 // Copy returns a new statedb with cloned plugin and journals.
 func (sdb *stateDB) Copy() StateDBI {
-	return newStateDBWithJournals(
-		sdb.Plugin.Clone(), sdb.Log.Clone(), sdb.Refund.Clone(),
+	logs := sdb.Log.Clone()
+	if logs == nil {
+		panic("failed to clone logs")
+	}
+	statedb, ok := newStateDBWithJournals(
+		sdb.Plugin.Clone(), logs, sdb.Refund.Clone(),
 		sdb.Accesslist.Clone(), sdb.SelfDestructs.Clone(), sdb.TransientStorage.Clone(),
 	).(StateDBI)
+	if !ok {
+		panic(fmt.Sprintf("failed to clone stateDB: %T", sdb.Plugin))
+	}
+	return statedb
 }
 
 func (sdb *stateDB) DumpToCollector(_ DumpCollector, _ *DumpConfig) []byte {
