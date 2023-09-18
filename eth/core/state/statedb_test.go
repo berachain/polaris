@@ -28,6 +28,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/state/mock"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/params"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -41,12 +42,12 @@ var (
 )
 
 var _ = Describe("StateDB", func() {
-	var sdb state.StateDBI
+	var sdb vm.PolarisStateDB
 	var sp *mock.PluginMock
 
 	BeforeEach(func() {
 		sp = mock.NewEmptyStatePlugin()
-		sdb = state.NewStateDB(sp).(state.StateDBI)
+		sdb = state.NewStateDB(sp)
 	})
 
 	It("Should SelfDestruct correctly", func() {

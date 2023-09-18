@@ -310,10 +310,7 @@ func (b *backend) StateAndHeaderByNumber(ctx context.Context,
 		return nil, nil, err
 	}
 
-	// todo: fix
-	var state_ state.StateDBI = stateAtBlock.(state.StateDBI)
-
-	return state_, header, nil
+	return stateAtBlock.(state.StateDBI), header, nil
 }
 
 func (b *backend) StateAndHeaderByNumberOrHash(

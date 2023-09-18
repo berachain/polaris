@@ -27,6 +27,7 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
+
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
