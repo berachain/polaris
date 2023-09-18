@@ -16,8 +16,6 @@
 package stack
 
 import (
-	"fmt"
-
 	"pkg.berachain.dev/polaris/lib/ds"
 )
 
@@ -63,7 +61,6 @@ func (s *stack[T]) PeekAt(index int) T {
 
 // Push implements `Stack`.
 func (s *stack[T]) Push(i T) int {
-	fmt.Println(len(s.buf), s.size, s.capacity)
 	s.expandIfRequired()
 	s.buf[s.size] = i
 	s.size++
