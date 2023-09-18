@@ -27,18 +27,23 @@ pragma solidity ^0.8.4;
 
 import {Cosmos} from "../CosmosTypes.sol";
 
+/**
+ * @dev Interface of the governance module's precompiled contract
+ */
 interface IGovernanceModule {
     ////////////////////////////////////////// Write Methods /////////////////////////////////////////////
     /**
-     * @dev Submit a proposal to the governance module. Returns the proposal id.
-     * @param proposalMsg The proposal to submit.
+     * @dev Submit a proposal to the governance module.
+     * @param proposalMsg The proposal to submit (as marshaled bytes). NOTE: use the codec to
+     * marshal the proposal message.
+     * @return The id of the proposal.
      */
     function submitProposal(bytes calldata proposalMsg) external returns (uint64);
 
     /**
-     * @dev Cancel a proposal. Returns the cancled time and height.
-     *   burned.
+     * @dev Cancel a proposal.
      * @param proposalId The id of the proposal to cancel.
+     * @return The time and block height the proposal was canceled.
      */
     function cancelProposal(uint64 proposalId) external returns (uint64, uint64);
 
@@ -82,6 +87,7 @@ interface IGovernanceModule {
 
     /**
      * @dev Get proposals with a given status.
+     * @notice Accepts pagination request.
      * @param proposalStatus The status of the proposals to get.
      */
     function getProposals(int32 proposalStatus, Cosmos.PageRequest calldata pagination)
@@ -90,12 +96,15 @@ interface IGovernanceModule {
         returns (Proposal[] memory, Cosmos.PageResponse memory);
 
     /**
-     * @dev Get the proposal tally result with the given id.
+     * @dev Get the proposal tally result for the given id.
+     * @param proposalId The id of the proposal to get the tally result for.
      */
     function getProposalTallyResult(uint64 proposalId) external view returns (TallyResult memory);
 
     /**
      * @dev Get the proposal votes with the given id.
+     * @notice Accepts pagination request.
+     * @param proposalId The id of the proposal to get the votes for.
      */
     function getProposalVotes(uint64 proposalId, Cosmos.PageRequest calldata pagination)
         external
@@ -104,6 +113,8 @@ interface IGovernanceModule {
 
     /**
      * @dev Get the proposal vote information with the given id and voter.
+     * @param proposalId The id of the proposal to get the vote info for.
+     * @param voter The address of the voter to get the vote info for.
      */
     function getProposalVotesByVoter(uint64 proposalId, address voter) external view returns (Vote memory);
 
@@ -135,7 +146,6 @@ interface IGovernanceModule {
     ////////////////////////////////////////// Structs ///////////////////////////////////////////////////
     /**
      * @dev Represents a governance module `WeightedVoteOption`.
-     * Note: this struct is generated in generated/i_staking_module.abigen.go
      */
     struct WeightedVoteOption {
         int32 voteOption;
@@ -144,7 +154,6 @@ interface IGovernanceModule {
 
     /**
      * @dev Represents a governance module `Vote`.
-     * Note: this struct is generated in generated/i_staking_module.abigen.go
      */
     struct Vote {
         uint64 proposalId;
@@ -155,7 +164,6 @@ interface IGovernanceModule {
 
     /**
      * @dev Represents a governance module `Proposal`.
-     * Note: this struct is generated in generated/i_staking_module.abigen.go
      */
     struct Proposal {
         uint64 id;
@@ -175,7 +183,6 @@ interface IGovernanceModule {
 
     /**
      * @dev Represents the governance module's parameters.
-     * Note: this struct is generated in generated/i_staking_module.abigen.go
      */
     struct Params {
         Cosmos.Coin[] minDeposit;
@@ -197,7 +204,6 @@ interface IGovernanceModule {
 
     /**
      * @dev Represents the governance module's `VotingParams`.
-     * Note: this struct is generated in generated/i_staking_module.abigen.go
      */
     struct VotingParams {
         uint64 votingPeriod;
@@ -205,7 +211,6 @@ interface IGovernanceModule {
 
     /**
      * @dev Represents the governance module's `DepositParams`.
-     * Note: this struct is generated in generated/i_staking_module.abigen.go
      */
     struct DepositParams {
         Cosmos.Coin[] minDeposit;
@@ -214,7 +219,6 @@ interface IGovernanceModule {
 
     /**
      * @dev Represents the governance module's `TallyParams`.
-     * Note: this struct is generated in generated/i_staking_module.abigen.go
      */
     struct TallyParams {
         string quorum;
@@ -224,7 +228,6 @@ interface IGovernanceModule {
 
     /**
      * @dev Represents a governance module `TallyResult`.
-     * Note: this struct is generated in generated/i_staking_module.abigen.go
      */
     struct TallyResult {
         string yesCount;
@@ -234,7 +237,7 @@ interface IGovernanceModule {
     }
 
     /**
-     * @dev Emitted by the governance module when `submitProposal` is called.
+     * @dev Emitted by the governance precompile when `submitProposal` is called.
      * @param proposalId The id of the proposal.
      * @param proposalSender The sender of the submit proposal.
      */
@@ -248,7 +251,7 @@ interface IGovernanceModule {
     event ProposalDeposit(uint64 indexed proposalId, Cosmos.Coin[] amount);
 
     /**
-     * @dev Emitted by the governance module when `AddVote` is called in the msg server.
+     * @dev Emitted by the governance precompile when a proposal is voted on.
      * @param proposalVote The vote that was voted on for a proposal.
      */
     event ProposalVoted(Vote proposalVote);
