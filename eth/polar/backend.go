@@ -406,7 +406,7 @@ func (b *backend) GetEVM(_ context.Context, msg *core.Message,
 	if blockCtx != nil {
 		context = *blockCtx
 	} else {
-		context = core.NewEVMBlockContext(header, b.polar.blockchain, nil)
+		context = core.NewEVMBlockContext(header, b.polar.blockchain, &header.Coinbase)
 	}
 
 	return b.polar.blockchain.GetEVM(context, txContext,
