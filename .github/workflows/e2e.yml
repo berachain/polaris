@@ -109,7 +109,7 @@ jobs:
     needs: build-base
     strategy:
       matrix:
-        simulator: [polaris/rpc, polaris/graphql]
+        simulator: [polaris/rpc]
         namespace: [cosmos]
         os: [polaris-linux-latest]
         go-version: [1.21.0]

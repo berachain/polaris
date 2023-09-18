@@ -24,8 +24,7 @@ import (
 	"github.com/ethereum/go-ethereum/node"
 )
 
-// Node is a wrapper around the go-ethereum node.Node object, that allows us to conform to the
-// NetworkingStack interface, we have to do some hacky stuff to initialize the graphql service,
+// Node is a wrapper around the go-ethereum node.Node object.
 // TODO: deprecate this and use a more elegant solution.
 type Node struct {
 	*node.Node
@@ -68,7 +67,5 @@ func DefaultGethNodeConfig() *node.Config {
 	nodeCfg.WSOrigins = []string{"*"}
 	nodeCfg.HTTPCors = []string{"*"}
 	nodeCfg.HTTPVirtualHosts = []string{"*"}
-	nodeCfg.GraphQLCors = []string{"*"}
-	nodeCfg.GraphQLVirtualHosts = []string{"*"}
 	return &nodeCfg
 }
