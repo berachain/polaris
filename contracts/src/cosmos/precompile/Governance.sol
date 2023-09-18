@@ -87,7 +87,7 @@ interface IGovernanceModule {
 
     /**
      * @dev Get proposals with a given status.
-     * @notice Accepts pagination request.
+     * @notice Accepts pagination request (empty == no pagination returned).
      * @param proposalStatus The status of the proposals to get.
      */
     function getProposals(int32 proposalStatus, Cosmos.PageRequest calldata pagination)
