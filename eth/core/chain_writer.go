@@ -63,12 +63,14 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	}
 
 	coinbase, timestamp := bc.bp.GetNewBlockMetadata(number)
+	chainConfig := bc.Config()
 
 	// Build the new block header.
 	parent := bc.CurrentFinalBlock()
 	if number >= 1 && parent == nil {
 		parent = bc.GetHeaderByNumber(number - 1)
 	}
+
 	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
 	// and block nonce (Nonce) on the new header.
 	header := &types.Header{
@@ -78,12 +80,35 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
-		// TODO: handle blobl fee.
-		BaseFee: eip1559.CalcBaseFee(bc.Config(), parent),
+	}
+
+	// TODO: Settable in PrepareProposal.
+	// Set the extra field.
+	if /*len(w.extra) != 0*/ true {
+		header.Extra = nil
+	}
+
+	// Set the randomness field from the beacon chain if it's available.
+	// TODO: Settable in PrepareProposal.
+	if /*genParams.random != (common.Hash{})*/ true {
+		// header.MixDigest = genParams.random
+		header.MixDigest = common.Hash{}
+	}
+
+	// Apply EIP-1559.
+	// TODO: Move to PrepareProposal.
+	if chainConfig.IsLondon(header.Number) {
+		header.BaseFee = eip1559.CalcBaseFee(chainConfig, parent)
+		// On switchover.
+		// TODO: implement.
+		// if !chainConfig.IsLondon(parent.Number) {
+		// 	parentGasLimit := parent.GasLimit * chainConfig.ElasticityMultiplier()
+		// 	header.GasLimit = core.CalcGasLimit(parentGasLimit, bc.gp.BlockGasLimit())
+		// }
 	}
 
 	// Apply EIP-4844, EIP-4788.
-	chainConfig := bc.Config()
+	// TODO: Move to PrepareProposal.
 	if chainConfig.IsCancun(header.Number, header.Time) {
 		var excessBlobGas uint64
 		if chainConfig.IsCancun(parent.Number, parent.Time) {
@@ -96,13 +121,14 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		header.ExcessBlobGas = &excessBlobGas
 		header.ParentBeaconRoot = &common.Hash{}
 	}
-
 	bc.logger.Info("preparing evm block", "seal_hash", header.Hash())
 
 	// We update the base fee in the txpool to the next base fee.
+	// TODO: Move to PrepareProposal.
 	bc.tp.SetBaseFee(header.BaseFee)
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
+	// TODO: Move to PrepareProposal.
 	bc.processor.Prepare(
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
 		header,
