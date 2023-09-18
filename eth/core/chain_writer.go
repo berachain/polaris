@@ -104,7 +104,7 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	bc.processor.Prepare(
-		bc.GetEVM(*bc.NewEVMBlockContext(header), vm.TxContext{}, bc.statedb, bc.vmConfig),
+		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
 		header,
 	)
 }

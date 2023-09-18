@@ -16,6 +16,8 @@
 package stack
 
 import (
+	"fmt"
+
 	"pkg.berachain.dev/polaris/lib/ds"
 )
 
@@ -27,16 +29,18 @@ const (
 // stack is a struct that holds a slice of Items as a last in, first out data structure.
 // It is implemented by pre-allocating a buffer with a capacity.
 type stack[T any] struct {
-	size     int
-	capacity int
-	buf      []T
+	size            int
+	capacity        int
+	initialCapacity int
+	buf             []T
 }
 
 // Creates a new, empty stack with the given initial capacity.
 func New[T any](initialCapacity int) ds.Stack[T] {
 	return &stack[T]{
-		capacity: initialCapacity,
-		buf:      make([]T, initialCapacity),
+		capacity:        initialCapacity,
+		buf:             make([]T, initialCapacity),
+		initialCapacity: initialCapacity,
 	}
 }
 
@@ -59,6 +63,7 @@ func (s *stack[T]) PeekAt(index int) T {
 
 // Push implements `Stack`.
 func (s *stack[T]) Push(i T) int {
+	fmt.Println(len(s.buf), s.size, s.capacity)
 	s.expandIfRequired()
 	s.buf[s.size] = i
 	s.size++
@@ -105,15 +110,15 @@ func (s *stack[T]) expandIfRequired() {
 	if s.size < s.capacity {
 		return
 	}
-
-	newBuf := make([]T, (s.capacity*resizeRatio)/two)
+	newCapacity := max(s.initialCapacity, (s.capacity*resizeRatio)/two)
+	newBuf := make([]T, newCapacity)
 	s.buf = append(s.buf, newBuf...)
 	s.capacity *= resizeRatio
 }
 
 // shrinkIfRequired shrinks the stack if the size is less than the capacity/resizeRatio.
 func (s *stack[T]) shrinkIfRequired() {
-	if newCap := s.capacity / resizeRatio; s.size < newCap {
+	if newCap := max(s.initialCapacity, s.capacity/resizeRatio); s.size < newCap {
 		newBuf := make([]T, newCap)
 		copy(newBuf, s.buf)
 		s.buf = newBuf

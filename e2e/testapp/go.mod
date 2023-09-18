@@ -2,8 +2,6 @@ module pkg.berachain.dev/polaris/e2e/testapp
 
 go 1.21
 
-toolchain go1.21.0
-
 replace (
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230918183654-51d30dd1a34b
