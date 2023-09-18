@@ -108,17 +108,16 @@ func (s *stack[T]) expandIfRequired() {
 		return
 	}
 	newCapacity := max(s.initialCapacity, (s.capacity*resizeRatio)/two)
-	newBuf := make([]T, newCapacity)
-	s.buf = append(s.buf, newBuf...)
+	s.buf = append(s.buf, make([]T, newCapacity)...)
 	s.capacity *= resizeRatio
 }
 
 // shrinkIfRequired shrinks the stack if the size is less than the capacity/resizeRatio.
 func (s *stack[T]) shrinkIfRequired() {
-	if newCap := max(s.initialCapacity, s.capacity/resizeRatio); s.size < newCap {
-		newBuf := make([]T, newCap)
+	if newCapacity := max(s.initialCapacity, s.capacity/resizeRatio); s.size < newCapacity {
+		newBuf := make([]T, newCapacity)
 		copy(newBuf, s.buf)
 		s.buf = newBuf
-		s.capacity = newCap
+		s.capacity = newCapacity
 	}
 }
