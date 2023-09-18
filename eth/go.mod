@@ -3,7 +3,7 @@ module pkg.berachain.dev/polaris/eth
 go 1.21
 
 // We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230918170253-234620b4cc48
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230918183027-48493618bb81
 
 require (
 	github.com/BurntSushi/toml v1.3.2
