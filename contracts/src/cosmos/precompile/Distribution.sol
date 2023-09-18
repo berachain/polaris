@@ -46,7 +46,7 @@ interface IDistributionModule {
     /**
      * @dev Withdraw the rewrads accumulated by the caller(msg.sender). Returns the rewards claimed.
      * @param delegator The delegator to withdraw the rewards from.
-     * @param validator The validator to withdraw the rewards from.
+     * @param validator The validator (operator address) to withdraw the rewards from.
      */
     function withdrawDelegatorReward(address delegator, address validator) external returns (Cosmos.Coin[] memory);
 
@@ -77,6 +77,9 @@ interface IDistributionModule {
      */
     event SetWithdrawAddress(address indexed withdrawAddress);
 
+    /**
+     * @dev Represents a delegator's rewards for one particular validator.
+     */
     struct ValidatorReward {
         address validator;
         Cosmos.Coin[] rewards;
