@@ -29,15 +29,15 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Suicides", func() {
-	var s *suicides
+var _ = Describe("SelfDestructs", func() {
+	var s *selfDestructs
 	var a1 = common.HexToAddress("0x1")
 	var a2 = common.HexToAddress("0x2")
 	var a3 = common.HexToAddress("0x3")
 	var a4 = common.HexToAddress("0x4")
 
 	BeforeEach(func() {
-		s = utils.MustGetAs[*suicides](NewSuicides(mock.NewSuicidesStatePluginMock()))
+		s = utils.MustGetAs[*selfDestructs](NewSelfDestructs(mock.NewSelfDestructsStatePluginMock()))
 	})
 
 	It("should have the correct registry key", func() {
@@ -45,24 +45,24 @@ var _ = Describe("Suicides", func() {
 	})
 
 	It("should work correctly in the scope of a tx", func() {
-		Expect(s.GetSuicides()).To(BeEmpty())
+		Expect(s.GetSelfDestructs()).To(BeEmpty())
 
 		s.Snapshot()
-		Expect(s.Suicide(a2)).To(BeFalse()) // 0x2 doesn't have a valid code hash
-		Expect(s.Suicide(a1)).To(BeTrue())
-		Expect(s.HasSuicided(a2)).To(BeFalse())
-		Expect(s.HasSuicided(a1)).To(BeTrue())
+		s.SelfDestruct(a2)
+		s.SelfDestruct(a1)
+		Expect(s.HasSelfDestructed(a2)).To(BeFalse())
+		Expect(s.HasSelfDestructed(a1)).To(BeTrue())
 
 		snap2 := s.Snapshot()
-		Expect(s.Suicide(a3)).To(BeTrue())
-		Expect(s.HasSuicided(a3)).To(BeTrue())
-		Expect(s.HasSuicided(a1)).To(BeTrue())
-		Expect(s.GetSuicides()).To(HaveLen(2))
+		s.SelfDestruct(a3)
+		Expect(s.HasSelfDestructed(a3)).To(BeTrue())
+		Expect(s.HasSelfDestructed(a1)).To(BeTrue())
+		Expect(s.GetSelfDestructs()).To(HaveLen(2))
 
 		s.RevertToSnapshot(snap2)
-		Expect(s.HasSuicided(a1)).To(BeTrue())
-		Expect(s.HasSuicided(a3)).To(BeFalse())
-		Expect(s.GetSuicides()).To(HaveLen(1))
+		Expect(s.HasSelfDestructed(a1)).To(BeTrue())
+		Expect(s.HasSelfDestructed(a3)).To(BeFalse())
+		Expect(s.GetSelfDestructs()).To(HaveLen(1))
 
 		s.Finalize()
 		Expect(s.lastSnapshot).To(Equal(-1))
@@ -70,30 +70,30 @@ var _ = Describe("Suicides", func() {
 	})
 
 	It("should not suicide when snapshot is not called", func() {
-		Expect(s.Suicide(a1)).To(BeFalse())
-		Expect(s.HasSuicided(a1)).To(BeFalse())
+		s.SelfDestruct(a1)
+		Expect(s.HasSelfDestructed(a1)).To(BeFalse())
 	})
 
 	It("should clone correctly", func() {
 		s.Snapshot()
-		Expect(s.Suicide(a1)).To(BeTrue())
-		Expect(s.HasSuicided(a1)).To(BeTrue())
+		s.SelfDestruct(a1)
+		Expect(s.HasSelfDestructed(a1)).To(BeTrue())
 
 		s.Snapshot()
-		Expect(s.Suicide(a3)).To(BeTrue())
-		Expect(s.HasSuicided(a3)).To(BeTrue())
-		Expect(s.HasSuicided(a1)).To(BeTrue())
-		Expect(s.GetSuicides()).To(HaveLen(2))
+		s.SelfDestruct(a3)
+		Expect(s.HasSelfDestructed(a3)).To(BeTrue())
+		Expect(s.HasSelfDestructed(a1)).To(BeTrue())
+		Expect(s.GetSelfDestructs()).To(HaveLen(2))
 
-		s2 := utils.MustGetAs[*suicides](s.Clone())
-		Expect(s.HasSuicided(a3)).To(BeTrue())
-		Expect(s.HasSuicided(a1)).To(BeTrue())
-		Expect(s2.GetSuicides()).To(HaveLen(2))
+		s2 := utils.MustGetAs[*selfDestructs](s.Clone())
+		Expect(s.HasSelfDestructed(a3)).To(BeTrue())
+		Expect(s.HasSelfDestructed(a1)).To(BeTrue())
+		Expect(s2.GetSelfDestructs()).To(HaveLen(2))
 
 		s.Snapshot()
 		s2.Snapshot()
 
-		Expect(s2.Suicide(a4)).To(BeTrue())
-		Expect(s.HasSuicided(a4)).To(BeFalse())
+		s2.SelfDestruct(a4)
+		Expect(s.HasSelfDestructed(a4)).To(BeFalse())
 	})
 })

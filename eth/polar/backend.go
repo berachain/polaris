@@ -38,6 +38,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/common/hexutil"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -282,9 +283,8 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash rpc.Blo
 	return nil, errors.New("invalid arguments; neither block nor hash specified")
 }
 
-func (b *backend) StateAndHeaderByNumber(
-	ctx context.Context, number rpc.BlockNumber,
-) (vm.GethStateDB, *types.Header, error) {
+func (b *backend) StateAndHeaderByNumber(ctx context.Context,
+	number rpc.BlockNumber) (state.StateDBI, *types.Header, error) {
 	// TODO: handling pending better
 	// // Pending state is only known by the miner
 	// if number == rpc.PendingBlockNumber {
@@ -304,18 +304,21 @@ func (b *backend) StateAndHeaderByNumber(
 	b.logger.Debug("called eth.rpc.backend.StateAndHeaderByNumber", "header", header)
 
 	// StateAtBlockNumber returns nil if the number is not found
-	state, err := b.polar.blockchain.StateAtBlockNumber(header.Number.Uint64())
+	stateAtBlock, err := b.polar.blockchain.StateAtBlockNumber(header.Number.Uint64())
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.StateAndHeaderByNumber", "number", number, "err", err)
 		return nil, nil, err
 	}
 
-	return state, header, nil
+	// todo: fix
+	var state_ state.StateDBI = stateAtBlock.(state.StateDBI)
+
+	return state_, header, nil
 }
 
 func (b *backend) StateAndHeaderByNumberOrHash(
 	ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash,
-) (vm.GethStateDB, *types.Header, error) {
+) (state.StateDBI, *types.Header, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.StateAndHeaderByNumber(ctx, blockNr)
 	}
@@ -393,9 +396,7 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 }
 
 // GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.
-func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethStateDB,
-	header *types.Header, vmConfig *vm.Config, _ *vm.BlockContext,
-) (*vm.GethEVM, func() error) {
+func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state state.StateDBI, header *types.Header, vmConfig *vm.Config, blockContext *vm.BlockContext) (*vm.GethEVM, func() error) {
 	if vmConfig == nil {
 		b.logger.Debug("eth.rpc.backend.GetEVM", "vmConfig", "nil")
 		vmConfig = b.polar.blockchain.GetVMConfig()
@@ -457,16 +458,14 @@ func (b *backend) Stats() (int, int) {
 	return pending, queued
 }
 
-func (b *backend) TxPoolContent() (
-	map[common.Address]types.Transactions, map[common.Address]types.Transactions,
-) {
+func (b *backend) TxPoolContent() (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
 	pending, queued := b.polar.blockchain.GetPoolContent()
 	b.logger.Debug("called eth.rpc.backend.TxPoolContent", "pending", len(pending), "queued", len(queued))
 	return pending, queued
 }
 
 func (b *backend) TxPoolContentFrom(addr common.Address) (
-	types.Transactions, types.Transactions,
+	[]*types.Transaction, []*types.Transaction,
 ) {
 	pending, queued := b.polar.blockchain.GetPoolContentFrom(addr)
 	b.logger.Debug("called eth.rpc.backend.TxPoolContentFrom",

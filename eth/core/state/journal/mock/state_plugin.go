@@ -26,7 +26,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
-//go:generate moq -out ./state_plugin.mock.go -skip-ensure -pkg mock ../ suicideStatePlugin
+//go:generate moq -out ./state_plugin.mock.go -skip-ensure -pkg mock ../ selfDestructStatePlugin
 
 var (
 	a1 = common.HexToAddress("0x1")
@@ -34,8 +34,8 @@ var (
 	a4 = common.HexToAddress("0x4")
 )
 
-func NewSuicidesStatePluginMock() *suicideStatePluginMock {
-	return &suicideStatePluginMock{
+func NewSelfDestructsStatePluginMock() *selfDestructStatePluginMock {
+	return &selfDestructStatePluginMock{
 		GetCodeHashFunc: func(address common.Address) common.Hash {
 			if address == a1 || address == a3 || address == a4 {
 				return common.Hash{0x1}

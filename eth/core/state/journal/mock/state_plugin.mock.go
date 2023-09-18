@@ -9,12 +9,12 @@ import (
 	"sync"
 )
 
-// suicideStatePluginMock is a mock implementation of journal.suicideStatePlugin.
+// selfDestructStatePluginMock is a mock implementation of journal.selfDestructStatePlugin.
 //
-//	func TestSomethingThatUsessuicideStatePlugin(t *testing.T) {
+//	func TestSomethingThatUsesselfDestructStatePlugin(t *testing.T) {
 //
-//		// make and configure a mocked journal.suicideStatePlugin
-//		mockedsuicideStatePlugin := &suicideStatePluginMock{
+//		// make and configure a mocked journal.selfDestructStatePlugin
+//		mockedselfDestructStatePlugin := &selfDestructStatePluginMock{
 //			GetBalanceFunc: func(address common.Address) *big.Int {
 //				panic("mock out the GetBalance method")
 //			},
@@ -26,11 +26,11 @@ import (
 //			},
 //		}
 //
-//		// use mockedsuicideStatePlugin in code that requires journal.suicideStatePlugin
+//		// use mockedselfDestructStatePlugin in code that requires journal.selfDestructStatePlugin
 //		// and then make assertions.
 //
 //	}
-type suicideStatePluginMock struct {
+type selfDestructStatePluginMock struct {
 	// GetBalanceFunc mocks the GetBalance method.
 	GetBalanceFunc func(address common.Address) *big.Int
 
@@ -66,9 +66,9 @@ type suicideStatePluginMock struct {
 }
 
 // GetBalance calls GetBalanceFunc.
-func (mock *suicideStatePluginMock) GetBalance(address common.Address) *big.Int {
+func (mock *selfDestructStatePluginMock) GetBalance(address common.Address) *big.Int {
 	if mock.GetBalanceFunc == nil {
-		panic("suicideStatePluginMock.GetBalanceFunc: method is nil but suicideStatePlugin.GetBalance was just called")
+		panic("selfDestructStatePluginMock.GetBalanceFunc: method is nil but selfDestructStatePlugin.GetBalance was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -84,8 +84,8 @@ func (mock *suicideStatePluginMock) GetBalance(address common.Address) *big.Int 
 // GetBalanceCalls gets all the calls that were made to GetBalance.
 // Check the length with:
 //
-//	len(mockedsuicideStatePlugin.GetBalanceCalls())
-func (mock *suicideStatePluginMock) GetBalanceCalls() []struct {
+//	len(mockedselfDestructStatePlugin.GetBalanceCalls())
+func (mock *selfDestructStatePluginMock) GetBalanceCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -98,9 +98,9 @@ func (mock *suicideStatePluginMock) GetBalanceCalls() []struct {
 }
 
 // GetCodeHash calls GetCodeHashFunc.
-func (mock *suicideStatePluginMock) GetCodeHash(address common.Address) common.Hash {
+func (mock *selfDestructStatePluginMock) GetCodeHash(address common.Address) common.Hash {
 	if mock.GetCodeHashFunc == nil {
-		panic("suicideStatePluginMock.GetCodeHashFunc: method is nil but suicideStatePlugin.GetCodeHash was just called")
+		panic("selfDestructStatePluginMock.GetCodeHashFunc: method is nil but selfDestructStatePlugin.GetCodeHash was just called")
 	}
 	callInfo := struct {
 		Address common.Address
@@ -116,8 +116,8 @@ func (mock *suicideStatePluginMock) GetCodeHash(address common.Address) common.H
 // GetCodeHashCalls gets all the calls that were made to GetCodeHash.
 // Check the length with:
 //
-//	len(mockedsuicideStatePlugin.GetCodeHashCalls())
-func (mock *suicideStatePluginMock) GetCodeHashCalls() []struct {
+//	len(mockedselfDestructStatePlugin.GetCodeHashCalls())
+func (mock *selfDestructStatePluginMock) GetCodeHashCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
@@ -130,9 +130,9 @@ func (mock *suicideStatePluginMock) GetCodeHashCalls() []struct {
 }
 
 // SubBalance calls SubBalanceFunc.
-func (mock *suicideStatePluginMock) SubBalance(address common.Address, intMoqParam *big.Int) {
+func (mock *selfDestructStatePluginMock) SubBalance(address common.Address, intMoqParam *big.Int) {
 	if mock.SubBalanceFunc == nil {
-		panic("suicideStatePluginMock.SubBalanceFunc: method is nil but suicideStatePlugin.SubBalance was just called")
+		panic("selfDestructStatePluginMock.SubBalanceFunc: method is nil but selfDestructStatePlugin.SubBalance was just called")
 	}
 	callInfo := struct {
 		Address     common.Address
@@ -150,8 +150,8 @@ func (mock *suicideStatePluginMock) SubBalance(address common.Address, intMoqPar
 // SubBalanceCalls gets all the calls that were made to SubBalance.
 // Check the length with:
 //
-//	len(mockedsuicideStatePlugin.SubBalanceCalls())
-func (mock *suicideStatePluginMock) SubBalanceCalls() []struct {
+//	len(mockedselfDestructStatePlugin.SubBalanceCalls())
+func (mock *selfDestructStatePluginMock) SubBalanceCalls() []struct {
 	Address     common.Address
 	IntMoqParam *big.Int
 } {

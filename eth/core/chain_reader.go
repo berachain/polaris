@@ -57,12 +57,12 @@ type ChainBlockReader interface {
 // ChainTxPoolReader defines methods that are used to read information about the state
 // of the mempool.
 type ChainTxPoolReader interface {
-	GetPoolTransactions() (types.Transactions, error)
+	GetPoolTransactions() ([]*types.Transaction, error)
 	GetPoolTransaction(common.Hash) *types.Transaction
 	GetPoolNonce(common.Address) (uint64, error)
 	GetPoolStats() (int, int)
-	GetPoolContent() (map[common.Address]types.Transactions, map[common.Address]types.Transactions)
-	GetPoolContentFrom(addr common.Address) (types.Transactions, types.Transactions)
+	GetPoolContent() (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction)
+	GetPoolContentFrom(addr common.Address) ([]*types.Transaction, []*types.Transaction)
 }
 
 // =========================================================================
@@ -331,7 +331,7 @@ func (bc *blockchain) GetTd(hash common.Hash, number uint64) *big.Int {
 
 // GetPoolTransactions returns all of the transactions that are currently in
 // the mempool.
-func (bc *blockchain) GetPoolTransactions() (types.Transactions, error) {
+func (bc *blockchain) GetPoolTransactions() ([]*types.Transaction, error) {
 	pending := bc.tp.Pending(false)
 	txs := make(types.Transactions, len(pending))
 	for _, batch := range pending {
@@ -357,14 +357,14 @@ func (bc *blockchain) GetPoolStats() (int, int) {
 
 // GetPoolContent returns the pending and queued txs in the mempool.
 func (bc *blockchain) GetPoolContent() (
-	map[common.Address]types.Transactions, map[common.Address]types.Transactions,
+	map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction,
 ) {
 	return bc.tp.Content()
 }
 
 // GetPoolContentFrom returns the pending and queued txs in the mempool for the given address.
 func (bc *blockchain) GetPoolContentFrom(addr common.Address) (
-	types.Transactions, types.Transactions,
+	[]*types.Transaction, []*types.Transaction,
 ) {
 	return bc.tp.ContentFrom(addr)
 }

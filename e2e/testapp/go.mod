@@ -6,7 +6,7 @@ toolchain go1.21.0
 
 replace (
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230824153638-497f3de05c05
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230918154239-3766787639d0
 	// Required at the moment until a bug in the comsos-sdk is fixed.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
@@ -39,7 +39,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230913215410-e5781a9d028d
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogoproto v1.4.11 // indirect
-	github.com/ethereum/go-ethereum v1.12.0 // indirect
+	github.com/ethereum/go-ethereum v1.13.1 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
@@ -87,9 +87,8 @@ require (
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
 	github.com/cockroachdb/errors v1.11.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
-	github.com/cockroachdb/pebble v0.0.0-20230824192853-9bb0864bdb98 // indirect
+	github.com/cockroachdb/pebble v0.0.0-20230906160148-46873a6a7a06 // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
-	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
 	github.com/cometbft/cometbft-db v0.8.0 // indirect
 	github.com/consensys/bavard v0.1.13 // indirect
 	github.com/consensys/gnark-crypto v0.11.2 // indirect
@@ -111,7 +110,6 @@ require (
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
-	github.com/docker/docker v24.0.4+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
 	github.com/emicklei/dot v1.6.0 // indirect
@@ -171,8 +169,9 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
+	github.com/holiman/billy v0.0.0-20230718173358-1c7e68d277a7 // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
-	github.com/huin/goupnp v1.2.0 // indirect
+	github.com/huin/goupnp v1.3.0 // indirect
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -256,6 +255,7 @@ require (
 	golang.org/x/arch v0.4.0 // indirect
 	golang.org/x/crypto v0.13.0 // indirect
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63 // indirect
+	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.15.0 // indirect
 	golang.org/x/oauth2 v0.10.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
@@ -270,7 +270,6 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
-	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.0 // indirect

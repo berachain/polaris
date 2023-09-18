@@ -35,8 +35,8 @@ import (
 // 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
 var emptyCodeHash = crypto.Keccak256Hash(nil)
 
-// `suicideStatePlugin` defines the required funtions from the StatePlugin for the suicide journal.
-type suicideStatePlugin interface {
+// `selfDestructStatePlugin` defines the required funtions from the StatePlugin for the suicide journal.
+type selfDestructStatePlugin interface {
 	// GetCodeHash returns the code hash of the given account.
 	GetCodeHash(common.Address) common.Hash
 	// GetBalance returns the balance of the given account.
@@ -45,33 +45,35 @@ type suicideStatePlugin interface {
 	SubBalance(common.Address, *big.Int)
 }
 
-type Suicides interface {
-	// Suicides implements `libtypes.Controllable`.
+type SelfDestructs interface {
+	// SelfDestructs implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
-	// Suicides implements `libtypes.Cloneable`.
-	libtypes.Cloneable[Suicides]
-	// Suicides marks the given address as suicided.
-	Suicide(common.Address) bool
-	// HasSuicided returns whether the address is suicided.
-	HasSuicided(common.Address) bool
-	// GetSuicides returns all suicided addresses from the tx.
-	GetSuicides() []common.Address
+	// SelfDestructs implements `libtypes.Cloneable`.
+	libtypes.Cloneable[SelfDestructs]
+	// SelfDestruct marks the given address as self destructed .
+	SelfDestruct(common.Address)
+	// Selfdestruct6780 marks the given address as self destructed post eip-6780
+	Selfdestruct6780(common.Address)
+	// HasSelfDestructed returns whether the address is self destructed .
+	HasSelfDestructed(common.Address) bool
+	// GetSelfDestructs returns all self destructed addresses from the tx.
+	GetSelfDestructs() []common.Address
 }
 
-// Dirty tracking of suicided accounts, we have to keep track of these manually, in order for the
+// Dirty tracking of self destructed accounts, we have to keep track of these manually, in order for the
 // code and state to still be accessible even after the account has been deleted.
-// NOTE: we are only supporting one suicided address per EVM call (and consequently per snapshot).
-type suicides struct {
+// NOTE: we are only supporting one self destructed address per EVM call (and consequently per snapshot).
+type selfDestructs struct {
 	// journal of suicide address per call, very rare to suicide so we alloc only 1 address
 	journal ds.Stack[*common.Address]
-	ssp     suicideStatePlugin
-	// lastSnapshot ensures that only 1 address is being suicided per snapshot
+	ssp     selfDestructStatePlugin
+	// lastSnapshot ensures that only 1 address is being self destructed per snapshot
 	lastSnapshot int
 }
 
-// NewSuicides returns a new suicides journal.
-func NewSuicides(ssp suicideStatePlugin) Suicides {
-	return &suicides{
+// NewSelfDestructs returns a new selfDestructs journal.
+func NewSelfDestructs(ssp selfDestructStatePlugin) SelfDestructs {
+	return &selfDestructs{
 		journal:      stack.New[*common.Address](initCapacity),
 		ssp:          ssp,
 		lastSnapshot: -1,
@@ -79,24 +81,24 @@ func NewSuicides(ssp suicideStatePlugin) Suicides {
 }
 
 // RegistryKey implements libtypes.Registrable.
-func (s *suicides) RegistryKey() string {
+func (s *selfDestructs) RegistryKey() string {
 	return suicidesRegistryKey
 }
 
-// Suicide implements the PolarisStateDB interface by marking the given address as suicided.
+// SelfDestruct implements the PolarisStateDB interface by marking the given address as self destructed .
 // This clears the account balance, but the code and state of the address remains available
 // until after Commit is called.
-func (s *suicides) Suicide(addr common.Address) bool {
+func (s *selfDestructs) SelfDestruct(addr common.Address) {
 	// ensure only one suicide per snapshot call
 	if s.journal.Size() > s.lastSnapshot {
 		// pushed one suicide for this contract call, can do no more
-		return false
+		return
 	}
 
 	// only smart contracts can commit suicide
 	ch := s.ssp.GetCodeHash(addr)
 	if (ch == common.Hash{}) || ch == emptyCodeHash {
-		return false
+		return
 	}
 
 	// Reduce it's balance to 0.
@@ -104,12 +106,15 @@ func (s *suicides) Suicide(addr common.Address) bool {
 
 	// add to journal.
 	s.journal.Push(&addr)
-	return true
 }
 
-// HasSuicided implements the PolarisStateDB interface by returning if the contract was suicided
+func (s *selfDestructs) Selfdestruct6780(addr common.Address) {
+	// TODO: IMPLEMENT EIP-6780
+}
+
+// HasSelfDestructed implements the PolarisStateDB interface by returning if the contract was self destructed
 // in current transaction.
-func (s *suicides) HasSuicided(addr common.Address) bool {
+func (s *selfDestructs) HasSelfDestructed(addr common.Address) bool {
 	for i := s.journal.Size() - 1; i >= 0; i-- {
 		if *s.journal.PeekAt(i) == addr {
 			return true
@@ -118,8 +123,8 @@ func (s *suicides) HasSuicided(addr common.Address) bool {
 	return false
 }
 
-// GetSuicides implements state.SuicidesJournal.
-func (s *suicides) GetSuicides() []common.Address {
+// GetSelfDestructs implements state.SelfDestructsJournal.
+func (s *selfDestructs) GetSelfDestructs() []common.Address {
 	var suicidalAddrs []common.Address
 	for i := 0; i < s.journal.Size(); i++ {
 		suicidalAddrs = append(suicidalAddrs, *s.journal.PeekAt(i))
@@ -128,25 +133,25 @@ func (s *suicides) GetSuicides() []common.Address {
 }
 
 // Snapshot implements libtypes.Controllable.
-func (s *suicides) Snapshot() int {
+func (s *selfDestructs) Snapshot() int {
 	s.lastSnapshot = s.journal.Size()
 	return s.lastSnapshot
 }
 
 // RevertToSnapshot implements libtypes.Controllable.
-func (s *suicides) RevertToSnapshot(id int) {
+func (s *selfDestructs) RevertToSnapshot(id int) {
 	s.journal.PopToSize(id)
 }
 
 // Finalize implements libtypes.Controllable.
-func (s *suicides) Finalize() {
-	*s = *utils.MustGetAs[*suicides](NewSuicides(s.ssp))
+func (s *selfDestructs) Finalize() {
+	*s = *utils.MustGetAs[*selfDestructs](NewSelfDestructs(s.ssp))
 }
 
 // Clone implements libtypes.Cloneable.
-func (s *suicides) Clone() Suicides {
+func (s *selfDestructs) Clone() SelfDestructs {
 	size := s.journal.Size()
-	clone := &suicides{
+	clone := &selfDestructs{
 		journal:      stack.New[*common.Address](size),
 		ssp:          s.ssp,
 		lastSnapshot: s.lastSnapshot,

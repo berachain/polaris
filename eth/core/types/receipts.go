@@ -21,10 +21,31 @@
 package types
 
 import (
+	"math/big"
 	"unsafe"
 
+	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
+	"pkg.berachain.dev/polaris/eth/params"
 )
+
+// DeriveReceiptsFromBlock is a helper function for deriving receipts from a block.
+func DeriveReceiptsFromBlock(chainConfig *params.ChainConfig, receipts types.Receipts, block *types.Block) (types.Receipts, error) {
+	// calculate the blobGasPrice according to the excess blob gas.
+	var blobGasPrice = new(big.Int)
+	if chainConfig.IsCancun(block.Number(), block.Time()) {
+		blobGasPrice = eip4844.CalcBlobFee(*block.ExcessBlobGas())
+	}
+
+	// Derive receipts from block.
+	if err := receipts.DeriveFields(
+		chainConfig, block.Hash(), block.Number().Uint64(), block.Time(), block.BaseFee(), blobGasPrice, block.Transactions(),
+	); err != nil {
+		return nil, err
+	}
+	return receipts, nil
+}
 
 // MarshalReceipts marshals `Receipts`, as type `[]*ReceiptForStorage`, to bytes using rlp
 // encoding.

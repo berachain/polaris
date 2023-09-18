@@ -20,11 +20,11 @@
 
 package txpool
 
-import "github.com/ethereum/go-ethereum/core/txpool"
+import "github.com/ethereum/go-ethereum/core/txpool/legacypool"
 
-type TxPool = txpool.TxPool
+type TxPool = legacypool.LegacyPool
 
 var (
-	NewTxPool     = txpool.NewTxPool
-	DefaultConfig = txpool.DefaultConfig
+	NewTxPool     = legacypool.New
+	DefaultConfig = legacypool.DefaultConfig
 )

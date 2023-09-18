@@ -39,7 +39,7 @@ type stateDB struct {
 	journal.Log
 	journal.Refund
 	journal.Accesslist
-	journal.Suicides
+	journal.SelfDestructs
 	journal.TransientStorage
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
@@ -50,14 +50,14 @@ type stateDB struct {
 func NewStateDB(sp Plugin) vm.PolarisStateDB {
 	return newStateDBWithJournals(
 		sp, journal.NewLogs(), journal.NewRefund(), journal.NewAccesslist(),
-		journal.NewSuicides(sp), journal.NewTransientStorage(),
+		journal.NewSelfDestructs(sp), journal.NewTransientStorage(),
 	)
 }
 
 // newStateDBWithJournals returns a vm.PolarisStateDB with the given StatePlugin and journals.
 func newStateDBWithJournals(
 	sp Plugin, lj journal.Log, rj journal.Refund, aj journal.Accesslist,
-	sj journal.Suicides, tj journal.TransientStorage,
+	sj journal.SelfDestructs, tj journal.TransientStorage,
 ) vm.PolarisStateDB {
 	// Build the controller and register the plugins and journals
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
@@ -73,7 +73,7 @@ func newStateDBWithJournals(
 		Log:              lj,
 		Refund:           rj,
 		Accesslist:       aj,
-		Suicides:         sj,
+		SelfDestructs:    sj,
 		TransientStorage: tj,
 		ctrl:             ctrl,
 	}
@@ -97,14 +97,15 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 // Commit state
 // =============================================================================
 
-// Finalise deletes the suicided accounts and finalizes all plugins, preparing the statedb for the
+// Finalise deletes the SelfDestructd accounts and finalizes all plugins, preparing the statedb for the
 // next transaction.
 func (sdb *stateDB) Finalise(bool) {
-	sdb.DeleteAccounts(sdb.GetSuicides())
+	sdb.DeleteAccounts(sdb.GetSelfDestructs())
 	sdb.ctrl.Finalize()
 }
 
-func (sdb *stateDB) Commit(deleteEmptyObjects bool) (common.Hash, error) {
+func (sdb *stateDB) Commit(block uint64, deleteEmptyObjects bool) (common.Hash, error) {
+	_ = block // todo figure out what to do here.
 	sdb.Finalise(deleteEmptyObjects)
 	return common.Hash{}, nil
 }
@@ -174,8 +175,8 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 func (sdb *stateDB) Copy() StateDBI {
 	return newStateDBWithJournals(
 		sdb.Plugin.Clone(), sdb.Log.Clone(), sdb.Refund.Clone(),
-		sdb.Accesslist.Clone(), sdb.Suicides.Clone(), sdb.TransientStorage.Clone(),
-	)
+		sdb.Accesslist.Clone(), sdb.SelfDestructs.Clone(), sdb.TransientStorage.Clone(),
+	).(StateDBI)
 }
 
 func (sdb *stateDB) DumpToCollector(_ DumpCollector, _ *DumpConfig) []byte {
@@ -220,4 +221,8 @@ func (sdb *stateDB) GetProof(_ common.Address) ([][]byte, error) {
 
 func (sdb *stateDB) GetOrNewStateObject(_ common.Address) *StateObject {
 	return nil
+}
+
+func (sdb *stateDB) GetStorageRoot(_ common.Address) common.Hash {
+	return common.Hash{}
 }

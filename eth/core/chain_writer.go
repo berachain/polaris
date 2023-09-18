@@ -24,9 +24,11 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/consensus/misc"
+	"github.com/ethereum/go-ethereum/consensus/misc/eip1559"
+	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
 	"github.com/ethereum/go-ethereum/core/vm"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
@@ -67,7 +69,6 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 	if number >= 1 && parent == nil {
 		parent = bc.GetHeaderByNumber(number - 1)
 	}
-
 	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
 	// and block nonce (Nonce) on the new header.
 	header := &types.Header{
@@ -77,7 +78,23 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   bc.gp.BlockGasLimit(),
 		Time:       timestamp,
-		BaseFee:    misc.CalcBaseFee(bc.Config(), parent),
+		// TODO: handle blobl fee.
+		BaseFee: eip1559.CalcBaseFee(bc.Config(), parent),
+	}
+
+	// Apply EIP-4844, EIP-4788.
+	chainConfig := bc.Config()
+	if chainConfig.IsCancun(header.Number, header.Time) {
+		var excessBlobGas uint64
+		if chainConfig.IsCancun(parent.Number, parent.Time) {
+			excessBlobGas = eip4844.CalcExcessBlobGas(*parent.ExcessBlobGas, *parent.BlobGasUsed)
+		} else {
+			// For the first post-fork block, both parent.data_gas_used and parent.excess_data_gas are evaluated as 0
+			excessBlobGas = eip4844.CalcExcessBlobGas(0, 0)
+		}
+		header.BlobGasUsed = new(uint64)
+		header.ExcessBlobGas = &excessBlobGas
+		header.ParentBeaconRoot = &common.Hash{}
 	}
 
 	bc.logger.Info("preparing evm block", "seal_hash", header.Hash())

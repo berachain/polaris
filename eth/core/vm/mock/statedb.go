@@ -70,9 +70,6 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		FinaliseFunc: func(bool) {
 			// no-op
 		},
-		ForEachStorageFunc: func(address common.Address, fn func(common.Hash, common.Hash) bool) error {
-			panic("mock out the ForEachStorage method")
-		},
 		GetBalanceFunc: func(address common.Address) *big.Int {
 			return big.NewInt(0)
 		},
@@ -88,9 +85,6 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		GetCommittedStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 			return common.Hash{}
 		},
-		GetLogsFunc: func(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log {
-			return []*types.Log{}
-		},
 		GetNonceFunc: func(address common.Address) uint64 {
 			return 0
 		},
@@ -100,7 +94,7 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 			return common.Hash{}
 		},
-		HasSuicidedFunc: func(address common.Address) bool {
+		HasSelfDestructedFunc: func(address common.Address) bool {
 			return false
 		},
 		PrepareFunc: func(rules params.Rules, sender common.Address,
@@ -132,16 +126,16 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		SubRefundFunc: func(v uint64) {
 
 		},
-		SuicideFunc: func(address common.Address) bool {
-			return false
+		SelfDestructFunc: func(address common.Address) {
+			return
 		},
 	}
-	mockedPolarisStateDB.LogsFunc = func() []*types.Log {
-		logs := []*types.Log{}
-		for _, l := range mockedPolarisStateDB.AddLogCalls() {
-			logs = append(logs, l.Log)
-		}
-		return logs
-	}
+	// mockedPolarisStateDB.Logs = func() []*types.Log {
+	// 	logs := []*types.Log{}
+	// 	for _, l := range mockedPolarisStateDB.AddLogCalls() {
+	// 		logs = append(logs, l.Log)
+	// 	}
+	// 	return logs
+	// }
 	return mockedPolarisStateDB
 }

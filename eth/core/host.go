@@ -140,7 +140,7 @@ type (
 		// SendTx submits the tx to the transaction pool.
 		SendTx(tx *types.Transaction) error
 		// Pending returns all pending transactions in the transaction pool.
-		Pending(bool) map[common.Address]types.Transactions
+		Pending(bool) map[common.Address][]*types.Transaction
 		// Get returns the transaction from the pool with the given hash.
 		Get(common.Hash) *types.Transaction
 		// Nonce returns the nonce of the given address in the transaction pool.
@@ -151,10 +151,10 @@ type (
 		Stats() (int, int)
 		// Content retrieves the data content of the transaction pool, returning all the pending as
 		// well as queued transactions, grouped by account and nonce.
-		Content() (map[common.Address]types.Transactions, map[common.Address]types.Transactions)
+		Content() (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction)
 		// ContentFrom retrieves the data content of the transaction pool, returning the pending
 		// as well as queued transactions of this address, grouped by nonce.
-		ContentFrom(addr common.Address) (types.Transactions, types.Transactions)
+		ContentFrom(addr common.Address) ([]*types.Transaction, []*types.Transaction)
 	}
 )
 

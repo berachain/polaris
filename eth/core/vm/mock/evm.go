@@ -23,8 +23,6 @@ package mock
 import (
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/core/state"
-
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
@@ -33,7 +31,7 @@ import (
 func NewEVM() *PrecompileEVMMock {
 	mockSDB := NewEmptyStateDB()
 	return &PrecompileEVMMock{
-		GetStateDBFunc: func() state.StateDBI {
+		GetStateDBFunc: func() vm.GethStateDB {
 			return mockSDB
 		},
 		GetContextFunc: func() *vm.BlockContext {
