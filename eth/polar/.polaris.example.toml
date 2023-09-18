@@ -15,8 +15,6 @@ WSHost = "0.0.0.0"
 WSPort = 8546
 WSOrigins = ["*"]
 WSModules = ["eth", "net"]
-GraphQLCors = ["*"]
-GraphQLVirtualHosts = ["0.0.0.0"]
 
 [NodeConfig.HTTPTimeouts]
 ReadTimeout = "30s"
