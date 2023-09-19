@@ -32,16 +32,11 @@ import (
 )
 
 var (
-
 	// Arguments.
 	junitArgs = []string{"--junit-report", "out.xml"}
 	coverArgs = append(junitArgs, []string{"--cover", "--coverprofile",
 		"coverage-testunitcover.txt", "--covermode", "atomic"}...)
 	raceArgs = append(junitArgs, []string{"-race"}...)
-
-	// Commands.
-	goTest     = RunCmdV("go", "test", "-mod=readonly")
-	ginkgoTest = RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
 )
 
 // Starts a local docs page.
