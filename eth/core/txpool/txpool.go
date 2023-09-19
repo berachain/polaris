@@ -25,20 +25,20 @@ package txpool
 
 import "pkg.berachain.dev/polaris/eth/core"
 
-// PolarisTxPool is an interface for the Polaris transaction pool.
-type PolarisTxPool interface {
+// TxPool is an interface for the Polaris transaction pool.
+type TxPool interface {
 	core.TxPoolPlugin
 }
 
-// NewPolarisTxPool creates a new PolarisTxPool instance.
+// NewPolarisTxPool creates a new TxPool instance.
 // It takes in a core.TxPoolPlugin to satisfy the interface.
-func NewPolarisTxPool(plugin core.TxPoolPlugin) PolarisTxPool {
+func NewPolarisTxPool(plugin core.TxPoolPlugin) TxPool {
 	return &polarisTxPool{
 		TxPoolPlugin: plugin,
 	}
 }
 
-// polarisTxPool implements the PolarisTxPool interface.
+// polarisTxPool implements the TxPool interface.
 // It embeds a core.TxPoolPlugin to satisfy the interface.
 type polarisTxPool struct {
 	core.TxPoolPlugin

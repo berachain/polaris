@@ -70,10 +70,9 @@ type Polaris struct {
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
 
-	// txPool     *txpool.TxPool
 	// blockchain represents the canonical chain.
 	blockchain core.Blockchain
-	txPool     txpool.PolarisTxPool
+	txPool     txpool.TxPool
 	miner      miner.Miner
 
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the core pieces.
@@ -163,7 +162,7 @@ func (pl *Polaris) Miner() miner.Miner {
 	return pl.miner
 }
 
-func (pl *Polaris) TxPool() txpool.PolarisTxPool {
+func (pl *Polaris) TxPool() txpool.TxPool {
 	return pl.txPool
 }
 

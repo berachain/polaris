@@ -39,7 +39,7 @@ import (
 type Backend interface {
 	// Blockchain returns the blockchain instance.
 	Blockchain() core.Blockchain
-	TxPool() txpool.PolarisTxPool
+	TxPool() txpool.TxPool
 }
 
 // Miner defines the interface for a Polaris miner.
@@ -61,7 +61,7 @@ type miner struct {
 	backend   Backend
 	chain     core.Blockchain
 	processor *core.StateProcessor
-	txPool    txpool.PolarisTxPool
+	txPool    txpool.TxPool
 	bp        core.BlockPlugin
 	cp        core.ConfigurationPlugin
 	gp        core.GasPlugin
