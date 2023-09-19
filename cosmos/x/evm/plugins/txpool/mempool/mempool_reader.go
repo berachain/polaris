@@ -39,9 +39,9 @@ func (etp *EthTxPool) Get(hash common.Hash) *coretypes.Transaction {
 // Pending is called when txs in the mempool are retrieved.
 //
 // NOT THREAD SAFE.
-func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
+func (etp *EthTxPool) Pending(bool) map[common.Address][]*coretypes.Transaction {
 	pendingNonces := make(map[common.Address]uint64)
-	pending := make(map[common.Address]coretypes.Transactions)
+	pending := make(map[common.Address][]*coretypes.Transaction)
 
 	etp.mu.RLock()
 	defer etp.mu.RUnlock()
@@ -81,9 +81,9 @@ func (etp *EthTxPool) Pending(bool) map[common.Address]coretypes.Transactions {
 // queued retrieves the content of the mempool.
 //
 // NOT THREAD SAFE.
-func (etp *EthTxPool) queued() map[common.Address]coretypes.Transactions {
+func (etp *EthTxPool) queued() map[common.Address][]*coretypes.Transaction {
 	pendingNonces := make(map[common.Address]uint64)
-	queued := make(map[common.Address]coretypes.Transactions)
+	queued := make(map[common.Address][]*coretypes.Transaction)
 
 	// After the lock is released we can iterate over the mempool.
 	etp.mu.RLock()
@@ -185,7 +185,7 @@ func (etp *EthTxPool) Stats() (int, int) {
 // queued transactions of this address, grouped by nonce.
 //
 // NOT THREAD SAFE.
-func (etp *EthTxPool) ContentFrom(addr common.Address) (coretypes.Transactions, coretypes.Transactions) {
+func (etp *EthTxPool) ContentFrom(addr common.Address) ([]*coretypes.Transaction, []*coretypes.Transaction) {
 	pending, queued := etp.Content()
 	return pending[addr], queued[addr]
 }
@@ -195,7 +195,7 @@ func (etp *EthTxPool) ContentFrom(addr common.Address) (coretypes.Transactions, 
 //
 // NOT THREAD SAFE.
 func (etp *EthTxPool) Content() (
-	map[common.Address]coretypes.Transactions, map[common.Address]coretypes.Transactions,
+	map[common.Address][]*coretypes.Transaction, map[common.Address][]*coretypes.Transaction,
 ) {
 	return etp.Pending(false), etp.queued()
 }

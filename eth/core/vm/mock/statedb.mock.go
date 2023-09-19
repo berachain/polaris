@@ -45,7 +45,7 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			AddressInAccessListFunc: func(addr common.Address) bool {
 //				panic("mock out the AddressInAccessList method")
 //			},
-//			CommitFunc: func(deleteEmptyObjects bool) (common.Hash, error) {
+//			CommitFunc: func(v uint64, b bool) (common.Hash, error) {
 //				panic("mock out the Commit method")
 //			},
 //			CopyFunc: func() state.StateDBI {
@@ -75,9 +75,6 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			FinaliseFunc: func(deleteEmptyObjects bool)  {
 //				panic("mock out the Finalise method")
 //			},
-//			ForEachStorageFunc: func(address common.Address, fn func(common.Hash, common.Hash) bool) error {
-//				panic("mock out the ForEachStorage method")
-//			},
 //			GetBalanceFunc: func(address common.Address) *big.Int {
 //				panic("mock out the GetBalance method")
 //			},
@@ -105,23 +102,20 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			GetOrNewStateObjectFunc: func(addr common.Address) *state.StateObject {
 //				panic("mock out the GetOrNewStateObject method")
 //			},
-//			GetProofFunc: func(addr common.Address) ([][]byte, error) {
-//				panic("mock out the GetProof method")
-//			},
 //			GetRefundFunc: func() uint64 {
 //				panic("mock out the GetRefund method")
 //			},
 //			GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetState method")
 //			},
-//			GetStorageProofFunc: func(a common.Address, key common.Hash) ([][]byte, error) {
-//				panic("mock out the GetStorageProof method")
+//			GetStorageRootFunc: func(addr common.Address) common.Hash {
+//				panic("mock out the GetStorageRoot method")
 //			},
 //			GetTransientStateFunc: func(addr common.Address, key common.Hash) common.Hash {
 //				panic("mock out the GetTransientState method")
 //			},
-//			HasSuicidedFunc: func(address common.Address) bool {
-//				panic("mock out the HasSuicided method")
+//			HasSelfDestructedFunc: func(address common.Address) bool {
+//				panic("mock out the HasSelfDestructed method")
 //			},
 //			IntermediateRootFunc: func(deleteEmptyObjects bool) common.Hash {
 //				panic("mock out the IntermediateRoot method")
@@ -143,6 +137,12 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			},
 //			RevertToSnapshotFunc: func(n int)  {
 //				panic("mock out the RevertToSnapshot method")
+//			},
+//			SelfDestructFunc: func(address common.Address)  {
+//				panic("mock out the SelfDestruct method")
+//			},
+//			Selfdestruct6780Func: func(address common.Address)  {
+//				panic("mock out the Selfdestruct6780 method")
 //			},
 //			SetBalanceFunc: func(addr common.Address, amount *big.Int)  {
 //				panic("mock out the SetBalance method")
@@ -177,17 +177,11 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			StopPrefetcherFunc: func()  {
 //				panic("mock out the StopPrefetcher method")
 //			},
-//			StorageTrieFunc: func(addr common.Address) (state.Trie, error) {
-//				panic("mock out the StorageTrie method")
-//			},
 //			SubBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
 //				panic("mock out the SubBalance method")
 //			},
 //			SubRefundFunc: func(v uint64)  {
 //				panic("mock out the SubRefund method")
-//			},
-//			SuicideFunc: func(address common.Address) bool {
-//				panic("mock out the Suicide method")
 //			},
 //			TxIndexFunc: func() int {
 //				panic("mock out the TxIndex method")
@@ -221,7 +215,7 @@ type PolarisStateDBMock struct {
 	AddressInAccessListFunc func(addr common.Address) bool
 
 	// CommitFunc mocks the Commit method.
-	CommitFunc func(deleteEmptyObjects bool) (common.Hash, error)
+	CommitFunc func(v uint64, b bool) (common.Hash, error)
 
 	// CopyFunc mocks the Copy method.
 	CopyFunc func() state.StateDBI
@@ -250,9 +244,6 @@ type PolarisStateDBMock struct {
 	// FinaliseFunc mocks the Finalise method.
 	FinaliseFunc func(deleteEmptyObjects bool)
 
-	// ForEachStorageFunc mocks the ForEachStorage method.
-	ForEachStorageFunc func(address common.Address, fn func(common.Hash, common.Hash) bool) error
-
 	// GetBalanceFunc mocks the GetBalance method.
 	GetBalanceFunc func(address common.Address) *big.Int
 
@@ -280,23 +271,20 @@ type PolarisStateDBMock struct {
 	// GetOrNewStateObjectFunc mocks the GetOrNewStateObject method.
 	GetOrNewStateObjectFunc func(addr common.Address) *state.StateObject
 
-	// GetProofFunc mocks the GetProof method.
-	GetProofFunc func(addr common.Address) ([][]byte, error)
-
 	// GetRefundFunc mocks the GetRefund method.
 	GetRefundFunc func() uint64
 
 	// GetStateFunc mocks the GetState method.
 	GetStateFunc func(address common.Address, hash common.Hash) common.Hash
 
-	// GetStorageProofFunc mocks the GetStorageProof method.
-	GetStorageProofFunc func(a common.Address, key common.Hash) ([][]byte, error)
+	// GetStorageRootFunc mocks the GetStorageRoot method.
+	GetStorageRootFunc func(addr common.Address) common.Hash
 
 	// GetTransientStateFunc mocks the GetTransientState method.
 	GetTransientStateFunc func(addr common.Address, key common.Hash) common.Hash
 
-	// HasSuicidedFunc mocks the HasSuicided method.
-	HasSuicidedFunc func(address common.Address) bool
+	// HasSelfDestructedFunc mocks the HasSelfDestructed method.
+	HasSelfDestructedFunc func(address common.Address) bool
 
 	// IntermediateRootFunc mocks the IntermediateRoot method.
 	IntermediateRootFunc func(deleteEmptyObjects bool) common.Hash
@@ -318,6 +306,12 @@ type PolarisStateDBMock struct {
 
 	// RevertToSnapshotFunc mocks the RevertToSnapshot method.
 	RevertToSnapshotFunc func(n int)
+
+	// SelfDestructFunc mocks the SelfDestruct method.
+	SelfDestructFunc func(address common.Address)
+
+	// Selfdestruct6780Func mocks the Selfdestruct6780 method.
+	Selfdestruct6780Func func(address common.Address)
 
 	// SetBalanceFunc mocks the SetBalance method.
 	SetBalanceFunc func(addr common.Address, amount *big.Int)
@@ -352,17 +346,11 @@ type PolarisStateDBMock struct {
 	// StopPrefetcherFunc mocks the StopPrefetcher method.
 	StopPrefetcherFunc func()
 
-	// StorageTrieFunc mocks the StorageTrie method.
-	StorageTrieFunc func(addr common.Address) (state.Trie, error)
-
 	// SubBalanceFunc mocks the SubBalance method.
 	SubBalanceFunc func(address common.Address, intMoqParam *big.Int)
 
 	// SubRefundFunc mocks the SubRefund method.
 	SubRefundFunc func(v uint64)
-
-	// SuicideFunc mocks the Suicide method.
-	SuicideFunc func(address common.Address) bool
 
 	// TxIndexFunc mocks the TxIndex method.
 	TxIndexFunc func() int
@@ -412,8 +400,10 @@ type PolarisStateDBMock struct {
 		}
 		// Commit holds details about calls to the Commit method.
 		Commit []struct {
-			// DeleteEmptyObjects is the deleteEmptyObjects argument value.
-			DeleteEmptyObjects bool
+			// V is the v argument value.
+			V uint64
+			// B is the b argument value.
+			B bool
 		}
 		// Copy holds details about calls to the Copy method.
 		Copy []struct {
@@ -455,13 +445,6 @@ type PolarisStateDBMock struct {
 		Finalise []struct {
 			// DeleteEmptyObjects is the deleteEmptyObjects argument value.
 			DeleteEmptyObjects bool
-		}
-		// ForEachStorage holds details about calls to the ForEachStorage method.
-		ForEachStorage []struct {
-			// Address is the address argument value.
-			Address common.Address
-			// Fn is the fn argument value.
-			Fn func(common.Hash, common.Hash) bool
 		}
 		// GetBalance holds details about calls to the GetBalance method.
 		GetBalance []struct {
@@ -512,11 +495,6 @@ type PolarisStateDBMock struct {
 			// Addr is the addr argument value.
 			Addr common.Address
 		}
-		// GetProof holds details about calls to the GetProof method.
-		GetProof []struct {
-			// Addr is the addr argument value.
-			Addr common.Address
-		}
 		// GetRefund holds details about calls to the GetRefund method.
 		GetRefund []struct {
 		}
@@ -527,12 +505,10 @@ type PolarisStateDBMock struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 		}
-		// GetStorageProof holds details about calls to the GetStorageProof method.
-		GetStorageProof []struct {
-			// A is the a argument value.
-			A common.Address
-			// Key is the key argument value.
-			Key common.Hash
+		// GetStorageRoot holds details about calls to the GetStorageRoot method.
+		GetStorageRoot []struct {
+			// Addr is the addr argument value.
+			Addr common.Address
 		}
 		// GetTransientState holds details about calls to the GetTransientState method.
 		GetTransientState []struct {
@@ -541,8 +517,8 @@ type PolarisStateDBMock struct {
 			// Key is the key argument value.
 			Key common.Hash
 		}
-		// HasSuicided holds details about calls to the HasSuicided method.
-		HasSuicided []struct {
+		// HasSelfDestructed holds details about calls to the HasSelfDestructed method.
+		HasSelfDestructed []struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
@@ -586,6 +562,16 @@ type PolarisStateDBMock struct {
 		RevertToSnapshot []struct {
 			// N is the n argument value.
 			N int
+		}
+		// SelfDestruct holds details about calls to the SelfDestruct method.
+		SelfDestruct []struct {
+			// Address is the address argument value.
+			Address common.Address
+		}
+		// Selfdestruct6780 holds details about calls to the Selfdestruct6780 method.
+		Selfdestruct6780 []struct {
+			// Address is the address argument value.
+			Address common.Address
 		}
 		// SetBalance holds details about calls to the SetBalance method.
 		SetBalance []struct {
@@ -658,11 +644,6 @@ type PolarisStateDBMock struct {
 		// StopPrefetcher holds details about calls to the StopPrefetcher method.
 		StopPrefetcher []struct {
 		}
-		// StorageTrie holds details about calls to the StorageTrie method.
-		StorageTrie []struct {
-			// Addr is the addr argument value.
-			Addr common.Address
-		}
 		// SubBalance holds details about calls to the SubBalance method.
 		SubBalance []struct {
 			// Address is the address argument value.
@@ -674,11 +655,6 @@ type PolarisStateDBMock struct {
 		SubRefund []struct {
 			// V is the v argument value.
 			V uint64
-		}
-		// Suicide holds details about calls to the Suicide method.
-		Suicide []struct {
-			// Address is the address argument value.
-			Address common.Address
 		}
 		// TxIndex holds details about calls to the TxIndex method.
 		TxIndex []struct {
@@ -701,7 +677,6 @@ type PolarisStateDBMock struct {
 	lockError                  sync.RWMutex
 	lockExist                  sync.RWMutex
 	lockFinalise               sync.RWMutex
-	lockForEachStorage         sync.RWMutex
 	lockGetBalance             sync.RWMutex
 	lockGetCode                sync.RWMutex
 	lockGetCodeHash            sync.RWMutex
@@ -711,12 +686,11 @@ type PolarisStateDBMock struct {
 	lockGetLogs                sync.RWMutex
 	lockGetNonce               sync.RWMutex
 	lockGetOrNewStateObject    sync.RWMutex
-	lockGetProof               sync.RWMutex
 	lockGetRefund              sync.RWMutex
 	lockGetState               sync.RWMutex
-	lockGetStorageProof        sync.RWMutex
+	lockGetStorageRoot         sync.RWMutex
 	lockGetTransientState      sync.RWMutex
-	lockHasSuicided            sync.RWMutex
+	lockHasSelfDestructed      sync.RWMutex
 	lockIntermediateRoot       sync.RWMutex
 	lockIteratorDump           sync.RWMutex
 	lockLogs                   sync.RWMutex
@@ -724,6 +698,8 @@ type PolarisStateDBMock struct {
 	lockPrepare                sync.RWMutex
 	lockRawDump                sync.RWMutex
 	lockRevertToSnapshot       sync.RWMutex
+	lockSelfDestruct           sync.RWMutex
+	lockSelfdestruct6780       sync.RWMutex
 	lockSetBalance             sync.RWMutex
 	lockSetCode                sync.RWMutex
 	lockSetNonce               sync.RWMutex
@@ -735,10 +711,8 @@ type PolarisStateDBMock struct {
 	lockSnapshot               sync.RWMutex
 	lockStartPrefetcher        sync.RWMutex
 	lockStopPrefetcher         sync.RWMutex
-	lockStorageTrie            sync.RWMutex
 	lockSubBalance             sync.RWMutex
 	lockSubRefund              sync.RWMutex
-	lockSuicide                sync.RWMutex
 	lockTxIndex                sync.RWMutex
 }
 
@@ -979,19 +953,21 @@ func (mock *PolarisStateDBMock) AddressInAccessListCalls() []struct {
 }
 
 // Commit calls CommitFunc.
-func (mock *PolarisStateDBMock) Commit(deleteEmptyObjects bool) (common.Hash, error) {
+func (mock *PolarisStateDBMock) Commit(v uint64, b bool) (common.Hash, error) {
 	if mock.CommitFunc == nil {
 		panic("PolarisStateDBMock.CommitFunc: method is nil but PolarisStateDB.Commit was just called")
 	}
 	callInfo := struct {
-		DeleteEmptyObjects bool
+		V uint64
+		B bool
 	}{
-		DeleteEmptyObjects: deleteEmptyObjects,
+		V: v,
+		B: b,
 	}
 	mock.lockCommit.Lock()
 	mock.calls.Commit = append(mock.calls.Commit, callInfo)
 	mock.lockCommit.Unlock()
-	return mock.CommitFunc(deleteEmptyObjects)
+	return mock.CommitFunc(v, b)
 }
 
 // CommitCalls gets all the calls that were made to Commit.
@@ -999,10 +975,12 @@ func (mock *PolarisStateDBMock) Commit(deleteEmptyObjects bool) (common.Hash, er
 //
 //	len(mockedPolarisStateDB.CommitCalls())
 func (mock *PolarisStateDBMock) CommitCalls() []struct {
-	DeleteEmptyObjects bool
+	V uint64
+	B bool
 } {
 	var calls []struct {
-		DeleteEmptyObjects bool
+		V uint64
+		B bool
 	}
 	mock.lockCommit.RLock()
 	calls = mock.calls.Commit
@@ -1284,42 +1262,6 @@ func (mock *PolarisStateDBMock) FinaliseCalls() []struct {
 	mock.lockFinalise.RLock()
 	calls = mock.calls.Finalise
 	mock.lockFinalise.RUnlock()
-	return calls
-}
-
-// ForEachStorage calls ForEachStorageFunc.
-func (mock *PolarisStateDBMock) ForEachStorage(address common.Address, fn func(common.Hash, common.Hash) bool) error {
-	if mock.ForEachStorageFunc == nil {
-		panic("PolarisStateDBMock.ForEachStorageFunc: method is nil but PolarisStateDB.ForEachStorage was just called")
-	}
-	callInfo := struct {
-		Address common.Address
-		Fn      func(common.Hash, common.Hash) bool
-	}{
-		Address: address,
-		Fn:      fn,
-	}
-	mock.lockForEachStorage.Lock()
-	mock.calls.ForEachStorage = append(mock.calls.ForEachStorage, callInfo)
-	mock.lockForEachStorage.Unlock()
-	return mock.ForEachStorageFunc(address, fn)
-}
-
-// ForEachStorageCalls gets all the calls that were made to ForEachStorage.
-// Check the length with:
-//
-//	len(mockedPolarisStateDB.ForEachStorageCalls())
-func (mock *PolarisStateDBMock) ForEachStorageCalls() []struct {
-	Address common.Address
-	Fn      func(common.Hash, common.Hash) bool
-} {
-	var calls []struct {
-		Address common.Address
-		Fn      func(common.Hash, common.Hash) bool
-	}
-	mock.lockForEachStorage.RLock()
-	calls = mock.calls.ForEachStorage
-	mock.lockForEachStorage.RUnlock()
 	return calls
 }
 
@@ -1618,38 +1560,6 @@ func (mock *PolarisStateDBMock) GetOrNewStateObjectCalls() []struct {
 	return calls
 }
 
-// GetProof calls GetProofFunc.
-func (mock *PolarisStateDBMock) GetProof(addr common.Address) ([][]byte, error) {
-	if mock.GetProofFunc == nil {
-		panic("PolarisStateDBMock.GetProofFunc: method is nil but PolarisStateDB.GetProof was just called")
-	}
-	callInfo := struct {
-		Addr common.Address
-	}{
-		Addr: addr,
-	}
-	mock.lockGetProof.Lock()
-	mock.calls.GetProof = append(mock.calls.GetProof, callInfo)
-	mock.lockGetProof.Unlock()
-	return mock.GetProofFunc(addr)
-}
-
-// GetProofCalls gets all the calls that were made to GetProof.
-// Check the length with:
-//
-//	len(mockedPolarisStateDB.GetProofCalls())
-func (mock *PolarisStateDBMock) GetProofCalls() []struct {
-	Addr common.Address
-} {
-	var calls []struct {
-		Addr common.Address
-	}
-	mock.lockGetProof.RLock()
-	calls = mock.calls.GetProof
-	mock.lockGetProof.RUnlock()
-	return calls
-}
-
 // GetRefund calls GetRefundFunc.
 func (mock *PolarisStateDBMock) GetRefund() uint64 {
 	if mock.GetRefundFunc == nil {
@@ -1713,39 +1623,35 @@ func (mock *PolarisStateDBMock) GetStateCalls() []struct {
 	return calls
 }
 
-// GetStorageProof calls GetStorageProofFunc.
-func (mock *PolarisStateDBMock) GetStorageProof(a common.Address, key common.Hash) ([][]byte, error) {
-	if mock.GetStorageProofFunc == nil {
-		panic("PolarisStateDBMock.GetStorageProofFunc: method is nil but PolarisStateDB.GetStorageProof was just called")
+// GetStorageRoot calls GetStorageRootFunc.
+func (mock *PolarisStateDBMock) GetStorageRoot(addr common.Address) common.Hash {
+	if mock.GetStorageRootFunc == nil {
+		panic("PolarisStateDBMock.GetStorageRootFunc: method is nil but PolarisStateDB.GetStorageRoot was just called")
 	}
 	callInfo := struct {
-		A   common.Address
-		Key common.Hash
+		Addr common.Address
 	}{
-		A:   a,
-		Key: key,
+		Addr: addr,
 	}
-	mock.lockGetStorageProof.Lock()
-	mock.calls.GetStorageProof = append(mock.calls.GetStorageProof, callInfo)
-	mock.lockGetStorageProof.Unlock()
-	return mock.GetStorageProofFunc(a, key)
+	mock.lockGetStorageRoot.Lock()
+	mock.calls.GetStorageRoot = append(mock.calls.GetStorageRoot, callInfo)
+	mock.lockGetStorageRoot.Unlock()
+	return mock.GetStorageRootFunc(addr)
 }
 
-// GetStorageProofCalls gets all the calls that were made to GetStorageProof.
+// GetStorageRootCalls gets all the calls that were made to GetStorageRoot.
 // Check the length with:
 //
-//	len(mockedPolarisStateDB.GetStorageProofCalls())
-func (mock *PolarisStateDBMock) GetStorageProofCalls() []struct {
-	A   common.Address
-	Key common.Hash
+//	len(mockedPolarisStateDB.GetStorageRootCalls())
+func (mock *PolarisStateDBMock) GetStorageRootCalls() []struct {
+	Addr common.Address
 } {
 	var calls []struct {
-		A   common.Address
-		Key common.Hash
+		Addr common.Address
 	}
-	mock.lockGetStorageProof.RLock()
-	calls = mock.calls.GetStorageProof
-	mock.lockGetStorageProof.RUnlock()
+	mock.lockGetStorageRoot.RLock()
+	calls = mock.calls.GetStorageRoot
+	mock.lockGetStorageRoot.RUnlock()
 	return calls
 }
 
@@ -1785,35 +1691,35 @@ func (mock *PolarisStateDBMock) GetTransientStateCalls() []struct {
 	return calls
 }
 
-// HasSuicided calls HasSuicidedFunc.
-func (mock *PolarisStateDBMock) HasSuicided(address common.Address) bool {
-	if mock.HasSuicidedFunc == nil {
-		panic("PolarisStateDBMock.HasSuicidedFunc: method is nil but PolarisStateDB.HasSuicided was just called")
+// HasSelfDestructed calls HasSelfDestructedFunc.
+func (mock *PolarisStateDBMock) HasSelfDestructed(address common.Address) bool {
+	if mock.HasSelfDestructedFunc == nil {
+		panic("PolarisStateDBMock.HasSelfDestructedFunc: method is nil but PolarisStateDB.HasSelfDestructed was just called")
 	}
 	callInfo := struct {
 		Address common.Address
 	}{
 		Address: address,
 	}
-	mock.lockHasSuicided.Lock()
-	mock.calls.HasSuicided = append(mock.calls.HasSuicided, callInfo)
-	mock.lockHasSuicided.Unlock()
-	return mock.HasSuicidedFunc(address)
+	mock.lockHasSelfDestructed.Lock()
+	mock.calls.HasSelfDestructed = append(mock.calls.HasSelfDestructed, callInfo)
+	mock.lockHasSelfDestructed.Unlock()
+	return mock.HasSelfDestructedFunc(address)
 }
 
-// HasSuicidedCalls gets all the calls that were made to HasSuicided.
+// HasSelfDestructedCalls gets all the calls that were made to HasSelfDestructed.
 // Check the length with:
 //
-//	len(mockedPolarisStateDB.HasSuicidedCalls())
-func (mock *PolarisStateDBMock) HasSuicidedCalls() []struct {
+//	len(mockedPolarisStateDB.HasSelfDestructedCalls())
+func (mock *PolarisStateDBMock) HasSelfDestructedCalls() []struct {
 	Address common.Address
 } {
 	var calls []struct {
 		Address common.Address
 	}
-	mock.lockHasSuicided.RLock()
-	calls = mock.calls.HasSuicided
-	mock.lockHasSuicided.RUnlock()
+	mock.lockHasSelfDestructed.RLock()
+	calls = mock.calls.HasSelfDestructed
+	mock.lockHasSelfDestructed.RUnlock()
 	return calls
 }
 
@@ -2048,6 +1954,70 @@ func (mock *PolarisStateDBMock) RevertToSnapshotCalls() []struct {
 	mock.lockRevertToSnapshot.RLock()
 	calls = mock.calls.RevertToSnapshot
 	mock.lockRevertToSnapshot.RUnlock()
+	return calls
+}
+
+// SelfDestruct calls SelfDestructFunc.
+func (mock *PolarisStateDBMock) SelfDestruct(address common.Address) {
+	if mock.SelfDestructFunc == nil {
+		panic("PolarisStateDBMock.SelfDestructFunc: method is nil but PolarisStateDB.SelfDestruct was just called")
+	}
+	callInfo := struct {
+		Address common.Address
+	}{
+		Address: address,
+	}
+	mock.lockSelfDestruct.Lock()
+	mock.calls.SelfDestruct = append(mock.calls.SelfDestruct, callInfo)
+	mock.lockSelfDestruct.Unlock()
+	mock.SelfDestructFunc(address)
+}
+
+// SelfDestructCalls gets all the calls that were made to SelfDestruct.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.SelfDestructCalls())
+func (mock *PolarisStateDBMock) SelfDestructCalls() []struct {
+	Address common.Address
+} {
+	var calls []struct {
+		Address common.Address
+	}
+	mock.lockSelfDestruct.RLock()
+	calls = mock.calls.SelfDestruct
+	mock.lockSelfDestruct.RUnlock()
+	return calls
+}
+
+// Selfdestruct6780 calls Selfdestruct6780Func.
+func (mock *PolarisStateDBMock) Selfdestruct6780(address common.Address) {
+	if mock.Selfdestruct6780Func == nil {
+		panic("PolarisStateDBMock.Selfdestruct6780Func: method is nil but PolarisStateDB.Selfdestruct6780 was just called")
+	}
+	callInfo := struct {
+		Address common.Address
+	}{
+		Address: address,
+	}
+	mock.lockSelfdestruct6780.Lock()
+	mock.calls.Selfdestruct6780 = append(mock.calls.Selfdestruct6780, callInfo)
+	mock.lockSelfdestruct6780.Unlock()
+	mock.Selfdestruct6780Func(address)
+}
+
+// Selfdestruct6780Calls gets all the calls that were made to Selfdestruct6780.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.Selfdestruct6780Calls())
+func (mock *PolarisStateDBMock) Selfdestruct6780Calls() []struct {
+	Address common.Address
+} {
+	var calls []struct {
+		Address common.Address
+	}
+	mock.lockSelfdestruct6780.RLock()
+	calls = mock.calls.Selfdestruct6780
+	mock.lockSelfdestruct6780.RUnlock()
 	return calls
 }
 
@@ -2433,38 +2403,6 @@ func (mock *PolarisStateDBMock) StopPrefetcherCalls() []struct {
 	return calls
 }
 
-// StorageTrie calls StorageTrieFunc.
-func (mock *PolarisStateDBMock) StorageTrie(addr common.Address) (state.Trie, error) {
-	if mock.StorageTrieFunc == nil {
-		panic("PolarisStateDBMock.StorageTrieFunc: method is nil but PolarisStateDB.StorageTrie was just called")
-	}
-	callInfo := struct {
-		Addr common.Address
-	}{
-		Addr: addr,
-	}
-	mock.lockStorageTrie.Lock()
-	mock.calls.StorageTrie = append(mock.calls.StorageTrie, callInfo)
-	mock.lockStorageTrie.Unlock()
-	return mock.StorageTrieFunc(addr)
-}
-
-// StorageTrieCalls gets all the calls that were made to StorageTrie.
-// Check the length with:
-//
-//	len(mockedPolarisStateDB.StorageTrieCalls())
-func (mock *PolarisStateDBMock) StorageTrieCalls() []struct {
-	Addr common.Address
-} {
-	var calls []struct {
-		Addr common.Address
-	}
-	mock.lockStorageTrie.RLock()
-	calls = mock.calls.StorageTrie
-	mock.lockStorageTrie.RUnlock()
-	return calls
-}
-
 // SubBalance calls SubBalanceFunc.
 func (mock *PolarisStateDBMock) SubBalance(address common.Address, intMoqParam *big.Int) {
 	if mock.SubBalanceFunc == nil {
@@ -2530,38 +2468,6 @@ func (mock *PolarisStateDBMock) SubRefundCalls() []struct {
 	mock.lockSubRefund.RLock()
 	calls = mock.calls.SubRefund
 	mock.lockSubRefund.RUnlock()
-	return calls
-}
-
-// Suicide calls SuicideFunc.
-func (mock *PolarisStateDBMock) Suicide(address common.Address) bool {
-	if mock.SuicideFunc == nil {
-		panic("PolarisStateDBMock.SuicideFunc: method is nil but PolarisStateDB.Suicide was just called")
-	}
-	callInfo := struct {
-		Address common.Address
-	}{
-		Address: address,
-	}
-	mock.lockSuicide.Lock()
-	mock.calls.Suicide = append(mock.calls.Suicide, callInfo)
-	mock.lockSuicide.Unlock()
-	return mock.SuicideFunc(address)
-}
-
-// SuicideCalls gets all the calls that were made to Suicide.
-// Check the length with:
-//
-//	len(mockedPolarisStateDB.SuicideCalls())
-func (mock *PolarisStateDBMock) SuicideCalls() []struct {
-	Address common.Address
-} {
-	var calls []struct {
-		Address common.Address
-	}
-	mock.lockSuicide.RLock()
-	calls = mock.calls.Suicide
-	mock.lockSuicide.RUnlock()
 	return calls
 }
 

@@ -37,6 +37,9 @@ func NewGethNetworkingStack(config *node.Config) (NetworkingStack, error) {
 		return nil, err
 	}
 
+	// In Polaris we don't use P2P at the geth level.
+	node.SetP2PDisabled(true)
+
 	return &Node{
 		Node: node,
 	}, nil

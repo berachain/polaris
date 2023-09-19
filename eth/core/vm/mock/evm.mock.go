@@ -5,7 +5,6 @@ package mock
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/holiman/uint256"
 	"math/big"
@@ -30,7 +29,7 @@ import (
 //			GetContextFunc: func() *vm.BlockContext {
 //				panic("mock out the GetContext method")
 //			},
-//			GetStateDBFunc: func() state.StateDBI {
+//			GetStateDBFunc: func() vm.StateDB {
 //				panic("mock out the GetStateDB method")
 //			},
 //			StaticCallFunc: func(caller vm.ContractRef, addr common.Address, input []byte, gas uint64) ([]byte, uint64, error) {
@@ -56,7 +55,7 @@ type PrecompileEVMMock struct {
 	GetContextFunc func() *vm.BlockContext
 
 	// GetStateDBFunc mocks the GetStateDB method.
-	GetStateDBFunc func() state.StateDBI
+	GetStateDBFunc func() vm.StateDB
 
 	// StaticCallFunc mocks the StaticCall method.
 	StaticCallFunc func(caller vm.ContractRef, addr common.Address, input []byte, gas uint64) ([]byte, uint64, error)
@@ -294,7 +293,7 @@ func (mock *PrecompileEVMMock) GetContextCalls() []struct {
 }
 
 // GetStateDB calls GetStateDBFunc.
-func (mock *PrecompileEVMMock) GetStateDB() state.StateDBI {
+func (mock *PrecompileEVMMock) GetStateDB() vm.StateDB {
 	if mock.GetStateDBFunc == nil {
 		panic("PrecompileEVMMock.GetStateDBFunc: method is nil but PrecompileEVM.GetStateDB was just called")
 	}

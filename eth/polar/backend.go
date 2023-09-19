@@ -38,6 +38,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/common/hexutil"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -283,7 +284,7 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash rpc.Blo
 
 func (b *backend) StateAndHeaderByNumber(
 	ctx context.Context, number rpc.BlockNumber,
-) (vm.GethStateDB, *types.Header, error) {
+) (state.StateDBI, *types.Header, error) {
 	// TODO: handling pending better
 	// // Pending state is only known by the miner
 	// if number == rpc.PendingBlockNumber {
@@ -314,7 +315,7 @@ func (b *backend) StateAndHeaderByNumber(
 
 func (b *backend) StateAndHeaderByNumberOrHash(
 	ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash,
-) (vm.GethStateDB, *types.Header, error) {
+) (state.StateDBI, *types.Header, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.StateAndHeaderByNumber(ctx, blockNr)
 	}
@@ -392,7 +393,7 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 }
 
 // GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.
-func (b *backend) GetEVM(_ context.Context, msg *core.Message, state vm.GethStateDB,
+func (b *backend) GetEVM(_ context.Context, msg *core.Message, state state.StateDBI,
 	header *types.Header, vmConfig *vm.Config, blockCtx *vm.BlockContext,
 ) (*vm.GethEVM, func() error) {
 	if vmConfig == nil {
@@ -477,16 +478,14 @@ func (b *backend) Stats() (int, int) {
 	return pending, queued
 }
 
-func (b *backend) TxPoolContent() (
-	map[common.Address]types.Transactions, map[common.Address]types.Transactions,
-) {
+func (b *backend) TxPoolContent() (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
 	pending, queued := b.polar.txPool.Content()
 	b.logger.Debug("called eth.rpc.backend.TxPoolContent", "pending", len(pending), "queued", len(queued))
 	return pending, queued
 }
 
 func (b *backend) TxPoolContentFrom(addr common.Address) (
-	types.Transactions, types.Transactions,
+	[]*types.Transaction, []*types.Transaction,
 ) {
 	pending, queued := b.polar.txPool.ContentFrom(addr)
 	b.logger.Debug("called eth.rpc.backend.TxPoolContentFrom",
