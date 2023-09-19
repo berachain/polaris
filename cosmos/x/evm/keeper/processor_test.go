@@ -168,7 +168,7 @@ var _ = Describe("Processor", func() {
 			// Zero out the meters.
 			ctx.BlockGasMeter().RefundGas(
 				ctx.BlockGasMeter().GasConsumed(), "reset gas meter prior to ethereum state transition")
-			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((0)))
+			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal(uint64(0)))
 
 			// Execute state transition.
 			result, err := k.ProcessTransaction(ctx, tx)
