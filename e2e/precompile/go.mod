@@ -4,7 +4,7 @@ go 1.21
 
 replace (
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230919011802-32b619a329c0
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230919212829-4a52af33e74d
 	// Required at the moment until a bug in the comsos-sdk is fixed.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
