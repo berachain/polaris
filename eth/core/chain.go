@@ -52,12 +52,11 @@ type Blockchain interface {
 // blockchain is the canonical, persistent object that operates the Polaris EVM.
 type blockchain struct {
 	// the host chain plugins that the Polaris EVM is running on.
-	bp   BlockPlugin
-	cp   ConfigurationPlugin
-	hp   HistoricalPlugin
-	pp   PrecompilePlugin
-	sp   StatePlugin
-	host PolarisHostChain
+	bp BlockPlugin
+	cp ConfigurationPlugin
+	hp HistoricalPlugin
+	pp PrecompilePlugin
+	sp StatePlugin
 
 	// statedb is the state database that is used to mange state during transactions.
 	statedb vm.PolarisStateDB
@@ -104,7 +103,6 @@ type blockchain struct {
 // NewChain creates and returns a `api.Chain` with the given EVM chain configuration and host.
 func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used as `api.Chain`.
 	bc := &blockchain{
-		host:           host,
 		bp:             host.GetBlockPlugin(),
 		cp:             host.GetConfigurationPlugin(),
 		hp:             host.GetHistoricalPlugin(),

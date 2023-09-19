@@ -40,6 +40,7 @@ type Backend interface {
 	// Blockchain returns the blockchain instance.
 	Blockchain() core.Blockchain
 	TxPool() txpool.TxPool
+	Host() core.PolarisHostChain
 }
 
 // Miner defines the interface for a Polaris miner.
@@ -79,7 +80,7 @@ type miner struct {
 // NewMiner creates a new Miner instance.
 func NewMiner(backend Backend) Miner {
 	chain := backend.Blockchain()
-	host := chain.GetHost()
+	host := backend.Host()
 
 	m := &miner{
 		bp:      host.GetBlockPlugin(),
@@ -148,7 +149,7 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		context = core.NewEVMBlockContext(header, m.chain, &header.Coinbase)
 		vmenv   = vm.NewGethEVMWithPrecompiles(context,
 			vm.TxContext{}, m.statedb, chainCfg, m.vmConfig,
-			m.chain.GetHost().GetPrecompilePlugin())
+			m.backend.Host().GetPrecompilePlugin())
 	)
 
 	// Prepare the State Processor, StateDB and the EVM for the block.

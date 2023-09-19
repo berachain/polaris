@@ -408,7 +408,7 @@ func (b *backend) GetEVM(_ context.Context, msg *core.Message, state vm.GethStat
 		context = core.NewEVMBlockContext(header, b.polar.Blockchain(), &header.Coinbase)
 	}
 	return vm.NewGethEVMWithPrecompiles(context, txContext, state, b.polar.blockchain.Config(),
-		*vmConfig, b.polar.blockchain.GetHost().GetPrecompilePlugin()), state.Error
+		*vmConfig, b.polar.Host().GetPrecompilePlugin()), state.Error
 }
 
 // GetBlockContext returns a new block context to be used by a EVM.

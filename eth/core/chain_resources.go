@@ -30,11 +30,6 @@ import (
 type ChainResources interface {
 	StateAtBlockNumber(uint64) (vm.GethStateDB, error)
 	GetVMConfig() *vm.Config
-	GetHost() PolarisHostChain
-}
-
-func (bc *blockchain) GetHost() PolarisHostChain {
-	return bc.host
 }
 
 // StateAtBlockNumber returns a statedb configured to read what the state of the blockchain is/was

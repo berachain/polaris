@@ -70,7 +70,8 @@ type Polaris struct {
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
 
-	// blockchain represents the canonical chain.
+	// core pieces of the polaris stack
+	host       core.PolarisHostChain
 	blockchain core.Blockchain
 	txPool     txpool.TxPool
 	miner      miner.Miner
@@ -96,6 +97,7 @@ func NewWithNetworkingStack(
 		cfg:        cfg,
 		blockchain: core.NewChain(host),
 		stack:      stack,
+		host:       host,
 		engine:     host.GetEnginePlugin(),
 	}
 	// When creating a Polaris EVM, we allow the implementing chain
@@ -156,6 +158,10 @@ func (pl *Polaris) StartServices() error {
 
 func (pl *Polaris) StopServices() error {
 	return pl.stack.Close()
+}
+
+func (pl *Polaris) Host() core.PolarisHostChain {
+	return pl.host
 }
 
 func (pl *Polaris) Miner() miner.Miner {
