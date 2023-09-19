@@ -392,7 +392,7 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 }
 
 // GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.
-func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethStateDB,
+func (b *backend) GetEVM(_ context.Context, msg *core.Message, state vm.GethStateDB,
 	header *types.Header, vmConfig *vm.Config, blockCtx *vm.BlockContext,
 ) (*vm.GethEVM, func() error) {
 	if vmConfig == nil {

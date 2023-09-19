@@ -63,10 +63,11 @@ type miner struct {
 	bp        core.BlockPlugin
 	cp        core.ConfigurationPlugin
 	gp        core.GasPlugin
-	sp        core.StatePlugin
-	logger    log.Logger
-	vmConfig  vm.Config
-	statedb   vm.PolarisStateDB
+
+	sp       core.StatePlugin
+	logger   log.Logger
+	vmConfig vm.Config
+	statedb  vm.PolarisStateDB
 
 	// TODO: historical plugin has no purpose here in the miner.
 	// Should be handled async via channel
@@ -78,14 +79,14 @@ func NewMiner(backend Backend) Miner {
 	host := backend.Blockchain().GetHost()
 
 	m := &miner{
-		host:      host,
-		bp:        host.GetBlockPlugin(),
-		cp:        host.GetConfigurationPlugin(),
-		hp:        host.GetHistoricalPlugin(),
-		gp:        host.GetGasPlugin(),
-		sp:        host.GetStatePlugin(),
-		backend:   backend,
-		logger:    log.NewNopLogger(), // todo: fix.
+		host:    host,
+		bp:      host.GetBlockPlugin(),
+		cp:      host.GetConfigurationPlugin(),
+		hp:      host.GetHistoricalPlugin(),
+		gp:      host.GetGasPlugin(),
+		sp:      host.GetStatePlugin(),
+		backend: backend,
+		logger:  log.NewNopLogger(), // todo: fix.
 	}
 
 	m.statedb = state.NewStateDB(m.sp)
@@ -109,6 +110,7 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	}
 
 	coinbase, timestamp := m.host.GetBlockPlugin().GetNewBlockMetadata(number)
+	chainCfg := m.cp.ChainConfig()
 
 	// Build the new block header.
 	parent := m.backend.Blockchain().CurrentFinalBlock()
@@ -132,8 +134,10 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	m.processor.Prepare(
-		m.backend.Blockchain().GetEVM(ctx, vm.TxContext{}, m.statedb, header, &m.vmConfig),
-		core.NewEVM(m.backend),
+		vm.NewGethEVMWithPrecompiles(
+			*m.backend.Blockchain().NewEVMBlockContext(header),
+			vm.TxContext{}, m.statedb, chainCfg, m.vmConfig,
+			m.backend.Blockchain().GetHost().GetPrecompilePlugin()),
 		header,
 	)
 
