@@ -431,8 +431,8 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // Transaction Pool API
 // ==============================================================================
 
-func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
-	return b.polar.blockchain.SendTx(ctx, signedTx)
+func (b *backend) SendTx(_ context.Context, signedTx *types.Transaction) error {
+	return b.polar.txPool.SendTx(signedTx)
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
@@ -486,7 +486,7 @@ func (b *backend) TxPoolContentFrom(addr common.Address) (
 }
 
 func (b *backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {
-	return b.polar.blockchain.SubscribeNewTxsEvent(ch)
+	return b.polar.txPool.SubscribeNewTxsEvent(ch)
 }
 
 func (b *backend) Engine() consensus.Engine {
