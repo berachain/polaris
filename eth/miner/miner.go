@@ -78,14 +78,14 @@ func NewMiner(backend Backend) Miner {
 	host := backend.Blockchain().GetHost()
 
 	m := &miner{
-		host:    host,
-		bp:      host.GetBlockPlugin(),
-		cp:      host.GetConfigurationPlugin(),
-		hp:      host.GetHistoricalPlugin(),
-		gp:      host.GetGasPlugin(),
-		sp:      host.GetStatePlugin(),
-		backend: backend,
-		logger:  log.NewNopLogger(), // todo: fix.
+		host:      host,
+		bp:        host.GetBlockPlugin(),
+		cp:        host.GetConfigurationPlugin(),
+		hp:        host.GetHistoricalPlugin(),
+		gp:        host.GetGasPlugin(),
+		sp:        host.GetStatePlugin(),
+		backend:   backend,
+		logger:    log.NewNopLogger(), // todo: fix.
 	}
 
 	m.statedb = state.NewStateDB(m.sp)
@@ -133,6 +133,7 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	m.processor.Prepare(
 		m.backend.Blockchain().GetEVM(ctx, vm.TxContext{}, m.statedb, header, &m.vmConfig),
+		core.NewEVM(m.backend),
 		header,
 	)
 
