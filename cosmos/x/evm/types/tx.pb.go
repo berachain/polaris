@@ -36,8 +36,8 @@ const (
 	Status_STATUS_REVERT_UNSPECIFIED Status = 0
 	// STATUS_SUCCESS indicates that the transaction completed successfully.
 	Status_STATUS_SUCCESS Status = 1
-	// STATUS_NOT_INCLUDED indicates that the transaction was not included in the block,
-	// due to an critical error.
+	// STATUS_NOT_INCLUDED indicates that the transaction was not included in the
+	// `evm` block, due to an critical error.
 	Status_STATUS_NOT_INCLUDED Status = 2
 )
 
