@@ -47,9 +47,6 @@ type Blockchain interface {
 	ChainSubscriber
 	ChainResources
 	ChainContext
-
-	// TODO deprecate
-	NewEVMBlockContext(header *types.Header) *vm.BlockContext
 }
 
 // blockchain is the canonical, persistent object that operates the Polaris EVM.

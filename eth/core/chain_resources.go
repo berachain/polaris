@@ -21,10 +21,7 @@
 package core
 
 import (
-	"math/big"
-
 	"pkg.berachain.dev/polaris/eth/core/state"
-	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
@@ -48,15 +45,6 @@ func (bc *blockchain) StateAtBlockNumber(number uint64) (vm.GethStateDB, error) 
 		return nil, err
 	}
 	return state.NewStateDB(sp), nil
-}
-
-// NewEVMBlockContext creates a new block context for use in the EVM.
-func (bc *blockchain) NewEVMBlockContext(header *types.Header) *vm.BlockContext {
-	if header = types.CopyHeader(header); header.Difficulty == nil {
-		header.Difficulty = new(big.Int)
-	}
-	blockContext := NewEVMBlockContext(header, bc, &header.Coinbase)
-	return &blockContext
 }
 
 // GetVMConfig returns the vm.Config for the current chain.
