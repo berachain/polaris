@@ -25,12 +25,7 @@
 
 package main
 
-const (
-	golangCi   = "github.com/golangci/golangci-lint/cmd/golangci-lint"
-	golines    = "github.com/segmentio/golines"
-	gosec      = "github.com/securego/gosec/v2/cmd/gosec"
-	addlicense = "github.com/google/addlicense"
-)
+import "pkg.berachain.dev/polaris/magefiles/utils"
 
 func Lint() error {
 	cmds := []func() error{GolangCiLint, LicenseCheck, Gosec, Proto{}.Lint, Contracts{}.Fmt}
@@ -55,8 +50,8 @@ func Format() error {
 
 // Run `golangci-lint`.
 func GolangCiLint() error {
-	LogGreen("Running golangci-lint...")
-	for _, dir := range moduleDirs {
+	utils.LogGreen("Running golangci-lint...")
+	for _, dir := range repoModuleDirs {
 		if err := goRun(golangCi,
 			"run", "--timeout=10m", "--concurrency", "4", "--config=.golangci.yaml", "-v", "./"+dir+"/"+"...",
 		); err != nil {
@@ -68,8 +63,8 @@ func GolangCiLint() error {
 
 // Run `golangci-lint` with --fix.
 func GolangCiLintFix() error {
-	LogGreen("Running golangci-lint --fix...")
-	for _, dir := range moduleDirs {
+	utils.LogGreen("Running golangci-lint --fix...")
+	for _, dir := range repoModuleDirs {
 		if err := goRun(golangCi,
 			"run", "--timeout=10m", "--concurrency", "4", "--config=.golangci.yaml", "-v", "--fix", "./"+dir+"/"+"...",
 		); err != nil {
@@ -81,7 +76,7 @@ func GolangCiLintFix() error {
 
 // Run `golines`.
 func Golines() error {
-	LogGreen("Running golines...")
+	utils.LogGreen("Running golines...")
 	return goRun(golines,
 		"--reformat-tags", "--shorten-comments", "--write-output", "--max-len=99", "-l", "./.",
 	)
@@ -89,14 +84,14 @@ func Golines() error {
 
 // Run `gosec`.
 func Gosec() error {
-	LogGreen("Running gosec...")
+	utils.LogGreen("Running gosec...")
 	return goRun(gosec, "-exclude-generated", "./...")
 }
 
 // Run `addlicense`.
 func License() error {
-	LogGreen("Running addlicense...")
-	return ExecuteForAllModules(moduleDirs, func(args ...string) error {
+	utils.LogGreen("Running addlicense...")
+	return ExecuteForAllModules(repoModuleDirs, func(args ...string) error {
 		return goRun(addlicense,
 			"-v", "-f", "./LICENSE.header", "./.",
 		)
@@ -105,8 +100,8 @@ func License() error {
 
 // Run `addlicense`.
 func LicenseCheck() error {
-	LogGreen("Running addlicense -check...")
-	return ExecuteForAllModules(moduleDirs, func(args ...string) error {
+	utils.LogGreen("Running addlicense -check...")
+	return ExecuteForAllModules(repoModuleDirs, func(args ...string) error {
 		return goRun(addlicense,
 			"-check", "-v", "-f", "./LICENSE.header", "-ignore", "**/*.yml", "./.",
 		)

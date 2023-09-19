@@ -29,37 +29,8 @@ import (
 	"fmt"
 
 	"github.com/magefile/mage/sh"
-)
 
-var (
-	// Commands.
-	goInstall  = RunCmdV("go", "install", "-mod=readonly")
-	goBuild    = RunCmdV("go", "build", "-mod=readonly")
-	goRun      = RunCmdV("go", "run")
-	goGenerate = RunCmdV("go", "generate")
-	goModTidy  = RunCmdV("go", "mod", "tidy")
-	goWorkSync = RunCmdV("go", "work", "sync")
-
-	// Directories.
-	outdir = "./bin"
-
-	// Tools.
-	gitDiff = sh.RunCmd("git", "diff", "--stat", "--exit-code", ".",
-		"':(exclude)*.mod' ':(exclude)*.sum'")
-
-	// Dependencies.
-	moq = "github.com/matryer/moq"
-
-	moduleDirs = []string{
-		"contracts",
-		"eth",
-		"cosmos",
-		"magefiles",
-		"lib",
-		"e2e/localnet",
-		"e2e/precompile",
-		"e2e/testapp",
-	}
+	"pkg.berachain.dev/polaris/magefiles/utils"
 )
 
 // ===========================================================================
@@ -68,18 +39,21 @@ var (
 
 // Runs `go generate` on the entire project.
 func Generate() error {
-	LogGreen("Running 'go generate' on the entire project...")
+	utils.LogGreen("Running 'go generate' on the entire project...")
 	if err := goInstall(moq); err != nil {
 		return err
 	}
-	return ExecuteForAllModules(moduleDirs, func(...string) error { return goGenerate("./...") }, false)
+	return ExecuteForAllModules(repoModuleDirs, func(...string) error { return goGenerate("./...") }, false)
 }
 
 // Runs `go generate` on the entire project and verifies that no files were
 // changed.
 func GenerateCheck() error {
-	LogGreen("Running 'go generate' on the entire project and verifying that no files were changed...")
-	if err := ExecuteForAllModules(moduleDirs, func(...string) error { return goGenerate("./...") }, false); err != nil {
+	utils.LogGreen(
+		"Running 'go generate' on project and verifying that no files were changed...")
+	if err := ExecuteForAllModules(
+		repoModuleDirs, func(...string) error { return goGenerate("./...") }, false,
+	); err != nil {
 		return err
 	}
 	if err := gitDiff(); err != nil {
@@ -90,7 +64,7 @@ func GenerateCheck() error {
 
 // Runs 'go tidy' on the entire project.
 func Tidy() error {
-	return ExecuteForAllModules(moduleDirs, goModTidy, false)
+	return ExecuteForAllModules(repoModuleDirs, goModTidy, false)
 }
 
 // Runs 'go work sync' on the entire project.
