@@ -30,30 +30,37 @@ import (
 // Backend wraps all methods required for mining. Only full node is capable
 // to offer all the functions here.
 type Backend interface {
+	// Blockchain returns the blockchain instance.
 	Blockchain() core.Blockchain
 }
 
+// Miner defines the interface for a Polaris miner.
 type Miner interface {
 	// Prepare prepares the miner for a new block. This method is called before the first tx in
 	// the block.
 	Prepare(context.Context, uint64) *types.Header
+
 	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
 	ProcessTransaction(context.Context, *types.Transaction) (*core.ExecutionResult, error)
+
 	// Finalize is called after the last tx in the block.
 	Finalize(context.Context) error
 }
 
+// miner implements the Miner interface.
 type miner struct {
 	backend Backend
 }
 
+// NewMiner creates a new Miner instance.
 func NewMiner(backend Backend) Miner {
 	return &miner{
 		backend: backend,
 	}
 }
 
+// Prepare prepares the blockchain for processing a new block at the given height.
 func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	return m.backend.Blockchain().Prepare(ctx, number)
 }
