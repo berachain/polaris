@@ -138,8 +138,8 @@ cloud.google.com/go/vpcaccess v1.7.1/go.mod h1:FogoD46/ZU+JUBX9D606X21EnxiszYi2t
 cloud.google.com/go/webrisk v1.9.1/go.mod h1:4GCmXKcOa2BZcZPn6DCEvE7HypmEJcJkr4mtM+sqYPc=
 cloud.google.com/go/websecurityscanner v1.6.1/go.mod h1:Njgaw3rttgRHXzwCB8kgCYqv5/rGpFCsBOvPbYgszpg=
 cloud.google.com/go/workflows v1.11.1/go.mod h1:Z+t10G1wF7h8LgdY/EmRcQY8ptBD/nvofaL6FqlET6g=
-cosmossdk.io/x/upgrade v0.0.0-20230915075604-076dc1ee9619 h1:3wgUsnj/ElYA+B33h6Yn1KxWvB4hPFa+K90fw9gRO9M=
-cosmossdk.io/x/upgrade v0.0.0-20230915075604-076dc1ee9619/go.mod h1:bqexnYfkwMCqbXXN4SprKS9N7cTwT1lFholB7UQhoDU=
+cosmossdk.io/x/upgrade v0.0.0-20230915171831-2196edacb99d h1:LH8NPa2+yoMFdCTxCFyQUX5zVDip4YDgtg7e0EecDqo=
+cosmossdk.io/x/upgrade v0.0.0-20230915171831-2196edacb99d/go.mod h1:+5jCm6Lk/CrQhQvtJFy/tmuLfhQKNMn/U0vwrRz/dxQ=
 github.com/HdrHistogram/hdrhistogram-go v1.1.2/go.mod h1:yDgFjdqOqDEKOvasDdhWNXYg9BVp4O+o5f6V/ehm6Oo=
 github.com/Joker/hpp v1.0.0/go.mod h1:8x5n+M1Hp5hC0g8okX3sR3vFQwynaX/UgSOM9MeBKzY=
 github.com/Joker/jade v1.0.1-0.20190614124447-d475f43051e7/go.mod h1:6E6s8o2AE4KhCrqr6GRJjdC/gNfTdxkIXvuGZZda2VM=
@@ -182,8 +182,6 @@ github.com/aws/smithy-go v1.1.0/go.mod h1:EzMw8dbp/YJL4A5/sbhGddag+NPT7q084agLbB
 github.com/aws/smithy-go v1.8.0/go.mod h1:SObp3lf9smib00L/v3U2eAKG8FyQ7iLrJnQiAmR5n+E=
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
 github.com/aymerick/raymond v2.0.3-0.20180322193309-b565731e1464+incompatible/go.mod h1:osfaiScAUVup+UC9Nfq76eWqDhXlp+4UYaA8uhTBO6g=
-github.com/berachain/polaris-geth v0.0.0-20230919004135-dc43b18cdeec h1:I948oq85phvwBpUQnm79CgO5cLUAh/z05Y/DcgpmYSk=
-github.com/berachain/polaris-geth v0.0.0-20230919004135-dc43b18cdeec/go.mod h1:xHQKzwkHSl0gnSjZK1mWa06XEdm9685AHqhRknOzqGQ=
 github.com/bits-and-blooms/bitset v1.5.0/go.mod h1:gIdJ4wp64HaoK2YrL1Q5/N7Y16edYb8uY+O0FJTyyDA=
 github.com/bits-and-blooms/bitset v1.7.0/go.mod h1:gIdJ4wp64HaoK2YrL1Q5/N7Y16edYb8uY+O0FJTyyDA=
 github.com/blang/semver/v4 v4.0.0/go.mod h1:IbckMUScFkM3pff0VJDNKRiT6TG/YpiHIM2yvyW5YoQ=
