@@ -33,14 +33,6 @@ import (
 	"github.com/magefile/mage/mg"
 )
 
-var (
-	// Commands.
-	forgeBuild = RunCmdV("forge", "build", "--extra-output-files", "bin", "--extra-output-files", "abi", "--silent")
-	forgeClean = RunCmdV("forge", "clean")
-	forgeTest  = RunCmdV("forge", "test")
-	forgeFmt   = RunCmdV("forge", "fmt")
-)
-
 // Compile-time assertion that we implement the interface correctly.
 var _ MageModule = (*Contracts)(nil)
 

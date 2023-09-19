@@ -25,13 +25,6 @@
 
 package main
 
-const (
-	golangCi   = "github.com/golangci/golangci-lint/cmd/golangci-lint"
-	golines    = "github.com/segmentio/golines"
-	gosec      = "github.com/securego/gosec/v2/cmd/gosec"
-	addlicense = "github.com/google/addlicense"
-)
-
 func Lint() error {
 	cmds := []func() error{GolangCiLint, LicenseCheck, Gosec, Proto{}.Lint, Contracts{}.Fmt}
 	for _, cmd := range cmds {
@@ -56,7 +49,7 @@ func Format() error {
 // Run `golangci-lint`.
 func GolangCiLint() error {
 	LogGreen("Running golangci-lint...")
-	for _, dir := range moduleDirs {
+	for _, dir := range repoModuleDirs {
 		if err := goRun(golangCi,
 			"run", "--timeout=10m", "--concurrency", "4", "--config=.golangci.yaml", "-v", "./"+dir+"/"+"...",
 		); err != nil {
@@ -69,7 +62,7 @@ func GolangCiLint() error {
 // Run `golangci-lint` with --fix.
 func GolangCiLintFix() error {
 	LogGreen("Running golangci-lint --fix...")
-	for _, dir := range moduleDirs {
+	for _, dir := range repoModuleDirs {
 		if err := goRun(golangCi,
 			"run", "--timeout=10m", "--concurrency", "4", "--config=.golangci.yaml", "-v", "--fix", "./"+dir+"/"+"...",
 		); err != nil {
@@ -96,7 +89,7 @@ func Gosec() error {
 // Run `addlicense`.
 func License() error {
 	LogGreen("Running addlicense...")
-	return ExecuteForAllModules(moduleDirs, func(args ...string) error {
+	return ExecuteForAllModules(repoModuleDirs, func(args ...string) error {
 		return goRun(addlicense,
 			"-v", "-f", "./LICENSE.header", "./.",
 		)
@@ -106,7 +99,7 @@ func License() error {
 // Run `addlicense`.
 func LicenseCheck() error {
 	LogGreen("Running addlicense -check...")
-	return ExecuteForAllModules(moduleDirs, func(args ...string) error {
+	return ExecuteForAllModules(repoModuleDirs, func(args ...string) error {
 		return goRun(addlicense,
 			"-check", "-v", "-f", "./LICENSE.header", "-ignore", "**/*.yml", "./.",
 		)

@@ -40,18 +40,7 @@ type tests struct {
 	Files []string
 }
 
-const (
-	baseImageVersion   = "polard/base:v0.0.0"
-	baseHiveDockerPath = "./e2e/hive/"
-)
-
 var (
-	// Variables.
-	hiveClone      = os.Getenv("GOPATH") + "/src/"
-	clonePath      = hiveClone + ".hive-e2e/"
-	simulatorsPath = clonePath + "simulators/polaris/"
-	clientsPath    = clonePath + "clients/polard/"
-
 	simulations = []tests{
 		{"rpc", []string{"init/genesis.json", "ethclient.hive"}},
 		{"rpc-compat", []string{"Dockerfile", "tests"}},

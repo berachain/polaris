@@ -38,12 +38,6 @@ var (
 	production = false
 	statically = false
 
-	// Commands.
-	dockerBuild = RunCmdV("docker", "build", "--rm=false")
-
-	dockerBuildX = RunCmdV("docker", "buildx", "build", "--rm=false")
-	dockerRun    = RunCmdV("docker", "run")
-
 	// Variables.
 	imageName              = "polard"
 	imageVersion           = "v0.0.0"
@@ -128,7 +122,7 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 		"--build-arg", "PRECOMPILE_CONTRACTS_DIR=" + precompileContractsDir,
 		"--build-arg", "GOOS=linux",
 		"--build-arg", "GOARCH=" + arch,
-		"--build-arg", "GO_WORK=" + strings.Join(moduleDirs, " "),
+		"--build-arg", "GO_WORK=" + strings.Join(repoModuleDirs, " "),
 	}
 	buildContext := "."
 	switch dockerType {

@@ -32,14 +32,6 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-var (
-	protoImageName    = "ghcr.io/cosmos/proto-builder"
-	protoImageVersion = "0.13.5"
-	protoDir          = "cosmos/proto"
-
-	bufCommand = sh.RunCmd("buf")
-)
-
 type Proto mg.Namespace
 
 // Run all proto related targets.
