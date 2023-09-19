@@ -95,7 +95,7 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 	bc.gp.Reset(ctx) // TODO: may not need this.
 	bc.sp.Reset(ctx)
 
-	return bc.processor.ProcessTransaction(ctx, tx)
+	return nil, nil
 }
 
 func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error {
@@ -168,7 +168,7 @@ func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, l
 	return nil
 }
 
-// TODO: deprecate this bitch.
+// TODO: deprecate this
 func (bc *blockchain) GetProcessor() *StateProcessor {
 	return bc.processor
 }

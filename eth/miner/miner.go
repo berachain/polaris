@@ -50,13 +50,15 @@ type Miner interface {
 
 // miner implements the Miner interface.
 type miner struct {
-	backend Backend
+	backend   Backend
+	processor *core.StateProcessor
 }
 
 // NewMiner creates a new Miner instance.
 func NewMiner(backend Backend) Miner {
 	return &miner{
-		backend: backend,
+		backend:   backend,
+		processor: backend.Blockchain().GetProcessor(),
 	}
 }
 
@@ -68,12 +70,13 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 // ProcessTransaction processes the given transaction and returns the receipt after applying
 // the state transition. This method is called for each tx in the block.
 func (m *miner) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*core.ExecutionResult, error) {
-	return m.backend.Blockchain().ProcessTransaction(ctx, tx)
+	_, _ = m.backend.Blockchain().ProcessTransaction(ctx, tx)
+	return m.processor.ProcessTransaction(ctx, tx)
 }
 
 // Finalize is called after the last tx in the block.
 func (m *miner) Finalize(ctx context.Context) error {
-	block, receipts, logs, err := m.backend.Blockchain().GetProcessor().Finalize(ctx)
+	block, receipts, logs, err := m.processor.Finalize(ctx)
 	if err != nil {
 		return err
 	}
