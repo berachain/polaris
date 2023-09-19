@@ -29,6 +29,7 @@ import (
 	"github.com/ethereum/go-ethereum/eth/filters"
 
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/log"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
@@ -57,6 +58,7 @@ type NetworkingStack interface {
 	// Start starts the networking stack.
 	Start() error
 
+	// Close stops the networking stack
 	Close() error
 }
 
@@ -70,8 +72,9 @@ type Polaris struct {
 	// txPool     *txpool.TxPool
 	// blockchain represents the canonical chain.
 	blockchain core.Blockchain
+	txPool     txpool.PolarisTxPool
 
-	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the blockchain.
+	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the core pieces.
 	backend Backend
 
 	// engine represents the consensus engine for the backend.
@@ -105,8 +108,10 @@ func NewWithNetworkingStack(
 		log.Root().SetHandler(logHandler)
 	}
 
-	// Build and set the RPC Backend.
+	// Build and set the RPC Backend and other services.
 	pl.backend = NewBackend(pl, stack.ExtRPCEnabled(), cfg)
+	pl.txPool = txpool.NewPolarisTxPool(host.GetTxPoolPlugin())
+
 	return pl
 }
 

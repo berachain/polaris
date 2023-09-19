@@ -57,7 +57,6 @@ type blockchain struct {
 	hp HistoricalPlugin
 	gp GasPlugin
 	sp StatePlugin
-	tp TxPoolPlugin
 
 	// StateProcessor is the canonical, persistent state processor that runs the EVM.
 	processor *StateProcessor
@@ -111,7 +110,6 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		hp:             host.GetHistoricalPlugin(),
 		gp:             host.GetGasPlugin(),
 		sp:             host.GetStatePlugin(),
-		tp:             host.GetTxPoolPlugin(),
 		vmConfig:       &vm.Config{},
 		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSize),
 		blockNumCache:  lru.NewCache[uint64, *types.Block](defaultCacheSize),

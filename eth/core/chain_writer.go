@@ -34,14 +34,12 @@ import (
 type ChainWriter interface {
 	// Prepare prepares the chain for a new block. This method is called before the first tx in
 	// the block.
-	Prepare(context.Context, uint64)
+	Prepare(context.Context, uint64) *types.Header
 	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
 	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
 	// Finalize is called after the last tx in the block.
 	Finalize(context.Context) error
-	// SendTx sends the given transaction to the tx pool.
-	SendTx(ctx context.Context, signedTx *types.Transaction) error
 }
 
 // =========================================================================
@@ -49,7 +47,7 @@ type ChainWriter interface {
 // =========================================================================
 
 // Prepare prepares the blockchain for processing a new block at the given height.
-func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
+func (bc *blockchain) Prepare(ctx context.Context, number uint64) *types.Header {
 	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
 	bc.sp.Prepare(ctx)
 	bc.bp.Prepare(ctx)
@@ -82,14 +80,13 @@ func (bc *blockchain) Prepare(ctx context.Context, number uint64) {
 
 	bc.logger.Info("preparing evm block", "seal_hash", header.Hash())
 
-	// We update the base fee in the txpool to the next base fee.
-	bc.tp.SetBaseFee(header.BaseFee)
-
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	bc.processor.Prepare(
 		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
 		header,
 	)
+
+	return header
 }
 
 // ProcessTransaction processes the given transaction and returns the receipt.
@@ -176,8 +173,4 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 
 	return nil
-}
-
-func (bc *blockchain) SendTx(_ context.Context, signedTx *types.Transaction) error {
-	return bc.tp.SendTx(signedTx)
 }
