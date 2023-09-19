@@ -29,6 +29,11 @@ import (
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
+type StackFactory[T any] interface {
+	// NewStack returns a new stack with the given initial capacity.
+	NewStack() Stack[T]
+}
+
 // Stack is an interface represent a FILO data structure.
 type Stack[Item any] interface {
 	// Peek returns the Item at the top of the stack

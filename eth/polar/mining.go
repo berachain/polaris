@@ -34,9 +34,6 @@ func (pl *Polaris) Prepare(ctx context.Context, number uint64) {
 	if header == nil {
 		panic("blockchain produced nil header")
 	}
-	// We update the base fee in the txpool to the next base fee.
-	// TODO: Move to prepare proposal
-	pl.txPool.SetBaseFee(header.BaseFee)
 }
 
 // ProcessTransaction processes the given transaction and returns the receipt.

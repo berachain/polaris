@@ -413,7 +413,9 @@ func (b *backend) GetEVM(_ context.Context, msg *core.Message, state vm.GethStat
 func (b *backend) GetBlockContext(
 	_ context.Context, header *types.Header,
 ) *vm.BlockContext {
-	blockContext := core.NewEVMBlockContext(header, b.polar.Blockchain(), nil)
+	// TODO: we are hardcoding author to coinbase, this may be incorrect.
+	// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
+	blockContext := core.NewEVMBlockContext(header, b.polar.Blockchain(), &header.Coinbase)
 	return &blockContext
 }
 

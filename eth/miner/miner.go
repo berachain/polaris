@@ -28,6 +28,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/state"
+	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -38,6 +39,7 @@ import (
 type Backend interface {
 	// Blockchain returns the blockchain instance.
 	Blockchain() core.Blockchain
+	TxPool() txpool.PolarisTxPool
 }
 
 // Miner defines the interface for a Polaris miner.
@@ -59,6 +61,7 @@ type miner struct {
 	backend   Backend
 	chain     core.Blockchain
 	processor *core.StateProcessor
+	txPool    txpool.PolarisTxPool
 	bp        core.BlockPlugin
 	cp        core.ConfigurationPlugin
 	gp        core.GasPlugin
@@ -84,6 +87,7 @@ func NewMiner(backend Backend) Miner {
 		hp:      host.GetHistoricalPlugin(),
 		gp:      host.GetGasPlugin(),
 		sp:      host.GetStatePlugin(),
+		txPool:  backend.TxPool(),
 		chain:   chain,
 		backend: backend,
 		logger:  log.Root(), // todo: fix.
@@ -156,6 +160,10 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		vmenv,
 		header,
 	)
+
+	// We update the base fee in the txpool to the next base fee.
+	// TODO: Move to prepare proposal
+	m.txPool.SetBaseFee(header.BaseFee)
 
 	return header
 }
