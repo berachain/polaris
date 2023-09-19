@@ -437,10 +437,10 @@ gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 nullprogram.com/x/optparse v1.0.0/go.mod h1:KdyPE+Igbe0jQUrVfMqDMeJQIJZEuyV7pjYmp6pbG50=
-pkg.berachain.dev/polaris/contracts v0.0.0-20230907215015-1928f4a21413 h1:OeMaIkzuqq8DsnDLpmngvsytIH+Zaj03u+tuUbQ1U68=
-pkg.berachain.dev/polaris/contracts v0.0.0-20230907215015-1928f4a21413/go.mod h1:7egdVXsvyRMs9LspooyQCSDHtpPORRypbzI7OT0lKys=
-pkg.berachain.dev/polaris/lib v0.0.0-20230907215015-1928f4a21413 h1:SUZhApl6lsnevApQFzjEu8QIhaWwfWbXBeYskyjeO8I=
-pkg.berachain.dev/polaris/lib v0.0.0-20230907215015-1928f4a21413/go.mod h1:vXAda7BYoe3BYvv3t8yOKGQVosW2wsf7yJwULBVE6oM=
+pkg.berachain.dev/polaris/contracts v0.0.0-20230830221145-a6c6454d3697 h1:D51V7Xugl2EOq7c966pjqTYXT7WodBZMiIsqcze/qgo=
+pkg.berachain.dev/polaris/contracts v0.0.0-20230830221145-a6c6454d3697/go.mod h1:ceCUUKQ1GkDJqXjAmeOrjJ/8AEqdUip466n8G4UCgjM=
+pkg.berachain.dev/polaris/lib v0.0.0-20230830221145-a6c6454d3697 h1:wgvK5vI7UlQYBs3kB2wZBgsxUjYK1lCV0LFJ4YF2u/4=
+pkg.berachain.dev/polaris/lib v0.0.0-20230830221145-a6c6454d3697/go.mod h1:+3IkGuGJ/kV2d90ImTqPSrI9g+M6nV0eX1MAmtIfFZA=
 rsc.io/pdf v0.1.1/go.mod h1:n8OzWcQ6Sp37PL01nO98y4iUCRdTGarVfzxY20ICaU4=
 rsc.io/tmplfunc v0.0.3 h1:53XFQh69AfOa8Tw0Jm7t+GV7KZhOi6jzsCzTtKbMvzU=
 rsc.io/tmplfunc v0.0.3/go.mod h1:AG3sTPzElb1Io3Yg4voV9AGZJuleGAwaVRxL9M49PhA=
