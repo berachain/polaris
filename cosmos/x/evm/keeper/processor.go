@@ -32,10 +32,11 @@ import (
 // ProcessTransaction is called during the DeliverTx processing of the ABCI lifecycle.
 func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*coretypes.Receipt, error) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
+	gasMeter := sCtx.GasMeter()
 	// We zero-out the gas meter prior to evm execution in order to ensure that the receipt output
 	// from the EVM is correct. In the future, we will revisit this to allow gas metering for more
 	// complex operations prior to entering the EVM.
-	sCtx.GasMeter().RefundGas(sCtx.GasMeter().GasConsumed(),
+	gasMeter.RefundGas(gasMeter.GasConsumed(),
 		"reset gas meter prior to ethereum state transition")
 
 	// Process the transaction and return the EVM's execution result.
@@ -45,10 +46,10 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	}
 
 	// Add some safety checks
-	if receipt.GasUsed != sCtx.GasMeter().GasConsumed() {
+	if receipt.GasUsed != gasMeter.GasConsumed() {
 		panic(fmt.Sprintf(
 			"receipt gas used and ctx gas used differ. receipt: %d, ctx: %d",
-			receipt.GasUsed, sCtx.GasMeter().GasConsumed(),
+			receipt.GasUsed, gasMeter.GasConsumed(),
 		))
 	} else if receipt.CumulativeGasUsed != sCtx.BlockGasMeter().GasConsumed()+receipt.GasUsed {
 		panic(fmt.Sprintf(
@@ -58,7 +59,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	}
 
 	// Log the receipt.
-	k.Logger(sdk.UnwrapSDKContext(ctx)).Debug(
+	k.Logger(sCtx).Debug(
 		"evm execution completed",
 		"tx_hash", receipt.TxHash,
 		"gas_consumed", receipt.GasUsed,
