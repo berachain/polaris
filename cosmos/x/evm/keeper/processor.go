@@ -22,7 +22,7 @@ package keeper
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -36,7 +36,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 
 	// We enforce that no gas was consumed prior to the EVM execution.
 	if sCtx.GasMeter().GasConsumed() != 0 {
-		return nil, errors.New("gas consumed prior to evm execution")
+		return nil, fmt.Errorf("gas consumed prior to evm execution: %d", sCtx.GasMeter().GasConsumed())
 	}
 
 	// Process the transaction and return the EVM's execution result.

@@ -51,7 +51,9 @@ func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
-		ante.NewValidateMemoDecorator(options.AccountKeeper),
+		antelib.NewIgnoreDecorator[ante.ValidateMemoDecorator, *types.WrappedEthereumTransaction](
+			ante.NewValidateMemoDecorator(options.AccountKeeper),
+		),
 		// EthTransactions can skip consuming transaction gas as it will be done
 		// in the StateTransition.
 		antelib.NewIgnoreDecorator[ante.ConsumeTxSizeGasDecorator, *types.WrappedEthereumTransaction](
@@ -63,8 +65,12 @@ func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
 			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
 				options.FeegrantKeeper, options.TxFeeChecker),
 		),
-		ante.NewSetPubKeyDecorator(options.AccountKeeper),
-		ante.NewValidateSigCountDecorator(options.AccountKeeper),
+		antelib.NewIgnoreDecorator[ante.SetPubKeyDecorator, *types.WrappedEthereumTransaction](
+			ante.NewSetPubKeyDecorator(options.AccountKeeper),
+		),
+		antelib.NewIgnoreDecorator[ante.ValidateSigCountDecorator, *types.WrappedEthereumTransaction](
+			ante.NewValidateSigCountDecorator(options.AccountKeeper),
+		),
 		// In order to match ethereum gas consumption, we do not consume any gas when
 		// verifying the signature.
 		antelib.NewIgnoreDecorator[ante.SigGasConsumeDecorator, *types.WrappedEthereumTransaction](
