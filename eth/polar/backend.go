@@ -403,7 +403,9 @@ func (b *backend) GetEVM(_ context.Context, msg *core.Message, state vm.GethStat
 	if blockCtx != nil {
 		context = *blockCtx
 	} else {
-		context = core.NewEVMBlockContext(header, b.polar.Blockchain(), nil)
+		// TODO: we are hardcoding author to coinbase, this may be incorrect.
+		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
+		context = core.NewEVMBlockContext(header, b.polar.Blockchain(), &header.Coinbase)
 	}
 	return vm.NewGethEVMWithPrecompiles(context, txContext, state, b.polar.blockchain.Config(),
 		*vmConfig, b.polar.blockchain.GetHost().GetPrecompilePlugin()), state.Error
