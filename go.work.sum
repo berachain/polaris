@@ -336,8 +336,8 @@ cosmossdk.io/client/v2 v2.0.0-20230818115413-c402c51a1508 h1:tt5OMwdouv7dkwkWJYx
 cosmossdk.io/client/v2 v2.0.0-20230818115413-c402c51a1508/go.mod h1:iHeSk2AT6O8RNGlfcEQq6Yty6Z/6gydQsXXBh5I715Q=
 cosmossdk.io/collections v0.4.0 h1:PFmwj2W8szgpD5nOd8GWH6AbYNi1f2J6akWXJ7P5t9s=
 cosmossdk.io/collections v0.4.0/go.mod h1:oa5lUING2dP+gdDquow+QjlF45eL1t4TJDypgGd+tv0=
-cosmossdk.io/core v0.12.0 h1:aFuvkG6eDv0IQC+UDjx86wxNWVAxdCFk7OABJ1Vh4RU=
-cosmossdk.io/core v0.12.0/go.mod h1:LaTtayWBSoacF5xNzoF8tmLhehqlA9z1SWiPuNC6X1w=
+cosmossdk.io/core v0.11.0 h1:vtIafqUi+1ZNAE/oxLOQQ7Oek2n4S48SWLG8h/+wdbo=
+cosmossdk.io/core v0.11.0/go.mod h1:LaTtayWBSoacF5xNzoF8tmLhehqlA9z1SWiPuNC6X1w=
 cosmossdk.io/depinject v1.0.0-alpha.4 h1:PLNp8ZYAMPTUKyG9IK2hsbciDWqna2z1Wsl98okJopc=
 cosmossdk.io/depinject v1.0.0-alpha.4/go.mod h1:HeDk7IkR5ckZ3lMGs/o91AVUc7E596vMaOmslGFM3yU=
 cosmossdk.io/errors v1.0.0 h1:nxF07lmlBbB8NKQhtJ+sJm6ef5uV1XkvPXG2bUntb04=
@@ -404,6 +404,7 @@ github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 h1:TngWCqHvy9oXAN6lEVMRuU21PR1EtLVZJmdB18Gu3Rw=
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5/go.mod h1:lmUJ/7eu/Q8D7ML55dXQrVaamCz2vxCfdQBasLZfHKk=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
+github.com/OpenPeeDeeP/depguard v1.1.1 h1:TSUznLjvp/4IUP+OQ0t/4jF4QUyxIcVX8YnghZdunyA=
 github.com/OpenPeeDeeP/depguard v1.1.1/go.mod h1:JtAMzWkmFEzDPyAd+W0NHl1lvpQKTvT9jnRVsohBKpc=
 github.com/OpenPeeDeeP/depguard/v2 v2.1.0/go.mod h1:PUBgk35fX4i7JDmwzlJwJ+GMe6NfO1723wmJMgPThNQ=
 github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8/go.mod h1:I0gYDMZ6Z5GRU7l58bNFSkPTFN6Yl12dsUlAZ8xy98g=
@@ -2672,11 +2673,13 @@ nullprogram.com/x/optparse v1.0.0/go.mod h1:KdyPE+Igbe0jQUrVfMqDMeJQIJZEuyV7pjYm
 pgregory.net/rapid v1.1.0 h1:CMa0sjHSru3puNx+J0MIAuiiEV4N0qj8/cMWGBBCsjw=
 pgregory.net/rapid v1.1.0/go.mod h1:PY5XlDGj0+V1FCq0o192FdRhpKHGTRIWBgqjDBTrq04=
 pkg.berachain.dev/polaris/contracts v0.0.0-20230827184022-e3cec7a2c178/go.mod h1:ceCUUKQ1GkDJqXjAmeOrjJ/8AEqdUip466n8G4UCgjM=
+pkg.berachain.dev/polaris/contracts v0.0.0-20230830221145-a6c6454d3697/go.mod h1:ceCUUKQ1GkDJqXjAmeOrjJ/8AEqdUip466n8G4UCgjM=
 pkg.berachain.dev/polaris/contracts v0.0.0-20230919154905-0c53dfe1360a/go.mod h1:pkgCryQfjPpCfmHJ7hEv6/0PoTwgG6uDc0cIQpMEBYg=
 pkg.berachain.dev/polaris/cosmos v0.0.0-20230919154905-0c53dfe1360a/go.mod h1:iOYy1eb3YLCOwnsoo7THyx7qny9Qt3zWpBRmtP6cNSU=
 pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230919154905-0c53dfe1360a/go.mod h1:TZhwmadAUlnyf450t7suO5sN3AGRNE3qziXldP58rUs=
 pkg.berachain.dev/polaris/eth v0.0.0-20230919154905-0c53dfe1360a/go.mod h1:joeZS5xk3XFpcKlvA1YrETzc6MX6lGkbXZEL+ifKsiM=
 pkg.berachain.dev/polaris/lib v0.0.0-20230827184022-e3cec7a2c178/go.mod h1:+3IkGuGJ/kV2d90ImTqPSrI9g+M6nV0eX1MAmtIfFZA=
+pkg.berachain.dev/polaris/lib v0.0.0-20230830221145-a6c6454d3697/go.mod h1:+3IkGuGJ/kV2d90ImTqPSrI9g+M6nV0eX1MAmtIfFZA=
 pkg.berachain.dev/polaris/lib v0.0.0-20230919154905-0c53dfe1360a/go.mod h1:Qe/PmVj+gplJrsJsmdcWFTHw+DyraM67wk9nqFMnHmk=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/pdf v0.1.1/go.mod h1:n8OzWcQ6Sp37PL01nO98y4iUCRdTGarVfzxY20ICaU4=

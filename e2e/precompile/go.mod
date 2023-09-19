@@ -10,7 +10,7 @@ replace (
 )
 
 require (
-	cosmossdk.io/core v0.12.0
+	cosmossdk.io/core v0.11.0
 	cosmossdk.io/math v1.1.2
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230915171831-2196edacb99d
 	github.com/onsi/ginkgo/v2 v2.12.0
