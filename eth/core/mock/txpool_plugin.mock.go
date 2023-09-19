@@ -23,10 +23,10 @@ var _ ethcore.TxPoolPlugin = &TxPoolPluginMock{}
 //
 //		// make and configure a mocked ethcore.TxPoolPlugin
 //		mockedTxPoolPlugin := &TxPoolPluginMock{
-//			ContentFunc: func() (map[common.Address]types.Transactions, map[common.Address]types.Transactions) {
+//			ContentFunc: func() (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
 //				panic("mock out the Content method")
 //			},
-//			ContentFromFunc: func(addr common.Address) (types.Transactions, types.Transactions) {
+//			ContentFromFunc: func(addr common.Address) ([]*types.Transaction, []*types.Transaction) {
 //				panic("mock out the ContentFrom method")
 //			},
 //			GetFunc: func(hash common.Hash) *types.Transaction {
@@ -35,7 +35,7 @@ var _ ethcore.TxPoolPlugin = &TxPoolPluginMock{}
 //			NonceFunc: func(address common.Address) uint64 {
 //				panic("mock out the Nonce method")
 //			},
-//			PendingFunc: func(b bool) map[common.Address]types.Transactions {
+//			PendingFunc: func(b bool) map[common.Address][]*types.Transaction {
 //				panic("mock out the Pending method")
 //			},
 //			SendTxFunc: func(tx *types.Transaction) error {
@@ -58,10 +58,10 @@ var _ ethcore.TxPoolPlugin = &TxPoolPluginMock{}
 //	}
 type TxPoolPluginMock struct {
 	// ContentFunc mocks the Content method.
-	ContentFunc func() (map[common.Address]types.Transactions, map[common.Address]types.Transactions)
+	ContentFunc func() (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction)
 
 	// ContentFromFunc mocks the ContentFrom method.
-	ContentFromFunc func(addr common.Address) (types.Transactions, types.Transactions)
+	ContentFromFunc func(addr common.Address) ([]*types.Transaction, []*types.Transaction)
 
 	// GetFunc mocks the Get method.
 	GetFunc func(hash common.Hash) *types.Transaction
@@ -70,7 +70,7 @@ type TxPoolPluginMock struct {
 	NonceFunc func(address common.Address) uint64
 
 	// PendingFunc mocks the Pending method.
-	PendingFunc func(b bool) map[common.Address]types.Transactions
+	PendingFunc func(b bool) map[common.Address][]*types.Transaction
 
 	// SendTxFunc mocks the SendTx method.
 	SendTxFunc func(tx *types.Transaction) error
@@ -140,7 +140,7 @@ type TxPoolPluginMock struct {
 }
 
 // Content calls ContentFunc.
-func (mock *TxPoolPluginMock) Content() (map[common.Address]types.Transactions, map[common.Address]types.Transactions) {
+func (mock *TxPoolPluginMock) Content() (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
 	if mock.ContentFunc == nil {
 		panic("TxPoolPluginMock.ContentFunc: method is nil but TxPoolPlugin.Content was just called")
 	}
@@ -167,7 +167,7 @@ func (mock *TxPoolPluginMock) ContentCalls() []struct {
 }
 
 // ContentFrom calls ContentFromFunc.
-func (mock *TxPoolPluginMock) ContentFrom(addr common.Address) (types.Transactions, types.Transactions) {
+func (mock *TxPoolPluginMock) ContentFrom(addr common.Address) ([]*types.Transaction, []*types.Transaction) {
 	if mock.ContentFromFunc == nil {
 		panic("TxPoolPluginMock.ContentFromFunc: method is nil but TxPoolPlugin.ContentFrom was just called")
 	}
@@ -263,7 +263,7 @@ func (mock *TxPoolPluginMock) NonceCalls() []struct {
 }
 
 // Pending calls PendingFunc.
-func (mock *TxPoolPluginMock) Pending(b bool) map[common.Address]types.Transactions {
+func (mock *TxPoolPluginMock) Pending(b bool) map[common.Address][]*types.Transaction {
 	if mock.PendingFunc == nil {
 		panic("TxPoolPluginMock.PendingFunc: method is nil but TxPoolPlugin.Pending was just called")
 	}

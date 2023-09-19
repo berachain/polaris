@@ -50,19 +50,19 @@ var _ = Describe("StateDB", func() {
 		sdb = state.NewStateDB(sp)
 	})
 
-	It("Should suicide correctly", func() {
+	It("Should SelfDestruct correctly", func() {
 		sdb.Snapshot()
 
 		sdb.CreateAccount(alice)
-		Expect(sdb.Suicide(alice)).To(BeFalse())
-		Expect(sdb.HasSuicided(alice)).To(BeFalse())
+		sdb.SelfDestruct(alice)
+		Expect(sdb.HasSelfDestructed(alice)).To(BeFalse())
 
 		sdb.CreateAccount(bob)
 		sdb.SetCode(bob, []byte{1, 2, 3})
 		sdb.AddBalance(bob, big.NewInt(10))
-		Expect(sdb.Suicide(bob)).To(BeTrue())
+		sdb.SelfDestruct(bob)
 		Expect(sdb.GetBalance(bob).Uint64()).To(Equal(uint64(0)))
-		Expect(sdb.HasSuicided(bob)).To(BeTrue())
+		Expect(sdb.HasSelfDestructed(bob)).To(BeTrue())
 	})
 
 	It("should snapshot/revert", func() {
@@ -102,19 +102,19 @@ var _ = Describe("StateDB", func() {
 		Expect(sp).To(BeTrue())
 	})
 
-	It("should delete suicides on finalize", func() {
+	It("should delete SelfDestructs on finalize", func() {
 		sdb.Snapshot()
 		sdb.SetTxContext(common.Hash{}, 0)
 
 		sdb.CreateAccount(bob)
 		sdb.SetCode(bob, []byte{1, 2, 3})
 		sdb.AddBalance(bob, big.NewInt(10))
-		Expect(sdb.Suicide(bob)).To(BeTrue())
+		sdb.SelfDestruct(bob)
 		Expect(sdb.GetBalance(bob).Uint64()).To(Equal(uint64(0)))
-		Expect(sdb.HasSuicided(bob)).To(BeTrue())
+		Expect(sdb.HasSelfDestructed(bob)).To(BeTrue())
 
 		sdb.Finalise(true)
-		Expect(sdb.HasSuicided(bob)).To(BeFalse())
+		Expect(sdb.HasSelfDestructed(bob)).To(BeFalse())
 	})
 
 	It("should handle saved errors", func() {

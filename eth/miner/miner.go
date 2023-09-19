@@ -24,8 +24,10 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/consensus/misc"
+	"github.com/ethereum/go-ethereum/consensus/misc/eip1559"
+	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/txpool"
@@ -107,6 +109,8 @@ func NewMiner(backend Backend) Miner {
 }
 
 // Prepare prepares the blockchain for processing a new block at the given height.
+//
+//nolint:funlen // todo:fix
 func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
 	m.sp.Prepare(ctx)
@@ -120,7 +124,7 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	}
 
 	coinbase, timestamp := m.bp.GetNewBlockMetadata(number)
-	chainCfg := m.cp.ChainConfig()
+	chainConfig := m.cp.ChainConfig()
 
 	// Build the new block header.
 	parent := m.chain.CurrentFinalBlock()
@@ -137,8 +141,20 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   m.gp.BlockGasLimit(),
 		Time:       timestamp,
-		BaseFee:    misc.CalcBaseFee(chainCfg, parent),
 		Difficulty: new(big.Int),
+	}
+
+	// TODO: Settable in PrepareProposal.
+	// Set the extra field.
+	if /*len(w.extra) != 0*/ true {
+		header.Extra = nil
+	}
+
+	// Set the randomness field from the beacon chain if it's available.
+	// TODO: Settable in PrepareProposal.
+	if /*genParams.random != (common.Hash{})*/ true {
+		// header.MixDigest = genParams.random
+		header.MixDigest = common.Hash{}
 	}
 
 	// TODO: we need to have header verification setup somewhere.
@@ -146,13 +162,42 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// 	panic(err)
 	// }
 
+	// Apply EIP-1559.
+	// TODO: Move to PrepareProposal.
+	if chainConfig.IsLondon(header.Number) {
+		header.BaseFee = eip1559.CalcBaseFee(chainConfig, parent)
+		// On switchover.
+		// TODO: implement.
+		// if !chainConfig.IsLondon(parent.Number) {
+		// 	parentGasLimit := parent.GasLimit * chainConfig.ElasticityMultiplier()
+		// 	header.GasLimit = core.CalcGasLimit(parentGasLimit, bc.gp.BlockGasLimit())
+		// }
+	}
+
+	// Apply EIP-4844, EIP-4788.
+	// TODO: Move to PrepareProposal.
+	if chainConfig.IsCancun(header.Number, header.Time) {
+		var excessBlobGas uint64
+		if chainConfig.IsCancun(parent.Number, parent.Time) {
+			excessBlobGas = eip4844.CalcExcessBlobGas(*parent.ExcessBlobGas, *parent.BlobGasUsed)
+		} else {
+			// For the first post-fork block, both parent.data_gas_used and parent.excess_data_gas are evaluated as 0
+			excessBlobGas = eip4844.CalcExcessBlobGas(0, 0)
+		}
+		header.BlobGasUsed = new(uint64)
+		header.ExcessBlobGas = &excessBlobGas
+		header.ParentBeaconRoot = &common.Hash{}
+	}
+
+	m.logger.Info("preparing evm block", "seal_hash", header.Hash())
+
 	// TODO: abstract the evm from the miner, so that the miner is only concerned with txs and blocks.
 	var (
 		// TODO: we are hardcoding author to coinbase, this may be incorrect.
 		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
 		context = core.NewEVMBlockContext(m.pendingHeader, m.chain, &m.pendingHeader.Coinbase)
 		vmenv   = vm.NewGethEVMWithPrecompiles(context,
-			vm.TxContext{}, m.statedb, chainCfg, m.vmConfig,
+			vm.TxContext{}, m.statedb, chainConfig, m.vmConfig,
 			m.backend.Host().GetPrecompilePlugin())
 	)
 
