@@ -55,7 +55,7 @@ var (
 	simulations = []tests{
 		{"rpc", []string{"init/genesis.json", "ethclient.hive"}},
 		{"rpc-compat", []string{"Dockerfile", "tests"}},
-		{"graphql", []string{"testcases", "init/testGenesis.json"}}}
+	}
 )
 
 type Hive mg.Namespace

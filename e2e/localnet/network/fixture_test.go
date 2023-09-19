@@ -59,7 +59,7 @@ var _ = Describe("JSON RPC tests", func() {
 			"goodcontainer",
 			"8545/tcp",
 			"8546/tcp",
-			"1.21.0",
+			"1.21.1",
 		))
 		Expect(tf).ToNot(BeNil())
 		client = tf.EthClient()
