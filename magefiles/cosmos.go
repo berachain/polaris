@@ -53,7 +53,7 @@ var (
 
 	// Localnet.
 	baseImage          = "polard/base:v0.0.0"
-	localnetClientPath = "./cosmos/testing/e2e/polard"
+	localnetClientPath = "./e2e/precompile/polard"
 	localnetDockerPath = localnetClientPath + "/Dockerfile"
 )
 
