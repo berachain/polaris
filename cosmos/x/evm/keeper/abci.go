@@ -30,11 +30,11 @@ func (k *Keeper) BeginBlocker(ctx context.Context) error {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	// Prepare the Polaris Ethereum block.
 	k.lock = false
-	k.polaris.Prepare(ctx, uint64(sCtx.BlockHeight()))
+	k.miner.Prepare(ctx, uint64(sCtx.BlockHeight()))
 	return nil
 }
 
 func (k *Keeper) EndBlock(ctx context.Context) error {
 	// Finalize the Polaris Ethereum block.
-	return k.polaris.Finalize(ctx)
+	return k.miner.Finalize(ctx)
 }
