@@ -112,7 +112,7 @@ func ExecuteForAllModules(dirs []string, f func(args ...string) error, withArgs 
 // readGoModulesFromGoWork reads the go.work file and returns a list of modules.
 func readGoModulesFromGoWork(filepath string) []string {
 	// Open the go.work file
-	file, err := os.Open(filepath)
+	file, err := os.Open(filepath) //#nosec: G304 // required.
 	if err != nil {
 		utils.LogRed("Error opening file:", err)
 		return []string{}
