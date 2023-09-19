@@ -185,6 +185,12 @@ func (m *miner) ProcessTransaction(ctx context.Context, tx *types.Transaction) (
 	// We set the gasPool = gasLimit - gasUsed.
 	m.gasPool = new(core.GasPool).AddGas(m.pendingHeader.GasLimit - m.gp.BlockGasConsumed())
 
+	// Header is out of sync with block plugin.
+	// TODO: the miner will handle this systemically when properly done is PrepareProposal.
+	if m.gp.BlockGasConsumed() != m.pendingHeader.GasUsed {
+		panic("gas consumed mismatch")
+	}
+
 	receipt, err := m.processor.ProcessTransaction(ctx, m.gasPool, tx)
 	if err != nil {
 		return nil, errorslib.Wrapf(

@@ -160,13 +160,27 @@ var _ = Describe("Processor", func() {
 			Expect(err).ToNot(HaveOccurred())
 			k.GetHost().GetStatePlugin().Reset(ctx)
 			k.GetHost().GetStatePlugin().CreateAccount(addr)
-			k.GetHost().GetStatePlugin().AddBalance(addr, (&big.Int{}).Mul(big.NewInt(9000000000000000000), big.NewInt(999)))
+			k.GetHost().GetStatePlugin().AddBalance(addr,
+				(&big.Int{}).Mul(big.NewInt(9000000000000000000), big.NewInt(999)))
 			k.GetHost().GetStatePlugin().Finalize()
 
 			// create the contract
+			// Zero out the meters.
+			ctx.BlockGasMeter().RefundGas(
+				ctx.BlockGasMeter().GasConsumed(), "reset gas meter prior to ethereum state transition")
+			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((0)))
+
+			// Execute state transition.
 			result, err := k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(result.Status).To(Equal(uint64(1)))
+			Expect(result.Status).To(Equal((1)))
+
+			// Confirm gas usage is correct.
+			Expect(ctx.GasMeter().GasConsumed()).To(Equal((result.GasUsed)))
+			// After the tx is fully processed.
+			ctx.BlockGasMeter().ConsumeGas(result.GasUsed, "consume gas")
+			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed)))
+
 			// call the contract non-view function
 			deployAddress := crypto.CreateAddress(crypto.PubkeyToAddress(key.PublicKey), 0)
 			legacyTxData.To = &deployAddress
@@ -178,17 +192,36 @@ var _ = Describe("Processor", func() {
 			legacyTxData.Data = input
 			legacyTxData.Nonce++
 			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
-			result, err = k.ProcessTransaction(ctx, tx)
+
+			// Nothing should've changed here.
+			Expect(ctx.GasMeter().GasConsumed()).To(Equal((result.GasUsed)))
+			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed)))
+
+			// Execute another transaction.
+			var result2 *coretypes.Receipt
+			result2, err = k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(result.Status).To(Equal(uint64(1)))
+			Expect(result.Status).To(Equal((1)))
+
+			// Confirm gas usage is correct.
+			Expect(ctx.GasMeter().GasConsumed()).To(Equal((result2.GasUsed)))
+			// After the tx is fully processed.
+			ctx.BlockGasMeter().ConsumeGas(result2.GasUsed, "consume gas")
+			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed + result2.GasUsed)))
 
 			// call the contract view function
 			legacyTxData.Data = crypto.Keccak256Hash([]byte("totalSupply()")).Bytes()[:4]
 			legacyTxData.Nonce++
 			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
-			result, err = k.ProcessTransaction(ctx, tx)
+			var result3 *coretypes.Receipt
+			result3, err = k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(result.Status).To(Equal(uint64(1)))
+			Expect(result.Status).To(Equal((1)))
+			// Confirm gas usage is correct.
+			Expect(ctx.GasMeter().GasConsumed()).To(Equal((result3.GasUsed)))
+			// After the tx is fully processed.
+			ctx.BlockGasMeter().ConsumeGas(result3.GasUsed, "consume gas")
+			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed + result2.GasUsed + result3.GasUsed)))
 		})
 	})
 })

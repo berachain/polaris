@@ -140,6 +140,7 @@ func (sp *StateProcessor) ProcessTransaction(
 		sp.evm, sp.cp.ChainConfig(), gasPool, sp.statedb,
 		sp.header, tx, &sp.header.GasUsed,
 	)
+
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
 	}
