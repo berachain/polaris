@@ -38,8 +38,6 @@ type ChainWriter interface {
 	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
 	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
-	// Finalize is called after the last tx in the block.
-	Finalize(context.Context) error
 }
 
 // =========================================================================
@@ -100,13 +98,8 @@ func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transact
 	return bc.processor.ProcessTransaction(ctx, tx)
 }
 
-// Finalize finalizes the current block.
-func (bc *blockchain) Finalize(ctx context.Context) error {
-	block, receipts, logs, err := bc.processor.Finalize(ctx)
-	if err != nil {
-		return err
-	}
-
+func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error {
+	var err error
 	blockHash, blockNum := block.Hash(), block.Number().Uint64()
 	bc.logger.Info("finalizing evm block", "block_hash", blockHash.Hex(), "num_txs", len(receipts))
 
@@ -173,4 +166,9 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 
 	return nil
+}
+
+// TODO: deprecate this bitch.
+func (bc *blockchain) GetProcessor() *StateProcessor {
+	return bc.processor
 }

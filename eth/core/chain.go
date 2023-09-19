@@ -47,6 +47,10 @@ type Blockchain interface {
 	ChainSubscriber
 	ChainResources
 	ChainContext
+
+	// TODO: remove StateProcessor out of the blockchain.
+	GetProcessor() *StateProcessor
+	InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error
 }
 
 // blockchain is the canonical, persistent object that operates the Polaris EVM.

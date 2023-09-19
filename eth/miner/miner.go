@@ -73,5 +73,10 @@ func (m *miner) ProcessTransaction(ctx context.Context, tx *types.Transaction) (
 
 // Finalize is called after the last tx in the block.
 func (m *miner) Finalize(ctx context.Context) error {
-	return m.backend.Blockchain().Finalize(ctx)
+	block, receipts, logs, err := m.backend.Blockchain().GetProcessor().Finalize(ctx)
+	if err != nil {
+		return err
+	}
+
+	return m.backend.Blockchain().InsertBlock(block, receipts, logs)
 }
