@@ -32,6 +32,8 @@ import (
 	"strings"
 
 	"github.com/magefile/mage/sh"
+
+	"pkg.berachain.dev/polaris/magefiles/utils"
 )
 
 var allPkgs, _ = sh.Output("go", "list", "pkg.berachain.dev/polaris/...")
@@ -112,7 +114,7 @@ func readGoModulesFromGoWork(filepath string) []string {
 	// Open the go.work file
 	file, err := os.Open(filepath)
 	if err != nil {
-		LogRed("Error opening file:", err)
+		utils.LogRed("Error opening file:", err)
 		return []string{}
 	}
 	defer file.Close()
@@ -131,8 +133,8 @@ func readGoModulesFromGoWork(filepath string) []string {
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
-		LogRed("Error reading file:", err)
+	if err = scanner.Err(); err != nil {
+		utils.LogRed("Error reading file:", err)
 	}
 
 	return modules

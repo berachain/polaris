@@ -29,6 +29,8 @@ import (
 	"fmt"
 
 	"github.com/magefile/mage/sh"
+
+	"pkg.berachain.dev/polaris/magefiles/utils"
 )
 
 // ===========================================================================
@@ -37,7 +39,7 @@ import (
 
 // Runs `go generate` on the entire project.
 func Generate() error {
-	LogGreen("Running 'go generate' on the entire project...")
+	utils.LogGreen("Running 'go generate' on the entire project...")
 	if err := goInstall(moq); err != nil {
 		return err
 	}
@@ -47,8 +49,11 @@ func Generate() error {
 // Runs `go generate` on the entire project and verifies that no files were
 // changed.
 func GenerateCheck() error {
-	LogGreen("Running 'go generate' on the entire project and verifying that no files were changed...")
-	if err := ExecuteForAllModules(repoModuleDirs, func(...string) error { return goGenerate("./...") }, false); err != nil {
+	utils.LogGreen(
+		"Running 'go generate' on project and verifying that no files were changed...")
+	if err := ExecuteForAllModules(
+		repoModuleDirs, func(...string) error { return goGenerate("./...") }, false,
+	); err != nil {
 		return err
 	}
 	if err := gitDiff(); err != nil {

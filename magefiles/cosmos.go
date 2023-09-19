@@ -31,6 +31,8 @@ import (
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
+
+	"pkg.berachain.dev/polaris/magefiles/utils"
 )
 
 var (
@@ -77,7 +79,7 @@ func Start() error {
 
 // Builds the Cosmos SDK chain.
 func (Cosmos) Build() error {
-	LogGreen("Building the Cosmos SDK chain...")
+	utils.LogGreen("Building the Cosmos SDK chain...")
 	cmd := "polard"
 	args := []string{
 		generateBuildTags(),
@@ -88,30 +90,14 @@ func (Cosmos) Build() error {
 	return goBuild(args...)
 }
 
-// Builds a release version of the Cosmos SDK chain.
-func (c Cosmos) BuildRelease() error {
-	LogGreen("Building release version of the Cosmos SDK chain...")
-	production = true
-	statically = false
-	return c.Build()
-}
-
 // ===========================================================================
 // Docker
 // ===========================================================================
 
 // Builds a release version of the Cosmos SDK chain.
 func (c Cosmos) Docker(dockerType, arch string) error {
-	LogGreen("Build a release docker image for the Cosmos SDK chain...")
+	utils.LogGreen("Build a release docker image for the Cosmos SDK chain...")
 	return c.dockerBuildBeradWith(dockerType, goVersion, arch, false)
-}
-
-func (c Cosmos) RunDockerLocal() error {
-	return dockerRun("-p", "8545:8545", "polard/local:v0.0.0")
-}
-
-func (c Cosmos) DockerX(dockerType, arch string) error {
-	return c.dockerBuildBeradWith(dockerType, goVersion, arch, true)
 }
 
 func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX bool) error {
@@ -140,7 +126,7 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 		dockerFilePath = execDockerPath
 	}
 	tag := imageName + "/" + dockerType + ":" + imageVersion
-	LogGreen(
+	utils.LogGreen(
 		"Building a "+dockerType+" polard docker image",
 		"platform", "linux"+"/"+arch,
 		"tag", tag,
@@ -149,43 +135,6 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 	return dockerBuildFn(withX)(
 		opts...,
 	)
-}
-
-// Builds a release version of the Cosmos SDK chain.
-func (c Cosmos) DockerDebug() error {
-	LogGreen("Build a debug docker image for the Cosmos SDK chain...")
-	return c.dockerBuildNode("debug", execDockerPath, goVersion, version, runtime.GOARCH, false)
-}
-
-// Build a docker image for polard with the supplied arguments.
-func (c Cosmos) dockerBuildNode(name, dockerFilePath, goVersion, imageVersion, arch string, withX bool) error {
-	return dockerBuildFn(withX)(
-		"--build-arg", "GO_VERSION="+goVersion,
-		"--build-arg", "FOUNDRY_DIR="+precompileContractsDir,
-		"--build-arg", "GOARCH="+arch,
-		"-f", dockerFilePath,
-		"-t", name+":"+imageVersion, //TODO: do not hardcode, have ability to pass as arg
-		".",
-	)
-}
-
-// ===========================================================================
-// Install
-// ===========================================================================
-
-// Installs a release version of the Cosmos SDK chain.
-func (Cosmos) Install() error {
-	LogGreen("Installing the Cosmos SDK chain...")
-	production = true
-	statically = false
-
-	args := []string{
-		generateBuildTags(),
-		generateLinkerFlags(production, statically),
-		"./e2e/testapp/polard",
-	}
-
-	return goInstall(args...)
 }
 
 // ===========================================================================
@@ -203,25 +152,25 @@ func (c Cosmos) Test() error {
 
 // Runs all unit tests for the Cosmos SDK chain.
 func (c Cosmos) TestUnit() error {
-	LogGreen("Running unit tests for the Cosmos SDK chain.")
+	utils.LogGreen("Running unit tests for the Cosmos SDK chain.")
 	return testUnit(c.directory())
 }
 
 // Runs all unit tests for the Cosmos SDK chain.
 func (c Cosmos) TestUnitRace() error {
-	LogGreen("Running unit tests for the Cosmos SDK chain.")
+	utils.LogGreen("Running unit tests for the Cosmos SDK chain.")
 	return testUnitRace(c.directory())
 }
 
 // Runs all e2e tests for the Cosmos SDK chain.
 func (c Cosmos) TestE2E() error {
-	LogGreen("Running e2e tests for the Cosmos SDK chain.")
+	utils.LogGreen("Running e2e tests for the Cosmos SDK chain.")
 	return testE2E(c.directory() + "/testing/e2e")
 }
 
 func (c Cosmos) TestHive(sim string) error {
 	if out, _ := sh.Output("docker", "images", "-q", baseImageVersion); out == "" {
-		LogGreen("No existing base docker image found, building...")
+		utils.LogGreen("No existing base docker image found, building...")
 		if err := c.Docker("base", runtime.GOARCH); err != nil {
 			return err
 		}

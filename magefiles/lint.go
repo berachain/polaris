@@ -25,6 +25,8 @@
 
 package main
 
+import "pkg.berachain.dev/polaris/magefiles/utils"
+
 func Lint() error {
 	cmds := []func() error{GolangCiLint, LicenseCheck, Gosec, Proto{}.Lint, Contracts{}.Fmt}
 	for _, cmd := range cmds {
@@ -48,7 +50,7 @@ func Format() error {
 
 // Run `golangci-lint`.
 func GolangCiLint() error {
-	LogGreen("Running golangci-lint...")
+	utils.LogGreen("Running golangci-lint...")
 	for _, dir := range repoModuleDirs {
 		if err := goRun(golangCi,
 			"run", "--timeout=10m", "--concurrency", "4", "--config=.golangci.yaml", "-v", "./"+dir+"/"+"...",
@@ -61,7 +63,7 @@ func GolangCiLint() error {
 
 // Run `golangci-lint` with --fix.
 func GolangCiLintFix() error {
-	LogGreen("Running golangci-lint --fix...")
+	utils.LogGreen("Running golangci-lint --fix...")
 	for _, dir := range repoModuleDirs {
 		if err := goRun(golangCi,
 			"run", "--timeout=10m", "--concurrency", "4", "--config=.golangci.yaml", "-v", "--fix", "./"+dir+"/"+"...",
@@ -74,7 +76,7 @@ func GolangCiLintFix() error {
 
 // Run `golines`.
 func Golines() error {
-	LogGreen("Running golines...")
+	utils.LogGreen("Running golines...")
 	return goRun(golines,
 		"--reformat-tags", "--shorten-comments", "--write-output", "--max-len=99", "-l", "./.",
 	)
@@ -82,13 +84,13 @@ func Golines() error {
 
 // Run `gosec`.
 func Gosec() error {
-	LogGreen("Running gosec...")
+	utils.LogGreen("Running gosec...")
 	return goRun(gosec, "-exclude-generated", "./...")
 }
 
 // Run `addlicense`.
 func License() error {
-	LogGreen("Running addlicense...")
+	utils.LogGreen("Running addlicense...")
 	return ExecuteForAllModules(repoModuleDirs, func(args ...string) error {
 		return goRun(addlicense,
 			"-v", "-f", "./LICENSE.header", "./.",
@@ -98,7 +100,7 @@ func License() error {
 
 // Run `addlicense`.
 func LicenseCheck() error {
-	LogGreen("Running addlicense -check...")
+	utils.LogGreen("Running addlicense -check...")
 	return ExecuteForAllModules(repoModuleDirs, func(args ...string) error {
 		return goRun(addlicense,
 			"-check", "-v", "-f", "./LICENSE.header", "-ignore", "**/*.yml", "./.",
