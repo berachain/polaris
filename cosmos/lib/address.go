@@ -26,9 +26,9 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
-///////////////////////////////////////////////////////////////////////////////
-// AccAddress, ValAddress, ConsAddress
-///////////////////////////////////////////////////////////////////////////////
+/* -------------------------------------------------------------------------- */
+/*                     AccAddress, ValAddress, ConsAddress                    */
+/* -------------------------------------------------------------------------- */
 
 // EthAddressFromString converts a Cosmos SDK address string to an Ethereum `Address`.
 func EthAddressFromString(codec address.Codec, addr string) (common.Address, error) {
