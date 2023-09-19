@@ -27,6 +27,8 @@ package main
 
 import (
 	"github.com/magefile/mage/mg"
+
+	"pkg.berachain.dev/polaris/magefiles/utils"
 )
 
 type CI mg.Namespace
@@ -45,7 +47,7 @@ func TestUnit() error {
 	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
-	LogGreen("Running all unit tests...")
+	utils.LogGreen("Running all unit tests...")
 	return testUnit(".")
 }
 
@@ -72,7 +74,7 @@ func TestUnitCover() error {
 	args := []string{
 		"--skip", ".*e2e.*",
 	}
-	LogGreen("Running all unit tests with coverage...")
+	utils.LogGreen("Running all unit tests with coverage...")
 	return ginkgoTest(append(coverArgs, args...)...)
 }
 
@@ -84,7 +86,7 @@ func TestUnitRace() error {
 	args := []string{
 		"--skip", ".*e2e.*",
 	}
-	LogGreen("Running all unit tests with --race...")
+	utils.LogGreen("Running all unit tests with --race...")
 	return ginkgoTest(append(raceArgs, args...)...)
 }
 
@@ -94,7 +96,7 @@ func TestUnitBenchmark() error {
 		return err
 	}
 
-	LogGreen("Running all unit tests with benchmarking...")
+	utils.LogGreen("Running all unit tests with benchmarking...")
 	return testUnitBenchmark()
 }
 
@@ -110,7 +112,7 @@ func TestE2E() error {
 	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
-	LogGreen("Running all e2e tests")
+	utils.LogGreen("Running all e2e tests")
 	return testE2E(".")
 }
 
