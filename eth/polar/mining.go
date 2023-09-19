@@ -23,7 +23,6 @@ package polar
 import (
 	"context"
 
-	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
@@ -37,7 +36,7 @@ func (pl *Polaris) Prepare(ctx context.Context, number uint64) {
 }
 
 // ProcessTransaction processes the given transaction and returns the receipt.
-func (pl *Polaris) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*core.ExecutionResult, error) {
+func (pl *Polaris) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
 	return pl.miner.ProcessTransaction(ctx, tx)
 }
 

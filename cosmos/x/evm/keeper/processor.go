@@ -22,15 +22,15 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // ProcessTransaction is called during the DeliverTx processing of the ABCI lifecycle.
-func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*core.ExecutionResult, error) {
+func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*coretypes.Receipt, error) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	// We zero-out the gas meter prior to evm execution in order to ensure that the receipt output
 	// from the EVM is correct. In the future, we will revisit this to allow gas metering for more
@@ -39,28 +39,32 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 		"reset gas meter prior to ethereum state transition")
 
 	// Process the transaction and return the EVM's execution result.
-	execResult, err := k.miner.ProcessTransaction(ctx, tx)
+	receipt, err := k.miner.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
 
-	// We don't want the cosmos transaction to be marked as failed if the EVM reverts. But
-	// its not the worst idea to log the error.
-	if execResult.Err != nil {
-		k.Logger(sdk.UnwrapSDKContext(ctx)).Error(
-			"evm execution",
-			"tx_hash", tx.Hash(),
-			"error", execResult.Err,
-			"gas_consumed", sCtx.GasMeter().GasConsumed(),
-		)
-	} else {
-		k.Logger(sdk.UnwrapSDKContext(ctx)).Debug(
-			"evm execution",
-			"tx_hash", tx.Hash(),
-			"gas_consumed", sCtx.GasMeter().GasConsumed(),
-		)
+	// Add some safety checks
+	if receipt.GasUsed != sCtx.GasMeter().GasConsumed() {
+		panic(fmt.Sprintf(
+			"receipt gas used and ctx gas used differ. receipt: %d, ctx: %d",
+			receipt.GasUsed, sCtx.GasMeter().GasConsumed(),
+		))
+	} else if receipt.CumulativeGasUsed != sCtx.BlockGasMeter().GasConsumed()+receipt.GasUsed {
+		panic(fmt.Sprintf(
+			"receipt cumulative gas used and block gas used differ. receipt: %d, ctx: %d",
+			receipt.CumulativeGasUsed, sCtx.BlockGasMeter().GasConsumed()+receipt.GasUsed,
+		))
 	}
 
+	// Log the receipt.
+	k.Logger(sdk.UnwrapSDKContext(ctx)).Debug(
+		"evm execution completed",
+		"tx_hash", receipt.TxHash,
+		"gas_consumed", receipt.GasUsed,
+		"status", receipt.Status,
+	)
+
 	// Return the execution result.
-	return execResult, err
+	return receipt, err
 }

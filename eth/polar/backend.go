@@ -284,7 +284,6 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash rpc.Blo
 func (b *backend) StateAndHeaderByNumber(
 	ctx context.Context, number rpc.BlockNumber,
 ) (vm.GethStateDB, *types.Header, error) {
-	// TODO: handling pending better
 	// // Pending state is only known by the miner
 	// if number == rpc.PendingBlockNumber {
 	// 	block, state := b.eth.miner.Pending()

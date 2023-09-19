@@ -32,6 +32,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // Backend wraps all methods required for mining. Only full node is capable
@@ -51,7 +52,7 @@ type Miner interface {
 
 	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
-	ProcessTransaction(context.Context, *types.Transaction) (*core.ExecutionResult, error)
+	ProcessTransaction(context.Context, *types.Transaction) (*types.Receipt, error)
 
 	// Finalize is called after the last tx in the block.
 	Finalize(context.Context) error
@@ -66,15 +67,18 @@ type miner struct {
 	bp        core.BlockPlugin
 	cp        core.ConfigurationPlugin
 	gp        core.GasPlugin
-
-	sp       core.StatePlugin
-	logger   log.Logger
-	vmConfig vm.Config
-	statedb  vm.PolarisStateDB
+	sp        core.StatePlugin
+	logger    log.Logger
+	vmConfig  vm.Config
+	statedb   vm.PolarisStateDB
 
 	// TODO: historical plugin has no purpose here in the miner.
 	// Should be handled async via channel
 	hp core.HistoricalPlugin
+
+	// workspace
+	pendingHeader *types.Header
+	gasPool       *core.GasPool
 }
 
 // NewMiner creates a new Miner instance.
@@ -96,7 +100,7 @@ func NewMiner(backend Backend) Miner {
 
 	m.statedb = state.NewStateDB(m.sp)
 	m.processor = core.NewStateProcessor(
-		m.cp, m.gp, host.GetPrecompilePlugin(), m.statedb, &m.vmConfig,
+		m.cp, host.GetPrecompilePlugin(), m.statedb, &m.vmConfig,
 	)
 
 	return m
@@ -126,7 +130,7 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 
 	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
 	// and block nonce (Nonce) on the new header.
-	header := &types.Header{
+	m.pendingHeader = &types.Header{
 		// Used in Polaris.
 		ParentHash: parent.Hash(),
 		Coinbase:   coinbase,
@@ -146,7 +150,7 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	var (
 		// TODO: we are hardcoding author to coinbase, this may be incorrect.
 		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
-		context = core.NewEVMBlockContext(header, m.chain, &header.Coinbase)
+		context = core.NewEVMBlockContext(m.pendingHeader, m.chain, &m.pendingHeader.Coinbase)
 		vmenv   = vm.NewGethEVMWithPrecompiles(context,
 			vm.TxContext{}, m.statedb, chainCfg, m.vmConfig,
 			m.backend.Host().GetPrecompilePlugin())
@@ -159,26 +163,44 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// Heuristic: Validators get miners. Full nodes get processors.
 	m.processor.Prepare(
 		vmenv,
-		header,
+		m.pendingHeader,
 	)
 
 	// We update the base fee in the txpool to the next base fee.
 	// TODO: Move to prepare proposal
-	m.txPool.SetBaseFee(header.BaseFee)
+	m.txPool.SetBaseFee(m.pendingHeader.BaseFee)
 
-	return header
+	return m.pendingHeader
 }
 
 // ProcessTransaction processes the given transaction and returns the receipt after applying
 // the state transition. This method is called for each tx in the block.
-func (m *miner) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*core.ExecutionResult, error) {
+func (m *miner) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
 	m.logger.Debug("processing evm transaction", "tx_hash", tx.Hash())
 
 	// Reset the Gas and State plugins for the tx.
 	m.gp.Reset(ctx) // TODO: may not need this.
 	m.sp.Reset(ctx)
 
-	return m.processor.ProcessTransaction(ctx, tx)
+	// We set the gasPool = gasLimit - gasUsed.
+	m.gasPool = new(core.GasPool).AddGas(m.pendingHeader.GasLimit - m.gp.BlockGasConsumed())
+
+	receipt, err := m.processor.ProcessTransaction(ctx, m.gasPool, tx)
+	if err != nil {
+		return nil, errorslib.Wrapf(
+			err, "could not process transaction [%s]", tx.Hash().Hex(),
+		)
+	}
+
+	// Consume the gas used by the state transition. In both the out of block gas as well as out of
+	// gas on the plugin cases, the line below will consume the remaining gas for the block and
+	// transaction respectively.
+	if err = m.gp.ConsumeTxGas(receipt.GasUsed); err != nil {
+		return nil, errorslib.Wrapf(
+			err, "could not consume gas used [%s] %d", tx.Hash().Hex(), receipt.GasUsed,
+		)
+	}
+	return receipt, nil
 }
 
 // Finalize is called after the last tx in the block.
