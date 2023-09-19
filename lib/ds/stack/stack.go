@@ -19,10 +19,7 @@ import (
 	"pkg.berachain.dev/polaris/lib/ds"
 )
 
-const (
-	resizeRatio = 2
-	two         = 2
-)
+const resizeRatio = 2
 
 // stack is a struct that holds a slice of Items as a last in, first out data structure.
 // It is implemented by pre-allocating a buffer with a capacity.
@@ -107,7 +104,7 @@ func (s *stack[T]) expandIfRequired() {
 	if s.size < s.capacity {
 		return
 	}
-	newCapacity := max(s.initialCapacity, (s.capacity*resizeRatio)/two)
+	newCapacity := max(s.initialCapacity, s.capacity)
 	s.buf = append(s.buf, make([]T, newCapacity)...)
 	s.capacity *= resizeRatio
 }
@@ -115,7 +112,7 @@ func (s *stack[T]) expandIfRequired() {
 // shrinkIfRequired shrinks the stack if the size is less than the capacity/resizeRatio.
 func (s *stack[T]) shrinkIfRequired() {
 	if newCapacity := max(s.initialCapacity, s.capacity/resizeRatio); s.size < newCapacity {
-		newBuf := make([]T, newCapacity)
+		newBuf := make([]T, 0, newCapacity)
 		copy(newBuf, s.buf)
 		s.buf = newBuf
 		s.capacity = newCapacity
