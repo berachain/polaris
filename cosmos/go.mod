@@ -12,7 +12,7 @@ replace (
 require (
 	cosmossdk.io/api v0.7.1
 	cosmossdk.io/collections v0.4.0 // indirect
-	cosmossdk.io/core v0.11.0
+	cosmossdk.io/core v0.12.0
 	cosmossdk.io/depinject v1.0.0-alpha.4
 	cosmossdk.io/errors v1.0.0
 	cosmossdk.io/log v1.2.1
@@ -42,9 +42,9 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230726155614-23370e0ffb3e // indirect
 	google.golang.org/grpc v1.58.1
 	google.golang.org/protobuf v1.31.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230830221145-a6c6454d3697
-	pkg.berachain.dev/polaris/eth v0.0.0-20230830221145-a6c6454d3697
-	pkg.berachain.dev/polaris/lib v0.0.0-20230830221145-a6c6454d3697
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230919154905-0c53dfe1360a
+	pkg.berachain.dev/polaris/eth v0.0.0-20230919154905-0c53dfe1360a
+	pkg.berachain.dev/polaris/lib v0.0.0-20230919154905-0c53dfe1360a
 )
 
 require (
@@ -92,7 +92,6 @@ require (
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
-	github.com/docker/docker v24.0.4+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
 	github.com/emicklei/dot v1.6.0 // indirect
