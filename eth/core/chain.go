@@ -47,9 +47,6 @@ type Blockchain interface {
 	ChainSubscriber
 	ChainResources
 	ChainContext
-
-	// TODO: remove StateProcessor out of the blockchain.
-	GetProcessor() *StateProcessor
 }
 
 // blockchain is the canonical, persistent object that operates the Polaris EVM.
@@ -59,11 +56,10 @@ type blockchain struct {
 	cp   ConfigurationPlugin
 	hp   HistoricalPlugin
 	gp   GasPlugin
+	pp   PrecompilePlugin
 	sp   StatePlugin
 	host PolarisHostChain
 
-	// StateProcessor is the canonical, persistent state processor that runs the EVM.
-	processor *StateProcessor
 	// statedb is the state database that is used to mange state during transactions.
 	statedb vm.PolarisStateDB
 	// vmConfig is the configuration used to create the EVM.
@@ -114,6 +110,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		cp:             host.GetConfigurationPlugin(),
 		hp:             host.GetHistoricalPlugin(),
 		gp:             host.GetGasPlugin(),
+		pp:             host.GetPrecompilePlugin(),
 		sp:             host.GetStatePlugin(),
 		vmConfig:       &vm.Config{},
 		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSize),
@@ -125,9 +122,6 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		logger:         log.Root(),
 	}
 	bc.statedb = state.NewStateDB(bc.sp)
-	bc.processor = NewStateProcessor(
-		bc.cp, bc.gp, host.GetPrecompilePlugin(), bc.statedb, bc.vmConfig,
-	)
 	bc.currentBlock.Store(nil)
 	bc.finalizedBlock.Store(nil)
 

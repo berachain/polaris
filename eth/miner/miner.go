@@ -77,18 +77,23 @@ type miner struct {
 func NewMiner(backend Backend) Miner {
 	host := backend.Blockchain().GetHost()
 
-	return &miner{
-		host:      host,
-		bp:        host.GetBlockPlugin(),
-		cp:        host.GetConfigurationPlugin(),
-		hp:        host.GetHistoricalPlugin(),
-		gp:        host.GetGasPlugin(),
-		sp:        host.GetStatePlugin(),
-		backend:   backend,
-		processor: backend.Blockchain().GetProcessor(),
-		logger:    log.NewNopLogger(), // todo: fix.
-		statedb:   state.NewStateDB(backend.Blockchain().GetHost().GetStatePlugin()),
+	m := &miner{
+		host:    host,
+		bp:      host.GetBlockPlugin(),
+		cp:      host.GetConfigurationPlugin(),
+		hp:      host.GetHistoricalPlugin(),
+		gp:      host.GetGasPlugin(),
+		sp:      host.GetStatePlugin(),
+		backend: backend,
+		logger:  log.NewNopLogger(), // todo: fix.
 	}
+
+	m.statedb = state.NewStateDB(m.sp)
+	m.processor = core.NewStateProcessor(
+		m.cp, m.gp, host.GetPrecompilePlugin(), m.statedb, &m.vmConfig,
+	)
+
+	return m
 }
 
 // Prepare prepares the blockchain for processing a new block at the given height.

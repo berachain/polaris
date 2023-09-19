@@ -98,8 +98,3 @@ func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, l
 
 	return nil
 }
-
-// TODO: deprecate this
-func (bc *blockchain) GetProcessor() *StateProcessor {
-	return bc.processor
-}
