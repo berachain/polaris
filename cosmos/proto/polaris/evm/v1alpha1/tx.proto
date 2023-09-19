@@ -39,14 +39,19 @@ message WrappedEthereumTransaction {
   bytes data = 1;
 }
 
+// Status represents the status of a transaction.
+enum Status {
+  // STATUS_REVERT_UNSPECIFIED indicates that the transaction reverted.
+  STATUS_REVERT_UNSPECIFIED = 0;
+  // STATUS_SUCCESS indicates that the transaction completed successfully.
+  STATUS_SUCCESS = 1;
+  // STATUS_NOT_INCLUDED indicates that the transaction was not included in the
+  // `evm` block, due to an critical error.
+  STATUS_NOT_INCLUDED = 2;
+}
+
 // WrappedEthereumTransactionResult defines the Msg/EthereumTx response type.
 message WrappedEthereumTransactionResult {
-  // `gas_used` represents the gas used by the virtual machine execution.
-  uint64 gas_used = 1;
-
-  // `vm_error` contains an error message if the virtual machine execution failed.
-  string vm_error = 2;
-
-  // `return_data` contains the return data of the virtual machine execution.
-  bytes return_data = 3;
+  // `status` represents a transaction's status
+  Status status = 1;
 }

@@ -27,6 +27,8 @@ package main
 
 import (
 	"github.com/magefile/mage/mg"
+
+	"pkg.berachain.dev/polaris/magefiles/utils"
 )
 
 type Localnet mg.Namespace
@@ -36,7 +38,7 @@ func (Localnet) Test() error {
 	if err := (Contracts{}).Build(); err != nil {
 		return err
 	}
-	LogGreen("Running all localnet tests")
+	utils.LogGreen("Running all localnet tests")
 	args := []string{
 		"-timeout", "30m",
 		"--focus", ".*e2e/localnet.*",

@@ -25,7 +25,11 @@
 
 package main
 
-import "github.com/magefile/mage/mg"
+import (
+	"github.com/magefile/mage/mg"
+
+	"pkg.berachain.dev/polaris/magefiles/utils"
+)
 
 type Eth mg.Namespace
 
@@ -43,12 +47,12 @@ func (e Eth) Test() error {
 
 // Runs all unit tests for the Cosmos SDK chain.
 func (e Eth) TestUnit() error {
-	LogGreen("Running all Polaris Ethereum unit tests...")
+	utils.LogGreen("Running all Polaris Ethereum unit tests...")
 	return testUnit(e.directory())
 }
 
 // Runs all e2e tests for the Cosmos SDK chain.
 func (e Eth) TestE2E() error {
-	LogGreen("Running all Polaris Ethereum e2e tests...")
+	utils.LogGreen("Running all Polaris Ethereum e2e tests...")
 	return testE2E(e.directory())
 }
