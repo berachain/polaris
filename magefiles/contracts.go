@@ -31,14 +31,8 @@ import (
 	"fmt"
 
 	"github.com/magefile/mage/mg"
-)
 
-var (
-	// Commands.
-	forgeBuild = RunCmdV("forge", "build", "--extra-output-files", "bin", "--extra-output-files", "abi", "--silent")
-	forgeClean = RunCmdV("forge", "clean")
-	forgeTest  = RunCmdV("forge", "test")
-	forgeFmt   = RunCmdV("forge", "fmt")
+	"pkg.berachain.dev/polaris/magefiles/utils"
 )
 
 // Compile-time assertion that we implement the interface correctly.
@@ -57,7 +51,7 @@ func (Contracts) directory() string {
 
 // Runs `forge build` in all smart contract directories.
 func (Contracts) Build() error {
-	LogGreen("Building solidity contracts with foundry...")
+	utils.LogGreen("Building solidity contracts with foundry...")
 	return forgeWrapper(forgeBuild)
 }
 
@@ -88,18 +82,18 @@ func (c Contracts) Test() error {
 
 // Run `forge test` in all smart contract directories.
 func (Contracts) TestUnit() error {
-	LogGreen("Running foundry unit tests...")
+	utils.LogGreen("Running foundry unit tests...")
 	return forgeWrapper(forgeTest)
 }
 
 // Run `forge fmt` in all smart contract directories.
 func (Contracts) Fmt() error {
-	LogGreen("Running forge fmt...")
+	utils.LogGreen("Running forge fmt...")
 	return forgeWrapper(forgeFmt)
 }
 
 func (Contracts) TestE2E() error {
-	LogGreen("Running foundry e2e tests...")
+	utils.LogGreen("Running foundry e2e tests...")
 	return forgeWrapper(forgeTest)
 }
 
