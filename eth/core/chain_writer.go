@@ -29,8 +29,17 @@ type ChainWriter interface {
 	InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error
 }
 
+// InsertBlock inserts a block into the canonical chain and updates the state of the blockchain.
 func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error {
 	var err error
+
+	// ***************************************** //
+	// TODO: add safety check for canonicallness //
+	// ***************************************** //
+
+	// *********************************************** //
+	// TODO: restructure this function / flow it sucks //
+	// *********************************************** //
 	blockHash, blockNum := block.Hash(), block.Number().Uint64()
 	bc.logger.Info("finalizing evm block", "block_hash", blockHash.Hex(), "num_txs", len(receipts))
 
@@ -62,11 +71,9 @@ func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, l
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
 
-		// Todo: nuke these caches.
 		bc.blockNumCache.Add(blockNum, block)
 		bc.blockHashCache.Add(blockHash, block)
 
-		// Todo: nuke these caches.
 		for txIndex, tx := range block.Transactions() {
 			bc.txLookupCache.Add(
 				tx.Hash(),
@@ -81,7 +88,6 @@ func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, l
 	}
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
-		// Todo: nuke this cache.
 		bc.receiptsCache.Add(blockHash, receipts)
 	}
 	if logs != nil {
