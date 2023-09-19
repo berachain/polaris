@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/log"
+	"pkg.berachain.dev/polaris/eth/miner"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
@@ -69,10 +70,11 @@ type Polaris struct {
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
 
-	// txPool     *txpool.TxPool
-	// blockchain represents the canonical chain.
+	// core pieces of the polaris stack
+	host       core.PolarisHostChain
 	blockchain core.Blockchain
-	txPool     txpool.PolarisTxPool
+	txPool     txpool.TxPool
+	miner      miner.Miner
 
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the core pieces.
 	backend Backend
@@ -95,6 +97,7 @@ func NewWithNetworkingStack(
 		cfg:        cfg,
 		blockchain: core.NewChain(host),
 		stack:      stack,
+		host:       host,
 		engine:     host.GetEnginePlugin(),
 	}
 	// When creating a Polaris EVM, we allow the implementing chain
@@ -110,7 +113,8 @@ func NewWithNetworkingStack(
 
 	// Build and set the RPC Backend and other services.
 	pl.backend = NewBackend(pl, stack.ExtRPCEnabled(), cfg)
-	pl.txPool = txpool.NewPolarisTxPool(host.GetTxPoolPlugin())
+	pl.txPool = txpool.NewTxPool(host.GetTxPoolPlugin())
+	pl.miner = miner.NewMiner(pl)
 
 	return pl
 }
@@ -154,4 +158,20 @@ func (pl *Polaris) StartServices() error {
 
 func (pl *Polaris) StopServices() error {
 	return pl.stack.Close()
+}
+
+func (pl *Polaris) Host() core.PolarisHostChain {
+	return pl.host
+}
+
+func (pl *Polaris) Miner() miner.Miner {
+	return pl.miner
+}
+
+func (pl *Polaris) TxPool() txpool.TxPool {
+	return pl.txPool
+}
+
+func (pl *Polaris) Blockchain() core.Blockchain {
+	return pl.blockchain
 }

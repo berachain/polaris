@@ -44,7 +44,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/params"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/version"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Backend represents the backend object for a Polaris chain. It extends the standard
@@ -393,23 +392,33 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 }
 
 // GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.
-func (b *backend) GetEVM(ctx context.Context, msg *core.Message, state vm.GethStateDB,
-	header *types.Header, vmConfig *vm.Config, _ *vm.BlockContext,
+func (b *backend) GetEVM(_ context.Context, msg *core.Message, state vm.GethStateDB,
+	header *types.Header, vmConfig *vm.Config, blockCtx *vm.BlockContext,
 ) (*vm.GethEVM, func() error) {
 	if vmConfig == nil {
-		b.logger.Debug("eth.rpc.backend.GetEVM", "vmConfig", "nil")
 		vmConfig = b.polar.blockchain.GetVMConfig()
 	}
 	txContext := core.NewEVMTxContext(msg)
-	return b.polar.blockchain.GetEVM(ctx, txContext,
-		utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig), state.Error
+	var context vm.BlockContext
+	if blockCtx != nil {
+		context = *blockCtx
+	} else {
+		// TODO: we are hardcoding author to coinbase, this may be incorrect.
+		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
+		context = core.NewEVMBlockContext(header, b.polar.Blockchain(), &header.Coinbase)
+	}
+	return vm.NewGethEVMWithPrecompiles(context, txContext, state, b.polar.blockchain.Config(),
+		*vmConfig, b.polar.Host().GetPrecompilePlugin()), state.Error
 }
 
 // GetBlockContext returns a new block context to be used by a EVM.
 func (b *backend) GetBlockContext(
 	_ context.Context, header *types.Header,
 ) *vm.BlockContext {
-	return b.polar.blockchain.NewEVMBlockContext(header)
+	// TODO: we are hardcoding author to coinbase, this may be incorrect.
+	// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
+	blockContext := core.NewEVMBlockContext(header, b.polar.Blockchain(), &header.Coinbase)
+	return &blockContext
 }
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {

@@ -21,92 +21,28 @@
 package core
 
 import (
-	"context"
-	"math/big"
-
-	"github.com/ethereum/go-ethereum/consensus/misc"
-	"github.com/ethereum/go-ethereum/core/vm"
-
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
-	// Prepare prepares the chain for a new block. This method is called before the first tx in
-	// the block.
-	Prepare(context.Context, uint64) *types.Header
-	// ProcessTransaction processes the given transaction and returns the receipt after applying
-	// the state transition. This method is called for each tx in the block.
-	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
-	// Finalize is called after the last tx in the block.
-	Finalize(context.Context) error
+	InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error
 }
 
-// =========================================================================
-// Block Processing
-// =========================================================================
+// InsertBlock inserts a block into the canonical chain and updates the state of the blockchain.
+func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error {
+	var err error
 
-// Prepare prepares the blockchain for processing a new block at the given height.
-func (bc *blockchain) Prepare(ctx context.Context, number uint64) *types.Header {
-	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
-	bc.sp.Prepare(ctx)
-	bc.bp.Prepare(ctx)
-	bc.cp.Prepare(ctx)
-	bc.gp.Prepare(ctx)
+	// TODO: prepare historical plugin here?
+	// TBH still think we should deprecate it and run in another routine as indexer.
 
-	if bc.hp != nil {
-		bc.hp.Prepare(ctx)
-	}
+	// ***************************************** //
+	// TODO: add safety check for canonicallness //
+	// ***************************************** //
 
-	coinbase, timestamp := bc.bp.GetNewBlockMetadata(number)
-
-	// Build the new block header.
-	parent := bc.CurrentFinalBlock()
-	if number >= 1 && parent == nil {
-		parent = bc.GetHeaderByNumber(number - 1)
-	}
-
-	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
-	// and block nonce (Nonce) on the new header.
-	header := &types.Header{
-		// Used in Polaris.
-		ParentHash: parent.Hash(),
-		Coinbase:   coinbase,
-		Number:     new(big.Int).SetUint64(number),
-		GasLimit:   bc.gp.BlockGasLimit(),
-		Time:       timestamp,
-		BaseFee:    misc.CalcBaseFee(bc.Config(), parent),
-	}
-
-	bc.logger.Info("preparing evm block", "seal_hash", header.Hash())
-
-	// Prepare the State Processor, StateDB and the EVM for the block.
-	bc.processor.Prepare(
-		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
-		header,
-	)
-
-	return header
-}
-
-// ProcessTransaction processes the given transaction and returns the receipt.
-func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
-	bc.logger.Debug("processing evm transaction", "tx_hash", tx.Hash())
-
-	// Reset the Gas and State plugins for the tx.
-	bc.gp.Reset(ctx) // TODO: may not need this.
-	bc.sp.Reset(ctx)
-
-	return bc.processor.ProcessTransaction(ctx, tx)
-}
-
-// Finalize finalizes the current block.
-func (bc *blockchain) Finalize(ctx context.Context) error {
-	block, receipts, logs, err := bc.processor.Finalize(ctx)
-	if err != nil {
-		return err
-	}
-
+	// *********************************************** //
+	// TODO: restructure this function / flow it sucks //
+	// *********************************************** //
 	blockHash, blockNum := block.Hash(), block.Number().Uint64()
 	bc.logger.Info("finalizing evm block", "block_hash", blockHash.Hex(), "num_txs", len(receipts))
 
@@ -138,11 +74,9 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
 
-		// Todo: nuke these caches.
 		bc.blockNumCache.Add(blockNum, block)
 		bc.blockHashCache.Add(blockHash, block)
 
-		// Todo: nuke these caches.
 		for txIndex, tx := range block.Transactions() {
 			bc.txLookupCache.Add(
 				tx.Hash(),
@@ -157,7 +91,6 @@ func (bc *blockchain) Finalize(ctx context.Context) error {
 	}
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
-		// Todo: nuke this cache.
 		bc.receiptsCache.Add(blockHash, receipts)
 	}
 	if logs != nil {

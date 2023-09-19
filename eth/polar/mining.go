@@ -30,21 +30,18 @@ import (
 // TODO: replace this file with a proper mining object and use message passing instead of direct calls.
 // Prepare prepares the Polaris chain for processing a new block at the given height.
 func (pl *Polaris) Prepare(ctx context.Context, number uint64) {
-	header := pl.blockchain.Prepare(ctx, number)
+	header := pl.miner.Prepare(ctx, number)
 	if header == nil {
 		panic("blockchain produced nil header")
 	}
-	// We update the base fee in the txpool to the next base fee.
-	// TODO: Move to prepare proposal
-	pl.txPool.SetBaseFee(header.BaseFee)
 }
 
 // ProcessTransaction processes the given transaction and returns the receipt.
 func (pl *Polaris) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*core.ExecutionResult, error) {
-	return pl.blockchain.ProcessTransaction(ctx, tx)
+	return pl.miner.ProcessTransaction(ctx, tx)
 }
 
 // Finalize finalizes the current block.
 func (pl *Polaris) Finalize(ctx context.Context) error {
-	return pl.blockchain.Finalize(ctx)
+	return pl.miner.Finalize(ctx)
 }

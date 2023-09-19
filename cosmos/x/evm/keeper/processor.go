@@ -39,7 +39,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 		"reset gas meter prior to ethereum state transition")
 
 	// Process the transaction and return the EVM's execution result.
-	execResult, err := k.polaris.ProcessTransaction(ctx, tx)
+	execResult, err := k.miner.ProcessTransaction(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
