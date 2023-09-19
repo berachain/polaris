@@ -58,6 +58,7 @@ type Miner interface {
 // miner implements the Miner interface.
 type miner struct {
 	backend   Backend
+	chain     core.Blockchain
 	processor *core.StateProcessor
 	bp        core.BlockPlugin
 	cp        core.ConfigurationPlugin
@@ -75,7 +76,8 @@ type miner struct {
 
 // NewMiner creates a new Miner instance.
 func NewMiner(backend Backend) Miner {
-	host := backend.Blockchain().GetHost()
+	chain := backend.Blockchain()
+	host := chain.GetHost()
 
 	m := &miner{
 		bp:      host.GetBlockPlugin(),
@@ -83,6 +85,7 @@ func NewMiner(backend Backend) Miner {
 		hp:      host.GetHistoricalPlugin(),
 		gp:      host.GetGasPlugin(),
 		sp:      host.GetStatePlugin(),
+		chain:   chain,
 		backend: backend,
 		logger:  log.NewNopLogger(), // todo: fix.
 	}
@@ -103,17 +106,13 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	m.cp.Prepare(ctx)
 	m.gp.Prepare(ctx)
 
-	if m.hp != nil {
-		m.hp.Prepare(ctx)
-	}
-
 	coinbase, timestamp := m.bp.GetNewBlockMetadata(number)
 	chainCfg := m.cp.ChainConfig()
 
 	// Build the new block header.
-	parent := m.backend.Blockchain().CurrentFinalBlock()
+	parent := m.chain.CurrentFinalBlock()
 	if number >= 1 && parent == nil {
-		parent = m.backend.Blockchain().GetHeaderByNumber(number - 1)
+		parent = m.chain.GetHeaderByNumber(number - 1)
 	}
 
 	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
@@ -125,7 +124,7 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   m.gp.BlockGasLimit(),
 		Time:       timestamp,
-		BaseFee:    misc.CalcBaseFee(m.backend.Blockchain().Config(), parent),
+		BaseFee:    misc.CalcBaseFee(chainCfg, parent),
 		Difficulty: new(big.Int),
 	}
 
@@ -138,10 +137,10 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	var (
 		// TODO: we are hardcoding author to coinbase, this may be incorrect.
 		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
-		context = core.NewEVMBlockContext(header, m.backend.Blockchain(), &header.Coinbase)
+		context = core.NewEVMBlockContext(header, m.chain, &header.Coinbase)
 		vmenv   = vm.NewGethEVMWithPrecompiles(context,
 			vm.TxContext{}, m.statedb, chainCfg, m.vmConfig,
-			m.backend.Blockchain().GetHost().GetPrecompilePlugin())
+			m.chain.GetHost().GetPrecompilePlugin())
 	)
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
@@ -176,5 +175,5 @@ func (m *miner) Finalize(ctx context.Context) error {
 		return err
 	}
 
-	return m.backend.Blockchain().InsertBlock(block, receipts, logs)
+	return m.chain.InsertBlock(block, receipts, logs)
 }

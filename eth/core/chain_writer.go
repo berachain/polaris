@@ -33,6 +33,9 @@ type ChainWriter interface {
 func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error {
 	var err error
 
+	// TODO: prepare historical plugin here?
+	// TBH still think we should deprecate it and run in another routine as indexer.
+
 	// ***************************************** //
 	// TODO: add safety check for canonicallness //
 	// ***************************************** //
