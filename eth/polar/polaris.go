@@ -24,12 +24,24 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/eth/ethconfig"
+	"github.com/ethereum/go-ethereum/eth/filters"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/log"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
+
+// TODO: break out the node into a separate package and then fully use the
+// abstracted away networking stack, by extension we will need to improve the registration
+// architecture.
+
+var defaultEthConfig = ethconfig.Config{
+	SyncMode:           0,
+	FilterLogCacheSize: 0,
+}
 
 // NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC apis.
 type NetworkingStack interface {
@@ -66,6 +78,10 @@ type Polaris struct {
 
 	// engine represents the consensus engine for the backend.
 	engine core.EnginePlugin
+
+	// filterSystem is the filter system that is used by the filter API.
+	// TODO: relocate
+	filterSystem *filters.FilterSystem
 }
 
 func NewWithNetworkingStack(
@@ -121,6 +137,9 @@ func (pl *Polaris) APIs() []rpc.API {
 func (pl *Polaris) StartServices() error {
 	// Register the JSON-RPCs with the networking stack.
 	pl.stack.RegisterAPIs(pl.APIs())
+
+	// Register the filter API separately in order to get access to the filterSystem
+	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
 
 	go func() {
 		// TODO: unhack this.
