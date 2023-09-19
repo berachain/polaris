@@ -45,6 +45,7 @@ type NetworkingStack interface {
 	// Start starts the networking stack.
 	Start() error
 
+	// Close stops the networking stack
 	Close() error
 }
 
@@ -60,7 +61,7 @@ type Polaris struct {
 	blockchain core.Blockchain
 	txPool     txpool.PolarisTxPool
 
-	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the blockchain.
+	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the core pieces.
 	backend Backend
 
 	// engine represents the consensus engine for the backend.
