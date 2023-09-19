@@ -111,7 +111,7 @@ func NewWithNetworkingStack(
 
 	// Build and set the RPC Backend and other services.
 	pl.backend = NewBackend(pl, stack.ExtRPCEnabled(), cfg)
-	pl.txPool = txpool.NewPolarisTxPool(host.GetTxPoolPlugin())
+	pl.txPool = txpool.NewTxPool(host.GetTxPoolPlugin())
 	pl.miner = miner.NewMiner(pl)
 
 	return pl

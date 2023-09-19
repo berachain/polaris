@@ -30,9 +30,9 @@ type TxPool interface {
 	core.TxPoolPlugin
 }
 
-// NewPolarisTxPool creates a new TxPool instance.
+// NewTxPool creates a new TxPool instance.
 // It takes in a core.TxPoolPlugin to satisfy the interface.
-func NewPolarisTxPool(plugin core.TxPoolPlugin) TxPool {
+func NewTxPool(plugin core.TxPoolPlugin) TxPool {
 	return &polarisTxPool{
 		TxPoolPlugin: plugin,
 	}
