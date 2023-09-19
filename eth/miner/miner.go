@@ -24,14 +24,13 @@ import (
 	"context"
 	"math/big"
 
-	"cosmossdk.io/log"
-
 	"github.com/ethereum/go-ethereum/consensus/misc"
 
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/log"
 )
 
 // Backend wraps all methods required for mining. Only full node is capable
@@ -87,7 +86,7 @@ func NewMiner(backend Backend) Miner {
 		sp:      host.GetStatePlugin(),
 		chain:   chain,
 		backend: backend,
-		logger:  log.NewNopLogger(), // todo: fix.
+		logger:  log.Root(), // todo: fix.
 	}
 
 	m.statedb = state.NewStateDB(m.sp)
