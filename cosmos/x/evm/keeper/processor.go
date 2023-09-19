@@ -22,6 +22,7 @@ package keeper
 
 import (
 	"context"
+	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -32,11 +33,11 @@ import (
 // ProcessTransaction is called during the DeliverTx processing of the ABCI lifecycle.
 func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*core.ExecutionResult, error) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
-	// We zero-out the gas meter prior to evm execution in order to ensure that the receipt output
-	// from the EVM is correct. In the future, we will revisit this to allow gas metering for more
-	// complex operations prior to entering the EVM.
-	sCtx.GasMeter().RefundGas(sCtx.GasMeter().GasConsumed(),
-		"reset gas meter prior to ethereum state transition")
+
+	// We enforce that no gas was consumed prior to the EVM execution.
+	if sCtx.GasMeter().GasConsumed() != 0 {
+		return nil, errors.New("gas consumed prior to evm execution")
+	}
 
 	// Process the transaction and return the EVM's execution result.
 	execResult, err := k.miner.ProcessTransaction(ctx, tx)
