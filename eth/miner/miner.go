@@ -129,9 +129,10 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		Difficulty: new(big.Int),
 	}
 
-	if err := misc.VerifyEip1559Header(chainCfg, parent, header); err != nil {
-		panic(err)
-	}
+	// TODO: we need to have header verification setup somewhere.
+	// if err := misc.VerifyEip1559Header(chainCfg, parent, header); err != nil {
+	// 	panic(err)
+	// }
 
 	// TODO: abstract the evm from the miner, so that the miner is only concerned with txs and blocks.
 	var (

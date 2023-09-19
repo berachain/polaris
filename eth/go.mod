@@ -6,6 +6,7 @@ go 1.21
 replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230824153638-497f3de05c05
 
 require (
+	cosmossdk.io/log v1.2.1
 	github.com/BurntSushi/toml v1.3.2
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/holiman/uint256 v1.2.3
@@ -103,6 +104,7 @@ require (
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/rs/cors v1.9.0 // indirect
+	github.com/rs/zerolog v1.30.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/status-im/keycard-go v0.2.0 // indirect
