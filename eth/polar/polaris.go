@@ -163,6 +163,10 @@ func (pl *Polaris) Miner() miner.Miner {
 	return pl.miner
 }
 
+func (pl *Polaris) TxPool() txpool.PolarisTxPool {
+	return pl.txPool
+}
+
 func (pl *Polaris) Blockchain() core.Blockchain {
 	return pl.blockchain
 }
