@@ -36,6 +36,11 @@ type ChainResources interface {
 	GetVMConfig() *vm.Config
 	GetEVM(context.Context, vm.TxContext, vm.PolarisStateDB, *types.Header, *vm.Config) *vm.GethEVM
 	NewEVMBlockContext(header *types.Header) *vm.BlockContext
+	GetHost() PolarisHostChain
+}
+
+func (bc *blockchain) GetHost() PolarisHostChain {
+	return bc.host
 }
 
 // StateAtBlockNumber returns a statedb configured to read what the state of the blockchain is/was

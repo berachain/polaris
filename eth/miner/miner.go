@@ -22,9 +22,16 @@ package miner
 
 import (
 	"context"
+	"math/big"
+
+	"cosmossdk.io/log"
+
+	"github.com/ethereum/go-ethereum/consensus/misc"
 
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 // Backend wraps all methods required for mining. Only full node is capable
@@ -52,25 +59,90 @@ type Miner interface {
 type miner struct {
 	backend   Backend
 	processor *core.StateProcessor
+	host      core.PolarisHostChain
+	bp        core.BlockPlugin
+	cp        core.ConfigurationPlugin
+	gp        core.GasPlugin
+	sp        core.StatePlugin
+	logger    log.Logger
+	vmConfig  vm.Config
+	statedb   vm.PolarisStateDB
+
+	// TODO: historical plugin has no purpose here in the miner.
+	// Should be handled async via channel
+	hp core.HistoricalPlugin
 }
 
 // NewMiner creates a new Miner instance.
 func NewMiner(backend Backend) Miner {
+	host := backend.Blockchain().GetHost()
+
 	return &miner{
+		host:      host,
+		bp:        host.GetBlockPlugin(),
+		cp:        host.GetConfigurationPlugin(),
+		hp:        host.GetHistoricalPlugin(),
+		gp:        host.GetGasPlugin(),
+		sp:        host.GetStatePlugin(),
 		backend:   backend,
 		processor: backend.Blockchain().GetProcessor(),
+		logger:    log.NewNopLogger(), // todo: fix.
+		statedb:   state.NewStateDB(backend.Blockchain().GetHost().GetStatePlugin()),
 	}
 }
 
 // Prepare prepares the blockchain for processing a new block at the given height.
 func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
-	return m.backend.Blockchain().Prepare(ctx, number)
+	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
+	m.sp.Prepare(ctx)
+	m.bp.Prepare(ctx)
+	m.cp.Prepare(ctx)
+	m.gp.Prepare(ctx)
+
+	if m.hp != nil {
+		m.hp.Prepare(ctx)
+	}
+
+	coinbase, timestamp := m.host.GetBlockPlugin().GetNewBlockMetadata(number)
+
+	// Build the new block header.
+	parent := m.backend.Blockchain().CurrentFinalBlock()
+	if number >= 1 && parent == nil {
+		parent = m.backend.Blockchain().GetHeaderByNumber(number - 1)
+	}
+
+	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
+	// and block nonce (Nonce) on the new header.
+	header := &types.Header{
+		// Used in Polaris.
+		ParentHash: parent.Hash(),
+		Coinbase:   coinbase,
+		Number:     new(big.Int).SetUint64(number),
+		GasLimit:   m.gp.BlockGasLimit(),
+		Time:       timestamp,
+		BaseFee:    misc.CalcBaseFee(m.backend.Blockchain().Config(), parent),
+	}
+
+	m.logger.Info("preparing evm block", "seal_hash", header.Hash())
+
+	// Prepare the State Processor, StateDB and the EVM for the block.
+	m.processor.Prepare(
+		m.backend.Blockchain().GetEVM(ctx, vm.TxContext{}, m.statedb, header, &m.vmConfig),
+		header,
+	)
+
+	return header
 }
 
 // ProcessTransaction processes the given transaction and returns the receipt after applying
 // the state transition. This method is called for each tx in the block.
 func (m *miner) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*core.ExecutionResult, error) {
-	_, _ = m.backend.Blockchain().ProcessTransaction(ctx, tx)
+	m.logger.Debug("processing evm transaction", "tx_hash", tx.Hash())
+
+	// Reset the Gas and State plugins for the tx.
+	m.gp.Reset(ctx) // TODO: may not need this.
+	m.sp.Reset(ctx)
+
 	return m.processor.ProcessTransaction(ctx, tx)
 }
 

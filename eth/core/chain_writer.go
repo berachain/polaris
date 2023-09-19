@@ -21,81 +21,12 @@
 package core
 
 import (
-	"context"
-	"math/big"
-
-	"github.com/ethereum/go-ethereum/consensus/misc"
-	"github.com/ethereum/go-ethereum/core/vm"
-
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
-	// Prepare prepares the chain for a new block. This method is called before the first tx in
-	// the block.
-	Prepare(context.Context, uint64) *types.Header
-	// ProcessTransaction processes the given transaction and returns the receipt after applying
-	// the state transition. This method is called for each tx in the block.
-	ProcessTransaction(context.Context, *types.Transaction) (*ExecutionResult, error)
-}
-
-// =========================================================================
-// Block Processing
-// =========================================================================
-
-// Prepare prepares the blockchain for processing a new block at the given height.
-func (bc *blockchain) Prepare(ctx context.Context, number uint64) *types.Header {
-	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
-	bc.sp.Prepare(ctx)
-	bc.bp.Prepare(ctx)
-	bc.cp.Prepare(ctx)
-	bc.gp.Prepare(ctx)
-
-	if bc.hp != nil {
-		bc.hp.Prepare(ctx)
-	}
-
-	coinbase, timestamp := bc.bp.GetNewBlockMetadata(number)
-
-	// Build the new block header.
-	parent := bc.CurrentFinalBlock()
-	if number >= 1 && parent == nil {
-		parent = bc.GetHeaderByNumber(number - 1)
-	}
-
-	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
-	// and block nonce (Nonce) on the new header.
-	header := &types.Header{
-		// Used in Polaris.
-		ParentHash: parent.Hash(),
-		Coinbase:   coinbase,
-		Number:     new(big.Int).SetUint64(number),
-		GasLimit:   bc.gp.BlockGasLimit(),
-		Time:       timestamp,
-		BaseFee:    misc.CalcBaseFee(bc.Config(), parent),
-	}
-
-	bc.logger.Info("preparing evm block", "seal_hash", header.Hash())
-
-	// Prepare the State Processor, StateDB and the EVM for the block.
-	bc.processor.Prepare(
-		bc.GetEVM(ctx, vm.TxContext{}, bc.statedb, header, bc.vmConfig),
-		header,
-	)
-
-	return header
-}
-
-// ProcessTransaction processes the given transaction and returns the receipt.
-func (bc *blockchain) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*ExecutionResult, error) {
-	bc.logger.Debug("processing evm transaction", "tx_hash", tx.Hash())
-
-	// Reset the Gas and State plugins for the tx.
-	bc.gp.Reset(ctx) // TODO: may not need this.
-	bc.sp.Reset(ctx)
-
-	return nil, nil
+	InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error
 }
 
 func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error {

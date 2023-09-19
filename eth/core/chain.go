@@ -50,17 +50,17 @@ type Blockchain interface {
 
 	// TODO: remove StateProcessor out of the blockchain.
 	GetProcessor() *StateProcessor
-	InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error
 }
 
 // blockchain is the canonical, persistent object that operates the Polaris EVM.
 type blockchain struct {
 	// the host chain plugins that the Polaris EVM is running on.
-	bp BlockPlugin
-	cp ConfigurationPlugin
-	hp HistoricalPlugin
-	gp GasPlugin
-	sp StatePlugin
+	bp   BlockPlugin
+	cp   ConfigurationPlugin
+	hp   HistoricalPlugin
+	gp   GasPlugin
+	sp   StatePlugin
+	host PolarisHostChain
 
 	// StateProcessor is the canonical, persistent state processor that runs the EVM.
 	processor *StateProcessor
@@ -109,6 +109,7 @@ type blockchain struct {
 // NewChain creates and returns a `api.Chain` with the given EVM chain configuration and host.
 func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used as `api.Chain`.
 	bc := &blockchain{
+		host:           host,
 		bp:             host.GetBlockPlugin(),
 		cp:             host.GetConfigurationPlugin(),
 		hp:             host.GetHistoricalPlugin(),
