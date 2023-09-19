@@ -32,7 +32,6 @@ import (
 )
 
 var (
-	sdkRepo        = "github.com/cosmos/cosmos-sdk"
 	version        = "v0.0.0"
 	commit, _      = sh.Output("git", "log", "-1", "--format='%H'")
 	defaultDB      = "pebbledb"
@@ -58,13 +57,13 @@ func generateBuildTags() string {
 // generateLinkerFlags returns the linker flags to be used when building the binary.
 func generateLinkerFlags(production, statically bool) string {
 	baseFlags := []string{
-		"-X ", sdkRepo + "/version.Name=" + executableName,
-		" -X ", sdkRepo + "/version.AppName=" + appName,
-		" -X ", sdkRepo + "/version.Version=" + version,
-		" -X ", sdkRepo + "/version.Commit=" + commit,
+		"-X ", cosmosSDK + "/version.Name=" + executableName,
+		" -X ", cosmosSDK + "/version.AppName=" + appName,
+		" -X ", cosmosSDK + "/version.Version=" + version,
+		" -X ", cosmosSDK + "/version.Commit=" + commit,
 		// TODO: Refactor versioning more broadly.
 		// " \"-X " + sdkRepo + "/version.BuildTags=" + strings.Join(generateBuildTags(), ",") +
-		" -X ", sdkRepo + "/version.DBBackend=" + defaultDB,
+		" -X ", cosmosSDK + "/version.DBBackend=" + defaultDB,
 	}
 
 	if production {

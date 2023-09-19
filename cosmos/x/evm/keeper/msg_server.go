@@ -36,21 +36,21 @@ var _ types.MsgServiceServer = &Keeper{}
 func (k *Keeper) EthTransaction(
 	ctx context.Context, msg *types.WrappedEthereumTransaction,
 ) (*types.WrappedEthereumTransactionResult, error) {
+	res := &types.WrappedEthereumTransactionResult{}
+
 	// Process the transaction and return the result.
 	result, err := k.ProcessTransaction(ctx, msg.AsTransaction())
 	if err != nil {
-		return nil, errorsmod.Wrapf(err, "failed to process transaction")
+		res.Status = types.Status_STATUS_NOT_INCLUDED
+		return res, errorsmod.Wrapf(err, "failed to process transaction")
 	}
 
-	// Build the response.
-	vmErr := ""
-	if result.Err != nil {
-		vmErr = result.Err.Error()
+	// Check for a VM error.
+	if result.Err == nil {
+		res.Status = types.Status_STATUS_SUCCESS
+	} else {
+		res.Status = types.Status_STATUS_REVERT_UNSPECIFIED
 	}
 
-	return &types.WrappedEthereumTransactionResult{
-		GasUsed:    result.UsedGas,
-		VmError:    vmErr,
-		ReturnData: result.ReturnData,
-	}, nil
+	return res, nil
 }

@@ -15,8 +15,8 @@ require (
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/upgrade v0.0.0-20230915171831-2196edacb99d
 	github.com/stretchr/testify v1.8.4
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20230830221145-a6c6454d3697
-	pkg.berachain.dev/polaris/eth v0.0.0-20230830221145-a6c6454d3697
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20230919154905-0c53dfe1360a
+	pkg.berachain.dev/polaris/eth v0.0.0-20230919154905-0c53dfe1360a
 )
 
 require (
@@ -208,7 +208,6 @@ require (
 	github.com/oasisprotocol/curve25519-voi v0.0.0-20230110094441-db37f07504ce // indirect
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/opencontainers/image-spec v1.1.0-rc4 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
 	github.com/peterh/liner v1.2.2 // indirect
 	github.com/petermattis/goid v0.0.0-20230808133559-b036b712a89b // indirect
@@ -273,8 +272,8 @@ require (
 	gotest.tools/v3 v3.5.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230827184022-e3cec7a2c178 // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20230827184022-e3cec7a2c178 // indirect
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230830221145-a6c6454d3697 // indirect
+	pkg.berachain.dev/polaris/lib v0.0.0-20230830221145-a6c6454d3697 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )

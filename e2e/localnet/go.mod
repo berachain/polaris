@@ -11,10 +11,10 @@ require (
 	github.com/onsi/ginkgo/v2 v2.12.0
 	github.com/onsi/gomega v1.27.10
 	github.com/ory/dockertest v3.3.5+incompatible
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230830221145-a6c6454d3697
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20230830221145-a6c6454d3697
-	pkg.berachain.dev/polaris/eth v0.0.0-20230830221145-a6c6454d3697
-	pkg.berachain.dev/polaris/lib v0.0.0-20230830221145-a6c6454d3697
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230919154905-0c53dfe1360a
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20230919154905-0c53dfe1360a
+	pkg.berachain.dev/polaris/eth v0.0.0-20230919154905-0c53dfe1360a
+	pkg.berachain.dev/polaris/lib v0.0.0-20230919154905-0c53dfe1360a
 )
 
 require (
@@ -138,7 +138,6 @@ require (
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
-	github.com/moby/term v0.5.0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/oasisprotocol/curve25519-voi v0.0.0-20230110094441-db37f07504ce // indirect
 	github.com/oklog/run v1.1.0 // indirect
