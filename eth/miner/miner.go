@@ -59,7 +59,6 @@ type Miner interface {
 type miner struct {
 	backend   Backend
 	processor *core.StateProcessor
-	host      core.PolarisHostChain
 	bp        core.BlockPlugin
 	cp        core.ConfigurationPlugin
 	gp        core.GasPlugin
@@ -79,7 +78,6 @@ func NewMiner(backend Backend) Miner {
 	host := backend.Blockchain().GetHost()
 
 	m := &miner{
-		host:    host,
 		bp:      host.GetBlockPlugin(),
 		cp:      host.GetConfigurationPlugin(),
 		hp:      host.GetHistoricalPlugin(),
@@ -109,7 +107,7 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		m.hp.Prepare(ctx)
 	}
 
-	coinbase, timestamp := m.host.GetBlockPlugin().GetNewBlockMetadata(number)
+	coinbase, timestamp := m.bp.GetNewBlockMetadata(number)
 	chainCfg := m.cp.ChainConfig()
 
 	// Build the new block header.
@@ -130,14 +128,21 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		BaseFee:    misc.CalcBaseFee(m.backend.Blockchain().Config(), parent),
 	}
 
-	m.logger.Info("preparing evm block", "seal_hash", header.Hash())
+	// TODO: abstract the evm from the miner, so that the miner is only concerned with txs and blocks.
+	var (
+		context = core.NewEVMBlockContext(header, m.backend.Blockchain(), nil)
+		vmenv   = vm.NewGethEVMWithPrecompiles(context,
+			vm.TxContext{}, m.statedb, chainCfg, m.vmConfig,
+			m.backend.Blockchain().GetHost().GetPrecompilePlugin())
+	)
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
+	// TODO: miner should not have a processor. Copy what dydx does in which validators and full nodes
+	// have different prepare and process proposals.
+	//
+	// Heuristic: Validators get miners. Full nodes get processors.
 	m.processor.Prepare(
-		vm.NewGethEVMWithPrecompiles(
-			*m.backend.Blockchain().NewEVMBlockContext(header),
-			vm.TxContext{}, m.statedb, chainCfg, m.vmConfig,
-			m.backend.Blockchain().GetHost().GetPrecompilePlugin()),
+		vmenv,
 		header,
 	)
 
