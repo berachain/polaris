@@ -32,8 +32,8 @@ import (
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/distribution"
 	sbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
+	utils "pkg.berachain.dev/polaris/e2e/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -43,7 +43,7 @@ import (
 
 func TestDistributionPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/e2e/precompile/distribution")
+	RunSpecs(t, "e2e/precompile/precompile/distribution")
 }
 
 var _ = Describe("Distribution Precompile", func() {

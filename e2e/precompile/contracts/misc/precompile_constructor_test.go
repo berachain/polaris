@@ -24,8 +24,8 @@ import (
 	"testing"
 
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
+	utils "pkg.berachain.dev/polaris/e2e/precompile"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -34,7 +34,7 @@ import (
 
 func TestMiscellaneousPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/e2e/precompile/misc")
+	RunSpecs(t, "e2e/precompile/precompile/misc")
 }
 
 var _ = Describe("Miscellaneous Precompile Tests", func() {

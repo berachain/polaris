@@ -36,9 +36,9 @@ import (
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	cosmtypes "pkg.berachain.dev/polaris/cosmos/types"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
+	utils "pkg.berachain.dev/polaris/e2e/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
 
@@ -49,7 +49,7 @@ import (
 
 func TestGovernancePrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/e2e/precompile/governance")
+	RunSpecs(t, "e2e/precompile/precompile/governance")
 }
 
 var tf *network.TestFixture

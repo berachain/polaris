@@ -25,8 +25,8 @@ import (
 	"testing"
 
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
-	utils "pkg.berachain.dev/polaris/cosmos/testing/e2e"
 	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
+	utils "pkg.berachain.dev/polaris/e2e/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -36,7 +36,7 @@ import (
 
 func TestCosmosPrecompiles(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/testing/e2e/precompile/bank")
+	RunSpecs(t, "e2e/precompile/precompile/bank")
 }
 
 var _ = Describe("Bank", func() {
