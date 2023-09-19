@@ -55,7 +55,6 @@ type blockchain struct {
 	bp   BlockPlugin
 	cp   ConfigurationPlugin
 	hp   HistoricalPlugin
-	gp   GasPlugin
 	pp   PrecompilePlugin
 	sp   StatePlugin
 	host PolarisHostChain
@@ -109,7 +108,6 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		bp:             host.GetBlockPlugin(),
 		cp:             host.GetConfigurationPlugin(),
 		hp:             host.GetHistoricalPlugin(),
-		gp:             host.GetGasPlugin(),
 		pp:             host.GetPrecompilePlugin(),
 		sp:             host.GetStatePlugin(),
 		vmConfig:       &vm.Config{},
