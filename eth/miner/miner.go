@@ -105,6 +105,11 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	m.cp.Prepare(ctx)
 	m.gp.Prepare(ctx)
 
+	// TODO: this shouldnt be in the miner.
+	if m.hp != nil {
+		m.hp.Prepare(ctx)
+	}
+
 	coinbase, timestamp := m.bp.GetNewBlockMetadata(number)
 	chainCfg := m.cp.ChainConfig()
 
