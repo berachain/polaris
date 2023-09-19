@@ -45,7 +45,8 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 		return nil, err
 	}
 
-	// Add some safety checks
+	// Add some safety checks.
+	// TODO: we can probably do these once at the end of the block?
 	if receipt.GasUsed != gasMeter.GasConsumed() {
 		panic(fmt.Sprintf(
 			"receipt gas used and ctx gas used differ. receipt: %d, ctx: %d",
