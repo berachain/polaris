@@ -35,93 +35,109 @@ interface IBankModule {
 
     /**
      * @dev Emitted by the bank module when `amount` tokens are sent to `recipient`
+     * @param recipient The recipient address
+     * @param amount The amount of Cosmos coins sent
      */
     event Transfer(address indexed recipient, Cosmos.Coin[] amount);
 
     /**
      * @dev Emitted by the bank module when `sender` sends some amount of tokens
+     * @param sender The sender address
      */
     event Message(address indexed sender);
 
     /**
      * @dev Emitted by the bank module when `amount` tokens are spent by `spender`
+     * @param spender The spender address
+     * @param amount The amount of Cosmos coins spent
      */
     event CoinSpent(address indexed spender, Cosmos.Coin[] amount);
 
     /**
      * @dev Emitted by the bank module when `amount` tokens are received by `receiver`
+     * @param receiver The receiver address
+     * @param amount The amount of Cosmos coins received
      */
     event CoinReceived(address indexed receiver, Cosmos.Coin[] amount);
 
     /**
      * @dev Emitted by the bank module when `amount` tokens are minted by `minter`
-     *
-     * Note: "Coinbase" refers to the Cosmos event: EventTypeCoinMint. `minter` is a module
-     * address.
+     * @param minter The minter address
+     * @param amount The amount of Cosmos coins minted
+     * @notice "Coinbase" refers to the Cosmos event: `EventTypeCoinMint`
+     * @notice `minter` is always a module address
      */
     event Coinbase(address indexed minter, Cosmos.Coin[] amount);
 
     /**
      * @dev Emitted by the bank module when `amount` tokens are burned by `burner`
-     *
-     * Note: `burner` is a module address
+     * @param burner The burner address
+     * @param amount The amount of Cosmos coins burned
+     * @notice `burner` is always a module address
      */
     event Burn(address indexed burner, Cosmos.Coin[] amount);
 
     /////////////////////////////////////// READ METHODS //////////////////////////////////////////
 
     /**
-     * @dev Returns the `amount` of account balance by address for a given denomination.
+     * @dev Returns the `amount` of account balance by address for a given coin denomination
+     * @notice If the denomination is not found, returns 0
      */
     function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
 
     /**
-     * @dev Returns account balance by address for all denominations.
+     * @dev Returns account balance by address for all denominations
+     * @notice If the account address is not found, returns an empty array
      */
     function getAllBalances(address accountAddress) external view returns (Cosmos.Coin[] memory);
 
     /**
-     * @dev Returns the `amount` of account balance by address for a given denomination.
+     * @dev Returns the `amount` of account balance by address for a given coin denomination
+     * @notice If the denomination is not found, returns 0
      */
     function getSpendableBalance(address accountAddress, string calldata denom) external view returns (uint256);
 
     /**
-     * @dev Returns account balance by address for all denominations.
+     * @dev Returns account balance by address for all coin denominations
+     * @notice If the account address is not found, returns an empty array
      */
     function getAllSpendableBalances(address accountAddress) external view returns (Cosmos.Coin[] memory);
 
     /**
-     * @dev Returns the total supply of a single coin.
+     * @dev Returns the total supply of a single coin
      */
     function getSupply(string calldata denom) external view returns (uint256);
 
     /**
-     * @dev Returns the total supply of a all coins.
+     * @dev Returns the total supply of a all coins
      */
     function getAllSupply() external view returns (Cosmos.Coin[] memory);
 
     /**
-     * @dev Returns the denomination's metadata.
+     * @dev Returns the coin denomination's metadata
      */
     function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);
 
     /**
-     * @dev Returns if the denom is enabled to send
+     * @dev Returns if the coin is enabled to be sent (transfered)
      */
     function getSendEnabled(string calldata denom) external view returns (bool);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
     /**
-     * @dev Send coins from msg.sender to another.
+     * @dev Send coins from msg.sender to another
+     * @param toAddress The recipient address
+     * @param amount The amount of Cosmos coins to send
+     * @notice If the sender does not have enough balance, returns false
      */
     function send(address toAddress, Cosmos.Coin[] calldata amount) external payable returns (bool);
 
     //////////////////////////////////////////// UTILS ////////////////////////////////////////////
 
     /**
-     * @dev Represents a denom unit.
-     * Note: this struct is generated in generated/i_bank_module.abigen.go
+     * @dev Represents a denom unit in the bank module
+     * @notice this struct is generated in generated/i_bank_module.abigen.go
      */
     struct DenomUnit {
         string denom;
@@ -130,8 +146,8 @@ interface IBankModule {
     }
 
     /**
-     * @dev Represents a denom metadata.
-     * Note: this struct is generated in generated/i_bank_module.abigen.go
+     * @dev Represents a denom metadata in the bank module
+     * @notice this struct is generated in generated/i_bank_module.abigen.go
      */
     struct DenomMetadata {
         string description;

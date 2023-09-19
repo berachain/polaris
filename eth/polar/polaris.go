@@ -27,7 +27,6 @@ import (
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/filters"
-	"github.com/ethereum/go-ethereum/graphql"
 
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/txpool"
@@ -140,12 +139,6 @@ func (pl *Polaris) StartServices() error {
 
 	// Register the filter API separately in order to get access to the filterSystem
 	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
-
-	// Register the GraphQL API (todo update cors stuff)
-	// TODO: gate this behind a flag
-	if err := graphql.New(pl.stack, pl.backend, pl.filterSystem, []string{"*"}, []string{"*"}); err != nil {
-		return err
-	}
 
 	go func() {
 		// TODO: unhack this.

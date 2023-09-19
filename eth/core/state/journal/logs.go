@@ -132,9 +132,10 @@ func (l *logs) Finalize() {}
 
 // Clone implements `libtypes.Cloneable`.
 func (l *logs) Clone() Log {
+	capacity := l.Capacity()
 	size := l.Size()
 	clone := &logs{
-		Stack:   stack.New[*coretypes.Log](size),
+		Stack:   stack.New[*coretypes.Log](capacity),
 		txHash:  l.txHash,
 		txIndex: l.txIndex,
 	}

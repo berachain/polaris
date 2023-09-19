@@ -22,6 +22,7 @@ package precompile
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -97,6 +98,23 @@ var _ = Describe("plugin", func() {
 		// check that the multistore and event manager is set back to read-only false
 		Expect(ms.IsReadOnly()).To(BeFalse())
 		Expect(cem.IsReadOnly()).To(BeFalse())
+	})
+
+	It("should catch panics and return a geth error type", func() {
+		_, remainingGas, err := p.Run(e,
+			&mockPanicking{err: storetypes.ErrorNegativeGasConsumed{Descriptor: "henlo"}},
+			[]byte{}, addr, new(big.Int), 30, false)
+		Expect(err).To(MatchError(vm.ErrOutOfGas.Error()))
+		Expect(remainingGas).To(Equal(uint64(0)))
+	})
+
+	It("should catch panics and propagate", func() {
+		Expect(func() {
+			_, _, _ = p.Run(e, &mockPanicking{
+				err: errors.New("error"),
+			}, []byte{}, addr, new(big.Int), 30, false)
+		},
+		).To(Panic())
 	})
 })
 
@@ -178,5 +196,24 @@ func (msf *mockStateful) Run(
 }
 
 func (msf *mockStateful) RequiredGas(_ []byte) uint64 {
+	return 1
+}
+
+type mockPanicking struct {
+	err any
+} // at addr 1
+
+func (mp *mockPanicking) RegistryKey() common.Address {
+	return addr
+}
+
+func (mp *mockPanicking) Run(
+	_ context.Context, _ vm.PrecompileEVM, _ []byte,
+	_ common.Address, _ *big.Int,
+) ([]byte, error) {
+	panic(mp.err)
+}
+
+func (*mockPanicking) RequiredGas(_ []byte) uint64 {
 	return 1
 }
