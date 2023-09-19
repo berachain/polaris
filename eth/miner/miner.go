@@ -126,11 +126,18 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		GasLimit:   m.gp.BlockGasLimit(),
 		Time:       timestamp,
 		BaseFee:    misc.CalcBaseFee(m.backend.Blockchain().Config(), parent),
+		Difficulty: new(big.Int),
+	}
+
+	if err := misc.VerifyEip1559Header(chainCfg, parent, header); err != nil {
+		panic(err)
 	}
 
 	// TODO: abstract the evm from the miner, so that the miner is only concerned with txs and blocks.
 	var (
-		context = core.NewEVMBlockContext(header, m.backend.Blockchain(), nil)
+		// TODO: we are hardcoding author to coinbase, this may be incorrect.
+		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
+		context = core.NewEVMBlockContext(header, m.backend.Blockchain(), &header.Coinbase)
 		vmenv   = vm.NewGethEVMWithPrecompiles(context,
 			vm.TxContext{}, m.statedb, chainCfg, m.vmConfig,
 			m.backend.Blockchain().GetHost().GetPrecompilePlugin())
