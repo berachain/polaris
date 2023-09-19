@@ -173,7 +173,7 @@ var _ = Describe("Processor", func() {
 			// Execute state transition.
 			result, err := k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(result.Status).To(Equal((1)))
+			Expect(result.Status).To(Equal(uint64(1)))
 
 			// Confirm gas usage is correct.
 			Expect(ctx.GasMeter().GasConsumed()).To(Equal((result.GasUsed)))
@@ -201,7 +201,7 @@ var _ = Describe("Processor", func() {
 			var result2 *coretypes.Receipt
 			result2, err = k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(result.Status).To(Equal((1)))
+			Expect(result.Status).To(Equal(uint64(1)))
 
 			// Confirm gas usage is correct.
 			Expect(ctx.GasMeter().GasConsumed()).To(Equal((result2.GasUsed)))
@@ -216,7 +216,7 @@ var _ = Describe("Processor", func() {
 			var result3 *coretypes.Receipt
 			result3, err = k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(result.Status).To(Equal((1)))
+			Expect(result.Status).To(Equal(uint64(1)))
 			// Confirm gas usage is correct.
 			Expect(ctx.GasMeter().GasConsumed()).To(Equal((result3.GasUsed)))
 			// After the tx is fully processed.
