@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: BUSL-1.1
 //
+
+// SPDX-License-Identifier: BUSL-1.1
+//
 // Copyright (C) 2023, Berachain Foundation. All rights reserved.
 // Use of this software is govered by the Business Source License included
 // in the LICENSE file of this repository and at www.mariadb.com/bsl11.
@@ -20,9 +23,23 @@
 
 package txpool
 
-// Handler is what should broadcast transactions received by the txpool to the host chain network.
-type Handler interface {
-	Start()
-	Stop()
-	SetTxPool(txpool *TxPool)
+import "pkg.berachain.dev/polaris/eth/core"
+
+// TxPool is an interface for the Polaris transaction pool.
+type TxPool interface {
+	core.TxPoolPlugin
+}
+
+// NewTxPool creates a new TxPool instance.
+// It takes in a core.TxPoolPlugin to satisfy the interface.
+func NewTxPool(plugin core.TxPoolPlugin) TxPool {
+	return &polarisTxPool{
+		TxPoolPlugin: plugin,
+	}
+}
+
+// polarisTxPool implements the TxPool interface.
+// It embeds a core.TxPoolPlugin to satisfy the interface.
+type polarisTxPool struct {
+	core.TxPoolPlugin
 }

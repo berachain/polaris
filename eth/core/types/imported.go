@@ -28,6 +28,7 @@ type (
 	AccessList        = types.AccessList
 	AccessTuple       = types.AccessTuple
 	Block             = types.Block
+	Blocks            = types.Blocks
 	Bloom             = types.Bloom
 	Body              = types.Body
 	Log               = types.Log

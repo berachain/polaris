@@ -45,7 +45,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/params"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/version"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Backend represents the backend object for a Polaris chain. It extends the standard
@@ -394,24 +393,33 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 }
 
 // GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.
-func (b *backend) GetEVM(ctx context.Context, msg *core.Message,
-	state state.StateDBI, header *types.Header, vmConfig *vm.Config,
-	_ *vm.BlockContext,
+func (b *backend) GetEVM(_ context.Context, msg *core.Message, state state.StateDBI,
+	header *types.Header, vmConfig *vm.Config, blockCtx *vm.BlockContext,
 ) (*vm.GethEVM, func() error) {
 	if vmConfig == nil {
-		b.logger.Debug("eth.rpc.backend.GetEVM", "vmConfig", "nil")
 		vmConfig = b.polar.blockchain.GetVMConfig()
 	}
 	txContext := core.NewEVMTxContext(msg)
-	return b.polar.blockchain.GetEVM(ctx, txContext,
-		utils.MustGetAs[vm.PolarisStateDB](state), header, vmConfig), state.Error
+	var context vm.BlockContext
+	if blockCtx != nil {
+		context = *blockCtx
+	} else {
+		// TODO: we are hardcoding author to coinbase, this may be incorrect.
+		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
+		context = core.NewEVMBlockContext(header, b.polar.Blockchain(), &header.Coinbase)
+	}
+	return vm.NewGethEVMWithPrecompiles(context, txContext, state, b.polar.blockchain.Config(),
+		*vmConfig, b.polar.Host().GetPrecompilePlugin()), state.Error
 }
 
 // GetBlockContext returns a new block context to be used by a EVM.
 func (b *backend) GetBlockContext(
 	_ context.Context, header *types.Header,
 ) *vm.BlockContext {
-	return b.polar.blockchain.NewEVMBlockContext(header)
+	// TODO: we are hardcoding author to coinbase, this may be incorrect.
+	// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
+	blockContext := core.NewEVMBlockContext(header, b.polar.Blockchain(), &header.Coinbase)
+	return &blockContext
 }
 
 func (b *backend) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {
@@ -433,34 +441,45 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // Transaction Pool API
 // ==============================================================================
 
-func (b *backend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
-	return b.polar.blockchain.SendTx(ctx, signedTx)
+func (b *backend) SendTx(_ context.Context, signedTx *types.Transaction) error {
+	return b.polar.txPool.SendTx(signedTx)
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
 	b.logger.Debug("called eth.rpc.backend.GetPoolTransactions")
-	return b.polar.blockchain.GetPoolTransactions()
+	pending := b.polar.txPool.Pending(false)
+	var txs types.Transactions
+	for _, batch := range pending {
+		// TODO: Subpools.
+		// for _, lazy := range batch {
+		// 	if tx := lazy.Resolve(); tx != nil {
+		// 		txs = append(txs, tx)
+		// 	}
+		// }
+		txs = append(txs, batch...)
+	}
+	return txs, nil
 }
 
-func (b *backend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
-	b.logger.Debug("called eth.rpc.backend.GetPoolTransaction", "tx_hash", txHash)
-	return b.polar.blockchain.GetPoolTransaction(txHash)
+func (b *backend) GetPoolTransaction(hash common.Hash) *types.Transaction {
+	b.logger.Debug("called eth.rpc.backend.GetPoolTransaction", "tx_hash", hash)
+	return b.polar.txPool.Get(hash)
 }
 
 func (b *backend) GetPoolNonce(_ context.Context, addr common.Address) (uint64, error) {
-	nonce, err := b.polar.blockchain.GetPoolNonce(addr)
+	nonce := b.polar.txPool.Nonce(addr)
 	b.logger.Debug("called eth.rpc.backend.GetPoolNonce", "addr", addr, "nonce", nonce)
-	return nonce, err
+	return nonce, nil
 }
 
 func (b *backend) Stats() (int, int) {
-	pending, queued := b.polar.blockchain.GetPoolStats()
+	pending, queued := b.polar.txPool.Stats()
 	b.logger.Debug("called eth.rpc.backend.Stats", "pending", pending, "queued", queued)
 	return pending, queued
 }
 
 func (b *backend) TxPoolContent() (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
-	pending, queued := b.polar.blockchain.GetPoolContent()
+	pending, queued := b.polar.txPool.Content()
 	b.logger.Debug("called eth.rpc.backend.TxPoolContent", "pending", len(pending), "queued", len(queued))
 	return pending, queued
 }
@@ -468,14 +487,14 @@ func (b *backend) TxPoolContent() (map[common.Address][]*types.Transaction, map[
 func (b *backend) TxPoolContentFrom(addr common.Address) (
 	[]*types.Transaction, []*types.Transaction,
 ) {
-	pending, queued := b.polar.blockchain.GetPoolContentFrom(addr)
+	pending, queued := b.polar.txPool.ContentFrom(addr)
 	b.logger.Debug("called eth.rpc.backend.TxPoolContentFrom",
 		"addr", addr, "pending", len(pending), "queued", len(queued))
 	return pending, queued
 }
 
 func (b *backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {
-	return b.polar.blockchain.SubscribeNewTxsEvent(ch)
+	return b.polar.txPool.SubscribeNewTxsEvent(ch)
 }
 
 func (b *backend) Engine() consensus.Engine {

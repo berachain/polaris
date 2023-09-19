@@ -39,6 +39,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
+	"pkg.berachain.dev/polaris/eth/miner"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
 
@@ -47,6 +48,8 @@ type Keeper struct {
 	ak state.AccountKeeper
 	// provider is the struct that houses the Polaris EVM.
 	polaris *polar.Polaris
+	// miner is used to mine blocks
+	miner miner.Miner
 	// The (unexposed) key used to access the store from the Context.
 	storeKey storetypes.StoreKey
 	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
@@ -122,6 +125,8 @@ func (k *Keeper) Setup(
 			return nil
 		}),
 	)
+
+	k.miner = k.polaris.Miner()
 }
 
 // Logger returns a module-specific logger.
