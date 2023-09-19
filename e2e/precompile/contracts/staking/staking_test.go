@@ -42,7 +42,7 @@ import (
 
 func TestStakingPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "e2e/precompile/precompile/staking")
+	RunSpecs(t, "e2e/precompile/staking")
 }
 
 var _ = Describe("Staking", func() {

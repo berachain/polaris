@@ -43,7 +43,7 @@ import (
 
 func TestDistributionPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "e2e/precompile/precompile/distribution")
+	RunSpecs(t, "e2e/precompile/distribution")
 }
 
 var _ = Describe("Distribution Precompile", func() {

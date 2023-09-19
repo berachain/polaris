@@ -34,7 +34,7 @@ import (
 
 func TestMiscellaneousPrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "e2e/precompile/precompile/misc")
+	RunSpecs(t, "e2e/precompile/misc")
 }
 
 var _ = Describe("Miscellaneous Precompile Tests", func() {

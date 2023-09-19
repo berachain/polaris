@@ -49,7 +49,7 @@ import (
 
 func TestGovernancePrecompile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "e2e/precompile/precompile/governance")
+	RunSpecs(t, "e2e/precompile/governance")
 }
 
 var tf *network.TestFixture
