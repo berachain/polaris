@@ -126,14 +126,14 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	coinbase, timestamp := m.bp.GetNewBlockMetadata(number)
 	chainConfig := m.cp.ChainConfig()
 
-	// Build the new block header.
+	// Build the new block m.pendingHeader.
 	parent := m.chain.CurrentFinalBlock()
 	if number >= 1 && parent == nil {
 		parent = m.chain.GetHeaderByNumber(number - 1)
 	}
 
 	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
-	// and block nonce (Nonce) on the new header.
+	// and block nonce (Nonce) on the new m.pendingHeader.
 	m.pendingHeader = &types.Header{
 		// Used in Polaris.
 		ParentHash: parent.Hash(),
@@ -147,14 +147,14 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// TODO: Settable in PrepareProposal.
 	// Set the extra field.
 	if /*len(w.extra) != 0*/ true {
-		header.Extra = nil
+		m.pendingHeader.Extra = nil
 	}
 
 	// Set the randomness field from the beacon chain if it's available.
 	// TODO: Settable in PrepareProposal.
 	if /*genParams.random != (common.Hash{})*/ true {
-		// header.MixDigest = genParams.random
-		header.MixDigest = common.Hash{}
+		// m.pendingHeader.MixDigest = genParams.random
+		m.pendingHeader.MixDigest = common.Hash{}
 	}
 
 	// TODO: we need to have header verification setup somewhere.
@@ -164,19 +164,19 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 
 	// Apply EIP-1559.
 	// TODO: Move to PrepareProposal.
-	if chainConfig.IsLondon(header.Number) {
-		header.BaseFee = eip1559.CalcBaseFee(chainConfig, parent)
+	if chainConfig.IsLondon(m.pendingHeader.Number) {
+		m.pendingHeader.BaseFee = eip1559.CalcBaseFee(chainConfig, parent)
 		// On switchover.
 		// TODO: implement.
 		// if !chainConfig.IsLondon(parent.Number) {
 		// 	parentGasLimit := parent.GasLimit * chainConfig.ElasticityMultiplier()
-		// 	header.GasLimit = core.CalcGasLimit(parentGasLimit, bc.gp.BlockGasLimit())
+		// 	m.pendingHeader.GasLimit = core.CalcGasLimit(parentGasLimit, bc.gp.BlockGasLimit())
 		// }
 	}
 
 	// Apply EIP-4844, EIP-4788.
 	// TODO: Move to PrepareProposal.
-	if chainConfig.IsCancun(header.Number, header.Time) {
+	if chainConfig.IsCancun(m.pendingHeader.Number, m.pendingHeader.Time) {
 		var excessBlobGas uint64
 		if chainConfig.IsCancun(parent.Number, parent.Time) {
 			excessBlobGas = eip4844.CalcExcessBlobGas(*parent.ExcessBlobGas, *parent.BlobGasUsed)
@@ -184,12 +184,12 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 			// For the first post-fork block, both parent.data_gas_used and parent.excess_data_gas are evaluated as 0
 			excessBlobGas = eip4844.CalcExcessBlobGas(0, 0)
 		}
-		header.BlobGasUsed = new(uint64)
-		header.ExcessBlobGas = &excessBlobGas
-		header.ParentBeaconRoot = &common.Hash{}
+		m.pendingHeader.BlobGasUsed = new(uint64)
+		m.pendingHeader.ExcessBlobGas = &excessBlobGas
+		m.pendingHeader.ParentBeaconRoot = &common.Hash{}
 	}
 
-	m.logger.Info("preparing evm block", "seal_hash", header.Hash())
+	m.logger.Info("preparing evm block", "seal_hash", m.pendingHeader.Hash())
 
 	// TODO: abstract the evm from the miner, so that the miner is only concerned with txs and blocks.
 	var (
