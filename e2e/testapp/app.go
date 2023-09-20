@@ -61,6 +61,7 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"pkg.berachain.dev/polaris/cosmos/abci"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
@@ -208,8 +209,6 @@ func NewPolarisApp(
 	// abciPropHandler := NewDefaultProposalHandler(nonceMempool, app.App.BaseApp)
 	//
 	// app.App.BaseApp.SetMempool(nonceMempool)
-	// app.App.BaseApp.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
-	// app.App.BaseApp.SetProcessProposal(abciPropHandler.ProcessProposalHandler())
 	//
 	// Alternatively, you can construct BaseApp options, append those to
 	// baseAppOptions and pass them to the appBuilder.
@@ -223,6 +222,9 @@ func NewPolarisApp(
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
 	app.App = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
+	proposalHandler := abci.NewDefaultProposalHandler(ethTxMempool, app)
+	app.App.BaseApp.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
+	app.App.BaseApp.SetProcessProposal(proposalHandler.ProcessProposalHandler())
 
 	// read oracle config from app-opts, and construct oracle service
 	polarisCfg, err := evmconfig.ReadConfigFromAppOpts(appOpts)
