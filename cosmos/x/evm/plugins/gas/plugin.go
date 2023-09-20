@@ -88,6 +88,7 @@ func (p *plugin) ConsumeTxGas(amount uint64) error {
 	} else if newConsumed > p.gasMeter.Limit() {
 		return vm.ErrOutOfGas
 	} else if p.blockGasMeter.GasConsumed()+newConsumed > p.blockGasMeter.Limit() {
+		// TODO: revisit when the miner is fully ready.
 		return core.ErrBlockOutOfGas
 	}
 

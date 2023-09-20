@@ -34,6 +34,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
+	errorslib "pkg.berachain.dev/polaris/lib/errors"
 )
 
 // Backend wraps all methods required for mining. Only full node is capable
@@ -53,7 +54,7 @@ type Miner interface {
 
 	// ProcessTransaction processes the given transaction and returns the receipt after applying
 	// the state transition. This method is called for each tx in the block.
-	ProcessTransaction(context.Context, *types.Transaction) (*core.ExecutionResult, error)
+	ProcessTransaction(context.Context, *types.Transaction) (*types.Receipt, error)
 
 	// Finalize is called after the last tx in the block.
 	Finalize(context.Context) error
@@ -68,15 +69,18 @@ type miner struct {
 	bp        core.BlockPlugin
 	cp        core.ConfigurationPlugin
 	gp        core.GasPlugin
-
-	sp       core.StatePlugin
-	logger   log.Logger
-	vmConfig vm.Config
-	statedb  vm.PolarisStateDB
+	sp        core.StatePlugin
+	logger    log.Logger
+	vmConfig  vm.Config
+	statedb   vm.PolarisStateDB
 
 	// TODO: historical plugin has no purpose here in the miner.
 	// Should be handled async via channel
 	hp core.HistoricalPlugin
+
+	// workspace
+	pendingHeader *types.Header
+	gasPool       *core.GasPool
 }
 
 // NewMiner creates a new Miner instance.
@@ -98,7 +102,7 @@ func NewMiner(backend Backend) Miner {
 
 	m.statedb = state.NewStateDB(m.sp)
 	m.processor = core.NewStateProcessor(
-		m.cp, m.gp, host.GetPrecompilePlugin(), m.statedb, &m.vmConfig,
+		m.cp, host.GetPrecompilePlugin(), m.statedb, &m.vmConfig,
 	)
 
 	return m
@@ -122,15 +126,15 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	coinbase, timestamp := m.bp.GetNewBlockMetadata(number)
 	chainConfig := m.cp.ChainConfig()
 
-	// Build the new block header.
+	// Build the new block m.pendingHeader.
 	parent := m.chain.CurrentFinalBlock()
 	if number >= 1 && parent == nil {
 		parent = m.chain.GetHeaderByNumber(number - 1)
 	}
 
 	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
-	// and block nonce (Nonce) on the new header.
-	header := &types.Header{
+	// and block nonce (Nonce) on the new m.pendingHeader.
+	m.pendingHeader = &types.Header{
 		// Used in Polaris.
 		ParentHash: parent.Hash(),
 		Coinbase:   coinbase,
@@ -143,14 +147,14 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// TODO: Settable in PrepareProposal.
 	// Set the extra field.
 	if /*len(w.extra) != 0*/ true {
-		header.Extra = nil
+		m.pendingHeader.Extra = nil
 	}
 
 	// Set the randomness field from the beacon chain if it's available.
 	// TODO: Settable in PrepareProposal.
 	if /*genParams.random != (common.Hash{})*/ true {
-		// header.MixDigest = genParams.random
-		header.MixDigest = common.Hash{}
+		// m.pendingHeader.MixDigest = genParams.random
+		m.pendingHeader.MixDigest = common.Hash{}
 	}
 
 	// TODO: we need to have header verification setup somewhere.
@@ -160,19 +164,19 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 
 	// Apply EIP-1559.
 	// TODO: Move to PrepareProposal.
-	if chainConfig.IsLondon(header.Number) {
-		header.BaseFee = eip1559.CalcBaseFee(chainConfig, parent)
+	if chainConfig.IsLondon(m.pendingHeader.Number) {
+		m.pendingHeader.BaseFee = eip1559.CalcBaseFee(chainConfig, parent)
 		// On switchover.
 		// TODO: implement.
 		// if !chainConfig.IsLondon(parent.Number) {
 		// 	parentGasLimit := parent.GasLimit * chainConfig.ElasticityMultiplier()
-		// 	header.GasLimit = core.CalcGasLimit(parentGasLimit, bc.gp.BlockGasLimit())
+		// 	m.pendingHeader.GasLimit = core.CalcGasLimit(parentGasLimit, bc.gp.BlockGasLimit())
 		// }
 	}
 
 	// Apply EIP-4844, EIP-4788.
 	// TODO: Move to PrepareProposal.
-	if chainConfig.IsCancun(header.Number, header.Time) {
+	if chainConfig.IsCancun(m.pendingHeader.Number, m.pendingHeader.Time) {
 		var excessBlobGas uint64
 		if chainConfig.IsCancun(parent.Number, parent.Time) {
 			excessBlobGas = eip4844.CalcExcessBlobGas(*parent.ExcessBlobGas, *parent.BlobGasUsed)
@@ -180,18 +184,18 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 			// For the first post-fork block, both parent.data_gas_used and parent.excess_data_gas are evaluated as 0
 			excessBlobGas = eip4844.CalcExcessBlobGas(0, 0)
 		}
-		header.BlobGasUsed = new(uint64)
-		header.ExcessBlobGas = &excessBlobGas
-		header.ParentBeaconRoot = &common.Hash{}
+		m.pendingHeader.BlobGasUsed = new(uint64)
+		m.pendingHeader.ExcessBlobGas = &excessBlobGas
+		m.pendingHeader.ParentBeaconRoot = &common.Hash{}
 	}
 
-	m.logger.Info("preparing evm block", "seal_hash", header.Hash())
+	m.logger.Info("preparing evm block", "seal_hash", m.pendingHeader.Hash())
 
 	// TODO: abstract the evm from the miner, so that the miner is only concerned with txs and blocks.
 	var (
 		// TODO: we are hardcoding author to coinbase, this may be incorrect.
 		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
-		context = core.NewEVMBlockContext(header, m.chain, &header.Coinbase)
+		context = core.NewEVMBlockContext(m.pendingHeader, m.chain, &m.pendingHeader.Coinbase)
 		vmenv   = vm.NewGethEVMWithPrecompiles(context,
 			vm.TxContext{}, m.statedb, chainConfig, m.vmConfig,
 			m.backend.Host().GetPrecompilePlugin())
@@ -204,26 +208,50 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// Heuristic: Validators get miners. Full nodes get processors.
 	m.processor.Prepare(
 		vmenv,
-		header,
+		m.pendingHeader,
 	)
 
 	// We update the base fee in the txpool to the next base fee.
 	// TODO: Move to prepare proposal
-	m.txPool.SetBaseFee(header.BaseFee)
+	m.txPool.SetBaseFee(m.pendingHeader.BaseFee)
 
-	return header
+	return m.pendingHeader
 }
 
 // ProcessTransaction processes the given transaction and returns the receipt after applying
 // the state transition. This method is called for each tx in the block.
-func (m *miner) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*core.ExecutionResult, error) {
+func (m *miner) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
 	m.logger.Debug("processing evm transaction", "tx_hash", tx.Hash())
 
 	// Reset the Gas and State plugins for the tx.
 	m.gp.Reset(ctx) // TODO: may not need this.
 	m.sp.Reset(ctx)
 
-	return m.processor.ProcessTransaction(ctx, tx)
+	// We set the gasPool = gasLimit - gasUsed.
+	m.gasPool = new(core.GasPool).AddGas(m.pendingHeader.GasLimit - m.gp.BlockGasConsumed())
+
+	// Header is out of sync with block plugin.
+	// TODO: the miner will handle this systemically when properly done is PrepareProposal.
+	if m.gp.BlockGasConsumed() != m.pendingHeader.GasUsed {
+		panic("gas consumed mismatch")
+	}
+
+	receipt, err := m.processor.ProcessTransaction(ctx, m.gasPool, tx)
+	if err != nil {
+		return nil, errorslib.Wrapf(
+			err, "could not process transaction [%s]", tx.Hash().Hex(),
+		)
+	}
+
+	// Consume the gas used by the state transition. In both the out of block gas as well as out of
+	// gas on the plugin cases, the line below will consume the remaining gas for the block and
+	// transaction respectively.
+	if err = m.gp.ConsumeTxGas(receipt.GasUsed); err != nil {
+		return nil, errorslib.Wrapf(
+			err, "could not consume gas used [%s] %d", tx.Hash().Hex(), receipt.GasUsed,
+		)
+	}
+	return receipt, nil
 }
 
 // Finalize is called after the last tx in the block.

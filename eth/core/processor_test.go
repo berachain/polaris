@@ -63,7 +63,6 @@ var _ = Describe("StateProcessor", func() {
 	var (
 		sdb *vmmock.PolarisStateDBMock
 		bp  *mock.BlockPluginMock
-		gp  *mock.GasPluginMock
 		cp  *mock.ConfigurationPluginMock
 		pp  *mock.PrecompilePluginMock
 		sp  *core.StateProcessor
@@ -72,17 +71,16 @@ var _ = Describe("StateProcessor", func() {
 
 	BeforeEach(func() {
 		sdb = vmmock.NewEmptyStateDB()
-		_, bp, cp, gp, _, pp, _, _ = mock.NewMockHostAndPlugins()
+		_, bp, cp, _, _, pp, _, _ = mock.NewMockHostAndPlugins()
 		bp.GetNewBlockMetadataFunc = func(n uint64) (common.Address, uint64) {
 			return common.BytesToAddress([]byte{2}), uint64(3)
 		}
 		pp.HasFunc = func(addr common.Address) bool {
 			return false
 		}
-		gp.SetBlockGasLimit(uint64(blockGasLimit))
 		sdb.SetTxContextFunc = func(thash common.Hash, ti int) {}
 		sdb.TxIndexFunc = func() int { return 0 }
-		sp = core.NewStateProcessor(cp, gp, pp, sdb, &vm.Config{})
+		sp = core.NewStateProcessor(cp, pp, sdb, &vm.Config{})
 		Expect(sp).ToNot(BeNil())
 		evm = vm.NewGethEVMWithPrecompiles(
 			vm.BlockContext{
@@ -111,8 +109,8 @@ var _ = Describe("StateProcessor", func() {
 		})
 
 		It("should error on an unsigned transaction", func() {
-			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
-			receipt, err := sp.ProcessTransaction(context.Background(), types.NewTx(legacyTxData))
+			gasPool := new(core.GasPool).AddGas(1000002)
+			receipt, err := sp.ProcessTransaction(context.Background(), gasPool, types.NewTx(legacyTxData))
 			Expect(err).To(HaveOccurred())
 			Expect(receipt).To(BeNil())
 			block, receipts, logs, err := sp.Finalize(context.Background())
@@ -128,12 +126,12 @@ var _ = Describe("StateProcessor", func() {
 				return big.NewInt(1000001)
 			}
 			sdb.FinaliseFunc = func(bool) {}
-			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
-			result, err := sp.ProcessTransaction(context.Background(), signedTx)
+			gasPool := new(core.GasPool).AddGas(1000002)
+			result, err := sp.ProcessTransaction(context.Background(), gasPool, signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Err).ToNot(HaveOccurred())
-			Expect(result.UsedGas).ToNot(BeZero())
+			Expect(result.Status).To(Equal(uint64(1)))
+			Expect(result.GasUsed).ToNot(BeZero())
 			block, receipts, logs, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
@@ -164,20 +162,20 @@ var _ = Describe("StateProcessor", func() {
 			legacyTxData.To = nil
 			legacyTxData.Value = new(big.Int)
 			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
-			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
-			result, err := sp.ProcessTransaction(context.Background(), signedTx)
+			gasPool := new(core.GasPool).AddGas(1000002)
+			result, err := sp.ProcessTransaction(context.Background(), gasPool, signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Err).ToNot(HaveOccurred())
+			Expect(result.Status).To(Equal(uint64(1)))
 
 			// Now try calling the contract
 			legacyTxData.To = &dummyContract
 			signedTx = types.MustSignNewTx(key, signer, legacyTxData)
-			Expect(gp.SetTxGasLimit(1000002)).ToNot(HaveOccurred())
-			result, err = sp.ProcessTransaction(context.Background(), signedTx)
+			gasPool = new(core.GasPool).AddGas(1000002)
+			result, err = sp.ProcessTransaction(context.Background(), gasPool, signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
-			Expect(result.Err).ToNot(HaveOccurred())
+			Expect(result.Status).To(Equal(uint64(1)))
 			block, receipts, logs, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(block).ToNot(BeNil())
@@ -194,7 +192,7 @@ var _ = Describe("No precompile plugin provided", func() {
 		bp.GetNewBlockMetadataFunc = func(n uint64) (common.Address, uint64) {
 			return common.BytesToAddress([]byte{2}), uint64(3)
 		}
-		sp := core.NewStateProcessor(cp, gp, nil, vmmock.NewEmptyStateDB(), &vm.Config{})
+		sp := core.NewStateProcessor(cp, nil, vmmock.NewEmptyStateDB(), &vm.Config{})
 		Expect(func() {
 			sp.Prepare(nil, &types.Header{
 				GasLimit: uint64(blockGasLimit),

@@ -36,21 +36,16 @@ var _ types.MsgServiceServer = &Keeper{}
 func (k *Keeper) EthTransaction(
 	ctx context.Context, msg *types.WrappedEthereumTransaction,
 ) (*types.WrappedEthereumTransactionResult, error) {
-	res := &types.WrappedEthereumTransactionResult{}
-
 	// Process the transaction and return the result.
-	result, err := k.ProcessTransaction(ctx, msg.AsTransaction())
+	receipt, err := k.ProcessTransaction(ctx, msg.AsTransaction())
 	if err != nil {
-		res.Status = types.Status_STATUS_NOT_INCLUDED
-		return res, errorsmod.Wrapf(err, "failed to process transaction")
+		return &types.WrappedEthereumTransactionResult{
+			Status: types.Status_STATUS_NOT_INCLUDED,
+		}, errorsmod.Wrapf(err, "failed to process transaction")
 	}
 
-	// Check for a VM error.
-	if result.Err == nil {
-		res.Status = types.Status_STATUS_SUCCESS
-	} else {
-		res.Status = types.Status_STATUS_REVERT_UNSPECIFIED
-	}
-
-	return res, nil
+	// Included the receipt status code in the response.
+	return &types.WrappedEthereumTransactionResult{
+		Status: types.Status(receipt.Status),
+	}, nil
 }
