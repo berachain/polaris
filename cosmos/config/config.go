@@ -38,7 +38,7 @@ import (
 func DefaultConfig() *Config {
 	return &Config{
 		Polar: *polar.DefaultConfig(),
-		Node:  node.DefaultConfig,
+		Node:  *polar.DefaultGethNodeConfig(),
 	}
 }
 

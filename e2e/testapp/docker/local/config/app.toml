@@ -268,7 +268,7 @@ ignore-price = "2"
 # Node-specific settings
 [polaris.node]
 # Name of the node
-name = ""
+name = "polaris-geth"
 
 # User identity associated with the node
 user-ident = ""
@@ -301,19 +301,19 @@ smart-card-daemon-path = ""
 ipc-path = ""
 
 # Host for HTTP requests
-http-host = ""
+http-host = "0.0.0.0"
 
 # Port for HTTP requests
 http-port = 8545
 
 # CORS settings for HTTP
-http-cors = []
+http-cors = ["*"]
 
 # Virtual hosts for HTTP
-http-virtual-hosts = ["localhost"]
+http-virtual-hosts = ["*"]
 
 # Enabled modules for HTTP
-http-modules = ["net", "web3"]
+http-modules = ["net", "web3", "eth", "web3", "net", "txpool", "debug"]
 
 # Path prefix for HTTP
 http-path-prefix = ""
@@ -328,7 +328,7 @@ auth-port = 8551
 auth-virtual-hosts = ["localhost"]
 
 # Host for WebSockets
-ws-host = ""
+ws-host = "0.0.0.0"
 
 # Port for WebSockets
 ws-port = 8546
@@ -337,10 +337,10 @@ ws-port = 8546
 ws-path-prefix = ""
 
 # Origins allowed for WebSockets
-ws-origins = []
+ws-origins = ["*"]
 
 # Enabled modules for WebSockets
-ws-modules = ["net", "web3"]
+ws-modules = ["net", "web3", "eth"]
 
 # Expose all settings for WebSockets
 ws-expose-all = false
@@ -380,3 +380,4 @@ write-timeout = "30s"
 
 # Timeout for idle HTTP connections
 idle-timeout = "2m0s"
+
