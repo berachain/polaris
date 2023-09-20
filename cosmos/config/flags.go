@@ -21,13 +21,15 @@
 package config
 
 const (
-	flagGraphqlVirtualHosts   = "polaris.node.graphql-virtual-hosts"
-	flagIpcPath               = "polaris.node.ipc-path"
+	flagGraphqlVirtualHosts = "polaris.node.graphql-virtual-hosts"
+	flagIpcPath             = "polaris.node.ipc-path"
+
+	//#nosec: G101 // not a secret.
 	flagJwtSecret             = "polaris.node.jwt-secret"
 	flagWsPort                = "polaris.node.ws-port"
 	flagBatchRequestLimit     = "polaris.node.batch-request-limit"
 	flagKeyStoreDir           = "polaris.node.key-store-dir"
-	flagDbEngine              = "polaris.node.db-engine"
+	flagDBEngine              = "polaris.node.db-engine"
 	flagReadTimeout           = "polaris.node.http-timeouts.read-timeout"
 	flagDataDir               = "polaris.node.data-dir"
 	flagUserIdent             = "polaris.node.user-ident"

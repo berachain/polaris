@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-//nolint:lll,cyclo // template file.
+//nolint:lll,cyclop // template file.
 package config
 
 const (

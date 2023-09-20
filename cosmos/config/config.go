@@ -34,13 +34,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/polar"
 )
 
-var handleError = func(err error) error {
-	if err != nil {
-		return fmt.Errorf("error while reading configuration: %w", err)
-	}
-	return nil
-}
-
 // DefaultConfig returns the default configuration for a polaris chain.
 func DefaultConfig() *Config {
 	return &Config{
@@ -54,11 +47,19 @@ type Config struct {
 	Node  node.Config
 }
 
-//nolint:funlen // TODO break up later.
+//nolint:funlen,gocognit,gocyclo,cyclop // TODO break up later.
 func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 	var err error
 	var val int64
 	conf := &Config{}
+
+	// Define little error handler.
+	var handleError = func(err error) error {
+		if err != nil {
+			return fmt.Errorf("error while reading configuration: %w", err)
+		}
+		return nil
+	}
 
 	// Wrapping casting functions to return both value and error
 	getString := func(key string) (string, error) { return cast.ToStringE(opts.Get(key)) }
@@ -96,21 +97,18 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 	}
 	if val, err = getInt64(flagDefault); err != nil {
 		return nil, handleError(err)
-	} else {
-		conf.Polar.GPO.Default = big.NewInt(val)
 	}
+	conf.Polar.GPO.Default = big.NewInt(val)
 
 	if val, err = getInt64(flagDefault); err != nil {
 		return nil, handleError(err)
-	} else {
-		conf.Polar.GPO.MaxPrice = big.NewInt(val)
 	}
+	conf.Polar.GPO.MaxPrice = big.NewInt(val)
 
 	if val, err = getInt64(flagDefault); err != nil {
 		return nil, handleError(err)
-	} else {
-		conf.Polar.GPO.IgnorePrice = big.NewInt(val)
 	}
+	conf.Polar.GPO.IgnorePrice = big.NewInt(val)
 
 	// Node settings
 	if conf.Node.Name, err = getString(flagName); err != nil {
@@ -146,92 +144,70 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 	if conf.Node.IPCPath, err = getString(flagIpcPath); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.HTTPHost, err = getString(flagHTTPHost); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.HTTPPort, err = getInt(flagHTTPPort); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.HTTPCors, err = getStringSlice(flagHTTPCors); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.HTTPVirtualHosts, err = getStringSlice(flagHTTPVirtualHosts); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.HTTPModules, err = getStringSlice(flagHTTPModules); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.HTTPPathPrefix, err = getString(flagHTTPPathPrefix); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.AuthAddr, err = getString(flagAuthAddr); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.AuthPort, err = getInt(flagAuthPort); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.AuthVirtualHosts, err = getStringSlice(flagAuthVirtualHosts); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.WSHost, err = getString(flagWsHost); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.WSPort, err = getInt(flagWsPort); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.WSPathPrefix, err = getString(flagWsPathPrefix); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.WSOrigins, err = getStringSlice(flagWsOrigins); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.WSModules, err = getStringSlice(flagWsModules); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.WSExposeAll, err = getBool(flagWsExposeAll); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.GraphQLCors, err = getStringSlice(flagGraphqlCors); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.GraphQLVirtualHosts, err = getStringSlice(flagGraphqlVirtualHosts); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.AllowUnprotectedTxs, err = getBool(flagAllowUnprotectedTxs); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.BatchRequestLimit, err = getInt(flagBatchRequestLimit); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.BatchResponseMaxSize, err = getInt(flagBatchResponseMaxSize); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.JWTSecret, err = getString(flagJwtSecret); err != nil {
 		return nil, handleError(err)
 	}
-
-	if conf.Node.DBEngine, err = getString(flagDbEngine); err != nil {
+	if conf.Node.DBEngine, err = getString(flagDBEngine); err != nil {
 		return nil, handleError(err)
 	}
 
@@ -239,15 +215,12 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 	if conf.Node.HTTPTimeouts.ReadTimeout, err = getTimeDuration(flagReadTimeout); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.HTTPTimeouts.ReadHeaderTimeout, err = getTimeDuration(flagReadHeaderTimeout); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.HTTPTimeouts.WriteTimeout, err = getTimeDuration(flagWriteTimeout); err != nil {
 		return nil, handleError(err)
 	}
-
 	if conf.Node.HTTPTimeouts.IdleTimeout, err = getTimeDuration(flagIdleTimeout); err != nil {
 		return nil, handleError(err)
 	}

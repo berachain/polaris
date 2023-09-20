@@ -23,7 +23,6 @@ package polar
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 	"time"
 
@@ -81,8 +80,6 @@ func NewBackend(
 		cfg:           cfg,
 		logger:        log.Root(),
 	}
-
-	fmt.Println(cfg)
 
 	if cfg.GPO.Default == nil {
 		panic("cfg.GPO.Default is nil")

@@ -257,7 +257,7 @@ func NewPolarisApp(
 	// ----- END EVM SETUP -------------------------------------------------
 
 	// register streaming services
-	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
+	if err = app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		panic(err)
 	}
 
@@ -283,7 +283,7 @@ func NewPolarisApp(
 
 	app.sm.RegisterStoreDecoders()
 
-	if err := app.Load(loadLatest); err != nil {
+	if err = app.Load(loadLatest); err != nil {
 		panic(err)
 	}
 
