@@ -28,56 +28,56 @@ const (
 ###############################################################################
 [polaris]
 [polaris.polar]
-RPCGasCap = "{{ .Polaris.Polar.RPCGasCap }}"
-RPCEVMTimeout = "{{ .Polaris.Polar.RPCEVMTimeout }}"
-RPCTxFeeCap = "{{ .Polaris.Polar.RPCTxFeeCap }}"
+rpc-gas-cap = "{{ .Polaris.Polar.RPCGasCap }}"
+rpc-evm-timeout = "{{ .Polaris.Polar.RPCEVMTimeout }}"
+rpc-tx-fee-cap = "{{ .Polaris.Polar.RPCTxFeeCap }}"
 
 [polaris.polar.gpo]
-Blocks = {{ .Polaris.Polar.GPO.Blocks }}
-Percentile = {{ .Polaris.Polar.GPO.Percentile }}
-MaxHeaderHistor = {{ .Polaris.Polar.GPO.MaxHeaderHistory }}
-MaxBlockHistory = {{ .Polaris.Polar.GPO.MaxBlockHistory }}
+blocks = {{ .Polaris.Polar.GPO.Blocks }}
+percentile = {{ .Polaris.Polar.GPO.Percentile }}
+max-header-history = {{ .Polaris.Polar.GPO.MaxHeaderHistory }}
+max-block-history = {{ .Polaris.Polar.GPO.MaxBlockHistory }}
 
 [polaris.node]
-Name = "{{ .Polaris.Node.Name }}"
-UserIdent = "{{ .Polaris.Node.UserIdent }}"
-Version = "{{ .Polaris.Node.Version }}"
-DataDir = "{{ .Polaris.Node.DataDir }}"
-KeyStoreDir = "{{ .Polaris.Node.KeyStoreDir }}"
-ExternalSigner = "{{ .Polaris.Node.ExternalSigner }}"
-UseLightweightKDF = {{ .Polaris.Node.UseLightweightKDF }}
-InsecureUnlockAllowed = {{ .Polaris.Node.InsecureUnlockAllowed }}
-NoUSB = {{ .Polaris.Node.NoUSB }}
-USB = {{ .Polaris.Node.USB }}
-SmartCardDaemonPath = "{{ .Polaris.Node.SmartCardDaemonPath }}"
-IPCPath = "{{ .Polaris.Node.IPCPath }}"
-HTTPHost = "{{ .Polaris.Node.HTTPHost }}"
-HTTPPort = {{ .Polaris.Node.HTTPPort }}
-HTTPCors = [{{ range $index, $element := .Polaris.Node.HTTPCors }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
-HTTPVirtualHosts = [{{ range $index, $element := .Polaris.Node.HTTPVirtualHosts }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
-HTTPModules = [{{ range $index, $element := .Polaris.Node.HTTPModules }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
-HTTPPathPrefix = "{{ .Polaris.Node.HTTPPathPrefix }}"
-AuthAddr = "{{ .Polaris.Node.AuthAddr }}"
-AuthPort = {{ .Polaris.Node.AuthPort }}
-AuthVirtualHosts = [{{ range $index, $element := .Polaris.Node.AuthVirtualHosts }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
-WSHost = "{{ .Polaris.Node.WSHost }}"
-WSPort = {{ .Polaris.Node.WSPort }}
-WSPathPrefix = "{{ .Polaris.Node.WSPathPrefix }}"
-WSOrigins = [{{ range $index, $element := .Polaris.Node.WSOrigins }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
-WSModules = [{{ range $index, $element := .Polaris.Node.WSModules }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
-WSExposeAll = {{ .Polaris.Node.WSExposeAll }}
-GraphQLCors = [{{ range $index, $element := .Polaris.Node.GraphQLCors }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
-GraphQLVirtualHosts = [{{ range $index, $element := .Polaris.Node.GraphQLVirtualHosts }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
-AllowUnprotectedTxs = {{ .Polaris.Node.AllowUnprotectedTxs }}
-BatchRequestLimit = {{ .Polaris.Node.BatchRequestLimit }}
-BatchResponseMaxSize = {{ .Polaris.Node.BatchResponseMaxSize }}
-JWTSecret = "{{ .Polaris.Node.JWTSecret }}"
-DBEngine = "{{ .Polaris.Node.DBEngine }}"
+name = "{{ .Polaris.Node.Name }}"
+user-ident = "{{ .Polaris.Node.UserIdent }}"
+version = "{{ .Polaris.Node.Version }}"
+data-dir = "{{ .Polaris.Node.DataDir }}"
+key-store-dir = "{{ .Polaris.Node.KeyStoreDir }}"
+external-signer = "{{ .Polaris.Node.ExternalSigner }}"
+use-lightweight-kdf = {{ .Polaris.Node.UseLightweightKDF }}
+insecure-unlock-allowed = {{ .Polaris.Node.InsecureUnlockAllowed }}
+no-usb = {{ .Polaris.Node.NoUSB }}
+usb = {{ .Polaris.Node.USB }}
+smart-card-daemon-path = "{{ .Polaris.Node.SmartCardDaemonPath }}"
+ipc-path = "{{ .Polaris.Node.IPCPath }}"
+http-host = "{{ .Polaris.Node.HTTPHost }}"
+http-port = {{ .Polaris.Node.HTTPPort }}
+http-cors = [{{ range $index, $element := .Polaris.Node.HTTPCors }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
+http-virtual-hosts = [{{ range $index, $element := .Polaris.Node.HTTPVirtualHosts }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
+http-modules = [{{ range $index, $element := .Polaris.Node.HTTPModules }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
+http-path-prefix = "{{ .Polaris.Node.HTTPPathPrefix }}"
+auth-addr = "{{ .Polaris.Node.AuthAddr }}"
+auth-port = {{ .Polaris.Node.AuthPort }}
+auth-virtual-hosts = [{{ range $index, $element := .Polaris.Node.AuthVirtualHosts }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
+ws-host = "{{ .Polaris.Node.WSHost }}"
+ws-port = {{ .Polaris.Node.WSPort }}
+ws-path-prefix = "{{ .Polaris.Node.WSPathPrefix }}"
+ws-origins = [{{ range $index, $element := .Polaris.Node.WSOrigins }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
+ws-modules = [{{ range $index, $element := .Polaris.Node.WSModules }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
+ws-expose-all = {{ .Polaris.Node.WSExposeAll }}
+graphql-cors = [{{ range $index, $element := .Polaris.Node.GraphQLCors }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
+graphql-virtual-hosts = [{{ range $index, $element := .Polaris.Node.GraphQLVirtualHosts }}{{ if $index }}, {{ end }}"{{ $element }}"{{ end }}]
+allow-unprotected-txs = {{ .Polaris.Node.AllowUnprotectedTxs }}
+batch-request-limit = {{ .Polaris.Node.BatchRequestLimit }}
+batch-response-max-size = {{ .Polaris.Node.BatchResponseMaxSize }}
+jwt-secret = "{{ .Polaris.Node.JWTSecret }}"
+db-engine = "{{ .Polaris.Node.DBEngine }}"
 
 [polaris.node.http-timeouts]
-ReadTimeout = "{{ .Polaris.Node.HTTPTimeouts.ReadTimeout }}"
-ReadHeaderTimeout = "{{ .Polaris.Node.HTTPTimeouts.ReadHeaderTimeout }}"
-WriteTimeout = "{{ .Polaris.Node.HTTPTimeouts.WriteTimeout }}"
-IdleTimeout = "{{ .Polaris.Node.HTTPTimeouts.IdleTimeout }}"
+read-timeout = "{{ .Polaris.Node.HTTPTimeouts.ReadTimeout }}"
+read-header-timeout = "{{ .Polaris.Node.HTTPTimeouts.ReadHeaderTimeout }}"
+write-timeout = "{{ .Polaris.Node.HTTPTimeouts.WriteTimeout }}"
+idle-timeout = "{{ .Polaris.Node.HTTPTimeouts.IdleTimeout }}"
 `
 )
