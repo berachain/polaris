@@ -37,6 +37,9 @@ blocks = {{ .Polaris.Polar.GPO.Blocks }}
 percentile = {{ .Polaris.Polar.GPO.Percentile }}
 max-header-history = {{ .Polaris.Polar.GPO.MaxHeaderHistory }}
 max-block-history = {{ .Polaris.Polar.GPO.MaxBlockHistory }}
+default = "{{ .Polaris.Polar.GPO.Default }}"
+max-price = "{{ .Polaris.Polar.GPO.MaxPrice }}"
+ignore-price = "{{ .Polaris.Polar.GPO.IgnorePrice }}"
 
 [polaris.node]
 name = "{{ .Polaris.Node.Name }}"
@@ -47,7 +50,6 @@ key-store-dir = "{{ .Polaris.Node.KeyStoreDir }}"
 external-signer = "{{ .Polaris.Node.ExternalSigner }}"
 use-lightweight-kdf = {{ .Polaris.Node.UseLightweightKDF }}
 insecure-unlock-allowed = {{ .Polaris.Node.InsecureUnlockAllowed }}
-no-usb = {{ .Polaris.Node.NoUSB }}
 usb = {{ .Polaris.Node.USB }}
 smart-card-daemon-path = "{{ .Polaris.Node.SmartCardDaemonPath }}"
 ipc-path = "{{ .Polaris.Node.IPCPath }}"

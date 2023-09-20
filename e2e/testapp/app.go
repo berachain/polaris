@@ -61,15 +61,12 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/ethereum/go-ethereum/node"
-
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/polar"
 )
 
 // DefaultNodeHome default home directories for the application daemon.
@@ -228,20 +225,17 @@ func NewPolarisApp(
 	app.App = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
 
 	// read oracle config from app-opts, and construct oracle service
-	// cfg, err := evmconfig.ReadConfigFromAppOpts(appOpts)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	polarisCfg, err := evmconfig.ReadConfigFromAppOpts(appOpts)
+	if err != nil {
+		panic(err)
+	}
 
 	// TODO: MOVE EVM SETUP
 	// ----- BEGIN EVM SETUP ----------------------------------------------
 
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
-		&evmconfig.Config{
-			Node:  node.DefaultConfig,
-			Polar: *polar.DefaultConfig(),
-		},
+		polarisCfg,
 		app.CreateQueryContext,
 		logger,
 	)

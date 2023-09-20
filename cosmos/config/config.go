@@ -21,14 +21,17 @@
 package config
 
 import (
-	"github.com/spf13/viper"
+	"fmt"
+	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/node"
+	"github.com/spf13/cast"
 
 	"pkg.berachain.dev/polaris/eth/polar"
-)
 
-const ()
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+)
 
 // DefaultConfig returns the default configuration for a polaris chain.
 func DefaultConfig() *Config {
@@ -43,21 +46,211 @@ type Config struct {
 	Node  node.Config
 }
 
-// ReadConfigFromFile reads a config from a file and returns the config.
-func ReadConfigFromFile(path string) (*Config, error) {
-	// read in config file
-	viper.SetConfigFile(path)
-	viper.SetConfigType("toml")
+func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
+	conf := &Config{}
 
-	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
+	handleError := func(err error) error {
+		if err != nil {
+			return fmt.Errorf("error while reading configuration: %w", err)
+		}
+		return nil
 	}
 
-	// unmarshal config
-	var config Config
-	if err := viper.Unmarshal(&config); err != nil {
-		return nil, err
+	// Wrapping casting functions to return both value and error
+	getString := func(key string) (string, error) { return cast.ToStringE(opts.Get(key)) }
+	getInt := func(key string) (int, error) { return cast.ToIntE(opts.Get(key)) }
+	getInt64 := func(key string) (int64, error) { return cast.ToInt64E(opts.Get(key)) }
+	getUint64 := func(key string) (uint64, error) { return cast.ToUint64E(opts.Get(key)) }
+	getFloat64 := func(key string) (float64, error) { return cast.ToFloat64E(opts.Get(key)) }
+	getBool := func(key string) (bool, error) { return cast.ToBoolE(opts.Get(key)) }
+	getStringSlice := func(key string) ([]string, error) { return cast.ToStringSliceE(opts.Get(key)) }
+	getTimeDuration := func(key string) (time.Duration, error) { return cast.ToDurationE(opts.Get(key)) }
+
+	var err error
+	var val int64
+
+	// Polar settings
+	if conf.Polar.RPCGasCap, err = getUint64(flagRpcGasCap); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.RPCEVMTimeout, err = getTimeDuration(flagRpcEvmTimeout); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.RPCTxFeeCap, err = getFloat64(flagRpcTxFeeCap); err != nil {
+		return nil, handleError(err)
 	}
 
-	return &config, nil
+	// Polar.GPO settings
+	if conf.Polar.GPO.Blocks, err = getInt(flagBlocks); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.GPO.Percentile, err = getInt(flagPercentile); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.GPO.MaxHeaderHistory, err = getUint64(flagMaxHeaderHistory); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.GPO.MaxBlockHistory, err = getUint64(flagMaxBlockHistory); err != nil {
+		return nil, handleError(err)
+	}
+	if val, err = getInt64(flagDefault); err != nil {
+		return nil, handleError(err)
+	} else {
+		conf.Polar.GPO.Default = big.NewInt(val)
+	}
+
+	if val, err = getInt64(flagDefault); err != nil {
+		return nil, handleError(err)
+	} else {
+		conf.Polar.GPO.MaxPrice = big.NewInt(val)
+	}
+
+	if val, err = getInt64(flagDefault); err != nil {
+		return nil, handleError(err)
+	} else {
+		conf.Polar.GPO.IgnorePrice = big.NewInt(val)
+	}
+
+	// Node settings
+	if conf.Node.Name, err = getString(flagName); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Node.UserIdent, err = getString(flagUserIdent); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Node.Version, err = getString(flagVersion); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Node.DataDir, err = getString(flagDataDir); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Node.KeyStoreDir, err = getString(flagKeyStoreDir); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Node.ExternalSigner, err = getString(flagExternalSigner); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Node.UseLightweightKDF, err = getBool(flagUseLightweightKdf); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Node.InsecureUnlockAllowed, err = getBool(flagInsecureUnlockAllowed); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Node.USB, err = getBool(flagUsb); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Node.SmartCardDaemonPath, err = getString(flagSmartCardDaemonPath); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Node.IPCPath, err = getString(flagIpcPath); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.HTTPHost, err = getString(flagHttpHost); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.HTTPPort, err = getInt(flagHttpPort); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.HTTPCors, err = getStringSlice(flagHttpCors); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.HTTPVirtualHosts, err = getStringSlice(flagHttpVirtualHosts); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.HTTPModules, err = getStringSlice(flagHttpModules); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.HTTPPathPrefix, err = getString(flagHttpPathPrefix); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.AuthAddr, err = getString(flagAuthAddr); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.AuthPort, err = getInt(flagAuthPort); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.AuthVirtualHosts, err = getStringSlice(flagAuthVirtualHosts); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.WSHost, err = getString(flagWsHost); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.WSPort, err = getInt(flagWsPort); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.WSPathPrefix, err = getString(flagWsPathPrefix); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.WSOrigins, err = getStringSlice(flagWsOrigins); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.WSModules, err = getStringSlice(flagWsModules); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.WSExposeAll, err = getBool(flagWsExposeAll); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.GraphQLCors, err = getStringSlice(flagGraphqlCors); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.GraphQLVirtualHosts, err = getStringSlice(flagGraphqlVirtualHosts); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.AllowUnprotectedTxs, err = getBool(flagAllowUnprotectedTxs); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.BatchRequestLimit, err = getInt(flagBatchRequestLimit); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.BatchResponseMaxSize, err = getInt(flagBatchResponseMaxSize); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.JWTSecret, err = getString(flagJwtSecret); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.DBEngine, err = getString(flagDbEngine); err != nil {
+		return nil, handleError(err)
+	}
+
+	// Node.HTTPTimeouts settings
+	// Node.HTTPTimeouts settings
+	if conf.Node.HTTPTimeouts.ReadTimeout, err = getTimeDuration(flagReadTimeout); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.HTTPTimeouts.ReadHeaderTimeout, err = getTimeDuration(flagReadHeaderTimeout); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.HTTPTimeouts.WriteTimeout, err = getTimeDuration(flagWriteTimeout); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Node.HTTPTimeouts.IdleTimeout, err = getTimeDuration(flagIdleTimeout); err != nil {
+		return nil, handleError(err)
+	}
+
+	return conf, nil
 }

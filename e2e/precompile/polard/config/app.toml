@@ -224,3 +224,62 @@ stop-node-on-err = true
 # Note, this configuration only applies to SDK built-in app-side mempool
 # implementations.
 max-txs = "5000"
+
+###############################################################################
+###                                 Polaris                                 ###
+###############################################################################
+[polaris]
+[polaris.polar]
+rpc-gas-cap = "50000000"
+rpc-evm-timeout = "5s"
+rpc-tx-fee-cap = "1"
+
+[polaris.polar.gpo]
+blocks = 20
+percentile = 60
+max-header-history = 1024
+max-block-history = 1024
+default = "1000000000"
+max-price = "500000000000"
+ignore-price = "2"
+
+[polaris.node]
+name = ""
+user-ident = ""
+version = ""
+data-dir = "/Users/dev/Library/Ethereum"
+key-store-dir = ""
+external-signer = ""
+use-lightweight-kdf = false
+insecure-unlock-allowed = false
+usb = false
+smart-card-daemon-path = ""
+ipc-path = ""
+http-host = ""
+http-port = 8545
+http-cors = []
+http-virtual-hosts = ["localhost"]
+http-modules = ["net", "web3"]
+http-path-prefix = ""
+auth-addr = "localhost"
+auth-port = 8551
+auth-virtual-hosts = ["localhost"]
+ws-host = ""
+ws-port = 8546
+ws-path-prefix = ""
+ws-origins = []
+ws-modules = ["net", "web3"]
+ws-expose-all = false
+graphql-cors = []
+graphql-virtual-hosts = ["localhost"]
+allow-unprotected-txs = false
+batch-request-limit = 1000
+batch-response-max-size = 25000000
+jwt-secret = ""
+db-engine = ""
+
+[polaris.node.http-timeouts]
+read-timeout = "30s"
+read-header-timeout = "30s"
+write-timeout = "30s"
+idle-timeout = "2m0s"

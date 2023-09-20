@@ -191,6 +191,7 @@ func initAppConfig() (string, interface{}) {
 	// In simapp, we set the min gas prices to 0.
 	srvCfg.MinGasPrices = "0stake"
 	// srvCfg.BaseConfig.IAVLDisableFastNode = true // disable fastnode by default
+	srvCfg.IAVLCacheSize = 10000
 
 	customAppConfig := CustomAppConfig{
 		Config:  *srvCfg,
