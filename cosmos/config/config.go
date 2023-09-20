@@ -25,13 +25,21 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/ethereum/go-ethereum/node"
 	"github.com/spf13/cast"
 
-	"pkg.berachain.dev/polaris/eth/polar"
-
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+
+	"github.com/ethereum/go-ethereum/node"
+
+	"pkg.berachain.dev/polaris/eth/polar"
 )
+
+var handleError = func(err error) error {
+	if err != nil {
+		return fmt.Errorf("error while reading configuration: %w", err)
+	}
+	return nil
+}
 
 // DefaultConfig returns the default configuration for a polaris chain.
 func DefaultConfig() *Config {
@@ -46,15 +54,11 @@ type Config struct {
 	Node  node.Config
 }
 
+//nolint:funlen // TODO break up later.
 func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
+	var err error
+	var val int64
 	conf := &Config{}
-
-	handleError := func(err error) error {
-		if err != nil {
-			return fmt.Errorf("error while reading configuration: %w", err)
-		}
-		return nil
-	}
 
 	// Wrapping casting functions to return both value and error
 	getString := func(key string) (string, error) { return cast.ToStringE(opts.Get(key)) }
@@ -66,17 +70,14 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 	getStringSlice := func(key string) ([]string, error) { return cast.ToStringSliceE(opts.Get(key)) }
 	getTimeDuration := func(key string) (time.Duration, error) { return cast.ToDurationE(opts.Get(key)) }
 
-	var err error
-	var val int64
-
 	// Polar settings
-	if conf.Polar.RPCGasCap, err = getUint64(flagRpcGasCap); err != nil {
+	if conf.Polar.RPCGasCap, err = getUint64(flagRPCGasCap); err != nil {
 		return nil, handleError(err)
 	}
-	if conf.Polar.RPCEVMTimeout, err = getTimeDuration(flagRpcEvmTimeout); err != nil {
+	if conf.Polar.RPCEVMTimeout, err = getTimeDuration(flagRPCEvmTimeout); err != nil {
 		return nil, handleError(err)
 	}
-	if conf.Polar.RPCTxFeeCap, err = getFloat64(flagRpcTxFeeCap); err != nil {
+	if conf.Polar.RPCTxFeeCap, err = getFloat64(flagRPCTxFeeCap); err != nil {
 		return nil, handleError(err)
 	}
 
@@ -146,27 +147,27 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 		return nil, handleError(err)
 	}
 
-	if conf.Node.HTTPHost, err = getString(flagHttpHost); err != nil {
+	if conf.Node.HTTPHost, err = getString(flagHTTPHost); err != nil {
 		return nil, handleError(err)
 	}
 
-	if conf.Node.HTTPPort, err = getInt(flagHttpPort); err != nil {
+	if conf.Node.HTTPPort, err = getInt(flagHTTPPort); err != nil {
 		return nil, handleError(err)
 	}
 
-	if conf.Node.HTTPCors, err = getStringSlice(flagHttpCors); err != nil {
+	if conf.Node.HTTPCors, err = getStringSlice(flagHTTPCors); err != nil {
 		return nil, handleError(err)
 	}
 
-	if conf.Node.HTTPVirtualHosts, err = getStringSlice(flagHttpVirtualHosts); err != nil {
+	if conf.Node.HTTPVirtualHosts, err = getStringSlice(flagHTTPVirtualHosts); err != nil {
 		return nil, handleError(err)
 	}
 
-	if conf.Node.HTTPModules, err = getStringSlice(flagHttpModules); err != nil {
+	if conf.Node.HTTPModules, err = getStringSlice(flagHTTPModules); err != nil {
 		return nil, handleError(err)
 	}
 
-	if conf.Node.HTTPPathPrefix, err = getString(flagHttpPathPrefix); err != nil {
+	if conf.Node.HTTPPathPrefix, err = getString(flagHTTPPathPrefix); err != nil {
 		return nil, handleError(err)
 	}
 
@@ -234,7 +235,6 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 		return nil, handleError(err)
 	}
 
-	// Node.HTTPTimeouts settings
 	// Node.HTTPTimeouts settings
 	if conf.Node.HTTPTimeouts.ReadTimeout, err = getTimeDuration(flagReadTimeout); err != nil {
 		return nil, handleError(err)
