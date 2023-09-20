@@ -42,6 +42,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 	// Process the transaction and return the EVM's execution result.
 	receipt, err := k.miner.ProcessTransaction(ctx, tx)
 	if err != nil {
+		k.Logger(sCtx).Error("failed to process transaction", "err", err)
 		return nil, err
 	}
 
