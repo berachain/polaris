@@ -39,7 +39,6 @@ TRACE=""
 # Path variables
 CONFIG_TOML=$HOMEDIR/config/config.toml
 APP_TOML=$HOMEDIR/config/app.toml
-POLARIS_TOML=$HOMEDIR/config/polaris.toml
 GENESIS=$HOMEDIR/config/genesis.json
 TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 
@@ -68,7 +67,6 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 
 	cp ./e2e/testapp/docker/local/config/app.toml "$APP_TOML"
 	cp ./e2e/testapp/docker/local/config/config.toml "$CONFIG_TOML"
-	cp ./e2e/testapp/docker/local/config/polaris.toml "$POLARIS_TOML"
 
 	# Set client config
 	./bin/polard config set client keyring-backend $KEYRING --home "$HOMEDIR"

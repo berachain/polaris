@@ -57,7 +57,6 @@ func (n *Node) Start() error {
 }
 
 // DefaultConfig returns the default configuration for the provider.
-// TODO: DEPRECATE THIS
 func DefaultGethNodeConfig() *node.Config {
 	nodeCfg := node.DefaultConfig
 	nodeCfg.P2P.NoDiscovery = true

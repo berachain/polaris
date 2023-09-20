@@ -8,7 +8,11 @@
 # The minimum gas prices a validator is willing to accept for processing a
 # transaction. A transaction's fees must meet the minimum of any denomination
 # specified in this config (e.g. 0.25token1;0.0001token2).
-minimum-gas-prices = "0abera"
+minimum-gas-prices = "0stake"
+
+# The maximum gas a query coming over rest/grpc may consume.
+# If this is set to zero, the query can consume an unbounded amount of gas.
+query-gas-limit = "0"
 
 # default: the last 362880 states are kept, pruning at 10 block intervals
 # nothing: all historic states will be saved, nothing will be deleted (i.e. archiving node)
@@ -60,20 +64,15 @@ inter-block-cache = true
 index-events = []
 
 # IavlCacheSize set the size of the iavl tree cache (in number of nodes).
-iavl-cache-size = 781250
+iavl-cache-size = 10000
 
 # IAVLDisableFastNode enables or disables the fast node feature of IAVL. 
 # Default is false.
 iavl-disable-fastnode = false
 
-# IAVLLazyLoading enable/disable the lazy loading of iavl store.
-# Default is false.
-iavl-lazy-loading = false
-
 # AppDBBackend defines the database backend type to use for the application and snapshots DBs.
 # An empty string indicates that a fallback will be used.
-# First fallback is the deprecated compile-time types.DBBackend value.
-# Second fallback (if the types.DBBackend also isn't set), is the db-backend value set in CometBFT's config.toml.
+# The fallback is the db_backend value set in CometBFT's config.toml.
 app-db-backend = ""
 
 ###############################################################################
@@ -123,7 +122,7 @@ enable = false
 swagger = false
 
 # Address defines the API server to listen on.
-address = "tcp://0.0.0.0:1317"
+address = "tcp://localhost:1317"
 
 # MaxOpenConnections defines the number of maximum open connections.
 max-open-connections = 1000
@@ -150,7 +149,7 @@ enabled-unsafe-cors = false
 enable = true
 
 # Address defines the gRPC server address to bind to.
-address = "0.0.0.0:9090"
+address = "localhost:9090"
 
 # MaxRecvMsgSize defines the max message size in bytes the server can receive.
 # The default value is 10MB.
@@ -223,4 +222,162 @@ stop-node-on-err = true
 #
 # Note, this configuration only applies to SDK built-in app-side mempool
 # implementations.
-max-txs = "5000"
+max-txs = 5000
+
+###############################################################################
+###                                 Polaris                                 ###
+###############################################################################
+# General Polaris settings
+[polaris]
+
+[polaris.polar]
+# Gas cap for RPC requests
+rpc-gas-cap = "50000000"
+
+# Timeout setting for EVM operations via RPC
+rpc-evm-timeout = "5s"
+
+# Transaction fee cap for RPC requests
+rpc-tx-fee-cap = "1"
+
+
+# Gas price oracle settings for Polaris
+[polaris.polar.gpo]
+# Number of blocks to check for gas prices
+blocks = 20
+
+# Percentile of gas price to use
+percentile = 60
+
+# Maximum header history for gas price determination
+max-header-history = 1024
+
+# Maximum block history for gas price determination
+max-block-history = 1024
+
+# Default gas price value
+default = "1000000000"
+
+# Maximum gas price value
+max-price = "500000000000"
+
+# Prices to ignore for gas price determination
+ignore-price = "2"
+
+
+# Node-specific settings
+[polaris.node]
+# Name of the node
+name = "polaris-geth"
+
+# User identity associated with the node
+user-ident = ""
+
+# Version of the node
+version = ""
+
+# Directory for storing node data
+data-dir = "/Users/dev/Library/Ethereum"
+
+# Directory for storing node keys
+key-store-dir = ""
+
+# Path to the external signer
+external-signer = ""
+
+# Whether to use lightweight KDF
+use-lightweight-kdf = false
+
+# Allow insecure unlock
+insecure-unlock-allowed = false
+
+# USB setting for the node
+usb = false
+
+# Path to smart card daemon
+smart-card-daemon-path = ""
+
+# IPC path for the node
+ipc-path = ""
+
+# Host for HTTP requests
+http-host = "0.0.0.0"
+
+# Port for HTTP requests
+http-port = 8545
+
+# CORS settings for HTTP
+http-cors = ["*"]
+
+# Virtual hosts for HTTP
+http-virtual-hosts = ["*"]
+
+# Enabled modules for HTTP
+http-modules = ["net", "web3", "eth", "web3", "net", "txpool", "debug"]
+
+# Path prefix for HTTP
+http-path-prefix = ""
+
+# Address for authentication
+auth-addr = "localhost"
+
+# Port for authentication
+auth-port = 8551
+
+# Virtual hosts for authentication
+auth-virtual-hosts = ["localhost"]
+
+# Host for WebSockets
+ws-host = "0.0.0.0"
+
+# Port for WebSockets
+ws-port = 8546
+
+# Path prefix for WebSockets
+ws-path-prefix = ""
+
+# Origins allowed for WebSockets
+ws-origins = ["*"]
+
+# Enabled modules for WebSockets
+ws-modules = ["net", "web3", "eth"]
+
+# Expose all settings for WebSockets
+ws-expose-all = false
+
+# CORS settings for GraphQL
+graphql-cors = []
+
+# Virtual hosts for GraphQL
+graphql-virtual-hosts = ["localhost"]
+
+# Allow unprotected transactions
+allow-unprotected-txs = false
+
+# Limit for batch requests
+batch-request-limit = 1000
+
+# Maximum size for batch responses
+batch-response-max-size = 25000000
+
+# JWT secret for authentication
+jwt-secret = ""
+
+# Database engine for the node
+db-engine = ""
+
+
+# HTTP timeout settings for the node
+[polaris.node.http-timeouts]
+# Timeout for reading HTTP requests
+read-timeout = "30s"
+
+# Timeout for reading HTTP request headers
+read-header-timeout = "30s"
+
+# Timeout for writing HTTP responses
+write-timeout = "30s"
+
+# Timeout for idle HTTP connections
+idle-timeout = "2m0s"
+

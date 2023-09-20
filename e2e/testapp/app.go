@@ -35,7 +35,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -62,6 +61,7 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -224,22 +224,19 @@ func NewPolarisApp(
 
 	app.App = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
 
+	// read oracle config from app-opts, and construct oracle service
+	polarisCfg, err := evmconfig.ReadConfigFromAppOpts(appOpts)
+	if err != nil {
+		panic(err)
+	}
+
 	// TODO: MOVE EVM SETUP
 	// ----- BEGIN EVM SETUP ----------------------------------------------
-	// TODO: reenable offchain
-	// offchainKey := storetypes.NewKVStoreKey("offchain-evm")
-	// app.MountStore(offchainKey, storetypes.StoreTypeDB)
-	homePath, ok := appOpts.Get(flags.FlagHome).(string)
-	if !ok || homePath == "" {
-		homePath = DefaultNodeHome
-	}
+
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
-		nil,
+		polarisCfg,
 		app.CreateQueryContext,
-		// TODO: clean this up.
-		homePath+"/config/polaris.toml",
-		homePath+"/data/polaris",
 		logger,
 	)
 	opt := ante.HandlerOptions{
@@ -260,7 +257,7 @@ func NewPolarisApp(
 	// ----- END EVM SETUP -------------------------------------------------
 
 	// register streaming services
-	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
+	if err = app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		panic(err)
 	}
 
@@ -286,7 +283,7 @@ func NewPolarisApp(
 
 	app.sm.RegisterStoreDecoders()
 
-	if err := app.Load(loadLatest); err != nil {
+	if err = app.Load(loadLatest); err != nil {
 		panic(err)
 	}
 
