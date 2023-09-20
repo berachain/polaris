@@ -108,7 +108,10 @@ var _ = Describe("Processor", func() {
 		validator.Status = stakingtypes.Bonded
 		Expect(sk.SetValidator(ctx, validator)).To(Succeed())
 		sc = staking.NewPrecompileContract(ak, &sk)
-		k.Setup(config.DefaultConfig(), nil, log.NewNopLogger())
+		cfg := config.DefaultConfig()
+		cfg.Node.DataDir = GinkgoT().TempDir()
+		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
+		k.Setup(cfg, nil, log.NewTestLogger(GinkgoT()))
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 
 		// Set validator with consensus address.

@@ -72,7 +72,10 @@ var _ = Describe("", func() {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
-		k.Setup(config.DefaultConfig(), nil, log.NewNopLogger())
+		cfg := config.DefaultConfig()
+		cfg.Node.DataDir = GinkgoT().TempDir()
+		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
+		k.Setup(cfg, nil, log.NewTestLogger(GinkgoT()))
 
 		am = evm.NewAppModule(k, ak)
 	})
