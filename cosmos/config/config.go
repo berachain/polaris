@@ -123,6 +123,9 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 	if conf.Node.DataDir, err = getString(flagDataDir); err != nil {
 		return nil, handleError(err)
 	}
+	if conf.Node.DataDir == "" {
+		conf.Node.DataDir = node.DefaultDataDir()
+	}
 	if conf.Node.KeyStoreDir, err = getString(flagKeyStoreDir); err != nil {
 		return nil, handleError(err)
 	}
