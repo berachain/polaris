@@ -111,13 +111,12 @@ func (t *transientStorage) Finalize() {
 
 // Clone implements `libtypes.Cloneable`.
 func (t *transientStorage) Clone() TransientStorage {
-	size := t.Size()
 	clone := &transientStorage{
-		newBaseJournal[transientState](initCapacity),
+		newBaseJournal[transientState](t.Capacity()),
 	}
 
 	// copy every individual transient state
-	for i := 0; i < size; i++ {
+	for i := 0; i < t.Size(); i++ {
 		clone.Push(t.PeekAt(i).Copy())
 	}
 
