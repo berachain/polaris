@@ -25,8 +25,6 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
-	"pkg.berachain.dev/polaris/lib/ds"
-	"pkg.berachain.dev/polaris/lib/ds/stack"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -65,8 +63,8 @@ type SelfDestructs interface {
 // NOTE: we are only supporting one self destructed address per EVM call (and consequently per snapshot).
 type selfDestructs struct {
 	// journal of suicide address per call, very rare to suicide so we alloc only 1 address
-	journal ds.Stack[*common.Address]
-	ssp     selfDestructStatePlugin
+	baseJournal[*common.Address]
+	ssp selfDestructStatePlugin
 	// lastSnapshot ensures that only 1 address is being self destructed per snapshot
 	lastSnapshot int
 }
@@ -74,7 +72,7 @@ type selfDestructs struct {
 // NewSelfDestructs returns a new selfDestructs journal.
 func NewSelfDestructs(ssp selfDestructStatePlugin) SelfDestructs {
 	return &selfDestructs{
-		journal:      stack.New[*common.Address](initCapacity),
+		baseJournal:  newBaseJournal[*common.Address](initCapacity),
 		ssp:          ssp,
 		lastSnapshot: -1,
 	}
@@ -90,7 +88,7 @@ func (s *selfDestructs) RegistryKey() string {
 // until after Commit is called.
 func (s *selfDestructs) SelfDestruct(addr common.Address) {
 	// ensure only one suicide per snapshot call
-	if s.journal.Size() > s.lastSnapshot {
+	if s.Size() > s.lastSnapshot {
 		// pushed one suicide for this contract call, can do no more
 		return
 	}
@@ -105,7 +103,7 @@ func (s *selfDestructs) SelfDestruct(addr common.Address) {
 	s.ssp.SubBalance(addr, s.ssp.GetBalance(addr))
 
 	// add to journal.
-	s.journal.Push(&addr)
+	s.Push(&addr)
 }
 
 func (s *selfDestructs) Selfdestruct6780(_ common.Address) {
@@ -115,8 +113,8 @@ func (s *selfDestructs) Selfdestruct6780(_ common.Address) {
 // HasSelfDestructed implements the PolarisStateDB interface by returning if the contract was self destructed
 // in current transaction.
 func (s *selfDestructs) HasSelfDestructed(addr common.Address) bool {
-	for i := s.journal.Size() - 1; i >= 0; i-- {
-		if *s.journal.PeekAt(i) == addr {
+	for i := s.Size() - 1; i >= 0; i-- {
+		if *s.PeekAt(i) == addr {
 			return true
 		}
 	}
@@ -126,21 +124,15 @@ func (s *selfDestructs) HasSelfDestructed(addr common.Address) bool {
 // GetSelfDestructs implements state.SelfDestructsJournal.
 func (s *selfDestructs) GetSelfDestructs() []common.Address {
 	var suicidalAddrs []common.Address
-	for i := 0; i < s.journal.Size(); i++ {
-		suicidalAddrs = append(suicidalAddrs, *s.journal.PeekAt(i))
+	for i := 0; i < s.Size(); i++ {
+		suicidalAddrs = append(suicidalAddrs, *s.PeekAt(i))
 	}
 	return suicidalAddrs
 }
 
-// Snapshot implements libtypes.Controllable.
 func (s *selfDestructs) Snapshot() int {
-	s.lastSnapshot = s.journal.Size()
-	return s.lastSnapshot
-}
-
-// RevertToSnapshot implements libtypes.Controllable.
-func (s *selfDestructs) RevertToSnapshot(id int) {
-	s.journal.PopToSize(id)
+	s.lastSnapshot = s.Size()
+	return s.baseJournal.Snapshot()
 }
 
 // Finalize implements libtypes.Controllable.
@@ -150,18 +142,17 @@ func (s *selfDestructs) Finalize() {
 
 // Clone implements libtypes.Cloneable.
 func (s *selfDestructs) Clone() SelfDestructs {
-	size := s.journal.Size()
 	clone := &selfDestructs{
-		journal:      stack.New[*common.Address](size),
+		baseJournal:  newBaseJournal[*common.Address](s.Capacity()),
 		ssp:          s.ssp,
 		lastSnapshot: s.lastSnapshot,
 	}
 
 	// copy every address from the journal
-	for i := 0; i < size; i++ {
+	for i := 0; i < s.Size(); i++ {
 		cpy := new(common.Address)
-		*cpy = *s.journal.PeekAt(i)
-		clone.journal.Push(cpy)
+		*cpy = *s.PeekAt(i)
+		clone.Push(cpy)
 	}
 
 	return clone

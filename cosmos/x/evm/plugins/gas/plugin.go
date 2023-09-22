@@ -126,5 +126,3 @@ func (p *plugin) resetMeters(ctx sdk.Context) {
 		p.consensusMaxGas = uint64(block.MaxGas)
 	}
 }
-
-func (p *plugin) IsPlugin() {}

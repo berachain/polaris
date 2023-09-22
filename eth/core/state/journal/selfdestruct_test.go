@@ -66,7 +66,7 @@ var _ = Describe("SelfDestructs", func() {
 
 		s.Finalize()
 		Expect(s.lastSnapshot).To(Equal(-1))
-		Expect(s.journal.Size()).To(Equal(0))
+		Expect(s.Size()).To(Equal(0))
 	})
 
 	It("should not suicide when snapshot is not called", func() {

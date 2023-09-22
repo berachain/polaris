@@ -23,7 +23,6 @@ package journal
 import (
 	"github.com/ethereum/go-ethereum/common"
 
-	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
@@ -74,13 +73,13 @@ type TransientStorage interface {
 
 // `transientStorage` is a journal that tracks the transient state.
 type transientStorage struct {
-	ds.Stack[transientState]
+	baseJournal[transientState]
 }
 
 // `NewTransientStorage` returns a new `transient` journal.
 func NewTransientStorage() TransientStorage {
 	return &transientStorage{
-		stack.New[transientState](initCapacity),
+		newBaseJournal[transientState](initCapacity),
 	}
 }
 
@@ -105,16 +104,6 @@ func (t *transientStorage) GetTransientState(addr common.Address, key common.Has
 	return t.Peek().Get(addr, key)
 }
 
-// `Snapshot` implements `libtypes.Snapshottable`.
-func (t *transientStorage) Snapshot() int {
-	return t.Size()
-}
-
-// `RevertToSnapshot` implements `libtypes.Snapshottable`.
-func (t *transientStorage) RevertToSnapshot(id int) {
-	t.PopToSize(id)
-}
-
 // `Finalize` implements `libtypes.Controllable`.
 func (t *transientStorage) Finalize() {
 	t.Stack = stack.New[transientState](initCapacity)
@@ -122,13 +111,12 @@ func (t *transientStorage) Finalize() {
 
 // Clone implements `libtypes.Cloneable`.
 func (t *transientStorage) Clone() TransientStorage {
-	size := t.Size()
 	clone := &transientStorage{
-		stack.New[transientState](size),
+		newBaseJournal[transientState](t.Capacity()),
 	}
 
 	// copy every individual transient state
-	for i := 0; i < size; i++ {
+	for i := 0; i < t.Size(); i++ {
 		clone.Push(t.PeekAt(i).Copy())
 	}
 

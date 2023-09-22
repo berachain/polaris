@@ -89,5 +89,3 @@ func (p *plugin) GetNewBlockMetadata(number uint64) (common.Address, uint64) {
 	}
 	return common.BytesToAddress(valBz), uint64(cometHeader.Time.UTC().Unix())
 }
-
-func (p *plugin) IsPlugin() {}

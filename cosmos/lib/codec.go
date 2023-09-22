@@ -18,22 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package plugins
+package lib
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+import "cosmossdk.io/core/address"
 
-	"pkg.berachain.dev/polaris/eth/core"
-)
-
-// Base is the base interface which all x/evm Polaris plugins must implement
-
-type Base interface{}
-
-// HasGenesis represents the base class that all x/evm Polaris plugins which have
-// InitGenesis or ExportGenesis methods must implement
-
-type HasGenesis interface {
-	InitGenesis(sdk.Context, *core.Genesis)
-	ExportGenesis(sdk.Context, *core.Genesis)
+type CodecProvider interface {
+	AddressCodec() address.Codec
 }
