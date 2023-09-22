@@ -41,7 +41,6 @@ import (
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
 	"pkg.berachain.dev/polaris/cosmos/precompile/testutil"
 	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/types"
@@ -141,7 +140,7 @@ var _ = Describe("Governance Precompile", func() {
 		It("should succeed", func() {
 			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
 			govAcct := gk.GetGovernanceAccount(ctx).GetAddress()
-			err := cosmlib.MintCoinsToAddress(
+			err := testutils.MintCoinsToAddress(
 				sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 				bk,
 				governancetypes.ModuleName,

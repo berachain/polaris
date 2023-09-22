@@ -43,8 +43,7 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/polaris/cosmos/lib"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	//nolint:stylecheck,revive // Ginkgo is the testing framework.
@@ -67,11 +66,11 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (
 	sdk.Context, authkeeper.AccountKeeperI, bankkeeper.Keeper, *governancekeeper.Keeper,
 ) {
 	// Setup the keepers and context.
-	ctx, ak, bk, sk := testutil.SetupMinimalKeepers()
+	ctx, ak, bk, sk := testutils.SetupMinimalKeepers()
 	dk := govtestutil.NewMockDistributionKeeper(ctrl)
 
 	// Create the codec.
-	encCfg := testutil.MakeTestEncodingConfig(
+	encCfg := testutils.MakeTestEncodingConfig(
 		gov.AppModuleBasic{},
 		bank.AppModuleBasic{},
 	)
@@ -117,7 +116,7 @@ func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (
 	// gk.SetProposalID(ctx, 1)
 
 	// Fund the caller with some coins.
-	err = lib.MintCoinsToAddress(
+	err = testutils.MintCoinsToAddress(
 		//nolint:gomnd // magic number is fine here.
 		ctx, bk, governancetypes.ModuleName, common.BytesToAddress(caller), "abera", big.NewInt(100000000),
 	)
