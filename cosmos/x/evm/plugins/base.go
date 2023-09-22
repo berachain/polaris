@@ -28,9 +28,7 @@ import (
 
 // Base is the base interface which all x/evm Polaris plugins must implement
 
-type Base interface {
-	IsPlugin()
-}
+type Base interface{}
 
 // HasGenesis represents the base class that all x/evm Polaris plugins which have
 // InitGenesis or ExportGenesis methods must implement
