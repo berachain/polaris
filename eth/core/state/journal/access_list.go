@@ -41,6 +41,7 @@ type Accesslist interface {
 	AddressInAccessList(common.Address) bool
 }
 
+// accessList is a `baseJournal` that tracks the access list.
 type accessList struct {
 	baseJournal[*AccessList] // journal of access lists.
 }
@@ -79,8 +80,12 @@ func (al *accessList) SlotInAccessList(addr common.Address, slot common.Hash) (b
 	return al.Peek().Contains(addr, slot)
 }
 
+// Snapshot implements `libtypes.Snapshottable`.
 func (al *accessList) Snapshot() int {
 	al.Push(al.Peek().Copy())
+	// Accesslist is size minus one, since we want to revert to the place in the stack
+	// where snapshot was called, which since we need to push a copy on the stack, is
+	// the size minus one.
 	return al.baseJournal.Size() - 1
 }
 
