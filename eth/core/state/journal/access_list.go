@@ -22,8 +22,6 @@ package journal
 
 import (
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/lib/ds"
-	"pkg.berachain.dev/polaris/lib/ds/stack"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -44,17 +42,15 @@ type Accesslist interface {
 }
 
 type accessList struct {
-	*AccessList                       // current access list, always the head of journal stack.
-	journal     ds.Stack[*AccessList] // journal of access lists.
+	baseJournal[*AccessList] // journal of access lists.
 }
 
 // NewAccesslist returns a new `accessList` journal.
 func NewAccesslist() Accesslist {
-	journal := stack.New[*AccessList](initCapacity)
+	journal := newBaseJournal[*AccessList](initCapacity)
 	journal.Push(NewAccessList())
 	return &accessList{
-		AccessList: journal.Peek(),
-		journal:    journal,
+		baseJournal: journal,
 	}
 }
 
@@ -65,35 +61,22 @@ func (al *accessList) RegistryKey() string {
 
 // AddAddressToAccessList implements `state.AccessListJournal`.
 func (al *accessList) AddAddressToAccessList(addr common.Address) {
-	al.AddAddress(addr)
+	al.Peek().AddAddress(addr)
 }
 
 // AddSlotToAccessList implements `state.AccessListJournal`.
 func (al *accessList) AddSlotToAccessList(addr common.Address, slot common.Hash) {
-	al.AddSlot(addr, slot)
+	al.Peek().AddSlot(addr, slot)
 }
 
 // AddressInAccessList implements `state.AccessListJournal`.
 func (al *accessList) AddressInAccessList(addr common.Address) bool {
-	return al.ContainsAddress(addr)
+	return al.Peek().ContainsAddress(addr)
 }
 
 // SlotInAccessList implements `state.AccessListJournal`.
 func (al *accessList) SlotInAccessList(addr common.Address, slot common.Hash) (bool, bool) {
-	return al.Contains(addr, slot)
-}
-
-// `Snapshot` implements `libtypes.Snapshottable`.
-func (al *accessList) Snapshot() int {
-	al.AccessList = al.AccessList.Copy()
-	al.journal.Push(al.AccessList)
-	return al.journal.Size() - 1
-}
-
-// RevertToSnapshot implements `libtypes.Snapshottable`.
-func (al *accessList) RevertToSnapshot(id int) {
-	al.journal.PopToSize(id)
-	al.AccessList = al.journal.Peek()
+	return al.Peek().Contains(addr, slot)
 }
 
 // Finalize implements `libtypes.Controllable`.
@@ -103,15 +86,12 @@ func (al *accessList) Finalize() {
 
 // Clone implements `libtypes.Cloneable`.
 func (al *accessList) Clone() Accesslist {
-	size := al.journal.Size()
 	cpy := &accessList{
-		AccessList: al.AccessList.Copy(),
-		journal:    stack.New[*AccessList](size),
+		baseJournal: newBaseJournal[*AccessList](al.Capacity()),
 	}
 
-	cpy.journal.Push(cpy.AccessList)
-	for i := 1; i < size; i++ { // skip the root, already pushed above
-		cpy.journal.Push(al.journal.PeekAt(i).Copy())
+	for i := 0; i < al.Size(); i++ { // skip the root, already pushed above
+		cpy.Push(al.PeekAt(i).Copy())
 	}
 
 	return cpy

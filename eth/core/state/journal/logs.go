@@ -23,8 +23,6 @@ package journal
 import (
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/lib/ds"
-	"pkg.berachain.dev/polaris/lib/ds/stack"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
@@ -48,7 +46,7 @@ type Log interface {
 
 // logs is a state plugin that tracks Ethereum logs.
 type logs struct {
-	journal ds.Stack[*coretypes.Log] // journal of logs that resets on every tx
+	baseJournal[*coretypes.Log]
 	txHash  common.Hash
 	txIndex int
 }
@@ -56,7 +54,7 @@ type logs struct {
 // NewLogs returns a new `logs` journal.
 func NewLogs() Log {
 	return &logs{
-		journal: stack.New[*coretypes.Log](initCapacity),
+		baseJournal: newBaseJournal[*coretypes.Log](initCapacity),
 	}
 }
 
@@ -67,7 +65,7 @@ func (l *logs) RegistryKey() string {
 
 // SetTxContext sets the transaction hash and index for the current transaction.
 func (l *logs) SetTxContext(thash common.Hash, ti int) {
-	l.journal = stack.New[*coretypes.Log](initCapacity)
+	l.baseJournal = newBaseJournal[*coretypes.Log](initCapacity)
 	// Set the transaction hash and index.
 	l.txHash = thash
 	l.txIndex = ti
@@ -82,43 +80,29 @@ func (l *logs) TxIndex() int {
 func (l *logs) AddLog(log *coretypes.Log) {
 	log.TxHash = l.txHash
 	log.TxIndex = uint(l.txIndex)
-	l.journal.Push(log)
+	l.Push(log)
 }
 
 // Logs returns the logs for the current tx with the existing metadata.
 func (l *logs) Logs() []*coretypes.Log {
-	size := l.journal.Size()
+	size := l.Size()
 	buf := make([]*coretypes.Log, size)
 	for i := 0; i < size; i++ {
-		buf[i] = l.journal.PeekAt(i)
+		buf[i] = l.PeekAt(i)
 	}
 	return buf
 }
 
 // GetLogs returns the logs for the tx with the given metadata.
 func (l *logs) GetLogs(_ common.Hash, blockNumber uint64, blockHash common.Hash) []*coretypes.Log {
-	size := l.journal.Size()
+	size := l.Size()
 	buf := make([]*coretypes.Log, size)
 	for i := 0; i < size; i++ {
-		buf[i] = l.journal.PeekAt(i)
+		buf[i] = l.PeekAt(i)
 		buf[i].BlockHash = blockHash
 		buf[i].BlockNumber = blockNumber
 	}
 	return buf
-}
-
-// Snapshot takes a snapshot of the `Logs` store.
-//
-// Snapshot implements `libtypes.Snapshottable`.
-func (l *logs) Snapshot() int {
-	return l.journal.Size()
-}
-
-// RevertToSnapshot reverts the `Logs` store to a given snapshot id.
-//
-// RevertToSnapshot implements `libtypes.Snapshottable`.
-func (l *logs) RevertToSnapshot(id int) {
-	l.journal.PopToSize(id)
 }
 
 // Finalize clears the journal of the tx logs.
@@ -128,19 +112,17 @@ func (l *logs) Finalize() {}
 
 // Clone implements `libtypes.Cloneable`.
 func (l *logs) Clone() Log {
-	capacity := l.journal.Capacity()
-	size := l.journal.Size()
 	clone := &logs{
-		journal: stack.New[*coretypes.Log](capacity),
-		txHash:  l.txHash,
-		txIndex: l.txIndex,
+		baseJournal: newBaseJournal[*coretypes.Log](l.Capacity()),
+		txHash:      l.txHash,
+		txIndex:     l.txIndex,
 	}
 
 	// copy every individual log from the journal
-	for i := 0; i < size; i++ {
+	for i := 0; i < l.Size(); i++ {
 		cpy := new(coretypes.Log)
-		*cpy = *l.journal.PeekAt(i)
-		clone.journal.Push(cpy)
+		*cpy = *l.PeekAt(i)
+		clone.Push(cpy)
 	}
 
 	return clone
