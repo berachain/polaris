@@ -21,6 +21,8 @@
 package journal
 
 import (
+	"fmt"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
 
@@ -55,12 +57,18 @@ var _ = Describe("AccessList", func() {
 		al.AddSlotToAccessList(a1, s1)
 		al.AddSlotToAccessList(a1, s2)
 
+		fmt.Println(al.Peek())
+		fmt.Println(al.Size())
 		id := al.Snapshot()
-
+		fmt.Println("SNAPSHOT", id)
 		al.AddSlotToAccessList(a2, s1)
+		fmt.Println(al.Peek())
+		fmt.Println(al.Size())
+
 		Expect(al.AddressInAccessList(a2)).To(BeTrue())
 
 		al.RevertToSnapshot(id)
+		fmt.Println(al.Size())
 		Expect(al.AddressInAccessList(a2)).To(BeFalse())
 
 		Expect(func() { al.Finalize() }).ToNot(Panic())

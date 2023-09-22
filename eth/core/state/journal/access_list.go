@@ -79,6 +79,11 @@ func (al *accessList) SlotInAccessList(addr common.Address, slot common.Hash) (b
 	return al.Peek().Contains(addr, slot)
 }
 
+func (al *accessList) Snapshot() int {
+	al.Push(al.Peek().Copy())
+	return al.baseJournal.Size() - 1
+}
+
 // Finalize implements `libtypes.Controllable`.
 func (al *accessList) Finalize() {
 	*al = *utils.MustGetAs[*accessList](NewAccesslist())
