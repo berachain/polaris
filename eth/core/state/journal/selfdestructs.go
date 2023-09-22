@@ -130,6 +130,11 @@ func (s *selfDestructs) GetSelfDestructs() []common.Address {
 	return suicidalAddrs
 }
 
+func (s *selfDestructs) Snapshot() int {
+	s.lastSnapshot = s.Size()
+	return s.baseJournal.Snapshot()
+}
+
 // Finalize implements libtypes.Controllable.
 func (s *selfDestructs) Finalize() {
 	*s = *utils.MustGetAs[*selfDestructs](NewSelfDestructs(s.ssp))
