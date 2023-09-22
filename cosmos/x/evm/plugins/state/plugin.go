@@ -546,4 +546,3 @@ func (p *plugin) SetGasConfig(kvGasConfig, transientKVGasConfig storetypes.GasCo
 }
 
 // IsPlugin implements plugins.Base.
-func (p *plugin) IsPlugin() {}

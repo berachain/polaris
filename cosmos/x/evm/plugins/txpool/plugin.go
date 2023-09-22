@@ -120,5 +120,3 @@ func (p *plugin) SendPrivTx(signedTx *coretypes.Transaction) error {
 	// the tx.
 	return p.EthTxPool.Insert(sdk.Context{}.WithPriority(signedTx.GasPrice().Int64()), cosmosTx)
 }
-
-func (p *plugin) IsPlugin() {}

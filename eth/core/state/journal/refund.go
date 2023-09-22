@@ -21,8 +21,6 @@
 package journal
 
 import (
-	"pkg.berachain.dev/polaris/lib/ds"
-	"pkg.berachain.dev/polaris/lib/ds/stack"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
@@ -42,13 +40,14 @@ type Refund interface {
 
 // refund is a `Store` that tracks the refund counter.
 type refund struct {
-	ds.Stack[uint64] // journal of historical refunds.
+	baseJournal[uint64] // journal of historical refunds.
+
 }
 
 // NewRefund creates and returns a `refund` journal.
 func NewRefund() Refund {
 	return &refund{
-		Stack: stack.New[uint64](initCapacity),
+		baseJournal: newBaseJournal[uint64](initCapacity),
 	}
 }
 
@@ -73,33 +72,17 @@ func (r *refund) SubRefund(gas uint64) {
 	r.Push(r.Peek() - gas)
 }
 
-// Snapshot returns the current size of the refund counter, which is used to
-// revert the refund counter to a previous value.
-//
-// Snapshot implements `libtypes.Snapshottable`.
-func (r *refund) Snapshot() int {
-	return r.Size()
-}
-
-// RevertToSnapshot reverts the refund counter to the value at the given `snap`.
-//
-// RevertToSnapshot implements `libtypes.Snapshottable`.
-func (r *refund) RevertToSnapshot(id int) {
-	r.PopToSize(id)
-}
-
 // Finalize implements `libtypes.Controllable`.
 func (r *refund) Finalize() {
-	r.Stack = stack.New[uint64](initCapacity)
+	r.baseJournal = newBaseJournal[uint64](initCapacity)
 }
 
 // Clone implements `libtypes.Cloneable`.
 func (r *refund) Clone() Refund {
-	size := r.Size()
 	clone := &refund{
-		Stack: stack.New[uint64](size),
+		baseJournal: newBaseJournal[uint64](initCapacity),
 	}
-	for i := 0; i < size; i++ {
+	for i := 0; i < r.Size(); i++ {
 		clone.Push(r.PeekAt(i))
 	}
 	return clone

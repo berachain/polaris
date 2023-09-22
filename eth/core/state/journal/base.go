@@ -18,22 +18,35 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package plugins
+package journal
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/lib/ds"
+	"pkg.berachain.dev/polaris/lib/ds/stack"
 )
 
-// Base is the base interface which all x/evm Polaris plugins must implement
+// baseJournal is a struct that holds a stack of items.
+type baseJournal[T any] struct {
+	ds.Stack[T]
+}
 
-type Base interface{}
+// newBaseJournal returns a new `baseJournal` with the given initial capacity.
+func newBaseJournal[T any](initialCapacity int) baseJournal[T] {
+	return baseJournal[T]{
+		Stack: stack.New[T](initialCapacity),
+	}
+}
 
-// HasGenesis represents the base class that all x/evm Polaris plugins which have
-// InitGenesis or ExportGenesis methods must implement
+// Snapshot takes a snapshot of the `Logs` store.
+//
+// Snapshot implements `libtypes.Snapshottable`.
+func (j *baseJournal[T]) Snapshot() int {
+	return j.Size()
+}
 
-type HasGenesis interface {
-	InitGenesis(sdk.Context, *core.Genesis)
-	ExportGenesis(sdk.Context, *core.Genesis)
+// RevertToSnapshot reverts the `Logs` store to a given snapshot id.
+//
+// RevertToSnapshot implements `libtypes.Snapshottable`.
+func (j *baseJournal[T]) RevertToSnapshot(id int) {
+	j.PopToSize(id)
 }
