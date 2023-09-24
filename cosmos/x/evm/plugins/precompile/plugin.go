@@ -42,12 +42,6 @@ import (
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
 	core.PrecompilePlugin
-
-	// KVGasConfig returns the gas config for
-	KVGasConfig() storetypes.GasConfig
-	SetKVGasConfig(storetypes.GasConfig)
-	TransientKVGasConfig() storetypes.GasConfig
-	SetTransientKVGasConfig(storetypes.GasConfig)
 }
 
 // polarisStateDB is the interface that must be implemented by the state DB.
@@ -71,8 +65,10 @@ type plugin struct {
 // NewPlugin creates and returns a plugin with the default KV store gas configs.
 func NewPlugin(precompiles []ethprecompile.Registrable) Plugin {
 	return &plugin{
-		Registry:             registry.NewMap[common.Address, vm.PrecompileContainer](),
-		precompiles:          precompiles,
+		Registry:    registry.NewMap[common.Address, vm.PrecompileContainer](),
+		precompiles: precompiles,
+		// NOTE: these are hardcoded as they are also hardcoded in the sdk.
+		// This should be updated if it ever changes.
 		kvGasConfig:          storetypes.KVGasConfig(),
 		transientKVGasConfig: storetypes.TransientGasConfig(),
 	}
@@ -94,26 +90,6 @@ func (p *plugin) GetActive(rules *params.Rules) []common.Address {
 		active[i+len(p.precompiles)] = pc.RegistryKey()
 	}
 	return active
-}
-
-// KVGasConfig implements Plugin.
-func (p *plugin) KVGasConfig() storetypes.GasConfig {
-	return p.kvGasConfig
-}
-
-// SetKVGasConfig implements Plugin.
-func (p *plugin) SetKVGasConfig(kvGasConfig storetypes.GasConfig) {
-	p.kvGasConfig = kvGasConfig
-}
-
-// TransientKVGasConfig implements Plugin.
-func (p *plugin) TransientKVGasConfig() storetypes.GasConfig {
-	return p.transientKVGasConfig
-}
-
-// SetTransientKVGasConfig implements Plugin.
-func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConfig) {
-	p.transientKVGasConfig = transientKVGasConfig
 }
 
 // Run runs the a precompile container and returns the remaining gas after execution by injecting

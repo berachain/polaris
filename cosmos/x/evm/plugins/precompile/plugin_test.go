@@ -69,20 +69,6 @@ var _ = Describe("plugin", func() {
 		Expect(err).To(MatchError("out of gas"))
 	})
 
-	It("should plug in custom gas configs", func() {
-		Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
-		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
-
-		p.SetKVGasConfig(storetypes.GasConfig{
-			DeleteCost: 2,
-		})
-		Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(2)))
-		p.SetTransientKVGasConfig(storetypes.GasConfig{
-			DeleteCost: 3,
-		})
-		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(3)))
-	})
-
 	It("should handle read-only static calls", func() {
 		ms := utils.MustGetAs[tmock.MultiStore](ctx.MultiStore())
 		cem := utils.MustGetAs[state.ControllableEventManager](ctx.EventManager())
