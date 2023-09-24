@@ -32,6 +32,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	ethstate "pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/registry"
@@ -51,7 +52,7 @@ type Plugin interface {
 }
 
 type StatePluginRetriever interface {
-	GetPlugin() core.StatePlugin
+	GetPlugin() ethstate.Plugin
 }
 
 // plugin runs precompile containers in the Cosmos environment with the context gas configs.

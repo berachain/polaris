@@ -35,6 +35,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
 	"pkg.berachain.dev/polaris/eth/common"
+	ethstate "pkg.berachain.dev/polaris/eth/core/state"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -123,16 +124,6 @@ var (
 	addr2 = common.BytesToAddress([]byte{2})
 )
 
-// MOCKS BELOW.
-
-type mockSP struct {
-	ctx sdk.Context
-}
-
-func (msp *mockSP) SetGasConfig(kvg storetypes.GasConfig, tkvg storetypes.GasConfig) {
-	msp.ctx = msp.ctx.WithKVGasConfig(kvg).WithTransientKVGasConfig(tkvg)
-}
-
 type mockEVM struct {
 	vm.PrecompileEVM
 	ctx sdk.Context
@@ -147,6 +138,12 @@ type mockSDB struct {
 	vm.PolarisStateDB
 	ctx  sdk.Context
 	logs int
+}
+
+func (ms *mockSDB) GetPlugin() ethstate.Plugin {
+	return state.NewPlugin(
+		nil, nil, nil,
+	)
 }
 
 func (ms *mockSDB) GetContext() context.Context {
