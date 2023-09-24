@@ -53,7 +53,7 @@ var _ = Describe("plugin", func() {
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
-		p = utils.MustGetAs[*plugin](NewPlugin(nil, &mockSP{ctx}))
+		p = utils.MustGetAs[*plugin](NewPlugin(nil))
 		e = &mockEVM{nil, ctx, &mockSDB{nil, ctx, 0}}
 	})
 
