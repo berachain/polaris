@@ -59,18 +59,15 @@ type plugin struct {
 	kvGasConfig storetypes.GasConfig
 	// transientKVGasConfig is the gas config for the transient KV store.
 	transientKVGasConfig storetypes.GasConfig
-	// sp allows resetting the context for the reentrancy into the EVM.
-	sp StatePlugin
 }
 
 // NewPlugin creates and returns a plugin with the default KV store gas configs.
-func NewPlugin(precompiles []ethprecompile.Registrable, sp StatePlugin) Plugin {
+func NewPlugin(precompiles []ethprecompile.Registrable) Plugin {
 	return &plugin{
 		Registry:             registry.NewMap[common.Address, vm.PrecompileContainer](),
 		precompiles:          precompiles,
 		kvGasConfig:          storetypes.KVGasConfig(),
 		transientKVGasConfig: storetypes.TransientGasConfig(),
-		sp:                   sp,
 	}
 }
 
