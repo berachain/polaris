@@ -62,6 +62,8 @@ type Plugin interface {
 	IterateBalances(fn func(common.Address, *big.Int) bool)
 	// IterateState iterates over the state of all accounts and calls the given callback function.
 	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
+	// SetGasConfig sets the gas config for the plugin.
+	SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
 }
 
 // The StatePlugin is a very fun and interesting part of the EVM implementation. But if you want to
@@ -163,7 +165,7 @@ func (p *plugin) Reset(ctx context.Context) {
 	// and is designed to be used in a standalone manner, as each of the EVM's opcodes are priced
 	// individually. By setting the gas configs to empty structs, we ensure that SLOADS and SSTORES
 	// in the EVM are not being charged additional gas unknowingly.
-	p.setGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
+	p.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
 
 	// We setup a snapshot controller to properly revert the Controllable MultiStore and EventManager.
 	p.Controller = snapshot.NewController[string, libtypes.Controllable[string]]()
@@ -538,7 +540,9 @@ func (p *plugin) Clone() ethstate.Plugin {
 	return sp
 }
 
-// setGasConfig sets the gas configuration for the kvstore.
-func (p *plugin) setGasConfig(kvGasConfig, transientKVGasConfig storetypes.GasConfig) {
+// SetGasConfig implements Plugin.
+func (p *plugin) SetGasConfig(kvGasConfig, transientKVGasConfig storetypes.GasConfig) {
 	p.ctx = p.ctx.WithKVGasConfig(kvGasConfig).WithTransientKVGasConfig(transientKVGasConfig)
 }
+
+// IsPlugin implements plugins.Base.

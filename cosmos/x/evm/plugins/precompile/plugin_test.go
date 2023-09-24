@@ -53,7 +53,7 @@ var _ = Describe("plugin", func() {
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
-		p = utils.MustGetAs[*plugin](NewPlugin(nil))
+		p = utils.MustGetAs[*plugin](NewPlugin(nil, &mockSP{ctx}))
 		e = &mockEVM{nil, ctx, &mockSDB{nil, ctx, 0}}
 	})
 
@@ -124,6 +124,14 @@ var (
 )
 
 // MOCKS BELOW.
+
+type mockSP struct {
+	ctx sdk.Context
+}
+
+func (msp *mockSP) SetGasConfig(kvg storetypes.GasConfig, tkvg storetypes.GasConfig) {
+	msp.ctx = msp.ctx.WithKVGasConfig(kvg).WithTransientKVGasConfig(tkvg)
+}
 
 type mockEVM struct {
 	vm.PrecompileEVM

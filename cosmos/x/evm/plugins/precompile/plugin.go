@@ -50,6 +50,10 @@ type Plugin interface {
 	SetTransientKVGasConfig(storetypes.GasConfig)
 }
 
+type StatePluginRetriever interface {
+	GetPlugin() core.StatePlugin
+}
+
 // plugin runs precompile containers in the Cosmos environment with the context gas configs.
 type plugin struct {
 	libtypes.Registry[common.Address, vm.PrecompileContainer]
@@ -182,6 +186,11 @@ func (p *plugin) enableReentrancy(sdb vm.PolarisStateDB) {
 	// end precompile execution => stop emitting Cosmos event as Eth logs for now
 	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager())
 	cem.EndPrecompileExecution()
+
+	// remove Cosmos gas consumption so gas is consumed only per OPCODE
+	utils.MustGetAs[state.Plugin](
+		utils.MustGetAs[StatePluginRetriever](sdb).GetPlugin(),
+	).SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
 }
 
 // DisableReentrancy sets the state so that execution cannot enter the EVM again.
@@ -197,4 +206,9 @@ func (p *plugin) disableReentrancy(sdb vm.PolarisStateDB) {
 	// resume precompile execution => begin emitting Cosmos event as Eth logs again
 	cem := utils.MustGetAs[state.ControllableEventManager](sdkCtx.EventManager())
 	cem.BeginPrecompileExecution(sdb)
+
+	// restore ctx gas configs for continuing precompile execution
+	utils.MustGetAs[state.Plugin](
+		utils.MustGetAs[StatePluginRetriever](sdb).GetPlugin(),
+	).SetGasConfig(p.kvGasConfig, p.transientKVGasConfig)
 }
