@@ -35,7 +35,6 @@ import (
 )
 
 type Plugin interface {
-	plugins.Base
 	plugins.HasGenesis
 	core.BlockPlugin
 

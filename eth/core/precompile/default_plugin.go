@@ -45,6 +45,12 @@ func NewDefaultPlugin() Plugin {
 	}
 }
 
+// Register is a no-op for the default plugin.
+func (dp *defaultPlugin) Register(vm.PrecompileContainer) error {
+	// no-op
+	return nil
+}
+
 // GetPrecompiles implements core.PrecompilePlugin.
 func (dp *defaultPlugin) GetPrecompiles(rules *params.Rules) []Registrable {
 	return GetDefaultPrecompiles(rules)

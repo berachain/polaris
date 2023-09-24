@@ -35,6 +35,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
 	"pkg.berachain.dev/polaris/eth/common"
+	ethstate "pkg.berachain.dev/polaris/eth/core/state"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -53,7 +54,7 @@ var _ = Describe("plugin", func() {
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
-		p = utils.MustGetAs[*plugin](NewPlugin(nil, &mockSP{ctx}))
+		p = utils.MustGetAs[*plugin](NewPlugin(nil))
 		e = &mockEVM{nil, ctx, &mockSDB{nil, ctx, 0}}
 	})
 
@@ -66,20 +67,6 @@ var _ = Describe("plugin", func() {
 	It("should error on insufficient gas", func() {
 		_, _, err := p.Run(e, &mockStateless{}, []byte{}, addr, new(big.Int), 5, false)
 		Expect(err).To(MatchError("out of gas"))
-	})
-
-	It("should plug in custom gas configs", func() {
-		Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(1000)))
-		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(100)))
-
-		p.SetKVGasConfig(storetypes.GasConfig{
-			DeleteCost: 2,
-		})
-		Expect(p.KVGasConfig().DeleteCost).To(Equal(uint64(2)))
-		p.SetTransientKVGasConfig(storetypes.GasConfig{
-			DeleteCost: 3,
-		})
-		Expect(p.TransientKVGasConfig().DeleteCost).To(Equal(uint64(3)))
 	})
 
 	It("should handle read-only static calls", func() {
@@ -123,16 +110,6 @@ var (
 	addr2 = common.BytesToAddress([]byte{2})
 )
 
-// MOCKS BELOW.
-
-type mockSP struct {
-	ctx sdk.Context
-}
-
-func (msp *mockSP) SetGasConfig(kvg storetypes.GasConfig, tkvg storetypes.GasConfig) {
-	msp.ctx = msp.ctx.WithKVGasConfig(kvg).WithTransientKVGasConfig(tkvg)
-}
-
 type mockEVM struct {
 	vm.PrecompileEVM
 	ctx sdk.Context
@@ -147,6 +124,12 @@ type mockSDB struct {
 	vm.PolarisStateDB
 	ctx  sdk.Context
 	logs int
+}
+
+func (ms *mockSDB) GetPlugin() ethstate.Plugin {
+	return state.NewPlugin(
+		nil, nil, nil,
+	)
 }
 
 func (ms *mockSDB) GetContext() context.Context {

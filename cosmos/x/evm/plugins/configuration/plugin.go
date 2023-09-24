@@ -36,7 +36,6 @@ import (
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.Base
 	plugins.HasGenesis
 	core.ConfigurationPlugin
 	SetChainConfig(*params.ChainConfig)

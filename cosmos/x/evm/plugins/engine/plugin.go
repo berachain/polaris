@@ -23,7 +23,6 @@ package engine
 import (
 	"github.com/cosmos/cosmos-sdk/client"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
@@ -32,7 +31,6 @@ var _ Plugin = (*plugin)(nil)
 
 // Plugin defines the required functions of the transaction pool plugin.
 type Plugin interface {
-	plugins.Base
 	core.EnginePlugin
 	Start(client.Context)
 }
