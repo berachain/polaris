@@ -125,14 +125,6 @@ var (
 
 // MOCKS BELOW.
 
-type mockSP struct {
-	ctx sdk.Context
-}
-
-func (msp *mockSP) SetGasConfig(kvg storetypes.GasConfig, tkvg storetypes.GasConfig) {
-	msp.ctx = msp.ctx.WithKVGasConfig(kvg).WithTransientKVGasConfig(tkvg)
-}
-
 type mockEVM struct {
 	vm.PrecompileEVM
 	ctx sdk.Context
