@@ -130,6 +130,7 @@ func (s *selfDestructs) GetSelfDestructs() []common.Address {
 	return suicidalAddrs
 }
 
+// 
 func (s *selfDestructs) Snapshot() int {
 	s.lastSnapshot = s.Size()
 	return s.baseJournal.Snapshot()
