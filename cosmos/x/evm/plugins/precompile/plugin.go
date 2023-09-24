@@ -27,7 +27,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -42,16 +41,19 @@ import (
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.Base
 	core.PrecompilePlugin
 
+	// KVGasConfig returns the gas config for
 	KVGasConfig() storetypes.GasConfig
 	SetKVGasConfig(storetypes.GasConfig)
 	TransientKVGasConfig() storetypes.GasConfig
 	SetTransientKVGasConfig(storetypes.GasConfig)
 }
 
-type StatePluginRetriever interface {
+// polarisStateDB is the interface that must be implemented by the state DB.
+// The stateDB must allow retrieving the plugin in order to set it's gas config.
+type polarisStateDB interface {
+	// GetPlugin retrieves the underlying state plugin from the StateDB.
 	GetPlugin() ethstate.Plugin
 }
 
@@ -190,7 +192,7 @@ func (p *plugin) enableReentrancy(sdb vm.PolarisStateDB) {
 
 	// remove Cosmos gas consumption so gas is consumed only per OPCODE
 	utils.MustGetAs[state.Plugin](
-		utils.MustGetAs[StatePluginRetriever](sdb).GetPlugin(),
+		utils.MustGetAs[polarisStateDB](sdb).GetPlugin(),
 	).SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
 }
 
@@ -210,6 +212,6 @@ func (p *plugin) disableReentrancy(sdb vm.PolarisStateDB) {
 
 	// restore ctx gas configs for continuing precompile execution
 	utils.MustGetAs[state.Plugin](
-		utils.MustGetAs[StatePluginRetriever](sdb).GetPlugin(),
+		utils.MustGetAs[polarisStateDB](sdb).GetPlugin(),
 	).SetGasConfig(p.kvGasConfig, p.transientKVGasConfig)
 }

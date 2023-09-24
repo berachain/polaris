@@ -26,7 +26,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
@@ -49,7 +48,7 @@ var _ core.PolarisHostChain = (*host)(nil)
 // It includes core.PolarisHostChain and functions that are called in other packages.
 type Host interface {
 	core.PolarisHostChain
-	GetAllPlugins() []plugins.Base
+	GetAllPlugins() []any
 	Setup(
 		storetypes.StoreKey,
 		storetypes.StoreKey,
@@ -153,6 +152,6 @@ func (h *host) GetTxPoolPlugin() core.TxPoolPlugin {
 }
 
 // GetAllPlugins returns all the plugins.
-func (h *host) GetAllPlugins() []plugins.Base {
-	return []plugins.Base{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp, h.txp}
+func (h *host) GetAllPlugins() []any {
+	return []any{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp, h.txp}
 }
