@@ -15,8 +15,8 @@ require (
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/upgrade v0.0.0-20230915171831-2196edacb99d
 	github.com/stretchr/testify v1.8.4
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20230919154905-0c53dfe1360a
-	pkg.berachain.dev/polaris/eth v0.0.0-20230919154905-0c53dfe1360a
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20230925142347-326426fa61f6
+	pkg.berachain.dev/polaris/eth v0.0.0-20230925142347-326426fa61f6
 )
 
 require (
@@ -34,7 +34,7 @@ require (
 	github.com/cometbft/cometbft v0.38.0
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
-	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230915171831-2196edacb99d
+	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230925142031-19632293df2b
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogoproto v1.4.11 // indirect
 	github.com/ethereum/go-ethereum v1.13.1 // indirect
@@ -272,8 +272,8 @@ require (
 	gotest.tools/v3 v3.5.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230830221145-a6c6454d3697 // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20230830221145-a6c6454d3697 // indirect
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230919154905-0c53dfe1360a // indirect
+	pkg.berachain.dev/polaris/lib v0.0.0-20230919154905-0c53dfe1360a // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
