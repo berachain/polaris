@@ -11,7 +11,7 @@ require (
 	github.com/google/addlicense v1.1.1
 	github.com/magefile/mage v1.15.0
 	github.com/matryer/moq v0.3.2
-	github.com/onsi/ginkgo/v2 v2.12.0
+	github.com/onsi/ginkgo/v2 v2.12.1
 	github.com/securego/gosec/v2 v2.17.0
 	github.com/segmentio/golines v0.11.0
 )

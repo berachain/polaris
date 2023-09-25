@@ -8,7 +8,7 @@ replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.
 require (
 	github.com/docker/docker v24.0.5+incompatible
 	github.com/ethereum/go-ethereum v1.13.1
-	github.com/onsi/ginkgo/v2 v2.12.0
+	github.com/onsi/ginkgo/v2 v2.12.1
 	github.com/onsi/gomega v1.27.10
 	github.com/ory/dockertest v3.3.5+incompatible
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230919154905-0c53dfe1360a
@@ -24,7 +24,7 @@ require (
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
 	cosmossdk.io/errors v1.0.0 // indirect
 	cosmossdk.io/log v1.2.1 // indirect
-	cosmossdk.io/math v1.1.2 // indirect
+	cosmossdk.io/math v1.1.3-rc.1 // indirect
 	cosmossdk.io/store v1.0.0-rc.0 // indirect
 	cosmossdk.io/x/tx v0.10.0 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
@@ -55,7 +55,7 @@ require (
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-db v1.0.0 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
-	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230925142031-19632293df2b // indirect
+	github.com/cosmos/cosmos-sdk v0.50.0-rc.1 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/gogoproto v1.4.11 // indirect
