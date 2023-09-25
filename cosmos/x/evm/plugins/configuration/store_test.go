@@ -20,21 +20,57 @@
 
 package configuration
 
-// . "github.com/onsi/ginkgo/v2"
-// . "github.com/onsi/gomega"
+import (
+	storetypes "cosmossdk.io/store/types"
 
-// var _ = Describe("Plugin", func() {
-// 	var (
-// 	// p   *plugin
-// 	// ctx sdk.Context
-// 	)
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-// 	BeforeEach(func() {
-// 		// ctx = testutil.NewContext()
-// 		// storeKey := storetypes.NewKVStoreKey("evm")
-// 		// // p = &plugin{
-// 		// 	storeKey:    storeKey,
-// 		// 	paramsStore: ctx.KVStore(storeKey),
-// 		// }
-// 	})
-// })
+	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/eth/params"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+var _ = Describe("Plugin", func() {
+	var (
+		p   *plugin
+		ctx sdk.Context
+	)
+
+	BeforeEach(func() {
+		ctx = testutil.NewContext()
+		storeKey := storetypes.NewKVStoreKey("evm")
+		p = &plugin{
+			storeKey:    storeKey,
+			paramsStore: ctx.KVStore(storeKey),
+		}
+	})
+
+	Describe("Prepare", func() {
+		It("should initialize the params store", func() {
+			p.Prepare(ctx)
+
+			// Check that the params store is initialized.
+			expect := ctx.KVStore(p.storeKey)
+			Expect(p.paramsStore).To(Equal(expect))
+		})
+	})
+
+	Describe("ChainConfig", func() {
+		Context("when the params store is empty", func() {
+			It("should return nil", func() {
+				config := p.ChainConfig()
+				Expect(config).To(BeNil())
+			})
+		})
+
+		Context("when the params store contains valid params", func() {
+			It("should return the chain config", func() {
+				p.SetChainConfig(params.DefaultChainConfig)
+				config := p.ChainConfig()
+				Expect(config).To(Equal(params.DefaultChainConfig))
+			})
+		})
+	})
+})

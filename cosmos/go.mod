@@ -24,7 +24,7 @@ require (
 	github.com/cometbft/cometbft v0.38.0
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
-	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230915171831-2196edacb99d
+	github.com/cosmos/cosmos-sdk v0.50.0-rc.0.0.20230925142031-19632293df2b
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/ethereum/go-ethereum v1.13.1
@@ -37,14 +37,14 @@ require (
 	github.com/onsi/gomega v1.27.10
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0 // indirect
-	github.com/tidwall/btree v1.7.0
+	github.com/tidwall/btree v1.7.0 // indirect
 	google.golang.org/genproto v0.0.0-20230803162519-f966b187b2e5 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230726155614-23370e0ffb3e // indirect
 	google.golang.org/grpc v1.58.1
 	google.golang.org/protobuf v1.31.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230919154905-0c53dfe1360a
-	pkg.berachain.dev/polaris/eth v0.0.0-20230919154905-0c53dfe1360a
-	pkg.berachain.dev/polaris/lib v0.0.0-20230919154905-0c53dfe1360a
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230925142347-326426fa61f6
+	pkg.berachain.dev/polaris/eth v0.0.0-20230925142347-326426fa61f6
+	pkg.berachain.dev/polaris/lib v0.0.0-20230925142347-326426fa61f6
 )
 
 require github.com/spf13/cast v1.5.1

@@ -37,7 +37,6 @@ import (
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
-	"pkg.berachain.dev/polaris/cosmos/precompile/testutil"
 	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -481,7 +480,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				_, err = contract.Send(
 					pCtx,
 					common.BytesToAddress(toAcc),
-					testutil.SdkCoinsToEvmCoins(sortedSdkCoins),
+					sdkCoinsToEvmCoins(sortedSdkCoins),
 				)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -513,7 +512,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				_, err = contract.Send(
 					ctx,
 					common.BytesToAddress(toAcc),
-					testutil.SdkCoinsToEvmCoins(coinsToSend),
+					sdkCoinsToEvmCoins(coinsToSend),
 				)
 				Expect(err).To(MatchError(precompile.ErrInvalidCoin))
 			})
@@ -555,4 +554,24 @@ func getTestMetadata() []banktypes.Metadata {
 			Display: "token",
 		},
 	}
+}
+
+func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
+	Amount *big.Int `json:"amount"`
+	Denom  string   `json:"denom"`
+} {
+	evmCoins := make([]struct {
+		Amount *big.Int `json:"amount"`
+		Denom  string   `json:"denom"`
+	}, len(sdkCoins))
+	for i, coin := range sdkCoins {
+		evmCoins[i] = struct {
+			Amount *big.Int `json:"amount"`
+			Denom  string   `json:"denom"`
+		}{
+			Amount: coin.Amount.BigInt(),
+			Denom:  coin.Denom,
+		}
+	}
+	return evmCoins
 }
