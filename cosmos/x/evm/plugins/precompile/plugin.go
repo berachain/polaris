@@ -27,11 +27,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	ethstate "pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/registry"
@@ -41,13 +41,14 @@ import (
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.Base
 	core.PrecompilePlugin
+}
 
-	KVGasConfig() storetypes.GasConfig
-	SetKVGasConfig(storetypes.GasConfig)
-	TransientKVGasConfig() storetypes.GasConfig
-	SetTransientKVGasConfig(storetypes.GasConfig)
+// polarisStateDB is the interface that must be implemented by the state DB.
+// The stateDB must allow retrieving the plugin in order to set it's gas config.
+type polarisStateDB interface {
+	// GetPlugin retrieves the underlying state plugin from the StateDB.
+	GetPlugin() ethstate.Plugin
 }
 
 // plugin runs precompile containers in the Cosmos environment with the context gas configs.
@@ -59,18 +60,17 @@ type plugin struct {
 	kvGasConfig storetypes.GasConfig
 	// transientKVGasConfig is the gas config for the transient KV store.
 	transientKVGasConfig storetypes.GasConfig
-	// sp allows resetting the context for the reentrancy into the EVM.
-	sp StatePlugin
 }
 
 // NewPlugin creates and returns a plugin with the default KV store gas configs.
-func NewPlugin(precompiles []ethprecompile.Registrable, sp StatePlugin) Plugin {
+func NewPlugin(precompiles []ethprecompile.Registrable) Plugin {
 	return &plugin{
-		Registry:             registry.NewMap[common.Address, vm.PrecompileContainer](),
-		precompiles:          precompiles,
+		Registry:    registry.NewMap[common.Address, vm.PrecompileContainer](),
+		precompiles: precompiles,
+		// NOTE: these are hardcoded as they are also hardcoded in the sdk.
+		// This should be updated if it ever changes.
 		kvGasConfig:          storetypes.KVGasConfig(),
 		transientKVGasConfig: storetypes.TransientGasConfig(),
-		sp:                   sp,
 	}
 }
 
@@ -90,26 +90,6 @@ func (p *plugin) GetActive(rules *params.Rules) []common.Address {
 		active[i+len(p.precompiles)] = pc.RegistryKey()
 	}
 	return active
-}
-
-// KVGasConfig implements Plugin.
-func (p *plugin) KVGasConfig() storetypes.GasConfig {
-	return p.kvGasConfig
-}
-
-// SetKVGasConfig implements Plugin.
-func (p *plugin) SetKVGasConfig(kvGasConfig storetypes.GasConfig) {
-	p.kvGasConfig = kvGasConfig
-}
-
-// TransientKVGasConfig implements Plugin.
-func (p *plugin) TransientKVGasConfig() storetypes.GasConfig {
-	return p.transientKVGasConfig
-}
-
-// SetTransientKVGasConfig implements Plugin.
-func (p *plugin) SetTransientKVGasConfig(transientKVGasConfig storetypes.GasConfig) {
-	p.transientKVGasConfig = transientKVGasConfig
 }
 
 // Run runs the a precompile container and returns the remaining gas after execution by injecting
@@ -187,7 +167,9 @@ func (p *plugin) enableReentrancy(sdb vm.PolarisStateDB) {
 	cem.EndPrecompileExecution()
 
 	// remove Cosmos gas consumption so gas is consumed only per OPCODE
-	p.sp.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
+	utils.MustGetAs[state.Plugin](
+		utils.MustGetAs[polarisStateDB](sdb).GetPlugin(),
+	).SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
 }
 
 // DisableReentrancy sets the state so that execution cannot enter the EVM again.
@@ -205,5 +187,7 @@ func (p *plugin) disableReentrancy(sdb vm.PolarisStateDB) {
 	cem.BeginPrecompileExecution(sdb)
 
 	// restore ctx gas configs for continuing precompile execution
-	p.sp.SetGasConfig(p.kvGasConfig, p.transientKVGasConfig)
+	utils.MustGetAs[state.Plugin](
+		utils.MustGetAs[polarisStateDB](sdb).GetPlugin(),
+	).SetGasConfig(p.kvGasConfig, p.transientKVGasConfig)
 }

@@ -26,17 +26,14 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.Base
 	plugins.HasGenesis
 	core.ConfigurationPlugin
 	SetChainConfig(*params.ChainConfig)
@@ -59,11 +56,4 @@ func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 func (p *plugin) Prepare(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	p.paramsStore = sCtx.KVStore(p.storeKey)
-}
-
-// FeeCollector implements the core.ConfigurationPlugin interface.
-func (p *plugin) FeeCollector() *common.Address {
-	// TODO: parameterize fee collector name.
-	addr := common.BytesToAddress([]byte(authtypes.FeeCollectorName))
-	return &addr
 }

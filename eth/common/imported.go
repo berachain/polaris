@@ -39,6 +39,7 @@ var (
 	Bytes2Hex      = common.Bytes2Hex
 	FromHex        = common.FromHex
 	HexToAddress   = common.HexToAddress
+	IsHexAddress   = common.IsHexAddress
 	Hex2Bytes      = common.Hex2Bytes
 	HexToHash      = common.HexToHash
 	LeftPadBytes   = common.LeftPadBytes

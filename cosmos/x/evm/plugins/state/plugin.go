@@ -53,7 +53,6 @@ var (
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.Base
 	plugins.HasGenesis
 	core.StatePlugin
 	// SetQueryContextFn sets the query context func for the plugin.
@@ -363,6 +362,27 @@ func (p *plugin) SetCode(addr common.Address, code []byte) {
 	}
 }
 
+// IterateCode iterates over all the contract code, and calls the given function.
+func (p *plugin) IterateCode(fn func(addr common.Address, value common.Hash) bool) {
+	it := storetypes.KVStorePrefixIterator(
+		p.cms.GetKVStore(p.storeKey),
+		[]byte{types.CodeHashKeyPrefix},
+	)
+	defer func() {
+		if err := it.Close(); err != nil {
+			p.savedErr = err
+		}
+	}()
+
+	for ; it.Valid(); it.Next() {
+		k := it.Key()
+		addr := AddressFromCodeHashKey(k)
+		if fn(addr, p.GetCodeHash(addr)) {
+			break
+		}
+	}
+}
+
 // =============================================================================
 // Storage
 // =============================================================================
@@ -544,5 +564,3 @@ func (p *plugin) Clone() ethstate.Plugin {
 func (p *plugin) SetGasConfig(kvGasConfig, transientKVGasConfig storetypes.GasConfig) {
 	p.ctx = p.ctx.WithKVGasConfig(kvGasConfig).WithTransientKVGasConfig(transientKVGasConfig)
 }
-
-// IsPlugin implements plugins.Base.

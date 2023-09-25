@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package testutil
+package governance
 
 import (
 	"fmt"
@@ -51,18 +51,19 @@ import (
 )
 
 // Test Reporter to use governance module tests with Ginkgo.
-type GinkgoTestReporter struct{}
+type ginkgoTestReporter struct{}
 
-func (g GinkgoTestReporter) Errorf(format string, args ...interface{}) {
+func (g ginkgoTestReporter) Errorf(format string, args ...interface{}) {
 	Fail(fmt.Sprintf(format, args...))
 }
 
-func (g GinkgoTestReporter) Fatalf(format string, args ...interface{}) {
+func (g ginkgoTestReporter) Fatalf(format string, args ...interface{}) {
 	Fail(fmt.Sprintf(format, args...))
 }
 
 // Helper functions for setting up the tests.
-func Setup(ctrl *gomock.Controller, caller sdk.AccAddress) (
+// TODO: deprecate this garbage.
+func setupGovTest(ctrl *gomock.Controller, caller sdk.AccAddress) (
 	sdk.Context, authkeeper.AccountKeeperI, bankkeeper.Keeper, *governancekeeper.Keeper,
 ) {
 	// Setup the keepers and context.
