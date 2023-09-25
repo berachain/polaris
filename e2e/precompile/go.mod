@@ -13,7 +13,7 @@ require (
 	cosmossdk.io/core v0.11.0
 	cosmossdk.io/math v1.1.3-rc.1
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.1
-	github.com/onsi/ginkgo/v2 v2.12.0
+	github.com/onsi/ginkgo/v2 v2.12.1
 	github.com/onsi/gomega v1.27.10
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230919154905-0c53dfe1360a
 	pkg.berachain.dev/polaris/cosmos v0.0.0-20230919154905-0c53dfe1360a
