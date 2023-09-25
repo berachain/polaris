@@ -47,9 +47,6 @@ type plugin struct {
 	bp core.BlockPlugin
 	// storekey is the store key for the header store.
 	storeKey storetypes.StoreKey
-	// TODO: reenable offchain
-	//  `offchainStore` is the offchain store, used for accessing offchain data.
-	// offchainStoreKey storetypes.StoreKey
 }
 
 // NewPlugin creates a new instance of the block plugin from the given context.

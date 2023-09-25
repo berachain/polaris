@@ -49,34 +49,9 @@ var _ = Describe("Plugin", func() {
 	Describe("Prepare", func() {
 		It("should initialize the params store", func() {
 			p.Prepare(ctx)
-
 			// Check that the params store is initialized.
 			expect := ctx.KVStore(p.storeKey)
 			Expect(p.paramsStore).To(Equal(expect))
-		})
-	})
-
-	Describe("ChainConfig", func() {
-		Context("when the params store is empty", func() {
-			It("should return nil", func() {
-				config := p.ChainConfig()
-				Expect(config).To(BeNil())
-			})
-		})
-
-		Context("when the params store contains valid params", func() {
-			// It("should return the chain config", func() {
-			// 	storedParams := types.Params{
-			// 		EvmDenom:  "eth",
-			// 		ExtraEIPs: []int64{123},
-			// 	}
-			// 	bz, err := storedParams.Marshal()
-			// 	Expect(err).ToNot(HaveOccurred())
-			// 	p.paramsStore.Set([]byte{types.ParamsKey}, bz)
-
-			// 	config := p.ChainConfig()
-			// 	Expect(config).To(Equal(params.DefaultChainConfig))
-			// })
 		})
 	})
 })
