@@ -21,10 +21,12 @@
 package core
 
 import (
+	"math/big"
 	"sync/atomic"
 
 	lru "github.com/ethereum/go-ethereum/common/lru"
 	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -118,7 +120,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		logger:         log.Root(),
 	}
 	bc.statedb = state.NewStateDB(bc.sp)
-	bc.currentBlock.Store(nil)
+	bc.currentBlock.Store(types.NewBlock(&types.Header{Number: big.NewInt(0)}, nil, nil, nil, trie.NewStackTrie(nil)))
 	bc.finalizedBlock.Store(nil)
 
 	return bc

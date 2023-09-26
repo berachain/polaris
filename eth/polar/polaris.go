@@ -23,7 +23,6 @@ package polar
 import (
 	"math/big"
 	"net/http"
-	"time"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/core/txpool"
@@ -172,17 +171,13 @@ func (pl *Polaris) APIs() []rpc.API {
 
 // StartServices notifies the NetworkStack to spin up (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
-	go func() {
-		// TODO: unhack this.
-		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
+	// Register the filter API separately in order to get access to the filterSystem
+	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
 
-		// Register the filter API separately in order to get access to the filterSystem
-		pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
-
-		if err := pl.stack.Start(); err != nil {
-			panic(err)
-		}
-	}()
+	// Stack the networking stack.
+	if err := pl.stack.Start(); err != nil {
+		panic(err)
+	}
 	return nil
 }
 

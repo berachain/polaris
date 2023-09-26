@@ -22,7 +22,6 @@ package keeper
 
 import (
 	"math/big"
-	"time"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -126,24 +125,19 @@ func (k *Keeper) SetClientCtx(clientContext client.Context) {
 	// k.host.GetTxPoolPlugin().(txpool.Plugin).SetClientContext(clientContext)
 	k.host.GetEnginePlugin().(engine.Plugin).Start(clientContext)
 
-	// TODO: move this
-	go func() {
-		// TODO: remove race condition.
-		time.Sleep(3 * time.Second) //nolint:gomnd // i know i know....
-		if err := k.polaris.Init(); err != nil {
-			panic(err)
-		}
+	if err := k.polaris.Init(); err != nil {
+		panic(err)
+	}
 
-		if err := k.polaris.StartServices(); err != nil {
-			panic(err)
-		}
+	if err := k.polaris.StartServices(); err != nil {
+		panic(err)
+	}
 
-		txp, _ := k.host.GetTxPoolPlugin().(txpool.Plugin)
-		txp.Start(
-			k.polaris.TxPool(),
-			clientContext,
-		)
-	}()
+	txp, _ := k.host.GetTxPoolPlugin().(txpool.Plugin)
+	txp.Start(
+		k.polaris.TxPool(),
+		clientContext,
+	)
 }
 
 // TODO: Remove these, because they're hacky af.
