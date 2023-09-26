@@ -84,7 +84,7 @@ type miner struct {
 }
 
 // NewMiner creates a new Miner instance.
-func NewMiner(backend Backend) Miner {
+func New(backend Backend) Miner {
 	chain := backend.Blockchain()
 	host := backend.Host()
 

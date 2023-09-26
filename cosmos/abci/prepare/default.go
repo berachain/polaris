@@ -25,9 +25,12 @@ import (
 	"math/big"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/miner"
+
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
@@ -62,7 +65,7 @@ func (h *Handler) SetPolaris(polaris *polar.Polaris) {
 	h.polaris = polaris
 }
 
-//nolint:gocognit // from sdk.
+
 func (h *Handler) PrepareProposal(
 	ctx sdk.Context, req *abci.RequestPrepareProposal,
 ) (*abci.ResponsePrepareProposal, error) {
@@ -120,7 +123,6 @@ func (h *Handler) PrepareProposal(
 		}
 
 		byPriceAndNonce.Shift()
-
 	}
 	// for iterator != nil {
 	// 	memTx := iterator.Tx()

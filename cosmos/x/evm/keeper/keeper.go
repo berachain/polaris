@@ -137,7 +137,7 @@ func (k *Keeper) SetClientCtx(clientContext client.Context) {
 
 	// TODO: move this
 	go func() {
-		// spin lock for a bit
+		// spin lock for a bit until begin block has been called (this is kinda hood)
 		for ; k.lock; time.Sleep(2 * time.Second) { //nolint:gomnd // todo remove.
 			continue
 		}
@@ -150,7 +150,6 @@ func (k *Keeper) SetClientCtx(clientContext client.Context) {
 			panic(err)
 		}
 
-		time.Sleep(3 * time.Second) //nolint:gomnd // TODO: this is hiding a race condition.
 		txp := k.host.GetTxPoolPlugin().(txpool.Plugin)
 		txp.Start(
 			k.polaris.TxPool(),
