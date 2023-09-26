@@ -21,7 +21,6 @@
 package prepare
 
 import (
-	"fmt"
 	"math/big"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -43,11 +42,6 @@ type (
 		PrepareProposalVerifyTx(tx sdk.Tx) ([]byte, error)
 		ProcessProposalVerifyTx(txBz []byte) (sdk.Tx, error)
 	}
-
-	// GasTx defines the contract that a transaction with a gas limit must implement.
-	GasTx interface {
-		GetGas() uint64
-	}
 )
 
 type Handler struct {
@@ -65,7 +59,6 @@ func (h *Handler) SetPolaris(polaris *polar.Polaris) {
 	h.polaris = polaris
 }
 
-
 func (h *Handler) PrepareProposal(
 	ctx sdk.Context, req *abci.RequestPrepareProposal,
 ) (*abci.ResponsePrepareProposal, error) {
@@ -79,9 +72,9 @@ func (h *Handler) PrepareProposal(
 		totalTxBytes int64
 		totalTxGas   uint64
 	)
-	fmt.Println("TODO FIX RACE NIL SHIT")
+	ctx.Logger().With("prepare-proposal").Error("NOTE: DEV, FIX RACE CONDITION HERE U CLOWN")
 	pending := h.polaris.TxPool().Pending(false)
-	txp := h.polaris.Host().GetTxPoolPlugin().(txpool.Plugin)
+	txp, _ := h.polaris.Host().GetTxPoolPlugin().(txpool.Plugin)
 
 	// If no transactions to propose, just continue
 	if len(pending) == 0 {
@@ -124,54 +117,6 @@ func (h *Handler) PrepareProposal(
 
 		byPriceAndNonce.Shift()
 	}
-	// for iterator != nil {
-	// 	memTx := iterator.Tx()
-
-	// 	// NOTE: Since transaction verification was already executed in CheckTx,
-	// 	// which calls mempool.Insert, in theory everything in the pool should be
-	// 	// valid. But some mempool implementations may insert invalid txs, so we
-	// 	// check again.
-	// 	bz, err := h.txVerifier.PrepareProposalVerifyTx(memTx)
-	// 	if err != nil { //nolint:nestif // from sdk.
-	// 		err2 := h.mempool.Remove(memTx)
-	// 		if err2 != nil && !errors.Is(err2, sdkmempool.ErrTxNotFound) {
-	// 			return nil, err
-	// 		}
-	// 	} else {
-	// 		var txGasLimit uint64
-	// 		txSize := int64(len(bz))
-
-	// 		gasTx, ok := memTx.(GasTx)
-	// 		if ok {
-	// 			txGasLimit = gasTx.GetGas()
-	// 		}
-
-	// 		// only add the transaction to the proposal if we have enough capacity
-	// 		if (txSize + totalTxBytes) < req.MaxTxBytes {
-	// 			// If there is a max block gas limit, add the tx only if the limit has
-	// 			// not been met.
-	// 			if maxBlockGas > 0 {
-	// 				if (txGasLimit + totalTxGas) <= uint64(maxBlockGas) {
-	// 					totalTxGas += txGasLimit
-	// 					totalTxBytes += txSize
-	// 					selectedTxs = append(selectedTxs, bz)
-	// 				}
-	// 			} else {
-	// 				totalTxBytes += txSize
-	// 				selectedTxs = append(selectedTxs, bz)
-	// 			}
-	// 		}
-
-	// 		// Check if we've reached capacity. If so, we cannot select any more
-	// 		// transactions.
-	// 		if totalTxBytes >= req.MaxTxBytes ||
-	// 			(maxBlockGas > 0 && (totalTxGas >= uint64(maxBlockGas))) {
-	// 			break
-	// 		}
-	// 	}
-
-	// 	iterator = iterator.Next()
-	// }
 
 	return &abci.ResponsePrepareProposal{Txs: selectedTxs}, nil
 }

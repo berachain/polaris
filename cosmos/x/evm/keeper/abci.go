@@ -27,10 +27,8 @@ import (
 )
 
 func (k *Keeper) BeginBlocker(ctx context.Context) error {
-	sCtx := sdk.UnwrapSDKContext(ctx)
 	// Prepare the Polaris Ethereum block.
-	k.lock = false
-	k.miner.Prepare(ctx, uint64(sCtx.BlockHeight()))
+	_ = k.miner.Prepare(ctx, uint64(sdk.UnwrapSDKContext(ctx).BlockHeight()))
 	return nil
 }
 

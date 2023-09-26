@@ -55,9 +55,6 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
 	host Host
-
-	// temp syncing
-	lock bool
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -72,7 +69,6 @@ func NewKeeper(
 	k := &Keeper{
 		ak:       ak,
 		storeKey: storeKey,
-		lock:     true,
 	}
 
 	k.host = NewHost(
@@ -132,11 +128,8 @@ func (k *Keeper) SetClientCtx(clientContext client.Context) {
 
 	// TODO: move this
 	go func() {
-		// spin lock for a bit until begin block has been called (this is kinda hood)
-		for ; k.lock; time.Sleep(2 * time.Second) { //nolint:gomnd // todo remove.
-			continue
-		}
-
+		// TODO: remove race condition.
+		time.Sleep(2 * time.Second) //nolint:gomnd // i know i know....
 		if err := k.polaris.Init(); err != nil {
 			panic(err)
 		}
@@ -145,7 +138,7 @@ func (k *Keeper) SetClientCtx(clientContext client.Context) {
 			panic(err)
 		}
 
-		txp := k.host.GetTxPoolPlugin().(txpool.Plugin)
+		txp, _ := k.host.GetTxPoolPlugin().(txpool.Plugin)
 		txp.Start(
 			k.polaris.TxPool(),
 			clientContext,
