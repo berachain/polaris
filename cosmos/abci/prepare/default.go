@@ -21,8 +21,6 @@
 package prepare
 
 import (
-	"math/big"
-
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -72,18 +70,20 @@ func (h *Handler) PrepareProposal(
 		totalTxBytes int64
 		totalTxGas   uint64
 	)
-	ctx.Logger().With("prepare-proposal").Error("NOTE: DEV, FIX RACE CONDITION HERE U CLOWN")
-	pending := h.polaris.TxPool().Pending(false)
-	txp, _ := h.polaris.Host().GetTxPoolPlugin().(txpool.Plugin)
 
-	// If no transactions to propose, just continue
-	if len(pending) == 0 {
+	// TODO: this is definitely big bad and should be fixed.
+	// We should prime the blockchain object after app.Load().
+	if h.polaris.TxPool() == nil {
+		ctx.Logger().Error("waiting for txpool to be initialized, proposing empty block")
 		return &abci.ResponsePrepareProposal{}, nil
 	}
 
+	pending := h.polaris.TxPool().Pending(false)
+	txp, _ := h.polaris.Host().GetTxPoolPlugin().(txpool.Plugin)
+
 	byPriceAndNonce := miner.NewTransactionsByPriceAndNonce(types.LatestSigner(
 		h.polaris.Host().GetConfigurationPlugin().ChainConfig(),
-	), pending, big.NewInt(0)) // todo get baseFeeproperly
+	), pending, h.polaris.Miner().NextBaseFee())
 
 	for _tx := byPriceAndNonce.Peek(); _tx != nil; _tx = byPriceAndNonce.Peek() {
 		bz, err := txp.SerializeToBytes(_tx.Resolve())

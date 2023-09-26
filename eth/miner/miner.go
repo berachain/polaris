@@ -58,6 +58,9 @@ type Miner interface {
 
 	// Finalize is called after the last tx in the block.
 	Finalize(context.Context) error
+
+	// TODO: deprecate
+	NextBaseFee() *big.Int
 }
 
 // miner implements the Miner interface.
@@ -106,6 +109,11 @@ func New(backend Backend) Miner {
 	)
 
 	return m
+}
+
+// TODO: deprecate and properly recalculate in prepare proposal, this is fine for now though.
+func (m *miner) NextBaseFee() *big.Int {
+	return eip1559.CalcBaseFee(m.cp.ChainConfig(), m.pendingHeader)
 }
 
 // Prepare prepares the blockchain for processing a new block at the given height.
