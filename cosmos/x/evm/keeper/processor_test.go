@@ -96,7 +96,12 @@ var _ = Describe("Processor", func() {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
+		sc = staking.NewPrecompileContract(ak, &sk)
 		ctx = ctx.WithBlockHeight(0)
+		cfg := config.DefaultConfig()
+		cfg.Node.DataDir = GinkgoT().TempDir()
+		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
+		k.Setup(cfg, nil, log.NewTestLogger(GinkgoT()))
 		for _, plugin := range k.GetPolaris().Host().(keeper.Host).GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
 			if hasInitGenesis {
@@ -107,8 +112,8 @@ var _ = Describe("Processor", func() {
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
 		Expect(sk.SetValidator(ctx, validator)).To(Succeed())
-		sc = staking.NewPrecompileContract(ak, &sk)
-		cfg := config.DefaultConfig()
+
+		cfg = config.DefaultConfig()
 		cfg.Node.DataDir = GinkgoT().TempDir()
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
 		k.Setup(cfg, nil, log.NewTestLogger(GinkgoT()))
