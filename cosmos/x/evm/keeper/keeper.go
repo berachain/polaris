@@ -35,6 +35,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -137,13 +138,20 @@ func (k *Keeper) SetClientCtx(clientContext client.Context) {
 	// TODO: move this
 	go func() {
 		// spin lock for a bit
-		for ; k.lock; time.Sleep(2 * time.Second) {
+		for ; k.lock; time.Sleep(2 * time.Second) { //nolint:gomnd // todo remove.
 			continue
 		}
 
 		if err := k.polaris.StartServices(); err != nil {
 			panic(err)
 		}
+
+		time.Sleep(3 * time.Second) //nolint:gomnd // TODO: this is hiding a race condition.
+		txp := k.host.GetTxPoolPlugin().(txpool.Plugin)
+		txp.Start(
+			k.polaris.TxPool(),
+			clientContext,
+		)
 	}()
 }
 

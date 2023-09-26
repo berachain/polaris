@@ -26,8 +26,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/ethereum/go-ethereum/core/txpool"
+
 	mempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // Compile-time type assertion.
@@ -38,6 +41,9 @@ type Plugin interface {
 	core.TxPoolPlugin
 	Start(*txpool.TxPool, client.Context)
 	// Prepare(*big.Int, coretypes.Signer)
+	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
+	Pending(enforceTips bool) map[common.Address][]*txpool.LazyTransaction
+	TxPool() *txpool.TxPool
 }
 
 // plugin represents the transaction pool plugin.
@@ -54,13 +60,23 @@ func NewPlugin(wrappedGethTxPool *mempool.WrappedGethTxPool) Plugin {
 	}
 }
 
+// GetHandler implements the Plugin interface.
 func (p *plugin) GetHandler() core.Handler {
 	return p.handler
+}
+
+func (p *plugin) TxPool() *txpool.TxPool {
+	return p.WrappedGethTxPool.TxPool
+}
+
+func (p *plugin) SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error) {
+	return p.serializer.SerializeToBytes(signedTx)
 }
 
 // Setup implements the Plugin interface.
 func (p *plugin) Start(txpool *txpool.TxPool, ctx client.Context) {
 	p.serializer = newSerializer(ctx)
+	p.WrappedGethTxPool.TxPool = txpool
 	// p.WrappedGethTxPool.Setup(txpool, p.serializer)
 	p.handler = newHandler(ctx, txpool, p.serializer, log.NewNopLogger())
 }

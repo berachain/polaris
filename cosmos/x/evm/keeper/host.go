@@ -35,8 +35,10 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Compile-time interface assertion.
@@ -84,7 +86,7 @@ func NewHost(
 	h.cp = configuration.NewPlugin(storeKey)
 	h.ep = engine.NewPlugin()
 	h.gp = gas.NewPlugin()
-	// h.txp = txpool.NewPlugin(utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	h.txp = txpool.NewPlugin(utils.MustGetAs[*mempool.WrappedGethTxPool](ethTxMempool))
 	h.pcs = precompiles
 
 	return h

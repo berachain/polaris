@@ -36,7 +36,7 @@ type ChainResources interface {
 	GetVMConfig() *vm.Config
 }
 
-// StateAt returns a statedb configured to read what the state of the blockchain is/was at a given
+// StateAt returns a statedb configured to read what the state of the blockchain is/was at a given.
 func (bc *blockchain) StateAt(common.Hash) (state.StateDBI, error) {
 	return nil, errors.New("not implemented")
 }

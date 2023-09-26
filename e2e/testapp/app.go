@@ -60,7 +60,6 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-
 	"pkg.berachain.dev/polaris/cosmos/abci"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
@@ -222,9 +221,7 @@ func NewPolarisApp(
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
 	app.App = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
-	proposalHandler := abci.NewDefaultProposalHandler(ethTxMempool, app)
-	app.App.BaseApp.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
-	app.App.BaseApp.SetProcessProposal(proposalHandler.ProcessProposalHandler())
+	proposalHandler := abci.NewDefaultProposalHandler(app)
 
 	// read oracle config from app-opts, and construct oracle service
 	polarisCfg, err := evmconfig.ReadConfigFromAppOpts(appOpts)
@@ -241,6 +238,9 @@ func NewPolarisApp(
 		app.CreateQueryContext,
 		logger,
 	)
+	proposalHandler.SetPolaris(app.EVMKeeper.GetPolaris())
+	app.App.BaseApp.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
+	app.App.BaseApp.SetProcessProposal(proposalHandler.ProcessProposalHandler())
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,

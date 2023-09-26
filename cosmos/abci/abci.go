@@ -22,10 +22,10 @@ package abci
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
 
 	prepare "pkg.berachain.dev/polaris/cosmos/abci/prepare"
 	process "pkg.berachain.dev/polaris/cosmos/abci/process"
+	"pkg.berachain.dev/polaris/eth/polar"
 )
 
 type (
@@ -50,21 +50,25 @@ type (
 	}
 )
 
-func NewDefaultProposalHandler(mp mempool.Mempool, txVerifier ProposalTxVerifier) DefaultProposalHandler {
-	_, isNoOp := mp.(mempool.NoOpMempool)
-	if mp == nil || isNoOp {
-		panic("mempool must be set and cannot be a NoOpMempool")
-	}
-	return DefaultProposalHandler{
-		proposer:  prepare.NewHandler(mp, txVerifier),
+func NewDefaultProposalHandler(txVerifier ProposalTxVerifier) *DefaultProposalHandler {
+	// _, isNoOp := mp.(mempool.NoOpMempool)
+	// if mp == nil || isNoOp {
+	// 	panic("mempool must be set and cannot be a NoOpMempool")
+	// }
+	return &DefaultProposalHandler{
+		proposer:  prepare.NewHandler(txVerifier),
 		processor: process.NewHandler(txVerifier),
 	}
 }
 
-func (h DefaultProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
+func (h *DefaultProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 	return h.proposer.PrepareProposal
 }
 
-func (h DefaultProposalHandler) ProcessProposalHandler() sdk.ProcessProposalHandler {
+func (h *DefaultProposalHandler) ProcessProposalHandler() sdk.ProcessProposalHandler {
 	return h.processor.ProcessProposal
+}
+
+func (h *DefaultProposalHandler) SetPolaris(polaris *polar.Polaris) {
+	h.proposer.SetPolaris(polaris)
 }

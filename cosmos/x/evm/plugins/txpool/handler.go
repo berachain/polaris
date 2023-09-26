@@ -22,15 +22,16 @@ package txpool
 
 import (
 	"sync"
+	"time"
 
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
+	"github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/event"
 
-	"github.com/ethereum/go-ethereum/core/txpool"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -66,6 +67,7 @@ func newHandler(
 	}
 	h.wg.Add(1)
 	h.txsCh = make(chan core.NewTxsEvent, txChanSize)
+	time.Sleep(15 * time.Second) //nolint:gomnd // todo remove. TODO: this is hiding a race condition.
 	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
 	h.logger.Info("handler started")
 	go h.txBroadcastLoop() // start broadcast handlers
