@@ -8,7 +8,11 @@
 # The minimum gas prices a validator is willing to accept for processing a
 # transaction. A transaction's fees must meet the minimum of any denomination
 # specified in this config (e.g. 0.25token1;0.0001token2).
-minimum-gas-prices = "0abera"
+minimum-gas-prices = "0stake"
+
+# The maximum gas a query coming over rest/grpc may consume.
+# If this is set to zero, the query can consume an unbounded amount of gas.
+query-gas-limit = "0"
 
 # default: the last 362880 states are kept, pruning at 10 block intervals
 # nothing: all historic states will be saved, nothing will be deleted (i.e. archiving node)
@@ -60,20 +64,15 @@ inter-block-cache = true
 index-events = []
 
 # IavlCacheSize set the size of the iavl tree cache (in number of nodes).
-iavl-cache-size = 781250
+iavl-cache-size = 10000
 
 # IAVLDisableFastNode enables or disables the fast node feature of IAVL. 
 # Default is false.
 iavl-disable-fastnode = false
 
-# IAVLLazyLoading enable/disable the lazy loading of iavl store.
-# Default is false.
-iavl-lazy-loading = false
-
 # AppDBBackend defines the database backend type to use for the application and snapshots DBs.
 # An empty string indicates that a fallback will be used.
-# First fallback is the deprecated compile-time types.DBBackend value.
-# Second fallback (if the types.DBBackend also isn't set), is the db-backend value set in CometBFT's config.toml.
+# The fallback is the db_backend value set in CometBFT's config.toml.
 app-db-backend = ""
 
 ###############################################################################
@@ -123,7 +122,7 @@ enable = false
 swagger = false
 
 # Address defines the API server to listen on.
-address = "tcp://0.0.0.0:1317"
+address = "tcp://localhost:1317"
 
 # MaxOpenConnections defines the number of maximum open connections.
 max-open-connections = 1000
@@ -150,7 +149,7 @@ enabled-unsafe-cors = false
 enable = true
 
 # Address defines the gRPC server address to bind to.
-address = "0.0.0.0:9090"
+address = "localhost:9090"
 
 # MaxRecvMsgSize defines the max message size in bytes the server can receive.
 # The default value is 10MB.
@@ -223,7 +222,7 @@ stop-node-on-err = true
 #
 # Note, this configuration only applies to SDK built-in app-side mempool
 # implementations.
-max-txs = "5000"
+max-txs = 5000
 
 ###############################################################################
 ###                                 Polaris                                 ###
