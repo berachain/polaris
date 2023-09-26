@@ -126,11 +126,6 @@ func (pl *Polaris) Init() error {
 		pl.cfg.LegacyTxPool, pl.Blockchain(),
 	)
 
-	// TODO REMOVE
-	for pl.blockchain == nil {
-		time.Sleep(1 * time.Second)
-	}
-
 	pl.txPool, err = txpool.New(big.NewInt(0), pl.blockchain, []txpool.SubPool{legacyPool})
 	if err != nil {
 		return err

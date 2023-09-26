@@ -22,7 +22,6 @@ package txpool
 
 import (
 	"sync"
-	"time"
 
 	"cosmossdk.io/log"
 
@@ -67,7 +66,6 @@ func newHandler(
 	}
 	h.wg.Add(1)
 	h.txsCh = make(chan core.NewTxsEvent, txChanSize)
-	time.Sleep(15 * time.Second) //nolint:gomnd // todo remove. TODO: this is hiding a race condition.
 	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
 	h.logger.Info("handler started")
 	go h.txBroadcastLoop() // start broadcast handlers
