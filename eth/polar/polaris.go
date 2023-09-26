@@ -120,6 +120,19 @@ func NewWithNetworkingStack(
 	return pl
 }
 
+func (pl *Polaris) Init() error {
+	var err error
+	legacyPool := legacypool.New(
+		pl.cfg.LegacyTxPool, pl.Blockchain(),
+	)
+
+	pl.txPool, err = txpool.New(big.NewInt(0), pl.blockchain, []txpool.SubPool{legacyPool})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // APIs return the collection of RPC services the polar package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (pl *Polaris) APIs() []rpc.API {
@@ -148,20 +161,10 @@ func (pl *Polaris) StartServices() error {
 		// Register the JSON-RPCs with the networking stack.
 		pl.stack.RegisterAPIs(pl.APIs())
 
-		legacyPool := legacypool.New(
-			legacypool.DefaultConfig, pl.Blockchain(),
-		)
-
-		var err error
-		pl.txPool, err = txpool.New(big.NewInt(0), pl.blockchain, []txpool.SubPool{legacyPool})
-		if err != nil {
-			panic(err)
-		}
-
 		// Register the filter API separately in order to get access to the filterSystem
 		pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
 
-		if err = pl.stack.Start(); err != nil {
+		if err := pl.stack.Start(); err != nil {
 			panic(err)
 		}
 	}()

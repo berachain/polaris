@@ -142,6 +142,10 @@ func (k *Keeper) SetClientCtx(clientContext client.Context) {
 			continue
 		}
 
+		if err := k.polaris.Init(); err != nil {
+			panic(err)
+		}
+
 		if err := k.polaris.StartServices(); err != nil {
 			panic(err)
 		}

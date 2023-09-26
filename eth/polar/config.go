@@ -28,6 +28,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 
+	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
 )
@@ -44,8 +45,10 @@ const (
 func DefaultConfig() *Config {
 	gpoConfig := ethconfig.FullNodeGPO
 	gpoConfig.Default = big.NewInt(gpoDefault)
+
 	return &Config{
 		GPO:           gpoConfig,
+		LegacyTxPool:  legacypool.DefaultConfig,
 		RPCGasCap:     ethconfig.Defaults.RPCGasCap,
 		RPCTxFeeCap:   ethconfig.Defaults.RPCTxFeeCap,
 		RPCEVMTimeout: ethconfig.Defaults.RPCEVMTimeout,
@@ -56,6 +59,9 @@ func DefaultConfig() *Config {
 type Config struct {
 	// Gas Price Oracle config.
 	GPO gasprice.Config
+
+	// Transaction pool options
+	LegacyTxPool legacypool.Config
 
 	// RPCGasCap is the global gas cap for eth-call variants.
 	RPCGasCap uint64 `toml:""`
