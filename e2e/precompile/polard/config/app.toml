@@ -265,6 +265,41 @@ max-price = "500000000000"
 # Prices to ignore for gas price determination
 ignore-price = "2"
 
+# LegacyTxPool settings
+[polaris.polar.legacy-tx-pool]
+
+# Addresses that should be treated by default as local
+locals = []
+
+# Whether local transaction handling should be disabled
+no-locals = false
+
+# Journal of local transactions to survive node restarts
+journal = "transactions.rlp"
+
+#  Time interval to regenerate the local transaction journal
+rejournal = "1h0m0s"
+
+# Minimum gas price to enforce for acceptance into the pool
+price-limit = 1
+
+# Minimum price bump percentage to replace an already existing transaction (nonce)
+price-bump = 10
+
+# Number of executable transaction slots guaranteed per account
+account-slots = 16
+
+#  Maximum number of executable transaction slots for all accounts
+account-queue = 64
+
+# Maximum number of non-executable transaction slots permitted per account
+global-slots = 5120
+
+# Maximum number of non-executable transaction slots for all accounts
+global-queue = 1024
+
+# Maximum amount of time non-executable transaction are queued
+lifetime = "3h0m0s"
 
 # Node-specific settings
 [polaris.node]
@@ -278,7 +313,7 @@ user-ident = ""
 version = ""
 
 # Directory for storing node data
-data-dir = ""
+data-dir = "/Users/dev/Library/Ethereum"
 
 # Directory for storing node keys
 key-store-dir = ""
@@ -381,4 +416,3 @@ write-timeout = "30s"
 
 # Timeout for idle HTTP connections
 idle-timeout = "2m0s"
-

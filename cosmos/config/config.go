@@ -31,6 +31,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/node"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
 
@@ -62,6 +63,15 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 	}
 
 	// Wrapping casting functions to return both value and error
+	getCommonAddressList := func(key string) []common.Address {
+		addresses := make([]common.Address, 0)
+		addressStrs := cast.ToStringSlice(opts.Get(key))
+		for _, addressStr := range addressStrs {
+			address := common.HexToAddress(addressStr)
+			addresses = append(addresses, address)
+		}
+		return addresses
+	}
 	getString := func(key string) (string, error) { return cast.ToStringE(opts.Get(key)) }
 	getInt := func(key string) (int, error) { return cast.ToIntE(opts.Get(key)) }
 	getInt64 := func(key string) (int64, error) { return cast.ToInt64E(opts.Get(key)) }
@@ -109,6 +119,49 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 		return nil, handleError(err)
 	}
 	conf.Polar.GPO.IgnorePrice = big.NewInt(val)
+
+	// LegacyPool
+	conf.Polar.LegacyTxPool.Locals = getCommonAddressList(flagDefault)
+
+	if conf.Polar.LegacyTxPool.NoLocals, err = getBool(flagNoLocals); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Polar.LegacyTxPool.Journal, err = getString(flagJournal); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Polar.LegacyTxPool.Rejournal, err = getTimeDuration(flagReJournal); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Polar.LegacyTxPool.PriceLimit, err = getUint64(flagPriceLimit); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Polar.LegacyTxPool.PriceBump, err = getUint64(flagPriceBump); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Polar.LegacyTxPool.AccountSlots, err = getUint64(flagAccountSlots); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Polar.LegacyTxPool.GlobalSlots, err = getUint64(flagGlobalSlots); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Polar.LegacyTxPool.AccountQueue, err = getUint64(flagAccountQueue); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Polar.LegacyTxPool.GlobalQueue, err = getUint64(flagGlobalQueue); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Polar.LegacyTxPool.Lifetime, err = getTimeDuration(flagLifetime); err != nil {
+		return nil, handleError(err)
+	}
 
 	// Node settings
 	if conf.Node.Name, err = getString(flagName); err != nil {

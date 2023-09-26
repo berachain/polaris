@@ -63,6 +63,42 @@ max-price = "{{ .Polaris.Polar.GPO.MaxPrice }}"
 # Prices to ignore for gas price determination
 ignore-price = "{{ .Polaris.Polar.GPO.IgnorePrice }}"
 
+# LegacyTxPool settings
+[polaris.polar.legacy-tx-pool]
+
+# Addresses that should be treated by default as local
+locals = {{ .Polaris.Polar.LegacyTxPool.Locals }}
+
+# Whether local transaction handling should be disabled
+no-locals = {{ .Polaris.Polar.LegacyTxPool.NoLocals }}
+
+# Journal of local transactions to survive node restarts
+journal = "{{ .Polaris.Polar.LegacyTxPool.Journal }}"
+
+#  Time interval to regenerate the local transaction journal
+rejournal = "{{ .Polaris.Polar.LegacyTxPool.Rejournal }}"
+
+# Minimum gas price to enforce for acceptance into the pool
+price-limit = {{ .Polaris.Polar.LegacyTxPool.PriceLimit }}
+
+# Minimum price bump percentage to replace an already existing transaction (nonce)
+price-bump = {{ .Polaris.Polar.LegacyTxPool.PriceBump }}
+
+# Number of executable transaction slots guaranteed per account
+account-slots = {{ .Polaris.Polar.LegacyTxPool.AccountSlots }}
+
+#  Maximum number of executable transaction slots for all accounts
+account-queue = {{.Polaris.Polar.LegacyTxPool.AccountQueue }}
+
+# Maximum number of non-executable transaction slots permitted per account
+global-slots = {{ .Polaris.Polar.LegacyTxPool.GlobalSlots }}
+
+# Maximum number of non-executable transaction slots for all accounts
+global-queue = {{ .Polaris.Polar.LegacyTxPool.GlobalQueue }}
+
+# Maximum amount of time non-executable transaction are queued
+lifetime = "{{ .Polaris.Polar.LegacyTxPool.Lifetime }}"
+
 
 # Node-specific settings
 [polaris.node]

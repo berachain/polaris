@@ -129,7 +129,7 @@ func (k *Keeper) SetClientCtx(clientContext client.Context) {
 	// TODO: move this
 	go func() {
 		// TODO: remove race condition.
-		time.Sleep(2 * time.Second) //nolint:gomnd // i know i know....
+		time.Sleep(3 * time.Second) //nolint:gomnd // i know i know....
 		if err := k.polaris.Init(); err != nil {
 			panic(err)
 		}
