@@ -111,17 +111,17 @@ var _ = Describe("", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 			It("should contain the same genesis header values", func() {
-				bp := k.GetHost().GetBlockPlugin()
+				bp := k.GetPolaris().Host().GetBlockPlugin()
 				expectedHeader := ethGen.ToBlock().Header()
 				Expect(bp.GetHeaderByNumber(0)).To(Equal(expectedHeader))
 			})
 			It("should contain the correct chain config", func() {
-				actualConfig := k.GetHost().GetConfigurationPlugin().ChainConfig()
+				actualConfig := k.GetPolaris().Host().GetConfigurationPlugin().ChainConfig()
 				expectedConfig := ethGen.Config
 				Expect(actualConfig).To(Equal(expectedConfig))
 			})
 			It("should have the correct balances", func() {
-				sp := k.GetHost().GetStatePlugin()
+				sp := k.GetPolaris().Host().GetStatePlugin()
 				for addr, acc := range ethGen.Alloc {
 					balance := sp.GetBalance(addr)
 					cmp := balance.Cmp(acc.Balance)
@@ -129,7 +129,7 @@ var _ = Describe("", func() {
 				}
 			})
 			It("should have the correct code", func() {
-				sp := k.GetHost().GetStatePlugin()
+				sp := k.GetPolaris().Host().GetStatePlugin()
 				for addr, acc := range ethGen.Alloc {
 					code := sp.GetCode(addr)
 					cmp := bytes.Compare(code, acc.Code)
@@ -137,7 +137,7 @@ var _ = Describe("", func() {
 				}
 			})
 			It("should have the correct hash", func() {
-				sp := k.GetHost().GetStatePlugin()
+				sp := k.GetPolaris().Host().GetStatePlugin()
 				for addr, acc := range ethGen.Alloc {
 					for key, expectedHash := range acc.Storage {
 						actualHash := sp.GetState(addr, key)

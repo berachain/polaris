@@ -121,11 +121,6 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
 }
 
-// GetHost returns the Host that contains all plugins.
-func (k *Keeper) GetHost() Host {
-	return k.host
-}
-
 // GetPolaris returns the Polaris instance.
 func (k *Keeper) GetPolaris() *polar.Polaris {
 	return k.polaris
