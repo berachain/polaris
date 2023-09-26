@@ -22,11 +22,10 @@ package prepare
 
 import (
 	abci "github.com/cometbft/cometbft/abci/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/miner"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/eth/polar"
@@ -71,28 +70,20 @@ func (h *Handler) PrepareProposal(
 		totalTxGas   uint64
 	)
 
-	// TODO: this is definitely big bad and should be fixed.
-	// We should prime the blockchain object after app.Load().
-	if h.polaris.TxPool() == nil {
-		ctx.Logger().Error("waiting for txpool to be initialized, proposing empty block")
-		return &abci.ResponsePrepareProposal{}, nil
-	}
-
-	pending := h.polaris.TxPool().Pending(false)
 	txp, _ := h.polaris.Host().GetTxPoolPlugin().(txpool.Plugin)
+	txs := h.txPoolTransactions(ctx)
 
-	byPriceAndNonce := miner.NewTransactionsByPriceAndNonce(types.LatestSigner(
-		h.polaris.Host().GetConfigurationPlugin().ChainConfig(),
-	), pending, h.polaris.Miner().NextBaseFee())
-
-	for _tx := byPriceAndNonce.Peek(); _tx != nil; _tx = byPriceAndNonce.Peek() {
-		bz, err := txp.SerializeToBytes(_tx.Resolve())
+	for lazyTx := txs.Peek(); lazyTx != nil; lazyTx = txs.Peek() {
+		tx := lazyTx.Resolve()
+		bz, err := txp.SerializeToBytes(tx)
 		if err != nil {
-			ctx.Logger().Error("Failed sdk.Tx Serialization", _tx.Resolve().Hash(), err)
+			ctx.Logger().Error("Failed sdk.Tx Serialization", tx.Hash(), err)
 			continue
 		}
-		txGasLimit := _tx.Tx.Gas()
+
+		txGasLimit := tx.Gas()
 		txSize := int64(len(bz))
+
 		// only add the transaction to the proposal if we have enough capacity
 		if (txSize + totalTxBytes) < req.MaxTxBytes {
 			// If there is a max block gas limit, add the tx only if the limit has
@@ -108,6 +99,7 @@ func (h *Handler) PrepareProposal(
 				selectedTxs = append(selectedTxs, bz)
 			}
 		}
+
 		// Check if we've reached capacity. If so, we cannot select any more
 		// transactions.
 		if totalTxBytes >= req.MaxTxBytes ||
@@ -115,8 +107,24 @@ func (h *Handler) PrepareProposal(
 			break
 		}
 
-		byPriceAndNonce.Shift()
+		// Shift the transaction off the queue.
+		txs.Shift()
 	}
 
 	return &abci.ResponsePrepareProposal{Txs: selectedTxs}, nil
+}
+
+// txPoolTransactions returns a sorted list of transactions from the txpool.
+func (h *Handler) txPoolTransactions(ctx sdk.Context) *miner.TransactionsByPriceAndNonce {
+	// TODO: this is definitely big bad and should be fixed.
+	// We should prime the blockchain object after app.Load().
+	if h.polaris.TxPool() == nil {
+		ctx.Logger().Error("waiting for txpool to be initialized, proposing empty block")
+		return &miner.TransactionsByPriceAndNonce{}
+	}
+
+	pending := h.polaris.TxPool().Pending(false)
+	return miner.NewTransactionsByPriceAndNonce(types.LatestSigner(
+		h.polaris.Host().GetConfigurationPlugin().ChainConfig(),
+	), pending, h.polaris.Miner().NextBaseFee())
 }
