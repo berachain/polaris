@@ -135,7 +135,7 @@ func NewPolarisApp(
 	var (
 		app          = &SimApp{}
 		appBuilder   *runtime.AppBuilder
-		ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
+		ethTxMempool = &evmmempool.WrappedGethTxPool{}
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
 			MakeAppConfig(bech32Prefix),

@@ -27,10 +27,10 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/misc/eip1559"
 	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
 
+	"github.com/ethereum/go-ethereum/core/txpool"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/state"
-	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -42,7 +42,7 @@ import (
 type Backend interface {
 	// Blockchain returns the blockchain instance.
 	Blockchain() core.Blockchain
-	TxPool() txpool.TxPool
+	TxPool() *txpool.TxPool
 	Host() core.PolarisHostChain
 }
 
@@ -65,7 +65,7 @@ type miner struct {
 	backend   Backend
 	chain     core.Blockchain
 	processor *core.StateProcessor
-	txPool    txpool.TxPool
+	txPool    *txpool.TxPool
 	bp        core.BlockPlugin
 	cp        core.ConfigurationPlugin
 	gp        core.GasPlugin
@@ -211,9 +211,9 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		m.pendingHeader,
 	)
 
-	// We update the base fee in the txpool to the next base fee.
-	// TODO: Move to prepare proposal
-	m.txPool.SetBaseFee(m.pendingHeader.BaseFee)
+	// // We update the base fee in the txpool to the next base fee.
+	// // TODO: Move to prepare proposal
+	// m.txPool.SetBaseFee(m.pendingHeader.BaseFee)
 
 	return m.pendingHeader
 }

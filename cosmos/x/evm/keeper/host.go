@@ -35,10 +35,8 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Compile-time interface assertion.
@@ -86,7 +84,7 @@ func NewHost(
 	h.cp = configuration.NewPlugin(storeKey)
 	h.ep = engine.NewPlugin()
 	h.gp = gas.NewPlugin()
-	h.txp = txpool.NewPlugin(utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
+	// h.txp = txpool.NewPlugin(utils.MustGetAs[*mempool.EthTxPool](ethTxMempool))
 	h.pcs = precompiles
 
 	return h
@@ -105,7 +103,7 @@ func (h *host) Setup(
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles())
 	// TODO: re-enable historical plugin using ABCI listener.
 	h.hp = historical.NewPlugin(h.cp, h.bp, nil, storeKey)
-	h.txp.SetNonceRetriever(h.sp)
+	// h.txp.SetNonceRetriever(h.sp)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)

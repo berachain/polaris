@@ -21,6 +21,7 @@
 package polar
 
 import (
+	"math/big"
 	"net/http"
 	"time"
 
@@ -28,8 +29,9 @@ import (
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/filters"
 
+	"github.com/ethereum/go-ethereum/core/txpool"
+	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/miner"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
@@ -73,7 +75,8 @@ type Polaris struct {
 	// core pieces of the polaris stack
 	host       core.PolarisHostChain
 	blockchain core.Blockchain
-	txPool     txpool.TxPool
+	handler    core.Handler
+	txPool     *txpool.TxPool
 	miner      miner.Miner
 
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the core pieces.
@@ -113,7 +116,6 @@ func NewWithNetworkingStack(
 
 	// Build and set the RPC Backend and other services.
 	pl.backend = NewBackend(pl, stack.ExtRPCEnabled(), cfg)
-	pl.txPool = txpool.NewTxPool(host.GetTxPoolPlugin())
 	pl.miner = miner.NewMiner(pl)
 
 	return pl
@@ -140,15 +142,27 @@ func (pl *Polaris) APIs() []rpc.API {
 
 // StartServices notifies the NetworkStack to spin up (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
-	// Register the JSON-RPCs with the networking stack.
-	pl.stack.RegisterAPIs(pl.APIs())
-
-	// Register the filter API separately in order to get access to the filterSystem
-	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
 
 	go func() {
 		// TODO: unhack this.
 		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
+
+		// Register the JSON-RPCs with the networking stack.
+		pl.stack.RegisterAPIs(pl.APIs())
+
+		legacyPool := legacypool.New(
+			legacypool.DefaultConfig, pl.Blockchain(),
+		)
+
+		var err error
+		pl.txPool, err = txpool.New(big.NewInt(0), pl.blockchain, []txpool.SubPool{legacyPool})
+		if err != nil {
+			panic(err)
+		}
+
+		// Register the filter API separately in order to get access to the filterSystem
+		pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
+
 		if err := pl.stack.Start(); err != nil {
 			panic(err)
 		}
@@ -168,7 +182,7 @@ func (pl *Polaris) Miner() miner.Miner {
 	return pl.miner
 }
 
-func (pl *Polaris) TxPool() txpool.TxPool {
+func (pl *Polaris) TxPool() *txpool.TxPool {
 	return pl.txPool
 }
 

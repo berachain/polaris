@@ -67,7 +67,7 @@ var _ = Describe("", func() {
 		k = keeper.NewKeeper(
 			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
-			evmmempool.NewPolarisEthereumTxPool(),
+			&evmmempool.WrappedGethTxPool{},
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},

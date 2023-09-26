@@ -35,7 +35,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -132,13 +131,13 @@ func (k *Keeper) GetPolaris() *polar.Polaris {
 }
 
 func (k *Keeper) SetClientCtx(clientContext client.Context) {
-	k.host.GetTxPoolPlugin().(txpool.Plugin).SetClientContext(clientContext)
+	// k.host.GetTxPoolPlugin().(txpool.Plugin).SetClientContext(clientContext)
 	k.host.GetEnginePlugin().(engine.Plugin).Start(clientContext)
 
 	// TODO: move this
 	go func() {
 		// spin lock for a bit
-		for ; k.lock; time.Sleep(1 * time.Second) {
+		for ; k.lock; time.Sleep(2 * time.Second) {
 			continue
 		}
 
