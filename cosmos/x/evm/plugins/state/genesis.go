@@ -52,8 +52,8 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {
 			// if the account exists on the auth keeper, ensure the nonce is the same.
 			if p.GetNonce(address) != account.Nonce {
 				return fmt.Errorf(
-					"account nonce mismatch between auth (%d) and evm (%d) genesis state",
-					p.GetNonce(address), account.Nonce,
+					"account nonce mismatch for (%s) between auth (%d) and evm (%d) genesis state",
+					address.Hex(), p.GetNonce(address), account.Nonce,
 				)
 			}
 		} else if account.Nonce != 0 {
@@ -65,10 +65,10 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {
 			p.SetBalance(address, account.Balance)
 		}
 		if account.Code != nil {
-			if ethGen.Config.IsEIP155(big.NewInt(0)) && account.Nonce < 1 {
+			if ethGen.Config.IsEIP155(big.NewInt(0)) && account.Nonce == 0 {
 				// NOTE: EIP 161 was released at the same block as EIP 155.
 				return fmt.Errorf(
-					"EIP-161 requires an account with code (%s) to have nonce of at least 1",
+					"EIP-161 requires an account with code (%s) to have nonce of at least 1, given (0)",
 					address.Hex(),
 				)
 			}

@@ -47,9 +47,33 @@ var _ = Describe("Genesis", func() {
 		ctx, ak, _, _ = testutil.SetupMinimalKeepers()
 		sp = state.NewPlugin(ak, testutil.EvmKey, nil)
 
-		// Create account for alice.
+		// Create account for alice, bob
+		acc := ak.NewAccountWithAddress(ctx, bob[:])
+		acc.SetSequence(2)
+		ak.SetAccount(ctx, acc)
 		sp.Reset(ctx)
-		code = []byte("code")
+	})
+
+	FIt("should fail init genesis on bad data", func() {
+		genesis := new(core.Genesis)
+		genesis.Config = core.DefaultGenesis.Config
+		genesis.Alloc = make(core.GenesisAlloc)
+		genesis.Alloc[alice] = core.GenesisAccount{
+			Nonce: 0,
+			Code:  []byte("code"),
+		}
+		genesis.Alloc[bob] = core.GenesisAccount{
+			Nonce: 1,
+		}
+		// Call Init Genesis and expect bob's case to error because the addresses are sorted.
+		Expect(sp.InitGenesis(ctx, genesis)).To(
+			MatchError("account nonce mismatch for (0x0000000000000000000000000000000000626f62) between auth (2) and evm (1) genesis state"), //nolint:lll // test.
+		)
+		delete(genesis.Alloc, bob)
+		// Call Init Genesis and expect alice's case to error.
+		Expect(sp.InitGenesis(ctx, genesis)).To(
+			MatchError("EIP-161 requires an account with code (0x000000000000000000000000000000616c696365) to have nonce of at least 1, given (0)"), //nolint:lll // test.
+		)
 	})
 
 	It("should init and export genesis", func() {
@@ -61,21 +85,23 @@ var _ = Describe("Genesis", func() {
 			Storage: map[common.Hash]common.Hash{
 				common.BytesToHash([]byte("key")): common.BytesToHash([]byte("value")),
 			},
-			Code: code,
+			Code:  []byte("code"),
+			Nonce: 1,
+		}
+		genesis.Alloc[bob] = core.GenesisAccount{
+			Balance: big.NewInt(2e18),
+			Nonce:   2,
 		}
 		// Call Init Genesis
 		Expect(sp.InitGenesis(ctx, genesis)).To(Succeed())
 
-		// Check that the code is set.
-		sp.Reset(ctx)
-		Expect(sp.GetCode(alice)).To(Equal(code))
-		sp.Finalize()
-
-		// Check that the code hash is set.
+		// Check the code, hash, balance.
 		sp.Reset(ctx)
 		Expect(sp.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash(code)))
+		Expect(sp.GetCodeHash(bob)).To(Equal(crypto.Keccak256Hash(nil).Bytes()))
 		sp.Finalize()
 		Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(5e18)))
+		Expect(sp.GetBalance(bob)).To(Equal(big.NewInt(2e18)))
 		Expect(sp.GetCode(alice)).To(Equal(code))
 
 		// Very exported genesis is equal.
