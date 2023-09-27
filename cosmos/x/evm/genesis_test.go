@@ -73,10 +73,9 @@ var _ = Describe("", func() {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 			nil,
+			log.NewTestLogger(GinkgoT()),
 			cfg,
 		)
-
-		k.Setup(log.NewTestLogger(GinkgoT()))
 
 		am = evm.NewAppModule(k, ak)
 	})

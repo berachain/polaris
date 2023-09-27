@@ -219,18 +219,11 @@ func NewPolarisApp(
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 	proposalHandler := abci.NewDefaultProposalHandler(app)
-
-	// TODO: MOVE EVM SETUP
-	// ----- BEGIN EVM SETUP ----------------------------------------------
-
-	// setup evm keeper and all of its plugins.
-	app.EVMKeeper.Setup(
-		logger,
-	)
-
 	proposalHandler.SetPolaris(app.EVMKeeper.GetPolaris())
+
 	app.App.BaseApp.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
 	app.App.BaseApp.SetProcessProposal(proposalHandler.ProcessProposalHandler())
+
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,

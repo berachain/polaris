@@ -27,6 +27,7 @@ import (
 
 	"github.com/spf13/cast"
 
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 
 	"github.com/ethereum/go-ethereum/node"
@@ -177,7 +178,10 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 		return nil, handleError(err)
 	}
 	if conf.Node.DataDir == "" {
-		conf.Node.DataDir = node.DefaultDataDir()
+		conf.Node.DataDir, err = getString(flags.FlagHome)
+		if err != nil {
+			return nil, handleError(err)
+		}
 	}
 	if conf.Node.KeyStoreDir, err = getString(flagKeyStoreDir); err != nil {
 		return nil, handleError(err)

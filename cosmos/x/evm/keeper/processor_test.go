@@ -98,10 +98,9 @@ var _ = Describe("Processor", func() {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 			nil,
+			log.NewTestLogger(GinkgoT()),
 			cfg,
 		)
-		k.Setup(log.NewTestLogger(GinkgoT()))
-
 		ctx = ctx.WithBlockHeight(0)
 
 		for _, plugin := range k.GetPolaris().Host().(keeper.Host).GetAllPlugins() {

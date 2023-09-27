@@ -51,8 +51,6 @@ type Keeper struct {
 
 	// The (unexposed) key used to access the store from the Context.
 	storeKey storetypes.StoreKey
-
-	polarisCfg *config.Config
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -62,12 +60,12 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	pcs func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
+	logger log.Logger,
 	polarisCfg *config.Config,
 ) *Keeper {
 	// We setup the keeper with some Cosmos standard sauce.
 	k := &Keeper{
-		storeKey:   storeKey,
-		polarisCfg: polarisCfg,
+		storeKey: storeKey,
 	}
 
 	k.host = NewHost(
@@ -78,19 +76,12 @@ func NewKeeper(
 		qc,
 	)
 
-	return k
-}
-
-// Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
-func (k *Keeper) Setup(
-	logger log.Logger,
-) {
-	node, err := polar.NewGethNetworkingStack(&k.polarisCfg.Node)
+	node, err := polar.NewGethNetworkingStack(&polarisCfg.Node)
 	if err != nil {
 		panic(err)
 	}
 
-	k.polaris = polar.NewWithNetworkingStack(&k.polarisCfg.Polar, k.host, node, ethlog.FuncHandler(
+	k.polaris = polar.NewWithNetworkingStack(&polarisCfg.Polar, k.host, node, ethlog.FuncHandler(
 		func(r *ethlog.Record) error {
 			polarisGethLogger := logger.With("module", "polaris-geth")
 			switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
@@ -104,6 +95,8 @@ func (k *Keeper) Setup(
 			return nil
 		}),
 	)
+
+	return k
 }
 
 // Logger returns a module-specific logger.
@@ -117,7 +110,6 @@ func (k *Keeper) GetPolaris() *polar.Polaris {
 }
 
 func (k *Keeper) SetClientCtx(clientContext client.Context) {
-	// k.host.GetTxPoolPlugin().(txpool.Plugin).SetClientContext(clientContext)
 	k.host.GetEnginePlugin().(engine.Plugin).Start(clientContext)
 
 	if err := k.polaris.Init(); err != nil {
