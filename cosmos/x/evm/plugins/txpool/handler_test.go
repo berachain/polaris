@@ -56,19 +56,17 @@ var _ = Describe("", func() {
 		h.Start()
 		// Wait for handler to start.
 		time.Sleep(300 * time.Millisecond)
+		Expect(h.Running()).To(BeTrue())
 	})
 
 	AfterEach(func() {
 		h.Stop()
 		// Wait for handler to stop
 		time.Sleep(300 * time.Millisecond)
+		Expect(h.Running()).To(BeFalse())
 	})
 
 	When("", func() {
-		It("should start", func() {
-			Expect(h.Running()).To(BeTrue())
-		})
-
 		It("should handle 1 tx", func() {
 			serializer.On("SerializeToBytes", mock.Anything).Return([]byte{123}, nil).Once()
 			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Once()
