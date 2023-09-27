@@ -312,7 +312,7 @@ user-ident = ""
 version = ""
 
 # Directory for storing node data
-data-dir = "/Users/dev/Library/Ethereum"
+data-dir = ""
 
 # Directory for storing node keys
 key-store-dir = ""
