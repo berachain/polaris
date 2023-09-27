@@ -28,8 +28,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/lib/encoding"
 )
 
 // Plugin is the interface that must be implemented by the plugin.
@@ -52,8 +54,39 @@ func NewPlugin(storeKey storetypes.StoreKey) Plugin {
 	}
 }
 
+// InitGenesis performs genesis initialization for the evm module. It returns
+// no validator updates.
+func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
+	p.Prepare(ctx)
+	p.SetChainConfig(ethGen.Config)
+}
+
+// ExportGenesis returns the exported genesis state as raw bytes for the evm
+// module.
+func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
+	p.Prepare(ctx)
+	ethGen.Config = p.ChainConfig()
+}
+
 // Prepare implements the core.ConfigurationPlugin interface.
 func (p *plugin) Prepare(ctx context.Context) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	p.paramsStore = sCtx.KVStore(p.storeKey)
+}
+
+// GetChainConfig is used to get the genesis info of the Ethereum chain.
+func (p *plugin) ChainConfig() *params.ChainConfig {
+	bz := p.paramsStore.Get([]byte{types.ChainConfigPrefix})
+	if bz == nil {
+		return nil
+	}
+	return encoding.MustUnmarshalJSON[params.ChainConfig](bz)
+}
+
+// GetEthGenesis is used to get the genesis info of the Ethereum chain.
+func (p *plugin) SetChainConfig(chainConfig *params.ChainConfig) {
+	p.paramsStore.Set(
+		[]byte{types.ChainConfigPrefix},
+		encoding.MustMarshalJSON[params.ChainConfig](*chainConfig),
+	)
 }

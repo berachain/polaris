@@ -21,15 +21,23 @@
 package configuration
 
 import (
+	"testing"
+
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/eth/params"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+func TestConfigurationPlugin(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "cosmos/x/evm/plugins/configuration")
+}
 
 var _ = Describe("Plugin", func() {
 	var (
@@ -49,9 +57,27 @@ var _ = Describe("Plugin", func() {
 	Describe("Prepare", func() {
 		It("should initialize the params store", func() {
 			p.Prepare(ctx)
+
 			// Check that the params store is initialized.
 			expect := ctx.KVStore(p.storeKey)
 			Expect(p.paramsStore).To(Equal(expect))
+		})
+	})
+
+	Describe("ChainConfig", func() {
+		Context("when the params store is empty", func() {
+			It("should return nil", func() {
+				config := p.ChainConfig()
+				Expect(config).To(BeNil())
+			})
+		})
+
+		Context("when the params store contains valid params", func() {
+			It("should return the chain config", func() {
+				p.SetChainConfig(params.DefaultChainConfig)
+				config := p.ChainConfig()
+				Expect(config).To(Equal(params.DefaultChainConfig))
+			})
 		})
 	})
 })
