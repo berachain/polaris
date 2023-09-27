@@ -77,7 +77,7 @@ func UnmarshalGenesisHeader(header *types.Header, gen *Genesis) {
 	gen.Coinbase = header.Coinbase
 }
 
-// SortableAddresses is a sortable slice of common.Addresses
+// SortableAddresses is a sortable slice of common.Addresses.
 type SortableAddresses []common.Address
 
 func (a SortableAddresses) Len() int           { return len(a) }
