@@ -23,10 +23,10 @@ package core_test
 import (
 	"sort"
 
+	"pkg.berachain.dev/polaris/eth/core"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"pkg.berachain.dev/polaris/eth/core"
 )
 
 var _ = Describe("Genesis", func() {

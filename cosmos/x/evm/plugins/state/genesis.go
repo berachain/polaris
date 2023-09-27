@@ -47,7 +47,9 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 		// we are using the nonce from the account keeper as well.
 		account := ethGen.Alloc[address]
 		p.CreateAccount(address)
-		p.SetBalance(address, account.Balance)
+		if account.Balance != nil {
+			p.SetBalance(address, account.Balance)
+		}
 		if account.Code != nil {
 			p.SetCode(address, account.Code)
 		}
