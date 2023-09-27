@@ -64,7 +64,7 @@ var _ = Describe("Genesis", func() {
 			Code: code,
 		}
 		// Call Init Genesis
-		sp.InitGenesis(ctx, genesis)
+		Expect(sp.InitGenesis(ctx, genesis)).To(Succeed())
 
 		// Check that the code is set.
 		sp.Reset(ctx)

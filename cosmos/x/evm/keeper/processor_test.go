@@ -100,7 +100,7 @@ var _ = Describe("Processor", func() {
 		for _, plugin := range k.GetHost().GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
 			if hasInitGenesis {
-				plugin.InitGenesis(ctx, core.DefaultGenesis)
+				Expect(plugin.InitGenesis(ctx, core.DefaultGenesis)).To(Succeed())
 			}
 		}
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
