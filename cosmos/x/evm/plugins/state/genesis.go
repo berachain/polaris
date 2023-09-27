@@ -32,7 +32,7 @@ import (
 )
 
 // InitGenesis takes in a pointer to a genesis state object and populates the KV store.
-func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
+func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {
 	p.Reset(ctx)
 
 	// Sort the addresses so that they are in a consistent order.
@@ -42,7 +42,7 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 	}
 	sort.Sort(sortedAddresses)
 
-	// Iterate over the sorted genesis accounts and set the balances.
+	// Iterate over the sorted genesis accounts and set nonces, balances, codes, and storage.
 	for _, address := range sortedAddresses {
 		account := ethGen.Alloc[address]
 
@@ -51,12 +51,9 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 		if p.Exist(address) {
 			// if the account exists on the auth keeper, ensure the nonce is the same.
 			if p.GetNonce(address) != account.Nonce {
-				panic(
-					fmt.Sprintf(
-						"account nonce mismatch between auth (%d) and evm (%d) genesis state",
-						p.GetNonce(address),
-						account.Nonce,
-					),
+				return fmt.Errorf(
+					"account nonce mismatch between auth (%d) and evm (%d) genesis state",
+					p.GetNonce(address), account.Nonce,
 				)
 			}
 		} else if account.Nonce != 0 {
@@ -69,7 +66,11 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 		}
 		if account.Code != nil {
 			if ethGen.Config.IsEIP155(big.NewInt(0)) && account.Nonce < 1 {
-				panic("EIP-161 requires an account with code to have nonce of at least 1")
+				// NOTE: EIP 161 was released at the same block as EIP 155.
+				return fmt.Errorf(
+					"EIP-161 requires an account with code (%s) to have nonce of at least 1",
+					address.Hex(),
+				)
 			}
 			p.SetCode(address, account.Code)
 		} else {
@@ -79,9 +80,10 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 		if account.Storage != nil {
 			p.SetStorage(address, account.Storage)
 		}
-
 	}
+
 	p.Finalize()
+	return nil
 }
 
 // Export genesis modifies a pointer to a genesis state object and populates it.

@@ -67,7 +67,7 @@ var _ = Describe("Plugin", func() {
 
 		Context("when the params store contains valid params", func() {
 			It("should return the chain config", func() {
-				p.SetChainConfig(params.DefaultChainConfig)
+				Expect(p.SetChainConfig(params.DefaultChainConfig)).To(Succeed())
 				config := p.ChainConfig()
 				Expect(config).To(Equal(params.DefaultChainConfig))
 			})

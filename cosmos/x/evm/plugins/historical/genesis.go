@@ -26,13 +26,11 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
-func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
+func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {
 	p.Prepare(ctx)
 
 	// store genesis block
-	if err := p.StoreBlock(ethGen.ToBlock()); err != nil {
-		panic(err)
-	}
+	return p.StoreBlock(ethGen.ToBlock())
 }
 
 func (p *plugin) ExportGenesis(_ sdk.Context, _ *core.Genesis) {}
