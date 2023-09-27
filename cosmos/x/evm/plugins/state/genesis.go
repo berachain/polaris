@@ -21,6 +21,7 @@
 package state
 
 import (
+	"fmt"
 	"math/big"
 	"sort"
 
@@ -43,24 +44,42 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 
 	// Iterate over the sorted genesis accounts and set the balances.
 	for _, address := range sortedAddresses {
-		// TODO: technically wrong since its overriding / hacking the auth keeper and
-		// we are using the nonce from the account keeper as well.
 		account := ethGen.Alloc[address]
-		p.CreateAccount(address)
+
+		// initialize the account on the auth keeper
+		// NOTE: The auth module's init genesis runs before the evm module's init genesis.
+		if p.Exist(address) {
+			// if the account exists on the auth keeper, ensure the nonce is the same.
+			if p.GetNonce(address) != account.Nonce {
+				panic(
+					fmt.Sprintf(
+						"account nonce mismatch between auth (%d) and evm (%d) genesis state",
+						p.GetNonce(address),
+						account.Nonce,
+					),
+				)
+			}
+		} else if account.Nonce != 0 {
+			p.SetNonce(address, account.Nonce)
+		}
+
+		// initialize the account data on the state plugin
 		if account.Balance != nil {
 			p.SetBalance(address, account.Balance)
 		}
 		if account.Code != nil {
+			if ethGen.Config.IsEIP155(big.NewInt(0)) && account.Nonce < 1 {
+				panic("EIP-161 requires an account with code to have nonce of at least 1")
+			}
 			p.SetCode(address, account.Code)
+		} else {
+			// initialize the code hash to be empty by default
+			p.cms.GetKVStore(p.storeKey).Set(CodeHashKeyFor(address), emptyCodeHashBytes)
 		}
 		if account.Storage != nil {
-			for k, v := range account.Storage {
-				p.SetState(address, k, v)
-			}
+			p.SetStorage(address, account.Storage)
 		}
-		if account.Nonce != 0 {
-			p.SetNonce(address, account.Nonce)
-		}
+
 	}
 	p.Finalize()
 }
