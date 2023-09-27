@@ -23,11 +23,11 @@ package txpool
 import (
 	"time"
 
-	tmock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 
 	"cosmossdk.io/log"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mock"
+	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mocks"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
@@ -39,19 +39,19 @@ var _ = Describe("", func() {
 	var h *handler
 	t := GinkgoT()
 
-	var subscription *mock.Subscription
-	var serializer *mock.TxSerializer
-	var broadcaster *mock.Broadcaster
-	var subprovider *mock.TxSubProvider
+	var subscription *mocks.Subscription
+	var serializer *mocks.TxSerializer
+	var broadcaster *mocks.Broadcaster
+	var subprovider *mocks.TxSubProvider
 
 	BeforeEach(func() {
-		subscription = mock.NewSubscription(t)
+		subscription = mocks.NewSubscription(t)
 		subscription.On("Err").Return(nil)
 		subscription.On("Unsubscribe").Return()
-		broadcaster = mock.NewBroadcaster(t)
-		subprovider = mock.NewTxSubProvider(t)
-		subprovider.On("SubscribeNewTxsEvent", tmock.Anything).Return(subscription)
-		serializer = mock.NewTxSerializer(t)
+		broadcaster = mocks.NewBroadcaster(t)
+		subprovider = mocks.NewTxSubProvider(t)
+		subprovider.On("SubscribeNewTxsEvent", mock.Anything).Return(subscription)
+		serializer = mocks.NewTxSerializer(t)
 		h = newHandler(broadcaster, subprovider, serializer, log.NewTestLogger(t))
 		h.Start()
 		// Wait for handler to start.
@@ -70,14 +70,14 @@ var _ = Describe("", func() {
 		})
 
 		It("should handle 1 tx", func() {
-			serializer.On("SerializeToBytes", tmock.Anything).Return([]byte{123}, nil).Once()
+			serializer.On("SerializeToBytes", mock.Anything).Return([]byte{123}, nil).Once()
 			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Once()
 
 			h.txsCh <- core.NewTxsEvent{Txs: []*coretypes.Transaction{coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5})}}
 		})
 
 		It("should handle multiple tx", func() {
-			serializer.On("SerializeToBytes", tmock.Anything).Return([]byte{123}, nil).Twice()
+			serializer.On("SerializeToBytes", mock.Anything).Return([]byte{123}, nil).Twice()
 			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Twice()
 
 			h.txsCh <- core.NewTxsEvent{Txs: []*coretypes.Transaction{

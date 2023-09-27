@@ -39,6 +39,10 @@ import (
 
 // Runs `go generate` on the entire project.
 func Generate() error {
+	utils.LogGreen("Running 'mockery'")
+	if err := mockery(); err != nil {
+		return err
+	}
 	utils.LogGreen("Running 'go generate' on the entire project...")
 	if err := goInstall(moq); err != nil {
 		return err

@@ -58,6 +58,7 @@ var (
 	goWorkSync = RunCmdV("go", "work", "sync")
 	gitDiff    = RunCmdV("git", "diff", "--stat", "--exit-code", ".",
 		"':(exclude)*.mod' ':(exclude)*.sum'")
+	mockery = RunCmdV("mockery")
 )
 
 /* -------------------------------------------------------------------------- */
