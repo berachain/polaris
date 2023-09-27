@@ -50,9 +50,6 @@ type Host interface {
 	core.PolarisHostChain
 	GetAllPlugins() []any
 	Setup(
-		storetypes.StoreKey,
-		storetypes.StoreKey,
-		state.AccountKeeper,
 		func(height int64, prove bool) (sdk.Context, error),
 	)
 }
@@ -68,12 +65,15 @@ type host struct {
 	sp  state.Plugin
 	txp txpool.Plugin
 
-	pcs func() *ethprecompile.Injector
+	ak       state.AccountKeeper
+	storeKey storetypes.StoreKey
+	pcs      func() *ethprecompile.Injector
 }
 
 // Newhost creates new instances of the plugin host.
 func NewHost(
 	storeKey storetypes.StoreKey,
+	ak state.AccountKeeper,
 	sk block.StakingKeeper,
 	ethTxMempool sdkmempool.Mempool,
 	precompiles func() *ethprecompile.Injector,
@@ -88,23 +88,21 @@ func NewHost(
 	h.gp = gas.NewPlugin()
 	h.txp = txpool.NewPlugin(utils.MustGetAs[*mempool.WrappedGethTxPool](ethTxMempool))
 	h.pcs = precompiles
-
+	h.storeKey = storeKey
+	h.ak = ak
 	return h
 }
 
 // Setup sets up the precompile and state plugins with the given precompiles and keepers. It also
 // sets the query context function for the block and state plugins (to support historical queries).
 func (h *host) Setup(
-	storeKey storetypes.StoreKey,
-	_ storetypes.StoreKey,
-	ak state.AccountKeeper,
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
 	// Setup the state, precompile, historical, and txpool plugins
-	h.sp = state.NewPlugin(ak, storeKey, log.NewFactory(h.pcs().GetPrecompiles()))
+	h.sp = state.NewPlugin(h.ak, h.storeKey, log.NewFactory(h.pcs().GetPrecompiles()))
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles())
 	// TODO: re-enable historical plugin using ABCI listener.
-	h.hp = historical.NewPlugin(h.cp, h.bp, nil, storeKey)
+	h.hp = historical.NewPlugin(h.cp, h.bp, nil, h.storeKey)
 	// h.txp.SetNonceRetriever(h.sp)
 
 	// Set the query context function for the block and state plugins
