@@ -54,8 +54,8 @@ var _ = Describe("Genesis", func() {
 
 	It("should init and export genesis", func() {
 		genesis := new(core.Genesis)
+		genesis.Config = core.DefaultGenesis.Config
 		genesis.Alloc = make(core.GenesisAlloc)
-
 		genesis.Alloc[alice] = core.GenesisAccount{
 			Balance: big.NewInt(5e18),
 			Storage: map[common.Hash]common.Hash{
