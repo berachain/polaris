@@ -39,7 +39,7 @@ var _ = Describe("Genesis", func() {
 	var (
 		ctx  sdk.Context
 		sp   state.Plugin
-		code []byte
+		code = []byte("code")
 	)
 
 	BeforeEach(func() {
@@ -54,13 +54,13 @@ var _ = Describe("Genesis", func() {
 		sp.Reset(ctx)
 	})
 
-	FIt("should fail init genesis on bad data", func() {
+	It("should fail init genesis on bad data", func() {
 		genesis := new(core.Genesis)
 		genesis.Config = core.DefaultGenesis.Config
 		genesis.Alloc = make(core.GenesisAlloc)
 		genesis.Alloc[alice] = core.GenesisAccount{
 			Nonce: 0,
-			Code:  []byte("code"),
+			Code:  code,
 		}
 		genesis.Alloc[bob] = core.GenesisAccount{
 			Nonce: 1,
@@ -85,21 +85,20 @@ var _ = Describe("Genesis", func() {
 			Storage: map[common.Hash]common.Hash{
 				common.BytesToHash([]byte("key")): common.BytesToHash([]byte("value")),
 			},
-			Code:  []byte("code"),
+			Code:  code,
 			Nonce: 1,
 		}
 		genesis.Alloc[bob] = core.GenesisAccount{
 			Balance: big.NewInt(2e18),
 			Nonce:   2,
 		}
+
 		// Call Init Genesis
 		Expect(sp.InitGenesis(ctx, genesis)).To(Succeed())
 
 		// Check the code, hash, balance.
-		sp.Reset(ctx)
 		Expect(sp.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash(code)))
-		Expect(sp.GetCodeHash(bob)).To(Equal(crypto.Keccak256Hash(nil).Bytes()))
-		sp.Finalize()
+		Expect(sp.GetCodeHash(bob)).To(Equal(crypto.Keccak256Hash(nil)))
 		Expect(sp.GetBalance(alice)).To(Equal(big.NewInt(5e18)))
 		Expect(sp.GetBalance(bob)).To(Equal(big.NewInt(2e18)))
 		Expect(sp.GetCode(alice)).To(Equal(code))
