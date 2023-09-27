@@ -71,7 +71,7 @@ type handler struct {
 	running bool
 }
 
-// newHandler creates a new handler and starts the broadcast loop.
+// newHandler creates a new handler.
 func newHandler(
 	clientCtx Broadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
 ) *handler {

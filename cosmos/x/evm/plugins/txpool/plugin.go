@@ -84,4 +84,7 @@ func (p *plugin) Start(logger log.Logger, txpool *txpool.TxPool, ctx client.Cont
 	p.serializer = newSerializer(ctx)
 	p.WrappedGethTxPool.TxPool = txpool
 	p.handler = newHandler(ctx, txpool, p.serializer, logger)
+
+	// TODO: register all these starting things somewhere better.
+	p.handler.Start()
 }
