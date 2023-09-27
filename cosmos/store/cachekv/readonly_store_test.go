@@ -26,8 +26,8 @@ import (
 	sdkcachekv "cosmossdk.io/store/cachekv"
 	storetypes "cosmossdk.io/store/types"
 
+	"pkg.berachain.dev/polaris/cosmos/store/cachekv"
 	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/store/cachekv"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
