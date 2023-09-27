@@ -21,8 +21,6 @@
 package txpool
 
 import (
-	"sync"
-
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -51,7 +49,6 @@ type handler struct {
 	txPool *txpool.TxPool
 	txsCh  chan core.NewTxsEvent
 	txsSub event.Subscription
-	wg     sync.WaitGroup
 }
 
 // newHandler creates a new handler and starts the broadcast loop.
@@ -64,7 +61,6 @@ func newHandler(
 		txPool:     txPool,
 		logger:     logger,
 	}
-	h.wg.Add(1)
 	h.txsCh = make(chan core.NewTxsEvent, txChanSize)
 	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
 	h.logger.Info("handler started")
@@ -79,23 +75,18 @@ func (h *handler) stop() {
 
 	// Leave the channels.
 	close(h.txsCh)
-	h.wg.Wait()
-
-	// h.logger.Info("handler stopped")
-
-	// h.txPool.Stop()
 }
 
 // txBroadcastLoop announces new transactions to connected peers.
 func (h *handler) txBroadcastLoop() {
-	defer h.wg.Done()
+	defer h.stop()
 	for {
 		select {
 		case event := <-h.txsCh:
 			h.broadcastTransactions(event.Txs)
 		case <-h.txsSub.Err():
 			h.logger.Error("tx subscription error", "err", h.txsSub.Err())
-			h.stop() // TODO: move this call into exit routine.
+			h.stop()
 			return
 		}
 	}
@@ -119,13 +110,8 @@ func (h *handler) broadcastTransactions(txs types.Transactions) {
 		// If we see an ABCI response error.
 		if rsp != nil && rsp.Code != 0 {
 			h.logger.Error("failed to broadcast transaction", "rsp", rsp, "err", err)
-			continue
-		}
-
-		// If we see any other type of error.
-		if err != nil {
+		} else if err != nil {
 			h.logger.Error("error on transactions broadcast", "err", err)
-			continue
 		}
 	}
 }

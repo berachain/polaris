@@ -24,6 +24,7 @@ import (
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/core/txpool"
 
@@ -35,6 +36,11 @@ import (
 
 // Compile-time type assertion.
 var _ Plugin = (*plugin)(nil)
+
+type Serializer interface {
+	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
+	SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
+}
 
 // Plugin defines the required functions of the transaction pool plugin.
 type Plugin interface {
@@ -77,6 +83,5 @@ func (p *plugin) SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, erro
 func (p *plugin) Start(txpool *txpool.TxPool, ctx client.Context) {
 	p.serializer = newSerializer(ctx)
 	p.WrappedGethTxPool.TxPool = txpool
-	// p.WrappedGethTxPool.Setup(txpool, p.serializer)
 	p.handler = newHandler(ctx, txpool, p.serializer, log.NewNopLogger())
 }
