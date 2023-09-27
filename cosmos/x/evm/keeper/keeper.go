@@ -22,6 +22,7 @@ package keeper
 
 import (
 	"math/big"
+	"os"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -135,6 +136,7 @@ func (k *Keeper) SetClientCtx(clientContext client.Context) {
 
 	txp, _ := k.host.GetTxPoolPlugin().(txpool.Plugin)
 	txp.Start(
+		log.NewLogger(os.Stdout),
 		k.polaris.TxPool(),
 		clientContext,
 	)

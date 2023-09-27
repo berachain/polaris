@@ -45,12 +45,13 @@ var (
 	golines      = "github.com/segmentio/golines"
 	rlpgen       = "github.com/ethereum/go-ethereum/rlp/rlpgen"
 	abigen       = "github.com/ethereum/go-ethereum/cmd/abigen"
+	mockery      = "github.com/vektra/mockery/v2"
 
-	ciTools  = []string{buf, gosec, golangcilint, addlicense, ginkgo, golines}
+	ciTools  = []string{buf, gosec, golangcilint, addlicense, ginkgo, golines, mockery}
 	allTools = append(ciTools, []string{moq, rlpgen, abigen}...)
 )
 
-// Setup runs the setup script for the current OS.
+// Setup runs the setup script for the curremocknt OS.
 func main() {
 	var err error
 

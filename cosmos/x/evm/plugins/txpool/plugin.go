@@ -45,7 +45,7 @@ type Serializer interface {
 // Plugin defines the required functions of the transaction pool plugin.
 type Plugin interface {
 	core.TxPoolPlugin
-	Start(*txpool.TxPool, client.Context)
+	Start(log.Logger, *txpool.TxPool, client.Context)
 	// Prepare(*big.Int, coretypes.Signer)
 	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
 	Pending(enforceTips bool) map[common.Address][]*txpool.LazyTransaction
@@ -80,8 +80,8 @@ func (p *plugin) SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, erro
 }
 
 // Setup implements the Plugin interface.
-func (p *plugin) Start(txpool *txpool.TxPool, ctx client.Context) {
+func (p *plugin) Start(logger log.Logger, txpool *txpool.TxPool, ctx client.Context) {
 	p.serializer = newSerializer(ctx)
 	p.WrappedGethTxPool.TxPool = txpool
-	p.handler = newHandler(ctx, txpool, p.serializer, log.NewNopLogger())
+	p.handler = newHandler(ctx, txpool, p.serializer, logger)
 }
