@@ -103,7 +103,7 @@ var _ = Describe("Processor", func() {
 		)
 		ctx = ctx.WithBlockHeight(0)
 
-		for _, plugin := range k.GetPolaris().Host().(keeper.Host).GetAllPlugins() {
+		for _, plugin := range k.Polaris().Host().(keeper.Host).GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
 			if hasInitGenesis {
 				plugin.InitGenesis(ctx, core.DefaultGenesis)
@@ -164,11 +164,11 @@ var _ = Describe("Processor", func() {
 			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
 			addr, err := signer.Sender(tx)
 			Expect(err).ToNot(HaveOccurred())
-			k.GetPolaris().Host().GetStatePlugin().Reset(ctx)
-			k.GetPolaris().Host().GetStatePlugin().CreateAccount(addr)
-			k.GetPolaris().Host().GetStatePlugin().AddBalance(addr,
+			k.Polaris().Host().GetStatePlugin().Reset(ctx)
+			k.Polaris().Host().GetStatePlugin().CreateAccount(addr)
+			k.Polaris().Host().GetStatePlugin().AddBalance(addr,
 				(&big.Int{}).Mul(big.NewInt(9000000000000000000), big.NewInt(999)))
-			k.GetPolaris().Host().GetStatePlugin().Finalize()
+			k.Polaris().Host().GetStatePlugin().Finalize()
 
 			// create the contract
 			// Zero out the meters.

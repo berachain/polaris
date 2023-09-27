@@ -220,7 +220,7 @@ func NewPolarisApp(
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 	proposalHandler := abci.NewDefaultProposalHandler(app)
-	proposalHandler.SetPolaris(app.EVMKeeper.GetPolaris())
+	proposalHandler.SetPolaris(app.EVMKeeper.Polaris())
 
 	app.App.BaseApp.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
 	app.App.BaseApp.SetProcessProposal(proposalHandler.ProcessProposalHandler())
@@ -353,7 +353,7 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 }
 
 func (app *SimApp) Close() error {
-	if pl := app.EVMKeeper.GetPolaris(); pl != nil {
+	if pl := app.EVMKeeper.Polaris(); pl != nil {
 		return pl.StopServices()
 	}
 	return nil

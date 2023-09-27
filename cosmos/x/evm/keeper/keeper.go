@@ -46,10 +46,10 @@ type Keeper struct {
 	// provider is the struct that houses the Polaris EVM.
 	polaris *polar.Polaris
 
-	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
+	// host represents the host chain
 	host Host
 
-	// The (unexposed) key used to access the store from the Context.
+	// TODO: remove this, because it's hacky af.
 	storeKey storetypes.StoreKey
 }
 
@@ -63,12 +63,7 @@ func NewKeeper(
 	logger log.Logger,
 	polarisCfg *config.Config,
 ) *Keeper {
-	// We setup the keeper with some Cosmos standard sauce.
-	k := &Keeper{
-		storeKey: storeKey,
-	}
-
-	k.host = NewHost(
+	host := NewHost(
 		storeKey,
 		ak,
 		sk,
@@ -81,7 +76,7 @@ func NewKeeper(
 		panic(err)
 	}
 
-	k.polaris = polar.NewWithNetworkingStack(&polarisCfg.Polar, k.host, node, ethlog.FuncHandler(
+	polaris := polar.NewWithNetworkingStack(&polarisCfg.Polar, host, node, ethlog.FuncHandler(
 		func(r *ethlog.Record) error {
 			polarisGethLogger := logger.With("module", "polaris-geth")
 			switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
@@ -96,7 +91,11 @@ func NewKeeper(
 		}),
 	)
 
-	return k
+	return &Keeper{
+		polaris:  polaris,
+		host:     host,
+		storeKey: storeKey,
+	}
 }
 
 // Logger returns a module-specific logger.
@@ -105,7 +104,7 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // GetPolaris returns the Polaris instance.
-func (k *Keeper) GetPolaris() *polar.Polaris {
+func (k *Keeper) Polaris() *polar.Polaris {
 	return k.polaris
 }
 
