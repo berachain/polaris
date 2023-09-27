@@ -90,6 +90,7 @@ var _ = Describe("Processor", func() {
 		cfg := config.DefaultConfig()
 		cfg.Node.DataDir = GinkgoT().TempDir()
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
+		sc = staking.NewPrecompileContract(ak, &sk)
 		k = keeper.NewKeeper(
 			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
@@ -98,10 +99,10 @@ var _ = Describe("Processor", func() {
 			},
 			cfg,
 		)
-		sc = staking.NewPrecompileContract(ak, &sk)
+		k.Setup(nil, log.NewTestLogger(GinkgoT()))
+
 		ctx = ctx.WithBlockHeight(0)
 
-		k.Setup(nil, log.NewTestLogger(GinkgoT()))
 		for _, plugin := range k.GetPolaris().Host().(keeper.Host).GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
 			if hasInitGenesis {
@@ -113,10 +114,6 @@ var _ = Describe("Processor", func() {
 		validator.Status = stakingtypes.Bonded
 		Expect(sk.SetValidator(ctx, validator)).To(Succeed())
 
-		cfg = config.DefaultConfig()
-		cfg.Node.DataDir = GinkgoT().TempDir()
-		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
-		k.Setup(nil, log.NewTestLogger(GinkgoT()))
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 
 		// Set validator with consensus address.
