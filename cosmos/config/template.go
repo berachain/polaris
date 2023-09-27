@@ -29,6 +29,80 @@ const (
 # General Polaris settings
 [polaris]
 
+[polaris.polar.chain] 
+chain-id = "{{ .Polaris.Polar.Chain.ChainID }}"
+
+# Homestead switch block
+homestead-block = "{{ .Polaris.Polar.Chain.HomesteadBlock }}"
+
+# DAO fork switch block
+dao-fork-block = "{{ .Polaris.Polar.Chain.DAOForkBlock }}"
+
+# Whether to support DAO fork
+dao-fork-support = {{ .Polaris.Polar.Chain.DAOForkSupport }}
+
+# EIP150 switch block
+eip150-block = "{{ .Polaris.Polar.Chain.EIP150Block }}"
+
+# EIP155 switch block
+eip155-block = "{{ .Polaris.Polar.Chain.EIP155Block }}"
+
+# EIP158 switch block
+eip158-block = "{{ .Polaris.Polar.Chain.EIP158Block }}"
+
+# Byzanitum switch block
+byzantium-block = "{{ .Polaris.Polar.Chain.ByzantiumBlock }}"
+
+# Constantinople switch block
+constantinople-block = "{{ .Polaris.Polar.Chain.ConstantinopleBlock }}"
+
+# Petersburg switch block
+petersburg-block = "{{ .Polaris.Polar.Chain.PetersburgBlock }}"
+
+# Istanbul switch block
+istanbul-block = "{{ .Polaris.Polar.Chain.IstanbulBlock }}"
+
+# Muir Glacier switch block
+muir-glacier-block = "{{ .Polaris.Polar.Chain.MuirGlacierBlock }}"
+
+# Berlin switch block
+berlin-block = "{{ .Polaris.Polar.Chain.BerlinBlock }}"
+
+# London switch block
+london-block = "{{ .Polaris.Polar.Chain.LondonBlock }}"
+
+# Arrow Glacier switch block
+arrow-glacier-block = "{{ .Polaris.Polar.Chain.ArrowGlacierBlock }}"
+
+# Gray Glacier switch block
+gray-glacier-block = "{{ .Polaris.Polar.Chain.GrayGlacierBlock }}"
+
+# Merge Netsplit switch block
+merge-netsplit-block = "{{ .Polaris.Polar.Chain.MergeNetsplitBlock }}"
+
+# Shanghai switch time (nil == no fork, 0 = already on shanghai)
+shanghai-time = "{{ .Polaris.Polar.Chain.ShanghaiTime }}"
+
+# Cancun switch time (nil == no fork, 0 = already on cancun)
+cancun-time = "{{ .Polaris.Polar.Chain.CancunTime }}"
+
+# Prague switch time (nil == no fork, 0 = already on prague)
+prague-time = "{{ .Polaris.Polar.Chain.PragueTime }}"
+
+# Verkle switch time (nil == no fork, 0 = already on verkle)
+verkle-time = "{{ .Polaris.Polar.Chain.VerkleTime }}"
+
+# Terminal total difficulty
+terminal-total-difficulty = "{{ .Polaris.Polar.Chain.TerminalTotalDifficulty }}"
+
+# Whether terminal total difficulty has passed
+terminal-total-difficulty-passed = {{ .Polaris.Polar.Chain.TerminalTotalDifficultyPassed }}
+
+# DevMode enabled
+is-dev-mode = {{ .Polaris.Polar.Chain.IsDevMode }}
+
+
+
 [polaris.polar]
 # Gas cap for RPC requests
 rpc-gas-cap = "{{ .Polaris.Polar.RPCGasCap }}"

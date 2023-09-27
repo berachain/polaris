@@ -61,14 +61,17 @@ func NewKeeper(
 	pcs func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
 	logger log.Logger,
+	txConfig client.TxConfig,
 	polarisCfg *config.Config,
 ) *Keeper {
 	host := NewHost(
+		*polarisCfg,
 		storeKey,
 		ak,
 		sk,
 		pcs,
 		qc,
+		txConfig,
 	)
 
 	node, err := polar.NewGethNetworkingStack(&polarisCfg.Node)
@@ -91,6 +94,10 @@ func NewKeeper(
 		}),
 	)
 
+	if err = polaris.Init(); err != nil {
+		panic(err)
+	}
+
 	return &Keeper{
 		polaris:  polaris,
 		host:     host,
@@ -110,10 +117,6 @@ func (k *Keeper) Polaris() *polar.Polaris {
 
 func (k *Keeper) SetClientCtx(clientContext client.Context) {
 	k.host.GetEnginePlugin().(engine.Plugin).Start(clientContext)
-
-	if err := k.polaris.Init(); err != nil {
-		panic(err)
-	}
 
 	if err := k.polaris.StartServices(); err != nil {
 		panic(err)

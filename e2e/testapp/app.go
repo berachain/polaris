@@ -138,7 +138,6 @@ func NewPolarisApp(
 			MakeAppConfig(bech32Prefix),
 			depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners),
 			depinject.Supply(
-
 				// supply the application options
 				appOpts,
 				// supply the logger

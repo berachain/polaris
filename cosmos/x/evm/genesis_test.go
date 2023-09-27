@@ -74,6 +74,7 @@ var _ = Describe("", func() {
 			},
 			nil,
 			log.NewTestLogger(GinkgoT()),
+			nil,
 			cfg,
 		)
 

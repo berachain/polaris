@@ -57,8 +57,10 @@ type plugin struct {
 }
 
 // NewPlugin returns a new transaction pool plugin.
-func NewPlugin() Plugin {
-	return &plugin{}
+func NewPlugin(txConfig client.TxConfig) Plugin {
+	return &plugin{
+		serializer: newSerializer(txConfig),
+	}
 }
 
 // GetHandler implements the Plugin interface.
@@ -76,7 +78,6 @@ func (p *plugin) SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, erro
 
 // Setup implements the Plugin interface.
 func (p *plugin) Start(logger log.Logger, txpool *txpool.TxPool, ctx client.Context) {
-	p.serializer = newSerializer(ctx)
 	p.TxPool = txpool
 	p.handler = newHandler(ctx, txpool, p.serializer, logger)
 

@@ -70,9 +70,11 @@ func (h *Handler) PrepareProposal(
 		totalTxBytes int64
 		totalTxGas   uint64
 	)
-
-	txp, _ := h.polaris.Host().GetTxPoolPlugin().(txpool.Plugin)
-	txs := h.txPoolTransactions(ctx)
+	txs := h.txPoolTransactions()
+	txp, ok := h.polaris.Host().GetTxPoolPlugin().(txpool.Plugin)
+	if !ok {
+		panic("big bad wolf")
+	}
 
 	for lazyTx := txs.Peek(); lazyTx != nil; lazyTx = txs.Peek() {
 		tx := lazyTx.Resolve()
@@ -116,14 +118,7 @@ func (h *Handler) PrepareProposal(
 }
 
 // txPoolTransactions returns a sorted list of transactions from the txpool.
-func (h *Handler) txPoolTransactions(ctx sdk.Context) *miner.TransactionsByPriceAndNonce {
-	// TODO: this is definitely big bad and should be fixed.
-	// We should prime the blockchain object after app.Load().
-	if h.polaris.TxPool() == nil {
-		ctx.Logger().Error("waiting for txpool to be initialized, proposing empty block")
-		return &miner.TransactionsByPriceAndNonce{}
-	}
-
+func (h *Handler) txPoolTransactions() *miner.TransactionsByPriceAndNonce {
 	pending := h.polaris.TxPool().Pending(false)
 	return miner.NewTransactionsByPriceAndNonce(types.LatestSigner(
 		h.polaris.Host().GetConfigurationPlugin().ChainConfig(),

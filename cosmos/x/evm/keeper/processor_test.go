@@ -99,6 +99,7 @@ var _ = Describe("Processor", func() {
 			},
 			nil,
 			log.NewTestLogger(GinkgoT()),
+			nil,
 			cfg,
 		)
 		ctx = ctx.WithBlockHeight(0)

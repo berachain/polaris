@@ -31,12 +31,12 @@ import (
 )
 
 type serializer struct {
-	clientCtx client.Context
+	txConfig client.TxConfig
 }
 
-func newSerializer(clientCtx client.Context) *serializer {
+func newSerializer(txConfig client.TxConfig) *serializer {
 	return &serializer{
-		clientCtx: clientCtx,
+		txConfig: txConfig,
 	}
 }
 
@@ -44,9 +44,9 @@ func newSerializer(clientCtx client.Context) *serializer {
 func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error) {
 	// TODO: do we really need to use extensions for anything? Since we
 	// are using the standard ante handler stuff I don't think we actually need to.
-	tx := s.clientCtx.TxConfig.NewTxBuilder()
+	tx := s.txConfig.NewTxBuilder()
 
-	// We can also retrieve the gaslimit for the transaction from the ethereum transaction.
+	// We can also retrievepothe gaslimit for the transaction from the ethereum transaction.
 	tx.SetGasLimit(signedTx.Gas())
 
 	// Thirdly, we set the nonce equal to the nonce of the transaction and also derive the PubKey
@@ -103,7 +103,7 @@ func (s *serializer) SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, 
 	}
 
 	// Then we use the clientCtx.TxConfig.TxEncoder() to encode the Cosmos transaction into bytes.
-	txBytes, err := s.clientCtx.TxConfig.TxEncoder()(cosmosTx)
+	txBytes, err := s.txConfig.TxEncoder()(cosmosTx)
 	if err != nil {
 		return nil, err
 	}

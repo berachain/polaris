@@ -113,6 +113,9 @@ func New(backend Backend) Miner {
 
 // TODO: deprecate and properly recalculate in prepare proposal, this is fine for now though.
 func (m *miner) NextBaseFee() *big.Int {
+	if m.pendingHeader == nil {
+		return big.NewInt(0)
+	}
 	return eip1559.CalcBaseFee(m.cp.ChainConfig(), m.pendingHeader)
 }
 

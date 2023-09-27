@@ -23,8 +23,10 @@ package keeper
 import (
 	storetypes "cosmossdk.io/store/types"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
@@ -66,21 +68,23 @@ type host struct {
 
 // Newhost creates new instances of the plugin host.
 func NewHost(
+	cfg config.Config,
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	sk block.StakingKeeper,
 	precompiles func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
+	txConfig client.TxConfig,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &host{}
 
 	// Build the Plugins
 	h.bp = block.NewPlugin(storeKey, sk)
-	h.cp = configuration.NewPlugin(storeKey)
+	h.cp = configuration.NewPlugin(&cfg.Polar.Chain)
 	h.ep = engine.NewPlugin()
 	h.gp = gas.NewPlugin()
-	h.txp = txpool.NewPlugin()
+	h.txp = txpool.NewPlugin(txConfig)
 	h.pcs = precompiles
 	h.storeKey = storeKey
 	h.ak = ak

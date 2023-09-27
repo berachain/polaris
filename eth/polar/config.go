@@ -21,16 +21,14 @@
 package polar
 
 import (
-	"fmt"
 	"math/big"
-	"os"
 	"time"
-
-	"github.com/BurntSushi/toml"
 
 	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
+
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
 const (
@@ -45,8 +43,8 @@ const (
 func DefaultConfig() *Config {
 	gpoConfig := ethconfig.FullNodeGPO
 	gpoConfig.Default = big.NewInt(gpoDefault)
-
 	return &Config{
+		Chain:         *params.DefaultChainConfig,
 		GPO:           gpoConfig,
 		LegacyTxPool:  legacypool.DefaultConfig,
 		RPCGasCap:     ethconfig.Defaults.RPCGasCap,
@@ -57,6 +55,9 @@ func DefaultConfig() *Config {
 
 // Config represents the configurable parameters for Polaris.
 type Config struct {
+	// The chain configuration to use.
+	Chain params.ChainConfig
+
 	// Gas Price Oracle config.
 	GPO gasprice.Config
 
@@ -72,22 +73,4 @@ type Config struct {
 	// RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for
 	// send-transaction variants. The unit is ether.
 	RPCTxFeeCap float64 `toml:""`
-}
-
-// LoadConfigFromFilePath reads in a Polaris config file from the fileystem.
-func LoadConfigFromFilePath(filename string) (*Config, error) {
-	var config Config
-
-	// Read the TOML file
-	bytes, err := os.ReadFile(filename) //#nosec: G304 // required.
-	if err != nil {
-		return nil, fmt.Errorf("error reading file %s: %w", filename, err)
-	}
-
-	// Unmarshal the TOML data into a struct
-	if err = toml.Unmarshal(bytes, &config); err != nil {
-		return nil, fmt.Errorf("error parsing TOML data: %w", err)
-	}
-
-	return &config, nil
 }

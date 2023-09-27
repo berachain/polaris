@@ -38,9 +38,12 @@ import (
 
 // DefaultConfig returns the default configuration for a polaris chain.
 func DefaultConfig() *Config {
+	nodeCfg := *polar.DefaultGethNodeConfig()
+	nodeCfg.DataDir = ""
+	nodeCfg.KeyStoreDir = ""
 	return &Config{
 		Polar: *polar.DefaultConfig(),
-		Node:  *polar.DefaultGethNodeConfig(),
+		Node:  nodeCfg,
 	}
 }
 
@@ -77,6 +80,24 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 	getInt := func(key string) (int, error) { return cast.ToIntE(opts.Get(key)) }
 	getInt64 := func(key string) (int64, error) { return cast.ToInt64E(opts.Get(key)) }
 	getUint64 := func(key string) (uint64, error) { return cast.ToUint64E(opts.Get(key)) }
+	getUint64Ptr := func(key string) (*uint64, error) {
+		num, _err := cast.ToUint64E(opts.Get(key))
+		if _err != nil {
+			return nil, _err
+		}
+		return &num, nil
+	}
+	getBigInt := func(key string) (*big.Int, error) {
+		str, _err := cast.ToStringE(opts.Get(key))
+		if _err != nil {
+			return nil, _err
+		}
+		num, ok := new(big.Int).SetString(str, 10) //nolint:gomnd // base 10.
+		if !ok {
+			return nil, fmt.Errorf("invalid big.Int string: %s", str)
+		}
+		return num, nil
+	}
 	getFloat64 := func(key string) (float64, error) { return cast.ToFloat64E(opts.Get(key)) }
 	getBool := func(key string) (bool, error) { return cast.ToBoolE(opts.Get(key)) }
 	getStringSlice := func(key string) ([]string, error) { return cast.ToStringSliceE(opts.Get(key)) }
@@ -90,6 +111,81 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 		return nil, handleError(err)
 	}
 	if conf.Polar.RPCTxFeeCap, err = getFloat64(flagRPCTxFeeCap); err != nil {
+		return nil, handleError(err)
+	}
+
+	// Polar Chain settings
+	if conf.Polar.Chain.ChainID, err = getBigInt(flagChainID); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.HomesteadBlock, err = getBigInt(flagHomesteadBlock); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.DAOForkBlock, err = getBigInt(flagDAOForkBlock); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.DAOForkSupport, err = getBool(flagDAOForkSupport); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.EIP150Block, err = getBigInt(flagEIP150Block); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.EIP155Block, err = getBigInt(flagEIP155Block); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.EIP158Block, err = getBigInt(flagEIP158Block); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.ByzantiumBlock, err = getBigInt(flagByzantiumBlock); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.ConstantinopleBlock, err = getBigInt(flagConstantinopleBlock); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.PetersburgBlock, err = getBigInt(flagPetersburgBlock); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.IstanbulBlock, err = getBigInt(flagIstanbulBlock); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.MuirGlacierBlock, err = getBigInt(flagMuirGlacierBlock); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.BerlinBlock, err = getBigInt(flagBerlinBlock); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.LondonBlock, err = getBigInt(flagLondonBlock); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.ArrowGlacierBlock, err = getBigInt(flagArrowGlacierBlock); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.GrayGlacierBlock, err = getBigInt(flagGrayGlacierBlock); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.MergeNetsplitBlock, err = getBigInt(flagMergeNetsplitBlock); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.ShanghaiTime, err = getUint64Ptr(flagShanghaiTime); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.CancunTime, err = getUint64Ptr(flagCancunTime); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.PragueTime, err = getUint64Ptr(flagPragueTime); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.VerkleTime, err = getUint64Ptr(flagVerkleTime); err != nil {
+		return nil, handleError(err)
+	}
+
+	if conf.Polar.Chain.TerminalTotalDifficulty, err = getBigInt(flagTerminalTotalDifficulty); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.TerminalTotalDifficultyPassed, err = getBool(flagTerminalTotalDifficultyPassed); err != nil {
+		return nil, handleError(err)
+	}
+	if conf.Polar.Chain.IsDevMode, err = getBool(flagIsDevMode); err != nil {
 		return nil, handleError(err)
 	}
 
