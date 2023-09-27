@@ -23,14 +23,11 @@ package txpool
 import (
 	"cosmossdk.io/log"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
@@ -38,20 +35,24 @@ import (
 // size of tx pool.
 const txChanSize = 4096
 
-// TxSubProvider
+// TxSubProvider.
 type TxSubProvider interface {
 	SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription
 }
 
-// TxSerializer provides an interface to Serialize Geth Transactions to Bytes (via sdk.Tx)
+// TxSerializer provides an interface to Serialize Geth Transactions to Bytes (via sdk.Tx).
 type TxSerializer interface {
 	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
 }
 
 // Broadcaster provides an interface to broadcast TxBytes to the comet p2p layer.
 type Broadcaster interface {
-	BroadcastTx(txBytes []byte) (res *sdk.TxResponse, err error)
-	WithBroadcastMode(mode string) client.Context
+	BroadcastTxSync(txBytes []byte) (res *sdk.TxResponse, err error)
+}
+
+// Subscription represents a subscription to the txpool.
+type Subscription interface {
+	event.Subscription
 }
 
 // handler listens for new insertions into the geth txpool and broadcasts them to the CometBFT
@@ -63,10 +64,11 @@ type handler struct {
 	serializer TxSerializer
 
 	// Ethereum
-	txPool TxSubProvider
-	txsCh  chan core.NewTxsEvent
-	stopCh chan struct{}
-	txsSub event.Subscription
+	txPool  TxSubProvider
+	txsCh   chan core.NewTxsEvent
+	stopCh  chan struct{}
+	txsSub  Subscription
+	running bool
 }
 
 // newHandler creates a new handler and starts the broadcast loop.
@@ -76,7 +78,7 @@ func newHandler(
 	txsCh := make(chan core.NewTxsEvent, txChanSize)
 	h := &handler{
 		logger:     logger,
-		clientCtx:  clientCtx.WithBroadcastMode(flags.BroadcastSync),
+		clientCtx:  clientCtx,
 		serializer: serializer,
 		txPool:     txPool,
 		txsCh:      txsCh,
@@ -94,6 +96,7 @@ func (h *handler) Start() {
 func (h *handler) start() {
 	// Connect to the subscription.
 	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
+	h.running = true
 
 	// Handle events.
 	var err error
@@ -109,6 +112,11 @@ func (h *handler) start() {
 	}
 }
 
+// Running returns true if the handler is running.
+func (h *handler) Running() bool {
+	return h.running
+}
+
 // Stop stops the handler.
 func (h *handler) Stop() {
 	h.stopCh <- struct{}{}
@@ -122,38 +130,32 @@ func (h *handler) stop(err error) {
 
 	// Triggers txBroadcastLoop to quit.
 	h.txsSub.Unsubscribe()
+	h.running = false
 
 	// Leave the channels.
 	close(h.txsCh)
 }
 
 // broadcastTransactions will propagate a batch of transactions to the CometBFT mempool.
-func (h *handler) broadcastTransactions(txs types.Transactions) {
-	success, failures := h._broadcastTransactions(txs)
-	defer h.logger.With("module", "tx-handler").Info("broadcasting transactions done", "success", success, "failures", failures)
-	h.logger.With("module", "tx-handler").Info("broadcasting transactions", "num_txs", len(txs))
-}
-
-// broadcastTransactions will propagate a batch of transactions to the CometBFT mempool.
-func (h *handler) _broadcastTransactions(txs types.Transactions) (uint64, uint64) {
-	failures := uint64(0)
+func (h *handler) broadcastTransactions(txs coretypes.Transactions) {
+	h.logger.Debug("broadcasting transactions", "num_txs", len(txs))
 	for _, signedEthTx := range txs {
 		// Serialize the transaction to Bytes
 		txBytes, err := h.serializer.SerializeToBytes(signedEthTx)
 		if err != nil {
-			failures += 1
+			h.logger.Error("failed to serialize transaction", "err", err)
 			continue
 		}
 
 		// Send the transaction to the CometBFT mempool, which will gossip it to peers via
 		// CometBFT's p2p layer.
-		rsp, err := h.clientCtx.BroadcastTx(txBytes)
+		rsp, err := h.clientCtx.BroadcastTxSync(txBytes)
 
 		// If we see an ABCI response error.
-		if rsp != nil && rsp.Code != 0 || err != nil {
-			failures += 1
+		if rsp != nil && rsp.Code != 0 {
+			h.logger.Error("failed to broadcast transaction", "rsp", rsp, "err", err)
+		} else if err != nil {
+			h.logger.Error("error on transactions broadcast", "err", err)
 		}
 	}
-
-	return uint64(len(txs)) - failures, failures
 }
