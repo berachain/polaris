@@ -24,7 +24,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
@@ -35,10 +34,8 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Compile-time interface assertion.
@@ -75,7 +72,6 @@ func NewHost(
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
 	sk block.StakingKeeper,
-	ethTxMempool sdkmempool.Mempool,
 	precompiles func() *ethprecompile.Injector,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
@@ -86,7 +82,7 @@ func NewHost(
 	h.cp = configuration.NewPlugin(storeKey)
 	h.ep = engine.NewPlugin()
 	h.gp = gas.NewPlugin()
-	h.txp = txpool.NewPlugin(utils.MustGetAs[*mempool.WrappedGethTxPool](ethTxMempool))
+	h.txp = txpool.NewPlugin()
 	h.pcs = precompiles
 	h.storeKey = storeKey
 	h.ak = ak
@@ -103,7 +99,6 @@ func (h *host) Setup(
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles())
 	// TODO: re-enable historical plugin using ABCI listener.
 	h.hp = historical.NewPlugin(h.cp, h.bp, nil, h.storeKey)
-	// h.txp.SetNonceRetriever(h.sp)
 
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)

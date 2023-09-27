@@ -28,11 +28,11 @@ import (
 
 func (k *Keeper) BeginBlocker(ctx context.Context) error {
 	// Prepare the Polaris Ethereum block.
-	_ = k.GetPolaris().Miner().Prepare(ctx, uint64(sdk.UnwrapSDKContext(ctx).BlockHeight()))
+	_ = k.polaris.Miner().Prepare(ctx, uint64(sdk.UnwrapSDKContext(ctx).BlockHeight()))
 	return nil
 }
 
 func (k *Keeper) EndBlock(ctx context.Context) error {
 	// Finalize the Polaris Ethereum block.
-	return k.GetPolaris().Miner().Finalize(ctx)
+	return k.polaris.Miner().Finalize(ctx)
 }

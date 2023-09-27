@@ -62,11 +62,9 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"pkg.berachain.dev/polaris/cosmos/abci"
-	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
@@ -133,9 +131,8 @@ func NewPolarisApp(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *SimApp {
 	var (
-		app          = &SimApp{}
-		appBuilder   *runtime.AppBuilder
-		ethTxMempool = &evmmempool.WrappedGethTxPool{}
+		app        = &SimApp{}
+		appBuilder *runtime.AppBuilder
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
 			MakeAppConfig(bech32Prefix),
@@ -145,8 +142,6 @@ func NewPolarisApp(
 				appOpts,
 				// supply the logger
 				logger,
-				// supply the mempool
-				ethTxMempool,
 				// ADVANCED CONFIGURATION
 				PrecompilesToInject(app),
 				//
@@ -221,21 +216,14 @@ func NewPolarisApp(
 	// }
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
-	app.App = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
+	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 	proposalHandler := abci.NewDefaultProposalHandler(app)
-
-	// read oracle config from app-opts, and construct oracle service
-	polarisCfg, err := evmconfig.ReadConfigFromAppOpts(appOpts)
-	if err != nil {
-		panic(err)
-	}
 
 	// TODO: MOVE EVM SETUP
 	// ----- BEGIN EVM SETUP ----------------------------------------------
 
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
-		polarisCfg,
 		app.CreateQueryContext,
 		logger,
 	)
@@ -260,7 +248,7 @@ func NewPolarisApp(
 	// ----- END EVM SETUP -------------------------------------------------
 
 	// register streaming services
-	if err = app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
+	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		panic(err)
 	}
 
@@ -286,7 +274,7 @@ func NewPolarisApp(
 
 	app.sm.RegisterStoreDecoders()
 
-	if err = app.Load(loadLatest); err != nil {
+	if err := app.Load(loadLatest); err != nil {
 		panic(err)
 	}
 

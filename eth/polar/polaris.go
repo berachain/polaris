@@ -178,6 +178,7 @@ func (pl *Polaris) StartServices() error {
 	if err := pl.stack.Start(); err != nil {
 		panic(err)
 	}
+
 	return nil
 }
 

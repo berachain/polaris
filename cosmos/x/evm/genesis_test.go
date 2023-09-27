@@ -38,7 +38,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 
@@ -64,18 +63,19 @@ var _ = Describe("", func() {
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
 		ctx = ctx.WithBlockHeight(0)
 		sc = staking.NewPrecompileContract(ak, &sk)
-		k = keeper.NewKeeper(
-			ak, sk,
-			storetypes.NewKVStoreKey("evm"),
-			&evmmempool.WrappedGethTxPool{},
-			func() *ethprecompile.Injector {
-				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
-			},
-		)
 		cfg := config.DefaultConfig()
 		cfg.Node.DataDir = GinkgoT().TempDir()
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
-		k.Setup(cfg, nil, log.NewTestLogger(GinkgoT()))
+		k = keeper.NewKeeper(
+			ak, sk,
+			storetypes.NewKVStoreKey("evm"),
+			func() *ethprecompile.Injector {
+				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
+			},
+			cfg,
+		)
+
+		k.Setup(nil, log.NewTestLogger(GinkgoT()))
 
 		am = evm.NewAppModule(k, ak)
 	})

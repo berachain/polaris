@@ -29,7 +29,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
@@ -52,6 +51,8 @@ type Keeper struct {
 
 	// The (unexposed) key used to access the store from the Context.
 	storeKey storetypes.StoreKey
+
+	polarisCfg *config.Config
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -59,19 +60,19 @@ func NewKeeper(
 	ak state.AccountKeeper,
 	sk block.StakingKeeper,
 	storeKey storetypes.StoreKey,
-	ethTxMempool sdkmempool.Mempool,
 	pcs func() *ethprecompile.Injector,
+	polarisCfg *config.Config,
 ) *Keeper {
 	// We setup the keeper with some Cosmos standard sauce.
 	k := &Keeper{
-		storeKey: storeKey,
+		storeKey:   storeKey,
+		polarisCfg: polarisCfg,
 	}
 
 	k.host = NewHost(
 		storeKey,
 		ak,
 		sk,
-		ethTxMempool,
 		pcs,
 	)
 	return k
@@ -79,19 +80,18 @@ func NewKeeper(
 
 // Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
 func (k *Keeper) Setup(
-	cfg *config.Config,
 	qc func(height int64, prove bool) (sdk.Context, error),
 	logger log.Logger,
 ) {
 	// Setup plugins in the Host
 	k.host.Setup(qc)
 
-	node, err := polar.NewGethNetworkingStack(&cfg.Node)
+	node, err := polar.NewGethNetworkingStack(&k.polarisCfg.Node)
 	if err != nil {
 		panic(err)
 	}
 
-	k.polaris = polar.NewWithNetworkingStack(&cfg.Polar, k.host, node, ethlog.FuncHandler(
+	k.polaris = polar.NewWithNetworkingStack(&k.polarisCfg.Polar, k.host, node, ethlog.FuncHandler(
 		func(r *ethlog.Record) error {
 			polarisGethLogger := logger.With("module", "polaris-geth")
 			switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.

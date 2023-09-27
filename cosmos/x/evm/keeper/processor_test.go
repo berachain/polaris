@@ -40,7 +40,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -88,20 +87,21 @@ var _ = Describe("Processor", func() {
 
 		// before chain, init genesis state
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
-		k = keeper.NewKeeper(
-			ak, sk,
-			storetypes.NewKVStoreKey("evm"),
-			&evmmempool.WrappedGethTxPool{},
-			func() *ethprecompile.Injector {
-				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
-			},
-		)
-		sc = staking.NewPrecompileContract(ak, &sk)
-		ctx = ctx.WithBlockHeight(0)
 		cfg := config.DefaultConfig()
 		cfg.Node.DataDir = GinkgoT().TempDir()
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
-		k.Setup(cfg, nil, log.NewTestLogger(GinkgoT()))
+		k = keeper.NewKeeper(
+			ak, sk,
+			storetypes.NewKVStoreKey("evm"),
+			func() *ethprecompile.Injector {
+				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
+			},
+			cfg,
+		)
+		sc = staking.NewPrecompileContract(ak, &sk)
+		ctx = ctx.WithBlockHeight(0)
+
+		k.Setup(nil, log.NewTestLogger(GinkgoT()))
 		for _, plugin := range k.GetPolaris().Host().(keeper.Host).GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
 			if hasInitGenesis {
@@ -116,7 +116,7 @@ var _ = Describe("Processor", func() {
 		cfg = config.DefaultConfig()
 		cfg.Node.DataDir = GinkgoT().TempDir()
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
-		k.Setup(cfg, nil, log.NewTestLogger(GinkgoT()))
+		k.Setup(nil, log.NewTestLogger(GinkgoT()))
 		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 
 		// Set validator with consensus address.
