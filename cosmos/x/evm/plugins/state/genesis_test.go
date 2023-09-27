@@ -49,7 +49,7 @@ var _ = Describe("Genesis", func() {
 
 		// Create account for alice, bob
 		acc := ak.NewAccountWithAddress(ctx, bob[:])
-		acc.SetSequence(2)
+		Expect(acc.SetSequence(2)).To(Succeed())
 		ak.SetAccount(ctx, acc)
 		sp.Reset(ctx)
 	})
