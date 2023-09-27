@@ -61,6 +61,7 @@ func NewKeeper(
 	sk block.StakingKeeper,
 	storeKey storetypes.StoreKey,
 	pcs func() *ethprecompile.Injector,
+	qc func() func(height int64, prove bool) (sdk.Context, error),
 	polarisCfg *config.Config,
 ) *Keeper {
 	// We setup the keeper with some Cosmos standard sauce.
@@ -74,18 +75,16 @@ func NewKeeper(
 		ak,
 		sk,
 		pcs,
+		qc,
 	)
+
 	return k
 }
 
 // Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
 func (k *Keeper) Setup(
-	qc func(height int64, prove bool) (sdk.Context, error),
 	logger log.Logger,
 ) {
-	// Setup plugins in the Host
-	k.host.Setup(qc)
-
 	node, err := polar.NewGethNetworkingStack(&k.polarisCfg.Node)
 	if err != nil {
 		panic(err)

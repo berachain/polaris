@@ -56,7 +56,7 @@ type Plugin interface {
 	plugins.HasGenesis
 	core.StatePlugin
 	// SetQueryContextFn sets the query context func for the plugin.
-	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
+	SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error))
 	// IterateBalances iterates over the balances of all accounts and calls the given callback function.
 	IterateBalances(fn func(common.Address, *big.Int) bool)
 	// IterateState iterates over the state of all accounts and calls the given callback function.
@@ -106,7 +106,7 @@ type plugin struct {
 	ak AccountKeeper
 
 	// getQueryContext allows for querying state a historical height.
-	getQueryContext func(height int64, prove bool) (sdk.Context, error)
+	getQueryContext func() func(height int64, prove bool) (sdk.Context, error)
 
 	// savedErr stores any error that is returned from state modifications on the underlying
 	// keepers.
@@ -515,7 +515,7 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 // =============================================================================
 
 // SetQueryContextFn sets the query context func for the plugin.
-func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Context, error)) {
+func (p *plugin) SetQueryContextFn(gqc func() func(height int64, prove bool) (sdk.Context, error)) {
 	p.getQueryContext = gqc
 }
 
@@ -536,7 +536,7 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	} else {
 		// Get the query context at the given height.
 		var err error
-		ctx, err = p.getQueryContext(int64Number, false)
+		ctx, err = p.getQueryContext()(int64Number, false)
 		if err != nil {
 			return nil, err
 		}

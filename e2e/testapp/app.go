@@ -138,6 +138,7 @@ func NewPolarisApp(
 			MakeAppConfig(bech32Prefix),
 			depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners),
 			depinject.Supply(
+				QueryContextFn(app),
 				// supply the application options
 				appOpts,
 				// supply the logger
@@ -224,9 +225,9 @@ func NewPolarisApp(
 
 	// setup evm keeper and all of its plugins.
 	app.EVMKeeper.Setup(
-		app.CreateQueryContext,
 		logger,
 	)
+
 	proposalHandler.SetPolaris(app.EVMKeeper.GetPolaris())
 	app.App.BaseApp.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
 	app.App.BaseApp.SetProcessProposal(proposalHandler.ProcessProposalHandler())

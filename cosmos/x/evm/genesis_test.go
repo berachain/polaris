@@ -72,10 +72,11 @@ var _ = Describe("", func() {
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
+			nil,
 			cfg,
 		)
 
-		k.Setup(nil, log.NewTestLogger(GinkgoT()))
+		k.Setup(log.NewTestLogger(GinkgoT()))
 
 		am = evm.NewAppModule(k, ak)
 	})

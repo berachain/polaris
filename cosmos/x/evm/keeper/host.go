@@ -46,9 +46,6 @@ var _ core.PolarisHostChain = (*host)(nil)
 type Host interface {
 	core.PolarisHostChain
 	GetAllPlugins() []any
-	Setup(
-		func(height int64, prove bool) (sdk.Context, error),
-	)
 }
 
 type host struct {
@@ -73,6 +70,7 @@ func NewHost(
 	ak state.AccountKeeper,
 	sk block.StakingKeeper,
 	precompiles func() *ethprecompile.Injector,
+	qc func() func(height int64, prove bool) (sdk.Context, error),
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &host{}
@@ -86,14 +84,7 @@ func NewHost(
 	h.pcs = precompiles
 	h.storeKey = storeKey
 	h.ak = ak
-	return h
-}
 
-// Setup sets up the precompile and state plugins with the given precompiles and keepers. It also
-// sets the query context function for the block and state plugins (to support historical queries).
-func (h *host) Setup(
-	qc func(height int64, prove bool) (sdk.Context, error),
-) {
 	// Setup the state, precompile, historical, and txpool plugins
 	h.sp = state.NewPlugin(h.ak, h.storeKey, log.NewFactory(h.pcs().GetPrecompiles()))
 	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles())
@@ -103,6 +94,7 @@ func (h *host) Setup(
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(qc)
 	h.bp.SetQueryContextFn(qc)
+	return h
 }
 
 // GetBlockPlugin returns the header plugin.

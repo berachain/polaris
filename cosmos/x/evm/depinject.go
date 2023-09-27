@@ -26,6 +26,7 @@ import (
 	store "cosmossdk.io/store/types"
 
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	modulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
@@ -47,9 +48,10 @@ type DepInjectInput struct {
 	ModuleKey depinject.OwnModuleKey
 	Config    *modulev1alpha1.Module
 	Key       *store.KVStoreKey
-	AppOpts   servertypes.AppOptions
 
+	AppOpts           servertypes.AppOptions
 	CustomPrecompiles func() *ethprecompile.Injector `optional:"true"`
+	QueryContextFn    func() func(height int64, prove bool) (sdk.Context, error)
 
 	AccountKeeper AccountKeeper
 	StakingKeeper StakingKeeper
@@ -73,7 +75,9 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 	// read oracle config from app-opts, and construct oracle service
 	polarisCfg, err := evmconfig.ReadConfigFromAppOpts(in.AppOpts)
 	if err != nil {
-		panic(err)
+		// TODO: this is required because of depinject in root.go.
+		// TODO: fix.
+		polarisCfg = evmconfig.DefaultConfig()
 	}
 
 	k := keeper.NewKeeper(
@@ -81,9 +85,9 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.StakingKeeper,
 		in.Key,
 		in.CustomPrecompiles,
+		in.QueryContextFn,
 		polarisCfg,
 	)
-
 	m := NewAppModule(k, in.AccountKeeper)
 
 	return DepInjectOutput{

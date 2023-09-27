@@ -50,6 +50,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
@@ -58,7 +59,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
@@ -81,7 +81,11 @@ func NewRootCmd() *cobra.Command {
 
 	if err := depinject.Inject(depinject.Configs(
 		testapp.MakeAppConfig(""),
-		depinject.Supply(log.NewNopLogger()),
+		depinject.Supply(
+			testapp.QueryContextFn((&testapp.SimApp{})),
+			log.NewNopLogger(),
+			simtestutil.NewAppOptionsWithFlagHome(tempDir()),
+		),
 		depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners)),
 		&interfaceRegistry,
 		&appCodec,
@@ -346,4 +350,14 @@ func appExport(
 	}
 
 	return testApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
+}
+
+var tempDir = func() string {
+	dir, err := os.MkdirTemp("", "polard")
+	if err != nil {
+		dir = testapp.DefaultNodeHome
+	}
+	defer os.RemoveAll(dir)
+
+	return dir
 }
