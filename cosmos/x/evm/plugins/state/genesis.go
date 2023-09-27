@@ -22,22 +22,30 @@ package state
 
 import (
 	"math/big"
+	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/core"
-
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 // InitGenesis takes in a pointer to a genesis state object and populates the KV store.
 func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 	p.Reset(ctx)
 
-	// Iterate over the genesis accounts and set the balances.
-	for address, account := range ethGen.Alloc {
+	// Sort the addresses so that they are in a consistent order.
+	sortedAddresses := make(core.SortableAddresses, 0, len(ethGen.Alloc))
+	for address := range ethGen.Alloc {
+		sortedAddresses = append(sortedAddresses, address)
+	}
+	sort.Sort(sortedAddresses)
+
+	// Iterate over the sorted genesis accounts and set the balances.
+	for _, address := range sortedAddresses {
 		// TODO: technically wrong since its overriding / hacking the auth keeper and
 		// we are using the nonce from the account keeper as well.
+		account := ethGen.Alloc[address]
 		p.CreateAccount(address)
 		p.SetBalance(address, account.Balance)
 		if account.Code != nil {
