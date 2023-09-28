@@ -47,27 +47,28 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var (
+	ethGen = core.DefaultGenesis
+)
+
 var _ = Describe("", func() {
 	var (
-		cdc    codec.JSONCodec
-		ctx    sdk.Context
-		sc     ethprecompile.StatefulImpl
-		ak     state.AccountKeeper
-		sk     stakingkeeper.Keeper
-		k      *keeper.Keeper
-		ethGen *core.Genesis
-		am     evm.AppModule
-		err    error
+		cdc codec.JSONCodec
+		ctx sdk.Context
+		sc  ethprecompile.StatefulImpl
+		ak  state.AccountKeeper
+		sk  stakingkeeper.Keeper
+		k   *keeper.Keeper
+		am  evm.AppModule
+		err error
 	)
-
-	ethGen = core.DefaultGenesis
-	ethGen.Config = params.DefaultChainConfig
 
 	BeforeEach(func() {
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
 		ctx = ctx.WithBlockHeight(0)
 		sc = staking.NewPrecompileContract(ak, &sk)
 		cfg := config.DefaultConfig()
+		ethGen.Config = params.DefaultChainConfig
 		cfg.Node.DataDir = GinkgoT().TempDir()
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
 		k = keeper.NewKeeper(

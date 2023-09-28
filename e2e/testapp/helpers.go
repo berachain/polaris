@@ -75,6 +75,8 @@ func QueryContextFn(app *SimApp) func() func(height int64, prove bool) (sdk.Cont
 	}
 }
 
+// PolarisConfigFn returns a function that provides the initialization of the standard
+// set of precompiles.
 func PolarisConfigFn(cfg *evmconfig.Config) func() *evmconfig.Config {
 	return func() *evmconfig.Config {
 		return cfg
