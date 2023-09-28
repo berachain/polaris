@@ -102,7 +102,7 @@ var _ = Describe("Processor", func() {
 		)
 		ctx = ctx.WithBlockHeight(0)
 		genState := core.DefaultGenesis
-		k.InitGenesis(ctx, genState)
+		Expect(k.InitGenesis(ctx, genState)).ToNot(HaveOccurred())
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
