@@ -51,6 +51,10 @@ var (
 	emptyCodeHashBytes = emptyCodeHash.Bytes()
 )
 
+type PrecompilePlugin interface {
+	Has(common.Address) bool
+}
+
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.HasGenesis
@@ -63,8 +67,8 @@ type Plugin interface {
 	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
 	// SetGasConfig sets the gas config for the plugin.
 	SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
-	// SetPrecompileLogFactory sets the log factory on the plugin
-	SetPrecompileLogFactory(events.PrecompileLogFactory)
+	// SetupForPrecompiles sets the log factory on the plugin
+	SetupForPrecompiles(pp PrecompilePlugin, plf events.PrecompileLogFactory)
 }
 
 // The StatePlugin is a very fun and interesting part of the EVM implementation. But if you want to
@@ -106,6 +110,7 @@ type plugin struct {
 
 	// keepers used for balance and account information.
 	ak AccountKeeper
+	pp PrecompilePlugin
 
 	// getQueryContext allows for querying state a historical height.
 	getQueryContext func() func(height int64, prove bool) (sdk.Context, error)
@@ -131,7 +136,9 @@ func NewPlugin(
 	}
 }
 
-func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
+// SetupForPrecompiles sets the precompile plugin and the log factory on the state plugin.
+func (p *plugin) SetupForPrecompiles(pp PrecompilePlugin, plf events.PrecompileLogFactory) {
+	p.pp = pp
 	p.plf = plf
 }
 
@@ -345,6 +352,11 @@ func (p *plugin) GetCodeHash(addr common.Address) common.Hash {
 // GetCode implements the `StatePlugin` interface by returning
 // the code of account (nil if not exists).
 func (p *plugin) GetCode(addr common.Address) []byte {
+	// We return a single byte for client compatibility.
+	if p.pp.Has(addr) {
+		return []byte{0x01}
+	}
+
 	codeHash := p.GetCodeHash(addr)
 	if (codeHash == common.Hash{}) || codeHash == emptyCodeHash {
 		// if account at addr does not exist or the account  does not have a codehash, return nil
@@ -554,6 +566,7 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 
 	// Create a State Plugin with the requested chain height.
 	sp := NewPlugin(p.ak, p.storeKey, p.plf)
+	sp.SetupForPrecompiles(p.pp, p.plf)
 	sp.Reset(ctx)
 	return sp, nil
 }
@@ -565,6 +578,7 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 // Clone implements libtypes.Cloneable.
 func (p *plugin) Clone() ethstate.Plugin {
 	sp := NewPlugin(p.ak, p.storeKey, p.plf)
+	sp.SetupForPrecompiles(p.pp, p.plf)
 	cacheCtx, _ := p.ctx.CacheContext()
 	sp.Reset(cacheCtx)
 	return sp

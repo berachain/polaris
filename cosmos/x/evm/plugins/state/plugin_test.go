@@ -28,7 +28,6 @@ import (
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 
@@ -45,11 +44,12 @@ var (
 var _ = Describe("State Plugin", func() {
 	var ak state.AccountKeeper
 	var ctx sdk.Context
-	var sp core.StatePlugin
+	var sp state.Plugin
 
 	BeforeEach(func() {
 		ctx, ak, _, _ = testutil.SetupMinimalKeepers()
 		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
+		sp.SetupForPrecompiles(&mockPrecompiles{}, &mockPLF{})
 		sp.Reset(ctx)
 	})
 
@@ -471,4 +471,10 @@ func (mplf *mockPLF) Build(event *sdk.Event) (*coretypes.Log, error) {
 	return &coretypes.Log{
 		Address: common.BytesToAddress([]byte(event.Type)),
 	}, nil
+}
+
+type mockPrecompiles struct{}
+
+func (mpc *mockPrecompiles) Has(_ common.Address) bool {
+	return false
 }

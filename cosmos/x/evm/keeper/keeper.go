@@ -72,6 +72,7 @@ func NewKeeper(
 		pcs,
 		qc,
 		txConfig,
+		logger,
 	)
 
 	node, err := polar.NewGethNetworkingStack(&polarisCfg.Node)
@@ -94,10 +95,6 @@ func NewKeeper(
 		}),
 	)
 
-	if err = polaris.Init(); err != nil {
-		panic(err)
-	}
-
 	return &Keeper{
 		polaris:  polaris,
 		host:     host,
@@ -107,6 +104,10 @@ func NewKeeper(
 
 func (k *Keeper) SetupPrecompiles() {
 	k.host.SetupPrecompiles()
+
+	if err := k.polaris.Init(); err != nil {
+		panic(err)
+	}
 }
 
 // Logger returns a module-specific logger.

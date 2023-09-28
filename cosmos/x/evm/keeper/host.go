@@ -21,6 +21,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -33,7 +34,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/gas"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/historical"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
+	pclog "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -53,14 +54,15 @@ type Host interface {
 
 type host struct {
 	// The various plugins that are are used to implement core.PolarisHostChain.
-	bp  block.Plugin
-	cp  configuration.Plugin
-	ep  engine.Plugin
-	gp  gas.Plugin
-	hp  historical.Plugin
-	pp  precompile.Plugin
-	sp  state.Plugin
-	txp txpool.Plugin
+	bp     block.Plugin
+	cp     configuration.Plugin
+	ep     engine.Plugin
+	gp     gas.Plugin
+	hp     historical.Plugin
+	pp     precompile.Plugin
+	sp     state.Plugin
+	txp    txpool.Plugin
+	logger log.Logger
 
 	ak       state.AccountKeeper
 	storeKey storetypes.StoreKey
@@ -77,6 +79,7 @@ func NewHost(
 	precompiles func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
 	txConfig client.TxConfig,
+	logger log.Logger,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &host{}
@@ -91,11 +94,13 @@ func NewHost(
 	h.storeKey = storeKey
 	h.ak = ak
 	h.qc = qc
+	h.logger = logger
 
 	// Setup the state, precompile, historical, and txpool plugins
 	// TODO: re-enable historical plugin using ABCI listener.
 	h.hp = historical.NewPlugin(h.cp, h.bp, nil, h.storeKey)
 	h.bp.SetQueryContextFn(h.qc)
+	h.pp = precompile.NewPlugin(nil)
 	h.sp = state.NewPlugin(h.ak, h.storeKey, nil)
 
 	return h
@@ -105,8 +110,9 @@ func NewHost(
 func (h *host) SetupPrecompiles() {
 	// Set the query context function for the block and state plugins
 	h.sp.SetQueryContextFn(h.qc)
-	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles())
-	h.sp.SetPrecompileLogFactory(log.NewFactory(h.pcs().GetPrecompiles()))
+	pcs := h.pcs().GetPrecompiles()
+	h.pp.SetPrecompiles(pcs)
+	h.sp.SetupForPrecompiles(h.pp, pclog.NewFactory(pcs))
 }
 
 // GetBlockPlugin returns the header plugin.

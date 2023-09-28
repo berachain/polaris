@@ -113,14 +113,14 @@ func NewWithNetworkingStack(
 		log.Root().SetHandler(logHandler)
 	}
 
-	// TODO: this needs to be moved to Init()
-	pl.miner = miner.New(pl)
-
 	return pl
 }
 
 // Init initializes the Polaris struct.
 func (pl *Polaris) Init() error {
+	pl.backend = NewBackend(pl, pl.stack.ExtRPCEnabled(), pl.cfg)
+	pl.miner = miner.New(pl)
+
 	var err error
 	legacyPool := legacypool.New(
 		pl.cfg.LegacyTxPool, pl.Blockchain(),
@@ -137,7 +137,7 @@ func (pl *Polaris) Init() error {
 	// eth.miner = miner.New(eth, &config.Miner, eth.blockchain.Config(), eth.EventMux(), eth.engine, eth.isLocalBlock)
 
 	// Build and set the RPC Backend and other services.
-	pl.backend = NewBackend(pl, pl.stack.ExtRPCEnabled(), pl.cfg)
+
 	// if eth.APIBackend.allowUnprotectedTxs {
 	// 	log.Info("Unprotected transactions allowed")
 	// }

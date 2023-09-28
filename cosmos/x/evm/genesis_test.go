@@ -82,6 +82,7 @@ var _ = Describe("", func() {
 			nil,
 			cfg,
 		)
+		k.SetupPrecompiles()
 		am = evm.NewAppModule(k, ak)
 	})
 
