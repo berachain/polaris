@@ -23,9 +23,9 @@ package state
 import (
 	"fmt"
 	"math/big"
-	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"golang.org/x/exp/slices"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -36,45 +36,38 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {
 	p.Reset(ctx)
 
 	// Sort the addresses so that they are in a consistent order.
-	sortedAddresses := make(core.SortableAddresses, 0, len(ethGen.Alloc))
+	sortedAddresses := make([]common.Address, 0, len(ethGen.Alloc))
 	for address := range ethGen.Alloc {
 		sortedAddresses = append(sortedAddresses, address)
 	}
-	sort.Sort(sortedAddresses)
+	slices.SortStableFunc(sortedAddresses, func(a, b common.Address) int { return a.Cmp(b) })
 
 	// Iterate over the sorted genesis accounts and set nonces, balances, codes, and storage.
 	for _, address := range sortedAddresses {
 		account := ethGen.Alloc[address]
 
-		// initialize the account on the auth keeper
+		// Initialize the account on the auth keeper.
 		// NOTE: The auth module's init genesis runs before the evm module's init genesis.
 		if p.Exist(address) {
-			// if the account exists on the auth keeper, ensure the nonce is the same.
+			// If the account exists on the auth keeper, ensure the nonce is consistent.
 			if p.GetNonce(address) != account.Nonce {
 				return fmt.Errorf(
 					"account nonce mismatch for (%s) between auth (%d) and evm (%d) genesis state",
 					address.Hex(), p.GetNonce(address), account.Nonce,
 				)
 			}
-		} else if account.Nonce != 0 {
+		} else {
 			p.SetNonce(address, account.Nonce)
 		}
 
-		// initialize the account data on the state plugin
+		// Initialize the account data on the state plugin.
 		if account.Balance != nil {
 			p.SetBalance(address, account.Balance)
 		}
 		if account.Code != nil {
-			if ethGen.Config.IsEIP155(big.NewInt(0)) && account.Nonce == 0 {
-				// NOTE: EIP 161 was released at the same block as EIP 155.
-				return fmt.Errorf(
-					"EIP-161 requires an account with code (%s) to have nonce of at least 1, given (0)",
-					address.Hex(),
-				)
-			}
 			p.SetCode(address, account.Code)
 		} else {
-			// initialize the code hash to be empty by default
+			// Initialize the code hash to be empty by default.
 			p.cms.GetKVStore(p.storeKey).Set(CodeHashKeyFor(address), emptyCodeHashBytes)
 		}
 		if account.Storage != nil {

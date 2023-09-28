@@ -76,10 +76,3 @@ func UnmarshalGenesisHeader(header *types.Header, gen *Genesis) {
 	gen.Mixhash = header.MixDigest
 	gen.Coinbase = header.Coinbase
 }
-
-// SortableAddresses is a sortable slice of common.Addresses.
-type SortableAddresses []common.Address
-
-func (a SortableAddresses) Len() int           { return len(a) }
-func (a SortableAddresses) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a SortableAddresses) Less(i, j int) bool { return a[i].Hex() < a[j].Hex() }
