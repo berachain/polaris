@@ -102,7 +102,6 @@ terminal-total-difficulty-passed = {{ .Polaris.Polar.Chain.TerminalTotalDifficul
 is-dev-mode = {{ .Polaris.Polar.Chain.IsDevMode }}
 
 
-
 [polaris.polar]
 # Gas cap for RPC requests
 rpc-gas-cap = "{{ .Polaris.Polar.RPCGasCap }}"
