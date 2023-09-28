@@ -132,7 +132,6 @@ var _ = Describe("Processor", func() {
 		BeforeEach(func() {
 			// before every tx
 			ctx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
-			//  := k.BeginBlocker(ctx)
 		})
 
 		AfterEach(func() {
