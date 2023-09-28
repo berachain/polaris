@@ -222,10 +222,6 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		m.pendingHeader,
 	)
 
-	// // We update the base fee in the txpool to the next base fee.
-	// // TODO: Move to prepare proposal
-	// m.txPool.SetBaseFee(m.pendingHeader.BaseFee)
-
 	return m.pendingHeader
 }
 
