@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math/big"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -59,13 +60,10 @@ var _ = Describe("", func() {
 		err    error
 	)
 
-	zero := uint64(0)
+	ethGen = core.DefaultGenesis
+	ethGen.Config = params.DefaultChainConfig
 
 	BeforeEach(func() {
-		ethGen = core.DefaultGenesis
-		ethGen.Config = &params.ChainConfig{
-			ShanghaiTime: &zero,
-		}
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
 		ctx = ctx.WithBlockHeight(0)
 		sc = staking.NewPrecompileContract(ak, &sk)
@@ -174,6 +172,8 @@ var _ = Describe("", func() {
 
 		When("the genesis is valid", func() {
 			It("should export without fail", func() {
+				ethGen.Config = nil
+				ethGen.BaseFee = big.NewInt(int64(params.InitialBaseFee))
 				Expect(actualGenesis).To(Equal(*ethGen))
 			})
 		})

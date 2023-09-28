@@ -38,7 +38,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -47,7 +46,6 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -103,13 +101,8 @@ var _ = Describe("Processor", func() {
 			cfg,
 		)
 		ctx = ctx.WithBlockHeight(0)
-
-		for _, plugin := range k.Polaris().Host().(keeper.Host).GetAllPlugins() {
-			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
-			if hasInitGenesis {
-				Expect(plugin.InitGenesis(ctx, core.DefaultGenesis)).To(Succeed())
-			}
-		}
+		genState := core.DefaultGenesis
+		k.InitGenesis(ctx, genState)
 		validator, err := NewValidator(sdk.ValAddress(valAddr), PKs[0])
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
@@ -139,6 +132,7 @@ var _ = Describe("Processor", func() {
 		BeforeEach(func() {
 			// before every tx
 			ctx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
+			//  := k.BeginBlocker(ctx)
 		})
 
 		AfterEach(func() {
