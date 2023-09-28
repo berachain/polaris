@@ -28,13 +28,11 @@ import (
 )
 
 // InitGenesis stores the genesis block header in the KVStore under its own genesis key.
-func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
+func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {
 	p.Prepare(ctx)
 
 	// Writing genesis block 0 to disk, available to query from any future IAVL height
-	if err := p.StoreHeader(ethGen.ToBlock().Header()); err != nil {
-		panic(err)
-	}
+	return p.StoreHeader(ethGen.ToBlock().Header())
 }
 
 // Export genesis modifies a pointer to a genesis state object and populates it.

@@ -28,9 +28,9 @@ import (
 
 // InitGenesis performs genesis initialization for the evm module. It returns
 // no validator updates.
-func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
+func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {
 	p.Prepare(ctx)
-	p.SetChainConfig(ethGen.Config)
+	return p.SetChainConfig(ethGen.Config)
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the evm

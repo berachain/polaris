@@ -50,7 +50,7 @@ var _ = Describe("Historical Data", func() {
 		bp := mock.NewBlockPluginMock()
 
 		p = utils.MustGetAs[*plugin](NewPlugin(cp, bp, nil, testutil.EvmKey))
-		p.InitGenesis(ctx, core.DefaultGenesis)
+		Expect(p.InitGenesis(ctx, core.DefaultGenesis)).To(Succeed())
 	})
 
 	When("Genesis block", func() {

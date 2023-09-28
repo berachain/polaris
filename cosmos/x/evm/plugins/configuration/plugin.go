@@ -36,7 +36,7 @@ import (
 type Plugin interface {
 	plugins.HasGenesis
 	core.ConfigurationPlugin
-	SetChainConfig(*params.ChainConfig)
+	SetChainConfig(*params.ChainConfig) error
 }
 
 // plugin implements the core.ConfigurationPlugin interface.
