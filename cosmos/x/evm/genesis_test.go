@@ -40,6 +40,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/params"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -58,8 +59,13 @@ var _ = Describe("", func() {
 		err    error
 	)
 
+	zero := uint64(0)
+
 	BeforeEach(func() {
 		ethGen = core.DefaultGenesis
+		ethGen.Config = &params.ChainConfig{
+			ShanghaiTime: &zero,
+		}
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
 		ctx = ctx.WithBlockHeight(0)
 		sc = staking.NewPrecompileContract(ak, &sk)
