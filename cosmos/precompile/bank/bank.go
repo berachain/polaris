@@ -24,6 +24,8 @@ import (
 	"context"
 	"math/big"
 
+	"cosmossdk.io/core/address"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -40,9 +42,9 @@ import (
 type Contract struct {
 	ethprecompile.BaseContract
 
-	codec     cosmlib.CodecProvider
-	msgServer banktypes.MsgServer
-	querier   banktypes.QueryServer
+	addressCodec address.Codec
+	msgServer    banktypes.MsgServer
+	querier      banktypes.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the bank precompile contract.
@@ -54,9 +56,9 @@ func NewPrecompileContract(
 			bankgenerated.BankModuleMetaData.ABI,
 			common.BytesToAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 		),
-		codec:     ak,
-		msgServer: ms,
-		querier:   qs,
+		addressCodec: ak.AddressCodec(),
+		msgServer:    ms,
+		querier:      qs,
 	}
 }
 
@@ -77,7 +79,7 @@ func (c *Contract) GetBalance(
 	accountAddress common.Address,
 	denom string,
 ) (*big.Int, error) {
-	accAddr, err := cosmlib.StringFromEthAddress(c.codec.AddressCodec(), accountAddress)
+	accAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, accountAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +101,7 @@ func (c *Contract) GetAllBalances(
 	ctx context.Context,
 	accountAddress common.Address,
 ) ([]lib.CosmosCoin, error) {
-	accAddr, err := cosmlib.StringFromEthAddress(c.codec.AddressCodec(), accountAddress)
+	accAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, accountAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +122,7 @@ func (c *Contract) GetSpendableBalance(
 	accountAddress common.Address,
 	denom string,
 ) (*big.Int, error) {
-	accAddr, err := cosmlib.StringFromEthAddress(c.codec.AddressCodec(), accountAddress)
+	accAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, accountAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +144,7 @@ func (c *Contract) GetAllSpendableBalances(
 	ctx context.Context,
 	accountAddress common.Address,
 ) ([]lib.CosmosCoin, error) {
-	accAddr, err := cosmlib.StringFromEthAddress(c.codec.AddressCodec(), accountAddress)
+	accAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, accountAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -247,12 +249,12 @@ func (c *Contract) Send(
 		return false, err
 	}
 	caller, err := cosmlib.StringFromEthAddress(
-		c.codec.AddressCodec(), vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.addressCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err
 	}
-	toAddr, err := cosmlib.StringFromEthAddress(c.codec.AddressCodec(), toAddress)
+	toAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, toAddress)
 	if err != nil {
 		return false, err
 	}
@@ -269,5 +271,5 @@ func (c *Contract) Send(
 // common.Address.
 func (c *Contract) ConvertAccAddressFromString(attributeValue string) (any, error) {
 	// extract the sdk.AccAddress from string value as common.Address
-	return cosmlib.EthAddressFromString(c.codec.AddressCodec(), attributeValue)
+	return cosmlib.EthAddressFromString(c.addressCodec, attributeValue)
 }

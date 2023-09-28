@@ -63,6 +63,8 @@ type Plugin interface {
 	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
 	// SetGasConfig sets the gas config for the plugin.
 	SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
+	// SetPrecompileLogFactory sets the log factory on the plugin
+	SetPrecompileLogFactory(events.PrecompileLogFactory)
 }
 
 // The StatePlugin is a very fun and interesting part of the EVM implementation. But if you want to
@@ -127,6 +129,10 @@ func NewPlugin(
 		plf:      plf,
 		mu:       sync.Mutex{},
 	}
+}
+
+func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
+	p.plf = plf
 }
 
 // Prepare sets up the context on the state plugin for a new block. It sets the gas configs to be 0

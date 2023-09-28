@@ -25,6 +25,8 @@ import (
 	"encoding/json"
 	"strconv"
 
+	"cosmossdk.io/core/address"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -50,9 +52,9 @@ const (
 type Contract struct {
 	ethprecompile.BaseContract
 
-	codec     cosmlib.CodecProvider
-	msgServer v1.MsgServer
-	querier   v1.QueryServer
+	addressCodec address.Codec
+	msgServer    v1.MsgServer
+	querier      v1.QueryServer
 }
 
 // NewPrecompileContract creates a new precompile contract for the governance module.
@@ -63,9 +65,9 @@ func NewPrecompileContract(ak cosmlib.CodecProvider, m v1.MsgServer, q v1.QueryS
 			// Precompile Address: 0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2
 			common.BytesToAddress(authtypes.NewModuleAddress(govtypes.ModuleName)),
 		),
-		codec:     ak,
-		msgServer: m,
-		querier:   q,
+		addressCodec: ak.AddressCodec(),
+		msgServer:    m,
+		querier:      q,
 	}
 }
 
@@ -111,7 +113,7 @@ func (c *Contract) CancelProposal(
 	id uint64,
 ) (uint64, uint64, error) {
 	caller, err := cosmlib.StringFromEthAddress(
-		c.codec.AddressCodec(), vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.addressCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return 0, 0, err
@@ -136,7 +138,7 @@ func (c *Contract) Vote(
 	metadata string,
 ) (bool, error) {
 	caller, err := cosmlib.StringFromEthAddress(
-		c.codec.AddressCodec(), vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.addressCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err
@@ -193,7 +195,7 @@ func (c *Contract) VoteWeighted(
 		}
 	}
 	caller, err := cosmlib.StringFromEthAddress(
-		c.codec.AddressCodec(), vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.addressCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err
@@ -296,7 +298,7 @@ func (c *Contract) GetProposalDepositsByDepositor(
 	proposalID uint64,
 	depositor common.Address,
 ) ([]generated.CosmosCoin, error) {
-	depositorBech32, err := cosmlib.StringFromEthAddress(c.codec.AddressCodec(), depositor)
+	depositorBech32, err := cosmlib.StringFromEthAddress(c.addressCodec, depositor)
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +369,7 @@ func (c *Contract) GetProposalVotes(
 			)
 		}
 		var voter common.Address
-		voter, err = cosmlib.EthAddressFromString(c.codec.AddressCodec(), vote.Voter)
+		voter, err = cosmlib.EthAddressFromString(c.addressCodec, vote.Voter)
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
@@ -389,7 +391,7 @@ func (c *Contract) GetProposalVotesByVoter(
 	proposalID uint64,
 	voter common.Address,
 ) (generated.IGovernanceModuleVote, error) {
-	voterBech32, err := cosmlib.StringFromEthAddress(c.codec.AddressCodec(), voter)
+	voterBech32, err := cosmlib.StringFromEthAddress(c.addressCodec, voter)
 	if err != nil {
 		return generated.IGovernanceModuleVote{}, err
 	}

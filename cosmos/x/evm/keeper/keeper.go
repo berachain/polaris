@@ -105,6 +105,10 @@ func NewKeeper(
 	}
 }
 
+func (k *Keeper) SetupPrecompiles() {
+	k.host.SetupPrecompiles()
+}
+
 // Logger returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)

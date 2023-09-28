@@ -100,6 +100,7 @@ var _ = Describe("Processor", func() {
 			nil,
 			cfg,
 		)
+		k.SetupPrecompiles()
 		ctx = ctx.WithBlockHeight(0)
 		genState := core.DefaultGenesis
 		Expect(k.InitGenesis(ctx, genState)).ToNot(HaveOccurred())

@@ -82,7 +82,6 @@ var _ = Describe("", func() {
 			nil,
 			cfg,
 		)
-
 		am = evm.NewAppModule(k, ak)
 	})
 
