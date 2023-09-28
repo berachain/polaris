@@ -42,9 +42,9 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230726155614-23370e0ffb3e // indirect
 	google.golang.org/grpc v1.58.1
 	google.golang.org/protobuf v1.31.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230925142347-326426fa61f6
-	pkg.berachain.dev/polaris/eth v0.0.0-20230925142347-326426fa61f6
-	pkg.berachain.dev/polaris/lib v0.0.0-20230925142347-326426fa61f6
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230928142528-23cc5f141354
+	pkg.berachain.dev/polaris/eth v0.0.0-20230928142528-23cc5f141354
+	pkg.berachain.dev/polaris/lib v0.0.0-20230928142528-23cc5f141354
 )
 
 require (
