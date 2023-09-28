@@ -4,7 +4,7 @@ go 1.21
 
 replace (
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230926021825-5556e5557a50
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230928015354-c8dcceccf25e
 	// Required at the moment until a bug in the comsos-sdk is fixed.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
@@ -47,7 +47,10 @@ require (
 	pkg.berachain.dev/polaris/lib v0.0.0-20230925142347-326426fa61f6
 )
 
-require github.com/spf13/cast v1.5.1
+require (
+	github.com/spf13/cast v1.5.1
+	github.com/stretchr/testify v1.8.4
+)
 
 require (
 	filippo.io/edwards25519 v1.0.0 // indirect
@@ -209,7 +212,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/status-im/keycard-go v0.2.0 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/supranational/blst v0.3.11 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect

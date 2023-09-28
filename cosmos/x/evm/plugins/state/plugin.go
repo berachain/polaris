@@ -26,11 +26,6 @@ import (
 	"math/big"
 	"sync"
 
-	dbm "github.com/cosmos/cosmos-db"
-
-	"cosmossdk.io/log"
-	"cosmossdk.io/store"
-	storemetrics "cosmossdk.io/store/metrics"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -537,15 +532,11 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
 	// Investigate and hopefully remove this GTE.
 	if int64Number >= p.ctx.BlockHeight() {
-		// Should only happen at chain startup
 		if p.ctx.MultiStore() == nil {
-			// TODO: HACKY AF
-			ctx = ctx.WithMultiStore(
-				store.NewCommitMultiStore(dbm.NewMemDB(), log.NewNopLogger(), storemetrics.NewNoOpMetrics())).
-				WithEventManager(sdk.NewEventManager())
-		} else {
-			ctx, _ = p.ctx.CacheContext()
+			return nil, errors.New("no multi-store set in host chain")
 		}
+
+		ctx, _ = p.ctx.CacheContext()
 	} else {
 		// Get the query context at the given height.
 		var err error
