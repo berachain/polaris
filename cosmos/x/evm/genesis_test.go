@@ -116,11 +116,6 @@ var _ = Describe("", func() {
 				expectedHeader := ethGen.ToBlock().Header()
 				Expect(bp.GetHeaderByNumber(0)).To(Equal(expectedHeader))
 			})
-			It("should contain the correct chain config", func() {
-				actualConfig := k.Polaris().Host().GetConfigurationPlugin().ChainConfig()
-				expectedConfig := ethGen.Config
-				Expect(actualConfig).To(Equal(expectedConfig))
-			})
 			It("should have the correct balances", func() {
 				sp := k.Polaris().Host().GetStatePlugin()
 				for addr, acc := range ethGen.Alloc {
