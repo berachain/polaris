@@ -30,6 +30,6 @@ import (
 // InitGenesis or ExportGenesis methods must implement
 
 type HasGenesis interface {
-	InitGenesis(sdk.Context, *core.Genesis)
+	InitGenesis(sdk.Context, *core.Genesis) error
 	ExportGenesis(sdk.Context, *core.Genesis)
 }

@@ -21,38 +21,63 @@
 package state
 
 import (
+	"fmt"
 	"math/big"
+
+	"golang.org/x/exp/slices"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/core"
-
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 )
 
 // InitGenesis takes in a pointer to a genesis state object and populates the KV store.
-func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) {
+func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {
 	p.Reset(ctx)
 
-	// Iterate over the genesis accounts and set the balances.
-	for address, account := range ethGen.Alloc {
-		// TODO: technically wrong since its overriding / hacking the auth keeper and
-		// we are using the nonce from the account keeper as well.
-		p.CreateAccount(address)
-		p.SetBalance(address, account.Balance)
-		if account.Code != nil {
-			p.SetCode(address, account.Code)
-		}
-		if account.Storage != nil {
-			for k, v := range account.Storage {
-				p.SetState(address, k, v)
+	// Sort the addresses so that they are in a consistent order.
+	sortedAddresses := make([]common.Address, 0, len(ethGen.Alloc))
+	for address := range ethGen.Alloc {
+		sortedAddresses = append(sortedAddresses, address)
+	}
+	slices.SortStableFunc(sortedAddresses, func(a, b common.Address) int { return a.Cmp(b) })
+
+	// Iterate over the sorted genesis accounts and set nonces, balances, codes, and storage.
+	for _, address := range sortedAddresses {
+		account := ethGen.Alloc[address]
+
+		// Initialize the account on the auth keeper.
+		// NOTE: The auth module's init genesis runs before the evm module's init genesis.
+		if p.Exist(address) {
+			// If the account exists on the auth keeper, ensure the nonce is consistent.
+			if p.GetNonce(address) != account.Nonce {
+				return fmt.Errorf(
+					"account nonce mismatch for (%s) between auth (%d) and evm (%d) genesis state",
+					address.Hex(), p.GetNonce(address), account.Nonce,
+				)
 			}
-		}
-		if account.Nonce != 0 {
+		} else {
 			p.SetNonce(address, account.Nonce)
 		}
+
+		// Initialize the account data on the state plugin.
+		if account.Balance != nil {
+			p.SetBalance(address, account.Balance)
+		}
+		if account.Code != nil {
+			p.SetCode(address, account.Code)
+		} else {
+			// Initialize the code hash to be empty by default.
+			p.cms.GetKVStore(p.storeKey).Set(CodeHashKeyFor(address), emptyCodeHashBytes)
+		}
+		if account.Storage != nil {
+			p.SetStorage(address, account.Storage)
+		}
 	}
+
 	p.Finalize()
+	return nil
 }
 
 // Export genesis modifies a pointer to a genesis state object and populates it.

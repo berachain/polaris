@@ -34,7 +34,9 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	for _, plugin := range k.host.GetAllPlugins() {
 		// checks whether plugin implements methods of HasGenesis and executes them if it does
 		if plugin, ok := utils.GetAs[plugins.HasGenesis](plugin); ok {
-			plugin.InitGenesis(ctx, genState)
+			if err := plugin.InitGenesis(ctx, genState); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
