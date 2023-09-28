@@ -231,7 +231,7 @@ max-txs = 5000
 [polaris]
 
 [polaris.polar.chain] 
-chain-id = "2061"
+chain-id = "1337"
 
 # Homestead switch block
 homestead-block = "0"

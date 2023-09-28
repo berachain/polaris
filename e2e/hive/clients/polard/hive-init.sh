@@ -67,6 +67,7 @@ echo "eth_gen dump: "
 echo $ETH_GENESIS_SOURCE
 
 # Change eth_genesis in config/genesis.json
+# TODO FIX TO SETUP APP.TOML STUFF
 updated_genesis=$(echo "$temp_genesis" | jq --argjson eth_gen "$ETH_GENESIS_SOURCE" '.app_state["evm"] = $eth_gen')
 echo "$updated_genesis" > "$GENESIS"
 
