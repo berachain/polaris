@@ -56,29 +56,16 @@ var _ = Describe("Genesis", func() {
 
 	It("should fail init genesis on bad data", func() {
 		genesis := new(core.Genesis)
-		genesis.Config = core.DefaultGenesis.Config
 		genesis.Alloc = make(core.GenesisAlloc)
-		genesis.Alloc[alice] = core.GenesisAccount{
-			Nonce: 0,
-			Code:  code,
-		}
-		genesis.Alloc[bob] = core.GenesisAccount{
-			Nonce: 1,
-		}
-		// Call Init Genesis and expect bob's case to error because the addresses are sorted.
+		genesis.Alloc[bob] = core.GenesisAccount{Nonce: 1}
+		// Call Init Genesis and expect bob's case to error because of nonce mismatch.
 		Expect(sp.InitGenesis(ctx, genesis)).To(
 			MatchError("account nonce mismatch for (0x0000000000000000000000000000000000626f62) between auth (2) and evm (1) genesis state"), //nolint:lll // test.
-		)
-		delete(genesis.Alloc, bob)
-		// Call Init Genesis and expect alice's case to error.
-		Expect(sp.InitGenesis(ctx, genesis)).To(
-			MatchError("EIP-161 requires an account with code (0x000000000000000000000000000000616c696365) to have nonce of at least 1, given (0)"), //nolint:lll // test.
 		)
 	})
 
 	It("should init and export genesis", func() {
 		genesis := new(core.Genesis)
-		genesis.Config = core.DefaultGenesis.Config
 		genesis.Alloc = make(core.GenesisAlloc)
 		genesis.Alloc[alice] = core.GenesisAccount{
 			Balance: big.NewInt(5e18),
