@@ -38,7 +38,7 @@ import (
 
 const (
 	defaultTimeout = 30 * time.Second
-	nodeStartTime  = 10 * time.Second
+	nodeStartTime  = 15 * time.Second
 )
 
 // ContainerizedNode is an interface for a containerized network.

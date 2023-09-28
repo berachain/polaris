@@ -23,8 +23,6 @@ package distribution
 import (
 	"context"
 
-	"cosmossdk.io/core/address"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
@@ -41,10 +39,10 @@ import (
 type Contract struct {
 	ethprecompile.BaseContract
 
-	addressCodec address.Codec
-	vs           staking.ValidatorStore
-	msgServer    distributiontypes.MsgServer
-	querier      distributiontypes.QueryServer
+	codec     cosmlib.CodecProvider
+	vs        staking.ValidatorStore
+	msgServer distributiontypes.MsgServer
+	querier   distributiontypes.QueryServer
 }
 
 // NewPrecompileContract returns a new instance of the distribution module precompile contract.
@@ -59,10 +57,10 @@ func NewPrecompileContract(
 			generated.DistributionModuleMetaData.ABI,
 			common.BytesToAddress([]byte{0x69}),
 		),
-		addressCodec: ak.AddressCodec(),
-		vs:           vs,
-		msgServer:    m,
-		querier:      q,
+		codec:     ak,
+		vs:        vs,
+		msgServer: m,
+		querier:   q,
 	}
 }
 
@@ -79,12 +77,12 @@ func (c *Contract) SetWithdrawAddress(
 	withdrawAddress common.Address,
 ) (bool, error) {
 	delAddr, err := cosmlib.StringFromEthAddress(
-		c.addressCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.codec.AddressCodec(), vm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err
 	}
-	withdrawAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, withdrawAddress)
+	withdrawAddr, err := cosmlib.StringFromEthAddress(c.codec.AddressCodec(), withdrawAddress)
 	if err != nil {
 		return false, err
 	}
@@ -101,7 +99,7 @@ func (c *Contract) GetWithdrawAddress(
 	ctx context.Context,
 	delegator common.Address,
 ) (common.Address, error) {
-	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
+	delAddr, err := cosmlib.StringFromEthAddress(c.codec.AddressCodec(), delegator)
 	if err != nil {
 		return common.Address{}, err
 	}
@@ -116,7 +114,7 @@ func (c *Contract) GetWithdrawAddress(
 		return common.Address{}, err
 	}
 
-	withdrawAddr, err := cosmlib.EthAddressFromString(c.addressCodec, resp.WithdrawAddress)
+	withdrawAddr, err := cosmlib.EthAddressFromString(c.codec.AddressCodec(), resp.WithdrawAddress)
 	if err != nil {
 		return common.Address{}, err
 	}
@@ -138,7 +136,7 @@ func (c *Contract) WithdrawDelegatorReward(
 	delegator common.Address,
 	validator common.Address,
 ) ([]lib.CosmosCoin, error) {
-	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
+	delAddr, err := cosmlib.StringFromEthAddress(c.codec.AddressCodec(), delegator)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +169,7 @@ func (c *Contract) GetAllDelegatorRewards(
 	ctx context.Context,
 	delegator common.Address,
 ) ([]generated.IDistributionModuleValidatorReward, error) {
-	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
+	delAddr, err := cosmlib.StringFromEthAddress(c.codec.AddressCodec(), delegator)
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +217,7 @@ func (c *Contract) GetTotalDelegatorReward(
 	ctx context.Context,
 	delegator common.Address,
 ) ([]lib.CosmosCoin, error) {
-	delAddr, err := cosmlib.StringFromEthAddress(c.addressCodec, delegator)
+	delAddr, err := cosmlib.StringFromEthAddress(c.codec.AddressCodec(), delegator)
 	if err != nil {
 		return nil, err
 	}
@@ -259,5 +257,5 @@ func (c *Contract) ConvertValAddressFromString(attributeValue string) (any, erro
 // common.Address.
 func (c *Contract) ConvertAccAddressFromString(attributeValue string) (any, error) {
 	// extract the sdk.AccAddress from string value as common.Address
-	return cosmlib.EthAddressFromString(c.addressCodec, attributeValue)
+	return cosmlib.EthAddressFromString(c.codec.AddressCodec(), attributeValue)
 }

@@ -36,6 +36,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -137,6 +138,7 @@ func NewPolarisApp(
 				// supply the logger
 				logger,
 				// ADVANCED CONFIGURATION
+				address.NewBech32Codec(bech32Prefix),
 				PolarisConfigFn(evmconfig.MustReadConfigFromAppOpts(appOpts)),
 				PrecompilesToInject(app),
 				QueryContextFn(app),
