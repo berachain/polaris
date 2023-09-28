@@ -101,6 +101,9 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 	}
 	getBigInt := func(key string) (*big.Int, error) {
 		str, _err := cast.ToStringE(opts.Get(key))
+		if str, _ := cast.ToStringE((opts.Get(key))); str == "<nil>" || str == "null" {
+			return nil, nil //nolint:nilnil // intentional.
+		}
 		if _err != nil {
 			return nil, _err
 		}
@@ -181,6 +184,9 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 	if conf.Polar.Chain.ShanghaiTime, err = getUint64Ptr(flagShanghaiTime); err != nil {
 		return nil, handleError(err, flagShanghaiTime)
 	}
+
+	fmt.Println("SHANGHAI TIME SHOULD BE NIL", conf.Polar.Chain.ShanghaiTime)
+
 	if conf.Polar.Chain.CancunTime, err = getUint64Ptr(flagCancunTime); err != nil {
 		return nil, handleError(err, flagCancunTime)
 	}
