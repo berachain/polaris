@@ -23,6 +23,7 @@ package polar
 import (
 	"math/big"
 	"net/http"
+	"time"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/core/txpool"
@@ -175,9 +176,13 @@ func (pl *Polaris) StartServices() error {
 	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
 
 	// Stack the networking stack.
-	if err := pl.stack.Start(); err != nil {
-		panic(err)
-	}
+	go func() {
+		// TODO: fix hive (this is required for hive to not break)
+		time.Sleep(5 * time.Second) //nolint:gomnd // for hive to not freak out...
+		if err := pl.stack.Start(); err != nil {
+			panic(err)
+		}
+	}()
 
 	return nil
 }

@@ -83,6 +83,7 @@ func NewRootCmd() *cobra.Command {
 	if err := depinject.Inject(depinject.Configs(
 		testapp.MakeAppConfig(""),
 		depinject.Supply(
+			testapp.PolarisConfigFn(evmconfig.DefaultConfig()),
 			testapp.QueryContextFn((&testapp.SimApp{})),
 			log.NewNopLogger(),
 			simtestutil.NewAppOptionsWithFlagHome(tempDir()),

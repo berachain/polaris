@@ -16,7 +16,7 @@
 # Use the latest foundry image
 FROM polard/base:v0.0.0 as polaris-hive
 
-RUN apk add --no-cache bash jq
+RUN apk add --no-cache bash jq sed
 
 WORKDIR /
 

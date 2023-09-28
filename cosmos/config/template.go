@@ -29,6 +29,17 @@ const (
 # General Polaris settings
 [polaris]
 
+[polaris.polar]
+# Gas cap for RPC requests
+rpc-gas-cap = "{{ .Polaris.Polar.RPCGasCap }}"
+
+# Timeout setting for EVM operations via RPC
+rpc-evm-timeout = "{{ .Polaris.Polar.RPCEVMTimeout }}"
+
+# Transaction fee cap for RPC requests
+rpc-tx-fee-cap = "{{ .Polaris.Polar.RPCTxFeeCap }}"
+
+
 [polaris.polar.chain] 
 chain-id = "{{ .Polaris.Polar.Chain.ChainID }}"
 
@@ -96,36 +107,25 @@ verkle-time = "{{ .Polaris.Polar.Chain.VerkleTime }}"
 terminal-total-difficulty = "{{ .Polaris.Polar.Chain.TerminalTotalDifficulty }}"
 
 # Whether terminal total difficulty has passed
-terminal-total-difficulty-passed = {{ .Polaris.Polar.Chain.TerminalTotalDifficultyPassed }}
+terminal-total-difficulty-passed = "{{ .Polaris.Polar.Chain.TerminalTotalDifficultyPassed }}"
 
 # DevMode enabled
 is-dev-mode = {{ .Polaris.Polar.Chain.IsDevMode }}
 
 
-[polaris.polar]
-# Gas cap for RPC requests
-rpc-gas-cap = "{{ .Polaris.Polar.RPCGasCap }}"
-
-# Timeout setting for EVM operations via RPC
-rpc-evm-timeout = "{{ .Polaris.Polar.RPCEVMTimeout }}"
-
-# Transaction fee cap for RPC requests
-rpc-tx-fee-cap = "{{ .Polaris.Polar.RPCTxFeeCap }}"
-
-
 # Gas price oracle settings for Polaris
 [polaris.polar.gpo]
 # Number of blocks to check for gas prices
-blocks = {{ .Polaris.Polar.GPO.Blocks }}
+blocks = "{{ .Polaris.Polar.GPO.Blocks }}"
 
 # Percentile of gas price to use
-percentile = {{ .Polaris.Polar.GPO.Percentile }}
+percentile = "{{ .Polaris.Polar.GPO.Percentile }}"
 
 # Maximum header history for gas price determination
-max-header-history = {{ .Polaris.Polar.GPO.MaxHeaderHistory }}
+max-header-history = "{{ .Polaris.Polar.GPO.MaxHeaderHistory }}"
 
 # Maximum block history for gas price determination
-max-block-history = {{ .Polaris.Polar.GPO.MaxBlockHistory }}
+max-block-history = "{{ .Polaris.Polar.GPO.MaxBlockHistory }}"
 
 # Default gas price value
 default = "{{ .Polaris.Polar.GPO.Default }}"
@@ -152,22 +152,22 @@ journal = "{{ .Polaris.Polar.LegacyTxPool.Journal }}"
 rejournal = "{{ .Polaris.Polar.LegacyTxPool.Rejournal }}"
 
 # Minimum gas price to enforce for acceptance into the pool
-price-limit = {{ .Polaris.Polar.LegacyTxPool.PriceLimit }}
+price-limit = "{{ .Polaris.Polar.LegacyTxPool.PriceLimit }}"
 
 # Minimum price bump percentage to replace an already existing transaction (nonce)
-price-bump = {{ .Polaris.Polar.LegacyTxPool.PriceBump }}
+price-bump = "{{ .Polaris.Polar.LegacyTxPool.PriceBump }}"
 
 # Number of executable transaction slots guaranteed per account
-account-slots = {{ .Polaris.Polar.LegacyTxPool.AccountSlots }}
+account-slots = "{{ .Polaris.Polar.LegacyTxPool.AccountSlots }}"
 
 #  Maximum number of executable transaction slots for all accounts
-account-queue = {{.Polaris.Polar.LegacyTxPool.AccountQueue }}
+account-queue = "{{.Polaris.Polar.LegacyTxPool.AccountQueue }}"
 
 # Maximum number of non-executable transaction slots permitted per account
-global-slots = {{ .Polaris.Polar.LegacyTxPool.GlobalSlots }}
+global-slots = "{{ .Polaris.Polar.LegacyTxPool.GlobalSlots }}"
 
 # Maximum number of non-executable transaction slots for all accounts
-global-queue = {{ .Polaris.Polar.LegacyTxPool.GlobalQueue }}
+global-queue = "{{ .Polaris.Polar.LegacyTxPool.GlobalQueue }}"
 
 # Maximum amount of time non-executable transaction are queued
 lifetime = "{{ .Polaris.Polar.LegacyTxPool.Lifetime }}"

@@ -31,7 +31,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	modulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
-	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
+	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
@@ -53,6 +53,7 @@ type DepInjectInput struct {
 
 	AppOpts           servertypes.AppOptions
 	Logger            log.Logger
+	PolarisCfg        func() *config.Config
 	CustomPrecompiles func() *ethprecompile.Injector `optional:"true"`
 	QueryContextFn    func() func(height int64, prove bool) (sdk.Context, error)
 	TxConfig          client.TxConfig
@@ -76,14 +77,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.CustomPrecompiles = func() *ethprecompile.Injector { return &ethprecompile.Injector{} }
 	}
 
-	// read oracle config from app-opts, and construct oracle service
-	polarisCfg, err := evmconfig.ReadConfigFromAppOpts(in.AppOpts)
-	if err != nil {
-		// TODO: this is required because of depinject in root.go.
-		// TODO: fix.
-		polarisCfg = evmconfig.DefaultConfig()
-	}
-
 	k := keeper.NewKeeper(
 		in.AccountKeeper,
 		in.StakingKeeper,
@@ -92,7 +85,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.QueryContextFn,
 		in.Logger,
 		in.TxConfig,
-		polarisCfg,
+		in.PolarisCfg(),
 	)
 	m := NewAppModule(k, in.AccountKeeper)
 

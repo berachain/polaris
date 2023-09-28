@@ -106,8 +106,7 @@ prometheus-retention-time = 0
 #
 # Example:
 # [["chain_id", "cosmoshub-1"]]
-global-labels = [
-]
+global-labels = []
 
 ###############################################################################
 ###                           API Configuration                             ###
@@ -230,8 +229,19 @@ max-txs = 5000
 # General Polaris settings
 [polaris]
 
-[polaris.polar.chain] 
-chain-id = "1337"
+[polaris.polar]
+# Gas cap for RPC requests
+rpc-gas-cap = "50000000"
+
+# Timeout setting for EVM operations via RPC
+rpc-evm-timeout = "5s"
+
+# Transaction fee cap for RPC requests
+rpc-tx-fee-cap = "1"
+
+
+[polaris.polar.chain]
+chain-id = "2061"
 
 # Homestead switch block
 homestead-block = "0"
@@ -264,7 +274,7 @@ petersburg-block = "0"
 istanbul-block = "0"
 
 # Muir Glacier switch block
-muir-glacier-block = "<nil>"
+muir-glacier-block = "0"
 
 # Berlin switch block
 berlin-block = "0"
@@ -282,17 +292,17 @@ gray-glacier-block = "0"
 merge-netsplit-block = "0"
 
 # Shanghai switch time (nil == no fork, 0 = already on shanghai)
-shanghai-time = "0"
+shanghai-time = 0
+
+cancun-time = "null"
+
+prague-time = "null"
+
+verkle-time = "null"
 
 # Cancun switch time (nil == no fork, 0 = already on cancun)
-cancun-time = "<nil>"
-
 # Prague switch time (nil == no fork, 0 = already on prague)
-prague-time = "<nil>"
-
 # Verkle switch time (nil == no fork, 0 = already on verkle)
-verkle-time = "<nil>"
-
 # Terminal total difficulty
 terminal-total-difficulty = "0"
 
@@ -301,17 +311,6 @@ terminal-total-difficulty-passed = true
 
 # DevMode enabled
 is-dev-mode = false
-
-
-[polaris.polar]
-# Gas cap for RPC requests
-rpc-gas-cap = "50000000"
-
-# Timeout setting for EVM operations via RPC
-rpc-evm-timeout = "5s"
-
-# Transaction fee cap for RPC requests
-rpc-tx-fee-cap = "1"
 
 
 # Gas price oracle settings for Polaris

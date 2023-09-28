@@ -65,12 +65,12 @@ type Config struct {
 	LegacyTxPool legacypool.Config
 
 	// RPCGasCap is the global gas cap for eth-call variants.
-	RPCGasCap uint64 `toml:""`
+	RPCGasCap uint64
 
 	// RPCEVMTimeout is the global timeout for eth-call.
-	RPCEVMTimeout time.Duration `toml:""`
+	RPCEVMTimeout time.Duration
 
 	// RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for
 	// send-transaction variants. The unit is ether.
-	RPCTxFeeCap float64 `toml:""`
+	RPCTxFeeCap float64
 }

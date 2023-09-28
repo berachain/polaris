@@ -42,13 +42,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
@@ -62,6 +58,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"pkg.berachain.dev/polaris/cosmos/abci"
+	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -103,9 +100,6 @@ type SimApp struct {
 
 	// polaris keepers
 	EVMKeeper *evmkeeper.Keeper
-
-	// simulation manager
-	sm *module.SimulationManager
 }
 
 //nolint:gochecknoinits // from sdk.
@@ -143,6 +137,7 @@ func NewPolarisApp(
 				// supply the logger
 				logger,
 				// ADVANCED CONFIGURATION
+				PolarisConfigFn(evmconfig.MustReadConfigFromAppOpts(appOpts)),
 				PrecompilesToInject(app),
 				QueryContextFn(app),
 				//
@@ -253,21 +248,6 @@ func NewPolarisApp(
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	app.RegisterUpgradeHandlers()
 
-	// add test gRPC service for testing gRPC queries in isolation
-	testdata_pulsar.RegisterQueryServer(app.GRPCQueryRouter(), testdata_pulsar.QueryImpl{})
-
-	// create the simulation manager and define the order of the modules for deterministic simulations
-	//
-	// NOTE: this is not required apps that don't use the simulator for fuzz testing
-	// transactions
-	overrideModules := map[string]module.AppModuleSimulation{
-		authtypes.ModuleName: auth.NewAppModule(app.appCodec,
-			app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
-	}
-	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
-
-	app.sm.RegisterStoreDecoders()
-
 	if err := app.Load(loadLatest); err != nil {
 		panic(err)
 	}
@@ -337,7 +317,7 @@ func (app *SimApp) GetSubspace(moduleName string) paramstypes.Subspace {
 
 // SimulationManager implements the SimulationApp interface.
 func (app *SimApp) SimulationManager() *module.SimulationManager {
-	return app.sm
+	return nil
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided

@@ -26,6 +26,7 @@ import (
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
+	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
@@ -71,5 +72,11 @@ func PrecompilesToInject(app *SimApp, customPcs ...ethprecompile.Registrable) fu
 func QueryContextFn(app *SimApp) func() func(height int64, prove bool) (sdk.Context, error) {
 	return func() func(height int64, prove bool) (sdk.Context, error) {
 		return app.BaseApp.CreateQueryContext
+	}
+}
+
+func PolarisConfigFn(cfg *evmconfig.Config) func() *evmconfig.Config {
+	return func() *evmconfig.Config {
+		return cfg
 	}
 }
