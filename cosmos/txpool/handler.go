@@ -103,13 +103,13 @@ func (h *handler) eventLoop() {
 	var err error
 	for {
 		select {
-		case event := <-h.txsCh:
-			h.broadcastTransactions(event.Txs)
-		case err = <-h.txsSub.Err():
-			h.stopCh <- struct{}{}
 		case <-h.stopCh:
 			h.stop(err)
 			return
+		case err = <-h.txsSub.Err():
+			h.stopCh <- struct{}{}
+		case event := <-h.txsCh:
+			h.broadcastTransactions(event.Txs)
 		}
 	}
 }
