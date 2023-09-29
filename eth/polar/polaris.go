@@ -177,8 +177,7 @@ func (pl *Polaris) StartServices() error {
 
 	// Stack the networking stack.
 	go func() {
-		// TODO: fix hive (this is required for hive to not break)
-		time.Sleep(5 * time.Second) //nolint:gomnd // for hive to not freak out...
+		time.Sleep(3 * time.Second) //nolint:gomnd // TODO:fix, this is required for hive...
 		if err := pl.stack.Start(); err != nil {
 			panic(err)
 		}
