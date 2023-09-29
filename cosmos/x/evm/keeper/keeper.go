@@ -42,6 +42,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/polar"
 )
 
+var _ Host = (*host)(nil)
+
 type Keeper struct {
 	// provider is the struct that houses the Polaris EVM.
 	polaris *polar.Polaris

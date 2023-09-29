@@ -87,10 +87,9 @@ func NewStateProcessor(
 		statedb:  statedb,
 	}
 
+	// TODO: move nil check out of the processor.
 	if sp.pp == nil {
 		sp.pp = precompile.NewDefaultPlugin()
-	} else {
-		sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(nil))
 	}
 
 	return sp
@@ -124,6 +123,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 	// *technically* the precompiles change based on the chain config rules, to be fully correct,
 	// we should check every block.
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
+	sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(nil))
 	sp.evm = evm
 }
 
@@ -192,6 +192,7 @@ func (sp *StateProcessor) Finalize(
 
 // BuildAndRegisterPrecompiles builds the given precompiles and registers them with the precompile
 // plugin.
+// TODO: move precompile registration out of the state processor?
 func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []precompile.Registrable) {
 	for _, pc := range precompiles {
 		// skip registering precompiles that are already registered.

@@ -113,12 +113,13 @@ func NewWithNetworkingStack(
 		log.Root().SetHandler(logHandler)
 	}
 
+	pl.backend = NewBackend(pl, pl.stack.ExtRPCEnabled(), pl.cfg)
+
 	return pl
 }
 
 // Init initializes the Polaris struct.
 func (pl *Polaris) Init() error {
-	pl.backend = NewBackend(pl, pl.stack.ExtRPCEnabled(), pl.cfg)
 	pl.miner = miner.New(pl)
 
 	var err error
