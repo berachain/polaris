@@ -125,7 +125,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 	// *technically* the precompiles change based on the chain config rules, to be fully correct,
 	// we should check every block.
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
-	sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(nil))
+	sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(&rules))
 	sp.evm = evm
 }
 
