@@ -87,10 +87,6 @@ func NewStateProcessor(
 		statedb:  statedb,
 	}
 
-	if sp.pp == nil {
-		sp.pp = precompile.NewDefaultPlugin()
-	}
-
 	return sp
 }
 
