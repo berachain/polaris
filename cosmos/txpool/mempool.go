@@ -29,6 +29,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // Mempool implements the mempool.Mempool interface.
@@ -56,7 +57,7 @@ func (m *Mempool) Insert(_ context.Context, sdkTx sdk.Tx) error {
 		return errors.New("only one message is supported")
 	}
 
-	if wet, ok := (msgs[0]).(*types.WrappedEthereumTransaction); !ok {
+	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); !ok {
 		return errors.New("only WrappedEthereumTransactions are supported")
 	} else if errs := m.txpool.Add([]*coretypes.Transaction{wet.AsTransaction()}, false, false); len(errs) != 0 {
 		return errs[0]
