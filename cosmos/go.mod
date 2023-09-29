@@ -35,9 +35,12 @@ require (
 	github.com/huandu/skiplist v1.2.0 // indirect
 	github.com/onsi/ginkgo/v2 v2.12.1
 	github.com/onsi/gomega v1.27.10
+	github.com/spf13/cast v1.5.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0 // indirect
+	github.com/stretchr/testify v1.8.4
 	github.com/tidwall/btree v1.7.0 // indirect
+	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
 	google.golang.org/genproto v0.0.0-20230803162519-f966b187b2e5 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230726155614-23370e0ffb3e // indirect
 	google.golang.org/grpc v1.58.1
@@ -45,12 +48,6 @@ require (
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230925142347-326426fa61f6
 	pkg.berachain.dev/polaris/eth v0.0.0-20230925142347-326426fa61f6
 	pkg.berachain.dev/polaris/lib v0.0.0-20230925142347-326426fa61f6
-)
-
-require (
-	github.com/spf13/cast v1.5.1
-	github.com/stretchr/testify v1.8.4
-	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
 )
 
 require (
