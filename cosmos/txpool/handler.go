@@ -83,7 +83,6 @@ func newHandler(
 		serializer: serializer,
 		txPool:     txPool,
 		txsCh:      make(chan core.NewTxsEvent, txChanSize),
-		stopCh:     make(chan struct{}),
 	}
 	return h
 }
@@ -106,8 +105,6 @@ func (h *handler) eventLoop() {
 		case event := <-h.txsCh:
 			h.broadcastTransactions(event.Txs)
 		case err = <-h.txsSub.Err():
-			h.stopCh <- struct{}{}
-		case <-h.stopCh:
 			h.stop(err)
 			return
 		}
@@ -122,7 +119,7 @@ func (h *handler) Running() bool {
 // Stop stops the handler.
 func (h *handler) Stop() {
 	if h.Running() {
-		h.stopCh <- struct{}{}
+		h.stop(nil)
 	} else {
 		panic("stopping already stopped handler")
 	}
@@ -143,7 +140,6 @@ func (h *handler) stop(err error) {
 
 	// Close channels.
 	close(h.txsCh)
-	close(h.stopCh)
 }
 
 // broadcastTransactions will propagate a batch of transactions to the CometBFT mempool.
