@@ -24,7 +24,7 @@ import (
 	"cosmossdk.io/store/cachekv"
 	storetypes "cosmossdk.io/store/types"
 
-	polariscachekv "pkg.berachain.dev/polaris/cosmos/x/evm/store/cachekv"
+	polariscachekv "pkg.berachain.dev/polaris/cosmos/store/cachekv"
 	"pkg.berachain.dev/polaris/lib/ds"
 	"pkg.berachain.dev/polaris/lib/ds/stack"
 	"pkg.berachain.dev/polaris/lib/utils"
