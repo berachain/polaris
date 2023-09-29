@@ -1,0 +1,10 @@
+dir: "{{.InterfaceDir}}/mocks"
+mockname: "{{.InterfaceNameCamel}}"
+filename: "{{.InterfaceNameSnake}}.go"
+outpkg: "mocks"
+packages:
+  pkg.berachain.dev/polaris/cosmos/txpool:
+    config:
+      all: True
+      recursive: True
+      with-expecter: true

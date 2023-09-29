@@ -45,9 +45,10 @@ var (
 	golines      = "github.com/segmentio/golines"
 	rlpgen       = "github.com/ethereum/go-ethereum/rlp/rlpgen"
 	abigen       = "github.com/ethereum/go-ethereum/cmd/abigen"
+	mockery      = "github.com/vektra/mockery/v2"
 
 	ciTools  = []string{buf, gosec, golangcilint, addlicense, ginkgo, golines}
-	allTools = append(ciTools, []string{moq, rlpgen, abigen}...)
+	allTools = append(ciTools, []string{moq, rlpgen, abigen, mockery}...)
 )
 
 // Setup runs the setup script for the current OS.

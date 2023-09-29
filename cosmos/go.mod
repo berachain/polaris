@@ -47,7 +47,11 @@ require (
 	pkg.berachain.dev/polaris/lib v0.0.0-20230925142347-326426fa61f6
 )
 
-require github.com/spf13/cast v1.5.1
+require (
+	github.com/spf13/cast v1.5.1
+	github.com/stretchr/testify v1.8.4
+	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
+)
 
 require (
 	filippo.io/edwards25519 v1.0.0 // indirect
@@ -209,7 +213,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/status-im/keycard-go v0.2.0 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/supranational/blst v0.3.11 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
@@ -229,7 +233,6 @@ require (
 	go.etcd.io/bbolt v1.3.7 // indirect
 	golang.org/x/arch v0.4.0 // indirect
 	golang.org/x/crypto v0.13.0 // indirect
-	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.15.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
