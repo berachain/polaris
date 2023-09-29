@@ -38,7 +38,7 @@ import (
 
 func TestTxpool(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/x/evm/plugins/txpool")
+	RunSpecs(t, "cosmos/txpool")
 }
 
 var _ = Describe("", func() {

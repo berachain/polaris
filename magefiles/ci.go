@@ -113,7 +113,7 @@ func TestE2E() error {
 		return err
 	}
 	utils.LogGreen("Running all e2e tests")
-	return testE2E(".")
+	return testE2E("./e2e")
 }
 
 func testE2E(path string) error {
