@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	cosmos_sdktypes "github.com/cosmos/cosmos-sdk/types"
 	mock "github.com/stretchr/testify/mock"
 
 	types "github.com/ethereum/go-ethereum/core/types"
@@ -71,6 +72,60 @@ func (_c *TxSerializer_SerializeToBytes_Call) Return(_a0 []byte, _a1 error) *TxS
 }
 
 func (_c *TxSerializer_SerializeToBytes_Call) RunAndReturn(run func(*types.Transaction) ([]byte, error)) *TxSerializer_SerializeToBytes_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SerializeToSdkTx provides a mock function with given fields: signedTx
+func (_m *TxSerializer) SerializeToSdkTx(signedTx *types.Transaction) (cosmos_sdktypes.Tx, error) {
+	ret := _m.Called(signedTx)
+
+	var r0 cosmos_sdktypes.Tx
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*types.Transaction) (cosmos_sdktypes.Tx, error)); ok {
+		return rf(signedTx)
+	}
+	if rf, ok := ret.Get(0).(func(*types.Transaction) cosmos_sdktypes.Tx); ok {
+		r0 = rf(signedTx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(cosmos_sdktypes.Tx)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*types.Transaction) error); ok {
+		r1 = rf(signedTx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// TxSerializer_SerializeToSdkTx_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SerializeToSdkTx'
+type TxSerializer_SerializeToSdkTx_Call struct {
+	*mock.Call
+}
+
+// SerializeToSdkTx is a helper method to define mock.On call
+//   - signedTx *types.Transaction
+func (_e *TxSerializer_Expecter) SerializeToSdkTx(signedTx interface{}) *TxSerializer_SerializeToSdkTx_Call {
+	return &TxSerializer_SerializeToSdkTx_Call{Call: _e.mock.On("SerializeToSdkTx", signedTx)}
+}
+
+func (_c *TxSerializer_SerializeToSdkTx_Call) Run(run func(signedTx *types.Transaction)) *TxSerializer_SerializeToSdkTx_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*types.Transaction))
+	})
+	return _c
+}
+
+func (_c *TxSerializer_SerializeToSdkTx_Call) Return(_a0 cosmos_sdktypes.Tx, _a1 error) *TxSerializer_SerializeToSdkTx_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *TxSerializer_SerializeToSdkTx_Call) RunAndReturn(run func(*types.Transaction) (cosmos_sdktypes.Tx, error)) *TxSerializer_SerializeToSdkTx_Call {
 	_c.Call.Return(run)
 	return _c
 }
