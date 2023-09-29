@@ -43,6 +43,7 @@ var _ = Describe("", func() {
 		txPool  *mocks.GethTxPool
 		sdkTx   *mocks.SdkTx
 		mempool *Mempool
+		ctx     = context.Background()
 	)
 
 	BeforeEach(func() {
@@ -56,26 +57,26 @@ var _ = Describe("", func() {
 			It("does not error", func() {
 				sdkTx.On("GetMsgs").Return([]sdk.Msg{evmtypes.NewFromTransaction(coretypes.NewTx(&coretypes.LegacyTx{}))}).Once()
 				txPool.On("Add", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
-				Expect(mempool.Insert(context.TODO(), sdkTx)).ToNot(HaveOccurred())
+				Expect(mempool.Insert(ctx, sdkTx)).ToNot(HaveOccurred())
 			})
 		})
 		When("the txpool errors", func() {
 			It("does error", func() {
 				sdkTx.On("GetMsgs").Return([]sdk.Msg{evmtypes.NewFromTransaction(coretypes.NewTx(&coretypes.LegacyTx{}))}).Once()
 				txPool.On("Add", mock.Anything, mock.Anything, mock.Anything).Return([]error{errors.New("mock error")}).Once()
-				Expect(mempool.Insert(context.TODO(), sdkTx)).To(HaveOccurred())
+				Expect(mempool.Insert(ctx, sdkTx)).To(HaveOccurred())
 			})
 		})
 		When("we use an sdkTx with no messages", func() {
 			It("errors", func() {
 				sdkTx.On("GetMsgs").Return([]sdk.Msg{}).Once()
-				Expect(mempool.Insert(context.TODO(), sdkTx)).To(HaveOccurred())
+				Expect(mempool.Insert(ctx, sdkTx)).To(HaveOccurred())
 			})
 		})
 		When("we use an that is not an ethereum msg", func() {
 			It("errors", func() {
 				sdkTx.On("GetMsgs").Return([]sdk.Msg{nil}).Once()
-				Expect(mempool.Insert(context.TODO(), sdkTx)).To(HaveOccurred())
+				Expect(mempool.Insert(ctx, sdkTx)).To(HaveOccurred())
 			})
 		})
 	})
