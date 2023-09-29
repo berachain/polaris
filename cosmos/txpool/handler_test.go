@@ -58,7 +58,7 @@ var _ = Describe("", func() {
 		subprovider = mocks.NewTxSubProvider(t)
 		subprovider.On("SubscribeNewTxsEvent", mock.Anything).Return(subscription)
 		serializer = mocks.NewTxSerializer(t)
-		h = NewHandler(broadcaster, subprovider, serializer, log.NewTestLogger(t))
+		h = newHandler(broadcaster, subprovider, serializer, log.NewTestLogger(t))
 		h.Start()
 		for !h.Running() {
 			// Wait for handler to start.

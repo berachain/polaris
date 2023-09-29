@@ -27,8 +27,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/core/txpool"
-	cosmostxpool "pkg.berachain.dev/polaris/cosmos/txpool"
 
+	cosmostxpool "pkg.berachain.dev/polaris/cosmos/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"

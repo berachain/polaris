@@ -57,6 +57,13 @@ type Subscription interface {
 	event.Subscription
 }
 
+// Handler provides an interface to start and stop the handler.
+type Handler interface {
+	Start()
+	Running() bool
+	Stop()
+}
+
 // handler listens for new insertions into the geth txpool and broadcasts them to the CometBFT
 // layer for p2p and ABCI.
 type handler struct {
@@ -73,8 +80,15 @@ type handler struct {
 	running atomic.Bool
 }
 
-// NewHandler creates a new handler.
+// NewHandler creates a new Handler.
 func NewHandler(
+	clientCtx Broadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
+) Handler {
+	return newHandler(clientCtx, txPool, serializer, logger)
+}
+
+// newHandler creates a new handler.
+func newHandler(
 	clientCtx Broadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
 ) *handler {
 	h := &handler{
