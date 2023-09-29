@@ -120,8 +120,6 @@ func (m *miner) NextBaseFee() *big.Int {
 }
 
 // Prepare prepares the blockchain for processing a new block at the given height.
-//
-
 func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
 	m.sp.Prepare(ctx)

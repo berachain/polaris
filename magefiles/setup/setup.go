@@ -51,7 +51,7 @@ var (
 	allTools = append(ciTools, []string{moq, rlpgen, abigen, mockery}...)
 )
 
-// Setup runs the setup script for the curremocknt OS.
+// Setup runs the setup script for the current OS.
 func main() {
 	var err error
 

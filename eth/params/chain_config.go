@@ -29,7 +29,7 @@ const DefaultEIP155ChainID = 2061
 var zero = uint64(0)
 
 var DefaultChainConfig = &ChainConfig{
-	ChainID:                       big.NewInt(1),
+	ChainID:                       big.NewInt(DefaultEIP155ChainID),
 	HomesteadBlock:                big.NewInt(0),
 	DAOForkBlock:                  big.NewInt(0),
 	DAOForkSupport:                true,

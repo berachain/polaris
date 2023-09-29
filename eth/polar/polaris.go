@@ -121,6 +121,7 @@ func NewWithNetworkingStack(
 // Init initializes the Polaris struct.
 func (pl *Polaris) Init() error {
 	pl.miner = miner.New(pl)
+	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 
 	var err error
 	legacyPool := legacypool.New(
@@ -132,9 +133,6 @@ func (pl *Polaris) Init() error {
 		return err
 	}
 
-	// pl.miner = miner.New(pl)
-	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
-
 	// eth.miner = miner.New(eth, &config.Miner, eth.blockchain.Config(), eth.EventMux(), eth.engine, eth.isLocalBlock)
 
 	// Build and set the RPC Backend and other services.
@@ -142,12 +140,6 @@ func (pl *Polaris) Init() error {
 	// if eth.APIBackend.allowUnprotectedTxs {
 	// 	log.Info("Unprotected transactions allowed")
 	// }
-
-	// Register the backend on the node
-	// Register the JSON-RPCs with the networking stack.
-	pl.stack.RegisterAPIs(pl.APIs())
-	// stack.RegisterProtocols(eth.Protocols())
-	// stack.RegisterLifecycle(eth)
 
 	return nil
 }
@@ -173,17 +165,18 @@ func (pl *Polaris) APIs() []rpc.API {
 
 // StartServices notifies the NetworkStack to spin up (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
+	// Register the JSON-RPCs with the networking stack.
+	pl.stack.RegisterAPIs(pl.APIs())
+
 	// Register the filter API separately in order to get access to the filterSystem
 	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
 
-	// Stack the networking stack.
 	go func() {
 		time.Sleep(3 * time.Second) //nolint:gomnd // TODO:fix, this is required for hive...
 		if err := pl.stack.Start(); err != nil {
 			panic(err)
 		}
 	}()
-
 	return nil
 }
 
