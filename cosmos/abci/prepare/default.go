@@ -47,14 +47,11 @@ type Handler struct {
 	txVerifier TxVerifier
 }
 
-func NewHandler(txVerifier TxVerifier) Handler {
+func NewHandler(polaris *polar.Polaris, txVerifier TxVerifier) Handler {
 	return Handler{
+		polaris:    polaris,
 		txVerifier: txVerifier,
 	}
-}
-
-func (h *Handler) SetPolaris(polaris *polar.Polaris) {
-	h.polaris = polaris
 }
 
 func (h *Handler) PrepareProposal(
@@ -119,8 +116,7 @@ func (h *Handler) PrepareProposal(
 
 // txPoolTransactions returns a sorted list of transactions from the txpool.
 func (h *Handler) txPoolTransactions() *miner.TransactionsByPriceAndNonce {
-	pending := h.polaris.TxPool().Pending(false)
 	return miner.NewTransactionsByPriceAndNonce(types.LatestSigner(
 		h.polaris.Host().GetConfigurationPlugin().ChainConfig(),
-	), pending, h.polaris.Miner().NextBaseFee())
+	), h.polaris.TxPool().Pending(false), h.polaris.Miner().NextBaseFee())
 }

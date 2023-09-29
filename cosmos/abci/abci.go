@@ -37,11 +37,6 @@ type (
 		ProcessProposalVerifyTx(txBz []byte) (sdk.Tx, error)
 	}
 
-	// GasTx defines the contract that a transaction with a gas limit must implement.
-	GasTx interface {
-		GetGas() uint64
-	}
-
 	// DefaultProposalHandler defines the default ABCI PrepareProposal and
 	// ProcessProposal handlers.
 	DefaultProposalHandler struct {
@@ -50,13 +45,9 @@ type (
 	}
 )
 
-func NewDefaultProposalHandler(txVerifier ProposalTxVerifier) *DefaultProposalHandler {
-	// _, isNoOp := mp.(mempool.NoOpMempool)
-	// if mp == nil || isNoOp {
-	// 	panic("mempool must be set and cannot be a NoOpMempool")
-	// }
+func NewDefaultProposalHandler(polaris *polar.Polaris, txVerifier ProposalTxVerifier) *DefaultProposalHandler {
 	return &DefaultProposalHandler{
-		proposer:  prepare.NewHandler(txVerifier),
+		proposer:  prepare.NewHandler(polaris, txVerifier),
 		processor: process.NewHandler(txVerifier),
 	}
 }
@@ -67,8 +58,4 @@ func (h *DefaultProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHan
 
 func (h *DefaultProposalHandler) ProcessProposalHandler() sdk.ProcessProposalHandler {
 	return h.processor.ProcessProposal
-}
-
-func (h *DefaultProposalHandler) SetPolaris(polaris *polar.Polaris) {
-	h.proposer.SetPolaris(polaris)
 }
