@@ -14,6 +14,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.12.1
 	github.com/securego/gosec/v2 v2.17.0
 	github.com/segmentio/golines v0.11.0
+	github.com/vektra/mockery/v2 v2.34.1
 )
 
 require (
@@ -63,6 +64,7 @@ require (
 	github.com/chavacava/garif v0.0.0-20230227094218-b8c73b2037b8 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.0 // indirect
+	github.com/chigopher/pathlib v0.15.0 // indirect
 	github.com/cockroachdb/errors v1.11.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/pebble v0.0.0-20230906160148-46873a6a7a06 // indirect
@@ -158,6 +160,7 @@ require (
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
 	github.com/holiman/uint256 v1.2.3 // indirect
 	github.com/huin/goupnp v1.3.0 // indirect
+	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/influxdata/influxdb-client-go/v2 v2.12.3 // indirect
 	github.com/influxdata/influxdb1-client v0.0.0-20220302092344-a9ab5670611c // indirect
@@ -167,6 +170,7 @@ require (
 	github.com/jgautheron/goconst v1.5.1 // indirect
 	github.com/jhump/protoreflect v1.15.2 // indirect
 	github.com/jingyugao/rowserrcheck v1.1.1 // indirect
+	github.com/jinzhu/copier v0.3.5 // indirect
 	github.com/jirfag/go-printf-func-name v0.0.0-20200119135958-7558a9eaa5af // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/julz/importas v0.1.0 // indirect
@@ -234,6 +238,7 @@ require (
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/rs/cors v1.9.0 // indirect
+	github.com/rs/zerolog v1.30.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryancurrah/gomodguard v1.3.0 // indirect
 	github.com/ryanrolds/sqlclosecheck v0.4.0 // indirect
