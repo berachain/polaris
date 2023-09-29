@@ -133,7 +133,7 @@ var _ = Describe("StateDB", func() {
 
 	It("should return code for precompiles", func() {
 		pp.On("Has", common.Address{0x7}).Return(true).Once()
-		Expect(sdb.GetCode(common.Address{0x7})).To(Equal([]byte{0x7}))
+		Expect(sdb.GetCode(common.Address{0x7})).To(Equal([]byte{0x1}))
 		pp.On("Has", common.Address{0x7}).Return(false).Once()
 		Expect(sdb.GetCode(common.Address{0x7})).To(Equal([]byte{}))
 	})

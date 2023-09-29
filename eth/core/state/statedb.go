@@ -85,6 +85,7 @@ func newStateDBWithJournals(
 
 	return &stateDB{
 		Plugin:           sp,
+		pp:               pp,
 		Log:              lj,
 		Refund:           rj,
 		Accesslist:       aj,
@@ -190,7 +191,6 @@ func (sdb *stateDB) Preimages() map[common.Hash][]byte {
 // code associated with the given account.
 func (sdb *stateDB) GetCode(addr common.Address) []byte {
 	// We return a single byte for client compatibility w/precompiles.
-	fmt.Println(sdb.pp, "PP")
 	if sdb.pp.Has(addr) {
 		return []byte{0x01}
 	}
@@ -213,7 +213,6 @@ func (sdb *stateDB) Copy() StateDBI {
 	if logs == nil {
 		panic("failed to clone logs")
 	}
-	fmt.Println("COPY", sdb.pp)
 	statedb, ok := newStateDBWithJournals(
 		sdb.Plugin.Clone(), sdb.pp, logs, sdb.Refund.Clone(),
 		sdb.Accesslist.Clone(), sdb.SelfDestructs.Clone(), sdb.TransientStorage.Clone(),
