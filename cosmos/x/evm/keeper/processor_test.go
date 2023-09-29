@@ -21,6 +21,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 	"os"
 
@@ -203,6 +204,7 @@ var _ = Describe("Processor", func() {
 
 			// Execute another transaction.
 			var result2 *coretypes.Receipt
+			fmt.Println(k.GetPolaris().Host().GetPrecompilePlugin() == nil, "PP is nil")
 			result2, err = k.ProcessTransaction(ctx, tx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result.Status).To(Equal(uint64(1)))

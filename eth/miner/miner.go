@@ -70,6 +70,7 @@ type miner struct {
 	bp        core.BlockPlugin
 	cp        core.ConfigurationPlugin
 	gp        core.GasPlugin
+	pp        core.PrecompilePlugin
 	sp        core.StatePlugin
 	logger    log.Logger
 	vmConfig  vm.Config
@@ -101,13 +102,13 @@ func NewMiner(backend Backend) Miner {
 		logger:  log.Root(), // todo: fix.
 	}
 
-	pp := host.GetPrecompilePlugin()
-	if pp == nil {
-		pp = precompile.NewDefaultPlugin()
+	m.pp = host.GetPrecompilePlugin()
+	if m.pp == nil {
+		m.pp = precompile.NewDefaultPlugin()
 	}
-	m.statedb = state.NewStateDB(m.sp, pp)
+	m.statedb = state.NewStateDB(m.sp, m.pp)
 	m.processor = core.NewStateProcessor(
-		m.cp, pp, m.statedb, &m.vmConfig,
+		m.cp, m.pp, m.statedb, &m.vmConfig,
 	)
 
 	return m
@@ -203,7 +204,8 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		context = core.NewEVMBlockContext(m.pendingHeader, m.chain, &m.pendingHeader.Coinbase)
 		vmenv   = vm.NewGethEVMWithPrecompiles(context,
 			vm.TxContext{}, m.statedb, chainConfig, m.vmConfig,
-			m.backend.Host().GetPrecompilePlugin())
+			m.pp,
+		)
 	)
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
