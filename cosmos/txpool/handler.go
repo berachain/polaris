@@ -37,6 +37,11 @@ import (
 // size of tx pool.
 const txChanSize = 4096
 
+// SdkTx is used to generate mocks.
+type SdkTx interface {
+	sdk.Tx
+}
+
 // TxSubProvider.
 type TxSubProvider interface {
 	SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription
@@ -44,6 +49,7 @@ type TxSubProvider interface {
 
 // TxSerializer provides an interface to Serialize Geth Transactions to Bytes (via sdk.Tx).
 type TxSerializer interface {
+	SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
 	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
 }
 
@@ -57,7 +63,7 @@ type Subscription interface {
 	event.Subscription
 }
 
-// Handler provides an interface to start and stop the handler.
+// Handler exposes a basic interface to utilize the Handler.
 type Handler interface {
 	Start()
 	Running() bool
