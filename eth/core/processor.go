@@ -90,6 +90,8 @@ func NewStateProcessor(
 	// TODO: move nil check out of the processor.
 	if sp.pp == nil {
 		sp.pp = precompile.NewDefaultPlugin()
+	} else {
+		sp.pp = precompile.NewDefaultPlugin()
 	}
 
 	return sp

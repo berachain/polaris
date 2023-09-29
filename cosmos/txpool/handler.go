@@ -73,17 +73,16 @@ type handler struct {
 	running atomic.Bool
 }
 
-// newHandler creates a new handler.
-func newHandler(
+// NewHandler creates a new handler.
+func NewHandler(
 	clientCtx Broadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
 ) *handler {
-	txsCh := make(chan core.NewTxsEvent, txChanSize)
 	h := &handler{
 		logger:     logger,
 		clientCtx:  clientCtx,
 		serializer: serializer,
 		txPool:     txPool,
-		txsCh:      txsCh,
+		txsCh:      make(chan core.NewTxsEvent, txChanSize),
 		stopCh:     make(chan struct{}),
 	}
 	return h
@@ -91,11 +90,11 @@ func newHandler(
 
 // Start starts the handler.
 func (h *handler) Start() {
-	go h.start()
+	go h.eventLoop()
 }
 
 // start handles the subscription to the txpool and broadcasts transactions.
-func (h *handler) start() {
+func (h *handler) eventLoop() {
 	// Connect to the subscription.
 	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
 	h.running.Store(true)
@@ -104,12 +103,13 @@ func (h *handler) start() {
 	var err error
 	for {
 		select {
-		case event := <-h.txsCh:
-			h.broadcastTransactions(event.Txs)
-		case err = <-h.txsSub.Err():
-			h.stopCh <- struct{}{}
 		case <-h.stopCh:
 			h.stop(err)
+			return
+		case err = <-h.txsSub.Err():
+			h.stopCh <- struct{}{}
+		case event := <-h.txsCh:
+			h.broadcastTransactions(event.Txs)
 		}
 	}
 }
@@ -130,15 +130,20 @@ func (h *handler) Stop() {
 
 // stop stops the handler.
 func (h *handler) stop(err error) {
+	// Mark as not running to prevent further events.
+	h.running.Store(false)
+
+	// If we are stopping because of an error, log it.
 	if err != nil {
 		h.logger.Error("txpool handler", "error", err)
 	}
+
 	// Triggers txBroadcastLoop to quit.
 	h.txsSub.Unsubscribe()
-	h.running.Store(false)
 
-	// Leave the channels.
+	// Close channels.
 	close(h.txsCh)
+	close(h.stopCh)
 }
 
 // broadcastTransactions will propagate a batch of transactions to the CometBFT mempool.

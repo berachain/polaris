@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package txpool
+package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/client"
@@ -26,15 +26,23 @@ import (
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
+// TxSerializer provides an interface to serialize ethereum transactions
+// to sdk.Tx's and bytes that can be used by CometBFT.
+type TxSerializer interface {
+	SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
+	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
+}
+
+// serializer implements TxSerializer.
 type serializer struct {
 	txConfig client.TxConfig
 }
 
-func newSerializer(txConfig client.TxConfig) *serializer {
+// NewSerializer returns a new instance of TxSerializer.
+func NewSerializer(txConfig client.TxConfig) TxSerializer {
 	return &serializer{
 		txConfig: txConfig,
 	}
@@ -61,7 +69,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 	}
 
 	// Create the WrappedEthereumTransaction message.
-	wrappedEthTx := types.NewFromTransaction(signedTx)
+	wrappedEthTx := NewFromTransaction(signedTx)
 	sig, err := wrappedEthTx.GetSignature()
 	if err != nil {
 		return nil, err

@@ -27,7 +27,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/core/txpool"
+	cosmostxpool "pkg.berachain.dev/polaris/cosmos/txpool"
 
+	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -49,17 +51,22 @@ type Plugin interface {
 	GetTxPool() *txpool.TxPool
 }
 
+// Startable represents a type that can be started.
+type Startable interface {
+	Start()
+}
+
 // plugin represents the transaction pool plugin.
 type plugin struct {
 	*txpool.TxPool
-	*handler
-	serializer *serializer
+	handler    Startable
+	serializer types.TxSerializer
 }
 
 // NewPlugin returns a new transaction pool plugin.
 func NewPlugin(txConfig client.TxConfig) Plugin {
 	return &plugin{
-		serializer: newSerializer(txConfig),
+		serializer: types.NewSerializer(txConfig),
 	}
 }
 
@@ -79,7 +86,7 @@ func (p *plugin) SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, erro
 // Setup implements the Plugin interface.
 func (p *plugin) Start(logger log.Logger, txpool *txpool.TxPool, ctx client.Context) {
 	p.TxPool = txpool
-	p.handler = newHandler(ctx, txpool, p.serializer, logger)
+	p.handler = cosmostxpool.NewHandler(ctx, txpool, p.serializer, logger)
 
 	// TODO: register all these starting things somewhere better.
 	p.handler.Start()

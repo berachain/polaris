@@ -21,19 +21,25 @@
 package txpool
 
 import (
+	"testing"
 	"time"
 
 	"github.com/stretchr/testify/mock"
 
 	"cosmossdk.io/log"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mocks"
+	"pkg.berachain.dev/polaris/cosmos/txpool/mocks"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+func TestTxpool(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "cosmos/txpool")
+}
 
 var _ = Describe("", func() {
 	var h *handler
@@ -52,7 +58,7 @@ var _ = Describe("", func() {
 		subprovider = mocks.NewTxSubProvider(t)
 		subprovider.On("SubscribeNewTxsEvent", mock.Anything).Return(subscription)
 		serializer = mocks.NewTxSerializer(t)
-		h = newHandler(broadcaster, subprovider, serializer, log.NewTestLogger(t))
+		h = NewHandler(broadcaster, subprovider, serializer, log.NewTestLogger(t))
 		h.Start()
 		for !h.Running() {
 			// Wait for handler to start.

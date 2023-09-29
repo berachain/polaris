@@ -2,7 +2,7 @@
 fuzz_runs = 1024
 ignored_error_codes = [1878, 5574]
 evm_version = 'shanghai'
-solc_version = '0.8.20'
+solc_version = '0.8.21'
 cache = true
 force = false
 optimizer = false

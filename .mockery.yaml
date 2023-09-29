@@ -3,7 +3,7 @@ mockname: "{{.InterfaceNameCamel}}"
 filename: "{{.InterfaceNameSnake}}.go"
 outpkg: "mocks"
 packages:
-  pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool:
+  pkg.berachain.dev/polaris/cosmos/txpool:
     config:
       all: True
       recursive: True

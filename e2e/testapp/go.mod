@@ -17,7 +17,6 @@ require (
 	github.com/stretchr/testify v1.8.4
 	pkg.berachain.dev/polaris/cosmos v0.0.0-20230928142528-23cc5f141354
 	pkg.berachain.dev/polaris/eth v0.0.0-20230928142528-23cc5f141354
-	pkg.berachain.dev/polaris/lib v0.0.0-20230928142528-23cc5f141354
 )
 
 require (
@@ -273,6 +272,8 @@ require (
 	gotest.tools/v3 v3.5.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230925142347-326426fa61f6 // indirect
+	pkg.berachain.dev/polaris/lib v0.0.0-20230928142528-23cc5f141354 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
