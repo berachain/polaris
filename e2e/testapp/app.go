@@ -60,6 +60,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/abci"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
+	cosmostxpool "pkg.berachain.dev/polaris/cosmos/txpool"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -214,8 +215,9 @@ func NewPolarisApp(
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 	proposalHandler := abci.NewDefaultProposalHandler(app)
-	proposalHandler.SetPolaris(app.EVMKeeper.Polaris())
 
+	proposalHandler.SetPolaris(app.EVMKeeper.Polaris())
+	app.App.BaseApp.SetMempool(cosmostxpool.NewMempool(app.EVMKeeper.Polaris().TxPool()))
 	app.App.BaseApp.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
 	app.App.BaseApp.SetProcessProposal(proposalHandler.ProcessProposalHandler())
 
@@ -226,6 +228,7 @@ func NewPolarisApp(
 		FeegrantKeeper:  nil,
 		SigGasConsumer:  evmante.SigVerificationGasConsumer,
 	}
+
 	ch, _ := evmante.NewAnteHandler(
 		opt,
 	)
@@ -242,7 +245,6 @@ func NewPolarisApp(
 	}
 
 	/****  Module Options ****/
-
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
