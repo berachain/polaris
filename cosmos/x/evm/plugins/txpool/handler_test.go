@@ -54,15 +54,19 @@ var _ = Describe("", func() {
 		serializer = mocks.NewTxSerializer(t)
 		h = newHandler(broadcaster, subprovider, serializer, log.NewTestLogger(t))
 		h.Start()
-		// Wait for handler to start.
-		time.Sleep(300 * time.Millisecond)
+		for !h.Running() {
+			// Wait for handler to start.
+			time.Sleep(50 * time.Millisecond)
+		}
 		Expect(h.Running()).To(BeTrue())
 	})
 
 	AfterEach(func() {
 		h.Stop()
-		// Wait for handler to stop
-		time.Sleep(300 * time.Millisecond)
+		for h.Running() {
+			// Wait for handler to start.
+			time.Sleep(50 * time.Millisecond)
+		}
 		Expect(h.Running()).To(BeFalse())
 	})
 

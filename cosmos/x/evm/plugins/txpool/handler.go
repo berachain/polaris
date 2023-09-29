@@ -21,6 +21,8 @@
 package txpool
 
 import (
+	"sync/atomic"
+
 	"cosmossdk.io/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -68,7 +70,7 @@ type handler struct {
 	txsCh   chan core.NewTxsEvent
 	stopCh  chan struct{}
 	txsSub  Subscription
-	running bool
+	running atomic.Bool
 }
 
 // newHandler creates a new handler.
@@ -96,7 +98,7 @@ func (h *handler) Start() {
 func (h *handler) start() {
 	// Connect to the subscription.
 	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
-	h.running = true
+	h.running.Store(true)
 
 	// Handle events.
 	var err error
@@ -114,23 +116,26 @@ func (h *handler) start() {
 
 // Running returns true if the handler is running.
 func (h *handler) Running() bool {
-	return h.running
+	return h.running.Load()
 }
 
 // Stop stops the handler.
 func (h *handler) Stop() {
-	h.stopCh <- struct{}{}
+	if h.Running() {
+		h.stopCh <- struct{}{}
+	} else {
+		panic("stopping already stopped handler")
+	}
 }
 
 // stop stops the handler.
 func (h *handler) stop(err error) {
 	if err != nil {
-		h.logger.Error("tx subscription error", "err", err)
+		h.logger.Error("txpool handler", "error", err)
 	}
-
 	// Triggers txBroadcastLoop to quit.
 	h.txsSub.Unsubscribe()
-	h.running = false
+	h.running.Store(false)
 
 	// Leave the channels.
 	close(h.txsCh)
