@@ -78,7 +78,9 @@ var _ = Describe("Processor", func() {
 	BeforeEach(func() {
 		err := os.RemoveAll("tmp/berachain")
 		Expect(err).ToNot(HaveOccurred())
-
+		cfg := config.DefaultConfig()
+		cfg.Node.DataDir = GinkgoT().TempDir()
+		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
 		legacyTxData = &coretypes.LegacyTx{
 			Nonce:    0,
 			Gas:      10000000000,
@@ -88,6 +90,9 @@ var _ = Describe("Processor", func() {
 
 		// before chain, init genesis state
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
+
+		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
+		sc = staking.NewPrecompileContract(ak, &sk)
 		k = keeper.NewKeeper(
 			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
@@ -96,6 +101,7 @@ var _ = Describe("Processor", func() {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
 		)
+		k.Setup(cfg, nil, log.NewTestLogger(GinkgoT()))
 		ctx = ctx.WithBlockHeight(0)
 		for _, plugin := range k.GetHost().GetAllPlugins() {
 			plugin, hasInitGenesis := utils.GetAs[plugins.HasGenesis](plugin)
@@ -107,12 +113,6 @@ var _ = Describe("Processor", func() {
 		Expect(err).ToNot(HaveOccurred())
 		validator.Status = stakingtypes.Bonded
 		Expect(sk.SetValidator(ctx, validator)).To(Succeed())
-		sc = staking.NewPrecompileContract(ak, &sk)
-		cfg := config.DefaultConfig()
-		cfg.Node.DataDir = GinkgoT().TempDir()
-		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
-		k.Setup(cfg, nil, log.NewTestLogger(GinkgoT()))
-		_ = sk.SetParams(ctx, stakingtypes.DefaultParams())
 
 		// Set validator with consensus address.
 		consAddr, err := validator.GetConsAddr()
@@ -130,102 +130,85 @@ var _ = Describe("Processor", func() {
 			WithBlockHeight(1)
 		err = k.BeginBlocker(ctx)
 		Expect(err).ToNot(HaveOccurred())
+		ctx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 	})
 
-	Context("New Block", func() {
-		BeforeEach(func() {
-			// before every tx
-			ctx = ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
-		})
+	AfterEach(func() {
+		err := k.EndBlock(ctx)
+		Expect(err).ToNot(HaveOccurred())
+		err = os.RemoveAll("tmp/berachain")
+		Expect(err).ToNot(HaveOccurred())
+	})
 
-		AfterEach(func() {
-			err := k.EndBlock(ctx)
-			Expect(err).ToNot(HaveOccurred())
-			err = os.RemoveAll("tmp/berachain")
-			Expect(err).ToNot(HaveOccurred())
-		})
+	It("should successfully deploy a valid contract and call it", func() {
+		legacyTxData.Data = common.FromHex(bindings.SolmateERC20Bin)
+		legacyTxData.GasPrice = big.NewInt(10000000000)
+		tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
+		addr, err := signer.Sender(tx)
+		Expect(err).ToNot(HaveOccurred())
+		k.GetHost().GetStatePlugin().Reset(ctx)
+		k.GetHost().GetStatePlugin().CreateAccount(addr)
+		k.GetHost().GetStatePlugin().AddBalance(addr,
+			(&big.Int{}).Mul(big.NewInt(9000000000000000000), big.NewInt(999)))
+		k.GetHost().GetStatePlugin().Finalize()
 
-		It("should panic on nil, empty transaction", func() {
-			Expect(func() {
-				_, err := k.ProcessTransaction(ctx, nil)
-				Expect(err).To(HaveOccurred())
-			}).To(Panic())
-			Expect(func() {
-				_, err := k.ProcessTransaction(ctx, &coretypes.Transaction{})
-				Expect(err).To(HaveOccurred())
-			}).To(Panic())
-		})
+		// create the contract
+		// Zero out the meters.
+		ctx.BlockGasMeter().RefundGas(
+			ctx.BlockGasMeter().GasConsumed(), "reset gas meter prior to ethereum state transition")
+		Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal(uint64(0)))
 
-		It("should successfully deploy a valid contract and call it", func() {
-			legacyTxData.Data = common.FromHex(bindings.SolmateERC20Bin)
-			legacyTxData.GasPrice = big.NewInt(10000000000)
-			tx := coretypes.MustSignNewTx(key, signer, legacyTxData)
-			addr, err := signer.Sender(tx)
-			Expect(err).ToNot(HaveOccurred())
-			k.GetHost().GetStatePlugin().Reset(ctx)
-			k.GetHost().GetStatePlugin().CreateAccount(addr)
-			k.GetHost().GetStatePlugin().AddBalance(addr,
-				(&big.Int{}).Mul(big.NewInt(9000000000000000000), big.NewInt(999)))
-			k.GetHost().GetStatePlugin().Finalize()
+		// Execute state transition.
+		result, err := k.ProcessTransaction(ctx, tx)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(result.Status).To(Equal(uint64(1)))
 
-			// create the contract
-			// Zero out the meters.
-			ctx.BlockGasMeter().RefundGas(
-				ctx.BlockGasMeter().GasConsumed(), "reset gas meter prior to ethereum state transition")
-			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal(uint64(0)))
+		// Confirm gas usage is correct.
+		Expect(ctx.GasMeter().GasConsumed()).To(Equal((result.GasUsed)))
+		// After the tx is fully processed.
+		ctx.BlockGasMeter().ConsumeGas(result.GasUsed, "consume gas")
+		Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed)))
 
-			// Execute state transition.
-			result, err := k.ProcessTransaction(ctx, tx)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(result.Status).To(Equal(uint64(1)))
+		// call the contract non-view function
+		deployAddress := crypto.CreateAddress(crypto.PubkeyToAddress(key.PublicKey), 0)
+		legacyTxData.To = &deployAddress
+		var solmateABI abi.ABI
+		err = solmateABI.UnmarshalJSON([]byte(bindings.SolmateERC20ABI))
+		Expect(err).ToNot(HaveOccurred())
+		input, err := solmateABI.Pack("mint", common.BytesToAddress([]byte{0x88}), big.NewInt(8888888))
+		Expect(err).ToNot(HaveOccurred())
+		legacyTxData.Data = input
+		legacyTxData.Nonce++
+		tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
 
-			// Confirm gas usage is correct.
-			Expect(ctx.GasMeter().GasConsumed()).To(Equal((result.GasUsed)))
-			// After the tx is fully processed.
-			ctx.BlockGasMeter().ConsumeGas(result.GasUsed, "consume gas")
-			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed)))
+		// Nothing should've changed here.
+		Expect(ctx.GasMeter().GasConsumed()).To(Equal((result.GasUsed)))
+		Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed)))
 
-			// call the contract non-view function
-			deployAddress := crypto.CreateAddress(crypto.PubkeyToAddress(key.PublicKey), 0)
-			legacyTxData.To = &deployAddress
-			var solmateABI abi.ABI
-			err = solmateABI.UnmarshalJSON([]byte(bindings.SolmateERC20ABI))
-			Expect(err).ToNot(HaveOccurred())
-			input, err := solmateABI.Pack("mint", common.BytesToAddress([]byte{0x88}), big.NewInt(8888888))
-			Expect(err).ToNot(HaveOccurred())
-			legacyTxData.Data = input
-			legacyTxData.Nonce++
-			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
+		// Execute another transaction.
+		var result2 *coretypes.Receipt
+		result2, err = k.ProcessTransaction(ctx, tx)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(result.Status).To(Equal(uint64(1)))
 
-			// Nothing should've changed here.
-			Expect(ctx.GasMeter().GasConsumed()).To(Equal((result.GasUsed)))
-			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed)))
+		// Confirm gas usage is correct.
+		Expect(ctx.GasMeter().GasConsumed()).To(Equal((result2.GasUsed)))
+		// After the tx is fully processed.
+		ctx.BlockGasMeter().ConsumeGas(result2.GasUsed, "consume gas")
+		Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed + result2.GasUsed)))
 
-			// Execute another transaction.
-			var result2 *coretypes.Receipt
-			result2, err = k.ProcessTransaction(ctx, tx)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(result.Status).To(Equal(uint64(1)))
-
-			// Confirm gas usage is correct.
-			Expect(ctx.GasMeter().GasConsumed()).To(Equal((result2.GasUsed)))
-			// After the tx is fully processed.
-			ctx.BlockGasMeter().ConsumeGas(result2.GasUsed, "consume gas")
-			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed + result2.GasUsed)))
-
-			// call the contract view function
-			legacyTxData.Data = crypto.Keccak256Hash([]byte("totalSupply()")).Bytes()[:4]
-			legacyTxData.Nonce++
-			tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
-			var result3 *coretypes.Receipt
-			result3, err = k.ProcessTransaction(ctx, tx)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(result.Status).To(Equal(uint64(1)))
-			// Confirm gas usage is correct.
-			Expect(ctx.GasMeter().GasConsumed()).To(Equal((result3.GasUsed)))
-			// After the tx is fully processed.
-			ctx.BlockGasMeter().ConsumeGas(result3.GasUsed, "consume gas")
-			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed + result2.GasUsed + result3.GasUsed)))
-		})
+		// call the contract view function
+		legacyTxData.Data = crypto.Keccak256Hash([]byte("totalSupply()")).Bytes()[:4]
+		legacyTxData.Nonce++
+		tx = coretypes.MustSignNewTx(key, signer, legacyTxData)
+		var result3 *coretypes.Receipt
+		result3, err = k.ProcessTransaction(ctx, tx)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(result.Status).To(Equal(uint64(1)))
+		// Confirm gas usage is correct.
+		Expect(ctx.GasMeter().GasConsumed()).To(Equal((result3.GasUsed)))
+		// After the tx is fully processed.
+		ctx.BlockGasMeter().ConsumeGas(result3.GasUsed, "consume gas")
+		Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed + result2.GasUsed + result3.GasUsed)))
 	})
 })

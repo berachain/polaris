@@ -101,8 +101,10 @@ func (h *host) Setup(
 	qc func(height int64, prove bool) (sdk.Context, error),
 ) {
 	// Setup the state, precompile, historical, and txpool plugins
-	h.sp = state.NewPlugin(ak, storeKey, log.NewFactory(h.pcs().GetPrecompiles()))
-	h.pp = precompile.NewPlugin(h.pcs().GetPrecompiles())
+	precompiles := h.pcs().GetPrecompiles()
+	h.pp = precompile.NewPlugin(precompiles)
+	h.sp = state.NewPlugin(ak, storeKey, log.NewFactory(precompiles))
+
 	// TODO: re-enable historical plugin using ABCI listener.
 	h.hp = historical.NewPlugin(h.cp, h.bp, nil, storeKey)
 	h.txp.SetNonceRetriever(h.sp)

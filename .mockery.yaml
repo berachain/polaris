@@ -8,3 +8,10 @@ packages:
       all: True
       recursive: True
       with-expecter: true
+  pkg.berachain.dev/polaris/eth/core/state:
+    config:
+      all: True
+      recursive: True
+      with-expecter: true
+
+  

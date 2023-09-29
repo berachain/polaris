@@ -29,6 +29,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -100,9 +101,13 @@ func NewMiner(backend Backend) Miner {
 		logger:  log.Root(), // todo: fix.
 	}
 
-	m.statedb = state.NewStateDB(m.sp)
+	pp := host.GetPrecompilePlugin()
+	if pp == nil {
+		pp = precompile.NewDefaultPlugin()
+	}
+	m.statedb = state.NewStateDB(m.sp, pp)
 	m.processor = core.NewStateProcessor(
-		m.cp, host.GetPrecompilePlugin(), m.statedb, &m.vmConfig,
+		m.cp, pp, m.statedb, &m.vmConfig,
 	)
 
 	return m
