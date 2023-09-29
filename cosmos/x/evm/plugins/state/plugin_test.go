@@ -49,7 +49,6 @@ var _ = Describe("State Plugin", func() {
 	BeforeEach(func() {
 		ctx, ak, _, _ = testutil.SetupMinimalKeepers()
 		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
-		sp.SetupForPrecompiles(&mockPrecompiles{}, &mockPLF{})
 		sp.Reset(ctx)
 	})
 
@@ -471,10 +470,4 @@ func (mplf *mockPLF) Build(event *sdk.Event) (*coretypes.Log, error) {
 	return &coretypes.Log{
 		Address: common.BytesToAddress([]byte(event.Type)),
 	}, nil
-}
-
-type mockPrecompiles struct{}
-
-func (mpc *mockPrecompiles) Has(_ common.Address) bool {
-	return false
 }

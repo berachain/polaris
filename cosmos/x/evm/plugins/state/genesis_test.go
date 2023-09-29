@@ -46,7 +46,6 @@ var _ = Describe("Genesis", func() {
 		var ak state.AccountKeeper
 		ctx, ak, _, _ = testutil.SetupMinimalKeepers()
 		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
-		sp.SetupForPrecompiles(&mockPrecompiles{}, &mockPLF{})
 
 		// Create account for alice, bob
 		acc := ak.NewAccountWithAddress(ctx, bob[:])

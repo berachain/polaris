@@ -117,7 +117,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		scope:          event.SubscriptionScope{},
 		logger:         log.Root(),
 	}
-	bc.statedb = state.NewStateDB(bc.sp)
+	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
 	bc.currentBlock.Store(nil)
 	bc.finalizedBlock.Store(nil)
 

@@ -83,13 +83,13 @@ func NewEmptyStatePlugin() *PluginMock {
 		},
 		GetBalanceFunc: func(address common.Address) *big.Int {
 			if _, ok := Accounts[address]; !ok {
-				panic("acct doesnt exist")
+				return new(big.Int).SetUint64(0)
 			}
 			return Accounts[address].Balance
 		},
 		GetCodeFunc: func(address common.Address) []byte {
 			if _, ok := Accounts[address]; !ok {
-				panic("acct doesnt exist")
+				return nil
 			}
 			return Accounts[address].Code
 		},

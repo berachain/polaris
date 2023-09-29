@@ -30,6 +30,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -72,6 +73,7 @@ type miner struct {
 	bp        core.BlockPlugin
 	cp        core.ConfigurationPlugin
 	gp        core.GasPlugin
+	pp        core.PrecompilePlugin
 	sp        core.StatePlugin
 	logger    log.Logger
 	vmConfig  vm.Config
@@ -103,9 +105,13 @@ func New(backend Backend) Miner {
 		logger:  log.Root(), // todo: fix.
 	}
 
-	m.statedb = state.NewStateDB(m.sp)
+	m.pp = host.GetPrecompilePlugin()
+	if m.pp == nil {
+		m.pp = precompile.NewDefaultPlugin()
+	}
+	m.statedb = state.NewStateDB(m.sp, m.pp)
 	m.processor = core.NewStateProcessor(
-		m.cp, host.GetPrecompilePlugin(), m.statedb, &m.vmConfig,
+		m.cp, m.pp, m.statedb, &m.vmConfig,
 	)
 
 	return m
@@ -206,8 +212,8 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
 		context = core.NewEVMBlockContext(m.pendingHeader, m.chain, &m.pendingHeader.Coinbase)
 		vmenv   = vm.NewGethEVMWithPrecompiles(context,
-			vm.TxContext{}, m.statedb, chainConfig, m.vmConfig,
-			m.backend.Host().GetPrecompilePlugin())
+			vm.TxContext{}, m.statedb, chainConfig, m.vmConfig, m.pp,
+		)
 	)
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
