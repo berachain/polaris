@@ -77,7 +77,7 @@ func (m *Mempool) CountTx() int {
 	return runnable + blocked
 }
 
-// Select is an intention no-op as we use a custom prepare proposal.
+// Select is an intentional no-op as we use a custom prepare proposal.
 func (m *Mempool) Select(context.Context, [][]byte) mempool.Iterator {
 	return nil
 }
