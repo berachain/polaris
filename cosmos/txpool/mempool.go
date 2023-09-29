@@ -41,7 +41,7 @@ type GethTxPool interface {
 }
 
 // Mempool is a mempool that adheres to the cosmos mempool interface.
-// It specifically dgoes not implement `Select` or `Remove` as the purpose of this mempool
+// It purposefully does not implement `Select` or `Remove` as the purpose of this mempool
 // is to allow for transactions coming in from CometBFT's gossip to be added to the underlying
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
