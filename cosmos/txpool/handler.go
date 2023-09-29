@@ -37,6 +37,11 @@ import (
 // size of tx pool.
 const txChanSize = 4096
 
+// SdkTx is used to generate mocks.
+type SdkTx interface {
+	sdk.Tx
+}
+
 // TxSubProvider.
 type TxSubProvider interface {
 	SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription
@@ -44,6 +49,7 @@ type TxSubProvider interface {
 
 // TxSerializer provides an interface to Serialize Geth Transactions to Bytes (via sdk.Tx).
 type TxSerializer interface {
+	SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
 	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
 }
 
@@ -55,6 +61,13 @@ type Broadcaster interface {
 // Subscription represents a subscription to the txpool.
 type Subscription interface {
 	event.Subscription
+}
+
+// Handler exposes a basic interface to utilize the Handler.
+type Handler interface {
+	Start()
+	Running() bool
+	Stop()
 }
 
 // handler listens for new insertions into the geth txpool and broadcasts them to the CometBFT
@@ -71,6 +84,13 @@ type handler struct {
 	stopCh  chan struct{}
 	txsSub  Subscription
 	running atomic.Bool
+}
+
+// NewHandler creates a new Handler.
+func NewHandler(
+	clientCtx Broadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
+) Handler {
+	return newHandler(clientCtx, txPool, serializer, logger)
 }
 
 // newHandler creates a new handler.
