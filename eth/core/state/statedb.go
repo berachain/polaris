@@ -32,10 +32,17 @@ import (
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
+// PrecompilePlugin defines the interface to check for the existence of a precompile at an
+// address.
+type PrecompilePlugin interface {
+	Has(common.Address) bool
+}
+
 // stateDB is a struct that holds the plugins and controller to manage Ethereum state.
 type stateDB struct {
 	// Plugin is injected by the chain running the Polaris EVM.
 	Plugin
+	pp PrecompilePlugin
 
 	// Journals built internally and required for the stateDB.
 	journal.Log
@@ -49,18 +56,24 @@ type stateDB struct {
 }
 
 // NewStateDB returns a vm.PolarisStateDB with the given StatePlugin and new journals.
-func NewStateDB(sp Plugin) vm.PolarisStateDB {
+func NewStateDB(sp Plugin, pp PrecompilePlugin) vm.PolarisStateDB {
 	return newStateDBWithJournals(
-		sp, journal.NewLogs(), journal.NewRefund(), journal.NewAccesslist(),
+		sp, pp, journal.NewLogs(), journal.NewRefund(), journal.NewAccesslist(),
 		journal.NewSelfDestructs(sp), journal.NewTransientStorage(),
 	)
 }
 
 // newStateDBWithJournals returns a vm.PolarisStateDB with the given StatePlugin and journals.
 func newStateDBWithJournals(
-	sp Plugin, lj journal.Log, rj journal.Refund, aj journal.Accesslist,
+	sp Plugin, pp PrecompilePlugin, lj journal.Log, rj journal.Refund, aj journal.Accesslist,
 	sj journal.SelfDestructs, tj journal.TransientStorage,
 ) vm.PolarisStateDB {
+	if sp == nil {
+		panic("StatePlugin is nil in newStateDBWithJournals")
+	} else if pp == nil {
+		panic("PrecompilePlugin is nil in newStateDBWithJournals")
+	}
+
 	// Build the controller and register the plugins and journals
 	ctrl := snapshot.NewController[string, libtypes.Controllable[string]]()
 	_ = ctrl.Register(sp)
@@ -72,6 +85,7 @@ func newStateDBWithJournals(
 
 	return &stateDB{
 		Plugin:           sp,
+		pp:               pp,
 		Log:              lj,
 		Refund:           rj,
 		Accesslist:       aj,
@@ -115,8 +129,9 @@ func (sdb *stateDB) Finalise(bool) {
 	sdb.ctrl.Finalize()
 }
 
-func (sdb *stateDB) Commit(block uint64, deleteEmptyObjects bool) (common.Hash, error) {
-	_ = block // todo figure out what to do here.
+// Commit implements vm.PolarisStateDB.
+// TODO: determine sideaffects of this function.
+func (sdb *stateDB) Commit(_ uint64, deleteEmptyObjects bool) (common.Hash, error) {
 	sdb.Finalise(deleteEmptyObjects)
 	return common.Hash{}, nil
 }
@@ -169,8 +184,18 @@ func (sdb *stateDB) Preimages() map[common.Hash][]byte {
 }
 
 // =============================================================================
-// Code Size
+// Code
 // =============================================================================
+
+// GetCodeSize implements the vm.PolarisStateDB interface by returning the size of the
+// code associated with the given account.
+func (sdb *stateDB) GetCode(addr common.Address) []byte {
+	// We return a single byte for client compatibility w/precompiles.
+	if sdb.pp.Has(addr) {
+		return []byte{0x01}
+	}
+	return sdb.Plugin.GetCode(addr)
+}
 
 // GetCodeSize implements the vm.PolarisStateDB interface by returning the size of the
 // code associated with the given account.
@@ -189,7 +214,7 @@ func (sdb *stateDB) Copy() StateDBI {
 		panic("failed to clone logs")
 	}
 	statedb, ok := newStateDBWithJournals(
-		sdb.Plugin.Clone(), logs, sdb.Refund.Clone(),
+		sdb.Plugin.Clone(), sdb.pp, logs, sdb.Refund.Clone(),
 		sdb.Accesslist.Clone(), sdb.SelfDestructs.Clone(), sdb.TransientStorage.Clone(),
 	).(StateDBI)
 	if !ok {

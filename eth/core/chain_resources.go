@@ -39,7 +39,7 @@ func (bc *blockchain) StateAtBlockNumber(number uint64) (vm.GethStateDB, error) 
 	if err != nil {
 		return nil, err
 	}
-	return state.NewStateDB(sp), nil
+	return state.NewStateDB(sp, bc.pp), nil
 }
 
 // GetVMConfig returns the vm.Config for the current chain.

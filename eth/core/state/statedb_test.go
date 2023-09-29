@@ -27,6 +27,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/state/mock"
+	"pkg.berachain.dev/polaris/eth/core/state/mocks"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/params"
@@ -44,10 +45,12 @@ var (
 var _ = Describe("StateDB", func() {
 	var sdb vm.PolarisStateDB
 	var sp *mock.PluginMock
+	var pp *mocks.PrecompilePlugin
 
 	BeforeEach(func() {
 		sp = mock.NewEmptyStatePlugin()
-		sdb = state.NewStateDB(sp)
+		pp = mocks.NewPrecompilePlugin(GinkgoT())
+		sdb = state.NewStateDB(sp, pp)
 	})
 
 	It("Should SelfDestruct correctly", func() {
@@ -126,5 +129,12 @@ var _ = Describe("StateDB", func() {
 		err := sdb.Error()
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(Equal("mocked saved error"))
+	})
+
+	It("should return code for precompiles", func() {
+		pp.On("Has", common.Address{0x7}).Return(true).Once()
+		Expect(sdb.GetCode(common.Address{0x7})).To(Equal([]byte{0x1}))
+		pp.On("Has", common.Address{0x7}).Return(false).Once()
+		Expect(sdb.GetCode(common.Address{0x7})).To(Equal([]byte{}))
 	})
 })

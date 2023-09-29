@@ -87,12 +87,6 @@ func NewStateProcessor(
 		statedb:  statedb,
 	}
 
-	if sp.pp == nil {
-		sp.pp = precompile.NewDefaultPlugin()
-	} else {
-		sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(nil))
-	}
-
 	return sp
 }
 
@@ -124,6 +118,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 	// *technically* the precompiles change based on the chain config rules, to be fully correct,
 	// we should check every block.
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
+	sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(&rules))
 	sp.evm = evm
 }
 
