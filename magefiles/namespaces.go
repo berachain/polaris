@@ -42,8 +42,6 @@ func All() {
 		Contracts{}.Build,
 		Generate,
 		Proto.All,
-		Format,
-		Lint,
 		Cosmos{}.Build,
 		Contracts{}.Test,
 		Cosmos{}.Test,

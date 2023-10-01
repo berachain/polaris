@@ -36,7 +36,7 @@ type Proto mg.Namespace
 
 // Run all proto related targets.
 func (Proto) All() {
-	mg.SerialDeps(Proto.Format, Proto.Lint, Proto.Gen)
+	mg.SerialDeps(Proto.Gen)
 }
 
 // Generate protobuf source files.
@@ -63,14 +63,4 @@ func (Proto) GenCheck() error {
 		return fmt.Errorf("generated files are out of date: %w", err)
 	}
 	return nil
-}
-
-// Format .proto files.
-func (Proto) Format() error {
-	return bufCommand("format", "-w", protoDir)
-}
-
-// Lint .proto files.
-func (Proto) Lint() error {
-	return bufCommand("lint", "--error-format=json", protoDir)
 }

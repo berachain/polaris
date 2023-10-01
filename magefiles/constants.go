@@ -42,9 +42,6 @@ var (
 	dockerBuild  = RunCmdV("docker", "build", "--rm=false")
 	dockerBuildX = RunCmdV("docker", "buildx", "build", "--rm=false")
 
-	// Buf.
-	bufCommand = RunCmdV("buf")
-
 	// Testing.
 	goTest     = RunCmdV("go", "test", "-mod=readonly")
 	ginkgoTest = RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
@@ -52,7 +49,6 @@ var (
 	// Toolchain.
 	goInstall  = RunCmdV("go", "install", "-mod=readonly")
 	goBuild    = RunCmdV("go", "build", "-mod=readonly")
-	goRun      = RunCmdV("go", "run")
 	goGenerate = RunCmdV("go", "generate")
 	goModTidy  = RunCmdV("go", "mod", "tidy")
 	goWorkSync = RunCmdV("go", "work", "sync")
@@ -85,7 +81,6 @@ var (
 	baseImageVersion  = "polard/base:v0.0.0"
 	protoImageName    = "ghcr.io/cosmos/proto-builder"
 	protoImageVersion = "0.14.0"
-	protoDir          = "cosmos/proto"
 )
 
 /* -------------------------------------------------------------------------- */
