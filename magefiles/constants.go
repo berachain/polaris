@@ -71,9 +71,7 @@ const (
 /* -------------------------------------------------------------------------- */
 
 var (
-	baseImageVersion  = "polard/base:v0.0.0"
-	protoImageName    = "ghcr.io/cosmos/proto-builder"
-	protoImageVersion = "0.14.0"
+	baseImageVersion = "polard/base:v0.0.0"
 )
 
 /* -------------------------------------------------------------------------- */

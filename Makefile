@@ -66,9 +66,12 @@ forge-clean: |
 
 protoImageName    := "ghcr.io/cosmos/proto-builder"
 protoImageVersion := "0.14.0"
+
+proto:
+	@$(MAKE) buf-lint-fix buf-lint proto-build
+
 proto-build:
 	@docker run --rm -v ${CURRENT_DIR}:/workspace --workdir /workspace $(protoImageName):$(protoImageVersion) sh ./cosmos/proto/scripts/proto_generate.sh
-
 
 
 ###############################################################################
