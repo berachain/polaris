@@ -33,24 +33,6 @@ import (
 
 type CI mg.Namespace
 
-// Build builds the project.
-func Build() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
-
-	return (Cosmos{}).Build()
-}
-
-// Runs the unit tests.
-func TestUnit() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
-	utils.LogGreen("Running all unit tests...")
-	return testUnit(".")
-}
-
 func testUnit(path string) error {
 	return ginkgoTest(
 		"--skip", ".*e2e.*",
@@ -68,9 +50,6 @@ func testUnitRace(path string) error {
 
 // Runs the unit tests with coverage.
 func TestUnitCover() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
 	args := []string{
 		"--skip", ".*e2e.*",
 	}
@@ -80,9 +59,6 @@ func TestUnitCover() error {
 
 // Runs the unit tests with race detection.
 func TestUnitRace() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
 	args := []string{
 		"--skip", ".*e2e.*",
 	}
@@ -92,10 +68,6 @@ func TestUnitRace() error {
 
 // Runs the unit tests with benchmarking.
 func TestUnitBenchmark() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
-
 	utils.LogGreen("Running all unit tests with benchmarking...")
 	return testUnitBenchmark()
 }
@@ -109,9 +81,6 @@ func testUnitBenchmark() error {
 
 // Runs the e2e tests.
 func TestE2E() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
 	utils.LogGreen("Running all e2e tests")
 	return testE2E("./e2e")
 }

@@ -39,7 +39,6 @@ type MageModule interface {
 // Runs a series of commonly used commands.
 func All() {
 	mg.SerialDeps(
-		Contracts{}.Build,
 		Generate,
 		Proto.All,
 		Cosmos{}.Build,

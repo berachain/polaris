@@ -143,7 +143,7 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 
 // Runs all main tests.
 func (c Cosmos) Test() error {
-	if err := TestUnit(); err != nil {
+	if err := testUnit(""); err != nil {
 		return err
 	}
 

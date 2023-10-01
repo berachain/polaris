@@ -66,25 +66,10 @@ func GenerateCheck() error {
 	return nil
 }
 
-// Runs 'go tidy' on the entire project.
-func Tidy() error {
-	return ExecuteForAllModules(repoModuleDirs, goModTidy, false)
-}
-
-// Runs 'go work sync' on the entire project.
-func Sync() error {
-	return goWorkSync()
-}
-
 // Cleans the project.
 func Clean() error {
 	// Remove golang build artifacts.
 	if err := sh.Rm("bin"); err != nil {
-		return err
-	}
-
-	// Remove solidity build artifacts.
-	if err := (Contracts{}).Clean(); err != nil {
 		return err
 	}
 

@@ -35,9 +35,6 @@ type Localnet mg.Namespace
 
 // Runs the localnet tooling sanity tests.
 func (Localnet) Test() error {
-	if err := (Contracts{}).Build(); err != nil {
-		return err
-	}
 	utils.LogGreen("Running all localnet tests")
 	args := []string{
 		"-timeout", "30m",

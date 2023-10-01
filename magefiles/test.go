@@ -25,12 +25,6 @@
 
 package main
 
-import (
-	"os"
-
-	"github.com/magefile/mage/sh"
-)
-
 var (
 	// Arguments.
 	junitArgs = []string{"--junit-report", "out.xml"}
@@ -38,13 +32,3 @@ var (
 		"coverage-testunitcover.txt", "--covermode", "atomic"}...)
 	raceArgs = append(junitArgs, []string{"-race"}...)
 )
-
-// Starts a local docs page.
-func Docs() error {
-	_ = os.Chdir("docs/web")
-	defer func() { _ = os.Chdir("../..") }()
-	if err := sh.RunV("yarn"); err != nil {
-		return err
-	}
-	return sh.RunV("yarn", "dev")
-}

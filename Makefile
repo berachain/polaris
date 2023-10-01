@@ -1,23 +1,15 @@
 #!/usr/bin/make -f
+include scripts/cosmos.mk scripts/constants.mk
 
-# Makefile
 
 # Specify the default target if none is provided
-.DEFAULT_GOAL := codeqlbuild
-
-MODULES := $(shell find . -type f -name 'go.mod' -exec dirname {} \;)
-# Exclude root module
-MODULES := $(filter-out ./,$(MODULES))
+.DEFAULT_GOAL := build
 
 # Helper rule to display available targets
 help:
 	@echo "This Makefile is an alias for Mage tasks. Run 'mage' to see available Mage targets."
 	@echo "You can use 'make <target>' to call the corresponding 'mage <target>' command."
-
-# Required rule for gh action codeql to run.
-codeqlbuild:
-	@mage build
-
+	
 # Rule to forward any target to Mage
 %:
 	@mage $@
@@ -27,23 +19,68 @@ setup:
 	@go run magefiles/setup/setup.go
 
 BINDIR ?= $(GOPATH)/bin
-CURRENT_DIR = $(shell pwd)
-
-test-sim-after-import:
-	@echo "Running application simulation-after-import. This may take several minutes..."
-	@cd ${CURRENT_DIR}/e2e/testapp && $(BINDIR)/runsim -Jobs=4 -SimAppPkg=. -ExitOnFail 50 5 TestAppSimulationAfterImport
 
 
 ###############################################################################
 ###                                  Build                                  ###
 ###############################################################################
 
+BUILD_TARGETS := build install
+
+build: BUILD_ARGS=-o $(OUT_DIR)/
+
+build-linux-amd64:
+	GOOS=linux GOARCH=amd64 LEDGER_ENABLED=false $(MAKE) build
+
+build-linux-arm64:
+	GOOS=linux GOARCH=arm64 LEDGER_ENABLED=false $(MAKE) build
+
+$(BUILD_TARGETS): tidy $(OUT_DIR)/
+	@echo "Building ${TESTAPP_DIR}"
+	@cd ${CURRENT_DIR}/$(TESTAPP_DIR) && go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
+
+$(OUT_DIR)/:
+	mkdir -p $(OUT_DIR)/
+
+# build:
+# 	@$(MAKE) forge-build
+
+build-clean: 
+	@$(MAKE) clean build
+
+clean:
+	@$(MAKE) forge-clean
+
+#################
+#     forge     #
+#################
+
+forge-build: |
+	@forge build --extra-output-files bin --extra-output-files abi  --root $(CONTRACTS_DIR)
+
+forge-clean: |
+	@forge clean --root $(CONTRACTS_DIR)
+
+
+#################
+#     proto     #
+#################
+
+protoImageName    := "ghcr.io/cosmos/proto-builder"
+protoImageVersion := "0.14.0"
+proto-build:
+	@docker run --rm -v ${CURRENT_DIR}:/workspace --workdir /workspace $(protoImageName):$(protoImageVersion) sh ./cosmos/proto/scripts/proto_generate.sh
 
 
 
 ###############################################################################
 ###                           Tests & Simulation                            ###
 ###############################################################################
+
+test-sim-after-import:
+	@echo "Running application simulation-after-import. This may take several minutes..."
+	@cd ${CURRENT_DIR}/e2e/testapp && $(BINDIR)/runsim -Jobs=4 -SimAppPkg=. -ExitOnFail 50 5 TestAppSimulationAfterImport
+
 
 ###############################################################################
 ###                              Formatting                                 ###
@@ -66,11 +103,11 @@ lint:
 
 forge-lint-fix:
 	@echo "--> Running forge fmt"
-	@cd ./contracts && forge fmt
+	@cd $(CONTRACTS_DIR) && forge fmt
 
 forge-lint:
 	@echo "--> Running forge lint"
-	@cd ./contracts && forge fmt --check
+	@cd $(CONTRACTS_DIR) && forge fmt --check
 
 #################
 # golangci-lint #
@@ -166,7 +203,7 @@ buf-lint:
 
 
 ###############################################################################
-###                             Dependencies                                 ###
+###                             Dependencies                                ###
 ###############################################################################
 
 sync: |
@@ -174,11 +211,12 @@ sync: |
 		echo "Running go mod download in $$module"; \
 		(cd $$module && go mod download) || exit 1; \
 	done
-	go work sync
+	@echo "Running go mod sync"
+	@go work sync
 
 tidy: |
 	@for module in $(MODULES); do \
 		echo "Running go mod tidy in $$module"; \
 		(cd $$module && go mod tidy) || exit 1; \
 	done
-.PHONY: lint lint-fix
+

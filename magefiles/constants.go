@@ -33,7 +33,6 @@ import "os"
 
 var (
 	// Forge.
-	forgeBuild = RunCmdV("forge", "build", "--extra-output-files", "bin", "--extra-output-files", "abi", "--silent")
 	forgeClean = RunCmdV("forge", "clean")
 	forgeTest  = RunCmdV("forge", "test")
 	forgeFmt   = RunCmdV("forge", "fmt")

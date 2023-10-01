@@ -28,8 +28,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/magefile/mage/mg"
 
 	"pkg.berachain.dev/polaris/magefiles/utils"
@@ -46,32 +44,6 @@ func (Contracts) directory() string {
 }
 
 // ===========================================================================
-// Build
-// ===========================================================================
-
-// Runs `forge build` in all smart contract directories.
-func (Contracts) Build() error {
-	utils.LogGreen("Building solidity contracts with foundry...")
-	return forgeWrapper(forgeBuild)
-}
-
-// Check that the generated forge build source files are up to date.
-func (c Contracts) BuildCheck() error {
-	if err := c.Build(); err != nil {
-		return err
-	}
-	if err := gitDiff(); err != nil {
-		return fmt.Errorf("generated files are out of date: %w", err)
-	}
-	return nil
-}
-
-// Run `forge clean` in all smart contract directories.
-func (Contracts) Clean() error {
-	return forgeWrapper(forgeClean)
-}
-
-// ===========================================================================
 // Test
 // ===========================================================================
 
@@ -84,12 +56,6 @@ func (c Contracts) Test() error {
 func (Contracts) TestUnit() error {
 	utils.LogGreen("Running foundry unit tests...")
 	return forgeWrapper(forgeTest)
-}
-
-// Run `forge fmt` in all smart contract directories.
-func (Contracts) Fmt() error {
-	utils.LogGreen("Running forge fmt...")
-	return forgeWrapper(forgeFmt)
 }
 
 func (Contracts) TestE2E() error {

@@ -46,7 +46,7 @@ TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 set -e
 
 # Reinstall daemon
-mage build
+make build
 
 # # User prompt if an existing local node configuration is found.
 if [ -d "$HOMEDIR" ]; then
