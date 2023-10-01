@@ -37,10 +37,6 @@ var (
 	dockerBuild  = RunCmdV("docker", "build", "--rm=false")
 	dockerBuildX = RunCmdV("docker", "buildx", "build", "--rm=false")
 
-	// Testing.
-	goTest     = RunCmdV("go", "test", "-mod=readonly")
-	ginkgoTest = RunCmdV("ginkgo", "-r", "--randomize-all", "--fail-on-pending", "-trace")
-
 	// Toolchain.
 	goInstall  = RunCmdV("go", "install", "-mod=readonly")
 	goBuild    = RunCmdV("go", "build", "-mod=readonly")

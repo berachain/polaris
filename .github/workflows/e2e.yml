@@ -191,11 +191,9 @@ jobs:
         env:
           GOPATH: /home/runner/go
         if: ${{ matrix.namespace == 'localnet' }}
-      - name: Run teste2e
-        uses: magefile/mage-action@v2
-        with:
-          version: latest
-          args: teste2e
+      - name: Run test-e2e
+        run: |
+          make test-e2e
         env:
           GOPATH: /home/runner/go
         if: ${{ matrix.namespace == '' }}

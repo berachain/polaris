@@ -56,11 +56,6 @@ var (
 // Cosmos is a namespace for Cosmos SDK related commands.
 type Cosmos mg.Namespace
 
-// directory returns the directory name for the Cosmos SDK chain.
-func (Cosmos) directory() string {
-	return "cosmos"
-}
-
 // ===========================================================================
 // Docker
 // ===========================================================================
@@ -106,12 +101,6 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 	return dockerBuildFn(withX)(
 		opts...,
 	)
-}
-
-// Runs all e2e tests for the Cosmos SDK chain.
-func (c Cosmos) TestE2E() error {
-	utils.LogGreen("Running e2e tests for the Cosmos SDK chain.")
-	return testE2E(c.directory() + "/testing/e2e")
 }
 
 func (c Cosmos) TestHive(sim string) error {

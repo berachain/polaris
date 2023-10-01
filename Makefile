@@ -119,6 +119,20 @@ forge-test:
 	@forge test --root $(CONTRACTS_DIR)
 
 #################
+#      e2e      #
+#################
+
+test-e2e:
+	# TODO: docker build before running
+	@$(MAKE) test-e2e-no-build
+
+test-e2e-no-build:
+	@$(MAKE) install-ginkgo
+	@echo "Running localnet tests..."
+	@ginkgo -r --randomize-all --fail-on-pending -trace -timeout 30m ./e2e/precompiles/...
+
+
+#################
 #     hive      #
 #################
 
