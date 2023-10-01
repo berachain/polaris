@@ -36,10 +36,6 @@ import (
 )
 
 var (
-	// Variables and Helpers.
-	production = false
-	statically = false
-
 	// Variables.
 	imageName              = "polard"
 	imageVersion           = "v0.0.0"
@@ -75,19 +71,6 @@ func (Cosmos) directory() string {
 // Starts a local development net and builds it if necessary.
 func Start() error {
 	return sh.RunV("./e2e/testapp/entrypoint.sh")
-}
-
-// Builds the Cosmos SDK chain.
-func (Cosmos) Build() error {
-	utils.LogGreen("Building the Cosmos SDK chain...")
-	cmd := "polard"
-	args := []string{
-		generateBuildTags(),
-		generateLinkerFlags(production, statically),
-		"-o", generateOutDirectory(cmd),
-		"./e2e/testapp/" + cmd,
-	}
-	return goBuild(args...)
 }
 
 // ===========================================================================

@@ -9,7 +9,7 @@ include scripts/cosmos.mk scripts/constants.mk
 help:
 	@echo "This Makefile is an alias for Mage tasks. Run 'mage' to see available Mage targets."
 	@echo "You can use 'make <target>' to call the corresponding 'mage <target>' command."
-	
+
 # Rule to forward any target to Mage
 %:
 	@mage $@
@@ -76,6 +76,39 @@ proto-build:
 ###############################################################################
 ###                           Tests & Simulation                            ###
 ###############################################################################
+
+#################
+#     unit      #
+#################
+
+install-ginkgo:
+	@echo "Installing ginkgo..."
+	@go install github.com/onsi/ginkgo/v2/ginkgo@latest
+
+test-unit:
+	@$(MAKE) install-ginkgo
+	@echo "Running unit tests..."
+	@ginkgo -r --randomize-all --fail-on-pending -trace --skip .*e2e* ./...
+
+test-unit-race:
+	@$(MAKE) install-ginkgo
+	@echo "Running unit tests with race detection..."
+	@ginkgo --race -r --randomize-all --fail-on-pending -trace --skip .*e2e* ./...
+
+test-unit-cover:
+	@$(MAKE) install-ginkgo
+	@echo "Running unit tests with coverage..."
+	@ginkgo --race -r --randomize-all --fail-on-pending -trace --skip .*e2e* \
+	--junit-report out.xml --cover --coverprofile "coverage-testunitcover.txt" --covermode atomic \
+		./...
+
+#################
+#     hive      #
+#################
+
+#################
+#   localnet    #
+#################
 
 test-sim-after-import:
 	@echo "Running application simulation-after-import. This may take several minutes..."

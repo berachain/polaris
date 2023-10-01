@@ -41,7 +41,6 @@ func All() {
 	mg.SerialDeps(
 		Generate,
 		Proto.All,
-		Cosmos{}.Build,
 		Contracts{}.Test,
 		Cosmos{}.Test,
 	)

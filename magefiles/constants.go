@@ -33,9 +33,7 @@ import "os"
 
 var (
 	// Forge.
-	forgeClean = RunCmdV("forge", "clean")
-	forgeTest  = RunCmdV("forge", "test")
-	forgeFmt   = RunCmdV("forge", "fmt")
+	forgeTest = RunCmdV("forge", "test")
 
 	// Docker.
 	dockerBuild  = RunCmdV("docker", "build", "--rm=false")
@@ -49,8 +47,6 @@ var (
 	goInstall  = RunCmdV("go", "install", "-mod=readonly")
 	goBuild    = RunCmdV("go", "build", "-mod=readonly")
 	goGenerate = RunCmdV("go", "generate")
-	goModTidy  = RunCmdV("go", "mod", "tidy")
-	goWorkSync = RunCmdV("go", "work", "sync")
 	gitDiff    = RunCmdV("git", "diff", "--stat", "--exit-code", ".",
 		"':(exclude)*.mod' ':(exclude)*.sum'")
 	mockery = RunCmdV("mockery")
