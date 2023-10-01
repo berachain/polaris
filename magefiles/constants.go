@@ -32,8 +32,6 @@ import "os"
 /* -------------------------------------------------------------------------- */
 
 var (
-	// Forge.
-	forgeTest = RunCmdV("forge", "test")
 
 	// Docker.
 	dockerBuild  = RunCmdV("docker", "build", "--rm=false")

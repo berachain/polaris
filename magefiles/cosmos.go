@@ -53,24 +53,12 @@ var (
 	localnetDockerPath = localnetClientPath + "/Dockerfile"
 )
 
-// Compile-time assertion that we implement the interface correctly.
-var _ MageModule = (*Cosmos)(nil)
-
 // Cosmos is a namespace for Cosmos SDK related commands.
 type Cosmos mg.Namespace
 
 // directory returns the directory name for the Cosmos SDK chain.
 func (Cosmos) directory() string {
 	return "cosmos"
-}
-
-// ===========================================================================
-// Build
-// ===========================================================================
-
-// Starts a local development net and builds it if necessary.
-func Start() error {
-	return sh.RunV("./e2e/testapp/entrypoint.sh")
 }
 
 // ===========================================================================
@@ -118,31 +106,6 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 	return dockerBuildFn(withX)(
 		opts...,
 	)
-}
-
-// ===========================================================================
-// Test
-// ===========================================================================
-
-// Runs all main tests.
-func (c Cosmos) Test() error {
-	if err := testUnit(""); err != nil {
-		return err
-	}
-
-	return TestE2E()
-}
-
-// Runs all unit tests for the Cosmos SDK chain.
-func (c Cosmos) TestUnit() error {
-	utils.LogGreen("Running unit tests for the Cosmos SDK chain.")
-	return testUnit(c.directory())
-}
-
-// Runs all unit tests for the Cosmos SDK chain.
-func (c Cosmos) TestUnitRace() error {
-	utils.LogGreen("Running unit tests for the Cosmos SDK chain.")
-	return testUnitRace(c.directory())
 }
 
 // Runs all e2e tests for the Cosmos SDK chain.

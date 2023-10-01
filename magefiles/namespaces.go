@@ -29,19 +29,10 @@ import (
 	"github.com/magefile/mage/mg"
 )
 
-type MageModule interface {
-	directory() string
-	Test() error
-	TestUnit() error
-	TestE2E() error
-}
-
 // Runs a series of commonly used commands.
 func All() {
 	mg.SerialDeps(
 		Generate,
 		Proto.All,
-		Contracts{}.Test,
-		Cosmos{}.Test,
 	)
 }

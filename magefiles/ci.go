@@ -33,21 +33,6 @@ import (
 
 type CI mg.Namespace
 
-func testUnit(path string) error {
-	return ginkgoTest(
-		"--skip", ".*e2e.*",
-		"./"+path+"/...",
-	)
-}
-
-func testUnitRace(path string) error {
-	return ginkgoTest(
-		"--race",
-		"--skip", ".*e2e.*",
-		"./"+path+"/...",
-	)
-}
-
 // Runs the unit tests with coverage.
 func TestUnitCover() error {
 	args := []string{

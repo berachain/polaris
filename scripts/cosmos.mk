@@ -9,6 +9,7 @@ export VERSION := $(shell echo $(shell git describe --tags --always --match "v*"
 export COMMIT := $(shell git log -1 --format='%H')
 CURRENT_DIR = $(shell pwd)
 OUT_DIR ?= $(CURDIR)/bin
+BINDIR ?= $(GOPATH)/bin
 TESTAPP_DIR = ./e2e/testapp
 PROJECT_NAME = $(shell git remote get-url origin | xargs basename -s .git)
 

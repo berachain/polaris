@@ -18,8 +18,6 @@ help:
 setup:
 	@go run magefiles/setup/setup.go
 
-BINDIR ?= $(GOPATH)/bin
-
 
 ###############################################################################
 ###                                  Build                                  ###
@@ -78,6 +76,13 @@ proto-build:
 ###############################################################################
 
 #################
+#    polard     #
+#################
+
+start:
+	@./e2e/testapp/entrypoint.sh
+
+#################
 #     unit      #
 #################
 
@@ -86,21 +91,29 @@ install-ginkgo:
 	@go install github.com/onsi/ginkgo/v2/ginkgo@latest
 
 test-unit:
-	@$(MAKE) install-ginkgo
+	@$(MAKE) install-ginkgo forge-test
 	@echo "Running unit tests..."
 	@ginkgo -r --randomize-all --fail-on-pending -trace --skip .*e2e* ./...
 
 test-unit-race:
-	@$(MAKE) install-ginkgo
+	@$(MAKE) install-ginkgo forge-test
 	@echo "Running unit tests with race detection..."
 	@ginkgo --race -r --randomize-all --fail-on-pending -trace --skip .*e2e* ./...
 
 test-unit-cover:
-	@$(MAKE) install-ginkgo
+	@$(MAKE) install-ginkgo forge-test
 	@echo "Running unit tests with coverage..."
-	@ginkgo --race -r --randomize-all --fail-on-pending -trace --skip .*e2e* \
+	@ginkgo -r --randomize-all --fail-on-pending -trace --skip .*e2e* \
 	--junit-report out.xml --cover --coverprofile "coverage-testunitcover.txt" --covermode atomic \
 		./...
+
+#################
+#     forge     #
+#################
+
+forge-test:
+	@echo "Running forge test..."
+	@forge test --root $(CONTRACTS_DIR)
 
 #################
 #     hive      #
@@ -109,6 +122,17 @@ test-unit-cover:
 #################
 #   localnet    #
 #################
+
+test-localnet:
+	# TODO: docker build before running
+	@$(MAKE) test-localnet-no-build
+
+test-localnet-no-build:
+	@$(MAKE) install-ginkgo
+	@echo "Running localnet tests..."
+	@ginkgo -r --randomize-all --fail-on-pending -trace -timeout 30m ./e2e/localnet/...
+
+
 
 test-sim-after-import:
 	@echo "Running application simulation-after-import. This may take several minutes..."

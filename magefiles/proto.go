@@ -25,7 +25,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/magefile/mage/mg"
@@ -54,13 +53,4 @@ func (Proto) Gen() error {
 	}
 
 	return sh.Run("docker", dockerArgs...)
-}
-
-// Check that the generated protobuf source files are up to date.
-func (Proto) GenCheck() error {
-	mg.Deps(Proto.Gen)
-	if err := gitDiff(); err != nil {
-		return fmt.Errorf("generated files are out of date: %w", err)
-	}
-	return nil
 }
