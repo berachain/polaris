@@ -49,6 +49,13 @@ type Mempool struct {
 	txpool GethTxPool
 }
 
+// NewMempool creates a new Mempool.
+func NewMempool(txpool GethTxPool) *Mempool {
+	return &Mempool{
+		txpool: txpool,
+	}
+}
+
 // Insert attempts to insert a Tx into the app-side mempool returning
 // an error upon failure.
 func (m *Mempool) Insert(_ context.Context, sdkTx sdk.Tx) error {
@@ -64,11 +71,6 @@ func (m *Mempool) Insert(_ context.Context, sdkTx sdk.Tx) error {
 	}
 
 	return nil
-}
-
-// SetTxPool sets the underlying txpool.
-func (m *Mempool) SetTxPool(txpool GethTxPool) {
-	m.txpool = txpool
 }
 
 // CountTx returns the number of transactions currently in the mempool.
