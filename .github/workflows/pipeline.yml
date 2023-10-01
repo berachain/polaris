@@ -30,7 +30,7 @@ jobs:
   ci:
     strategy:
       matrix:
-        args: ["build", "lint", "testunitrace", "testunitcover"]
+        args: ["build", "lint", "test-unit-race", "test-unit-cover"]
         os: [polaris-linux-latest]
         go-version: [1.21.1]
     runs-on: ${{ matrix.os }}
