@@ -56,10 +56,8 @@ jobs:
         run: |
           go run magefiles/setup/setup.go ci
       - name: Run ${{ matrix.args }}
-        uses: magefile/mage-action@v2
-        with:
-          version: latest
-          args: ${{ matrix.args }}
+        run: |
+          make ${{ matrix.args }}
         env:
           GOPATH: /home/runner/go
       - name: Archive code coverage results
