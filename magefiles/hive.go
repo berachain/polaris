@@ -85,7 +85,7 @@ func (h Hive) Setup() error {
 
 	return ExecuteInDirectory(clonePath, func(...string) error {
 		utils.LogGreen("Building Hive...")
-		return goBuild(".")
+		return sh.RunV("go", "build", "./...")
 	}, false)
 }
 

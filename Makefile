@@ -47,6 +47,8 @@ build-clean:
 	@$(MAKE) clean build
 
 clean:
+	@rm -rf .tmp/ 
+	@rm -rf $(OUT_DIR)
 	@$(MAKE) forge-clean
 
 #################
@@ -72,6 +74,35 @@ proto:
 
 proto-build:
 	@docker run --rm -v ${CURRENT_DIR}:/workspace --workdir /workspace $(protoImageName):$(protoImageVersion) sh ./cosmos/proto/scripts/proto_generate.sh
+
+
+###############################################################################
+###                                 CodeGen                                 ###
+###############################################################################
+
+generate:
+	@$(MAKE) abigen-install moq-install mockery
+	@for module in $(MODULES); do \
+		echo "Running go generate in $$module"; \
+		(cd $$module && go generate ./...) || exit 1; \
+	done
+
+abigen-install:
+	@echo "--> Installing abigen"
+	@go install github.com/ethereum/go-ethereum/cmd/abigen@latest
+
+moq-install:
+	@echo "--> Installing moq"
+	@go install github.com/matryer/moq@latest
+
+mockery-install:
+	@echo "--> Installing mockery"
+	@go install github.com/vektra/mockery/v2@latest
+
+mockery:
+	@$(MAKE) mockery-install
+	@echo "Running mockery..."
+	@mockery
 
 
 ###############################################################################

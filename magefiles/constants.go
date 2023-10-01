@@ -36,14 +36,6 @@ var (
 	// Docker.
 	dockerBuild  = RunCmdV("docker", "build", "--rm=false")
 	dockerBuildX = RunCmdV("docker", "buildx", "build", "--rm=false")
-
-	// Toolchain.
-	goInstall  = RunCmdV("go", "install", "-mod=readonly")
-	goBuild    = RunCmdV("go", "build", "-mod=readonly")
-	goGenerate = RunCmdV("go", "generate")
-	gitDiff    = RunCmdV("git", "diff", "--stat", "--exit-code", ".",
-		"':(exclude)*.mod' ':(exclude)*.sum'")
-	mockery = RunCmdV("mockery")
 )
 
 /* -------------------------------------------------------------------------- */
@@ -51,15 +43,6 @@ var (
 /* --------------------------------------------------------------------------. */
 var (
 	repoModuleDirs = readGoModulesFromGoWork("go.work")
-)
-
-const (
-	cosmosSDK  = "github.com/cosmos/cosmos-sdk"
-	moq        = "github.com/matryer/moq"
-	golangCi   = "github.com/golangci/golangci-lint/cmd/golangci-lint"
-	golines    = "github.com/segmentio/golines"
-	gosec      = "github.com/securego/gosec/v2/cmd/gosec"
-	addlicense = "github.com/google/addlicense"
 )
 
 /* -------------------------------------------------------------------------- */
