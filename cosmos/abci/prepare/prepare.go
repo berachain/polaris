@@ -47,8 +47,8 @@ type Handler struct {
 	txVerifier TxVerifier
 }
 
-func NewHandler(polaris *polar.Polaris, txVerifier TxVerifier) Handler {
-	return Handler{
+func NewHandler(polaris *polar.Polaris, txVerifier TxVerifier) *Handler {
+	return &Handler{
 		polaris:    polaris,
 		txVerifier: txVerifier,
 	}

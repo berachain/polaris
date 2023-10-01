@@ -57,7 +57,7 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"pkg.berachain.dev/polaris/cosmos/abci"
+	"pkg.berachain.dev/polaris/cosmos/abci/prepare"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	cosmostxpool "pkg.berachain.dev/polaris/cosmos/txpool"
@@ -214,11 +214,8 @@ func NewPolarisApp(
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
-	proposalHandler := abci.NewDefaultProposalHandler(app.EVMKeeper.Polaris(), app)
-
 	app.App.BaseApp.SetMempool(cosmostxpool.NewMempool(app.EVMKeeper.Polaris().TxPool()))
-	app.App.BaseApp.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
-	app.App.BaseApp.SetProcessProposal(proposalHandler.ProcessProposalHandler())
+	app.App.BaseApp.SetPrepareProposal(prepare.NewHandler(app.EVMKeeper.Polaris(), app).PrepareProposal)
 
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,

@@ -51,10 +51,6 @@ var (
 	emptyCodeHashBytes = emptyCodeHash.Bytes()
 )
 
-type PrecompilePlugin interface {
-	Has(common.Address) bool
-}
-
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
 	plugins.HasGenesis
