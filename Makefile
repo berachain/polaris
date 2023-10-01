@@ -181,12 +181,6 @@ test-localnet-no-build:
 	@ginkgo -r --randomize-all --fail-on-pending -trace -timeout 30m ./e2e/localnet/...
 
 
-
-test-sim-after-import:
-	@echo "Running application simulation-after-import. This may take several minutes..."
-	@cd ${CURRENT_DIR}/e2e/testapp && $(BINDIR)/runsim -Jobs=4 -SimAppPkg=. -ExitOnFail 50 5 TestAppSimulationAfterImport
-
-
 ###############################################################################
 ###                              Formatting                                 ###
 ###############################################################################
