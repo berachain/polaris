@@ -85,19 +85,19 @@ func (h Hive) Setup() error {
 
 	return ExecuteInDirectory(clonePath, func(...string) error {
 		utils.LogGreen("Building Hive...")
-		return sh.RunV("go", "build", "./...")
+		return sh.RunV("go", "install", "./...")
 	}, false)
 }
 
 func (h Hive) Test(sim, client string) error {
 	return ExecuteInDirectory(clonePath, func(...string) error {
-		return sh.RunV("./hive", "--sim", sim, "--client", client)
+		return sh.RunV("hive", "--sim", sim, "--client", client)
 	}, false)
 }
 
 func (h Hive) TestV(sim, client string) error {
 	return ExecuteInDirectory(clonePath, func(...string) error {
-		return sh.RunV("./hive", "--sim", sim, "--client", client, "--docker.output")
+		return sh.RunV("hive", "--sim", sim, "--client", client, "--docker.output")
 	}, false)
 }
 
@@ -110,7 +110,7 @@ func (h Hive) View() error {
 	}
 	return ExecuteInDirectory(clonePath, func(...string) error {
 		utils.LogGreen("Serving HiveView...")
-		return sh.RunV("./hiveview", "--serve")
+		return sh.RunV("hiveview", "--serve")
 	}, false)
 }
 
