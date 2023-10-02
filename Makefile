@@ -38,8 +38,11 @@ $(BUILD_TARGETS): tidy $(OUT_DIR)/
 	@cd ${CURRENT_DIR}/$(TESTAPP_DIR) && go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
 
 $(OUT_DIR)/:
-	@mkdir -p $(OUT_DIR)/
-	
+	mkdir -p $(OUT_DIR)/
+
+# build:
+# 	@$(MAKE) forge-build
+
 build-clean: 
 	@$(MAKE) clean build
 
@@ -374,3 +377,8 @@ tidy: |
 		(cd $$module && go mod tidy) || exit 1; \
 	done
 
+repo-rinse: |
+	git clean -xfd
+	git submodule foreach --recursive git clean -xfd
+	git submodule foreach --recursive git reset --hard
+	git submodule update --init --recursive
