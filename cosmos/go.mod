@@ -7,7 +7,7 @@ toolchain go1.21.0
 replace (
 	// cosmossdk.io/x/evidence => github.com/rollkit/cosmos-sdk/x/evidence v0.0.0-20230721012257-443317a43b03
 	// github.com/cometbft/cometbft => github.com/rollkit/cometbft v0.0.0-20230614163111-d6a8d2c98cc0
-	github.com/cosmos/cosmos-sdk => github.com/rollkit/cosmos-sdk v0.50.0-rc.0-rollkit-v0.11.0-rc0-no-fraud-proofs-test
+	github.com/cosmos/cosmos-sdk => github.com/rollkit/cosmos-sdk v0.50.0-rc.0-rollkit-v0.11.0-rc1-no-fraud-proofs
 	//v0.46.0-beta2.0.20230721012257-443317a43b03
 	// Required for stateful precompiles and supporting the Ethereum JSON-RPC API.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230824153638-497f3de05c05
@@ -73,12 +73,12 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2 // indirect
 	github.com/bytedance/sonic v1.10.0 // indirect
-	github.com/celestiaorg/go-fraud v0.1.2 // indirect
-	github.com/celestiaorg/go-header v0.2.13 // indirect
+	github.com/celestiaorg/go-fraud v0.2.0 // indirect
+	github.com/celestiaorg/go-header v0.3.1 // indirect
 	github.com/celestiaorg/go-libp2p-messenger v0.2.0 // indirect
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
-	github.com/celestiaorg/nmt v0.18.1 // indirect
-	github.com/celestiaorg/rsmt2d v0.10.0 // indirect
+	github.com/celestiaorg/nmt v0.19.0 // indirect
+	github.com/celestiaorg/rsmt2d v0.11.0 // indirect
 	github.com/celestiaorg/utils v0.1.0 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
@@ -122,6 +122,7 @@ require (
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
+	github.com/elastic/gosigar v0.14.2 // indirect
 	github.com/emicklei/dot v1.6.0 // indirect
 	github.com/ethereum/c-kzg-4844 v0.3.1 // indirect
 	github.com/fatih/color v1.15.0 // indirect
@@ -136,7 +137,7 @@ require (
 	github.com/getsentry/sentry-go v0.23.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.9.1 // indirect
-	github.com/go-kit/kit v0.12.0 // indirect
+	github.com/go-kit/kit v0.13.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
@@ -176,6 +177,7 @@ require (
 	github.com/hashicorp/go-hclog v1.5.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-metrics v0.5.1 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-plugin v1.5.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
@@ -206,7 +208,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
-	github.com/klauspost/reedsolomon v1.11.1 // indirect
+	github.com/klauspost/reedsolomon v1.11.8 // indirect
 	github.com/koron/go-ssdp v0.0.4 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
@@ -245,7 +247,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/pointerstructure v1.2.1 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
-	github.com/moby/term v0.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mr-tron/base58 v1.2.0 // indirect
@@ -265,7 +266,9 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc4 // indirect
-	github.com/opencontainers/runc v1.1.5 // indirect
+	github.com/opencontainers/runc v1.1.7 // indirect
+	github.com/opencontainers/runtime-spec v1.1.0 // indirect
+	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/ory/dockertest v3.3.5+incompatible // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
@@ -286,8 +289,8 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
-	github.com/rollkit/celestia-openrpc v0.1.2 // indirect
-	github.com/rollkit/rollkit v0.11.0-rc0 // indirect
+	github.com/rollkit/celestia-openrpc v0.2.0 // indirect
+	github.com/rollkit/rollkit v0.11.0-rc1 // indirect
 	github.com/rs/cors v1.9.0 // indirect
 	github.com/rs/zerolog v1.30.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
@@ -330,16 +333,18 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.25.0 // indirect
 	golang.org/x/arch v0.4.0 // indirect
-	golang.org/x/crypto v0.12.0 // indirect
+	golang.org/x/crypto v0.13.0 // indirect
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63 // indirect
 	golang.org/x/mod v0.12.0 // indirect
-	golang.org/x/net v0.14.0 // indirect
+	golang.org/x/net v0.15.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
-	golang.org/x/term v0.11.0 // indirect
-	golang.org/x/text v0.12.0 // indirect
+	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/term v0.12.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.12.1-0.20230818141832-9425c2e70961 // indirect
+	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
+	gonum.org/v1/gonum v0.12.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
