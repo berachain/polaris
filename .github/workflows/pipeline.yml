@@ -52,9 +52,6 @@ jobs:
           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-
-      - name: Install Go Tools
-        run: |
-          go run magefiles/setup/setup.go ci
       - name: Run ${{ matrix.args }}
         run: |
           make ${{ matrix.args }}
