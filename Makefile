@@ -196,11 +196,12 @@ hive-setup:
 		$(eval SIM_NAME = $(word 1, $(subst :, ,$(sim)))) \
 		$(eval FILES = $(wordlist 2, $(words $(subst :, ,$(sim))), $(subst :, ,$(sim)))) \
 		cp -rf $(SIMULATORS_ROOT)/ethereum/$(SIM_NAME) $(SIMULATORS_PATH); \
-		mkdir -p $(SIMULATORS_PATH)/$(SIM_NAME); \
 		$(foreach file,$(FILES), \
+			echo $(file); \
 			cp -rf $(BASE_HIVE_DOCKER_PATH)/simulators/$(SIM_NAME)/$(file) \
-			$(SIMULATORS_PATH)/$(SIM_NAME)/; \
+			$(SIMULATORS_PATH)/$(SIM_NAME)/$(file); \
 			if [ "$(file)" = "ethclient.hive" ]; then \
+				echo "Copying ethclient.hive to ethclient.go"; \
 				cp -rf $(SIMULATORS_PATH)/$(SIM_NAME)/$(file) $(SIMULATORS_PATH)/$(SIM_NAME)/ethclient.go; \
 			fi; \
 		) \
