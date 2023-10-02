@@ -11,9 +11,6 @@
   <a href="https://pkg.go.dev/pkg.berachain.dev/polaris" target="_blank">
     <img src="https://pkg.go.dev/badge/pkg.berachain.dev/polaris.svg" alt="Go Reference">
   </a>
-  <a href="https://magefile.org" target="_blank">
-    <img alt="Built with Mage" src="https://magefile.org/badge.svg" />
-  </a>
   <a href="https://t.me/polaris_devs" target="_blank">
     <img alt="Telegram Chat" src="https://img.shields.io/endpoint?color=neon&logo=telegram&label=chat&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fpolaris_devs">
   </a>
@@ -102,7 +99,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 4. Start a local development network:
 
    ```sh
-   mage start
+   make start
    ```
 
 ## 🚧 WARNING: UNDER CONSTRUCTION 🚧
