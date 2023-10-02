@@ -55,7 +55,7 @@ jobs:
           GOPATH: /home/runner/go
 
       - name: Save base image
-        run: docker save ${{ matrix.image-name }}:latest -o ${{ matrix.export-name }}.tar
+        run: docker save ${{ matrix.image-name }}:v0.0.0 -o ${{ matrix.export-name }}.tar
 
       - name: Upload image artifact
         uses: actions/upload-artifact@v2
@@ -102,7 +102,7 @@ jobs:
           GOPATH: /home/runner/go
 
       - name: Save base image
-        run: docker save ${{ matrix.image-name }}:latest -o ${{ matrix.export-name }}.tar
+        run: docker save ${{ matrix.image-name }}:v0.0.0 -o ${{ matrix.export-name }}.tar
 
       - name: Upload image artifact
         uses: actions/upload-artifact@v2

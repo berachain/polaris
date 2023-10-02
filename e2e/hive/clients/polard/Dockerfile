@@ -14,7 +14,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Use the latest foundry image
-FROM polard/base:latest as polaris-hive
+FROM polard/base:v0.0.0 as polaris-hive
 
 RUN apk add --no-cache bash jq
 
