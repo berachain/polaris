@@ -233,20 +233,20 @@ hive-setup:
 	@git clone https://github.com/ethereum/hive $(CLONE_PATH) --depth=1
 	@mkdir $(SIMULATORS_PATH)
 	@cp -rf $(BASE_HIVE_DOCKER_PATH)/clients/polard $(CLIENTS_PATH)
+	@echo "Copying files...";
 	@$(foreach sim,$(SIMULATIONS), \
 		$(eval SIM_NAME = $(word 1, $(subst :, ,$(sim)))) \
 		$(eval FILES = $(wordlist 2, $(words $(subst :, ,$(sim))), $(subst :, ,$(sim)))) \
 		cp -rf $(SIMULATORS_ROOT)/ethereum/$(SIM_NAME) $(SIMULATORS_PATH); \
 		$(foreach file,$(FILES), \
-			echo $(file); \
 			cp -rf $(BASE_HIVE_DOCKER_PATH)/simulators/$(SIM_NAME)/$(file) \
 			$(SIMULATORS_PATH)/$(SIM_NAME)/$(file); \
 			if [ "$(file)" = "ethclient.hive" ]; then \
-				echo "Copying ethclient.hive to ethclient.go"; \
 				cp -rf $(SIMULATORS_PATH)/$(SIM_NAME)/$(file) $(SIMULATORS_PATH)/$(SIM_NAME)/ethclient.go; \
 			fi; \
 		) \
 	)
+	@cd $(CLONE_PATH) && go install ./...
 
 hive-view:
 	@cd $(CLONE_PATH) && \
