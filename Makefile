@@ -70,7 +70,7 @@ DOCKER_TYPE ?= base
 ARCH ?= arm64
 GO_VERSION ?= 1.21.1
 IMAGE_NAME ?= polard
-IMAGE_VERSION ?= latest
+IMAGE_VERSION ?= $(COMMIT)
 BASE_IMAGE ?= polard/base:v0.0.0
 
 # Docker Paths
