@@ -67,8 +67,8 @@ DOCKER_TYPE ?= base
 ARCH ?= arm64
 GO_VERSION ?= 1.21.1
 IMAGE_NAME ?= polard
-IMAGE_VERSION ?= $(COMMIT)
-BASE_IMAGE ?= polard/base:$(COMMIT)
+IMAGE_VERSION ?= latest
+BASE_IMAGE ?= polard/base:$(IMAGE_VERSION)
 
 # Docker Paths
 BASE_DOCKER_PATH = ./e2e/testapp/docker
