@@ -25,8 +25,6 @@
 
 package main
 
-import "os"
-
 /* -------------------------------------------------------------------------- */
 /*                                  Commands                                  */
 /* -------------------------------------------------------------------------- */
@@ -36,35 +34,4 @@ var (
 	// Docker.
 	dockerBuild  = RunCmdV("docker", "build", "--rm=false")
 	dockerBuildX = RunCmdV("docker", "buildx", "build", "--rm=false")
-)
-
-/* -------------------------------------------------------------------------- */
-/*                             Packages & Modules                             */
-/* --------------------------------------------------------------------------. */
-var (
-	repoModuleDirs = readGoModulesFromGoWork("go.work")
-)
-
-/* -------------------------------------------------------------------------- */
-/*                                   Docker                                   */
-/* -------------------------------------------------------------------------- */
-
-var (
-	baseImageVersion = "polard/base:v0.0.0"
-)
-
-/* -------------------------------------------------------------------------- */
-/*                                 Directories                                */
-/* -------------------------------------------------------------------------- */
-
-const (
-	outdir             = "./bin"
-	baseHiveDockerPath = "./e2e/hive/"
-)
-
-var (
-	hiveClone      = os.Getenv("GOPATH") + "/src/"
-	clonePath      = hiveClone + ".hive-e2e/"
-	simulatorsPath = clonePath + "simulators/polaris/"
-	clientsPath    = clonePath + "clients/polard/"
 )

@@ -26,14 +26,10 @@
 package main
 
 import (
-	"bufio"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/magefile/mage/sh"
-
-	"pkg.berachain.dev/polaris/magefiles/utils"
 )
 
 var allPkgs, _ = sh.Output("go", "list", "pkg.berachain.dev/polaris/...")
@@ -107,35 +103,4 @@ func ExecuteForAllModules(dirs []string, f func(args ...string) error, withArgs 
 		}
 	}
 	return nil
-}
-
-// readGoModulesFromGoWork reads the go.work file and returns a list of modules.
-func readGoModulesFromGoWork(filepath string) []string {
-	// Open the go.work file
-	file, err := os.Open(filepath) //#nosec: G304 // required.
-	if err != nil {
-		utils.LogRed("Error opening file:", err)
-		return []string{}
-	}
-	defer file.Close()
-
-	// Regex pattern to match module paths
-	pattern := regexp.MustCompile(`\./([\w-/]+)`)
-
-	// Create a scanner to read the file line by line
-	scanner := bufio.NewScanner(file)
-	var modules []string
-	for scanner.Scan() {
-		line := scanner.Text()
-		matches := pattern.FindStringSubmatch(line)
-		if matches != nil {
-			modules = append(modules, matches[1])
-		}
-	}
-
-	if err = scanner.Err(); err != nil {
-		utils.LogRed("Error reading file:", err)
-	}
-
-	return modules
 }

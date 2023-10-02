@@ -26,11 +26,7 @@
 package main
 
 import (
-	"runtime"
-	"strings"
-
 	"github.com/magefile/mage/mg"
-	"github.com/magefile/mage/sh"
 
 	"pkg.berachain.dev/polaris/magefiles/utils"
 )
@@ -74,7 +70,6 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 		"--build-arg", "PRECOMPILE_CONTRACTS_DIR=" + precompileContractsDir,
 		"--build-arg", "GOOS=linux",
 		"--build-arg", "GOARCH=" + arch,
-		"--build-arg", "GO_WORK=" + strings.Join(repoModuleDirs, " "),
 	}
 	buildContext := "."
 	switch dockerType {
@@ -101,21 +96,6 @@ func (c Cosmos) dockerBuildBeradWith(dockerType, goVersion, arch string, withX b
 	return dockerBuildFn(withX)(
 		opts...,
 	)
-}
-
-func (c Cosmos) TestHive(sim string) error {
-	if out, _ := sh.Output("docker", "images", "-q", baseImageVersion); out == "" {
-		utils.LogGreen("No existing base docker image found, building...")
-		if err := c.Docker("base", runtime.GOARCH); err != nil {
-			return err
-		}
-	}
-
-	if err := (Hive{}).Setup(); err != nil {
-		return err
-	}
-
-	return Hive{}.TestV(sim, "polard")
 }
 
 func dockerBuildFn(useX bool) func(args ...string) error {
