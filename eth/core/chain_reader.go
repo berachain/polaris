@@ -49,9 +49,6 @@ type ChainBlockReader interface {
 	GetTransactionLookup(common.Hash) *types.TxLookupEntry
 	GetTd(common.Hash, uint64) *big.Int
 	HasBlock(common.Hash, uint64) bool
-
-	// THIS SHOULD BE MOVED TO A "MINER" TYPE THING
-	PendingBlockAndReceipts() (*types.Block, types.Receipts)
 }
 
 // =========================================================================
@@ -102,44 +99,6 @@ func (bc *blockchain) CurrentFinalBlock() *types.Header {
 func (bc *blockchain) CurrentSafeBlock() *types.Header {
 	// TODO: determine the difference between safe and final in polaris.
 	return bc.CurrentFinalBlock()
-}
-
-// PendingBlockAndReceipts returns the pending block and receipts of the blockchain.
-// TODO: move to the miner. Currently returns the "current" finalized block and receipts.
-func (bc *blockchain) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
-	var err error
-
-	// Get current block.
-	header := bc.CurrentHeader()
-	if header == nil {
-		bc.logger.Error("current header is nil")
-		return nil, nil
-	}
-
-	// Get receipts from cache.
-	receipts, ok := utils.GetAs[types.Receipts](bc.currentReceipts.Load())
-	if receipts == nil || !ok {
-		bc.logger.Error("current receipts are nil")
-		return nil, nil
-	}
-
-	// Derive receipts from block.
-	receipts, err = bc.deriveReceipts(receipts, header.Hash())
-	if err != nil {
-		bc.logger.Error("failed to derive receipts", "err", err)
-		return nil, nil
-	}
-
-	// Get block
-	block := bc.GetBlock(header.Hash(), header.Number.Uint64())
-	if block == nil {
-		bc.logger.Error("failed to get block", "hash", header.Hash(), "number", header.Number.Uint64())
-		return nil, nil
-	}
-
-	// Add to cache.
-	bc.receiptsCache.Add(block.Hash(), receipts)
-	return block, receipts
 }
 
 // GetBlock returns a block by its hash or number.
@@ -314,15 +273,12 @@ func (bc *blockchain) GetTd(hash common.Hash, number uint64) *big.Int {
 	return block.Difficulty()
 }
 
+// HasBlock returns true if the blockchain contains a block with the given
+// hash or number.
 func (bc *blockchain) HasBlock(hash common.Hash, number uint64) bool {
-	return bc.blockHashCache.Contains(hash)
-	// {
-	// 	return true
-	// }
-	// return false
-	// TODO: handle
-	// if !bc.HasHeader(hash, number) {
-	// 	return false
-	// }
-	// return rawdb.HasBody(bc.db, hash, number)
+	b := bc.GetBlockByNumber(number)
+	if b == nil {
+		b = bc.GetBlockByHash(hash)
+	}
+	return b != nil
 }

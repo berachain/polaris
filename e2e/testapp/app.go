@@ -232,6 +232,8 @@ func NewPolarisApp(
 		mux,
 		&miner.MockEngine{}, app.EVMKeeper.Polaris().IsLocalBlock,
 	)
+
+	app.EVMKeeper.Polaris().SetMiner(app.mm.Miner)
 	app.App.BaseApp.SetPrepareProposal(app.mm.PrepareProposal)
 
 	opt := ante.HandlerOptions{

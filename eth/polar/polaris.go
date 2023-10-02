@@ -78,7 +78,8 @@ type Polaris struct {
 	host       core.PolarisHostChain
 	blockchain core.Blockchain
 	txPool     *txpool.TxPool
-	miner      miner.Miner
+	spminer    miner.Miner
+	miner      *gethminer.Miner
 
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the core piecepl.
 	backend Backend
@@ -122,7 +123,7 @@ func NewWithNetworkingStack(
 
 // Init initializes the Polaris struct.
 func (pl *Polaris) Init() error {
-	pl.miner = miner.New(pl)
+	pl.spminer = miner.New(pl)
 	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 
 	var err error
@@ -190,8 +191,17 @@ func (pl *Polaris) Host() core.PolarisHostChain {
 	return pl.host
 }
 
-func (pl *Polaris) Miner() miner.Miner {
+func (pl *Polaris) Miner() *gethminer.Miner {
 	return pl.miner
+}
+
+// TODO: DEPREACTE
+func (pl *Polaris) SetMiner(sp *gethminer.Miner) {
+	pl.miner = sp
+}
+
+func (pl *Polaris) SPMiner() miner.Miner {
+	return pl.spminer
 }
 
 func (pl *Polaris) TxPool() *txpool.TxPool {
@@ -206,27 +216,7 @@ func (pl *Polaris) Blockchain() core.Blockchain {
 	return pl.blockchain
 }
 
-func (pl *Polaris) IsLocalBlock(header *types.Header) bool {
-	// TODO: this will break on anything other than a local node rn.
+func (pl *Polaris) IsLocalBlock(_ *types.Header) bool {
+	// Unused.
 	return true
-	// author, err := pl.engine.Author(header)
-	// if err != nil {
-	// 	log.Warn("Failed to retrieve block author", "number", header.Number.Uint64(), "hash", header.Hash(), "err", err)
-	// 	return false
-	// }
-	// // // Check whether the given address is etherbase.
-	// // pl.lock.RLock()
-	// // etherbase := pl.etherbase
-	// // pl.lock.RUnlock()
-	// if author == etherbase {
-	// 	return true
-	// }
-	// // Check whether the given address is specified by `txpool.local`
-	// // CLI flag.
-	// for _, account := range pl.config.TxPool.Locals {
-	// 	if account == author {
-	// 		return true
-	// 	}
-	// }
-	return false
 }

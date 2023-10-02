@@ -222,12 +222,8 @@ func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*typ
 	// Pending block is only known by the miner
 	switch number {
 	case rpc.PendingBlockNumber:
-		// 	block := b.eth.miner.PendingBlock()
-		// 	return block, nil
-		//  TODO: handling pending in the miner.
-		header := b.polar.blockchain.CurrentBlock()
-		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
-
+		block := b.polar.miner.PendingBlock()
+		return block, nil
 	// Otherwise resolve and return the block
 	case rpc.LatestBlockNumber:
 		header := b.polar.blockchain.CurrentBlock()
@@ -285,13 +281,11 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash rpc.Blo
 func (b *backend) StateAndHeaderByNumber(
 	ctx context.Context, number rpc.BlockNumber,
 ) (state.StateDBI, *types.Header, error) {
-	// TODO: handling pending better
-	// // Pending state is only known by the miner
-	// if number == rpc.PendingBlockNumber {
-	// 	block, state := b.eth.miner.Pending()
-	// 	return state, block.Header(), nil
-	// }
-
+	// Pending state is only known by the miner
+	if number == rpc.PendingBlockNumber {
+		block, state := b.polar.miner.Pending()
+		return state, block.Header(), nil
+	}
 	// Otherwise resolve the block number and return its state
 	header, err := b.HeaderByNumber(ctx, number)
 	if err != nil {
@@ -353,7 +347,7 @@ func (b *backend) GetTransaction(
 // PendingBlockAndReceipts returns the pending block (equivalent to current block in Polaris)
 // and associated receipts.
 func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
-	block, receipts := b.polar.blockchain.PendingBlockAndReceipts()
+	block, receipts := b.polar.miner.PendingBlockAndReceipts()
 	// If the block is non-existent, return nil.
 	// This is to maintain parity with the behavior of the geth backend.
 	if block == nil {
@@ -527,7 +521,7 @@ func (b *backend) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription 
 }
 
 func (b *backend) SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription {
-	return b.polar.blockchain.SubscribePendingLogsEvent(ch)
+	return b.polar.miner.SubscribePendingLogs(ch)
 }
 
 func (b *backend) BloomStatus() (uint64, uint64) {
