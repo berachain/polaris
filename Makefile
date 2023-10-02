@@ -98,7 +98,7 @@ docker-build-validator:
 	$(call docker-build,$(VAL_DOCKER_PATH))
 
 docker-build-localnet:
-	$(call docker-build,$(VAL_DOCKER_PATH),--build-arg BASE_IMAGE=$(BASE_IMAGE))
+	$(call docker-build,$(LOCALNET_DOCKER_PATH),--build-arg BASE_IMAGE=$(BASE_IMAGE))
 
 # Docker Build Function
 define docker-build
