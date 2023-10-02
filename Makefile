@@ -89,13 +89,13 @@ docker-build-base:
 	$(call docker-build-helper,$(EXEC_DOCKER_PATH),base)
 
 docker-build-local:
-	$(call docker-build-helper,$(LOCAL_DOCKER_PATH),local)
+	$(call docker-build-helper,$(LOCAL_DOCKER_PATH),local,--build-arg BASE_IMAGE=$(BASE_IMAGE))
 
 docker-build-seed:
-	$(call docker-build-helper,$(SEED_DOCKER_PATH),seed)
+	$(call docker-build-helper,$(SEED_DOCKER_PATH),seed,--build-arg BASE_IMAGE=$(BASE_IMAGE))
 
 docker-build-validator:
-	$(call docker-build-helper,$(VAL_DOCKER_PATH),validator)
+	$(call docker-build-helper,$(VAL_DOCKER_PATH),validator,--build-arg BASE_IMAGE=$(BASE_IMAGE))
 
 docker-build-localnet:
 	$(call docker-build-helper,$(LOCALNET_DOCKER_PATH),localnet,--build-arg BASE_IMAGE=$(BASE_IMAGE))
