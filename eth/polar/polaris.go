@@ -13,7 +13,7 @@
 // LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
 //
 // TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
-// AN “AS IS” BASIpl. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+// AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
@@ -49,9 +49,9 @@ var defaultEthConfig = ethconfig.Config{
 	FilterLogCacheSize: 0,
 }
 
-// NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC apipl.
+// NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC API.
 type NetworkingStack interface {
-	// IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC APIpl.
+	// IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC API.
 	ExtRPCEnabled() bool
 
 	// RegisterHandler manually registers a new handler into the networking stack.
@@ -70,7 +70,7 @@ type NetworkingStack interface {
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
 	cfg *Config
-	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC APIpl.
+	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC API.
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
 
@@ -111,7 +111,7 @@ func NewWithNetworkingStack(
 	// to specify their own log handler. If logHandler is nil then we
 	// we use the default geth log handler.
 	if logHandler != nil {
-		// Root is a global in geth that is used by the evm to emit logpl.
+		// Root is a global in geth that is used by the evm to emit logs.
 		log.Root().SetHandler(logHandler)
 	}
 
@@ -137,7 +137,7 @@ func (pl *Polaris) Init() error {
 
 	// eth.miner = miner.New(eth, &config.Miner, eth.blockchain.Config(), eth.EventMux(), eth.engine, eth.isLocalBlock)
 
-	// Build and set the RPC Backend and other servicepl.
+	// Build and set the RPC Backend and other services.
 
 	// if eth.APIBackend.allowUnprotectedTxs {
 	// 	log.Info("Unprotected transactions allowed")
@@ -146,7 +146,7 @@ func (pl *Polaris) Init() error {
 	return nil
 }
 
-// APIs return the collection of RPC services the polar package offerpl.
+// APIs return the collection of RPC services the polar package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (pl *Polaris) APIs() []rpc.API {
 	// Grab a bunch of the apis from go-ethereum (thx bae)
