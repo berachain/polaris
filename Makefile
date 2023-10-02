@@ -112,6 +112,7 @@ define docker-build-helper
 	-t $(IMAGE_NAME)/$(2):$(IMAGE_VERSION) \
 	$(if $(3),$(3)) \
 	.
+
 endef
 
 .PHONY: docker-build-localnet
@@ -178,7 +179,7 @@ test-unit-cover:
 	@$(MAKE) install-ginkgo forge-test
 	@echo "Running unit tests with coverage..."
 	@ginkgo -r --randomize-all --fail-on-pending -trace --skip .*e2e* \
-	--junit-report out.xml --cover --coverprofile "coverage-testunitcover.txt" --covermode atomic \
+	--junit-report out.xml --cover --coverprofile "coverage-test-unit-cover.txt" --covermode atomic \
 		./...
 
 #################
@@ -194,7 +195,6 @@ forge-test:
 #################
 
 test-e2e:
-	# TODO: docker build before running
 	@$(MAKE) test-e2e-no-build
 
 test-e2e-no-build:
@@ -255,7 +255,6 @@ hive-view:
 # SHELL := /bin/zsh  # Explicitly set to zsh as that is what you are using
 
 test-hive:
-	@echo $(CLONE_PATH);
 	@cd $(CLONE_PATH) && \
 		hive --sim polaris/rpc -client polard
 
@@ -270,7 +269,6 @@ testv-hive:
 #################
 
 test-localnet:
-	# TODO: docker build before running
 	@$(MAKE) test-localnet-no-build
 
 test-localnet-no-build:
