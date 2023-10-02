@@ -8,11 +8,6 @@ packages:
       all: True
       recursive: True
       with-expecter: true
-  pkg.berachain.dev/polaris/cosmos/miner:
-    config:
-      all: True
-      recursive: True
-      with-expecter: true
   pkg.berachain.dev/polaris/eth/core/state:
     config:
       all: True
