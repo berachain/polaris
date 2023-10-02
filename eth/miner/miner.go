@@ -156,7 +156,7 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		Number:     new(big.Int).SetUint64(number),
 		GasLimit:   m.gp.BlockGasLimit(),
 		Time:       timestamp,
-		Difficulty: new(big.Int),
+		Difficulty: new(big.Int).SetUint64(0),
 	}
 
 	// TODO: Settable in PrepareProposal.

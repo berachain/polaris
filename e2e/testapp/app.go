@@ -56,14 +56,15 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-
-	"pkg.berachain.dev/polaris/cosmos/abci/prepare"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
-	cosmostxpool "pkg.berachain.dev/polaris/cosmos/txpool"
+	"pkg.berachain.dev/polaris/cosmos/miner"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+
+	"github.com/ethereum/go-ethereum/event"
+	gethminer "github.com/ethereum/go-ethereum/miner"
 )
 
 // DefaultNodeHome default home directories for the application daemon.
@@ -101,6 +102,8 @@ type SimApp struct {
 
 	// polaris keepers
 	EVMKeeper *evmkeeper.Keeper
+
+	mm *miner.Miner
 }
 
 //nolint:gochecknoinits // from sdk.
@@ -214,9 +217,24 @@ func NewPolarisApp(
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
-	app.App.BaseApp.SetMempool(cosmostxpool.NewMempool(app.EVMKeeper.Polaris().TxPool()))
-	app.App.BaseApp.SetPrepareProposal(prepare.NewHandler(app.EVMKeeper.Polaris(), app).PrepareProposal)
+	// mp := cosmostxpool.NewMempool(app.EVMKeeper.Polaris().TxPool())
+	// defaultPrepareProposal := baseapp.NewDefaultProposalHandler(mp, app)
 
+	mux := new(event.TypeMux)
+	// SetupPrecompiles is used to setup the precompile contracts post depinject.
+	app.EVMKeeper.SetupPrecompiles()
+
+	app.mm = miner.NewMiner(
+		app.EVMKeeper.Polaris(),
+		&gethminer.DefaultConfig,
+		app.EVMKeeper.Polaris().Host().GetConfigurationPlugin().ChainConfig(),
+		mux,
+		&miner.MockEngine{}, app.EVMKeeper.Polaris().IsLocalBlock,
+	)
+	defaultProposalHandler := baseapp.NewDefaultProposalHandler(nil, app)
+	defaultProposalHandler.SetTxSelector(app.mm)
+	app.App.BaseApp.SetPrepareProposal(defaultProposalHandler.PrepareProposalHandler())
+	app.App.BaseApp.SetProcessProposal(defaultProposalHandler.ProcessProposalHandler())
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,
@@ -245,9 +263,6 @@ func NewPolarisApp(
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	app.RegisterUpgradeHandlers()
-
-	// SetupPrecompiles is used to setup the precompile contracts post depinject.
-	app.EVMKeeper.SetupPrecompiles()
 
 	if err := app.Load(loadLatest); err != nil {
 		panic(err)
@@ -329,6 +344,7 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
+	app.mm.SetSerializer(evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig))
 	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
 }
 

@@ -48,6 +48,7 @@ type ChainBlockReader interface {
 	GetBlockByNumber(uint64) *types.Block
 	GetTransactionLookup(common.Hash) *types.TxLookupEntry
 	GetTd(common.Hash, uint64) *big.Int
+	HasBlock(common.Hash, uint64) bool
 
 	// THIS SHOULD BE MOVED TO A "MINER" TYPE THING
 	PendingBlockAndReceipts() (*types.Block, types.Receipts)
@@ -311,4 +312,17 @@ func (bc *blockchain) GetTd(hash common.Hash, number uint64) *big.Int {
 		return nil
 	}
 	return block.Difficulty()
+}
+
+func (bc *blockchain) HasBlock(hash common.Hash, number uint64) bool {
+	return bc.blockHashCache.Contains(hash)
+	// {
+	// 	return true
+	// }
+	// return false
+	// TODO: handle
+	// if !bc.HasHeader(hash, number) {
+	// 	return false
+	// }
+	// return rawdb.HasBody(bc.db, hash, number)
 }

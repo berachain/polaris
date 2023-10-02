@@ -4,7 +4,7 @@ go 1.21
 
 replace (
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230928023220-89db795f378f
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231002143448-814ffd5ffe13
 	// Required at the moment until a bug in the comsos-sdk is fixed.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
@@ -12,7 +12,7 @@ replace (
 require (
 	cosmossdk.io/core v0.11.0
 	cosmossdk.io/math v1.1.3-rc.1
-	github.com/cosmos/cosmos-sdk v0.50.0-rc.1
+	github.com/cosmos/cosmos-sdk v0.50.0-rc.1.0.20231002123207-138e55725f64
 	github.com/onsi/ginkgo/v2 v2.12.1
 	github.com/onsi/gomega v1.27.10
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230919154905-0c53dfe1360a

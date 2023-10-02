@@ -13,7 +13,7 @@
 // LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
 //
 // TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
-// AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+// AN “AS IS” BASIpl. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
@@ -30,8 +30,10 @@ import (
 	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/filters"
+	gethminer "github.com/ethereum/go-ethereum/miner"
 
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/miner"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
@@ -47,9 +49,9 @@ var defaultEthConfig = ethconfig.Config{
 	FilterLogCacheSize: 0,
 }
 
-// NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC apis.
+// NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC apipl.
 type NetworkingStack interface {
-	// IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC APIs.
+	// IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC APIpl.
 	ExtRPCEnabled() bool
 
 	// RegisterHandler manually registers a new handler into the networking stack.
@@ -68,7 +70,7 @@ type NetworkingStack interface {
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
 	cfg *Config
-	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC APIs.
+	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC APIpl.
 	// Although possible, it does not handle p2p networking like its sibling in geth would.
 	stack NetworkingStack
 
@@ -78,7 +80,7 @@ type Polaris struct {
 	txPool     *txpool.TxPool
 	miner      miner.Miner
 
-	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the core pieces.
+	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the core piecepl.
 	backend Backend
 
 	// engine represents the consensus engine for the backend.
@@ -109,7 +111,7 @@ func NewWithNetworkingStack(
 	// to specify their own log handler. If logHandler is nil then we
 	// we use the default geth log handler.
 	if logHandler != nil {
-		// Root is a global in geth that is used by the evm to emit logs.
+		// Root is a global in geth that is used by the evm to emit logpl.
 		log.Root().SetHandler(logHandler)
 	}
 
@@ -135,7 +137,7 @@ func (pl *Polaris) Init() error {
 
 	// eth.miner = miner.New(eth, &config.Miner, eth.blockchain.Config(), eth.EventMux(), eth.engine, eth.isLocalBlock)
 
-	// Build and set the RPC Backend and other services.
+	// Build and set the RPC Backend and other servicepl.
 
 	// if eth.APIBackend.allowUnprotectedTxs {
 	// 	log.Info("Unprotected transactions allowed")
@@ -144,7 +146,7 @@ func (pl *Polaris) Init() error {
 	return nil
 }
 
-// APIs return the collection of RPC services the polar package offers.
+// APIs return the collection of RPC services the polar package offerpl.
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (pl *Polaris) APIs() []rpc.API {
 	// Grab a bunch of the apis from go-ethereum (thx bae)
@@ -196,6 +198,35 @@ func (pl *Polaris) TxPool() *txpool.TxPool {
 	return pl.txPool
 }
 
+func (pl *Polaris) MinerChain() gethminer.BlockChain {
+	return pl.blockchain
+}
+
 func (pl *Polaris) Blockchain() core.Blockchain {
 	return pl.blockchain
+}
+
+func (pl *Polaris) IsLocalBlock(header *types.Header) bool {
+	// TODO: this will break on anything other than a local node rn.
+	return true
+	// author, err := pl.engine.Author(header)
+	// if err != nil {
+	// 	log.Warn("Failed to retrieve block author", "number", header.Number.Uint64(), "hash", header.Hash(), "err", err)
+	// 	return false
+	// }
+	// // // Check whether the given address is etherbase.
+	// // pl.lock.RLock()
+	// // etherbase := pl.etherbase
+	// // pl.lock.RUnlock()
+	// if author == etherbase {
+	// 	return true
+	// }
+	// // Check whether the given address is specified by `txpool.local`
+	// // CLI flag.
+	// for _, account := range pl.config.TxPool.Locals {
+	// 	if account == author {
+	// 		return true
+	// 	}
+	// }
+	return false
 }

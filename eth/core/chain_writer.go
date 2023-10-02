@@ -21,12 +21,19 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/core"
+	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
 	InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error
+	WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log, state state.StateDBI, emitHeadEvent bool) (status core.WriteStatus, err error)
+}
+
+func (blockchain) WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log, state state.StateDBI, emitHeadEvent bool) (status core.WriteStatus, err error) {
+	return core.NonStatTy, nil
 }
 
 // InsertBlock inserts a block into the canonical chain and updates the state of the blockchain.

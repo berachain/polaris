@@ -54,7 +54,7 @@ mage build
 # 	echo "Overwrite the existing configuration and start a new local node? [y/n]"
 # 	read -r overwrite
 # else
-overwrite="N"
+overwrite="Y"
 # fi
 
 # Setup local node if overwrite is set to Yes, otherwise skip setup
