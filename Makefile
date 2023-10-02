@@ -19,15 +19,12 @@ build-linux-amd64:
 build-linux-arm64:
 	GOOS=linux GOARCH=arm64 LEDGER_ENABLED=false $(MAKE) build
 
-$(BUILD_TARGETS): tidy $(OUT_DIR)/
+$(BUILD_TARGETS): forge-build tidy $(OUT_DIR)/
 	@echo "Building ${TESTAPP_DIR}"
 	@cd ${CURRENT_DIR}/$(TESTAPP_DIR) && go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
 
 $(OUT_DIR)/:
 	mkdir -p $(OUT_DIR)/
-
-# build:
-# 	@$(MAKE) forge-build
 
 build-clean: 
 	@$(MAKE) clean build
