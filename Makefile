@@ -38,11 +38,8 @@ $(BUILD_TARGETS): tidy $(OUT_DIR)/
 	@cd ${CURRENT_DIR}/$(TESTAPP_DIR) && go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
 
 $(OUT_DIR)/:
-	mkdir -p $(OUT_DIR)/
-
-# build:
-# 	@$(MAKE) forge-build
-
+	@mkdir -p $(OUT_DIR)/
+	
 build-clean: 
 	@$(MAKE) clean build
 
