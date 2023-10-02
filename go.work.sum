@@ -157,6 +157,8 @@ github.com/cockroachdb/sentry-go v0.6.1-cockroachdb.2/go.mod h1:8BT+cPK6xvFOcRlk
 github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06/go.mod h1:7nc4anLGjupUW/PeY5qiNYsdNXj7zopG+eqsS7To5IQ=
 github.com/codegangsta/inject v0.0.0-20150114235600-33e0aa1cb7c0/go.mod h1:4Zcjuz89kmFXt9morQgcfYZAYZ5n8WHjt81YYWIwtTM=
 github.com/coreos/go-semver v0.3.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3EedlOD2RNk=
+github.com/cosmos/cosmos-sdk v0.50.0-rc.1 h1:1Z+SgLg8S2+DoiePz9aO5dSjJUgag8VFhFUSD/HGvOU=
+github.com/cosmos/cosmos-sdk v0.50.0-rc.1/go.mod h1:JbgPLZrh+yX+4+n1CPJ/uL9HrhZw6QVg0q7cTq2Iwq0=
 github.com/cosmos/gosec/v2 v2.0.0-20230124142343-bf28a33fadf2/go.mod h1:NV9RgyPGw3QjOHYKmruHuejnCZ9+fwBDruxTxJf2gak=
 github.com/crate-crypto/go-ipa v0.0.0-20230601170251-1830d0757c80/go.mod h1:gzbVz57IDJgQ9rLQwfSk696JGWof8ftznEL9GoAv3NI=
 github.com/creachadair/command v0.0.0-20220916173946-56a74cdd66b6/go.mod h1:jN7ZJM5YSVtD3SHmkAdN/cOC1dXiqg2Y9K5Sr5a8Nxw=
