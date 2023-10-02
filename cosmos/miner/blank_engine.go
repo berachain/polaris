@@ -1,3 +1,24 @@
+// SPDX-License-Identifier: BUSL-1.1
+//
+// Copyright (C) 2023, Berachain Foundation. All rights reserved.
+// Use of this software is govered by the Business Source License included
+// in the LICENSE file of this repository and at www.mariadb.com/bsl11.
+//
+// ANY USE OF THE LICENSED WORK IN VIOLATION OF THIS LICENSE WILL AUTOMATICALLY
+// TERMINATE YOUR RIGHTS UNDER THIS LICENSE FOR THE CURRENT AND ALL OTHER
+// VERSIONS OF THE LICENSED WORK.
+//
+// THIS LICENSE DOES NOT GRANT YOU ANY RIGHT IN ANY TRADEMARK OR LOGO OF
+// LICENSOR OR ITS AFFILIATES (PROVIDED THAT YOU MAY USE A TRADEMARK OR LOGO OF
+// LICENSOR AS EXPRESSLY REQUIRED BY THIS LICENSE).
+//
+// TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+// AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+// EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+// TITLE.
+//
+//nolint:revive // boilerplate for now.
 package miner
 
 import (
@@ -21,7 +42,6 @@ func (m *MockEngine) Author(header *types.Header) (common.Address, error) {
 
 // VerifyHeader is a mock implementation.
 func (m *MockEngine) VerifyHeader(chain consensus.ChainHeaderReader, header *types.Header) error {
-
 	// Set the correct difficulty
 	header.Difficulty = new(big.Int).SetUint64(1)
 
@@ -29,7 +49,8 @@ func (m *MockEngine) VerifyHeader(chain consensus.ChainHeaderReader, header *typ
 }
 
 // VerifyHeaders is a mock implementation.
-func (m *MockEngine) VerifyHeaders(chain consensus.ChainHeaderReader, headers []*types.Header) (chan<- struct{}, <-chan error) {
+func (m *MockEngine) VerifyHeaders(
+	chain consensus.ChainHeaderReader, headers []*types.Header) (chan<- struct{}, <-chan error) {
 	for _, h := range headers {
 		if err := m.VerifyHeader(chain, h); err != nil {
 			return nil, nil
@@ -50,19 +71,23 @@ func (m *MockEngine) Prepare(chain consensus.ChainHeaderReader, header *types.He
 }
 
 // Finalize is a mock implementation.
-func (m *MockEngine) Finalize(chain consensus.ChainHeaderReader, header *types.Header, state state.StateDBI, txs []*types.Transaction,
+func (m *MockEngine) Finalize(chain consensus.ChainHeaderReader,
+	header *types.Header, state state.StateDBI, txs []*types.Transaction,
 	uncles []*types.Header, withdrawals []*types.Withdrawal) {
 }
 
 // FinalizeAndAssemble is a mock implementation.
-func (m *MockEngine) FinalizeAndAssemble(chain consensus.ChainHeaderReader, header *types.Header, state state.StateDBI, txs []*types.Transaction,
-	uncles []*types.Header, receipts []*types.Receipt, withdrawals []*types.Withdrawal) (*types.Block, error) {
+func (m *MockEngine) FinalizeAndAssemble(chain consensus.ChainHeaderReader,
+	header *types.Header, state state.StateDBI, txs []*types.Transaction,
+	uncles []*types.Header, receipts []*types.Receipt,
+	withdrawals []*types.Withdrawal) (*types.Block, error) {
 	return types.NewBlock(header, txs, uncles, receipts, trie.NewStackTrie(nil)), nil
 }
 
 // Seal is a mock implementation.
-func (m *MockEngine) Seal(chain consensus.ChainHeaderReader, block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
-	sealedBlock := block //.seal()
+func (m *MockEngine) Seal(chain consensus.ChainHeaderReader,
+	block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
+	sealedBlock := block // .seal()
 	results <- sealedBlock
 	return nil
 }
@@ -73,7 +98,8 @@ func (m *MockEngine) SealHash(header *types.Header) common.Hash {
 }
 
 // CalcDifficulty is a mock implementation.
-func (m *MockEngine) CalcDifficulty(chain consensus.ChainHeaderReader, time uint64, parent *types.Header) *big.Int {
+func (m *MockEngine) CalcDifficulty(chain consensus.ChainHeaderReader,
+	time uint64, parent *types.Header) *big.Int {
 	return big.NewInt(0)
 }
 

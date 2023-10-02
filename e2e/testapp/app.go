@@ -56,15 +56,16 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
+	"github.com/ethereum/go-ethereum/event"
+	gethminer "github.com/ethereum/go-ethereum/miner"
+
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/miner"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-
-	"github.com/ethereum/go-ethereum/event"
-	gethminer "github.com/ethereum/go-ethereum/miner"
 )
 
 // DefaultNodeHome default home directories for the application daemon.
@@ -220,7 +221,7 @@ func NewPolarisApp(
 	// mp := cosmostxpool.NewMempool(app.EVMKeeper.Polaris().TxPool())
 	// defaultPrepareProposal := baseapp.NewDefaultProposalHandler(mp, app)
 
-	mux := new(event.TypeMux)
+	mux := new(event.TypeMux) //nolint:staticcheck // todo fix.
 	// SetupPrecompiles is used to setup the precompile contracts post depinject.
 	app.EVMKeeper.SetupPrecompiles()
 
@@ -231,10 +232,8 @@ func NewPolarisApp(
 		mux,
 		&miner.MockEngine{}, app.EVMKeeper.Polaris().IsLocalBlock,
 	)
-	defaultProposalHandler := baseapp.NewDefaultProposalHandler(nil, app)
-	defaultProposalHandler.SetTxSelector(app.mm)
-	app.App.BaseApp.SetPrepareProposal(defaultProposalHandler.PrepareProposalHandler())
-	app.App.BaseApp.SetProcessProposal(defaultProposalHandler.ProcessProposalHandler())
+	app.App.BaseApp.SetPrepareProposal(app.mm.PrepareProposal)
+
 	opt := ante.HandlerOptions{
 		AccountKeeper:   app.AccountKeeper,
 		BankKeeper:      app.BankKeeper,

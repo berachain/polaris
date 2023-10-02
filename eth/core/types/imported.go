@@ -44,6 +44,7 @@ type (
 	LegacyTx          = types.LegacyTx
 	TxData            = types.TxData
 	Signer            = types.Signer
+	Withdrawals       = types.Withdrawals
 )
 
 var (
