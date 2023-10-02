@@ -5,20 +5,6 @@ include scripts/cosmos.mk scripts/constants.mk
 # Specify the default target if none is provided
 .DEFAULT_GOAL := build
 
-# Helper rule to display available targets
-help:
-	@echo "This Makefile is an alias for Mage tasks. Run 'mage' to see available Mage targets."
-	@echo "You can use 'make <target>' to call the corresponding 'mage <target>' command."
-
-# Rule to forward any target to Mage
-%:
-	@mage $@
-
-# Rule to setup the project. This is a special case because it's not a Mage target.
-setup:
-	@go run magefiles/setup/setup.go
-
-
 ###############################################################################
 ###                                  Build                                  ###
 ###############################################################################
@@ -75,6 +61,61 @@ proto:
 proto-build:
 	@docker run --rm -v ${CURRENT_DIR}:/workspace --workdir /workspace $(protoImageName):$(protoImageVersion) sh ./cosmos/proto/scripts/proto_generate.sh
 
+###############################################################################
+###                                 Docker                                  ###
+###############################################################################
+
+# Variables
+DOCKER_TYPE ?= base
+ARCH ?= arm64
+GO_VERSION ?= 1.21.1
+IMAGE_NAME ?= polard
+IMAGE_VERSION ?= latest
+BASE_IMAGE ?= polard/base:v0.0.0
+
+# Docker Paths
+BASE_DOCKER_PATH = ./e2e/testapp/docker/
+EXEC_DOCKER_PATH = $(BASE_DOCKER_PATH)/base.Dockerfile
+LOCAL_DOCKER_PATH = $(BASE_DOCKER_PATH)/local
+SEED_DOCKER_PATH =  $(BASE_DOCKER_PATH)/seed
+VAL_DOCKER_PATH =  $(BASE_DOCKER_PATH)/validator
+LOCALNET_CLIENT_PATH = ./e2e/precompile/polard
+LOCALNET_DOCKER_PATH = $(LOCALNET_DOCKER_PATH)/Dockerfile
+
+# Image Build
+docker-build:
+	@echo "Build a release docker image for the Cosmos SDK chain..."
+	@$(MAKE) docker-build-$(DOCKER_TYPE)
+
+# Docker Build Types
+docker-build-base:
+	$(call docker-build,$(EXEC_DOCKER_PATH),.)
+
+docker-build-local:
+	$(call docker-build,$(LOCAL_DOCKER_PATH),.)
+
+docker-build-seed:
+	$(call docker-build,$(SEED_DOCKER_PATH),.)
+
+docker-build-validator:
+	$(call docker-build,$(VAL_DOCKER_PATH),.)
+
+docker-build-localnet:
+	$(call docker-build,$(LOCALNET_DOCKER_PATH),$(LOCALNET_CLIENT_PATH),--build-arg BASE_IMAGE=$(BASE_IMAGE))
+
+
+# Docker Build Function
+define docker-build
+	docker build \
+	--build-arg GO_VERSION=$(GO_VERSION) \
+	--platform linux/$(ARCH) \
+	--build-arg PRECOMPILE_CONTRACTS_DIR=$(CONTRACTS_DIR) \
+	--build-arg GOOS=linux \
+	--build-arg GOARCH=$(ARCH) \
+	-f $(1) \
+	-t $(IMAGE_NAME)/$(DOCKER_TYPE):$(IMAGE_VERSION) \
+	$(if $(3),$(3),$(2))
+endef
 
 ###############################################################################
 ###                                 CodeGen                                 ###

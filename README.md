@@ -55,7 +55,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 ├── <a href="./e2e">e2e</a>: End-to-end testing utilities.
 ├── <a href="./eth">eth</a>: The Core of the Polaris Ethereum Framework.
 ├── <a href="./lib">lib</a>: A collection of libraries used throughout the repo.
-├── <a href="./magefiles">magefiles</a>: Build scripts and utils.
+├── <a href="./tools">tools</a>: Package for holding tooling deps.
 </pre>
 
 
@@ -96,8 +96,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
    git clone https://github.com/berachain/polaris
    cd polaris
    git checkout main
-   go run magefiles/setup/setup.go
-   mage cosmos:test
+   make test-unit
    ```
 
 4. Start a local development network:
