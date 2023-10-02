@@ -120,6 +120,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		logger:         log.Root(),
 	}
 	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
+	// TODO: hmm...
 	bc.currentBlock.Store(
 		types.NewBlock(&types.Header{Number: big.NewInt(0),
 			BaseFee: big.NewInt(0)}, nil, nil, nil, trie.NewStackTrie(nil)))
