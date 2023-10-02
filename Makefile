@@ -86,22 +86,22 @@ docker-build:
 
 # Docker Build Types
 docker-build-base:
-	$(call docker-build,$(EXEC_DOCKER_PATH))
+	$(call docker-build-helper,$(EXEC_DOCKER_PATH),base)
 
 docker-build-local:
-	$(call docker-build,$(LOCAL_DOCKER_PATH))
+	$(call docker-build-helper,$(LOCAL_DOCKER_PATH),local)
 
 docker-build-seed:
-	$(call docker-build,$(SEED_DOCKER_PATH))
+	$(call docker-build-helper,$(SEED_DOCKER_PATH),seed)
 
 docker-build-validator:
-	$(call docker-build,$(VAL_DOCKER_PATH))
+	$(call docker-build-helper,$(VAL_DOCKER_PATH),validator)
 
 docker-build-localnet:
-	$(call docker-build,$(LOCALNET_DOCKER_PATH),--build-arg BASE_IMAGE=$(BASE_IMAGE))
+	$(call docker-build-helper,$(LOCALNET_DOCKER_PATH),localnet,--build-arg BASE_IMAGE=$(BASE_IMAGE))
 
 # Docker Build Function
-define docker-build
+define docker-build-helper
 	docker build \
 	--build-arg GO_VERSION=$(GO_VERSION) \
 	--platform linux/$(ARCH) \
@@ -109,8 +109,8 @@ define docker-build
 	--build-arg GOOS=linux \
 	--build-arg GOARCH=$(ARCH) \
 	-f $(1) \
-	-t $(IMAGE_NAME)/$(DOCKER_TYPE):$(IMAGE_VERSION) \
-	$(if $(2),$(2)) \
+	-t $(IMAGE_NAME)/$(2):$(IMAGE_VERSION) \
+	$(if $(3),$(3)) \
 	.
 endef
 
