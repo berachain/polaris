@@ -7,7 +7,7 @@ pragma solidity ^0.8.0;
  * @author OpenZeppelin (https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol)
  */
 interface IERC20 {
-     /**
+    /**
      * @dev Emitted when `value` tokens are moved from one account (`from`) to
      * another (`to`).
      *

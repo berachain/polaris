@@ -25,6 +25,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"time"
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/spf13/cobra"
@@ -161,7 +162,14 @@ func NewRootCmd() *cobra.Command {
 // initCometBFTConfig helps to override default CometBFT Config values.
 // return cmtcfg.DefaultConfig if no custom configuration is required for the application.
 func initCometBFTConfig() *cmtcfg.Config {
-	return cmtcfg.DefaultConfig()
+	cfg := cmtcfg.DefaultConfig()
+	consensus := cfg.Consensus
+	consensus.TimeoutCommit = time.Second * 2
+	consensus.TimeoutPropose = time.Second * 2
+	consensus.TimeoutPrevote = time.Second * 2
+	consensus.TimeoutPrecommit = time.Second * 2
+	consensus.TimeoutCommit = time.Second * 2
+	return cfg
 }
 
 // initAppConfig helps to override default appConfig template and configs.

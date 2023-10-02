@@ -8,5 +8,5 @@ use (
 	./e2e/testapp
 	./eth
 	./lib
-	./magefiles
+	./tools
 )
