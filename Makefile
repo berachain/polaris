@@ -159,13 +159,70 @@ test-e2e:
 
 test-e2e-no-build:
 	@$(MAKE) install-ginkgo
-	@echo "Running localnet tests..."
-	@ginkgo -r --randomize-all --fail-on-pending -trace -timeout 30m ./e2e/precompiles/...
+	@echo "Running e2e tests..."
+	@ginkgo -r --randomize-all --fail-on-pending -trace -timeout 30m ./e2e/precompile/...
 
 
 #################
 #     hive      #
 #################
+
+ifndef $(GOPATH)
+    GOPATH=$(shell go env GOPATH)
+    export GOPATH
+endif
+
+HIVE_CLONE := $(GOPATH)/src
+CLONE_PATH := $(HIVE_CLONE)/.hive-e2e
+SIMULATORS_ROOT := $(CLONE_PATH)/simulators
+SIMULATORS_PATH := $(SIMULATORS_ROOT)/polaris/
+BASE_HIVE_DOCKER_PATH := ./e2e/hive
+CLIENTS_PATH := $(CLONE_PATH)/clients/polard/
+SIMULATIONS := \
+	rpc:init/genesis.json:ethclient.hive \
+	rpc-compat:Dockerfile:tests \
+
+# .PHONY: setup test testv view
+
+hive-setup:
+	@echo $(HIVE_CLONE)
+	@echo "--> Setting up Hive testing environment..."
+	@test ! -d $(HIVE_CLONE) && mkdir $(HIVE_CLONE) || true
+	@rm -rf $(CLONE_PATH)
+	@git clone https://github.com/ethereum/hive $(CLONE_PATH) --depth=1
+	@mkdir $(SIMULATORS_PATH)
+	@cp -rf $(BASE_HIVE_DOCKER_PATH)/clients/polard $(CLIENTS_PATH)
+	@$(foreach sim,$(SIMULATIONS), \
+		$(eval SIM_NAME = $(word 1, $(subst :, ,$(sim)))) \
+		$(eval FILES = $(wordlist 2, $(words $(subst :, ,$(sim))), $(subst :, ,$(sim)))) \
+		cp -rf $(SIMULATORS_ROOT)/ethereum/$(SIM_NAME) $(SIMULATORS_PATH); \
+		mkdir -p $(SIMULATORS_PATH)/$(SIM_NAME); \
+		$(foreach file,$(FILES), \
+			cp -rf $(BASE_HIVE_DOCKER_PATH)/simulators/$(SIM_NAME)/$(file) \
+			$(SIMULATORS_PATH)/$(SIM_NAME)/; \
+			if [ "$(file)" = "ethclient.hive" ]; then \
+				cp -rf $(SIMULATORS_PATH)/$(SIM_NAME)/$(file) $(SIMULATORS_PATH)/$(SIM_NAME)/ethclient.go; \
+			fi; \
+		) \
+	)
+
+hive-view:
+	@cd $(CLONE_PATH) && \
+		go build ./cmd/hiveview && \
+		hiveview --serve
+
+# SHELL := /bin/zsh  # Explicitly set to zsh as that is what you are using
+
+test-hive:
+	@echo $(CLONE_PATH);
+	@cd $(CLONE_PATH) && \
+		hive --sim polaris/rpc -client polard
+
+testv-hive:
+	@cd $(CLONE_PATH) && \
+		hive --sim polaris/rpc -client polard --docker.output
+
+
 
 #################
 #   localnet    #
