@@ -68,14 +68,14 @@ ARCH ?= arm64
 GO_VERSION ?= 1.21.1
 IMAGE_NAME ?= polard
 IMAGE_VERSION ?= $(COMMIT)
-BASE_IMAGE ?= polard/base:v0.0.0
+BASE_IMAGE ?= polard/base:$(COMMIT)
 
 # Docker Paths
-BASE_DOCKER_PATH = ./e2e/testapp/docker/
+BASE_DOCKER_PATH = ./e2e/testapp/docker
 EXEC_DOCKER_PATH = $(BASE_DOCKER_PATH)/base.Dockerfile
-LOCAL_DOCKER_PATH = $(BASE_DOCKER_PATH)/local
-SEED_DOCKER_PATH =  $(BASE_DOCKER_PATH)/seed
-VAL_DOCKER_PATH =  $(BASE_DOCKER_PATH)/validator
+LOCAL_DOCKER_PATH = $(BASE_DOCKER_PATH)/local/Dockerfile
+SEED_DOCKER_PATH =  $(BASE_DOCKER_PATH)/seed/Dockerfile
+VAL_DOCKER_PATH =  $(BASE_DOCKER_PATH)/validator/Dockerfile
 LOCALNET_CLIENT_PATH = ./e2e/precompile/polard
 LOCALNET_DOCKER_PATH = $(LOCALNET_CLIENT_PATH)/Dockerfile
 
@@ -86,20 +86,19 @@ docker-build:
 
 # Docker Build Types
 docker-build-base:
-	$(call docker-build,$(EXEC_DOCKER_PATH),.)
+	$(call docker-build,$(EXEC_DOCKER_PATH))
 
 docker-build-local:
-	$(call docker-build,$(LOCAL_DOCKER_PATH),.)
+	$(call docker-build,$(LOCAL_DOCKER_PATH))
 
 docker-build-seed:
-	$(call docker-build,$(SEED_DOCKER_PATH),.)
+	$(call docker-build,$(SEED_DOCKER_PATH))
 
 docker-build-validator:
-	$(call docker-build,$(VAL_DOCKER_PATH),.)
+	$(call docker-build,$(VAL_DOCKER_PATH))
 
 docker-build-localnet:
-	$(call docker-build,$(LOCALNET_DOCKER_PATH),$(LOCALNET_CLIENT_PATH),--build-arg BASE_IMAGE=$(BASE_IMAGE))
-
+	$(call docker-build,$(VAL_DOCKER_PATH),--build-arg BASE_IMAGE=$(BASE_IMAGE))
 
 # Docker Build Function
 define docker-build
@@ -111,8 +110,11 @@ define docker-build
 	--build-arg GOARCH=$(ARCH) \
 	-f $(1) \
 	-t $(IMAGE_NAME)/$(DOCKER_TYPE):$(IMAGE_VERSION) \
-	$(if $(3),$(3),$(2))
+	$(if $(2),$(2)) \
+	.
 endef
+
+.PHONY: docker-build-localnet
 
 ###############################################################################
 ###                                 CodeGen                                 ###
@@ -420,3 +422,17 @@ repo-rinse: |
 	git submodule foreach --recursive git clean -xfd
 	git submodule foreach --recursive git reset --hard
 	git submodule update --init --recursive
+
+
+.PHONY: build build-linux-amd64 build-linux-arm64 \
+	$(BUILD_TARGETS) $(OUT_DIR)/ build-clean clean \
+	forge-build forge-clean proto proto-build docker-build \
+	docker-build-base docker-build-local docker-build-seed \
+	docker-build-validator docker-build-localnet generate \
+	abigen-install moq-install mockery-install mockery \
+	start test-unit test-unit-race test-unit-cover forge-test \
+	test-e2e test-e2e-no-build hive-setup hive-view test-hive \
+	testv-hive test-localnet test-localnet-no-build format lint \
+	forge-lint-fix forge-lint golangci-install golangci golangci-fix \
+	golines-install golines license-install license license-fix \
+	gosec-install gosec buf-install buf-lint-fix buf-lint sync tidy repo-rinse
