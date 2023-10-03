@@ -118,6 +118,7 @@ func (h *handler) eventLoop() {
 	// Connect to the subscription.
 	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
 	h.running.Store(true)
+	h.logger.With("module", "txpool-handler").Info("starting txpool handler")
 
 	// Handle events.
 	var err error

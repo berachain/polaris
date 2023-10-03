@@ -318,7 +318,7 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	}
 	txSerializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig)
 	app.mm.SetSerializer(txSerializer)
-	app.mp.StartSerializationHandler(apiSvr.ClientCtx, txSerializer)
+	app.mp.StartBroadcasterHandler(app.Logger(), apiSvr.ClientCtx, txSerializer)
 	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
 }
 

@@ -29,6 +29,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
+	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -68,18 +69,20 @@ func NewMempool(txpool GethTxPool) *Mempool {
 	}
 }
 
-// StartSerializationHandler implements the Startable interface.
-func (m *Mempool) StartSerializationHandler(
+// StartBroadcasterHandler implements the Startable interface.
+func (m *Mempool) StartBroadcasterHandler(
+	logger log.Logger,
 	txBroadcaster TxBroadcaster,
 	txSerializer TxSerializer,
 ) {
-	m.handler = newHandler(txBroadcaster, m.txpool, txSerializer, log.NewNopLogger())
+	m.handler = newHandler(txBroadcaster, m.txpool, txSerializer, logger)
 	m.handler.Start() // todo: handle closing.
 }
 
 // Insert attempts to insert a Tx into the app-side mempool returning
 // an error upon failure.
-func (m *Mempool) Insert(_ context.Context, sdkTx sdk.Tx) error {
+func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
+	sCtx := sdk.UnwrapSDKContext(ctx)
 	msgs := sdkTx.GetMsgs()
 	if len(msgs) != 1 {
 		return errors.New("only one message is supported")
@@ -88,6 +91,10 @@ func (m *Mempool) Insert(_ context.Context, sdkTx sdk.Tx) error {
 	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); !ok {
 		return errors.New("only WrappedEthereumTransactions are supported")
 	} else if errs := m.txpool.Add([]*coretypes.Transaction{wet.AsTransaction()}, false, false); len(errs) != 0 {
+		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
+		if errors.Is(errs[0], legacypool.ErrAlreadyKnown) && sCtx.IsCheckTx() {
+			return nil
+		}
 		return errs[0]
 	}
 
