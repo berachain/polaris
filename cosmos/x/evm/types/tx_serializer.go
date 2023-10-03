@@ -24,7 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
-
+	"github.com/ethereum/go-ethereum/beacon/engine"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -34,6 +34,8 @@ import (
 type TxSerializer interface {
 	SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
 	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
+	PayloadToBytes(payload *engine.ExecutionPayloadEnvelope) ([]byte, error)
+	PayloadToSdkTx(payload *engine.ExecutionPayloadEnvelope) (sdk.Tx, error)
 }
 
 // serializer implements TxSerializer.
@@ -46,6 +48,67 @@ func NewSerializer(txConfig client.TxConfig) TxSerializer {
 	return &serializer{
 		txConfig: txConfig,
 	}
+}
+
+// SerializeToBytes converts an Ethereum transaction to Cosmos formatted txBytes which allows for
+// it to broadcast it to CometBFT.
+func (s *serializer) PayloadToBytes(payload *engine.ExecutionPayloadEnvelope) ([]byte, error) {
+	// First, we convert the Ethereum transaction to a Cosmos transaction.
+	cosmosTx, err := s.PayloadToSdkTx(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	// Then we use the clientCtx.TxConfig.TxEncoder() to encode the Cosmos transaction into bytes.
+	txBytes, err := s.txConfig.TxEncoder()(cosmosTx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Finally, we return the txBytes.
+	return txBytes, nil
+}
+
+func (s *serializer) PayloadToSdkTx(payload *engine.ExecutionPayloadEnvelope) (sdk.Tx, error) {
+	var err error
+	// TODO: do we really need to use extensions for anything? Since we
+	// are using the standard ante handler stuff I don't think we actually need to.
+	tx := s.txConfig.NewTxBuilder()
+
+	tx.SetGasLimit(25_000_000)
+
+	bz, err := payload.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	wp := &WrappedPayloadEnvelope{
+		Data: bz,
+	}
+
+	// Lastly, we set the signature. We can pull the sequence from the nonce of the ethereum tx.
+	if err = tx.SetSignatures(
+		signingtypes.SignatureV2{
+			Sequence: 0,
+			Data: &signingtypes.SingleSignatureData{
+				// We retrieve the hash of the signed transaction from the ethereum transaction
+				// objects, as this was the bytes that were signed. We pass these into the
+				// SingleSignatureData as the SignModeHandler needs to know what data was signed
+				// over so that it can verify the signature in the ante handler.
+				Signature: []byte{0x01},
+			},
+			PubKey: &ethsecp256k1.PubKey{Key: []byte{0x01}},
+		},
+	); err != nil {
+		return nil, err
+	}
+
+	// Lastly, we inject the signed ethereum transaction as a message into the Cosmos Tx.
+	if err = tx.SetMsgs(wp); err != nil {
+		return nil, err
+	}
+
+	// Finally, we return the Cosmos Tx.
+	return tx.GetTx(), nil
 }
 
 // SerializeToSdkTx converts an ethereum transaction to a Cosmos native transaction.

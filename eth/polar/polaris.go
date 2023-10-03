@@ -195,7 +195,6 @@ func (pl *Polaris) Miner() *gethminer.Miner {
 	return pl.miner
 }
 
-// TODO: DEPREACTE
 func (pl *Polaris) SetMiner(sp *gethminer.Miner) {
 	pl.miner = sp
 }

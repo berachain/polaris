@@ -88,7 +88,7 @@ func NewRootCmd() *cobra.Command {
 			log.NewNopLogger(),
 			simtestutil.NewAppOptionsWithFlagHome(tempDir()),
 		),
-		depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners)),
+		depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners, evmtypes.ProvideWrappedPayloadGetSigners)),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,

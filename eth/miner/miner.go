@@ -65,7 +65,6 @@ type Miner interface {
 }
 
 // miner implements the Miner interface.
-// TODO: RENAME TO STATE PROCESSOR OR DEPRECATE.
 type miner struct {
 	backend   Backend
 	chain     core.Blockchain
@@ -273,5 +272,7 @@ func (m *miner) Finalize(ctx context.Context) error {
 		return err
 	}
 
-	return m.chain.InsertBlock(block, receipts, logs)
+	_, _, _ = block, receipts, logs
+	return nil
+	// return m.chain.InsertBlock(block, receipts, logs)
 }

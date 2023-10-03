@@ -25,9 +25,11 @@ import (
 	"sync/atomic"
 
 	lru "github.com/ethereum/go-ethereum/common/lru"
+	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/trie"
 
+	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -59,6 +61,8 @@ type blockchain struct {
 	hp HistoricalPlugin
 	pp PrecompilePlugin
 	sp StatePlugin
+
+	processor core.Processor
 
 	// statedb is the state database that is used to mange state during transactions.
 	statedb vm.PolarisStateDB
@@ -120,6 +124,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		logger:         log.Root(),
 	}
 	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
+	bc.processor = core.NewStateProcessor(bc.cp.ChainConfig(), bc, &miner.MockEngine{})
 	// TODO: hmm...
 	bc.currentBlock.Store(
 		types.NewBlock(&types.Header{Number: big.NewInt(0),

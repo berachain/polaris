@@ -154,6 +154,19 @@ func GetAsEthTx(tx sdk.Tx) *coretypes.Transaction {
 
 // ProvideEthereumTransactionGetSigners defines a custom function for
 // utilizing custom signer handling for `WrappedEthereumTransaction`s.
+func ProvideWrappedPayloadGetSigners() signing.CustomGetSigner {
+	// The actual function.
+	return signing.CustomGetSigner{
+		MsgType: proto.MessageName(&v1alpha1evm.WrappedPayloadEnvelope{}),
+		Fn: func(msg proto.Message) ([][]byte, error) {
+			// Return the signer in the required format.
+			return [][]byte{[]byte{0x01}}, nil
+		},
+	}
+}
+
+// ProvideEthereumTransactionGetSigners defines a custom function for
+// utilizing custom signer handling for `WrappedEthereumTransaction`s.
 func ProvideEthereumTransactionGetSigners() signing.CustomGetSigner {
 	// Utilize a sync pool to reduce memory usage.
 	txSyncPool := sync.Pool{

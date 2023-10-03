@@ -25,8 +25,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
-	antelib "pkg.berachain.dev/polaris/cosmos/lib/ante"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/lib/errors"
 )
 
@@ -50,42 +48,42 @@ func NewAnteHandler(options ante.HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		ante.NewValidateBasicDecorator(),
-		ante.NewTxTimeoutHeightDecorator(),
-		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		// EthTransactions can skip consuming transaction gas as it will be done
-		// in the StateTransition.
-		antelib.NewIgnoreDecorator[ante.ConsumeTxSizeGasDecorator, *types.WrappedEthereumTransaction](
-			ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		),
-		// EthTransaction can skip deduct fee transactions as they are done in the
-		// StateTransition. // TODO: check to make sure this doesn't cause spam.
-		antelib.NewIgnoreDecorator[ante.DeductFeeDecorator, *types.WrappedEthereumTransaction](
-			ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
-				options.FeegrantKeeper, options.TxFeeChecker),
-		),
-		ante.NewSetPubKeyDecorator(options.AccountKeeper),
-		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		// In order to match ethereum gas consumption, we do not consume any gas when
-		// verifying the signature.
-		antelib.NewIgnoreDecorator[ante.SigGasConsumeDecorator, *types.WrappedEthereumTransaction](
-			ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		),
-		// EthTransaction can skip Signature Verification as we do this in the mempool.
-		// TODO: // check with Marko to make sure this is okay (ties into the one below)
-		antelib.NewIgnoreDecorator[ante.SigVerificationDecorator, *types.WrappedEthereumTransaction](
-			ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
-		),
-		// EthTransactions are allowed to skip sequence verification as we do this in the
-		// state transition.
-		// NOTE: we may need to change this as it could cause issues if a client is intertwining
-		// Ethreum and Cosmos transactions within a close timeframe.
-		// By skipping this for Eth Transactions, the Account Seq of the sender does not get updated
-		// in checkState during checkTx, but only in DeliverTx, since we are upping in nonce during the
-		// actual execution of the block and not during the ante handler.
-		// TODO: // check with Marko to make sure this is okay.
-		antelib.NewIgnoreDecorator[ante.IncrementSequenceDecorator, *types.WrappedEthereumTransaction](
-			ante.NewIncrementSequenceDecorator(options.AccountKeeper),
-		),
+		// ante.NewTxTimeoutHeightDecorator(),
+		// ante.NewValidateMemoDecorator(options.AccountKeeper),
+		// // EthTransactions can skip consuming transaction gas as it will be done
+		// // in the StateTransition.
+		// antelib.NewIgnoreDecorator[ante.ConsumeTxSizeGasDecorator, *types.WrappedEthereumTransaction](
+		// 	ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		// ),
+		// // EthTransaction can skip deduct fee transactions as they are done in the
+		// // StateTransition. // TODO: check to make sure this doesn't cause spam.
+		// antelib.NewIgnoreDecorator[ante.DeductFeeDecorator, *types.WrappedEthereumTransaction](
+		// 	ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper,
+		// 		options.FeegrantKeeper, options.TxFeeChecker),
+		// ),
+		// ante.NewSetPubKeyDecorator(options.AccountKeeper),
+		// ante.NewValidateSigCountDecorator(options.AccountKeeper),
+		// // In order to match ethereum gas consumption, we do not consume any gas when
+		// // verifying the signature.
+		// antelib.NewIgnoreDecorator[ante.SigGasConsumeDecorator, *types.WrappedEthereumTransaction](
+		// 	ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+		// ),
+		// // EthTransaction can skip Signature Verification as we do this in the mempool.
+		// // TODO: // check with Marko to make sure this is okay (ties into the one below)
+		// antelib.NewIgnoreDecorator[ante.SigVerificationDecorator, *types.WrappedEthereumTransaction](
+		// 	ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+		// ),
+		// // EthTransactions are allowed to skip sequence verification as we do this in the
+		// // state transition.
+		// // NOTE: we may need to change this as it could cause issues if a client is intertwining
+		// // Ethreum and Cosmos transactions within a close timeframe.
+		// // By skipping this for Eth Transactions, the Account Seq of the sender does not get updated
+		// // in checkState during checkTx, but only in DeliverTx, since we are upping in nonce during the
+		// // actual execution of the block and not during the ante handler.
+		// // TODO: // check with Marko to make sure this is okay.
+		// antelib.NewIgnoreDecorator[ante.IncrementSequenceDecorator, *types.WrappedEthereumTransaction](
+		// 	ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+		// ),
 	}
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }

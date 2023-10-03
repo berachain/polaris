@@ -79,7 +79,7 @@ func (m *Miner) buildBlock(ctx sdk.Context) [][]byte {
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
 		panic(err)
 	}
-	return m.resolveTxs()
+	return [][]byte{m.resolveEnvelope()}
 }
 
 // submitPayloadForBuilding submits a payload for building.
@@ -101,6 +101,18 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 	}
 	m.currentPayload = payload
 	return nil
+}
+
+func (m *Miner) resolveEnvelope() []byte {
+	if m.currentPayload == nil {
+		return nil
+	}
+	envelope := m.currentPayload.ResolveFull()
+	bz, err := m.serializer.PayloadToBytes(envelope)
+	if err != nil {
+		panic(err)
+	}
+	return bz
 }
 
 // resolveTxs resolves the transactions from the payload.

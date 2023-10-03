@@ -135,7 +135,7 @@ func NewPolarisApp(
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
 			MakeAppConfig(bech32Prefix),
-			depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners),
+			depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners, evmtypes.ProvideWrappedPayloadGetSigners),
 			depinject.Supply(
 				// supply the application options
 				appOpts,
