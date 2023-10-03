@@ -60,6 +60,7 @@ import (
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/miner"
+	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -102,6 +103,7 @@ type SimApp struct {
 	EVMKeeper *evmkeeper.Keeper
 
 	mm *miner.Miner
+	mp *txpool.Mempool
 }
 
 //nolint:gochecknoinits // from sdk.
@@ -190,55 +192,35 @@ func NewPolarisApp(
 		panic(err)
 	}
 
-	// Below we could construct and set an application specific mempool and
-	// ABCI 1.0 PrepareProposal and ProcessProposal handlers. These defaults are
-	// already set in the SDK's BaseApp, this shows an example of how to override
-	// them.
-	//
-	// Example:
-	//
-	// app.App = appBuilder.Build(...)
-	// nonceMempool := mempool.NewSenderNonceMempool()
-	// abciPropHandler := NewDefaultProposalHandler(nonceMempool, app.App.BaseApp)
-	//
-	// app.App.BaseApp.SetMempool(nonceMempool)
-	//
-	// Alternatively, you can construct BaseApp options, append those to
-	// baseAppOptions and pass them to the appBuilder.
-	//
-	// Example:
-	//
-	// prepareOpt = func(app *baseapp.BaseApp) {
-	// 	abciPropHandler := baseapp.NewDefaultProposalHandler(nonceMempool, app)
-	// 	app.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
-	// }
-	// baseAppOptions = append(baseAppOptions, prepareOpt)
-
+	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
-	// mp := cosmostxpool.NewMempool(app.EVMKeeper.Polaris().TxPool())
-	// defaultPrepareProposal := baseapp.NewDefaultProposalHandler(mp, app)
 
 	// SetupPrecompiles is used to setup the precompile contracts post depinject.
 	app.EVMKeeper.SetupPrecompiles()
 
-	// TODO: cleanup miner location.
+	// Setup TxPool Wrapper
+	app.mp = txpool.NewMempool(app.EVMKeeper.Polaris().TxPool())
+	app.SetMempool(app.mp)
+
+	// Setup Miner Wrapper
 	app.mm = miner.New(app.EVMKeeper.Polaris().Miner())
-	app.App.BaseApp.SetPrepareProposal(app.mm.PrepareProposal)
+	app.SetPrepareProposal(app.mm.PrepareProposal)
 
-	opt := ante.HandlerOptions{
-		AccountKeeper:   app.AccountKeeper,
-		BankKeeper:      app.BankKeeper,
-		SignModeHandler: app.TxConfig().SignModeHandler(),
-		FeegrantKeeper:  nil,
-		SigGasConsumer:  evmante.SigVerificationGasConsumer,
-	}
-
+	// Setup Custom Ante Handler
 	ch, _ := evmante.NewAnteHandler(
-		opt,
+		ante.HandlerOptions{
+			AccountKeeper:   app.AccountKeeper,
+			BankKeeper:      app.BankKeeper,
+			SignModeHandler: app.TxConfig().SignModeHandler(),
+			FeegrantKeeper:  nil,
+			SigGasConsumer:  evmante.SigVerificationGasConsumer,
+		},
 	)
 	app.SetAnteHandler(
 		ch,
 	)
+
+	// Register eth_secp256k1 keys
 	ethcryptocodec.RegisterInterfaces(app.interfaceRegistry)
 
 	// ----- END EVM SETUP -------------------------------------------------
@@ -334,7 +316,9 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	app.mm.SetSerializer(evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig))
+	txSerializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig)
+	app.mm.SetSerializer(txSerializer)
+	app.mp.StartSerializationHandler(apiSvr.ClientCtx, txSerializer)
 	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
 }
 

@@ -24,7 +24,6 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/config"
@@ -36,7 +35,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
 	pclog "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
@@ -61,7 +59,6 @@ type host struct {
 	hp     historical.Plugin
 	pp     precompile.Plugin
 	sp     state.Plugin
-	txp    txpool.Plugin
 	logger log.Logger
 
 	ak       state.AccountKeeper
@@ -78,7 +75,6 @@ func NewHost(
 	sk block.StakingKeeper,
 	precompiles func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
-	txConfig client.TxConfig,
 	logger log.Logger,
 ) Host {
 	// We setup the host with some Cosmos standard sauce.
@@ -89,7 +85,6 @@ func NewHost(
 	h.cp = configuration.NewPlugin(&cfg.Polar.Chain)
 	h.ep = engine.NewPlugin()
 	h.gp = gas.NewPlugin()
-	h.txp = txpool.NewPlugin(txConfig)
 	h.pcs = precompiles
 	h.storeKey = storeKey
 	h.ak = ak
@@ -149,12 +144,7 @@ func (h *host) GetStatePlugin() core.StatePlugin {
 	return h.sp
 }
 
-// GetTxPoolPlugin returns the txpool plugin.
-func (h *host) GetTxPoolPlugin() core.TxPoolPlugin {
-	return h.txp
-}
-
 // GetAllPlugins returns all the plugins.
 func (h *host) GetAllPlugins() []any {
-	return []any{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp, h.txp}
+	return []any{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp}
 }

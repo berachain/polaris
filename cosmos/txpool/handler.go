@@ -53,8 +53,8 @@ type TxSerializer interface {
 	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
 }
 
-// Broadcaster provides an interface to broadcast TxBytes to the comet p2p layer.
-type Broadcaster interface {
+// TxBroadcaster provides an interface to broadcast TxBytes to the comet p2p layer.
+type TxBroadcaster interface {
 	BroadcastTxSync(txBytes []byte) (res *sdk.TxResponse, err error)
 }
 
@@ -75,7 +75,7 @@ type Handler interface {
 type handler struct {
 	// Cosmos
 	logger     log.Logger
-	clientCtx  Broadcaster
+	clientCtx  TxBroadcaster
 	serializer TxSerializer
 
 	// Ethereum
@@ -88,14 +88,14 @@ type handler struct {
 
 // NewHandler creates a new Handler.
 func NewHandler(
-	clientCtx Broadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
+	clientCtx TxBroadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
 ) Handler {
 	return newHandler(clientCtx, txPool, serializer, logger)
 }
 
 // newHandler creates a new handler.
 func newHandler(
-	clientCtx Broadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
+	clientCtx TxBroadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
 ) *handler {
 	h := &handler{
 		logger:     logger,
