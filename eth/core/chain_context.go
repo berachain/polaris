@@ -24,7 +24,6 @@ import (
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/consensus/beacon"
 
-	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -40,5 +39,5 @@ func (bc *blockchain) GetHeader(hash common.Hash, number uint64) *types.Header {
 
 // Engine returns the consensus engine. For our use case, this never gets called.
 func (bc *blockchain) Engine() consensus.Engine {
-	return beacon.New(&miner.MockEngine{})
+	return beacon.New(nil)
 }

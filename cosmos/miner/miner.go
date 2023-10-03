@@ -76,7 +76,7 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([][]byte, error) {
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
 		return nil, err
 	}
-	return [][]byte{m.resolveEnvelope()}
+	return [][]byte{m.resolveEnvelope()}, nil
 }
 
 // submitPayloadForBuilding submits a payload for building.
@@ -100,7 +100,7 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 	return nil
 }
 
-// resolveEnvelope resolves the payload
+// resolveEnvelope resolves the payload.
 func (m *Miner) resolveEnvelope() []byte {
 	if m.currentPayload == nil {
 		return nil
