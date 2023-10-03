@@ -57,11 +57,6 @@ func (m *Miner) SetSerializer(serializer evmtypes.TxSerializer) {
 	m.serializer = serializer
 }
 
-// SetMiner sets the underlying Miner object from geth.
-func (m *Miner) SetGethMiner(gm *miner.Miner) {
-	m.Miner = gm
-}
-
 // PrepareProposal implements baseapp.PrepareProposal.
 func (m *Miner) PrepareProposal(
 	ctx sdk.Context, _ *abci.RequestPrepareProposal,
