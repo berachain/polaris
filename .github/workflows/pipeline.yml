@@ -30,7 +30,7 @@ jobs:
   ci:
     strategy:
       matrix:
-        args: ["build", "lint", "testunitrace", "testunitcover"]
+        args: ["build", "lint", "test-unit-race", "test-unit-cover"]
         os: [polaris-linux-latest]
         go-version: [1.21.1]
     runs-on: ${{ matrix.os }}
@@ -52,14 +52,9 @@ jobs:
           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-
-      - name: Install Go Tools
-        run: |
-          go run magefiles/setup/setup.go ci
       - name: Run ${{ matrix.args }}
-        uses: magefile/mage-action@v2
-        with:
-          version: latest
-          args: ${{ matrix.args }}
+        run: |
+          make ${{ matrix.args }}
         env:
           GOPATH: /home/runner/go
       - name: Archive code coverage results
@@ -68,7 +63,7 @@ jobs:
           name: code-coverage-report
           path: coverage-${{ matrix.args }}.txt
           retention-days: 1
-        if: ${{ matrix.args == 'testunitcover' }}
+        if: ${{ matrix.args == 'test-unit-cover' }}
 
   codecov:
     name: codecov(uploader, polaris-linux-latest)

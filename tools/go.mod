@@ -1,15 +1,13 @@
-module pkg.berachain.dev/polaris/magefiles
+module pkg.berachain.dev/polaris/tools
 
 go 1.21
 
 require (
 	github.com/bufbuild/buf v1.26.1
-	github.com/carolynvs/magex v0.9.0
 	github.com/cosmos/gosec/v2 v2.0.0-20230124142343-bf28a33fadf2
 	github.com/ethereum/go-ethereum v1.13.1
 	github.com/golangci/golangci-lint v1.54.2
 	github.com/google/addlicense v1.1.1
-	github.com/magefile/mage v1.15.0
 	github.com/matryer/moq v0.3.2
 	github.com/onsi/ginkgo/v2 v2.12.1
 	github.com/securego/gosec/v2 v2.17.0
@@ -30,7 +28,6 @@ require (
 	github.com/Djarvur/go-err113 v0.0.0-20210108212216-aea10b59be24 // indirect
 	github.com/GaijinEntertainment/go-exhaustruct/v3 v3.1.0 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
-	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/OpenPeeDeeP/depguard/v2 v2.1.0 // indirect
 	github.com/VictoriaMetrics/fastcache v1.12.1 // indirect
