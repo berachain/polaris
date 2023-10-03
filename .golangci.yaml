@@ -320,7 +320,7 @@ issues:
   max-same-issues: 50
 
   exclude-rules:
-    - path: "magefiles/.*\\.go"
+    - path: "tools/.*\\.go"
       linters: [forbidigo]
     - path: "mock/.*\\.go"
       linters: [funlen]

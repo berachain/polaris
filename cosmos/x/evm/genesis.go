@@ -50,7 +50,7 @@ func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConf
 		return err
 	}
 
-	// TODO: reintroduce (use geth fgunction?)
+	// TODO: this code actually needs to be removed as it will cause issues.
 	// for address, account := range ethGen.Alloc {
 	// 	if ethGen.Config.IsEIP155(big.NewInt(0)) && account.Code != nil && account.Nonce == 0 {
 	// 		// NOTE: EIP 161 was released at the same block as EIP 155.

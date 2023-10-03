@@ -14,20 +14,21 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ARG GO_VERSION
-ARG GOARCH=arm64
-ARG GOOS=linux
+ARG GOARCH
+ARG GOOS
 ARG BASE_IMAGE
+
 
 # Use the latest foundry image
 FROM ${BASE_IMAGE} as localpolard
 
-RUN apk add --no-cache bash jq
+RUN apk add --no-cache bash jq git
 
 WORKDIR /
 
-COPY . .
+COPY e2e/precompile/ ./
 
 # Export the usual networking ports to allow outside access to the node
 EXPOSE 8545 8546 8547 8551
 
-CMD ["bash", "start-node.sh"]
+CMD ["bash", "polard/start-node.sh"]

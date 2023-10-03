@@ -53,10 +53,6 @@ type Keeper struct {
 
 	// TODO: remove this, because it's hacky af.
 	storeKey storetypes.StoreKey
-
-	block *coretypes.Block
-	logs  *coretypes.Logs
-	
 }
 
 // NewKeeper creates new instances of the polaris Keeper.

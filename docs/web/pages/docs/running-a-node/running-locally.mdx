@@ -58,7 +58,6 @@ cd $HOME
 git clone https://github.com/berachain/polaris
 cd polaris
 git checkout main
-go run magefiles/setup/setup.go
 ```
 
 **Step 3: Build the Node Software**
@@ -66,7 +65,7 @@ go run magefiles/setup/setup.go
 Run the following command to install `polard` to your `GOPATH` and build the node. `polard` is the node daemon and CLI for interacting with a polaris node.
 
 ```bash
-mage cosmos:install
+make install
 ```
 
 **Step 4: Verify your installation**
@@ -93,7 +92,7 @@ go: go version go1.21.1 darwin/amd64
 After ensuring dependencies are installed correctly, run the following command to start a local development network.
 
 ```bash
-mage start
+make start
 ```
 
 </div>
