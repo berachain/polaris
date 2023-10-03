@@ -103,6 +103,7 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 	return nil
 }
 
+// resolveEnvelope resolves the payload
 func (m *Miner) resolveEnvelope() []byte {
 	if m.currentPayload == nil {
 		return nil
@@ -113,28 +114,4 @@ func (m *Miner) resolveEnvelope() []byte {
 		panic(err)
 	}
 	return bz
-}
-
-// resolveTxs resolves the transactions from the payload.
-func (m *Miner) resolveTxs() [][]byte {
-	if m.currentPayload == nil {
-		return nil
-	}
-	envelope := m.currentPayload.ResolveFull()
-	ethTxBzs := envelope.ExecutionPayload.Transactions
-	txs := make([][]byte, len(envelope.ExecutionPayload.Transactions))
-
-	// encode to sdk.txs and then
-	for i, ethTxBz := range ethTxBzs {
-		var tx types.Transaction
-		if err := tx.UnmarshalBinary(ethTxBz); err != nil {
-			return nil
-		}
-		bz, err := m.serializer.SerializeToBytes(&tx)
-		if err != nil {
-			panic(err)
-		}
-		txs[i] = bz
-	}
-	return txs
 }

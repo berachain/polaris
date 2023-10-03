@@ -50,7 +50,6 @@ message WrappedPayloadEnvelope {
 
 message WrappedPayloadEnvelopeResponse {}
 
-
 // Status represents the status of a transaction.
 enum Status {
   // STATUS_REVERT_UNSPECIFIED indicates that the transaction reverted.

@@ -25,6 +25,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -32,11 +33,12 @@ import (
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
-func (k *Keeper) ProcessPayloadEnvelope(ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope) (*evmtypes.WrappedPayloadEnvelopeResponse, error) {
+func (k *Keeper) ProcessPayloadEnvelope(
+	ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope,
+) (*evmtypes.WrappedPayloadEnvelopeResponse, error) {
 	var envelope = new(engine.ExecutionPayloadEnvelope)
 	err := envelope.UnmarshalJSON(msg.Data)
 	if err != nil {
-		fmt.Println("ERROR 1", err)
 		return nil, fmt.Errorf("failed to unmarshal payload envelope: %w", err)
 	}
 
@@ -46,21 +48,16 @@ func (k *Keeper) ProcessPayloadEnvelope(ctx context.Context, msg *evmtypes.Wrapp
 	x := new(common.Hash)
 	block, err := engine.ExecutableDataToBlock(*envelope.ExecutionPayload, nil, x)
 	if err != nil {
-		fmt.Println("ERROR 2", err)
 		return nil, err
 	}
 
-	fmt.Println(block)
-
-	fmt.Println("BLOCK IS FUCKED?", block.Hash())
 	if err = k.polaris.Blockchain().InsertBlockWithoutSetHead(block); err != nil {
-		fmt.Println("ERROR 3", err)
 		return nil, err
 	}
 
 	// Consume the gas used by the execution of the ethereum block.
 	gasMeter.ConsumeGas(block.GasUsed(), "block gas used")
-	
+
 	return &evmtypes.WrappedPayloadEnvelopeResponse{}, nil
 }
 

@@ -57,6 +57,7 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"github.com/ethereum/go-ethereum/consensus/beacon"
 	"github.com/ethereum/go-ethereum/event"
 	gethminer "github.com/ethereum/go-ethereum/miner"
 
@@ -230,7 +231,7 @@ func NewPolarisApp(
 		&gethminer.DefaultConfig,
 		app.EVMKeeper.Polaris().Host().GetConfigurationPlugin().ChainConfig(),
 		mux,
-		&miner.MockEngine{}, app.EVMKeeper.Polaris().IsLocalBlock,
+		beacon.New(&miner.MockEngine{}), app.EVMKeeper.Polaris().IsLocalBlock,
 	)
 
 	app.EVMKeeper.Polaris().SetMiner(app.mm.Miner)

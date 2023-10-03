@@ -57,16 +57,16 @@ func (p *plugin) StoreBlock(block *coretypes.Block) error {
 	prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).Set(block.Hash().Bytes(), numBz)
 
 	// store the version offchain for consistency.
-	_ = sdk.BigEndianToUint64(store.Get([]byte{types.VersionKey}))
-	// if blockNum > 0 && offChainNum != blockNum-1 {
-	// 	panic(
-	// 		fmt.Errorf(
-	// 			"off-chain store's latest block number %d is not synced with previous block number %d",
-	// 			offChainNum,
-	// 			blockNum-1,
-	// 		),
-	// 	)
-	// }
+	offChainNum := sdk.BigEndianToUint64(store.Get([]byte{types.VersionKey}))
+	if blockNum > 0 && offChainNum != blockNum-1 {
+		panic(
+			fmt.Errorf(
+				"off-chain store's latest block number %d is not synced with previous block number %d",
+				offChainNum,
+				blockNum-1,
+			),
+		)
+	}
 	store.Set([]byte{types.VersionKey}, numBz)
 	return nil
 }

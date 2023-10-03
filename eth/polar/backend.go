@@ -490,7 +490,7 @@ func (b *backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscri
 }
 
 func (b *backend) Engine() consensus.Engine {
-	return nil
+	return b.polar.blockchain.Engine()
 }
 
 // GetBody retrieves the block body corresponding to block by has or number..

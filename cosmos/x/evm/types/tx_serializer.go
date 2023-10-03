@@ -24,7 +24,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+
 	"github.com/ethereum/go-ethereum/beacon/engine"
+
 	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -75,7 +77,8 @@ func (s *serializer) PayloadToSdkTx(payload *engine.ExecutionPayloadEnvelope) (s
 	// are using the standard ante handler stuff I don't think we actually need to.
 	tx := s.txConfig.NewTxBuilder()
 
-	tx.SetGasLimit(25_000_000)
+	// Set the tx gas limit to the block gas limit in the payload
+	tx.SetGasLimit(payload.ExecutionPayload.GasLimit)
 
 	bz, err := payload.MarshalJSON()
 	if err != nil {

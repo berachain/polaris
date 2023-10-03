@@ -25,6 +25,7 @@ import (
 	"sync/atomic"
 
 	lru "github.com/ethereum/go-ethereum/common/lru"
+	"github.com/ethereum/go-ethereum/consensus/beacon"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/trie"
@@ -124,7 +125,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		logger:         log.Root(),
 	}
 	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
-	bc.processor = core.NewStateProcessor(bc.cp.ChainConfig(), bc, &miner.MockEngine{})
+	bc.processor = core.NewStateProcessor(bc.cp.ChainConfig(), bc, beacon.New(&miner.MockEngine{}))
 	// TODO: hmm...
 	bc.currentBlock.Store(
 		types.NewBlock(&types.Header{Number: big.NewInt(0),
