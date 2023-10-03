@@ -29,13 +29,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/miner"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/params"
 )
 
 // emptyHash is a common.Hash initialized to all zeros.
@@ -48,23 +45,11 @@ type Miner struct {
 	currentPayload *miner.Payload
 }
 
-// NewMiner returns a new instance of the Miner.
-func NewMiner(
-	eth miner.Backend, config *miner.Config, chainConfig *params.ChainConfig,
-	mux *event.TypeMux, engine consensus.Engine, //nolint:staticcheck // its okay for now.
-	isLocalBlock func(header *types.Header) bool,
-) *Miner {
+// New produces a cosmos miner from a geth miner.
+func New(gm *miner.Miner) *Miner {
 	return &Miner{
-		Miner: miner.New(eth, config, chainConfig, mux, engine, isLocalBlock),
+		Miner: gm,
 	}
-}
-
-// PrepareProposal implements baseapp.PrepareProposal.
-func (m *Miner) PrepareProposal(
-	ctx sdk.Context, _ *abci.RequestPrepareProposal,
-) (*abci.ResponsePrepareProposal, error) {
-	// TODO: maybe add some safety checks against `req` args.
-	return &abci.ResponsePrepareProposal{Txs: m.buildBlock(ctx)}, nil
 }
 
 // SetSerializer sets the transaction serializer.
@@ -72,14 +57,31 @@ func (m *Miner) SetSerializer(serializer evmtypes.TxSerializer) {
 	m.serializer = serializer
 }
 
+// SetMiner sets the underlying Miner object from geth.
+func (m *Miner) SetGethMiner(gm *miner.Miner) {
+	m.Miner = gm
+}
+
+// PrepareProposal implements baseapp.PrepareProposal.
+func (m *Miner) PrepareProposal(
+	ctx sdk.Context, _ *abci.RequestPrepareProposal,
+) (*abci.ResponsePrepareProposal, error) {
+	var txs [][]byte
+	var err error
+	if txs, err = m.buildBlock(ctx); err != nil {
+		return nil, err
+	}
+	return &abci.ResponsePrepareProposal{Txs: txs}, err
+}
+
 // buildBlock builds and submits a payload, it also waits for the txs
 // to resolve from the underying worker.
-func (m *Miner) buildBlock(ctx sdk.Context) [][]byte {
+func (m *Miner) buildBlock(ctx sdk.Context) ([][]byte, error) {
 	defer func() { m.currentPayload = nil }()
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
-		panic(err)
+		return nil, err
 	}
-	return m.resolveTxs()
+	return m.resolveTxs(), nil
 }
 
 // submitPayloadForBuilding submits a payload for building.

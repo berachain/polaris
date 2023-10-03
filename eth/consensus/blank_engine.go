@@ -19,13 +19,13 @@
 // TITLE.
 //
 //nolint:revive // boilerplate for now.
-package miner
+package consensus
 
 import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	consensus "github.com/ethereum/go-ethereum/consensus"
+	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -44,7 +44,6 @@ func (m *MockEngine) Author(header *types.Header) (common.Address, error) {
 func (m *MockEngine) VerifyHeader(chain consensus.ChainHeaderReader, header *types.Header) error {
 	// Set the correct difficulty
 	header.Difficulty = new(big.Int).SetUint64(1)
-
 	return nil
 }
 

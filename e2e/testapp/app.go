@@ -57,9 +57,6 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/ethereum/go-ethereum/event"
-	gethminer "github.com/ethereum/go-ethereum/miner"
-
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/miner"
@@ -221,19 +218,11 @@ func NewPolarisApp(
 	// mp := cosmostxpool.NewMempool(app.EVMKeeper.Polaris().TxPool())
 	// defaultPrepareProposal := baseapp.NewDefaultProposalHandler(mp, app)
 
-	mux := new(event.TypeMux) //nolint:staticcheck // todo fix.
 	// SetupPrecompiles is used to setup the precompile contracts post depinject.
 	app.EVMKeeper.SetupPrecompiles()
 
-	app.mm = miner.NewMiner(
-		app.EVMKeeper.Polaris(),
-		&gethminer.DefaultConfig,
-		app.EVMKeeper.Polaris().Host().GetConfigurationPlugin().ChainConfig(),
-		mux,
-		&miner.MockEngine{}, app.EVMKeeper.Polaris().IsLocalBlock,
-	)
-
-	app.EVMKeeper.Polaris().SetMiner(app.mm.Miner)
+	// TODO: cleanup miner location.
+	app.mm = miner.New(app.EVMKeeper.Polaris().Miner())
 	app.App.BaseApp.SetPrepareProposal(app.mm.PrepareProposal)
 
 	opt := ante.HandlerOptions{
