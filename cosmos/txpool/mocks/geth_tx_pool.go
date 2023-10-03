@@ -3,6 +3,9 @@
 package mocks
 
 import (
+	core "github.com/ethereum/go-ethereum/core"
+	event "github.com/ethereum/go-ethereum/event"
+
 	mock "github.com/stretchr/testify/mock"
 
 	types "github.com/ethereum/go-ethereum/core/types"
@@ -114,6 +117,50 @@ func (_c *GethTxPool_Stats_Call) Return(_a0 int, _a1 int) *GethTxPool_Stats_Call
 }
 
 func (_c *GethTxPool_Stats_Call) RunAndReturn(run func() (int, int)) *GethTxPool_Stats_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SubscribeNewTxsEvent provides a mock function with given fields: _a0
+func (_m *GethTxPool) SubscribeNewTxsEvent(_a0 chan<- core.NewTxsEvent) event.Subscription {
+	ret := _m.Called(_a0)
+
+	var r0 event.Subscription
+	if rf, ok := ret.Get(0).(func(chan<- core.NewTxsEvent) event.Subscription); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(event.Subscription)
+		}
+	}
+
+	return r0
+}
+
+// GethTxPool_SubscribeNewTxsEvent_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SubscribeNewTxsEvent'
+type GethTxPool_SubscribeNewTxsEvent_Call struct {
+	*mock.Call
+}
+
+// SubscribeNewTxsEvent is a helper method to define mock.On call
+//   - _a0 chan<- core.NewTxsEvent
+func (_e *GethTxPool_Expecter) SubscribeNewTxsEvent(_a0 interface{}) *GethTxPool_SubscribeNewTxsEvent_Call {
+	return &GethTxPool_SubscribeNewTxsEvent_Call{Call: _e.mock.On("SubscribeNewTxsEvent", _a0)}
+}
+
+func (_c *GethTxPool_SubscribeNewTxsEvent_Call) Run(run func(_a0 chan<- core.NewTxsEvent)) *GethTxPool_SubscribeNewTxsEvent_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(chan<- core.NewTxsEvent))
+	})
+	return _c
+}
+
+func (_c *GethTxPool_SubscribeNewTxsEvent_Call) Return(_a0 event.Subscription) *GethTxPool_SubscribeNewTxsEvent_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *GethTxPool_SubscribeNewTxsEvent_Call) RunAndReturn(run func(chan<- core.NewTxsEvent) event.Subscription) *GethTxPool_SubscribeNewTxsEvent_Call {
 	_c.Call.Return(run)
 	return _c
 }

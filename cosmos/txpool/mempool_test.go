@@ -21,7 +21,6 @@
 package txpool
 
 import (
-	"context"
 	"errors"
 
 	"github.com/stretchr/testify/mock"
@@ -43,7 +42,7 @@ var _ = Describe("", func() {
 		txPool  *mocks.GethTxPool
 		sdkTx   *mocks.SdkTx
 		mempool *Mempool
-		ctx     = context.Background()
+		ctx     = sdk.Context{}.WithIsCheckTx(true)
 	)
 
 	BeforeEach(func() {

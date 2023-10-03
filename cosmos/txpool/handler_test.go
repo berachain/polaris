@@ -47,14 +47,14 @@ var _ = Describe("", func() {
 
 	var subscription *mocks.Subscription
 	var serializer *mocks.TxSerializer
-	var broadcaster *mocks.Broadcaster
+	var broadcaster *mocks.TxBroadcaster
 	var subprovider *mocks.TxSubProvider
 
 	BeforeEach(func() {
 		subscription = mocks.NewSubscription(t)
 		subscription.On("Err").Return(nil)
 		subscription.On("Unsubscribe").Return()
-		broadcaster = mocks.NewBroadcaster(t)
+		broadcaster = mocks.NewTxBroadcaster(t)
 		subprovider = mocks.NewTxSubProvider(t)
 		subprovider.On("SubscribeNewTxsEvent", mock.Anything).Return(subscription)
 		serializer = mocks.NewTxSerializer(t)

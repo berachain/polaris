@@ -22,7 +22,6 @@ package keeper
 
 import (
 	"math/big"
-	"os"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -34,7 +33,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -63,7 +61,7 @@ func NewKeeper(
 	pcs func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
 	logger log.Logger,
-	txConfig client.TxConfig,
+	_ client.TxConfig,
 	polarisCfg *config.Config,
 ) *Keeper {
 	host := NewHost(
@@ -73,7 +71,6 @@ func NewKeeper(
 		sk,
 		pcs,
 		qc,
-		txConfig,
 		logger,
 	)
 
@@ -128,13 +125,6 @@ func (k *Keeper) SetClientCtx(clientContext client.Context) {
 	if err := k.polaris.StartServices(); err != nil {
 		panic(err)
 	}
-
-	txp, _ := k.host.GetTxPoolPlugin().(txpool.Plugin)
-	txp.Start(
-		log.NewLogger(os.Stdout),
-		k.polaris.TxPool(),
-		clientContext,
-	)
 }
 
 // TODO: Remove these, because they're hacky af.
