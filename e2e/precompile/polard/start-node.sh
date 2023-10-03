@@ -24,7 +24,7 @@ MONIKER="localtestnet"
 
 LOGLEVEL="info"
 # Set dedicated home directory for the ./bin/polard instance
-HOMEDIR="/"
+HOMEDIR="./polard"
 # to trace evm 
 #TRACE="--trace"
 TRACE=""

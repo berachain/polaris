@@ -30,32 +30,33 @@ jobs:
   build-base:
     strategy:
       matrix:
-        namespace: [cosmos]
-        docker-version: [base]
+        docker-type: [base] # Changed docker-version to docker-type for consistency with the Makefile
         os: [polaris-linux-latest]
         go-version: [1.21.1]
-        go-arch: [amd64]
+        arch: [amd64] # Changed go-arch to arch for consistency with the Makefile
         image-name: ["polard/base:v0.0.0"]
         export-name: [base-image]
-    runs-on: polaris-linux-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Setup Golang
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Run ${{ matrix.namespace }}:docker ${{ matrix.docker-version }} ${{ matrix.go-arch }}
-        uses: magefile/mage-action@v2
-        with:
-          version: latest
-          args: ${{ matrix.namespace }}:docker ${{ matrix.docker-version }} ${{ matrix.go-arch }}
+
+      - name: Build Docker Image using Makefile
+        run: make docker-build DOCKER_TYPE=${{ matrix.docker-type }} ARCH=${{ matrix.arch }} GO_VERSION=${{ matrix.go-version }}
         env:
           GOPATH: /home/runner/go
+
       - name: Save base image
         run: docker save ${{ matrix.image-name }} -o ${{ matrix.export-name }}.tar
+
       - name: Upload image artifact
         uses: actions/upload-artifact@v2
         with:
@@ -67,10 +68,10 @@ jobs:
     strategy:
       matrix:
         namespace: [cosmos]
-        docker-version: [localnet]
+        docker-type: [localnet] # Changed docker-version to docker-type for consistency with the Makefile
         os: [polaris-linux-latest]
         go-version: [1.21.1]
-        go-arch: [amd64]
+        arch: [amd64] # Changed go-arch to arch for consistency with the Makefile
         base-image: [base-image]
         image-name: ["polard/localnet:v0.0.0"]
         export-name: [localnet]
@@ -78,27 +79,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Setup Golang
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+
       - name: Download image artifact
         uses: actions/download-artifact@v2
         with:
           name: ${{ matrix.base-image }}
+
       - name: Load image
         run: docker load -i ${{ matrix.base-image }}.tar
-      - name: Run ${{ matrix.namespace }}:docker ${{ matrix.docker-version }} ${{ matrix.go-arch }}
-        uses: magefile/mage-action@v2
-        with:
-          version: latest
-          args: ${{ matrix.namespace }}:docker ${{ matrix.docker-version }} ${{ matrix.go-arch }}
+
+      - name: Build Docker Image using Makefile
+        run: make docker-build DOCKER_TYPE=${{ matrix.docker-type }} ARCH=${{ matrix.arch }} GO_VERSION=${{ matrix.go-version }}
         env:
           GOPATH: /home/runner/go
+
       - name: Save base image
         run: docker save ${{ matrix.image-name }} -o ${{ matrix.export-name }}.tar
+
       - name: Upload image artifact
         uses: actions/upload-artifact@v2
         with:
@@ -109,8 +114,6 @@ jobs:
     needs: build-base
     strategy:
       matrix:
-        simulator: [polaris/rpc]
-        namespace: [cosmos]
         os: [polaris-linux-latest]
         go-version: [1.21.1]
         base-image: [base-image]
@@ -122,8 +125,6 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
       - name: Download image artifact
         uses: actions/download-artifact@v2
         with:
@@ -139,11 +140,8 @@ jobs:
           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-
-      - name: Run ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
-        uses: magefile/mage-action@v2
-        with:
-          version: latest
-          args: ${{ matrix.namespace }}:testhive ${{ matrix.simulator }}
+      - name: Run `make test-hive`
+        run: make hive-setup test-hive
         env:
           GOPATH: /home/runner/go
 
@@ -151,7 +149,7 @@ jobs:
     needs: build-localnet
     strategy:
       matrix:
-        namespace: ["", "localnet"]
+        namespace: ["e2e", "localnet"]
         os: [polaris-linux-latest]
         go-version: [1.21.1]
         base-image: [localnet]
@@ -163,8 +161,6 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
       - name: Download image artifact
         uses: actions/download-artifact@v2
         with:
@@ -180,22 +176,7 @@ jobs:
           key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-
-      - name: Install Go Tools
-        run: |
-          go run magefiles/setup/setup.go ci
-      - name: Run ${{ matrix.namespace }}:test
-        uses: magefile/mage-action@v2
-        with:
-          version: latest
-          args: ${{ matrix.namespace }}:test
+      - name: Run ${{ matrix.namespace }}
+        run: make test-${{ matrix.namespace }}
         env:
           GOPATH: /home/runner/go
-        if: ${{ matrix.namespace == 'localnet' }}
-      - name: Run teste2e
-        uses: magefile/mage-action@v2
-        with:
-          version: latest
-          args: teste2e
-        env:
-          GOPATH: /home/runner/go
-        if: ${{ matrix.namespace == '' }}

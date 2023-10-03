@@ -11,9 +11,6 @@
   <a href="https://pkg.go.dev/pkg.berachain.dev/polaris" target="_blank">
     <img src="https://pkg.go.dev/badge/pkg.berachain.dev/polaris.svg" alt="Go Reference">
   </a>
-  <a href="https://magefile.org" target="_blank">
-    <img alt="Built with Mage" src="https://magefile.org/badge.svg" />
-  </a>
   <a href="https://t.me/polaris_devs" target="_blank">
     <img alt="Telegram Chat" src="https://img.shields.io/endpoint?color=neon&logo=telegram&label=chat&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fpolaris_devs">
   </a>
@@ -55,7 +52,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 ├── <a href="./e2e">e2e</a>: End-to-end testing utilities.
 ├── <a href="./eth">eth</a>: The Core of the Polaris Ethereum Framework.
 ├── <a href="./lib">lib</a>: A collection of libraries used throughout the repo.
-├── <a href="./magefiles">magefiles</a>: Build scripts and utils.
+├── <a href="./tools">tools</a>: Package for holding tooling deps.
 </pre>
 
 
@@ -96,14 +93,13 @@ If you want to help contribute to the framework, check out the [Framework Specs]
    git clone https://github.com/berachain/polaris
    cd polaris
    git checkout main
-   go run magefiles/setup/setup.go
-   mage cosmos:test
+   make test-unit
    ```
 
 4. Start a local development network:
 
    ```sh
-   mage start
+   make start
    ```
 
 ## 🚧 WARNING: UNDER CONSTRUCTION 🚧

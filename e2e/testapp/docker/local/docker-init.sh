@@ -47,7 +47,7 @@ TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 set -e
 
 # Reinstall daemon
-# mage build
+# make build
 
 # Remove the previous folder
 

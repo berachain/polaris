@@ -34,5 +34,5 @@ import (
 
 func TestLocalnet(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "testing/e2e/localnet")
+	RunSpecs(t, "e2e/localnet")
 }

@@ -225,5 +225,4 @@ out
 **/cache/
 
 # integration testing coverage
-coverage-testunitcover.txt
-coverage-teste2ecover.txt
+coverage-test-unit-cover.txt
