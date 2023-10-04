@@ -35,11 +35,12 @@ import (
 // DefaultGenesis returns default genesis state as raw bytes for the evm
 // module.
 func (AppModuleBasic) DefaultGenesis(_ codec.JSONCodec) json.RawMessage {
-	ethGen, err := core.DefaultGenesis.MarshalJSON()
+	ethGen := core.DefaultGenesis
+	rawGenesis, err := ethGen.MarshalJSON()
 	if err != nil {
 		panic(err)
 	}
-	return ethGen
+	return rawGenesis
 }
 
 // ValidateGenesis performs genesis state validation for the evm module.

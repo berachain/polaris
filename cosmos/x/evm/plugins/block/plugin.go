@@ -39,7 +39,7 @@ type Plugin interface {
 	core.BlockPlugin
 
 	// SetQueryContextFn sets the function used for querying historical block headers.
-	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
+	SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error))
 }
 
 type plugin struct {
@@ -48,7 +48,7 @@ type plugin struct {
 	// storekey is the store key for the header store.
 	storekey storetypes.StoreKey
 	// getQueryContext allows for querying block headers.
-	getQueryContext func(height int64, prove bool) (sdk.Context, error)
+	getQueryContext func() func(height int64, prove bool) (sdk.Context, error)
 	// sk represents the cosmos staking keeper.
 	sk StakingKeeper
 }

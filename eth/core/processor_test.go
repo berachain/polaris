@@ -71,7 +71,7 @@ var _ = Describe("StateProcessor", func() {
 
 	BeforeEach(func() {
 		sdb = vmmock.NewEmptyStateDB()
-		_, bp, cp, _, _, pp, _, _ = mock.NewMockHostAndPlugins()
+		_, bp, cp, _, _, pp, _ = mock.NewMockHostAndPlugins()
 		bp.GetNewBlockMetadataFunc = func(n uint64) (common.Address, uint64) {
 			return common.BytesToAddress([]byte{2}), uint64(3)
 		}
@@ -187,7 +187,7 @@ var _ = Describe("StateProcessor", func() {
 
 var _ = Describe("No precompile plugin provided", func() {
 	It("should use the default plugin if none is provided", func() {
-		_, bp, cp, gp, _, pp, _, _ := mock.NewMockHostAndPlugins()
+		_, bp, cp, gp, _, pp, _ := mock.NewMockHostAndPlugins()
 		gp.SetBlockGasLimit(uint64(blockGasLimit))
 		bp.GetNewBlockMetadataFunc = func(n uint64) (common.Address, uint64) {
 			return common.BytesToAddress([]byte{2}), uint64(3)

@@ -93,7 +93,9 @@ var _ = Describe("Method", func() {
 		m := mockStruct{}
 		mb := mockStructBad{}
 
-		Expect(validateArg(reflect.New(reflect.TypeOf(m)).Elem(), reflect.New(reflect.TypeOf(mb)).Elem())).To(HaveOccurred())
+		Expect(validateArg(
+			reflect.New(reflect.TypeOf(m)).Elem(),
+			reflect.New(reflect.TypeOf(mb)).Elem())).To(HaveOccurred())
 
 		Expect(validateStruct(reflect.TypeOf(m), reflect.TypeOf(mb))).To(HaveOccurred())
 		mbn := mockStructBadNumFields{}
@@ -118,7 +120,8 @@ var _ = Describe("Method", func() {
 			numReturnMismatch, found := reflect.TypeOf(m).MethodByName("NumReturnMismatch")
 			Expect(found).To(BeTrue())
 			Expect(validateOutputs(numReturnMismatch, &exampleFunc).Error()).To(Equal(
-				"number of return args mismatch: exampleFunc expects 1 return vals, NumReturnMismatch returns 0 vals"))
+				"number of return args mismatch: exampleFunc expects 1 return vals, " +
+					"NumReturnMismatch returns 0 vals"))
 
 			returnTypeMismatch, found := reflect.TypeOf(m).MethodByName("ReturnTypeMismatch")
 			Expect(found).To(BeTrue())

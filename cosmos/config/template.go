@@ -40,19 +40,92 @@ rpc-evm-timeout = "{{ .Polaris.Polar.RPCEVMTimeout }}"
 rpc-tx-fee-cap = "{{ .Polaris.Polar.RPCTxFeeCap }}"
 
 
+[polaris.polar.chain] 
+chain-id = "{{ .Polaris.Polar.Chain.ChainID }}"
+
+# Homestead switch block
+homestead-block = "{{ .Polaris.Polar.Chain.HomesteadBlock }}"
+
+# DAO fork switch block
+dao-fork-block = "{{ .Polaris.Polar.Chain.DAOForkBlock }}"
+
+# Whether to support DAO fork
+dao-fork-support = {{ .Polaris.Polar.Chain.DAOForkSupport }}
+
+# EIP150 switch block
+eip150-block = "{{ .Polaris.Polar.Chain.EIP150Block }}"
+
+# EIP155 switch block
+eip155-block = "{{ .Polaris.Polar.Chain.EIP155Block }}"
+
+# EIP158 switch block
+eip158-block = "{{ .Polaris.Polar.Chain.EIP158Block }}"
+
+# Byzanitum switch block
+byzantium-block = "{{ .Polaris.Polar.Chain.ByzantiumBlock }}"
+
+# Constantinople switch block
+constantinople-block = "{{ .Polaris.Polar.Chain.ConstantinopleBlock }}"
+
+# Petersburg switch block
+petersburg-block = "{{ .Polaris.Polar.Chain.PetersburgBlock }}"
+
+# Istanbul switch block
+istanbul-block = "{{ .Polaris.Polar.Chain.IstanbulBlock }}"
+
+# Muir Glacier switch block
+muir-glacier-block = "{{ .Polaris.Polar.Chain.MuirGlacierBlock }}"
+
+# Berlin switch block
+berlin-block = "{{ .Polaris.Polar.Chain.BerlinBlock }}"
+
+# London switch block
+london-block = "{{ .Polaris.Polar.Chain.LondonBlock }}"
+
+# Arrow Glacier switch block
+arrow-glacier-block = "{{ .Polaris.Polar.Chain.ArrowGlacierBlock }}"
+
+# Gray Glacier switch block
+gray-glacier-block = "{{ .Polaris.Polar.Chain.GrayGlacierBlock }}"
+
+# Merge Netsplit switch block
+merge-netsplit-block = "{{ .Polaris.Polar.Chain.MergeNetsplitBlock }}"
+
+# Shanghai switch time (nil == no fork, 0 = already on shanghai)
+shanghai-time = "{{ .Polaris.Polar.Chain.ShanghaiTime }}"
+
+# Cancun switch time (nil == no fork, 0 = already on cancun)
+cancun-time = "{{ .Polaris.Polar.Chain.CancunTime }}"
+
+# Prague switch time (nil == no fork, 0 = already on prague)
+prague-time = "{{ .Polaris.Polar.Chain.PragueTime }}"
+
+# Verkle switch time (nil == no fork, 0 = already on verkle)
+verkle-time = "{{ .Polaris.Polar.Chain.VerkleTime }}"
+
+# Terminal total difficulty
+terminal-total-difficulty = "{{ .Polaris.Polar.Chain.TerminalTotalDifficulty }}"
+
+# Whether terminal total difficulty has passed
+terminal-total-difficulty-passed = "{{ .Polaris.Polar.Chain.TerminalTotalDifficultyPassed }}"
+
+# DevMode enabled
+is-dev-mode = {{ .Polaris.Polar.Chain.IsDevMode }}
+
+
 # Gas price oracle settings for Polaris
 [polaris.polar.gpo]
 # Number of blocks to check for gas prices
-blocks = {{ .Polaris.Polar.GPO.Blocks }}
+blocks = "{{ .Polaris.Polar.GPO.Blocks }}"
 
 # Percentile of gas price to use
-percentile = {{ .Polaris.Polar.GPO.Percentile }}
+percentile = "{{ .Polaris.Polar.GPO.Percentile }}"
 
 # Maximum header history for gas price determination
-max-header-history = {{ .Polaris.Polar.GPO.MaxHeaderHistory }}
+max-header-history = "{{ .Polaris.Polar.GPO.MaxHeaderHistory }}"
 
 # Maximum block history for gas price determination
-max-block-history = {{ .Polaris.Polar.GPO.MaxBlockHistory }}
+max-block-history = "{{ .Polaris.Polar.GPO.MaxBlockHistory }}"
 
 # Default gas price value
 default = "{{ .Polaris.Polar.GPO.Default }}"
@@ -62,6 +135,42 @@ max-price = "{{ .Polaris.Polar.GPO.MaxPrice }}"
 
 # Prices to ignore for gas price determination
 ignore-price = "{{ .Polaris.Polar.GPO.IgnorePrice }}"
+
+# LegacyTxPool settings
+[polaris.polar.legacy-tx-pool]
+
+# Addresses that should be treated by default as local
+locals = {{ .Polaris.Polar.LegacyTxPool.Locals }}
+
+# Whether local transaction handling should be disabled
+no-locals = {{ .Polaris.Polar.LegacyTxPool.NoLocals }}
+
+# Journal of local transactions to survive node restarts
+journal = "{{ .Polaris.Polar.LegacyTxPool.Journal }}"
+
+#  Time interval to regenerate the local transaction journal
+rejournal = "{{ .Polaris.Polar.LegacyTxPool.Rejournal }}"
+
+# Minimum gas price to enforce for acceptance into the pool
+price-limit = "{{ .Polaris.Polar.LegacyTxPool.PriceLimit }}"
+
+# Minimum price bump percentage to replace an already existing transaction (nonce)
+price-bump = "{{ .Polaris.Polar.LegacyTxPool.PriceBump }}"
+
+# Number of executable transaction slots guaranteed per account
+account-slots = "{{ .Polaris.Polar.LegacyTxPool.AccountSlots }}"
+
+#  Maximum number of executable transaction slots for all accounts
+account-queue = "{{.Polaris.Polar.LegacyTxPool.AccountQueue }}"
+
+# Maximum number of non-executable transaction slots permitted per account
+global-slots = "{{ .Polaris.Polar.LegacyTxPool.GlobalSlots }}"
+
+# Maximum number of non-executable transaction slots for all accounts
+global-queue = "{{ .Polaris.Polar.LegacyTxPool.GlobalQueue }}"
+
+# Maximum amount of time non-executable transaction are queued
+lifetime = "{{ .Polaris.Polar.LegacyTxPool.Lifetime }}"
 
 
 # Node-specific settings

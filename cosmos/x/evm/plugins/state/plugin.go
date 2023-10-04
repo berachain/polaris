@@ -56,13 +56,15 @@ type Plugin interface {
 	plugins.HasGenesis
 	core.StatePlugin
 	// SetQueryContextFn sets the query context func for the plugin.
-	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
+	SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error))
 	// IterateBalances iterates over the balances of all accounts and calls the given callback function.
 	IterateBalances(fn func(common.Address, *big.Int) bool)
 	// IterateState iterates over the state of all accounts and calls the given callback function.
 	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
 	// SetGasConfig sets the gas config for the plugin.
 	SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
+	// SetPrecompileLogFactory sets the precompile log factory for the plugin.
+	SetPrecompileLogFactory(events.PrecompileLogFactory)
 }
 
 // The StatePlugin is a very fun and interesting part of the EVM implementation. But if you want to
@@ -106,7 +108,7 @@ type plugin struct {
 	ak AccountKeeper
 
 	// getQueryContext allows for querying state a historical height.
-	getQueryContext func(height int64, prove bool) (sdk.Context, error)
+	getQueryContext func() func(height int64, prove bool) (sdk.Context, error)
 
 	// savedErr stores any error that is returned from state modifications on the underlying
 	// keepers.
@@ -127,6 +129,11 @@ func NewPlugin(
 		plf:      plf,
 		mu:       sync.Mutex{},
 	}
+}
+
+// SetupForPrecompiles sets the precompile plugin and the log factory on the state plugin.
+func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
+	p.plf = plf
 }
 
 // Prepare sets up the context on the state plugin for a new block. It sets the gas configs to be 0
@@ -515,7 +522,7 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 // =============================================================================
 
 // SetQueryContextFn sets the query context func for the plugin.
-func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Context, error)) {
+func (p *plugin) SetQueryContextFn(gqc func() func(height int64, prove bool) (sdk.Context, error)) {
 	p.getQueryContext = gqc
 }
 
@@ -532,11 +539,15 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
 	// Investigate and hopefully remove this GTE.
 	if int64Number >= p.ctx.BlockHeight() {
+		if p.ctx.MultiStore() == nil {
+			return nil, errors.New("no multi-store set in host chain")
+		}
+
 		ctx, _ = p.ctx.CacheContext()
 	} else {
 		// Get the query context at the given height.
 		var err error
-		ctx, err = p.getQueryContext(int64Number, false)
+		ctx, err = p.getQueryContext()(int64Number, false)
 		if err != nil {
 			return nil, err
 		}

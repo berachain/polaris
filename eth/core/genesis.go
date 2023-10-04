@@ -28,7 +28,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/common/hexutil"
 	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/params"
 )
 
 type (
@@ -39,9 +38,6 @@ type (
 
 // DefaultGenesis is the default genesis block used by Polaris.
 var DefaultGenesis = &core.Genesis{
-	// Genesis Config
-	Config: params.DefaultChainConfig,
-
 	// Genesis Block
 	Nonce:      0,
 	Timestamp:  0,
@@ -50,7 +46,6 @@ var DefaultGenesis = &core.Genesis{
 	Difficulty: big.NewInt(0),
 	Mixhash:    common.Hash{},
 	Coinbase:   common.Address{},
-	BaseFee:    big.NewInt(int64(params.InitialBaseFee)),
 
 	// Genesis Accounts
 	Alloc: core.GenesisAlloc{
@@ -59,12 +54,23 @@ var DefaultGenesis = &core.Genesis{
 			Balance: big.NewInt(0).Mul(big.NewInt(5e18), big.NewInt(100)), //nolint:gomnd // its okay.
 		},
 	},
+
+	// These fields are used for consensus tests. Please don't use them
+	// in actual genesis blocks.
+	Number:        0,
+	GasUsed:       0,
+	ParentHash:    common.Hash{},
+	BaseFee:       nil,
+	ExcessBlobGas: nil,
+	BlobGasUsed:   nil,
+
+	// These fields are used for consensus tests. Please don't use them
+	// in actual genesis blocks.
 }
 
 // UnmarshalGenesisHeader sets the fields of the given header into the Genesis struct.
 func UnmarshalGenesisHeader(header *types.Header, gen *Genesis) {
 	// Note: cannot set the state root on the genesis.
-	gen.Number = header.Number.Uint64()
 	gen.Nonce = header.Nonce.Uint64()
 	gen.Timestamp = header.Time
 	gen.ParentHash = header.ParentHash
@@ -75,4 +81,5 @@ func UnmarshalGenesisHeader(header *types.Header, gen *Genesis) {
 	gen.Difficulty = header.Difficulty
 	gen.Mixhash = header.MixDigest
 	gen.Coinbase = header.Coinbase
+	gen.Number = header.Number.Uint64()
 }

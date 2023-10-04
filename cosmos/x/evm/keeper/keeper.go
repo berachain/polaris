@@ -21,43 +21,35 @@
 package keeper
 
 import (
-	"math/big"
-	"time"
-
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+
+	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
-	"pkg.berachain.dev/polaris/eth/miner"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
 
+var _ Host = (*host)(nil)
+
 type Keeper struct {
-	// ak is the reference to the AccountKeeper.
-	ak state.AccountKeeper
 	// provider is the struct that houses the Polaris EVM.
 	polaris *polar.Polaris
-	// miner is used to mine blocks
-	miner miner.Miner
-	// The (unexposed) key used to access the store from the Context.
-	storeKey storetypes.StoreKey
-	// The host contains various plugins that are are used to implement `core.PolarisHostChain`.
+
+	// host represents the host chain
 	host Host
 
-	// temp syncing
-	lock bool
+	// TODO: remove this, because it's hacky af.
+	storeKey storetypes.StoreKey
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -65,40 +57,27 @@ func NewKeeper(
 	ak state.AccountKeeper,
 	sk block.StakingKeeper,
 	storeKey storetypes.StoreKey,
-	ethTxMempool sdkmempool.Mempool,
 	pcs func() *ethprecompile.Injector,
-) *Keeper {
-	// We setup the keeper with some Cosmos standard sauce.
-	k := &Keeper{
-		ak:       ak,
-		storeKey: storeKey,
-		lock:     true,
-	}
-
-	k.host = NewHost(
-		storeKey,
-		sk,
-		ethTxMempool,
-		pcs,
-	)
-	return k
-}
-
-// Setup sets up the plugins in the Host. It also build the Polaris EVM Provider.
-func (k *Keeper) Setup(
-	cfg *config.Config,
-	qc func(height int64, prove bool) (sdk.Context, error),
+	qc func() func(height int64, prove bool) (sdk.Context, error),
 	logger log.Logger,
-) {
-	// Setup plugins in the Host
-	k.host.Setup(k.storeKey, nil, k.ak, qc)
+	polarisCfg *config.Config,
+) *Keeper {
+	host := NewHost(
+		*polarisCfg,
+		storeKey,
+		ak,
+		sk,
+		pcs,
+		qc,
+		logger,
+	)
 
-	node, err := polar.NewGethNetworkingStack(&cfg.Node)
+	node, err := polar.NewGethNetworkingStack(&polarisCfg.Node)
 	if err != nil {
 		panic(err)
 	}
 
-	k.polaris = polar.NewWithNetworkingStack(&cfg.Polar, k.host, node, ethlog.FuncHandler(
+	polaris := polar.NewWithNetworkingStack(&polarisCfg.Polar, host, node, ethlog.FuncHandler(
 		func(r *ethlog.Record) error {
 			polarisGethLogger := logger.With("module", "polaris-geth")
 			switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
@@ -113,7 +92,20 @@ func (k *Keeper) Setup(
 		}),
 	)
 
-	k.miner = k.polaris.Miner()
+	return &Keeper{
+		polaris:  polaris,
+		host:     host,
+		storeKey: storeKey,
+	}
+}
+
+// SetupPrecompiles initializes precompiles and the polaris node.
+func (k *Keeper) SetupPrecompiles() {
+	k.host.SetupPrecompiles()
+
+	if err := k.polaris.Init(); err != nil {
+		panic(err)
+	}
 }
 
 // Logger returns a module-specific logger.
@@ -121,57 +113,24 @@ func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
 }
 
-// GetHost returns the Host that contains all plugins.
-func (k *Keeper) GetHost() Host {
-	return k.host
-}
-
 // GetPolaris returns the Polaris instance.
-func (k *Keeper) GetPolaris() *polar.Polaris {
+func (k *Keeper) Polaris() *polar.Polaris {
 	return k.polaris
 }
 
-func (k *Keeper) SetClientCtx(clientContext client.Context) {
-	k.host.GetTxPoolPlugin().(txpool.Plugin).SetClientContext(clientContext)
+// Register Services allows for the application to register lifecycles with the evm
+// networking stack.
+func (k *Keeper) RegisterServices(clientContext client.Context, lcs []node.Lifecycle) {
+	// TODO: probably get rid of engine plugin or something and handle rpc methods better.
 	k.host.GetEnginePlugin().(engine.Plugin).Start(clientContext)
 
-	// TODO: move this
-	go func() {
-		// spin lock for a bit
-		for ; k.lock; time.Sleep(1 * time.Second) {
-			continue
-		}
-
-		if err := k.polaris.StartServices(); err != nil {
-			panic(err)
-		}
-	}()
-}
-
-// TODO: Remove these, because they're hacky af.
-// Required temporarily for BGT plugin.
-func (k *Keeper) GetBalance(ctx sdk.Context, addr sdk.AccAddress) *big.Int {
-	ethAddr := common.BytesToAddress(addr)
-	return new(big.Int).SetBytes(ctx.KVStore(k.storeKey).Get(state.BalanceKeyFor(ethAddr)))
-}
-
-func (k *Keeper) SetBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.Int) {
-	ethAddr := common.BytesToAddress(addr)
-	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), amount.Bytes())
-}
-
-func (k *Keeper) AddBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.Int) {
-	if amount.Sign() == 0 {
-		return
+	// Register the services with polaris.
+	for _, lc := range lcs {
+		k.polaris.RegisterService(lc)
 	}
-	ethAddr := common.BytesToAddress(addr)
-	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), new(big.Int).Add(k.GetBalance(ctx, addr), amount).Bytes())
-}
 
-func (k *Keeper) SubBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.Int) {
-	if amount.Sign() == 0 {
-		return
+	// Start the services.
+	if err := k.polaris.StartServices(); err != nil {
+		panic(err)
 	}
-	ethAddr := common.BytesToAddress(addr)
-	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), new(big.Int).Sub(k.GetBalance(ctx, addr), amount).Bytes())
 }

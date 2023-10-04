@@ -42,13 +42,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
@@ -61,11 +57,14 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"github.com/ethereum/go-ethereum/node"
+
+	"pkg.berachain.dev/polaris/cosmos/abci/prepare"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
+	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
@@ -104,9 +103,8 @@ type SimApp struct {
 
 	// polaris keepers
 	EVMKeeper *evmkeeper.Keeper
-
-	// simulation manager
-	sm *module.SimulationManager
+	pp        *prepare.Handler
+	mp        *txpool.Mempool
 }
 
 //nolint:gochecknoinits // from sdk.
@@ -132,9 +130,8 @@ func NewPolarisApp(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *SimApp {
 	var (
-		app          = &SimApp{}
-		appBuilder   *runtime.AppBuilder
-		ethTxMempool = evmmempool.NewPolarisEthereumTxPool()
+		app        = &SimApp{}
+		appBuilder *runtime.AppBuilder
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
 			MakeAppConfig(bech32Prefix),
@@ -144,10 +141,10 @@ func NewPolarisApp(
 				appOpts,
 				// supply the logger
 				logger,
-				// supply the mempool
-				ethTxMempool,
 				// ADVANCED CONFIGURATION
+				PolarisConfigFn(evmconfig.MustReadConfigFromAppOpts(appOpts)),
 				PrecompilesToInject(app),
+				QueryContextFn(app),
 				//
 				// AUTH
 				//
@@ -196,94 +193,51 @@ func NewPolarisApp(
 		panic(err)
 	}
 
-	// Below we could construct and set an application specific mempool and
-	// ABCI 1.0 PrepareProposal and ProcessProposal handlers. These defaults are
-	// already set in the SDK's BaseApp, this shows an example of how to override
-	// them.
-	//
-	// Example:
-	//
-	// app.App = appBuilder.Build(...)
-	// nonceMempool := mempool.NewSenderNonceMempool()
-	// abciPropHandler := NewDefaultProposalHandler(nonceMempool, app.App.BaseApp)
-	//
-	// app.App.BaseApp.SetMempool(nonceMempool)
-	// app.App.BaseApp.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
-	// app.App.BaseApp.SetProcessProposal(abciPropHandler.ProcessProposalHandler())
-	//
-	// Alternatively, you can construct BaseApp options, append those to
-	// baseAppOptions and pass them to the appBuilder.
-	//
-	// Example:
-	//
-	// prepareOpt = func(app *baseapp.BaseApp) {
-	// 	abciPropHandler := baseapp.NewDefaultProposalHandler(nonceMempool, app)
-	// 	app.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
-	// }
-	// baseAppOptions = append(baseAppOptions, prepareOpt)
+	// Build the app using the app builder.
+	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
-	app.App = appBuilder.Build(db, traceStore, append(baseAppOptions, baseapp.SetMempool(ethTxMempool))...)
+	// SetupPrecompiles is used to setup the precompile contracts post depinject.
+	app.EVMKeeper.SetupPrecompiles()
 
-	// read oracle config from app-opts, and construct oracle service
-	polarisCfg, err := evmconfig.ReadConfigFromAppOpts(appOpts)
-	if err != nil {
-		panic(err)
-	}
+	// Setup TxPool Wrapper
+	app.mp = txpool.New(app.EVMKeeper.Polaris().TxPool())
+	app.SetMempool(app.mp)
 
-	// TODO: MOVE EVM SETUP
-	// ----- BEGIN EVM SETUP ----------------------------------------------
+	// Setup Prepare Proposal
+	app.pp = prepare.NewHandler(app.EVMKeeper.Polaris(), app)
+	app.SetPrepareProposal(app.pp.PrepareProposal)
 
-	// setup evm keeper and all of its plugins.
-	app.EVMKeeper.Setup(
-		polarisCfg,
-		app.CreateQueryContext,
-		logger,
-	)
-	opt := ante.HandlerOptions{
-		AccountKeeper:   app.AccountKeeper,
-		BankKeeper:      app.BankKeeper,
-		SignModeHandler: app.TxConfig().SignModeHandler(),
-		FeegrantKeeper:  nil,
-		SigGasConsumer:  evmante.SigVerificationGasConsumer,
-	}
+	// Setup Custom Ante Handler
 	ch, _ := evmante.NewAnteHandler(
-		opt,
+		ante.HandlerOptions{
+			AccountKeeper:   app.AccountKeeper,
+			BankKeeper:      app.BankKeeper,
+			SignModeHandler: app.TxConfig().SignModeHandler(),
+			FeegrantKeeper:  nil,
+			SigGasConsumer:  evmante.SigVerificationGasConsumer,
+		},
 	)
 	app.SetAnteHandler(
 		ch,
 	)
+
+	// Register eth_secp256k1 keys
 	ethcryptocodec.RegisterInterfaces(app.interfaceRegistry)
 
 	// ----- END EVM SETUP -------------------------------------------------
 
 	// register streaming services
-	if err = app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
+	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		panic(err)
 	}
 
 	/****  Module Options ****/
-
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	app.RegisterUpgradeHandlers()
 
-	// add test gRPC service for testing gRPC queries in isolation
-	testdata_pulsar.RegisterQueryServer(app.GRPCQueryRouter(), testdata_pulsar.QueryImpl{})
-
-	// create the simulation manager and define the order of the modules for deterministic simulations
-	//
-	// NOTE: this is not required apps that don't use the simulator for fuzz testing
-	// transactions
-	overrideModules := map[string]module.AppModuleSimulation{
-		authtypes.ModuleName: auth.NewAppModule(app.appCodec,
-			app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
-	}
-	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
-
-	app.sm.RegisterStoreDecoders()
-
-	if err = app.Load(loadLatest); err != nil {
+	if err := app.Load(loadLatest); err != nil {
 		panic(err)
 	}
 
@@ -352,7 +306,7 @@ func (app *SimApp) GetSubspace(moduleName string) paramstypes.Subspace {
 
 // SimulationManager implements the SimulationApp interface.
 func (app *SimApp) SimulationManager() *module.SimulationManager {
-	return app.sm
+	return nil
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
@@ -363,12 +317,24 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
+
+	// Create a TxSerializer.
+	serializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig)
+
+	// Initialize services.
+	app.pp.Init(serializer)
+	app.mp.Init(app.Logger(), apiSvr.ClientCtx, serializer)
+
+	// Register services with Polaris.
+	app.EVMKeeper.RegisterServices(apiSvr.ClientCtx, []node.Lifecycle{
+		app.mp,
+	})
 }
 
+// Close shuts down the application.
 func (app *SimApp) Close() error {
-	if pl := app.EVMKeeper.GetPolaris(); pl != nil {
-		return pl.StopServices()
+	if pl := app.EVMKeeper.Polaris(); pl != nil {
+		return pl.Close()
 	}
 	return nil
 }

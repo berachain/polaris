@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math/big"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -38,45 +39,49 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/params"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
+var (
+	ethGen = core.DefaultGenesis
+)
+
 var _ = Describe("", func() {
 	var (
-		cdc    codec.JSONCodec
-		ctx    sdk.Context
-		sc     ethprecompile.StatefulImpl
-		ak     state.AccountKeeper
-		sk     stakingkeeper.Keeper
-		k      *keeper.Keeper
-		ethGen *core.Genesis
-		am     evm.AppModule
-		err    error
+		cdc codec.JSONCodec
+		ctx sdk.Context
+		sc  ethprecompile.StatefulImpl
+		ak  state.AccountKeeper
+		sk  stakingkeeper.Keeper
+		k   *keeper.Keeper
+		am  evm.AppModule
+		err error
 	)
 
 	BeforeEach(func() {
-		ethGen = core.DefaultGenesis
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
 		ctx = ctx.WithBlockHeight(0)
 		sc = staking.NewPrecompileContract(ak, &sk)
+		cfg := config.DefaultConfig()
+		ethGen.Config = params.DefaultChainConfig
+		cfg.Node.DataDir = GinkgoT().TempDir()
+		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
 		k = keeper.NewKeeper(
 			ak, sk,
 			storetypes.NewKVStoreKey("evm"),
-			evmmempool.NewPolarisEthereumTxPool(),
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
+			nil,
+			log.NewTestLogger(GinkgoT()),
+			cfg,
 		)
-		cfg := config.DefaultConfig()
-		cfg.Node.DataDir = GinkgoT().TempDir()
-		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
-		k.Setup(cfg, nil, log.NewTestLogger(GinkgoT()))
-
+		k.SetupPrecompiles()
 		am = evm.NewAppModule(k, ak)
 	})
 
@@ -111,17 +116,12 @@ var _ = Describe("", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 			It("should contain the same genesis header values", func() {
-				bp := k.GetHost().GetBlockPlugin()
+				bp := k.Polaris().Host().GetBlockPlugin()
 				expectedHeader := ethGen.ToBlock().Header()
 				Expect(bp.GetHeaderByNumber(0)).To(Equal(expectedHeader))
 			})
-			It("should contain the correct chain config", func() {
-				actualConfig := k.GetHost().GetConfigurationPlugin().ChainConfig()
-				expectedConfig := ethGen.Config
-				Expect(actualConfig).To(Equal(expectedConfig))
-			})
 			It("should have the correct balances", func() {
-				sp := k.GetHost().GetStatePlugin()
+				sp := k.Polaris().Host().GetStatePlugin()
 				for addr, acc := range ethGen.Alloc {
 					balance := sp.GetBalance(addr)
 					cmp := balance.Cmp(acc.Balance)
@@ -129,7 +129,7 @@ var _ = Describe("", func() {
 				}
 			})
 			It("should have the correct code", func() {
-				sp := k.GetHost().GetStatePlugin()
+				sp := k.Polaris().Host().GetStatePlugin()
 				for addr, acc := range ethGen.Alloc {
 					code := sp.GetCode(addr)
 					cmp := bytes.Compare(code, acc.Code)
@@ -137,7 +137,7 @@ var _ = Describe("", func() {
 				}
 			})
 			It("should have the correct hash", func() {
-				sp := k.GetHost().GetStatePlugin()
+				sp := k.Polaris().Host().GetStatePlugin()
 				for addr, acc := range ethGen.Alloc {
 					for key, expectedHash := range acc.Storage {
 						actualHash := sp.GetState(addr, key)
@@ -172,6 +172,8 @@ var _ = Describe("", func() {
 
 		When("the genesis is valid", func() {
 			It("should export without fail", func() {
+				ethGen.Config = nil
+				ethGen.BaseFee = big.NewInt(int64(params.InitialBaseFee))
 				Expect(actualGenesis).To(Equal(*ethGen))
 			})
 		})

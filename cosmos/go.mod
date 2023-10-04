@@ -4,7 +4,7 @@ go 1.21
 
 replace (
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230926021825-5556e5557a50
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230928023220-89db795f378f
 	// Required at the moment until a bug in the comsos-sdk is fixed.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
@@ -45,9 +45,9 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230726155614-23370e0ffb3e // indirect
 	google.golang.org/grpc v1.58.1
 	google.golang.org/protobuf v1.31.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230925142347-326426fa61f6
-	pkg.berachain.dev/polaris/eth v0.0.0-20230925142347-326426fa61f6
-	pkg.berachain.dev/polaris/lib v0.0.0-20230925142347-326426fa61f6
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230928142528-23cc5f141354
+	pkg.berachain.dev/polaris/eth v0.0.0-20230928142528-23cc5f141354
+	pkg.berachain.dev/polaris/lib v0.0.0-20230928142528-23cc5f141354
 )
 
 require (

@@ -442,7 +442,7 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // ==============================================================================
 
 func (b *backend) SendTx(_ context.Context, signedTx *types.Transaction) error {
-	return b.polar.txPool.SendTx(signedTx)
+	return b.polar.txPool.Add([]*types.Transaction{signedTx}, true, false)[0]
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
@@ -450,13 +450,11 @@ func (b *backend) GetPoolTransactions() (types.Transactions, error) {
 	pending := b.polar.txPool.Pending(false)
 	var txs types.Transactions
 	for _, batch := range pending {
-		// TODO: Subpools.
-		// for _, lazy := range batch {
-		// 	if tx := lazy.Resolve(); tx != nil {
-		// 		txs = append(txs, tx)
-		// 	}
-		// }
-		txs = append(txs, batch...)
+		for _, lazy := range batch {
+			if tx := lazy.Resolve(); tx != nil {
+				txs = append(txs, tx)
+			}
+		}
 	}
 	return txs, nil
 }

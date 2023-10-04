@@ -23,11 +23,14 @@ package evm
 import (
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
+	"cosmossdk.io/log"
 	store "cosmossdk.io/store/types"
 
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	modulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
+	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
@@ -47,8 +50,11 @@ type DepInjectInput struct {
 	Config    *modulev1alpha1.Module
 	Key       *store.KVStoreKey
 
-	Mempool           sdkmempool.Mempool
+	AppOpts           servertypes.AppOptions
+	Logger            log.Logger
+	PolarisCfg        func() *config.Config
 	CustomPrecompiles func() *ethprecompile.Injector `optional:"true"`
+	QueryContextFn    func() func(height int64, prove bool) (sdk.Context, error)
 
 	AccountKeeper AccountKeeper
 	StakingKeeper StakingKeeper
@@ -73,10 +79,11 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.AccountKeeper,
 		in.StakingKeeper,
 		in.Key,
-		in.Mempool,
 		in.CustomPrecompiles,
+		in.QueryContextFn,
+		in.Logger,
+		in.PolarisCfg(),
 	)
-
 	m := NewAppModule(k, in.AccountKeeper)
 
 	return DepInjectOutput{

@@ -42,6 +42,7 @@ import (
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
 	core.PrecompilePlugin
+	SetPrecompiles([]ethprecompile.Registrable)
 }
 
 // polarisStateDB is the interface that must be implemented by the state DB.
@@ -72,6 +73,10 @@ func NewPlugin(precompiles []ethprecompile.Registrable) Plugin {
 		kvGasConfig:          storetypes.KVGasConfig(),
 		transientKVGasConfig: storetypes.TransientGasConfig(),
 	}
+}
+
+func (p *plugin) SetPrecompiles(precompiles []ethprecompile.Registrable) {
+	p.precompiles = precompiles
 }
 
 // GetPrecompiles implements core.PrecompilePlugin.

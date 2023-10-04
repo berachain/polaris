@@ -30,6 +30,9 @@ import (
 
 // InitGenesis is called during the InitGenesis.
 func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
+	// TODO: Feels jank as fuck lol, but it works.
+	genState.Config = k.host.GetConfigurationPlugin().ChainConfig()
+
 	// Initialize all the plugins.
 	for _, plugin := range k.host.GetAllPlugins() {
 		// checks whether plugin implements methods of HasGenesis and executes them if it does
