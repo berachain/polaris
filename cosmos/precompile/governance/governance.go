@@ -27,6 +27,7 @@ import (
 
 	"cosmossdk.io/core/address"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -55,10 +56,13 @@ type Contract struct {
 	addressCodec address.Codec
 	msgServer    v1.MsgServer
 	querier      v1.QueryServer
+	ir           codectypes.InterfaceRegistry
 }
 
 // NewPrecompileContract creates a new precompile contract for the governance module.
-func NewPrecompileContract(ak cosmlib.CodecProvider, m v1.MsgServer, q v1.QueryServer) *Contract {
+func NewPrecompileContract(
+	ak cosmlib.CodecProvider, m v1.MsgServer, q v1.QueryServer,
+	ir codectypes.InterfaceRegistry) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.GovernanceModuleMetaData.ABI,
@@ -68,6 +72,7 @@ func NewPrecompileContract(ak cosmlib.CodecProvider, m v1.MsgServer, q v1.QueryS
 		addressCodec: ak.AddressCodec(),
 		msgServer:    m,
 		querier:      q,
+		ir:           ir,
 	}
 }
 
@@ -83,21 +88,21 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 // governance precompile contract.
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
-	proposalMsg []byte,
+	proposal any,
 ) (uint64, error) {
-	// Decode the proposal bytes into  v1.Proposal.
-	var p v1.MsgSubmitProposal
-	if err := p.Unmarshal(proposalMsg); err != nil {
-		return 0, err
-	}
-
-	// Create the proposal.
-	res, err := c.msgServer.SubmitProposal(ctx, &p)
+	// Convert the submit proposal msg into v1.MsgSubmitProposal.
+	msgSubmitProposal, err := cosmlib.ConvertMsgSubmitProposalToSdk(proposal, c.ir)
 	if err != nil {
 		return 0, err
 	}
 
-	// emit an event at the end of this successful proposal submission
+	// Send it to the governance module.
+	res, err := c.msgServer.SubmitProposal(ctx, msgSubmitProposal)
+	if err != nil {
+		return 0, err
+	}
+
+	// Emit an event at the end of this successful proposal submission.
 	polarCtx := vm.UnwrapPolarContext(ctx)
 	sdk.UnwrapSDKContext(polarCtx.Context()).EventManager().EmitEvent(
 		sdk.NewEvent(

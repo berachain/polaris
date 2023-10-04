@@ -49,6 +49,15 @@ library Cosmos {
         string nextKey;
         uint64 total;
     }
+
+    /**
+     * @dev Represents a Cosmos SDK `codectypes.Any`.
+     * @notice value is of type uint8[] instead of bytes, functionally used as []byte in Cosmos.
+     */
+    struct CodecAny {
+        string typeURL;
+        uint8[] value;
+    }
 }
 
 /**
@@ -58,4 +67,5 @@ contract CosmosTypes {
     function coin(Cosmos.Coin calldata) public pure {}
     function pageRequest(Cosmos.PageRequest calldata) public pure {}
     function pageResponse(Cosmos.PageResponse calldata) public pure {}
+    function codecAny(Cosmos.CodecAny calldata) public pure {}
 }

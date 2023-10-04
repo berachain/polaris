@@ -29,13 +29,11 @@ import (
 	"math/big"
 	"testing"
 
-	"cosmossdk.io/core/address"
-	sdkmath "cosmossdk.io/math"
+	"github.com/cosmos/gogoproto/proto"
 
 	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
@@ -94,9 +92,8 @@ var _ = Describe("Call the Precompile Directly", func() {
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Alice Submits a proposal.
-		amt := sdkmath.NewInt(100000000)
-		prop, _ := propAndMsgBz(
-			accCodec, cosmlib.MustStringFromEthAddress(accCodec, tf.Address("alice")), amt)
+		amt := big.NewInt(100000000)
+		prop := getProposal(cosmlib.MustStringFromEthAddress(accCodec, tf.Address("alice")), amt)
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err = precompile.SubmitProposal(txr, prop)
 		Expect(err).ToNot(HaveOccurred())
@@ -106,7 +103,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		coins := []bbindings.CosmosCoin{
 			{
 				Denom:  "abgt",
-				Amount: big.NewInt(amt.Int64()),
+				Amount: amt,
 			},
 		}
 		txr = tf.GenerateTransactOpts("alice")
@@ -115,9 +112,9 @@ var _ = Describe("Call the Precompile Directly", func() {
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wrapper submits a proposal.
-		prop, _ = propAndMsgBz(accCodec, cosmlib.MustStringFromEthAddress(accCodec, wrapperAddr), amt)
+		prop = getProposal(cosmlib.MustStringFromEthAddress(accCodec, wrapperAddr), amt)
 		txr = tf.GenerateTransactOpts("alice")
-		tx, err = wrapper.Submit(txr, prop, "abgt", big.NewInt(amt.Int64()))
+		tx, err = wrapper.Submit(txr, getTestProposal(prop), "abgt", amt)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
@@ -205,29 +202,60 @@ var _ = Describe("Call the Precompile Directly", func() {
 	})
 })
 
-func propAndMsgBz(accCodec address.Codec, proposer string, amount sdkmath.Int) ([]byte, []byte) {
+// Returns a proposal that updates the bank module params.
+func getProposal(proposer string, amount *big.Int) bindings.IGovernanceModuleMsgSubmitProposal {
 	// Prepare the message.
-	govAcc := common.HexToAddress("0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2")
-	initDeposit := sdk.NewCoins(sdk.NewCoin("abgt", amount))
-	message := &banktypes.MsgSend{
-		FromAddress: cosmlib.MustStringFromEthAddress(accCodec, govAcc),
-		ToAddress:   cosmlib.MustStringFromEthAddress(accCodec, tf.Address("alice")),
-		Amount:      initDeposit,
+	msg := &banktypes.MsgUpdateParams{
+		Authority: authtypes.NewModuleAddress("gov").String(),
+		Params: banktypes.Params{
+			DefaultSendEnabled: false,
+		},
 	}
-	messageBz, err := message.Marshal()
+	msgBz, err := proto.Marshal(msg)
 	Expect(err).ToNot(HaveOccurred())
 
 	// Prepare the Proposal.
-	proposal := v1.MsgSubmitProposal{
-		InitialDeposit: initDeposit,
-		Proposer:       proposer,
-		Metadata:       "metadata",
-		Title:          "title",
-		Summary:        "summary",
-		Expedited:      true,
+	return bindings.IGovernanceModuleMsgSubmitProposal{
+		Messages: []bindings.CosmosCodecAny{
+			{
+				Value:   msgBz,
+				TypeURL: "/cosmos.bank.v1beta1.MsgUpdateParams",
+			},
+		},
+		InitialDeposit: []bindings.CosmosCoin{
+			{
+				Denom:  "abgt",
+				Amount: amount,
+			},
+		},
+		Proposer:  proposer,
+		Metadata:  "metadata",
+		Title:     "title",
+		Summary:   "summary",
+		Expedited: true,
 	}
-	proposalBz, err := proposal.Marshal()
-	Expect(err).ToNot(HaveOccurred())
+}
 
-	return proposalBz, messageBz
+func getTestProposal(
+	proposal bindings.IGovernanceModuleMsgSubmitProposal,
+) tbindings.IGovernanceModuleMsgSubmitProposal {
+	return tbindings.IGovernanceModuleMsgSubmitProposal{
+		Messages: []tbindings.CosmosCodecAny{
+			{
+				Value:   proposal.Messages[0].Value,
+				TypeURL: proposal.Messages[0].TypeURL,
+			},
+		},
+		InitialDeposit: []tbindings.CosmosCoin{
+			{
+				Denom:  proposal.InitialDeposit[0].Denom,
+				Amount: proposal.InitialDeposit[0].Amount,
+			},
+		},
+		Proposer:  proposal.Proposer,
+		Metadata:  proposal.Metadata,
+		Title:     proposal.Title,
+		Summary:   proposal.Summary,
+		Expedited: proposal.Expedited,
+	}
 }
