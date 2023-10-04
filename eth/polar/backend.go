@@ -115,8 +115,12 @@ func (b *backend) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
 }
 
 // FeeHistory returns the base fee and gas used history of the last N blocks.
-func (b *backend) FeeHistory(ctx context.Context, blockCount uint64, lastBlock rpc.BlockNumber,
-	rewardPercentiles []float64) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
+func (b *backend) FeeHistory(
+	ctx context.Context,
+	blockCount uint64,
+	lastBlock rpc.BlockNumber,
+	rewardPercentiles []float64,
+) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
 	return b.gpo.FeeHistory(ctx, blockCount, lastBlock, rewardPercentiles)
 }
 
@@ -170,7 +174,8 @@ func (b *backend) SetHead(_ uint64) {
 }
 
 func (b *backend) HeaderByNumber(
-	_ context.Context, number rpc.BlockNumber,
+	_ context.Context,
+	number rpc.BlockNumber,
 ) (*types.Header, error) {
 	switch number {
 	case rpc.PendingBlockNumber:
@@ -264,7 +269,8 @@ func (b *backend) BlockByHash(_ context.Context, hash common.Hash) (*types.Block
 }
 
 func (b *backend) BlockByNumberOrHash(
-	ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash,
+	ctx context.Context,
+	blockNrOrHash rpc.BlockNumberOrHash,
 ) (*types.Block, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.BlockByNumber(ctx, blockNr)
@@ -288,7 +294,8 @@ func (b *backend) BlockByNumberOrHash(
 }
 
 func (b *backend) StateAndHeaderByNumber(
-	ctx context.Context, number rpc.BlockNumber,
+	ctx context.Context,
+	number rpc.BlockNumber,
 ) (state.StateDBI, *types.Header, error) {
 	// TODO: handling pending better
 	// // Pending state is only known by the miner
@@ -319,7 +326,8 @@ func (b *backend) StateAndHeaderByNumber(
 }
 
 func (b *backend) StateAndHeaderByNumberOrHash(
-	ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash,
+	ctx context.Context,
+	blockNrOrHash rpc.BlockNumberOrHash,
 ) (state.StateDBI, *types.Header, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.StateAndHeaderByNumber(ctx, blockNr)
@@ -346,7 +354,8 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 // GetTransaction returns the transaction identified by `txHash`, along with
 // information about the transaction.
 func (b *backend) GetTransaction(
-	_ context.Context, txHash common.Hash,
+	_ context.Context,
+	txHash common.Hash,
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
 	b.logger.Debug("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
 	txLookup := b.polar.blockchain.GetTransactionLookup(txHash)
@@ -483,7 +492,8 @@ func (b *backend) Stats() (int, int) {
 }
 
 func (b *backend) TxPoolContent() (
-	map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction,
+	map[common.Address][]*types.Transaction,
+	map[common.Address][]*types.Transaction,
 ) {
 	pending, queued := b.polar.txPool.Content()
 	b.logger.Debug(
@@ -492,7 +502,8 @@ func (b *backend) TxPoolContent() (
 }
 
 func (b *backend) TxPoolContentFrom(addr common.Address) (
-	[]*types.Transaction, []*types.Transaction,
+	[]*types.Transaction,
+	[]*types.Transaction,
 ) {
 	pending, queued := b.polar.txPool.ContentFrom(addr)
 	b.logger.Debug("called eth.rpc.backend.TxPoolContentFrom",
@@ -509,7 +520,9 @@ func (b *backend) Engine() consensus.Engine {
 }
 
 // GetBody retrieves the block body corresponding to block by has or number..
-func (b *backend) GetBody(ctx context.Context, hash common.Hash,
+func (b *backend) GetBody(
+	ctx context.Context,
+	hash common.Hash,
 	number rpc.BlockNumber,
 ) (*types.Body, error) {
 	if number < 0 || hash == (common.Hash{}) {

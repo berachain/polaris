@@ -31,7 +31,8 @@ import (
 
 // ProcessTransaction is called during the DeliverTx processing of the ABCI lifecycle.
 func (k *Keeper) ProcessTransaction(
-	ctx context.Context, tx *coretypes.Transaction,
+	ctx context.Context,
+	tx *coretypes.Transaction,
 ) (*coretypes.Receipt, error) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	gasMeter := sCtx.GasMeter()

@@ -27,7 +27,9 @@ import (
 
 // deriveReceipts derives the receipts from the block.
 func (bc *blockchain) deriveReceipts(
-	receipts types.Receipts, blockHash common.Hash) (types.Receipts, error) {
+	receipts types.Receipts,
+	blockHash common.Hash,
+) (types.Receipts, error) {
 	// get the block to derive the receipts
 	block := bc.GetBlockByHash(blockHash)
 	if block == nil {

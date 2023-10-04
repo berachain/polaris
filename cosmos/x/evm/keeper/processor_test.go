@@ -52,7 +52,8 @@ import (
 )
 
 func NewValidator(
-	operator sdk.ValAddress, pubKey cryptotypes.PubKey,
+	operator sdk.ValAddress,
+	pubKey cryptotypes.PubKey,
 ) (stakingtypes.Validator, error) {
 	return stakingtypes.NewValidator(
 		operator.String() /* todo move to codec */, pubKey, stakingtypes.Description{})

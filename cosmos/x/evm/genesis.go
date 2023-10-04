@@ -45,7 +45,10 @@ func (AppModuleBasic) DefaultGenesis(_ codec.JSONCodec) json.RawMessage {
 
 // ValidateGenesis performs genesis state validation for the evm module.
 func (AppModuleBasic) ValidateGenesis(
-	_ codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
+	_ codec.JSONCodec,
+	_ client.TxEncodingConfig,
+	bz json.RawMessage,
+) error {
 	ethGen := new(core.Genesis)
 	if err := ethGen.UnmarshalJSON(bz); err != nil {
 		return err
@@ -70,7 +73,10 @@ func (AppModuleBasic) ValidateGenesis(
 // InitGenesis performs genesis initialization for the evm module. It returns
 // no validator updates.
 func (am AppModule) InitGenesis(
-	ctx sdk.Context, _ codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
+	ctx sdk.Context,
+	_ codec.JSONCodec,
+	data json.RawMessage,
+) []abci.ValidatorUpdate {
 	var ethGen core.Genesis
 	if err := ethGen.UnmarshalJSON(data); err != nil {
 		panic(err)
