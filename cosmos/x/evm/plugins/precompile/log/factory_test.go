@@ -240,7 +240,8 @@ var _ = Describe("Factory", func() {
 			)
 			log, err := f.Build(&event)
 			Expect(log).To(BeNil())
-			Expect(err.Error()).To(Equal("this Ethereum event argument has no matching Cosmos attribute key: customAmount"))
+			Expect(err.Error()).To(Equal(
+				"this Ethereum event argument has no matching Cosmos attribute key: customAmount"))
 
 			event = sdk.NewEvent(
 				"custom_unbonding_delegation",
@@ -249,7 +250,8 @@ var _ = Describe("Factory", func() {
 			)
 			log, err = f.Build(&event)
 			Expect(log).To(BeNil())
-			Expect(err.Error()).To(Equal("this Ethereum event argument has no matching Cosmos attribute key: customValidator"))
+			Expect(err.Error()).To(Equal(
+				"this Ethereum event argument has no matching Cosmos attribute key: customValidator"))
 		})
 	})
 })

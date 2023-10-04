@@ -42,8 +42,8 @@ const prevHeaderHashes = 256
 // ===========================================================================.
 
 // SetQueryContextFn sets the query context func for the plugin.
-func (p *plugin) SetQueryContextFn(gqc func() func(height int64, prove bool) (sdk.Context, error)) {
-	p.getQueryContext = gqc
+func (p *plugin) SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error)) {
+	p.getQueryContext = fn
 }
 
 // GetHeaderByNumber returns the header at the given height, using the plugin's query context.

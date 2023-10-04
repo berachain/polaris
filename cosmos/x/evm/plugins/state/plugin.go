@@ -57,9 +57,9 @@ type Plugin interface {
 	core.StatePlugin
 	// SetQueryContextFn sets the query context func for the plugin.
 	SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error))
-	// IterateBalances iterates over the balances of all accounts and calls the given callback function.
+	// IterateBalances iterates over the balances of all accounts and calls the callback function.
 	IterateBalances(fn func(common.Address, *big.Int) bool)
-	// IterateState iterates over the state of all accounts and calls the given callback function.
+	// IterateState iterates over the state of all accounts and calls the callback function.
 	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
 	// SetGasConfig sets the gas config for the plugin.
 	SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
@@ -162,8 +162,8 @@ func (p *plugin) Reset(ctx context.Context) {
 	// a way to handle converting Cosmos events from precompiles into Ethereum logs.
 	cem := events.NewManagerFrom(sdkCtx.EventManager(), p.plf)
 
-	// We need to build a custom configuration for the context in order to handle precompile event logs
-	// and proper gas consumption.
+	// We need to build a custom configuration for the context in order to handle precompile event
+	// logs and proper gas consumption.
 	p.ctx = sdkCtx.WithMultiStore(p.cms).WithEventManager(cem)
 
 	// We also remove the KVStore gas metering from the context prior to entering the EVM
@@ -173,7 +173,8 @@ func (p *plugin) Reset(ctx context.Context) {
 	// in the EVM are not being charged additional gas unknowingly.
 	p.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
 
-	// We setup a snapshot controller to properly revert the Controllable MultiStore and EventManager.
+	// We setup a snapshot controller to properly revert the Controllable MultiStore
+	// and EventManager.
 	p.Controller = snapshot.NewController[string, libtypes.Controllable[string]]()
 	_ = p.Controller.Register(p.cms)
 	_ = p.Controller.Register(cem)

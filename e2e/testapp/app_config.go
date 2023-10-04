@@ -186,7 +186,8 @@ func MakeAppConfig(bech32Prefix string) depinject.Config {
 				Config: appconfig.WrapAny(&authmodulev1.Module{
 					Bech32Prefix:             bech32Prefix,
 					ModuleAccountPermissions: moduleAccPerms,
-					// By default modules authority is the governance module. This is configurable with the following:
+					// By default modules authority is the governance module.
+					// This is configurable with the following:
 					// Authority: "group", // A custom module authority can be set using a module name
 					// Authority: "cosmos1cwwv22j5ca08ggdv9c2uky355k908694z577tv", // or a specific address
 				}),

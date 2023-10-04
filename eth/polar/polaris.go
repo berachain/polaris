@@ -72,8 +72,9 @@ type NetworkingStack interface {
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
 	cfg *Config
-	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC APIs.
-	// Although possible, it does not handle p2p networking like its sibling in geth would.
+	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC
+	// APIs. Although possible, it does not handle p2p networking like its sibling in geth
+	// would.
 	stack NetworkingStack
 
 	// core pieces of the polaris stack
@@ -82,7 +83,8 @@ type Polaris struct {
 	txPool     *txpool.TxPool
 	miner      miner.Miner
 
-	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the core pieces.
+	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs
+	// and the core pieces.
 	backend Backend
 
 	// engine represents the consensus engine for the backend.
@@ -137,7 +139,8 @@ func (pl *Polaris) Init() error {
 		return err
 	}
 
-	// eth.miner = miner.New(eth, &config.Miner, eth.blockchain.Config(), eth.EventMux(), eth.engine, eth.isLocalBlock)
+	// eth.miner = miner.New(eth,
+	// &config.Miner, eth.blockchain.Config(), eth.EventMux(), eth.engine, eth.isLocalBlock)
 
 	// Build and set the RPC Backend and other services.
 

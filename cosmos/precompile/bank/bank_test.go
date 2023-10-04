@@ -520,7 +520,8 @@ var _ = Describe("Bank Precompile Test", func() {
 	})
 })
 
-func FundAccount(ctx sdk.Context, bk bankkeeper.BaseKeeper, account sdk.AccAddress, coins sdk.Coins) error {
+func FundAccount(
+	ctx sdk.Context, bk bankkeeper.BaseKeeper, account sdk.AccAddress, coins sdk.Coins) error {
 	if err := bk.MintCoins(ctx, evmtypes.ModuleName, coins); err != nil {
 		return err
 	}

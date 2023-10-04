@@ -60,7 +60,8 @@ func SdkCoinToEvmCoin(coin sdk.Coin) libgenerated.CosmosCoin {
 	return evmCoin
 }
 
-func SdkPageResponseToEvmPageResponse(pageResponse *query.PageResponse) libgenerated.CosmosPageResponse {
+func SdkPageResponseToEvmPageResponse(
+	pageResponse *query.PageResponse) libgenerated.CosmosPageResponse {
 	if pageResponse == nil {
 		return libgenerated.CosmosPageResponse{}
 	}

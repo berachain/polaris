@@ -58,12 +58,18 @@ var _ = Describe("Configuration", func() {
 		Expect(config.GetBech32ConsensusAddrPrefix()).To(Equal(sgconfig.Bech32PrefixConsAddr))
 		Expect(config.GetBech32ConsensusPubPrefix()).To(Equal(sgconfig.Bech32PrefixConsPub))
 
-		Expect(config.GetBech32AccountAddrPrefix()).To(Equal(sdk.GetConfig().GetBech32AccountAddrPrefix()))
-		Expect(config.GetBech32AccountPubPrefix()).To(Equal(sdk.GetConfig().GetBech32AccountPubPrefix()))
-		Expect(config.GetBech32ValidatorAddrPrefix()).To(Equal(sdk.GetConfig().GetBech32ValidatorAddrPrefix()))
-		Expect(config.GetBech32ValidatorPubPrefix()).To(Equal(sdk.GetConfig().GetBech32ValidatorPubPrefix()))
-		Expect(config.GetBech32ConsensusAddrPrefix()).To(Equal(sdk.GetConfig().GetBech32ConsensusAddrPrefix()))
-		Expect(config.GetBech32ConsensusPubPrefix()).To(Equal(sdk.GetConfig().GetBech32ConsensusPubPrefix()))
+		Expect(config.GetBech32AccountAddrPrefix()).
+			To(Equal(sdk.GetConfig().GetBech32AccountAddrPrefix()))
+		Expect(config.GetBech32AccountPubPrefix()).
+			To(Equal(sdk.GetConfig().GetBech32AccountPubPrefix()))
+		Expect(config.GetBech32ValidatorAddrPrefix()).
+			To(Equal(sdk.GetConfig().GetBech32ValidatorAddrPrefix()))
+		Expect(config.GetBech32ValidatorPubPrefix()).
+			To(Equal(sdk.GetConfig().GetBech32ValidatorPubPrefix()))
+		Expect(config.GetBech32ConsensusAddrPrefix()).
+			To(Equal(sdk.GetConfig().GetBech32ConsensusAddrPrefix()))
+		Expect(config.GetBech32ConsensusPubPrefix()).
+			To(Equal(sdk.GetConfig().GetBech32ConsensusPubPrefix()))
 	})
 
 	It("should set CoinType", func() {

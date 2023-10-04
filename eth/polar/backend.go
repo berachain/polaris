@@ -261,7 +261,9 @@ func (b *backend) BlockByHash(_ context.Context, hash common.Hash) (*types.Block
 	return block, nil
 }
 
-func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash) (*types.Block, error) {
+func (b *backend) BlockByNumberOrHash(
+	ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash,
+) (*types.Block, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.BlockByNumber(ctx, blockNr)
 	}
@@ -270,7 +272,8 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash rpc.Blo
 		if block == nil {
 			return nil, core.ErrBlockNotFound
 		}
-		// if blockNrOrHash.RequireCanonical && b.polar.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
+		// if blockNrOrHash.RequireCanonical &&
+		// b.polar.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
 		// 	return nil, errors.New("hash is not currently canonical")
 		// }
 		// block := b.polar.blockchain.GetBlock(hash, header.Number.Uint64())
@@ -329,7 +332,8 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 			// to match Geth
 			return nil, nil, core.ErrBlockNotFound
 		}
-		// if blockNrOrHash.RequireCanonical && b.eth.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
+		// if blockNrOrHash.RequireCanonical &&
+		// b.eth.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
 		// 	return nil, nil, errors.New("hash is not currently canonical")
 		// }
 		return b.StateAndHeaderByNumber(ctx, rpc.BlockNumber(header.Number.Int64()))
@@ -476,9 +480,12 @@ func (b *backend) Stats() (int, int) {
 	return pending, queued
 }
 
-func (b *backend) TxPoolContent() (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
+func (b *backend) TxPoolContent() (
+	map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction,
+) {
 	pending, queued := b.polar.txPool.Content()
-	b.logger.Debug("called eth.rpc.backend.TxPoolContent", "pending", len(pending), "queued", len(queued))
+	b.logger.Debug(
+		"called eth.rpc.backend.TxPoolContent", "pending", len(pending), "queued", len(queued))
 	return pending, queued
 }
 
@@ -507,7 +514,8 @@ func (b *backend) GetBody(ctx context.Context, hash common.Hash,
 		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash)
 		return nil, errors.New("invalid arguments; expect hash and no special block numbers")
 	}
-	block, err := b.BlockByNumberOrHash(ctx, rpc.BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
+	block, err := b.BlockByNumberOrHash(
+		ctx, rpc.BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
 	if block == nil || err != nil {
 		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash, "err", err)
 		return nil, nil //nolint:nilnil // to match geth.

@@ -122,8 +122,8 @@ func (sdb *stateDB) RevertToSnapshot(id int) {
 // Commit state
 // =============================================================================
 
-// Finalise deletes the SelfDestructd accounts and finalizes all plugins, preparing the statedb for the
-// next transaction.
+// Finalise deletes the SelfDestructd accounts and finalizes all plugins, preparing
+// the statedb for the next transaction.
 func (sdb *stateDB) Finalise(bool) {
 	sdb.DeleteAccounts(sdb.GetSelfDestructs())
 	sdb.ctrl.Finalize()

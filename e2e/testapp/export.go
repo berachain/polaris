@@ -100,14 +100,16 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 	/* Handle fee distribution state. */
 
 	// withdraw all validator commission
-	if err := app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) bool {
-		valBz, err := app.StakingKeeper.ValidatorAddressCodec().StringToBytes(val.GetOperator())
-		if err != nil {
-			panic(err)
-		}
-		_, _ = app.DistrKeeper.WithdrawValidatorCommission(ctx, valBz)
-		return false
-	}); err != nil {
+	if err := app.StakingKeeper.IterateValidators(ctx,
+		func(_ int64, val stakingtypes.ValidatorI) bool {
+			valBz, err := app.StakingKeeper.ValidatorAddressCodec().StringToBytes(
+				val.GetOperator())
+			if err != nil {
+				panic(err)
+			}
+			_, _ = app.DistrKeeper.WithdrawValidatorCommission(ctx, valBz)
+			return false
+		}); err != nil {
 		panic(err)
 	}
 
