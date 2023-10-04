@@ -147,6 +147,9 @@ func MakeAppConfig(bech32Prefix string) depinject.Config {
 						genutiltypes.ModuleName,
 						evmtypes.ModuleName,
 					},
+					PrepareCheckStaters: []string{
+						evmtypes.ModuleName,
+					},
 					OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
 						{
 							ModuleName: authtypes.ModuleName,
