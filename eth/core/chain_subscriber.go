@@ -70,8 +70,8 @@ func (bc *blockchain) SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Su
 // EmitCurrentBlockEvents emits chain events for the current block.
 func (bc *blockchain) EmitCurrentBlockEvents() {
 	// Send the pending/current logs on the logs feeds.
-	logs, ok := utils.GetAs[[]*types.Log](bc.currentLogs.Load())
-	if ok {
+	logs := utils.MustGetAs[[]*types.Log](bc.currentLogs.Load())
+	if logs != nil {
 		bc.pendingLogsFeed.Send(logs)
 		if len(logs) > 0 {
 			bc.logsFeed.Send(logs)
@@ -79,7 +79,7 @@ func (bc *blockchain) EmitCurrentBlockEvents() {
 	}
 
 	// Send the current block on the chain(head) feeds.
-	if block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load()); ok {
+	if block := utils.MustGetAs[*types.Block](bc.currentBlock.Load()); block != nil {
 		bc.chainFeed.Send(ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
 		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 	}
