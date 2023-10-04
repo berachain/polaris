@@ -272,11 +272,11 @@ func ConvertMsgSubmitProposalToSdk(
 	messages := make([]*codectypes.Any, len(proposalMsgs))
 	for i, genCodecAny := range proposalMsgs {
 		messages[i] = &codectypes.Any{
-			Value:   []byte(genCodecAny.Value),
+			Value:   genCodecAny.Value,
 			TypeUrl: genCodecAny.TypeURL,
 		}
 		var msg sdk.Msg
-		if err := ir.UnpackAny(messages[i], &msg); err != nil {
+		if err = ir.UnpackAny(messages[i], &msg); err != nil {
 			return nil, err
 		}
 	}

@@ -56,7 +56,7 @@ library Cosmos {
      */
     struct CodecAny {
         string typeURL;
-        uint8[] value; 
+        uint8[] value;
     }
 }
 
