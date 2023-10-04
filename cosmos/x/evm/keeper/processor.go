@@ -29,14 +29,13 @@ import (
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 func (k *Keeper) ProcessPayloadEnvelope(
 	ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope,
 ) (*evmtypes.WrappedPayloadEnvelopeResponse, error) {
-	var envelope = new(engine.ExecutionPayloadEnvelope)
+	envelope := engine.ExecutionPayloadEnvelope{}
 	err := envelope.UnmarshalJSON(msg.Data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal payload envelope: %w", err)
@@ -45,11 +44,18 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	gasMeter := sCtx.GasMeter()
 
-	x := new(common.Hash)
-	block, err := engine.ExecutableDataToBlock(*envelope.ExecutionPayload, nil, x)
+	// x := new(common.Hash)
+	fmt.Println("PROCESSED", envelope.ExecutionPayload)
+	fmt.Println("PROCESSED", envelope.ExecutionPayload.BlockHash)
+	block, err := engine.ExecutableDataToBlock(*envelope.ExecutionPayload, nil, nil)
 	if err != nil {
+		k.Logger(sCtx).Error("failed to build evm block", "err", err)
 		return nil, err
 	}
+
+	fmt.Println(block.Withdrawals(), block.Header().WithdrawalsHash, "BIyNG")
+
+	// bz, _ := block.Header().MarshalJSON()
 
 	if err = k.polaris.Blockchain().InsertBlockWithoutSetHead(block); err != nil {
 		return nil, err

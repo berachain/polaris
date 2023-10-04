@@ -42,6 +42,8 @@ import (
 func (p *plugin) StoreBlock(block *coretypes.Block) error {
 	blockNum := block.NumberU64()
 
+	fmt.Println(block.Header().WithdrawalsHash, "WITHDRAWLS HASH")
+
 	// store block hash to block number.
 	numBz := sdk.Uint64ToBigEndian(blockNum)
 	store := p.ctx.KVStore(p.storeKey)

@@ -25,10 +25,8 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/consensus/misc/eip1559"
-	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
 	"github.com/ethereum/go-ethereum/core/txpool"
 
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -65,6 +63,7 @@ type Miner interface {
 }
 
 // miner implements the Miner interface.
+// TODO: RENAME TO STATE PROCESSOR OR DEPRECATE.
 type miner struct {
 	backend   Backend
 	chain     core.Blockchain
@@ -133,98 +132,98 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	m.cp.Prepare(ctx)
 	m.gp.Prepare(ctx)
 
-	// TODO: this shouldnt be in the miner.
-	if m.hp != nil {
-		m.hp.Prepare(ctx)
-	}
-
-	coinbase, timestamp := m.bp.GetNewBlockMetadata(number)
-	chainConfig := m.cp.ChainConfig()
-
-	// Build the new block m.pendingHeader.
-	parent := m.chain.CurrentFinalBlock()
-	if number >= 1 && parent == nil {
-		parent = m.chain.GetHeaderByNumber(number - 1)
-	}
-
-	// Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
-	// and block nonce (Nonce) on the new m.pendingHeader.
-	m.pendingHeader = &types.Header{
-		// Used in Polaris.
-		ParentHash: parent.Hash(),
-		Coinbase:   coinbase,
-		Number:     new(big.Int).SetUint64(number),
-		GasLimit:   m.gp.BlockGasLimit(),
-		Time:       timestamp,
-		Difficulty: new(big.Int),
-	}
-
-	// TODO: Settable in PrepareProposal.
-	// Set the extra field.
-	if /*len(w.extra) != 0*/ true {
-		m.pendingHeader.Extra = nil
-	}
-
-	// Set the randomness field from the beacon chain if it's available.
-	// TODO: Settable in PrepareProposal.
-	if /*genParams.random != (common.Hash{})*/ true {
-		// m.pendingHeader.MixDigest = genParams.random
-		m.pendingHeader.MixDigest = common.Hash{}
-	}
-
-	// TODO: we need to have header verification setup somewhere.
-	// if err := misc.VerifyEip1559Header(chainCfg, parent, header); err != nil {
-	// 	panic(err)
+	// // TODO: this shouldnt be in the miner.
+	// if m.hp != nil {
+	// 	m.hp.Prepare(ctx)
 	// }
 
-	// Apply EIP-1559.
-	// TODO: Move to PrepareProposal.
-	if chainConfig.IsLondon(m.pendingHeader.Number) {
-		m.pendingHeader.BaseFee = eip1559.CalcBaseFee(chainConfig, parent)
-		// On switchover.
-		// TODO: implement.
-		// if !chainConfig.IsLondon(parent.Number) {
-		// 	parentGasLimit := parent.GasLimit * chainConfig.ElasticityMultiplier()
-		// 	m.pendingHeader.GasLimit = core.CalcGasLimit(parentGasLimit, bc.gp.BlockGasLimit())
-		// }
-	}
+	// coinbase, timestamp := m.bp.GetNewBlockMetadata(number)
+	// chainConfig := m.cp.ChainConfig()
 
-	// Apply EIP-4844, EIP-4788.
-	// TODO: Move to PrepareProposal.
-	if chainConfig.IsCancun(m.pendingHeader.Number, m.pendingHeader.Time) {
-		var excessBlobGas uint64
-		if chainConfig.IsCancun(parent.Number, parent.Time) {
-			excessBlobGas = eip4844.CalcExcessBlobGas(*parent.ExcessBlobGas, *parent.BlobGasUsed)
-		} else {
-			// For the first post-fork block, both parent.data_gas_used and parent.excess_data_gas are evaluated as 0
-			excessBlobGas = eip4844.CalcExcessBlobGas(0, 0)
-		}
-		m.pendingHeader.BlobGasUsed = new(uint64)
-		m.pendingHeader.ExcessBlobGas = &excessBlobGas
-		m.pendingHeader.ParentBeaconRoot = &common.Hash{}
-	}
+	// // Build the new block m.pendingHeader.
+	// parent := m.chain.CurrentFinalBlock()
+	// if number >= 1 && parent == nil {
+	// 	parent = m.chain.GetHeaderByNumber(number - 1)
+	// }
 
-	m.logger.Info("preparing evm block", "seal_hash", m.pendingHeader.Hash())
+	// // Polaris does not set Ethereum state root (Root), mix hash (MixDigest), extra data (Extra),
+	// // and block nonce (Nonce) on the new m.pendingHeader.
+	// m.pendingHeader = &types.Header{
+	// 	// Used in Polaris.
+	// 	ParentHash: parent.Hash(),
+	// 	Coinbase:   coinbase,
+	// 	Number:     new(big.Int).SetUint64(number),
+	// 	GasLimit:   m.gp.BlockGasLimit(),
+	// 	Time:       timestamp,
+	// 	Difficulty: new(big.Int),
+	// }
 
-	// TODO: abstract the evm from the miner, so that the miner is only concerned with txs and blocks.
-	var (
-		// TODO: we are hardcoding author to coinbase, this may be incorrect.
-		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
-		context = core.NewEVMBlockContext(m.pendingHeader, m.chain, &m.pendingHeader.Coinbase)
-		vmenv   = vm.NewGethEVMWithPrecompiles(context,
-			vm.TxContext{}, m.statedb, chainConfig, m.vmConfig, m.pp,
-		)
-	)
+	// // TODO: Settable in PrepareProposal.
+	// // Set the extra field.
+	// if /*len(w.extra) != 0*/ true {
+	// 	m.pendingHeader.Extra = nil
+	// }
+
+	// // Set the randomness field from the beacon chain if it's available.
+	// // TODO: Settable in PrepareProposal.
+	// if /*genParams.random != (common.Hash{})*/ true {
+	// 	// m.pendingHeader.MixDigest = genParams.random
+	// 	m.pendingHeader.MixDigest = common.Hash{}
+	// }
+
+	// // TODO: we need to have header verification setup somewhere.
+	// // if err := misc.VerifyEip1559Header(chainCfg, parent, header); err != nil {
+	// // 	panic(err)
+	// // }
+
+	// // Apply EIP-1559.
+	// // TODO: Move to PrepareProposal.
+	// if chainConfig.IsLondon(m.pendingHeader.Number) {
+	// 	m.pendingHeader.BaseFee = eip1559.CalcBaseFee(chainConfig, parent)
+	// 	// On switchover.
+	// 	// TODO: implement.
+	// 	// if !chainConfig.IsLondon(parent.Number) {
+	// 	// 	parentGasLimit := parent.GasLimit * chainConfig.ElasticityMultiplier()
+	// 	// 	m.pendingHeader.GasLimit = core.CalcGasLimit(parentGasLimit, bc.gp.BlockGasLimit())
+	// 	// }
+	// }
+
+	// // Apply EIP-4844, EIP-4788.
+	// // TODO: Move to PrepareProposal.
+	// if chainConfig.IsCancun(m.pendingHeader.Number, m.pendingHeader.Time) {
+	// 	var excessBlobGas uint64
+	// 	if chainConfig.IsCancun(parent.Number, parent.Time) {
+	// 		excessBlobGas = eip4844.CalcExcessBlobGas(*parent.ExcessBlobGas, *parent.BlobGasUsed)
+	// 	} else {
+	// 		// For the first post-fork block, both parent.data_gas_used and parent.excess_data_gas are evaluated as 0
+	// 		excessBlobGas = eip4844.CalcExcessBlobGas(0, 0)
+	// 	}
+	// 	m.pendingHeader.BlobGasUsed = new(uint64)
+	// 	m.pendingHeader.ExcessBlobGas = &excessBlobGas
+	// 	m.pendingHeader.ParentBeaconRoot = &common.Hash{}
+	// }
+
+	// m.logger.Info("preparing evm block", "seal_hash", m.pendingHeader.Hash())
+
+	// // TODO: abstract the evm from the miner, so that the miner is only concerned with txs and blocks.
+	// var (
+	// 	// TODO: we are hardcoding author to coinbase, this may be incorrect.
+	// 	// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
+	// 	context = core.NewEVMBlockContext(m.pendingHeader, m.chain, &m.pendingHeader.Coinbase)
+	// 	vmenv   = vm.NewGethEVMWithPrecompiles(context,
+	// 		vm.TxContext{}, m.statedb, chainConfig, m.vmConfig, m.pp,
+	// 	)
+	// )
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	// TODO: miner should not have a processor. Copy what dydx does in which validators and full nodes
 	// have different prepare and process proposals.
 	//
 	// Heuristic: Validators get miners. Full nodes get processors.
-	m.processor.Prepare(
-		vmenv,
-		m.pendingHeader,
-	)
+	// m.processor.Prepare(
+	// 	vmenv,
+	// 	m.pendingHeader,
+	// )
 
 	return m.pendingHeader
 }
@@ -267,12 +266,10 @@ func (m *miner) ProcessTransaction(ctx context.Context, tx *types.Transaction) (
 
 // Finalize is called after the last tx in the block.
 func (m *miner) Finalize(ctx context.Context) error {
-	block, receipts, logs, err := m.processor.Finalize(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, _, _ = block, receipts, logs
+	// _, _, _, _ = m.processor.Finalize(ctx)
+	// if err != nil {
+	// 	return err
+	// }
 	return nil
 	// return m.chain.InsertBlock(block, receipts, logs)
 }
