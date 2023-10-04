@@ -160,12 +160,20 @@ type mockStructBadNumFields struct {
 func (m *mockImpl) MockMethod() error { return nil }
 
 func (m *mockImpl) ExampleFunc(
-	_ context.Context, _ *big.Int, _ common.Address, _ []mockStruct) (bool, error) {
+	_ context.Context,
+	_ *big.Int,
+	_ common.Address,
+	_ []mockStruct,
+) (bool, error) {
 	return true, nil
 }
 
 func (m *mockImpl) ExampleFuncBad(
-	_ context.Context, _ *big.Int, _ common.Address, _ []mockStructBad) (bool, error) {
+	_ context.Context,
+	_ *big.Int,
+	_ common.Address,
+	_ []mockStructBad,
+) (bool, error) {
 	return true, nil
 }
 

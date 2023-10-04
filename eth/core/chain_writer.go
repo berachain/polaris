@@ -31,7 +31,9 @@ type ChainWriter interface {
 
 // InsertBlock inserts a block into the canonical chain and updates the state of the blockchain.
 func (bc *blockchain) InsertBlock(
-	block *types.Block, receipts types.Receipts, logs []*types.Log,
+	block *types.Block,
+	receipts types.Receipts,
+	logs []*types.Log,
 ) error {
 	var err error
 
