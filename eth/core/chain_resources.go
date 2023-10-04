@@ -22,10 +22,13 @@ package core
 
 import (
 	"errors"
+	"fmt"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // ChainResources is the interface that defines functions for code paths within the chain to
@@ -54,4 +57,42 @@ func (bc *blockchain) StateAtBlockNumber(number uint64) (state.StateDBI, error) 
 // GetVMConfig returns the vm.Config for the current chain.
 func (bc *blockchain) GetVMConfig() *vm.Config {
 	return bc.vmConfig
+}
+
+// BuildAndRegisterPrecompiles builds the given precompiles and registers them with the precompile
+// plugin.
+// TODO: move precompile registration out of the state processor?
+func (bc *blockchain) BuildAndRegisterPrecompiles(precompiles []precompile.Registrable) {
+	for _, pc := range precompiles {
+		// skip registering precompiles that are already registered.
+		if bc.pp.Has(pc.RegistryKey()) {
+			continue
+		}
+
+		// choose the appropriate precompile factory
+		var af precompile.AbstractFactory
+		switch {
+		case utils.Implements[precompile.StatefulImpl](pc):
+			af = precompile.NewStatefulFactory()
+		case utils.Implements[precompile.StatelessImpl](pc):
+			af = precompile.NewStatelessFactory()
+		default:
+			panic(
+				fmt.Sprintf(
+					"native precompile %s not properly implemented", pc.RegistryKey().Hex(),
+				),
+			)
+		}
+
+		// build the precompile container and register with the plugin
+		container, err := af.Build(pc, bc.pp)
+		if err != nil {
+			panic(err)
+		}
+		// TODO: set code on the statedb for every precompiled contract.
+		err = bc.pp.Register(container)
+		if err != nil {
+			panic(err)
+		}
+	}
 }

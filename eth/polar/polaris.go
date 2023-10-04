@@ -38,7 +38,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/log"
-	oldminer "pkg.berachain.dev/polaris/eth/miner"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
@@ -85,7 +84,6 @@ type Polaris struct {
 	host       core.PolarisHostChain
 	blockchain core.Blockchain
 	txPool     *txpool.TxPool
-	spminer    oldminer.Miner
 	miner      *miner.Miner
 
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs
@@ -126,7 +124,7 @@ func NewWithNetworkingStack(
 		log.Root().SetHandler(logHandler)
 	}
 
-	pl.backend = NewBackend(pl, pl.stack.ExtRPCEnabled(), pl.cfg)
+	pl.backend = NewBackend(pl, pl.cfg)
 
 	return pl
 }
@@ -134,8 +132,6 @@ func NewWithNetworkingStack(
 // Init initializes the Polaris struct.
 func (pl *Polaris) Init() error {
 	var err error
-	pl.spminer = oldminer.New(pl)
-
 	// For now, we only have a legacy pool, we will implement blob pool later.
 	legacyPool := legacypool.New(
 		pl.cfg.LegacyTxPool, pl.Blockchain(),
@@ -216,10 +212,6 @@ func (pl *Polaris) Host() core.PolarisHostChain {
 
 func (pl *Polaris) Miner() *miner.Miner {
 	return pl.miner
-}
-
-func (pl *Polaris) SPMiner() oldminer.Miner {
-	return pl.spminer
 }
 
 func (pl *Polaris) TxPool() *txpool.TxPool {

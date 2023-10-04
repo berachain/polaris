@@ -43,18 +43,14 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	gasMeter := sCtx.GasMeter()
 
-	// x := new(common.Hash)
-	fmt.Println("PROCESSED", envelope.ExecutionPayload)
-	fmt.Println("PROCESSED", envelope.ExecutionPayload.BlockHash)
 	block, err := engine.ExecutableDataToBlock(*envelope.ExecutionPayload, nil, nil)
 	if err != nil {
 		k.Logger(sCtx).Error("failed to build evm block", "err", err)
 		return nil, err
 	}
 
-	fmt.Println(block.Withdrawals(), block.Header().WithdrawalsHash, "BIyNG")
-
-	// bz, _ := block.Header().MarshalJSON()
+	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
+	k.polaris.Blockchain().PreparePlugins(ctx, uint64(sCtx.BlockHeight()), uint64(sCtx.BlockTime().Unix()))
 
 	if err = k.polaris.Blockchain().InsertBlockWithoutSetHead(block); err != nil {
 		return nil, err

@@ -21,6 +21,7 @@
 package core
 
 import (
+	"context"
 	"time"
 
 	"github.com/ethereum/go-ethereum/core"
@@ -35,6 +36,7 @@ type ChainWriter interface {
 	InsertBlockWithoutSetHead(block *types.Block) error
 	WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log,
 		state state.StateDBI, emitHeadEvent bool) (status core.WriteStatus, err error)
+	PreparePlugins(context.Context, uint64, uint64)
 }
 
 // WriteBlockAndSetHead is a no-op in the current implementation. Potentially usable later.

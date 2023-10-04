@@ -57,11 +57,10 @@ type Backend interface {
 
 // backend represents the backend for the JSON-RPC service.
 type backend struct {
-	extRPCEnabled bool
-	polar         *Polaris
-	cfg           *Config
-	gpo           *gasprice.Oracle
-	logger        log.Logger
+	polar  *Polaris
+	cfg    *Config
+	gpo    *gasprice.Oracle
+	logger log.Logger
 }
 
 // ==============================================================================
@@ -71,14 +70,13 @@ type backend struct {
 // NewBackend returns a new `Backend` object.
 func NewBackend(
 	polar *Polaris,
-	extRPCEnabled bool,
 	cfg *Config,
 ) Backend {
 	b := &backend{
-		extRPCEnabled: extRPCEnabled,
-		polar:         polar,
-		cfg:           cfg,
-		logger:        log.Root(),
+
+		polar:  polar,
+		cfg:    cfg,
+		logger: log.Root(),
 	}
 
 	if cfg.GPO.Default == nil {
@@ -137,7 +135,7 @@ func (b *backend) AccountManager() *accounts.Manager {
 // ExtRPCEnabled returns whether the RPC endpoints are exposed over external
 // interfaces.
 func (b *backend) ExtRPCEnabled() bool {
-	return b.extRPCEnabled
+	return b.polar.stack.ExtRPCEnabled()
 }
 
 // RPCGasCap returns the global gas cap for eth_call over rpc: this is

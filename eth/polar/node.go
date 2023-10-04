@@ -51,12 +51,6 @@ func (n *Node) ExtRPCEnabled() bool {
 	return n.Node.Config().ExtRPCEnabled()
 }
 
-// Start starts the networking stack.
-func (n *Node) Start() error {
-	// We then start the underlying node.
-	return n.Node.Start()
-}
-
 // DefaultConfig returns the default configuration for the provider.
 func DefaultGethNodeConfig() *node.Config {
 	nodeCfg := node.DefaultConfig

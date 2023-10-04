@@ -21,6 +21,7 @@
 package core
 
 import (
+	"context"
 	"math/big"
 	"sync/atomic"
 
@@ -31,6 +32,7 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -59,6 +61,7 @@ type blockchain struct {
 	bp BlockPlugin
 	cp ConfigurationPlugin
 	hp HistoricalPlugin
+	gp GasPlugin
 	pp PrecompilePlugin
 	sp StatePlugin
 
@@ -113,6 +116,7 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		cp:             host.GetConfigurationPlugin(),
 		hp:             host.GetHistoricalPlugin(),
 		pp:             host.GetPrecompilePlugin(),
+		gp:             host.GetGasPlugin(),
 		sp:             host.GetStatePlugin(),
 		vmConfig:       &vm.Config{},
 		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSize),
@@ -136,6 +140,22 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		panic(err)
 	}
 	return bc
+}
+
+func (bc *blockchain) PreparePlugins(ctx context.Context, number, time uint64) {
+	bc.sp.Prepare(ctx)
+	bc.bp.Prepare(ctx)
+	bc.cp.Prepare(ctx)
+	bc.gp.Prepare(ctx)
+	if bc.hp != nil {
+		bc.hp.Prepare(ctx)
+	}
+
+	// TODO: I think we have to do this in the geth fork because the miner won't get the
+	// precompile update for the next block. So it'll always be one block behind.
+	rules := bc.cp.ChainConfig().Rules(new(big.Int).SetUint64(number), true, time)
+	bc.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
+	bc.BuildAndRegisterPrecompiles(bc.pp.GetPrecompiles(&rules))
 }
 
 // ChainConfig returns the Ethereum chain config of the  chain.
