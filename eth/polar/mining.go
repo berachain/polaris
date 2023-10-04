@@ -41,6 +41,6 @@ func (pl *Polaris) ProcessTransaction(ctx context.Context, tx *types.Transaction
 }
 
 // Finalize finalizes the current block.
-func (pl *Polaris) Finalize(ctx context.Context) error {
-	return pl.miner.Finalize(ctx)
+func (pl *Polaris) Finalize() error {
+	return pl.miner.Finalize()
 }

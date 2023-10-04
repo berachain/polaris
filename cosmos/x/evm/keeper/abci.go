@@ -34,7 +34,12 @@ func (k *Keeper) BeginBlocker(ctx context.Context) error {
 	return nil
 }
 
-func (k *Keeper) EndBlock(ctx context.Context) error {
+func (k *Keeper) EndBlock() error {
 	// Finalize the Polaris Ethereum block.
-	return k.miner.Finalize(ctx)
+	return k.miner.Finalize()
+}
+
+func (k *Keeper) PrepareCheckState() error {
+	// Run the Polaris miner's post commit hook.
+	return k.miner.PostCommitHook()
 }

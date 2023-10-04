@@ -43,11 +43,12 @@ import (
 const ConsensusVersion = 1
 
 var (
-	_ appmodule.HasServices     = AppModule{}
-	_ appmodule.HasBeginBlocker = AppModule{}
-	_ appmodule.HasEndBlocker   = AppModule{}
-	_ module.AppModule          = AppModule{}
-	_ module.AppModuleBasic     = AppModuleBasic{}
+	_ appmodule.HasServices          = AppModule{}
+	_ appmodule.HasBeginBlocker      = AppModule{}
+	_ appmodule.HasEndBlocker        = AppModule{}
+	_ appmodule.HasPrepareCheckState = AppModule{}
+	_ module.AppModule               = AppModule{}
+	_ module.AppModuleBasic          = AppModuleBasic{}
 )
 
 // ==============================================================================
@@ -132,6 +133,11 @@ func (am AppModule) BeginBlock(ctx context.Context) error {
 }
 
 // EndBlock returns the end blocker for the evm module.
-func (am AppModule) EndBlock(ctx context.Context) error {
-	return am.keeper.EndBlock(ctx)
+func (am AppModule) EndBlock(context.Context) error {
+	return am.keeper.EndBlock()
+}
+
+// PrepareCheckState returns the prepare check stater for the evm module.
+func (am AppModule) PrepareCheckState(context.Context) error {
+	return am.keeper.PrepareCheckState()
 }

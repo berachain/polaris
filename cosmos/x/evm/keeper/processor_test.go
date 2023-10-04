@@ -139,7 +139,7 @@ var _ = Describe("Processor", func() {
 		})
 
 		AfterEach(func() {
-			err := k.EndBlock(ctx)
+			err := k.EndBlock()
 			Expect(err).ToNot(HaveOccurred())
 			err = os.RemoveAll("tmp/berachain")
 			Expect(err).ToNot(HaveOccurred())

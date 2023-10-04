@@ -24,7 +24,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// ChainWriter defines methods that are used to perform state and block transitions.
+// ChainWriter defines methods that are used to update the chain state.
 type ChainWriter interface {
 	InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error
 }
@@ -69,16 +69,16 @@ func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, l
 		}
 	}
 
-	// mark the current block, receipts, and logs
+	// Mark the current block, receipts, and logs (caches should only be set during reads).
 	if block != nil {
 		bc.currentBlock.Store(block)
 		bc.finalizedBlock.Store(block)
 
-		bc.blockNumCache.Add(blockNum, block)
-		bc.blockHashCache.Add(blockHash, block)
+		bc.blockNumCache.Add(blockNum, block)   // TODO: remove.
+		bc.blockHashCache.Add(blockHash, block) // TODO: remove.
 
 		for txIndex, tx := range block.Transactions() {
-			bc.txLookupCache.Add(
+			bc.txLookupCache.Add( // TODO: remove.
 				tx.Hash(),
 				&types.TxLookupEntry{
 					Tx:        tx,
@@ -91,14 +91,10 @@ func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, l
 	}
 	if receipts != nil {
 		bc.currentReceipts.Store(receipts)
-		bc.receiptsCache.Add(blockHash, receipts)
+		bc.receiptsCache.Add(blockHash, receipts) // TODO: remove.
 	}
 	if logs != nil {
-		bc.pendingLogsFeed.Send(logs)
 		bc.currentLogs.Store(logs)
-		if len(logs) > 0 {
-			bc.logsFeed.Send(logs)
-		}
 	}
 
 	// Send chain events.

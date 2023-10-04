@@ -24,6 +24,7 @@ import (
 	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 type ChainSubscriber interface {
@@ -33,6 +34,7 @@ type ChainSubscriber interface {
 	SubscribeChainSideEvent(ch chan<- ChainSideEvent) event.Subscription // currently not used
 	SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription
 	SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription
+	EmitCurrentBlockEvents()
 }
 
 // SubscribeRemovedLogsEvent registers a subscription of RemovedLogsEvent.
@@ -63,4 +65,22 @@ func (bc *blockchain) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscript
 // SubscribePendingLogsEvent registers a subscription of []*types.Log.
 func (bc *blockchain) SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription {
 	return bc.scope.Track(bc.pendingLogsFeed.Subscribe(ch))
+}
+
+// EmitCurrentBlockEvents emits chain events for the current block.
+func (bc *blockchain) EmitCurrentBlockEvents() {
+	// Send the pending/current logs on the logs feeds.
+	logs, ok := utils.GetAs[[]*types.Log](bc.currentLogs.Load())
+	if ok {
+		bc.pendingLogsFeed.Send(logs)
+		if len(logs) > 0 {
+			bc.logsFeed.Send(logs)
+		}
+	}
+
+	// Send the current block on the chain(head) feeds.
+	if block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load()); ok {
+		bc.chainFeed.Send(ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
+		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
+	}
 }

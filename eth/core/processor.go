@@ -150,9 +150,7 @@ func (sp *StateProcessor) ProcessTransaction(
 
 // Finalize finalizes the block in the state processor and returns the receipts and bloom filter to
 // be "sealed".
-func (sp *StateProcessor) Finalize(
-	_ context.Context,
-) (*types.Block, types.Receipts, []*types.Log, error) {
+func (sp *StateProcessor) Finalize() (*types.Block, types.Receipts, []*types.Log, error) {
 	// We unlock the state processor to ensure that the state is consistent.
 	defer sp.mtx.Unlock()
 

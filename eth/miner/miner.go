@@ -58,7 +58,10 @@ type Miner interface {
 	ProcessTransaction(context.Context, *types.Transaction) (*types.Receipt, error)
 
 	// Finalize is called after the last tx in the block.
-	Finalize(context.Context) error
+	Finalize() error
+
+	// PostCommitHook is called after the block has been committed in chain state. TODO: rename.
+	PostCommitHook() error
 }
 
 // miner implements the Miner interface.
@@ -262,11 +265,19 @@ func (m *miner) ProcessTransaction(ctx context.Context, tx *types.Transaction) (
 }
 
 // Finalize is called after the last tx in the block.
-func (m *miner) Finalize(ctx context.Context) error {
-	block, receipts, logs, err := m.processor.Finalize(ctx)
+func (m *miner) Finalize() error {
+	block, receipts, logs, err := m.processor.Finalize()
 	if err != nil {
 		return err
 	}
 
 	return m.chain.InsertBlock(block, receipts, logs)
+}
+
+// PostCommitHook is called after the block has been committed in chain state. TODO: rename.
+func (m *miner) PostCommitHook() error {
+	// Emit the current block events now as the block will exist in all queries of chain state.
+	m.chain.EmitCurrentBlockEvents()
+
+	return nil
 }
