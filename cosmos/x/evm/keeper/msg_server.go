@@ -23,8 +23,6 @@ package keeper
 import (
 	"context"
 
-	errorsmod "cosmossdk.io/errors"
-
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
@@ -36,16 +34,5 @@ var _ types.MsgServiceServer = &Keeper{}
 func (k *Keeper) EthTransaction(
 	ctx context.Context, msg *types.WrappedEthereumTransaction,
 ) (*types.WrappedEthereumTransactionResult, error) {
-	// Process the transaction and return the result.
-	receipt, err := k.ProcessTransaction(ctx, msg.AsTransaction())
-	if err != nil {
-		return &types.WrappedEthereumTransactionResult{
-			Status: types.Status_STATUS_NOT_INCLUDED,
-		}, errorsmod.Wrapf(err, "failed to process transaction")
-	}
-
-	// Included the receipt status code in the response.
-	return &types.WrappedEthereumTransactionResult{
-		Status: types.Status(receipt.Status),
-	}, nil
+	return nil, nil //nolint:nilnil // intentional.
 }

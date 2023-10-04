@@ -29,7 +29,6 @@ import (
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 func (k *Keeper) ProcessPayloadEnvelope(
@@ -65,50 +64,4 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	gasMeter.ConsumeGas(block.GasUsed(), "block gas used")
 
 	return &evmtypes.WrappedPayloadEnvelopeResponse{}, nil
-}
-
-// ProcessTransaction is called during the DeliverTx processing of the ABCI lifecycle.
-func (k *Keeper) ProcessTransaction(
-	ctx context.Context,
-	tx *coretypes.Transaction,
-) (*coretypes.Receipt, error) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	gasMeter := sCtx.GasMeter()
-	// We zero-out the gas meter prior to evm execution in order to ensure that the receipt output
-	// from the EVM is correct. In the future, we will revisit this to allow gas metering for more
-	// complex operations prior to entering the EVM.
-	gasMeter.RefundGas(gasMeter.GasConsumed(),
-		"reset gas meter prior to ethereum state transition")
-
-	// Process the transaction and return the EVM's execution result.
-	receipt, err := k.polaris.SPMiner().ProcessTransaction(ctx, tx)
-	if err != nil {
-		k.Logger(sCtx).Error("failed to process transaction", "err", err)
-		return nil, err
-	}
-
-	// Add some safety checks.
-	// TODO: we can probably do these once at the end of the block?
-	if receipt.GasUsed != gasMeter.GasConsumed() {
-		panic(fmt.Sprintf(
-			"receipt gas used and ctx gas used differ. receipt: %d, ctx: %d",
-			receipt.GasUsed, gasMeter.GasConsumed(),
-		))
-	} else if receipt.CumulativeGasUsed != sCtx.BlockGasMeter().GasConsumed()+receipt.GasUsed {
-		panic(fmt.Sprintf(
-			"receipt cumulative gas used and block gas used differ. receipt: %d, ctx: %d",
-			receipt.CumulativeGasUsed, sCtx.BlockGasMeter().GasConsumed()+receipt.GasUsed,
-		))
-	}
-
-	// Log the receipt.
-	k.Logger(sCtx).Debug(
-		"evm execution completed",
-		"tx_hash", receipt.TxHash,
-		"gas_consumed", receipt.GasUsed,
-		"status", receipt.Status,
-	)
-
-	// Return the execution result.
-	return receipt, err
 }
