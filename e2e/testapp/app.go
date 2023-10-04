@@ -42,6 +42,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -191,9 +192,6 @@ func NewPolarisApp(
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
-	// SetupPrecompiles is used to setup the precompile contracts post depinject.
-	app.EVMKeeper.SetupPrecompiles()
-
 	// Setup TxPool Wrapper
 	app.mp = txpool.New(app.EVMKeeper.Polaris().TxPool())
 	app.SetMempool(app.mp)
@@ -232,19 +230,22 @@ func NewPolarisApp(
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	app.RegisterUpgradeHandlers()
 
-	if err := app.Load(false); err != nil {
+	if err := app.Load(loadLatest); err != nil {
 		panic(err)
 	}
 
-	if loadLatest {
-		if err := app.LoadLatestVersion(); err != nil {
-			panic(err)
-		}
+	cmsCtx := sdk.Context{}.
+		WithMultiStore(app.CommitMultiStore()).
+		WithGasMeter(storetypes.NewInfiniteGasMeter()).
+		WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
+	if err := app.EVMKeeper.Polaris().Blockchain().LoadLastState(cmsCtx); err != nil {
+		panic(err)
 	}
-	// ctx := sdk.Context{}.WithMultiStore(app.CommitMultiStore()).WithGasMeter(storetypes.NewInfiniteGasMeter())
+
+	// SetupPrecompiles is used to setup the precompile contracts post depinject.
+	app.EVMKeeper.SetupPrecompiles()
 	// bz := ctx.KVStore(app.kvStoreKeys()[evmtypes.StoreKey]).Get([]byte{evmtypes.GenesisHeaderKey})
 
-	// fmt.Println("GENESIS HEADER BYTES", bz)
 	return app
 }
 

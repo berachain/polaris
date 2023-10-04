@@ -60,7 +60,6 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 
 	header, err := coretypes.UnmarshalHeader(bz)
 	if err != nil {
-		fmt.Println(err, "GET HEADER")
 		return nil, errorslib.Wrap(err, "GetHeaderByNumber: failed to unmarshal")
 	}
 

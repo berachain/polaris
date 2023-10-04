@@ -32,6 +32,7 @@ import (
 
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
+	LoadLastState(ctx context.Context) error
 	InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error
 	InsertBlockWithoutSetHead(block *types.Block) error
 	WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log,

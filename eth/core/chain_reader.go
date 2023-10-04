@@ -21,7 +21,6 @@
 package core
 
 import (
-	"fmt"
 	"math/big"
 
 	"pkg.berachain.dev/polaris/eth/common"
@@ -263,7 +262,6 @@ func (bc *blockchain) GetHeaderByHash(hash common.Hash) *types.Header {
 		header = block.Header()
 	}
 
-	fmt.Println("RETURNING HEADER", header)
 	return header
 }
 

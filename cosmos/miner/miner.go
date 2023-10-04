@@ -23,13 +23,11 @@ package miner
 
 import (
 	"context"
-	"fmt"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
 
@@ -107,16 +105,8 @@ func (m *Miner) resolveEnvelope() []byte {
 	if m.currentPayload == nil {
 		return nil
 	}
-	envelope := m.currentPayload.ResolveFull()
-	fmt.Println("MINER envelope", envelope.ExecutionPayload)
-	fmt.Println("ENVELOPE BLOCK HASH IN MINER", envelope.ExecutionPayload.BlockHash)
-	block, err := engine.ExecutableDataToBlock(*envelope.ExecutionPayload, nil, nil)
-	if err != nil {
-		fmt.Println("ERR IN MINER", err)
-		panic(err)
-	}
-	fmt.Println("BLOCK HAS IN MINER", block.Hash())
-	bz, err := m.serializer.PayloadToBytes(envelope)
+
+	bz, err := m.serializer.PayloadToBytes(m.currentPayload.ResolveFull())
 	if err != nil {
 		panic(err)
 	}
