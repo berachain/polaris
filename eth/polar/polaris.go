@@ -124,16 +124,21 @@ func NewWithNetworkingStack(
 
 // Init initializes the Polaris struct.
 func (pl *Polaris) Init() error {
+	var err error
 	pl.miner = miner.New(pl)
 	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 
-	var err error
+	// For now, we only have a legacy pool, we will implement blob pool later.
 	legacyPool := legacypool.New(
 		pl.cfg.LegacyTxPool, pl.Blockchain(),
 	)
 
-	pl.txPool, err = txpool.New(big.NewInt(0), pl.blockchain, []txpool.SubPool{legacyPool})
-	if err != nil {
+	// Setup the transaction pool and attach the legacyPool.
+	if pl.txPool, err = txpool.New(
+		new(big.Int).SetUint64(pl.cfg.LegacyTxPool.PriceLimit),
+		pl.blockchain,
+		[]txpool.SubPool{legacyPool},
+	); err != nil {
 		return err
 	}
 
@@ -184,6 +189,7 @@ func (pl *Polaris) StartServices() error {
 	return nil
 }
 
+// RegisterService adds a service to the networking stack.
 func (pl *Polaris) RegisterService(lc node.Lifecycle) {
 	pl.stack.RegisterLifecycle(lc)
 }
