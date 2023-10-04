@@ -22,7 +22,6 @@ package keeper
 
 import (
 	"math/big"
-	"os"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -30,11 +29,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ethereum/go-ethereum/node"
+
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -63,7 +63,6 @@ func NewKeeper(
 	pcs func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
 	logger log.Logger,
-	txConfig client.TxConfig,
 	polarisCfg *config.Config,
 ) *Keeper {
 	host := NewHost(
@@ -73,7 +72,6 @@ func NewKeeper(
 		sk,
 		pcs,
 		qc,
-		txConfig,
 		logger,
 	)
 
@@ -122,19 +120,27 @@ func (k *Keeper) Polaris() *polar.Polaris {
 	return k.polaris
 }
 
-func (k *Keeper) SetClientCtx(clientContext client.Context) {
+// Register Services allows for the application to register lifecycles with the evm
+// networking stack.
+func (k *Keeper) RegisterServices(clientContext client.Context, lcs []node.Lifecycle) {
 	k.host.GetEnginePlugin().(engine.Plugin).Start(clientContext)
 
+	// Register the services with polaris.
+	for _, lc := range lcs {
+		k.polaris.RegisterService(lc)
+	}
+
+	// Start the services.
 	if err := k.polaris.StartServices(); err != nil {
 		panic(err)
 	}
 
-	txp, _ := k.host.GetTxPoolPlugin().(txpool.Plugin)
-	txp.Start(
-		log.NewLogger(os.Stdout),
-		k.polaris.TxPool(),
-		clientContext,
-	)
+	// txp, _ := k.host.GetTxPoolPlugin().(txpool.Plugin)
+	// txp.Start(
+	// 	log.NewLogger(os.Stdout),
+	// 	k.polaris.TxPool(),
+	// 	clientContext,
+	// )
 }
 
 // TODO: Remove these, because they're hacky af.

@@ -18,16 +18,8 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package txpool_test
+package consensus
 
-import (
-	"testing"
+import "github.com/ethereum/go-ethereum/consensus"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-)
-
-func TestTxpool(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/x/evm/plugins/txpool")
-}
+type Engine consensus.Engine

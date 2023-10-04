@@ -30,6 +30,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/filters"
+	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -57,6 +58,9 @@ type NetworkingStack interface {
 
 	// RegisterAPIs registers JSON-RPC handlers for the networking stack.
 	RegisterAPIs([]rpc.API)
+
+	// RegisterLifecycles registers objects to have their lifecycle manged by the stack.
+	RegisterLifecycle(node.Lifecycle)
 
 	// Start starts the networking stack.
 	Start() error
@@ -180,7 +184,11 @@ func (pl *Polaris) StartServices() error {
 	return nil
 }
 
-func (pl *Polaris) StopServices() error {
+func (pl *Polaris) RegisterService(lc node.Lifecycle) {
+	pl.stack.RegisterLifecycle(lc)
+}
+
+func (pl *Polaris) Close() error {
 	return pl.stack.Close()
 }
 

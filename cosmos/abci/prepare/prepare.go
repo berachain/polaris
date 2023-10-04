@@ -28,7 +28,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/miner"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
 
@@ -42,11 +41,20 @@ type (
 	}
 )
 
+// TxSerializer provides an interface to Serialize Geth Transactions to Bytes (via sdk.Tx).
+type TxSerializer interface {
+	SerializeToSdkTx(signedTx *types.Transaction) (sdk.Tx, error)
+}
+
+// Handler provides the PrepareProposal function to allow a cosmos app to utilize the
+// geth txpool.
 type Handler struct {
 	polaris    *polar.Polaris
 	txVerifier TxVerifier
+	serializer TxSerializer
 }
 
+// NewHandler returns a new Handler.
 func NewHandler(polaris *polar.Polaris, txVerifier TxVerifier) *Handler {
 	return &Handler{
 		polaris:    polaris,
@@ -54,6 +62,12 @@ func NewHandler(polaris *polar.Polaris, txVerifier TxVerifier) *Handler {
 	}
 }
 
+// Init initializes the handler.
+func (h *Handler) Init(serializer TxSerializer) {
+	h.serializer = serializer
+}
+
+// PrepareProposal implements baseapp.PrepareProposalHandler.
 func (h *Handler) PrepareProposal(
 	ctx sdk.Context, req *abci.RequestPrepareProposal,
 ) (*abci.ResponsePrepareProposal, error) {
@@ -68,19 +82,17 @@ func (h *Handler) PrepareProposal(
 		totalTxGas   uint64
 	)
 	txs := h.txPoolTransactions()
-	txp, ok := h.polaris.Host().GetTxPoolPlugin().(txpool.Plugin)
-	if !ok {
-		panic("big bad wolf")
-	}
 
 	for lazyTx := txs.Peek(); lazyTx != nil; lazyTx = txs.Peek() {
 		tx := lazyTx.Resolve()
-		bz, err := txp.SerializeToBytes(tx)
+		sdkTx, err := h.serializer.SerializeToSdkTx(tx)
 		if err != nil {
 			ctx.Logger().Error("Failed sdk.Tx Serialization", tx.Hash(), err)
 			continue
 		}
 
+		var bz []byte
+		bz, _ = h.txVerifier.PrepareProposalVerifyTx(sdkTx)
 		txGasLimit := tx.Gas()
 		txSize := int64(len(bz))
 

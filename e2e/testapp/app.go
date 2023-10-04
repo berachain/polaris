@@ -57,10 +57,12 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"github.com/ethereum/go-ethereum/node"
+
 	"pkg.berachain.dev/polaris/cosmos/abci/prepare"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
-	cosmostxpool "pkg.berachain.dev/polaris/cosmos/txpool"
+	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -101,6 +103,8 @@ type SimApp struct {
 
 	// polaris keepers
 	EVMKeeper *evmkeeper.Keeper
+	pp        *prepare.Handler
+	mp        *txpool.Mempool
 }
 
 //nolint:gochecknoinits // from sdk.
@@ -189,48 +193,35 @@ func NewPolarisApp(
 		panic(err)
 	}
 
-	// Below we could construct and set an application specific mempool and
-	// ABCI 1.0 PrepareProposal and ProcessProposal handlers. These defaults are
-	// already set in the SDK's BaseApp, this shows an example of how to override
-	// them.
-	//
-	// Example:
-	//
-	// app.App = appBuilder.Build(...)
-	// nonceMempool := mempool.NewSenderNonceMempool()
-	// abciPropHandler := NewDefaultProposalHandler(nonceMempool, app.App.BaseApp)
-	//
-	// app.App.BaseApp.SetMempool(nonceMempool)
-	//
-	// Alternatively, you can construct BaseApp options, append those to
-	// baseAppOptions and pass them to the appBuilder.
-	//
-	// Example:
-	//
-	// prepareOpt = func(app *baseapp.BaseApp) {
-	// 	abciPropHandler := baseapp.NewDefaultProposalHandler(nonceMempool, app)
-	// 	app.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
-	// }
-	// baseAppOptions = append(baseAppOptions, prepareOpt)
-
+	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
-	app.App.BaseApp.SetMempool(cosmostxpool.NewMempool(app.EVMKeeper.Polaris().TxPool()))
-	app.App.BaseApp.SetPrepareProposal(prepare.NewHandler(app.EVMKeeper.Polaris(), app).PrepareProposal)
 
-	opt := ante.HandlerOptions{
-		AccountKeeper:   app.AccountKeeper,
-		BankKeeper:      app.BankKeeper,
-		SignModeHandler: app.TxConfig().SignModeHandler(),
-		FeegrantKeeper:  nil,
-		SigGasConsumer:  evmante.SigVerificationGasConsumer,
-	}
+	// SetupPrecompiles is used to setup the precompile contracts post depinject.
+	app.EVMKeeper.SetupPrecompiles()
 
+	// Setup TxPool Wrapper
+	app.mp = txpool.New(app.EVMKeeper.Polaris().TxPool())
+	app.SetMempool(app.mp)
+
+	// Setup Prepare Proposal
+	app.pp = prepare.NewHandler(app.EVMKeeper.Polaris(), app)
+	app.SetPrepareProposal(app.pp.PrepareProposal)
+
+	// Setup Custom Ante Handler
 	ch, _ := evmante.NewAnteHandler(
-		opt,
+		ante.HandlerOptions{
+			AccountKeeper:   app.AccountKeeper,
+			BankKeeper:      app.BankKeeper,
+			SignModeHandler: app.TxConfig().SignModeHandler(),
+			FeegrantKeeper:  nil,
+			SigGasConsumer:  evmante.SigVerificationGasConsumer,
+		},
 	)
 	app.SetAnteHandler(
 		ch,
 	)
+
+	// Register eth_secp256k1 keys
 	ethcryptocodec.RegisterInterfaces(app.interfaceRegistry)
 
 	// ----- END EVM SETUP -------------------------------------------------
@@ -245,9 +236,6 @@ func NewPolarisApp(
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	app.RegisterUpgradeHandlers()
-
-	// SetupPrecompiles is used to setup the precompile contracts post depinject.
-	app.EVMKeeper.SetupPrecompiles()
 
 	if err := app.Load(loadLatest); err != nil {
 		panic(err)
@@ -329,12 +317,24 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
+
+	// Create a TxSerializer.
+	serializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig)
+
+	// Initialize services.
+	app.pp.Init(serializer)
+	app.mp.Init(app.Logger(), apiSvr.ClientCtx, serializer)
+
+	// Register services with Polaris.
+	app.EVMKeeper.RegisterServices(apiSvr.ClientCtx, []node.Lifecycle{
+		app.mp,
+	})
 }
 
+// Close shuts down the application.
 func (app *SimApp) Close() error {
 	if pl := app.EVMKeeper.Polaris(); pl != nil {
-		return pl.StopServices()
+		return pl.Close()
 	}
 	return nil
 }

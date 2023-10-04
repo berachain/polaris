@@ -33,7 +33,8 @@ import (
 // 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
 var emptyCodeHash = crypto.Keccak256Hash(nil)
 
-// `selfDestructStatePlugin` defines the required funtions from the StatePlugin for the suicide journal.
+// `selfDestructStatePlugin` defines the required funtions from the StatePlugin
+// for the suicide journal.
 type selfDestructStatePlugin interface {
 	// GetCodeHash returns the code hash of the given account.
 	GetCodeHash(common.Address) common.Hash
@@ -58,9 +59,10 @@ type SelfDestructs interface {
 	GetSelfDestructs() []common.Address
 }
 
-// Dirty tracking of self destructed accounts, we have to keep track of these manually, in order for the
-// code and state to still be accessible even after the account has been deleted.
-// NOTE: we are only supporting one self destructed address per EVM call (and consequently per snapshot).
+// Dirty tracking of self destructed accounts, we have to keep track of these manually,
+// in order for the code and state to still be accessible even after the account has
+// been deleted. NOTE: we are only supporting one self destructed address per EVM call
+// (and consequently per snapshot).
 type selfDestructs struct {
 	// journal of suicide address per call, very rare to suicide so we alloc only 1 address
 	baseJournal[*common.Address]
