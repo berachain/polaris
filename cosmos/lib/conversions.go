@@ -139,7 +139,8 @@ func ExtractCoinFromInputToCoin(coin any) (sdk.Coin, error) {
 
 // SdkUDEToStakingUDE converts a Cosmos SDK Unbonding Delegation Entry list to a geth compatible
 // list of Unbonding Delegation Entries.
-func SdkUDEToStakingUDE(ude []stakingtypes.UnbondingDelegationEntry) []staking.IStakingModuleUnbondingDelegationEntry {
+func SdkUDEToStakingUDE(
+	ude []stakingtypes.UnbondingDelegationEntry) []staking.IStakingModuleUnbondingDelegationEntry {
 	entries := make([]staking.IStakingModuleUnbondingDelegationEntry, len(ude))
 	for i, entry := range ude {
 		entries[i] = staking.IStakingModuleUnbondingDelegationEntry{
@@ -154,7 +155,8 @@ func SdkUDEToStakingUDE(ude []stakingtypes.UnbondingDelegationEntry) []staking.I
 
 // SdkREToStakingRE converts a Cosmos SDK Redelegation Entry list to a geth compatible list of
 // Redelegation Entries.
-func SdkREToStakingRE(re []stakingtypes.RedelegationEntry) []staking.IStakingModuleRedelegationEntry {
+func SdkREToStakingRE(
+	re []stakingtypes.RedelegationEntry) []staking.IStakingModuleRedelegationEntry {
 	entries := make([]staking.IStakingModuleRedelegationEntry, len(re))
 	for i, entry := range re {
 		entries[i] = staking.IStakingModuleRedelegationEntry{
@@ -169,7 +171,8 @@ func SdkREToStakingRE(re []stakingtypes.RedelegationEntry) []staking.IStakingMod
 
 // SdkValidatorsToStakingValidators converts a Cosmos SDK Validator list to a geth compatible list
 // of Validators.
-func SdkValidatorsToStakingValidators(valAddrCodec address.Codec, vals []stakingtypes.Validator) (
+func SdkValidatorsToStakingValidators(
+	valAddrCodec address.Codec, vals []stakingtypes.Validator) (
 	[]staking.IStakingModuleValidator, error,
 ) {
 	valsOut := make([]staking.IStakingModuleValidator, len(vals))

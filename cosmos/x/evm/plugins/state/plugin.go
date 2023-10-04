@@ -523,8 +523,8 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 // =============================================================================
 
 // SetQueryContextFn sets the query context func for the plugin.
-func (p *plugin) SetQueryContextFn(gqc func() func(height int64, prove bool) (sdk.Context, error)) {
-	p.getQueryContext = gqc
+func (p *plugin) SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error)) {
+	p.getQueryContext = fn
 }
 
 // StateAtBlockNumber implements `core.StatePlugin`.

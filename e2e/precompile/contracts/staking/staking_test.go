@@ -101,7 +101,8 @@ var _ = Describe("Staking", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(delegateAmt)).To(Equal(0))
 
-		delVals, _, err := stakingPrecompile.GetDelegatorValidators(nil, tf.Address("alice"), bindings.CosmosPageRequest{})
+		delVals, _, err := stakingPrecompile.GetDelegatorValidators(
+			nil, tf.Address("alice"), bindings.CosmosPageRequest{})
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delVals).To(HaveLen(1))
 		Expect(delVals[0].OperatorAddr).To(Equal(validator))

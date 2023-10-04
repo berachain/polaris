@@ -140,30 +140,31 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 	ctx = ctx.WithBlockHeight(0)
 
 	// reinitialize all validators
-	if err := app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) bool {
-		valBz, err := app.StakingKeeper.ValidatorAddressCodec().StringToBytes(val.GetOperator())
-		if err != nil {
-			panic(err)
-		}
-		// donate any unwithdrawn outstanding reward fraction tokens to the community pool
-		scraps, err := app.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, valBz)
-		if err != nil {
-			panic(err)
-		}
-		feePool, err := app.DistrKeeper.FeePool.Get(ctx)
-		if err != nil {
-			panic(err)
-		}
-		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
-		if err = app.DistrKeeper.FeePool.Set(ctx, feePool); err != nil {
-			panic(err)
-		}
+	if err := app.StakingKeeper.IterateValidators(
+		ctx, func(_ int64, val stakingtypes.ValidatorI) bool {
+			valBz, err := app.StakingKeeper.ValidatorAddressCodec().StringToBytes(val.GetOperator())
+			if err != nil {
+				panic(err)
+			}
+			// donate any unwithdrawn outstanding reward fraction tokens to the community pool
+			scraps, err := app.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, valBz)
+			if err != nil {
+				panic(err)
+			}
+			feePool, err := app.DistrKeeper.FeePool.Get(ctx)
+			if err != nil {
+				panic(err)
+			}
+			feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
+			if err = app.DistrKeeper.FeePool.Set(ctx, feePool); err != nil {
+				panic(err)
+			}
 
-		if err = app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, valBz); err != nil {
-			panic(err)
-		}
-		return false
-	}); err != nil {
+			if err = app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, valBz); err != nil {
+				panic(err)
+			}
+			return false
+		}); err != nil {
 		panic(err)
 	}
 
@@ -192,28 +193,30 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 	/* Handle staking state. */
 
 	// iterate through redelegations, reset creation height
-	if err := app.StakingKeeper.IterateRedelegations(ctx, func(_ int64, red stakingtypes.Redelegation) bool {
-		for i := range red.Entries {
-			red.Entries[i].CreationHeight = 0
-		}
-		if err := app.StakingKeeper.SetRedelegation(ctx, red); err != nil {
-			panic(err)
-		}
-		return false
-	}); err != nil {
+	if err := app.StakingKeeper.IterateRedelegations(
+		ctx, func(_ int64, red stakingtypes.Redelegation) bool {
+			for i := range red.Entries {
+				red.Entries[i].CreationHeight = 0
+			}
+			if err := app.StakingKeeper.SetRedelegation(ctx, red); err != nil {
+				panic(err)
+			}
+			return false
+		}); err != nil {
 		panic(err)
 	}
 
 	// iterate through unbonding delegations, reset creation height
-	if err := app.StakingKeeper.IterateUnbondingDelegations(ctx, func(_ int64, ubd stakingtypes.UnbondingDelegation) bool {
-		for i := range ubd.Entries {
-			ubd.Entries[i].CreationHeight = 0
-		}
-		if err := app.StakingKeeper.SetUnbondingDelegation(ctx, ubd); err != nil {
-			panic(err)
-		}
-		return false
-	}); err != nil {
+	if err := app.StakingKeeper.IterateUnbondingDelegations(
+		ctx, func(_ int64, ubd stakingtypes.UnbondingDelegation) bool {
+			for i := range ubd.Entries {
+				ubd.Entries[i].CreationHeight = 0
+			}
+			if err := app.StakingKeeper.SetUnbondingDelegation(ctx, ubd); err != nil {
+				panic(err)
+			}
+			return false
+		}); err != nil {
 		panic(err)
 	}
 

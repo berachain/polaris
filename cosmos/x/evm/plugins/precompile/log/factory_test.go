@@ -179,7 +179,8 @@ var _ = Describe("Factory", func() {
 			)
 			log, err := f.Build(&event)
 			Expect(log).To(BeNil())
-			Expect(err.Error()).To(Equal("no value decoder function is found for event attribute key: invalid_arg"))
+			Expect(err.Error()).To(
+				Equal("no value decoder function is found for event attribute key: invalid_arg"))
 		})
 
 		It("should error on decoders returning errors", func() {

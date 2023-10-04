@@ -169,7 +169,9 @@ func (b *backend) SetHead(_ uint64) {
 	panic("not implemented")
 }
 
-func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*types.Header, error) {
+func (b *backend) HeaderByNumber(
+	_ context.Context, number rpc.BlockNumber,
+) (*types.Header, error) {
 	switch number {
 	case rpc.PendingBlockNumber:
 		// TODO: handle "miner" stuff, Pending block is only known by the miner

@@ -104,8 +104,10 @@ func TestAppSimulationAfterImport(t *testing.T) {
 		t,
 		os.Stdout,
 		app.BaseApp,
-		simtestutil.AppStateFn(app.AppCodec(), app.SimulationManager(), app.DefaultGenesis()),
-		simtypes.RandomAccounts, // Replace with own random account function if using keys other than secp256k1
+		simtestutil.AppStateFn(app.AppCodec(), app.SimulationManager(),
+			app.DefaultGenesis()),
+		simtypes.RandomAccounts, // Replace with own
+		// random account function if using keys other than secp256k1
 		simtestutil.SimulationOperations(app, app.AppCodec(), config),
 		BlockedAddresses(),
 		config,
@@ -173,8 +175,10 @@ func TestAppSimulationAfterImport(t *testing.T) {
 		t,
 		os.Stdout,
 		newApp.BaseApp,
-		simtestutil.AppStateFn(app.AppCodec(), app.SimulationManager(), app.DefaultGenesis()),
-		simtypes.RandomAccounts, // Replace with own random account function if using keys other than secp256k1
+		simtestutil.AppStateFn(app.AppCodec(), app.SimulationManager(),
+			app.DefaultGenesis()),
+		// Replace with own random account function if using keys other than secp256k1
+		simtypes.RandomAccounts,
 		simtestutil.SimulationOperations(newApp, newApp.AppCodec(), config),
 		BlockedAddresses(),
 		config,

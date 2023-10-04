@@ -336,7 +336,7 @@ golines-install:
 golines:
 	@$(MAKE) golines-install
 	@echo "--> Running golines"
-	@golines --reformat-tags --shorten-comments --write-output --max-len=99 -l ./.
+	@golines --reformat-tags --shorten-comments -w --max-len=99 -l ./.
 
 
 #################

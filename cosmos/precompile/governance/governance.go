@@ -79,7 +79,8 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	}
 }
 
-// SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
+// SubmitProposal is the method for the `submitProposal` method of the
+// governance precompile contract.
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
 	proposalMsg []byte,
@@ -98,7 +99,8 @@ func (c *Contract) SubmitProposal(
 	sdk.UnwrapSDKContext(polarCtx.Context()).EventManager().EmitEvent(
 		sdk.NewEvent(
 			EventTypeProposalSubmitted,
-			sdk.NewAttribute(govtypes.AttributeKeyProposalID, strconv.FormatUint(res.ProposalId, 10)),
+			sdk.NewAttribute(
+				govtypes.AttributeKeyProposalID, strconv.FormatUint(res.ProposalId, 10)),
 			sdk.NewAttribute(AttributeProposalSender, polarCtx.MsgSender().Hex()),
 		),
 	)
@@ -107,7 +109,8 @@ func (c *Contract) SubmitProposal(
 	return res.ProposalId, err
 }
 
-// CancelProposal is the method for the `cancelProposal` method of the governance precompile contract.
+// CancelProposal is the method for the `cancelProposal` method of the
+// governance precompile contract.
 func (c *Contract) CancelProposal(
 	ctx context.Context,
 	id uint64,
