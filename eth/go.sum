@@ -50,8 +50,7 @@ github.com/cockroachdb/redact v1.1.5 h1:u1PMllDkdFfPWaNGMyLD1+so+aq3uUItthCFqzwP
 github.com/cockroachdb/redact v1.1.5/go.mod h1:BVNblN9mBWFyMyqK1k3AAiSxhvhfK2oOZZ2lK+dpvRg=
 github.com/consensys/bavard v0.1.13 h1:oLhMLOFGTLdlda/kma4VOJazblc7IM5y5QPd2A/YjhQ=
 github.com/consensys/bavard v0.1.13/go.mod h1:9ItSMtA/dXMAiL7BG6bqW2m3NdSEObYWoH223nGHukI=
-github.com/consensys/gnark-crypto v0.11.2 h1:GJjjtWJ+db1xGao7vTsOgAOGgjfPe7eRGPL+xxMX0qE=
-github.com/consensys/gnark-crypto v0.11.2/go.mod h1:v2Gy7L/4ZRosZ7Ivs+9SfUDr0f5UlG+EM5t7MPHiLuY=
+github.com/consensys/gnark-crypto v0.12.0 h1:1OnSpOykNkUIBIBJKdhwy2p0JlW5o+Az02ICzZmvvdg=
 github.com/cpuguy83/go-md2man/v2 v2.0.2 h1:p1EgwI/C7NhT0JmVkwCD2ZBK8j4aeHQX2pMHHBfMQ6w=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/crate-crypto/go-kzg-4844 v0.3.0 h1:UBlWE0CgyFqqzTI+IFyCzA7A3Zw4iip6uzRv5NIXG0A=
