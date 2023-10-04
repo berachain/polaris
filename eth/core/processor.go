@@ -23,6 +23,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"math/big"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/trie"
@@ -98,7 +99,9 @@ func NewStateProcessor(
 func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
-	sp.mtx.Lock()
+	// sp.mtx.Lock()
+
+	header = &types.Header{Number: new(big.Int).SetUint64(0), Time: 0}
 
 	// Build a header object so we can track that status of the block as we process it.
 	sp.header = header
@@ -119,7 +122,7 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 	// we should check every block.
 	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
 	sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(&rules))
-	sp.evm = evm
+	// sp.evm = evm
 }
 
 // ProcessTransaction applies a transaction to the current state of the blockchain.
@@ -154,7 +157,7 @@ func (sp *StateProcessor) Finalize(
 	_ context.Context,
 ) (*types.Block, types.Receipts, []*types.Log, error) {
 	// We unlock the state processor to ensure that the state is consistent.
-	defer sp.mtx.Unlock()
+	// defer sp.mtx.Unlock()
 
 	var (
 		// "FinalizeAndAssemble" the block with the txs and receipts (sets the TxHash, ReceiptHash,

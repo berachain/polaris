@@ -232,10 +232,19 @@ func NewPolarisApp(
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	app.RegisterUpgradeHandlers()
 
-	if err := app.Load(loadLatest); err != nil {
+	if err := app.Load(false); err != nil {
 		panic(err)
 	}
 
+	if loadLatest {
+		if err := app.LoadLatestVersion(); err != nil {
+			panic(err)
+		}
+	}
+	// ctx := sdk.Context{}.WithMultiStore(app.CommitMultiStore()).WithGasMeter(storetypes.NewInfiniteGasMeter())
+	// bz := ctx.KVStore(app.kvStoreKeys()[evmtypes.StoreKey]).Get([]byte{evmtypes.GenesisHeaderKey})
+
+	// fmt.Println("GENESIS HEADER BYTES", bz)
 	return app
 }
 

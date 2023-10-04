@@ -138,7 +138,7 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// }
 
 	// coinbase, timestamp := m.bp.GetNewBlockMetadata(number)
-	chainConfig := m.cp.ChainConfig()
+	// chainConfig := m.cp.ChainConfig()
 
 	// Apply EIP-4844, EIP-4788.
 	// TODO: Move to PrepareProposal.
@@ -168,21 +168,21 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// 	Difficulty: new(big.Int),
 	// }
 
-	var (
-		// TODO: we are hardcoding author to coinbase, this may be incorrect.
-		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
-		context = core.NewEVMBlockContext(m.pendingHeader, m.chain, &m.pendingHeader.Coinbase)
-		vmenv   = vm.NewGethEVMWithPrecompiles(context,
-			vm.TxContext{}, m.statedb, chainConfig, m.vmConfig, m.pp,
-		)
-	)
+	// var (
+	// 	// TODO: we are hardcoding author to coinbase, this may be incorrect.
+	// 	// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
+	// 	context = core.NewEVMBlockContext(&types.Header{}, m.chain, &m.pendingHeader.Coinbase)
+	// 	vmenv   = vm.NewGethEVMWithPrecompiles(context,
+	// 		vm.TxContext{}, m.statedb, chainConfig, m.vmConfig, m.pp,
+	// 	)
+	// )
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	// TODO: miner should not have a processor. Copy what dydx does in which validators and full nodes
 	// have different prepare and process proposals.
 	// Heuristic: Validators get miners. Full nodes get processors.
 	m.processor.Prepare(
-		vmenv,
+		nil,
 		m.pendingHeader,
 	)
 	return m.pendingHeader

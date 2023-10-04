@@ -21,12 +21,14 @@
 package core
 
 import (
+	"math/big"
 	"sync/atomic"
 
 	lru "github.com/ethereum/go-ethereum/common/lru"
 	"github.com/ethereum/go-ethereum/consensus/beacon"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -124,16 +126,98 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
 	bc.processor = core.NewStateProcessor(bc.cp.ChainConfig(), bc, beacon.New(nil))
 	// TODO: hmm...
-	// bc.currentBlock.Store(
-	// types.NewBlock(&types.Header{Number: big.NewInt(0),
-	// BaseFee: big.NewInt(0)}, nil, nil, nil, trie.NewStackTrie(nil)))
-	bc.currentBlock.Store(nil)
+	bc.currentBlock.Store(
+		types.NewBlock(&types.Header{Number: big.NewInt(0),
+			BaseFee: big.NewInt(0)}, nil, nil, nil, trie.NewStackTrie(nil)))
+	// bc.currentBlock.Store(nil)
 	bc.finalizedBlock.Store(nil)
 
+	if err := bc.loadLastState(); err != nil {
+		panic(err)
+	}
 	return bc
 }
 
 // ChainConfig returns the Ethereum chain config of the  chain.
 func (bc *blockchain) Config() *params.ChainConfig {
 	return bc.cp.ChainConfig()
+}
+
+// loadLastState loads the last known chain state from the database. This method
+// assumes that the chain manager mutex is held.
+func (bc *blockchain) loadLastState() error {
+	return nil
+	// // Restore the last known head block
+	// head := rawdb.ReadHeadBlockHash(bc.db)
+	// if head == (common.Hash{}) {
+	// 	// Corrupt or empty database, init from scratch
+	// 	log.Warn("Empty database, resetting chain")
+	// 	return bc.Reset()
+	// }
+	// // Make sure the entire head block is available
+	// headBlock := bc.GetBlockByHash(head)
+	// if headBlock == nil {
+	// 	// Corrupt or empty database, init from scratch
+	// 	log.Warn("Head block missing, resetting chain", "hash", head)
+	// 	return bc.Reset()
+	// }
+	// // Everything seems to be fine, set as the head block
+	// bc.currentBlock.Store(headBlock.Header())
+	// headBlockGauge.Update(int64(headBlock.NumberU64()))
+
+	// // Restore the last known head header
+	// headHeader := headBlock.Header()
+	// if head := rawdb.ReadHeadHeaderHash(bc.db); head != (common.Hash{}) {
+	// 	if header := bc.GetHeaderByHash(head); header != nil {
+	// 		headHeader = header
+	// 	}
+	// }
+	// bc.hc.SetCurrentHeader(headHeader)
+
+	// // Restore the last known head snap block
+	// bc.currentSnapBlock.Store(headBlock.Header())
+	// headFastBlockGauge.Update(int64(headBlock.NumberU64()))
+
+	// if head := rawdb.ReadHeadFastBlockHash(bc.db); head != (common.Hash{}) {
+	// 	if block := bc.GetBlockByHash(head); block != nil {
+	// 		bc.currentSnapBlock.Store(block.Header())
+	// 		headFastBlockGauge.Update(int64(block.NumberU64()))
+	// 	}
+	// }
+
+	// // Restore the last known finalized block and safe block
+	// // Note: the safe block is not stored on disk and it is set to the last
+	// // known finalized block on startup
+	// if head := rawdb.ReadFinalizedBlockHash(bc.db); head != (common.Hash{}) {
+	// 	if block := bc.GetBlockByHash(head); block != nil {
+	// 		bc.currentFinalBlock.Store(block.Header())
+	// 		headFinalizedBlockGauge.Update(int64(block.NumberU64()))
+	// 		bc.currentSafeBlock.Store(block.Header())
+	// 		headSafeBlockGauge.Update(int64(block.NumberU64()))
+	// 	}
+	// }
+	// // Issue a status log for the user
+	// var (
+	// 	currentSnapBlock  = bc.CurrentSnapBlock()
+	// 	currentFinalBlock = bc.CurrentFinalBlock()
+
+	// 	headerTd = bc.GetTd(headHeader.Hash(), headHeader.Number.Uint64())
+	// 	blockTd  = bc.GetTd(headBlock.Hash(), headBlock.NumberU64())
+	// )
+	// if headHeader.Hash() != headBlock.Hash() {
+	// 	log.Info("Loaded most recent local header", "number", headHeader.Number, "hash", headHeader.Hash(), "td", headerTd, "age", common.PrettyAge(time.Unix(int64(headHeader.Time), 0)))
+	// }
+	// log.Info("Loaded most recent local block", "number", headBlock.Number(), "hash", headBlock.Hash(), "td", blockTd, "age", common.PrettyAge(time.Unix(int64(headBlock.Time()), 0)))
+	// if headBlock.Hash() != currentSnapBlock.Hash() {
+	// 	snapTd := bc.GetTd(currentSnapBlock.Hash(), currentSnapBlock.Number.Uint64())
+	// 	log.Info("Loaded most recent local snap block", "number", currentSnapBlock.Number, "hash", currentSnapBlock.Hash(), "td", snapTd, "age", common.PrettyAge(time.Unix(int64(currentSnapBlock.Time), 0)))
+	// }
+	// if currentFinalBlock != nil {
+	// 	finalTd := bc.GetTd(currentFinalBlock.Hash(), currentFinalBlock.Number.Uint64())
+	// 	log.Info("Loaded most recent local finalized block", "number", currentFinalBlock.Number, "hash", currentFinalBlock.Hash(), "td", finalTd, "age", common.PrettyAge(time.Unix(int64(currentFinalBlock.Time), 0)))
+	// }
+	// if pivot := rawdb.ReadLastPivotNumber(bc.db); pivot != nil {
+	// 	log.Info("Loaded last snap-sync pivot marker", "number", *pivot)
+	// }
+	// return nil
 }
