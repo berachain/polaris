@@ -22,6 +22,7 @@ package lib
 
 import (
 	"math/big"
+	"reflect"
 
 	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
@@ -260,29 +261,18 @@ func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModule
 func ConvertMsgSubmitProposalToSdk(
 	prop any, ir codectypes.InterfaceRegistry,
 ) (*v1.MsgSubmitProposal, error) {
-	proposal, ok := utils.GetAs[struct {
-		Messages []struct {
-			TypeURL string  `json:"typeURL"`
-			Value   []uint8 `json:"value"`
-		} `json:"messages"`
-		InitialDeposit []struct {
-			Amount *big.Int `json:"amount"`
-			Denom  string   `json:"denom"`
-		} `json:"initialDeposit"`
-		Proposer  string `json:"proposer"`
-		Metadata  string `json:"metadata"`
-		Title     string `json:"title"`
-		Summary   string `json:"summary"`
-		Expedited bool   `json:"expedited"`
-	}](prop)
-	if !ok {
-		return nil, precompile.ErrInvalidSubmitProposal
-	}
+	// Convert the prop object to the desired unnamed struct using reflection.
+	propValue := reflect.ValueOf(prop)
 
-	messages := make([]*codectypes.Any, len(proposal.Messages))
-	for i, genCodecAny := range proposal.Messages {
+	// Build the proposal messages.
+	proposalMsgs, err := decodeProposalMessages(propValue.FieldByName("Messages").Interface())
+	if err != nil {
+		return nil, err
+	}
+	messages := make([]*codectypes.Any, len(proposalMsgs))
+	for i, genCodecAny := range proposalMsgs {
 		messages[i] = &codectypes.Any{
-			Value:   genCodecAny.Value,
+			Value:   []byte(genCodecAny.Value),
 			TypeUrl: genCodecAny.TypeURL,
 		}
 		var msg sdk.Msg
@@ -291,21 +281,101 @@ func ConvertMsgSubmitProposalToSdk(
 		}
 	}
 
-	initialDeposit := make(sdk.Coins, len(proposal.InitialDeposit))
-	for i, coin := range proposal.InitialDeposit {
+	// Build the initial deposit.
+	initDeposit, err := decodeInitialDeposit(propValue.FieldByName("InitialDeposit").Interface())
+	if err != nil {
+		return nil, err
+	}
+	initialDeposit := make(sdk.Coins, len(initDeposit))
+	for i, coin := range initDeposit {
 		initialDeposit[i] = sdk.Coin{
 			Denom:  coin.Denom,
 			Amount: sdkmath.NewIntFromBigInt(coin.Amount),
 		}
 	}
 
+	// Return the v1.MsgSubmitProposal with all string fields attached.
 	return &v1.MsgSubmitProposal{
 		Messages:       messages,
 		InitialDeposit: initialDeposit,
-		Proposer:       proposal.Proposer,
-		Metadata:       proposal.Metadata,
-		Title:          proposal.Title,
-		Summary:        proposal.Summary,
-		Expedited:      proposal.Expedited,
+		Proposer:       propValue.FieldByName("Proposer").Interface().(string),
+		Metadata:       propValue.FieldByName("Metadata").Interface().(string),
+		Title:          propValue.FieldByName("Title").Interface().(string),
+		Summary:        propValue.FieldByName("Summary").Interface().(string),
+		Expedited:      propValue.FieldByName("Expedited").Interface().(bool),
 	}, nil
+}
+
+// decodeProposalMessages is a helper function to convert the unnamed type of Messages into a
+// usable Messages slice.
+func decodeProposalMessages(propMsgs any) ([]struct {
+	TypeURL string
+	Value   []uint8
+}, error) {
+	var proposalMsgs []struct {
+		TypeURL string
+		Value   []uint8
+	}
+
+	switch reflect.TypeOf(propMsgs) {
+	case reflect.TypeOf([]governance.CosmosCodecAny{}):
+		for _, propMsg := range utils.MustGetAs[[]governance.CosmosCodecAny](propMsgs) {
+			proposalMsgs = append(proposalMsgs, struct {
+				TypeURL string
+				Value   []uint8
+			}{
+				TypeURL: propMsg.TypeURL,
+				Value:   propMsg.Value,
+			})
+		}
+	case reflect.TypeOf([]struct {
+		TypeURL string
+		Value   []uint8
+	}{}):
+		proposalMsgs = utils.MustGetAs[[]struct {
+			TypeURL string
+			Value   []uint8
+		}](propMsgs)
+	default:
+		return nil, precompile.ErrInvalidSubmitProposal
+	}
+
+	return proposalMsgs, nil
+}
+
+// decodeInitialDeposit is a helper function to convert the unnamed type of InitialDeposit into a
+// usable coins slice.
+func decodeInitialDeposit(initDep any) ([]struct {
+	Amount *big.Int
+	Denom  string
+}, error) {
+	var initDeposit []struct {
+		Amount *big.Int
+		Denom  string
+	}
+
+	switch reflect.TypeOf(initDep) {
+	case reflect.TypeOf([]governance.CosmosCoin{}):
+		for _, coin := range utils.MustGetAs[[]governance.CosmosCoin](initDep) {
+			initDeposit = append(initDeposit, struct {
+				Amount *big.Int
+				Denom  string
+			}{
+				Amount: coin.Amount,
+				Denom:  coin.Denom,
+			})
+		}
+	case reflect.TypeOf([]struct {
+		Amount *big.Int
+		Denom  string
+	}{}):
+		initDeposit = utils.MustGetAs[[]struct {
+			Amount *big.Int
+			Denom  string
+		}](initDep)
+	default:
+		return nil, precompile.ErrInvalidSubmitProposal
+	}
+
+	return initDeposit, nil
 }

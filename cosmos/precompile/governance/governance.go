@@ -90,19 +90,19 @@ func (c *Contract) SubmitProposal(
 	ctx context.Context,
 	proposal any,
 ) (uint64, error) {
-	// Decode the proposal bytes into  v1.Proposal.
+	// Convert the submit proposal msg into v1.MsgSubmitProposal.
 	msgSubmitProposal, err := cosmlib.ConvertMsgSubmitProposalToSdk(proposal, c.ir)
 	if err != nil {
 		return 0, err
 	}
 
-	// Create the proposal.
+	// Send it to the governance module.
 	res, err := c.msgServer.SubmitProposal(ctx, msgSubmitProposal)
 	if err != nil {
 		return 0, err
 	}
 
-	// emit an event at the end of this successful proposal submission
+	// Emit an event at the end of this successful proposal submission.
 	polarCtx := vm.UnwrapPolarContext(ctx)
 	sdk.UnwrapSDKContext(polarCtx.Context()).EventManager().EmitEvent(
 		sdk.NewEvent(

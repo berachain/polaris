@@ -52,10 +52,11 @@ library Cosmos {
 
     /**
      * @dev Represents a Cosmos SDK `codectypes.Any`.
+     * @notice value is of type uint8[] instead of bytes, functionally used as []byte in Cosmos.
      */
     struct CodecAny {
         string typeURL;
-        bytes value;
+        uint8[] value; 
     }
 }
 

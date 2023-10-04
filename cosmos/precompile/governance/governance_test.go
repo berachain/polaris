@@ -143,12 +143,6 @@ var _ = Describe("Governance Precompile", func() {
 
 	When("Submitting a proposal", func() {
 		It("should succeed", func() {
-			initDeposit := []generated.CosmosCoin{
-				{
-					Denom:  "abera",
-					Amount: big.NewInt(100),
-				},
-			}
 			govAcct := gk.GetGovernanceAccount(ctx).GetAddress()
 			err := testutils.MintCoinsToAddress(
 				sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
@@ -175,12 +169,15 @@ var _ = Describe("Governance Precompile", func() {
 					Value:   msgBz,
 					TypeURL: "/cosmos.bank.v1beta1.MsgUpdateParams",
 				}},
-				InitialDeposit: initDeposit,
-				Proposer:       caller.String(),
-				Metadata:       "metadata",
-				Title:          "title",
-				Summary:        "summary",
-				Expedited:      false,
+				InitialDeposit: []generated.CosmosCoin{{
+					Denom:  "abera",
+					Amount: big.NewInt(100),
+				}},
+				Proposer:  caller.String(),
+				Metadata:  "metadata",
+				Title:     "title",
+				Summary:   "summary",
+				Expedited: false,
 			}
 
 			// Submit the proposal.
