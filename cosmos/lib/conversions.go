@@ -25,6 +25,7 @@ import (
 
 	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -213,7 +214,7 @@ func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModule
 	for i, msg := range proposal.Messages {
 		messages[i] = governance.CosmosCodecAny{
 			Value:   msg.Value,
-			TypeUrl: msg.TypeUrl,
+			TypeURL: msg.TypeUrl,
 		}
 	}
 
@@ -250,9 +251,27 @@ func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModule
 // ConvertMsgSubmitProposalToSdk is a helper function to convert a `MsgSubmitProposal` to the gov
 // `v1.MsgSubmitProposal`.
 func ConvertMsgSubmitProposalToSdk(
-	proposal governance.IGovernanceModuleMsgSubmitProposal,
-	ir codectypes.InterfaceRegistry,
+	prop any, ir codectypes.InterfaceRegistry,
 ) (*v1.MsgSubmitProposal, error) {
+	proposal, ok := utils.GetAs[struct {
+		Messages []struct {
+			TypeUrl string  `json:"typeUrl"`
+			Value   []uint8 `json:"value"`
+		} `json:"messages"`
+		InitialDeposit []struct {
+			Amount *big.Int `json:"amount"`
+			Denom  string   `json:"denom"`
+		} `json:"initialDeposit"`
+		Proposer  string `json:"proposer"`
+		Metadata  string `json:"metadata"`
+		Title     string `json:"title"`
+		Summary   string `json:"summary"`
+		Expedited bool   `json:"expedited"`
+	}](prop)
+	if !ok {
+		return nil, precompile.ErrInvalidSubmitProposal
+	}
+
 	messages := make([]*codectypes.Any, len(proposal.Messages))
 	for i, genCodecAny := range proposal.Messages {
 		messages[i] = &codectypes.Any{

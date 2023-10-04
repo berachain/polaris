@@ -26,9 +26,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cosmos/gogoproto/proto"
 	"github.com/golang/mock/gomock"
 
 	sdkmath "cosmossdk.io/math"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -38,10 +40,8 @@ import (
 	governancekeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/cosmos/gogoproto/proto"
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
-	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/types"
@@ -170,10 +170,10 @@ var _ = Describe("Governance Precompile", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			// Create and marshal the proposal.
-			proposal := governance.IGovernanceModuleMsgSubmitProposal{
-				Messages: []governance.CosmosCodecAny{{
+			proposal := generated.IGovernanceModuleMsgSubmitProposal{
+				Messages: []generated.CosmosCodecAny{{
 					Value:   msgBz,
-					TypeUrl: "/cosmos.bank.v1beta1.MsgUpdateParams",
+					TypeURL: "/cosmos.bank.v1beta1.MsgUpdateParams",
 				}},
 				InitialDeposit: initDeposit,
 				Proposer:       caller.String(),

@@ -52,7 +52,11 @@ contract GovernanceWrapper {
      * @dev Submit a proposal.
      * @param proposal The proposal.
      */
-    function submit(IGovernanceModule.MsgSubmitProposal calldata proposal, string calldata denom, uint256 amount) external payable returns (uint64) {
+    function submit(IGovernanceModule.MsgSubmitProposal calldata proposal, string calldata denom, uint256 amount)
+        external
+        payable
+        returns (uint64)
+    {
         // Send the deposit amount to the contract.
         Cosmos.Coin[] memory coins = new Cosmos.Coin[](1);
         coins[0].denom = denom;

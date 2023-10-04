@@ -35,7 +35,7 @@ interface IGovernanceModule {
     /**
      * @dev Submit a proposal to the governance module.
      * @notice Use the codec to marshal the proposal messages.
-     * @param proposal The proposal to submit. 
+     * @param proposal The proposal to submit.
      * @return The id of the proposal.
      */
     function submitProposal(MsgSubmitProposal calldata proposal) external returns (uint64);

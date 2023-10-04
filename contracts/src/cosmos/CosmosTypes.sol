@@ -54,7 +54,7 @@ library Cosmos {
      * @dev Represents a Cosmos SDK `codectypes.Any`.
      */
     struct CodecAny {
-        string typeUrl;
+        string typeURL;
         bytes value;
     }
 }

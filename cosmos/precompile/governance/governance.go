@@ -27,12 +27,12 @@ import (
 
 	"cosmossdk.io/core/address"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
@@ -87,7 +87,7 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 // SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
-	proposal generated.IGovernanceModuleMsgSubmitProposal,
+	proposal any,
 ) (uint64, error) {
 	// Decode the proposal bytes into  v1.Proposal.
 	msgSubmitProposal, err := cosmlib.ConvertMsgSubmitProposalToSdk(proposal, c.ir)
