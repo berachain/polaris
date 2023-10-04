@@ -309,32 +309,32 @@ func ConvertMsgSubmitProposalToSdk(
 // decodeProposalMessages is a helper function to convert the unnamed type of Messages into a
 // usable Messages slice.
 func decodeProposalMessages(propMsgs any) ([]struct {
-	TypeURL string
-	Value   []uint8
+	TypeURL string  `json:"typeURL"`
+	Value   []uint8 `json:"value"`
 }, error) {
 	var proposalMsgs []struct {
-		TypeURL string
-		Value   []uint8
+		TypeURL string  `json:"typeURL"`
+		Value   []uint8 `json:"value"`
 	}
 
 	switch reflect.TypeOf(propMsgs) {
 	case reflect.TypeOf([]governance.CosmosCodecAny{}):
 		for _, propMsg := range utils.MustGetAs[[]governance.CosmosCodecAny](propMsgs) {
 			proposalMsgs = append(proposalMsgs, struct {
-				TypeURL string
-				Value   []uint8
+				TypeURL string  `json:"typeURL"`
+				Value   []uint8 `json:"value"`
 			}{
 				TypeURL: propMsg.TypeURL,
 				Value:   propMsg.Value,
 			})
 		}
 	case reflect.TypeOf([]struct {
-		TypeURL string
-		Value   []uint8
+		TypeURL string  `json:"typeURL"`
+		Value   []uint8 `json:"value"`
 	}{}):
 		proposalMsgs = utils.MustGetAs[[]struct {
-			TypeURL string
-			Value   []uint8
+			TypeURL string  `json:"typeURL"`
+			Value   []uint8 `json:"value"`
 		}](propMsgs)
 	default:
 		return nil, precompile.ErrInvalidSubmitProposal
@@ -346,32 +346,32 @@ func decodeProposalMessages(propMsgs any) ([]struct {
 // decodeInitialDeposit is a helper function to convert the unnamed type of InitialDeposit into a
 // usable coins slice.
 func decodeInitialDeposit(initDep any) ([]struct {
-	Amount *big.Int
-	Denom  string
+	Amount *big.Int `json:"amount"`
+	Denom  string   `json:"denom"`
 }, error) {
 	var initDeposit []struct {
-		Amount *big.Int
-		Denom  string
+		Amount *big.Int `json:"amount"`
+		Denom  string   `json:"denom"`
 	}
 
 	switch reflect.TypeOf(initDep) {
 	case reflect.TypeOf([]governance.CosmosCoin{}):
 		for _, coin := range utils.MustGetAs[[]governance.CosmosCoin](initDep) {
 			initDeposit = append(initDeposit, struct {
-				Amount *big.Int
-				Denom  string
+				Amount *big.Int `json:"amount"`
+				Denom  string   `json:"denom"`
 			}{
 				Amount: coin.Amount,
 				Denom:  coin.Denom,
 			})
 		}
 	case reflect.TypeOf([]struct {
-		Amount *big.Int
-		Denom  string
+		Amount *big.Int `json:"amount"`
+		Denom  string   `json:"denom"`
 	}{}):
 		initDeposit = utils.MustGetAs[[]struct {
-			Amount *big.Int
-			Denom  string
+			Amount *big.Int `json:"amount"`
+			Denom  string   `json:"denom"`
 		}](initDep)
 	default:
 		return nil, precompile.ErrInvalidSubmitProposal
