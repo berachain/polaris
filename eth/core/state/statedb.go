@@ -247,7 +247,8 @@ func (sdb *stateDB) StartPrefetcher(_ string) {}
 
 func (sdb *stateDB) StopPrefetcher() {}
 
-func (sdb *stateDB) IntermediateRoot(_ bool) common.Hash {
+func (sdb *stateDB) IntermediateRoot(bool) common.Hash {
+	sdb.Finalise(true)
 	return common.Hash{}
 }
 
