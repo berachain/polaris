@@ -286,7 +286,7 @@ test-localnet-no-build:
 ###############################################################################
 
 format:
-	@$(MAKE) license-fix buf-lint-fix forge-lint-fix golangci-fix
+	@$(MAKE) license-fix buf-lint-fix forge-lint-fix golines golangci-fix
 
 lint:
 	@$(MAKE) license buf-lint forge-lint golangci gosec
@@ -336,7 +336,7 @@ golines-install:
 golines:
 	@$(MAKE) golines-install
 	@echo "--> Running golines"
-	@golines --reformat-tags --shorten-comments -w --max-len=99 -l ./.
+	@golines --reformat-tags --shorten-comments --write-output --max-len=99 -l ./.
 
 
 #################
@@ -432,5 +432,5 @@ repo-rinse: |
 	test-e2e test-e2e-no-build hive-setup hive-view test-hive \
 	testv-hive test-localnet test-localnet-no-build format lint \
 	forge-lint-fix forge-lint golangci-install golangci golangci-fix \
-	license-install license license-fix \
+	golines-install golines license-install license license-fix \
 	gosec-install gosec buf-install buf-lint-fix buf-lint sync tidy repo-rinse
