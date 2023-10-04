@@ -262,7 +262,7 @@ func ConvertMsgSubmitProposalToSdk(
 ) (*v1.MsgSubmitProposal, error) {
 	proposal, ok := utils.GetAs[struct {
 		Messages []struct {
-			TypeUrl string  `json:"typeUrl"`
+			TypeURL string  `json:"typeURL"`
 			Value   []uint8 `json:"value"`
 		} `json:"messages"`
 		InitialDeposit []struct {
@@ -283,7 +283,7 @@ func ConvertMsgSubmitProposalToSdk(
 	for i, genCodecAny := range proposal.Messages {
 		messages[i] = &codectypes.Any{
 			Value:   genCodecAny.Value,
-			TypeUrl: genCodecAny.TypeUrl,
+			TypeUrl: genCodecAny.TypeURL,
 		}
 		var msg sdk.Msg
 		if err := ir.UnpackAny(messages[i], &msg); err != nil {
