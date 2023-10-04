@@ -23,6 +23,7 @@ package miner
 
 import (
 	"context"
+	"fmt"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
@@ -105,8 +106,9 @@ func (m *Miner) resolveEnvelope() []byte {
 	if m.currentPayload == nil {
 		return nil
 	}
-
-	bz, err := m.serializer.PayloadToBytes(m.currentPayload.ResolveFull())
+	pl := m.currentPayload.ResolveFull()
+	fmt.Println("MINER BUILDING BLOCK WITH NUMBER", pl.ExecutionPayload.Number)
+	bz, err := m.serializer.PayloadToBytes(pl)
 	if err != nil {
 		panic(err)
 	}
