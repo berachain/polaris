@@ -21,20 +21,29 @@
 package core
 
 import (
+	"errors"
+
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
-// ChainResources is the interface that defines functions for code paths within the chain to acquire
-// resources to use in execution such as StateDBss and EVMss.
+// ChainResources is the interface that defines functions for code paths within the chain to
+// acquire resources to use in execution such as StateDBss and EVMss.
 type ChainResources interface {
-	StateAtBlockNumber(uint64) (vm.GethStateDB, error)
+	StateAtBlockNumber(uint64) (state.StateDBI, error)
+	StateAt(root common.Hash) (state.StateDBI, error)
 	GetVMConfig() *vm.Config
+}
+
+// StateAt returns a statedb configured to read what the state of the blockchain is/was at a given.
+func (bc *blockchain) StateAt(common.Hash) (state.StateDBI, error) {
+	return nil, errors.New("not implemented")
 }
 
 // StateAtBlockNumber returns a statedb configured to read what the state of the blockchain is/was
 // at a given block number.
-func (bc *blockchain) StateAtBlockNumber(number uint64) (vm.GethStateDB, error) {
+func (bc *blockchain) StateAtBlockNumber(number uint64) (state.StateDBI, error) {
 	sp, err := bc.sp.StateAtBlockNumber(number)
 	if err != nil {
 		return nil, err

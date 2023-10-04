@@ -3,7 +3,7 @@ module pkg.berachain.dev/polaris/e2e/localnet
 go 1.21
 
 // We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230926021825-5556e5557a50
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230928023220-89db795f378f
 
 require (
 	github.com/docker/docker v24.0.5+incompatible
@@ -50,7 +50,7 @@ require (
 	github.com/cometbft/cometbft v0.38.0 // indirect
 	github.com/cometbft/cometbft-db v0.8.0 // indirect
 	github.com/consensys/bavard v0.1.13 // indirect
-	github.com/consensys/gnark-crypto v0.11.2 // indirect
+	github.com/consensys/gnark-crypto v0.12.0 // indirect
 	github.com/containerd/continuity v0.3.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-db v1.0.0 // indirect

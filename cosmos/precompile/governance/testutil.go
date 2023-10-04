@@ -87,7 +87,8 @@ func setupGovTest(ctrl *gomock.Controller, caller sdk.AccAddress) (
 	}
 
 	// Create the governance keeper.
-	authority, err := ak.AddressCodec().BytesToString(authtypes.NewModuleAddress(governancetypes.ModuleName))
+	authority, err := ak.AddressCodec().BytesToString(
+		authtypes.NewModuleAddress(governancetypes.ModuleName))
 	if err != nil {
 		panic(err)
 	}
@@ -118,8 +119,9 @@ func setupGovTest(ctrl *gomock.Controller, caller sdk.AccAddress) (
 
 	// Fund the caller with some coins.
 	err = testutils.MintCoinsToAddress(
-		//nolint:gomnd // magic number is fine here.
-		ctx, bk, governancetypes.ModuleName, common.BytesToAddress(caller), "abera", big.NewInt(100000000),
+
+		ctx, bk, governancetypes.ModuleName,
+		common.BytesToAddress(caller), "abera", big.NewInt(100000000), //nolint:gomnd // its okay.
 	)
 	if err != nil {
 		panic(err)

@@ -28,7 +28,6 @@ import (
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/crypto"
 
@@ -45,7 +44,7 @@ var (
 var _ = Describe("State Plugin", func() {
 	var ak state.AccountKeeper
 	var ctx sdk.Context
-	var sp core.StatePlugin
+	var sp state.Plugin
 
 	BeforeEach(func() {
 		ctx, ak, _, _ = testutil.SetupMinimalKeepers()
@@ -279,9 +278,11 @@ var _ = Describe("State Plugin", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(bobStorage).To(HaveLen(1))
 				Expect(bobStorage[0].Key).
-					To(Equal(common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000001")))
+					To(Equal(common.HexToHash(
+						"0x0000000000000000000000000000000000000000000000000000000000000001")))
 				Expect(bobStorage[0].Value).
-					To(Equal(common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000002")))
+					To(Equal(common.HexToHash(
+						"0x0000000000000000000000000000000000000000000000000000000000000002")))
 
 				sp.SetState(bob, common.BytesToHash([]byte{3}), common.BytesToHash([]byte{4}))
 				var bobStorage2 Storage

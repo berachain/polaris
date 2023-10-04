@@ -51,6 +51,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
@@ -63,7 +64,6 @@ import (
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
-	evmmempool "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/txpool/mempool"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	testapp "pkg.berachain.dev/polaris/e2e/testapp"
 )
@@ -83,7 +83,12 @@ func NewRootCmd() *cobra.Command {
 
 	if err := depinject.Inject(depinject.Configs(
 		testapp.MakeAppConfig(""),
-		depinject.Supply(evmmempool.NewPolarisEthereumTxPool(), log.NewNopLogger()),
+		depinject.Supply(
+			testapp.PolarisConfigFn(evmconfig.DefaultConfig()),
+			testapp.QueryContextFn((&testapp.SimApp{})),
+			log.NewNopLogger(),
+			simtestutil.NewAppOptionsWithFlagHome(tempDir()),
+		),
 		depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners)),
 		&interfaceRegistry,
 		&appCodec,
@@ -355,4 +360,14 @@ func appExport(
 	}
 
 	return testApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
+}
+
+var tempDir = func() string {
+	dir, err := os.MkdirTemp("", "polard")
+	if err != nil {
+		dir = testapp.DefaultNodeHome
+	}
+	defer os.RemoveAll(dir)
+
+	return dir
 }

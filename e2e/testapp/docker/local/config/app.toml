@@ -106,8 +106,7 @@ prometheus-retention-time = 0
 #
 # Example:
 # [["chain_id", "cosmoshub-1"]]
-global-labels = [
-]
+global-labels = []
 
 ###############################################################################
 ###                           API Configuration                             ###
@@ -241,6 +240,79 @@ rpc-evm-timeout = "5s"
 rpc-tx-fee-cap = "1"
 
 
+[polaris.polar.chain]
+chain-id = "2061"
+
+# Homestead switch block
+homestead-block = "0"
+
+# DAO fork switch block
+dao-fork-block = "0"
+
+# Whether to support DAO fork
+dao-fork-support = true
+
+# EIP150 switch block
+eip150-block = "0"
+
+# EIP155 switch block
+eip155-block = "0"
+
+# EIP158 switch block
+eip158-block = "0"
+
+# Byzanitum switch block
+byzantium-block = "0"
+
+# Constantinople switch block
+constantinople-block = "0"
+
+# Petersburg switch block
+petersburg-block = "0"
+
+# Istanbul switch block
+istanbul-block = "0"
+
+# Muir Glacier switch block
+muir-glacier-block = "0"
+
+# Berlin switch block
+berlin-block = "0"
+
+# London switch block
+london-block = "0"
+
+# Arrow Glacier switch block
+arrow-glacier-block = "0"
+
+# Gray Glacier switch block
+gray-glacier-block = "0"
+
+# Merge Netsplit switch block
+merge-netsplit-block = "0"
+
+# Shanghai switch time (nil == no fork, 0 = already on shanghai)
+shanghai-time = "0"
+
+# Cancun switch time (nil == no fork, 0 = already on cancun)
+cancun-time = "null"
+
+# Prague switch time (nil == no fork, 0 = already on prague)
+prague-time = "null"
+
+# Verkle switch time (nil == no fork, 0 = already on verkle)
+verkle-time = "null"
+
+# Terminal total difficulty
+terminal-total-difficulty = "0"
+
+# Whether terminal total difficulty has passed
+terminal-total-difficulty-passed = true
+
+# DevMode enabled
+is-dev-mode = false
+
+
 # Gas price oracle settings for Polaris
 [polaris.polar.gpo]
 # Number of blocks to check for gas prices
@@ -263,6 +335,42 @@ max-price = "500000000000"
 
 # Prices to ignore for gas price determination
 ignore-price = "2"
+
+# LegacyTxPool settings
+[polaris.polar.legacy-tx-pool]
+
+# Addresses that should be treated by default as local
+locals = []
+
+# Whether local transaction handling should be disabled
+no-locals = false
+
+# Journal of local transactions to survive node restarts
+journal = "transactions.rlp"
+
+#  Time interval to regenerate the local transaction journal
+rejournal = "1h0m0s"
+
+# Minimum gas price to enforce for acceptance into the pool
+price-limit = 1
+
+# Minimum price bump percentage to replace an already existing transaction (nonce)
+price-bump = 10
+
+# Number of executable transaction slots guaranteed per account
+account-slots = 16
+
+#  Maximum number of executable transaction slots for all accounts
+account-queue = 64
+
+# Maximum number of non-executable transaction slots permitted per account
+global-slots = 5120
+
+# Maximum number of non-executable transaction slots for all accounts
+global-queue = 1024
+
+# Maximum amount of time non-executable transaction are queued
+lifetime = "3h0m0s"
 
 
 # Node-specific settings
@@ -380,4 +488,3 @@ write-timeout = "30s"
 
 # Timeout for idle HTTP connections
 idle-timeout = "2m0s"
-

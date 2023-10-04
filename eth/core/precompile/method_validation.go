@@ -90,8 +90,8 @@ func validateArg(implMethodVar reflect.Value, abiMethodVar reflect.Value) error 
 	return nil
 }
 
-// validateStruct checks to make sure that the implementation struct's fields match the ABI struct's
-// fields.
+// validateStruct checks to make sure that the implementation struct's fields match the ABI
+// struct's fields.
 func validateStruct(implMethodVarType reflect.Type, abiMethodVarType reflect.Type) error {
 	if implMethodVarType.Kind() != reflect.Struct || abiMethodVarType.Kind() != reflect.Struct {
 		return errors.New("validateStruct: not a struct")

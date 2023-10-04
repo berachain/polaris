@@ -30,7 +30,10 @@ import (
 )
 
 // ProcessTransaction is called during the DeliverTx processing of the ABCI lifecycle.
-func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transaction) (*coretypes.Receipt, error) {
+func (k *Keeper) ProcessTransaction(
+	ctx context.Context,
+	tx *coretypes.Transaction,
+) (*coretypes.Receipt, error) {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	gasMeter := sCtx.GasMeter()
 	// We zero-out the gas meter prior to evm execution in order to ensure that the receipt output
@@ -40,7 +43,7 @@ func (k *Keeper) ProcessTransaction(ctx context.Context, tx *coretypes.Transacti
 		"reset gas meter prior to ethereum state transition")
 
 	// Process the transaction and return the EVM's execution result.
-	receipt, err := k.miner.ProcessTransaction(ctx, tx)
+	receipt, err := k.polaris.Miner().ProcessTransaction(ctx, tx)
 	if err != nil {
 		k.Logger(sCtx).Error("failed to process transaction", "err", err)
 		return nil, err

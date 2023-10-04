@@ -21,15 +21,18 @@
 package polar
 
 import (
+	"math/big"
 	"net/http"
 	"time"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/core/txpool"
+	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/filters"
+	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/miner"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
@@ -56,6 +59,9 @@ type NetworkingStack interface {
 	// RegisterAPIs registers JSON-RPC handlers for the networking stack.
 	RegisterAPIs([]rpc.API)
 
+	// RegisterLifecycles registers objects to have their lifecycle manged by the stack.
+	RegisterLifecycle(node.Lifecycle)
+
 	// Start starts the networking stack.
 	Start() error
 
@@ -66,17 +72,19 @@ type NetworkingStack interface {
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
 	cfg *Config
-	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC APIs.
-	// Although possible, it does not handle p2p networking like its sibling in geth would.
+	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC
+	// APIs. Although possible, it does not handle p2p networking like its sibling in geth
+	// would.
 	stack NetworkingStack
 
 	// core pieces of the polaris stack
 	host       core.PolarisHostChain
 	blockchain core.Blockchain
-	txPool     txpool.TxPool
+	txPool     *txpool.TxPool
 	miner      miner.Miner
 
-	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the core pieces.
+	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs
+	// and the core pieces.
 	backend Backend
 
 	// engine represents the consensus engine for the backend.
@@ -111,12 +119,41 @@ func NewWithNetworkingStack(
 		log.Root().SetHandler(logHandler)
 	}
 
-	// Build and set the RPC Backend and other services.
-	pl.backend = NewBackend(pl, stack.ExtRPCEnabled(), cfg)
-	pl.txPool = txpool.NewTxPool(host.GetTxPoolPlugin())
-	pl.miner = miner.NewMiner(pl)
+	pl.backend = NewBackend(pl, pl.stack.ExtRPCEnabled(), pl.cfg)
 
 	return pl
+}
+
+// Init initializes the Polaris struct.
+func (pl *Polaris) Init() error {
+	var err error
+	pl.miner = miner.New(pl)
+	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
+
+	// For now, we only have a legacy pool, we will implement blob pool later.
+	legacyPool := legacypool.New(
+		pl.cfg.LegacyTxPool, pl.Blockchain(),
+	)
+
+	// Setup the transaction pool and attach the legacyPool.
+	if pl.txPool, err = txpool.New(
+		new(big.Int).SetUint64(pl.cfg.LegacyTxPool.PriceLimit),
+		pl.blockchain,
+		[]txpool.SubPool{legacyPool},
+	); err != nil {
+		return err
+	}
+
+	// eth.miner = miner.New(eth,
+	// &config.Miner, eth.blockchain.Config(), eth.EventMux(), eth.engine, eth.isLocalBlock)
+
+	// Build and set the RPC Backend and other services.
+
+	// if eth.APIBackend.allowUnprotectedTxs {
+	// 	log.Info("Unprotected transactions allowed")
+	// }
+
+	return nil
 }
 
 // APIs return the collection of RPC services the polar package offers.
@@ -147,8 +184,7 @@ func (pl *Polaris) StartServices() error {
 	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
 
 	go func() {
-		// TODO: unhack this.
-		time.Sleep(2 * time.Second) //nolint:gomnd // we will fix this eventually.
+		time.Sleep(3 * time.Second) //nolint:gomnd // TODO:fix, this is required for hive...
 		if err := pl.stack.Start(); err != nil {
 			panic(err)
 		}
@@ -156,7 +192,12 @@ func (pl *Polaris) StartServices() error {
 	return nil
 }
 
-func (pl *Polaris) StopServices() error {
+// RegisterService adds a service to the networking stack.
+func (pl *Polaris) RegisterService(lc node.Lifecycle) {
+	pl.stack.RegisterLifecycle(lc)
+}
+
+func (pl *Polaris) Close() error {
 	return pl.stack.Close()
 }
 
@@ -168,7 +209,7 @@ func (pl *Polaris) Miner() miner.Miner {
 	return pl.miner
 }
 
-func (pl *Polaris) TxPool() txpool.TxPool {
+func (pl *Polaris) TxPool() *txpool.TxPool {
 	return pl.txPool
 }
 

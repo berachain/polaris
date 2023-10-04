@@ -47,19 +47,20 @@ var _ = Describe("", func() {
 
 	var subscription *mocks.Subscription
 	var serializer *mocks.TxSerializer
-	var broadcaster *mocks.Broadcaster
+	var broadcaster *mocks.TxBroadcaster
 	var subprovider *mocks.TxSubProvider
 
 	BeforeEach(func() {
 		subscription = mocks.NewSubscription(t)
 		subscription.On("Err").Return(nil)
 		subscription.On("Unsubscribe").Return()
-		broadcaster = mocks.NewBroadcaster(t)
+		broadcaster = mocks.NewTxBroadcaster(t)
 		subprovider = mocks.NewTxSubProvider(t)
 		subprovider.On("SubscribeNewTxsEvent", mock.Anything).Return(subscription)
 		serializer = mocks.NewTxSerializer(t)
 		h = newHandler(broadcaster, subprovider, serializer, log.NewTestLogger(t))
-		h.Start()
+		err := h.Start()
+		Expect(err).NotTo(HaveOccurred())
 		for !h.Running() {
 			// Wait for handler to start.
 			time.Sleep(50 * time.Millisecond)
@@ -68,7 +69,8 @@ var _ = Describe("", func() {
 	})
 
 	AfterEach(func() {
-		h.Stop()
+		err := h.Stop()
+		Expect(err).NotTo(HaveOccurred())
 		for h.Running() {
 			// Wait for handler to start.
 			time.Sleep(50 * time.Millisecond)
@@ -81,7 +83,9 @@ var _ = Describe("", func() {
 			serializer.On("SerializeToBytes", mock.Anything).Return([]byte{123}, nil).Once()
 			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Once()
 
-			h.txsCh <- core.NewTxsEvent{Txs: []*coretypes.Transaction{coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5})}}
+			h.txsCh <- core.NewTxsEvent{
+				Txs: []*coretypes.Transaction{coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5})},
+			}
 		})
 
 		It("should handle multiple tx", func() {

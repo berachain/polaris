@@ -79,21 +79,24 @@ func (etr *WrappedEthereumTransaction) GetSignBytes() ([]byte, error) {
 		Hash(tx).Bytes(), nil
 }
 
-// GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
+// GetSender extracts the sender address from the signature values using the
+// latest signer for the given chainID.
 func (etr *WrappedEthereumTransaction) GetSender() (common.Address, error) {
 	tx := etr.AsTransaction()
 	signer := coretypes.LatestSignerForChainID(tx.ChainId())
 	return signer.Sender(tx)
 }
 
-// GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
+// GetSender extracts the sender address from the signature values using the
+// latest signer for the given chainID.
 func (etr *WrappedEthereumTransaction) GetPubKey() ([]byte, error) {
 	tx := etr.AsTransaction()
 	signer := coretypes.LatestSignerForChainID(tx.ChainId())
 	return signer.PubKey(tx)
 }
 
-// GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
+// GetSender extracts the sender address from the signature values using the
+// latest signer for the given chainID.
 func (etr *WrappedEthereumTransaction) GetSignature() ([]byte, error) {
 	tx := etr.AsTransaction()
 	signer := coretypes.LatestSignerForChainID(tx.ChainId())

@@ -42,7 +42,6 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	authz "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -68,7 +67,8 @@ var (
 
 // NewContext creates a SDK context and mounts a mock multistore.
 func NewContext() sdk.Context {
-	return sdk.NewContext(mock.NewMultiStore(), cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
+	return sdk.NewContext(
+		mock.NewMultiStore(), cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
 }
 
 func NewContextWithMultiStore(ms storetypes.MultiStore) sdk.Context {
@@ -125,7 +125,6 @@ func SetupMinimalKeepers() (
 		auth.AppModuleBasic{},
 		bank.AppModuleBasic{},
 		staking.AppModuleBasic{},
-		authz.AppModuleBasic{},
 	)
 
 	addrCodec := addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix())
@@ -178,6 +177,5 @@ func GetEncodingConfig() testutil.TestEncodingConfig {
 		auth.AppModuleBasic{},
 		bank.AppModuleBasic{},
 		staking.AppModuleBasic{},
-		authz.AppModuleBasic{},
 	)
 }

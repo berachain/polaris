@@ -33,7 +33,8 @@ import (
 // 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
 var emptyCodeHash = crypto.Keccak256Hash(nil)
 
-// `selfDestructStatePlugin` defines the required funtions from the StatePlugin for the suicide journal.
+// `selfDestructStatePlugin` defines the required funtions from the StatePlugin
+// for the suicide journal.
 type selfDestructStatePlugin interface {
 	// GetCodeHash returns the code hash of the given account.
 	GetCodeHash(common.Address) common.Hash
@@ -58,9 +59,10 @@ type SelfDestructs interface {
 	GetSelfDestructs() []common.Address
 }
 
-// Dirty tracking of self destructed accounts, we have to keep track of these manually, in order for the
-// code and state to still be accessible even after the account has been deleted.
-// NOTE: we are only supporting one self destructed address per EVM call (and consequently per snapshot).
+// Dirty tracking of self destructed accounts, we have to keep track of these manually,
+// in order for the code and state to still be accessible even after the account has
+// been deleted. NOTE: we are only supporting one self destructed address per EVM call
+// (and consequently per snapshot).
 type selfDestructs struct {
 	// journal of suicide address per call, very rare to suicide so we alloc only 1 address
 	baseJournal[*common.Address]
@@ -83,9 +85,9 @@ func (s *selfDestructs) RegistryKey() string {
 	return suicidesRegistryKey
 }
 
-// SelfDestruct implements the PolarisStateDB interface by marking the given address as self destructed .
-// This clears the account balance, but the code and state of the address remains available
-// until after Commit is called.
+// SelfDestruct implements the PolarisStateDB interface by marking the given address as self
+// destructed. This clears the account balance, but the code and state of the address remains
+// available until after Commit is called.
 func (s *selfDestructs) SelfDestruct(addr common.Address) {
 	// ensure only one suicide per snapshot call
 	if s.Size() > s.lastSnapshot {
@@ -110,8 +112,8 @@ func (s *selfDestructs) Selfdestruct6780(_ common.Address) {
 	// TODO: IMPLEMENT EIP-6780
 }
 
-// HasSelfDestructed implements the PolarisStateDB interface by returning if the contract was self destructed
-// in current transaction.
+// HasSelfDestructed implements the PolarisStateDB interface by returning if the contract was
+// self destructed in current transaction.
 func (s *selfDestructs) HasSelfDestructed(addr common.Address) bool {
 	for i := s.Size() - 1; i >= 0; i-- {
 		if *s.PeekAt(i) == addr {

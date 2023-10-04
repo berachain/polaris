@@ -23,37 +23,32 @@ package configuration
 import (
 	"context"
 
-	storetypes "cosmossdk.io/store/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
-	plugins.HasGenesis
 	core.ConfigurationPlugin
-	SetChainConfig(*params.ChainConfig) error
 }
 
 // plugin implements the core.ConfigurationPlugin interface.
 type plugin struct {
-	storeKey    storetypes.StoreKey
-	paramsStore storetypes.KVStore
+	chainConfig *params.ChainConfig
 }
 
 // NewPlugin returns a new plugin instance.
-func NewPlugin(storeKey storetypes.StoreKey) Plugin {
+func NewPlugin(chainConfig *params.ChainConfig) Plugin {
 	return &plugin{
-		storeKey: storeKey,
+		chainConfig: chainConfig,
 	}
 }
 
-// Prepare implements the core.ConfigurationPlugin interface.
-func (p *plugin) Prepare(ctx context.Context) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.paramsStore = sCtx.KVStore(p.storeKey)
+func (p *plugin) Prepare(context.Context) {
+	// no-op
+}
+
+// GetChainConfig is used to get the genesis info of the Ethereum chain.
+func (p *plugin) ChainConfig() *params.ChainConfig {
+	return p.chainConfig
 }

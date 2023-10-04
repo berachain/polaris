@@ -115,8 +115,12 @@ func (b *backend) SuggestGasTipCap(ctx context.Context) (*big.Int, error) {
 }
 
 // FeeHistory returns the base fee and gas used history of the last N blocks.
-func (b *backend) FeeHistory(ctx context.Context, blockCount uint64, lastBlock rpc.BlockNumber,
-	rewardPercentiles []float64) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
+func (b *backend) FeeHistory(
+	ctx context.Context,
+	blockCount uint64,
+	lastBlock rpc.BlockNumber,
+	rewardPercentiles []float64,
+) (*big.Int, [][]*big.Int, []*big.Int, []float64, error) {
 	return b.gpo.FeeHistory(ctx, blockCount, lastBlock, rewardPercentiles)
 }
 
@@ -169,7 +173,10 @@ func (b *backend) SetHead(_ uint64) {
 	panic("not implemented")
 }
 
-func (b *backend) HeaderByNumber(_ context.Context, number rpc.BlockNumber) (*types.Header, error) {
+func (b *backend) HeaderByNumber(
+	_ context.Context,
+	number rpc.BlockNumber,
+) (*types.Header, error) {
 	switch number {
 	case rpc.PendingBlockNumber:
 		// TODO: handle "miner" stuff, Pending block is only known by the miner
@@ -261,7 +268,10 @@ func (b *backend) BlockByHash(_ context.Context, hash common.Hash) (*types.Block
 	return block, nil
 }
 
-func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash) (*types.Block, error) {
+func (b *backend) BlockByNumberOrHash(
+	ctx context.Context,
+	blockNrOrHash rpc.BlockNumberOrHash,
+) (*types.Block, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.BlockByNumber(ctx, blockNr)
 	}
@@ -270,7 +280,8 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash rpc.Blo
 		if block == nil {
 			return nil, core.ErrBlockNotFound
 		}
-		// if blockNrOrHash.RequireCanonical && b.polar.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
+		// if blockNrOrHash.RequireCanonical &&
+		// b.polar.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
 		// 	return nil, errors.New("hash is not currently canonical")
 		// }
 		// block := b.polar.blockchain.GetBlock(hash, header.Number.Uint64())
@@ -283,7 +294,8 @@ func (b *backend) BlockByNumberOrHash(ctx context.Context, blockNrOrHash rpc.Blo
 }
 
 func (b *backend) StateAndHeaderByNumber(
-	ctx context.Context, number rpc.BlockNumber,
+	ctx context.Context,
+	number rpc.BlockNumber,
 ) (state.StateDBI, *types.Header, error) {
 	// TODO: handling pending better
 	// // Pending state is only known by the miner
@@ -314,7 +326,8 @@ func (b *backend) StateAndHeaderByNumber(
 }
 
 func (b *backend) StateAndHeaderByNumberOrHash(
-	ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash,
+	ctx context.Context,
+	blockNrOrHash rpc.BlockNumberOrHash,
 ) (state.StateDBI, *types.Header, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.StateAndHeaderByNumber(ctx, blockNr)
@@ -329,7 +342,8 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 			// to match Geth
 			return nil, nil, core.ErrBlockNotFound
 		}
-		// if blockNrOrHash.RequireCanonical && b.eth.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
+		// if blockNrOrHash.RequireCanonical &&
+		// b.eth.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
 		// 	return nil, nil, errors.New("hash is not currently canonical")
 		// }
 		return b.StateAndHeaderByNumber(ctx, rpc.BlockNumber(header.Number.Int64()))
@@ -340,7 +354,8 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 // GetTransaction returns the transaction identified by `txHash`, along with
 // information about the transaction.
 func (b *backend) GetTransaction(
-	_ context.Context, txHash common.Hash,
+	_ context.Context,
+	txHash common.Hash,
 ) (*types.Transaction, common.Hash, uint64, uint64, error) {
 	b.logger.Debug("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
 	txLookup := b.polar.blockchain.GetTransactionLookup(txHash)
@@ -442,7 +457,7 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // ==============================================================================
 
 func (b *backend) SendTx(_ context.Context, signedTx *types.Transaction) error {
-	return b.polar.txPool.SendTx(signedTx)
+	return b.polar.txPool.Add([]*types.Transaction{signedTx}, true, false)[0]
 }
 
 func (b *backend) GetPoolTransactions() (types.Transactions, error) {
@@ -450,13 +465,11 @@ func (b *backend) GetPoolTransactions() (types.Transactions, error) {
 	pending := b.polar.txPool.Pending(false)
 	var txs types.Transactions
 	for _, batch := range pending {
-		// TODO: Subpools.
-		// for _, lazy := range batch {
-		// 	if tx := lazy.Resolve(); tx != nil {
-		// 		txs = append(txs, tx)
-		// 	}
-		// }
-		txs = append(txs, batch...)
+		for _, lazy := range batch {
+			if tx := lazy.Resolve(); tx != nil {
+				txs = append(txs, tx)
+			}
+		}
 	}
 	return txs, nil
 }
@@ -478,14 +491,19 @@ func (b *backend) Stats() (int, int) {
 	return pending, queued
 }
 
-func (b *backend) TxPoolContent() (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
+func (b *backend) TxPoolContent() (
+	map[common.Address][]*types.Transaction,
+	map[common.Address][]*types.Transaction,
+) {
 	pending, queued := b.polar.txPool.Content()
-	b.logger.Debug("called eth.rpc.backend.TxPoolContent", "pending", len(pending), "queued", len(queued))
+	b.logger.Debug(
+		"called eth.rpc.backend.TxPoolContent", "pending", len(pending), "queued", len(queued))
 	return pending, queued
 }
 
 func (b *backend) TxPoolContentFrom(addr common.Address) (
-	[]*types.Transaction, []*types.Transaction,
+	[]*types.Transaction,
+	[]*types.Transaction,
 ) {
 	pending, queued := b.polar.txPool.ContentFrom(addr)
 	b.logger.Debug("called eth.rpc.backend.TxPoolContentFrom",
@@ -502,14 +520,17 @@ func (b *backend) Engine() consensus.Engine {
 }
 
 // GetBody retrieves the block body corresponding to block by has or number..
-func (b *backend) GetBody(ctx context.Context, hash common.Hash,
+func (b *backend) GetBody(
+	ctx context.Context,
+	hash common.Hash,
 	number rpc.BlockNumber,
 ) (*types.Body, error) {
 	if number < 0 || hash == (common.Hash{}) {
 		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash)
 		return nil, errors.New("invalid arguments; expect hash and no special block numbers")
 	}
-	block, err := b.BlockByNumberOrHash(ctx, rpc.BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
+	block, err := b.BlockByNumberOrHash(
+		ctx, rpc.BlockNumberOrHash{BlockNumber: &number, BlockHash: &hash})
 	if block == nil || err != nil {
 		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash, "err", err)
 		return nil, nil //nolint:nilnil // to match geth.

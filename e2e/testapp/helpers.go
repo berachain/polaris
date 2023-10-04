@@ -21,10 +21,12 @@
 package testapp
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
+	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	bankprecompile "pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	distrprecompile "pkg.berachain.dev/polaris/cosmos/precompile/distribution"
 	govprecompile "pkg.berachain.dev/polaris/cosmos/precompile/governance"
@@ -34,7 +36,10 @@ import (
 
 // PrecompilesToInject returns a function that provides the initialization of the standard
 // set of precompiles.
-func PrecompilesToInject(app *SimApp, customPcs ...ethprecompile.Registrable) func() *ethprecompile.Injector {
+func PrecompilesToInject(
+	app *SimApp,
+	customPcs ...ethprecompile.Registrable,
+) func() *ethprecompile.Injector {
 	return func() *ethprecompile.Injector {
 		// Create the precompile injector with the standard precompiles.
 		pcs := ethprecompile.NewPrecompiles([]ethprecompile.Registrable{
@@ -63,5 +68,21 @@ func PrecompilesToInject(app *SimApp, customPcs ...ethprecompile.Registrable) fu
 			pcs.AddPrecompile(pc)
 		}
 		return pcs
+	}
+}
+
+// PrecompilesToInject returns a function that provides the initialization of the standard
+// set of precompiles.
+func QueryContextFn(app *SimApp) func() func(height int64, prove bool) (sdk.Context, error) {
+	return func() func(height int64, prove bool) (sdk.Context, error) {
+		return app.BaseApp.CreateQueryContext
+	}
+}
+
+// PolarisConfigFn returns a function that provides the initialization of the standard
+// set of precompiles.
+func PolarisConfigFn(cfg *evmconfig.Config) func() *evmconfig.Config {
+	return func() *evmconfig.Config {
+		return cfg
 	}
 }

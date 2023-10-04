@@ -65,9 +65,6 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
 	./bin/polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
 
-	cp ./e2e/testapp/docker/local/config/app.toml "$APP_TOML"
-	cp ./e2e/testapp/docker/local/config/config.toml "$CONFIG_TOML"
-
 	# Set client config
 	./bin/polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
 	./bin/polard config set client chain-id "$CHAINID" --home "$HOMEDIR"

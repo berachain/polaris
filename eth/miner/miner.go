@@ -26,12 +26,12 @@ import (
 
 	"github.com/ethereum/go-ethereum/consensus/misc/eip1559"
 	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
+	"github.com/ethereum/go-ethereum/core/txpool"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
-	"pkg.berachain.dev/polaris/eth/core/txpool"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -43,7 +43,7 @@ import (
 type Backend interface {
 	// Blockchain returns the blockchain instance.
 	Blockchain() core.Blockchain
-	TxPool() txpool.TxPool
+	TxPool() *txpool.TxPool
 	Host() core.PolarisHostChain
 }
 
@@ -59,6 +59,9 @@ type Miner interface {
 
 	// Finalize is called after the last tx in the block.
 	Finalize(context.Context) error
+
+	// TODO: deprecate
+	NextBaseFee() *big.Int
 }
 
 // miner implements the Miner interface.
@@ -66,7 +69,7 @@ type miner struct {
 	backend   Backend
 	chain     core.Blockchain
 	processor *core.StateProcessor
-	txPool    txpool.TxPool
+	txPool    *txpool.TxPool
 	bp        core.BlockPlugin
 	cp        core.ConfigurationPlugin
 	gp        core.GasPlugin
@@ -86,7 +89,7 @@ type miner struct {
 }
 
 // NewMiner creates a new Miner instance.
-func NewMiner(backend Backend) Miner {
+func New(backend Backend) Miner {
 	chain := backend.Blockchain()
 	host := backend.Host()
 
@@ -114,9 +117,15 @@ func NewMiner(backend Backend) Miner {
 	return m
 }
 
+// TODO: deprecate and properly recalculate in prepare proposal, this is fine for now though.
+func (m *miner) NextBaseFee() *big.Int {
+	if m.pendingHeader == nil {
+		return big.NewInt(0)
+	}
+	return eip1559.CalcBaseFee(m.cp.ChainConfig(), m.pendingHeader)
+}
+
 // Prepare prepares the blockchain for processing a new block at the given height.
-//
-//nolint:funlen // todo:fix
 func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
 	m.sp.Prepare(ctx)
@@ -187,7 +196,8 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		if chainConfig.IsCancun(parent.Number, parent.Time) {
 			excessBlobGas = eip4844.CalcExcessBlobGas(*parent.ExcessBlobGas, *parent.BlobGasUsed)
 		} else {
-			// For the first post-fork block, both parent.data_gas_used and parent.excess_data_gas are evaluated as 0
+			// For the first post-fork block, both parent.data_gas_used and
+			// parent.excess_data_gas are evaluated as 0
 			excessBlobGas = eip4844.CalcExcessBlobGas(0, 0)
 		}
 		m.pendingHeader.BlobGasUsed = new(uint64)
@@ -197,37 +207,31 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 
 	m.logger.Info("preparing evm block", "seal_hash", m.pendingHeader.Hash())
 
-	// TODO: abstract the evm from the miner, so that the miner is only concerned with txs and blocks.
 	var (
 		// TODO: we are hardcoding author to coinbase, this may be incorrect.
 		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
 		context = core.NewEVMBlockContext(m.pendingHeader, m.chain, &m.pendingHeader.Coinbase)
 		vmenv   = vm.NewGethEVMWithPrecompiles(context,
-			vm.TxContext{}, m.statedb, chainConfig, m.vmConfig,
-			m.pp,
+			vm.TxContext{}, m.statedb, chainConfig, m.vmConfig, m.pp,
 		)
 	)
 
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	// TODO: miner should not have a processor. Copy what dydx does in which validators and full nodes
 	// have different prepare and process proposals.
-	//
 	// Heuristic: Validators get miners. Full nodes get processors.
 	m.processor.Prepare(
 		vmenv,
 		m.pendingHeader,
 	)
-
-	// We update the base fee in the txpool to the next base fee.
-	// TODO: Move to prepare proposal
-	m.txPool.SetBaseFee(m.pendingHeader.BaseFee)
-
 	return m.pendingHeader
 }
 
-// ProcessTransaction processes the given transaction and returns the receipt after applying
-// the state transition. This method is called for each tx in the block.
-func (m *miner) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
+// ProcessTransaction processes the given transaction and returns the receipt after
+// applying the state transition. This method is called for each tx in the block.
+func (m *miner) ProcessTransaction(
+	ctx context.Context, tx *types.Transaction,
+) (*types.Receipt, error) {
 	m.logger.Debug("processing evm transaction", "tx_hash", tx.Hash())
 
 	// Reset the Gas and State plugins for the tx.

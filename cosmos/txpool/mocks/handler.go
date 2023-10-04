@@ -17,50 +17,18 @@ func (_m *Handler) EXPECT() *Handler_Expecter {
 	return &Handler_Expecter{mock: &_m.Mock}
 }
 
-// Running provides a mock function with given fields:
-func (_m *Handler) Running() bool {
+// Start provides a mock function with given fields:
+func (_m *Handler) Start() error {
 	ret := _m.Called()
 
-	var r0 bool
-	if rf, ok := ret.Get(0).(func() bool); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
 		r0 = rf()
 	} else {
-		r0 = ret.Get(0).(bool)
+		r0 = ret.Error(0)
 	}
 
 	return r0
-}
-
-// Handler_Running_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Running'
-type Handler_Running_Call struct {
-	*mock.Call
-}
-
-// Running is a helper method to define mock.On call
-func (_e *Handler_Expecter) Running() *Handler_Running_Call {
-	return &Handler_Running_Call{Call: _e.mock.On("Running")}
-}
-
-func (_c *Handler_Running_Call) Run(run func()) *Handler_Running_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *Handler_Running_Call) Return(_a0 bool) *Handler_Running_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Handler_Running_Call) RunAndReturn(run func() bool) *Handler_Running_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Start provides a mock function with given fields:
-func (_m *Handler) Start() {
-	_m.Called()
 }
 
 // Handler_Start_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Start'
@@ -80,19 +48,28 @@ func (_c *Handler_Start_Call) Run(run func()) *Handler_Start_Call {
 	return _c
 }
 
-func (_c *Handler_Start_Call) Return() *Handler_Start_Call {
-	_c.Call.Return()
+func (_c *Handler_Start_Call) Return(_a0 error) *Handler_Start_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *Handler_Start_Call) RunAndReturn(run func()) *Handler_Start_Call {
+func (_c *Handler_Start_Call) RunAndReturn(run func() error) *Handler_Start_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Stop provides a mock function with given fields:
-func (_m *Handler) Stop() {
-	_m.Called()
+func (_m *Handler) Stop() error {
+	ret := _m.Called()
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // Handler_Stop_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Stop'
@@ -112,12 +89,12 @@ func (_c *Handler_Stop_Call) Run(run func()) *Handler_Stop_Call {
 	return _c
 }
 
-func (_c *Handler_Stop_Call) Return() *Handler_Stop_Call {
-	_c.Call.Return()
+func (_c *Handler_Stop_Call) Return(_a0 error) *Handler_Stop_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *Handler_Stop_Call) RunAndReturn(run func()) *Handler_Stop_Call {
+func (_c *Handler_Stop_Call) RunAndReturn(run func() error) *Handler_Stop_Call {
 	_c.Call.Return(run)
 	return _c
 }

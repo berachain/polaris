@@ -3,10 +3,9 @@ module pkg.berachain.dev/polaris/eth
 go 1.21
 
 // We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230926021825-5556e5557a50
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20230928023220-89db795f378f
 
 require (
-	github.com/BurntSushi/toml v1.3.2
 	github.com/ethereum/go-ethereum v1.13.1
 	github.com/holiman/uint256 v1.2.3
 	github.com/onsi/ginkgo/v2 v2.12.1
@@ -35,7 +34,7 @@ require (
 	github.com/cockroachdb/pebble v0.0.0-20230906160148-46873a6a7a06 // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/consensys/bavard v0.1.13 // indirect
-	github.com/consensys/gnark-crypto v0.11.2 // indirect
+	github.com/consensys/gnark-crypto v0.12.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/crate-crypto/go-kzg-4844 v0.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

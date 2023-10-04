@@ -35,15 +35,20 @@ import (
 // DefaultGenesis returns default genesis state as raw bytes for the evm
 // module.
 func (AppModuleBasic) DefaultGenesis(_ codec.JSONCodec) json.RawMessage {
-	ethGen, err := core.DefaultGenesis.MarshalJSON()
+	ethGen := core.DefaultGenesis
+	rawGenesis, err := ethGen.MarshalJSON()
 	if err != nil {
 		panic(err)
 	}
-	return ethGen
+	return rawGenesis
 }
 
 // ValidateGenesis performs genesis state validation for the evm module.
-func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
+func (AppModuleBasic) ValidateGenesis(
+	_ codec.JSONCodec,
+	_ client.TxEncodingConfig,
+	bz json.RawMessage,
+) error {
 	ethGen := new(core.Genesis)
 	if err := ethGen.UnmarshalJSON(bz); err != nil {
 		return err
@@ -51,10 +56,12 @@ func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConf
 
 	// TODO: this code actually needs to be removed as it will cause issues.
 	// for address, account := range ethGen.Alloc {
-	// 	if ethGen.Config.IsEIP155(big.NewInt(0)) && account.Code != nil && account.Nonce == 0 {
+	// 	if ethGen.Config.IsEIP155(big.NewInt(0)) && account.Code != nil &&
+	// account.Nonce == 0 {
 	// 		// NOTE: EIP 161 was released at the same block as EIP 155.
 	// 		return fmt.Errorf(
-	// 			"EIP-161 requires an account with code (%s) to have nonce of at least 1, given (0)",
+	// 			"EIP-161 requires an account with code (%s) to have nonce of at
+	// least 1, given (0)",
 	// 			address.Hex(),
 	// 		)
 	// 	}
@@ -65,7 +72,11 @@ func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConf
 
 // InitGenesis performs genesis initialization for the evm module. It returns
 // no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, _ codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(
+	ctx sdk.Context,
+	_ codec.JSONCodec,
+	data json.RawMessage,
+) []abci.ValidatorUpdate {
 	var ethGen core.Genesis
 	if err := ethGen.UnmarshalJSON(data); err != nil {
 		panic(err)

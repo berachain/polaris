@@ -56,13 +56,15 @@ type Plugin interface {
 	plugins.HasGenesis
 	core.StatePlugin
 	// SetQueryContextFn sets the query context func for the plugin.
-	SetQueryContextFn(fn func(height int64, prove bool) (sdk.Context, error))
-	// IterateBalances iterates over the balances of all accounts and calls the given callback function.
+	SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error))
+	// IterateBalances iterates over the balances of all accounts and calls the callback function.
 	IterateBalances(fn func(common.Address, *big.Int) bool)
-	// IterateState iterates over the state of all accounts and calls the given callback function.
+	// IterateState iterates over the state of all accounts and calls the callback function.
 	IterateState(fn func(addr common.Address, key common.Hash, value common.Hash) bool)
 	// SetGasConfig sets the gas config for the plugin.
 	SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
+	// SetPrecompileLogFactory sets the precompile log factory for the plugin.
+	SetPrecompileLogFactory(events.PrecompileLogFactory)
 }
 
 // The StatePlugin is a very fun and interesting part of the EVM implementation. But if you want to
@@ -106,7 +108,7 @@ type plugin struct {
 	ak AccountKeeper
 
 	// getQueryContext allows for querying state a historical height.
-	getQueryContext func(height int64, prove bool) (sdk.Context, error)
+	getQueryContext func() func(height int64, prove bool) (sdk.Context, error)
 
 	// savedErr stores any error that is returned from state modifications on the underlying
 	// keepers.
@@ -127,6 +129,11 @@ func NewPlugin(
 		plf:      plf,
 		mu:       sync.Mutex{},
 	}
+}
+
+// SetupForPrecompiles sets the precompile plugin and the log factory on the state plugin.
+func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
+	p.plf = plf
 }
 
 // Prepare sets up the context on the state plugin for a new block. It sets the gas configs to be 0
@@ -155,8 +162,8 @@ func (p *plugin) Reset(ctx context.Context) {
 	// a way to handle converting Cosmos events from precompiles into Ethereum logs.
 	cem := events.NewManagerFrom(sdkCtx.EventManager(), p.plf)
 
-	// We need to build a custom configuration for the context in order to handle precompile event logs
-	// and proper gas consumption.
+	// We need to build a custom configuration for the context in order to handle precompile event
+	// logs and proper gas consumption.
 	p.ctx = sdkCtx.WithMultiStore(p.cms).WithEventManager(cem)
 
 	// We also remove the KVStore gas metering from the context prior to entering the EVM
@@ -166,7 +173,8 @@ func (p *plugin) Reset(ctx context.Context) {
 	// in the EVM are not being charged additional gas unknowingly.
 	p.SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
 
-	// We setup a snapshot controller to properly revert the Controllable MultiStore and EventManager.
+	// We setup a snapshot controller to properly revert the Controllable MultiStore
+	// and EventManager.
 	p.Controller = snapshot.NewController[string, libtypes.Controllable[string]]()
 	_ = p.Controller.Register(p.cms)
 	_ = p.Controller.Register(cem)
@@ -515,8 +523,8 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 // =============================================================================
 
 // SetQueryContextFn sets the query context func for the plugin.
-func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Context, error)) {
-	p.getQueryContext = gqc
+func (p *plugin) SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error)) {
+	p.getQueryContext = fn
 }
 
 // StateAtBlockNumber implements `core.StatePlugin`.
@@ -532,11 +540,15 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
 	// Investigate and hopefully remove this GTE.
 	if int64Number >= p.ctx.BlockHeight() {
+		if p.ctx.MultiStore() == nil {
+			return nil, errors.New("no multi-store set in host chain")
+		}
+
 		ctx, _ = p.ctx.CacheContext()
 	} else {
 		// Get the query context at the given height.
 		var err error
-		ctx, err = p.getQueryContext(int64Number, false)
+		ctx, err = p.getQueryContext()(int64Number, false)
 		if err != nil {
 			return nil, err
 		}

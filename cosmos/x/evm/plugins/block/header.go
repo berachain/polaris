@@ -42,8 +42,8 @@ const prevHeaderHashes = 256
 // ===========================================================================.
 
 // SetQueryContextFn sets the query context func for the plugin.
-func (p *plugin) SetQueryContextFn(gqc func(height int64, prove bool) (sdk.Context, error)) {
-	p.getQueryContext = gqc
+func (p *plugin) SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error)) {
+	p.getQueryContext = fn
 }
 
 // GetHeaderByNumber returns the header at the given height, using the plugin's query context.
@@ -144,7 +144,7 @@ func (p *plugin) readHeaderBytes(number uint64) ([]byte, error) {
 		number = uint64(p.ctx.BlockHeight())
 	}
 
-	ctx, err := p.getQueryContext(int64(number), false)
+	ctx, err := p.getQueryContext()(int64(number), false)
 	if err != nil {
 		return nil, errorslib.Wrap(err, "GetHeader: failed to use query context")
 	}
