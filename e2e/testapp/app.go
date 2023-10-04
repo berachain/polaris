@@ -99,6 +99,7 @@ type SimApp struct {
 	// polaris keepers
 	EVMKeeper *evmkeeper.Keeper
 
+	// polaris componets
 	mm *miner.Miner
 	mp *txpool.Mempool
 }
@@ -194,7 +195,7 @@ func NewPolarisApp(
 	app.EVMKeeper.SetupPrecompiles()
 
 	// Setup TxPool Wrapper
-	txpool.New(app.EVMKeeper.Polaris().TxPool())
+	app.mp = txpool.New(app.EVMKeeper.Polaris().TxPool())
 	app.SetMempool(app.mp)
 
 	// Setup Miner Wrapper

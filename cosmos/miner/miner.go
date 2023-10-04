@@ -52,7 +52,7 @@ func New(gm *miner.Miner) *Miner {
 	}
 }
 
-// SetSerializer sets the transaction serializer.
+// Init sets the transaction serializer.
 func (m *Miner) Init(serializer evmtypes.TxSerializer) {
 	m.serializer = serializer
 }
