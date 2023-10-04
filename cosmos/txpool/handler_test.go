@@ -59,7 +59,8 @@ var _ = Describe("", func() {
 		subprovider.On("SubscribeNewTxsEvent", mock.Anything).Return(subscription)
 		serializer = mocks.NewTxSerializer(t)
 		h = newHandler(broadcaster, subprovider, serializer, log.NewTestLogger(t))
-		h.Start()
+		err := h.Start()
+		Expect(err).NotTo(HaveOccurred())
 		for !h.Running() {
 			// Wait for handler to start.
 			time.Sleep(50 * time.Millisecond)
@@ -68,7 +69,8 @@ var _ = Describe("", func() {
 	})
 
 	AfterEach(func() {
-		h.Stop()
+		err := h.Stop()
+		Expect(err).NotTo(HaveOccurred())
 		for h.Running() {
 			// Wait for handler to start.
 			time.Sleep(50 * time.Millisecond)

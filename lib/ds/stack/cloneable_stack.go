@@ -37,7 +37,9 @@ type cloneableStack[T libtypes.Cloneable[T]] struct {
 }
 
 // NewCloneable creates and returns a new cloneableStack instance.
-func NewCloneable[T libtypes.Cloneable[T]](capacity int) cloneableStack[T] { //nolint:revive // it's ok.
+func NewCloneable[T libtypes.Cloneable[T]](
+	capacity int,
+) cloneableStack[T] { //nolint:revive // it's ok.
 	return cloneableStack[T]{
 		New[T](capacity),
 	}

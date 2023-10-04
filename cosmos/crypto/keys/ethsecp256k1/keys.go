@@ -41,9 +41,9 @@ const (
 	KeyType = "eth_secp256k1"
 )
 
-// =====================================================================================================
+// ===============================================================================================
 // Private Key
-// ====================================================================================================
+// ===============================================================================================
 
 // PrivKey is a wrapper around the Ethereum secp256k1 private key type. This wrapper conforms to
 // crypotypes.Pubkey to allow for the use of the Ethereum secp256k1 private key type within the Cosmos SDK.
@@ -97,12 +97,13 @@ func (privKey PrivKey) ToECDSA() (*ecdsa.PrivateKey, error) {
 	return crypto.ToECDSA(privKey.Bytes())
 }
 
-// =====================================================================================================
+// ===============================================================================================
 // Public Key
-// ====================================================================================================
+// ===============================================================================================
 
 // Pubkey is a wrapper around the Ethereum secp256k1 public key type. This wrapper conforms to
-// crypotypes.Pubkey to allow for the use of the Ethereum secp256k1 public key type within the Cosmos SDK.
+// crypotypes.Pubkey to allow for the use of the Ethereum secp256k1 public key type within the
+// Cosmos SDK.
 
 // Compile-time type assertion.
 var _ cryptotypes.PubKey = &PubKey{}

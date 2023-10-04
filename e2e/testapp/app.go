@@ -57,6 +57,8 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"github.com/ethereum/go-ethereum/node"
+
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/miner"
@@ -199,7 +201,7 @@ func NewPolarisApp(
 	app.EVMKeeper.SetupPrecompiles()
 
 	// Setup TxPool Wrapper
-	app.mp = txpool.NewMempool(app.EVMKeeper.Polaris().TxPool())
+	txpool.New(app.EVMKeeper.Polaris().TxPool())
 	app.SetMempool(app.mp)
 
 	// Setup Miner Wrapper
@@ -316,15 +318,24 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-	txSerializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig)
-	app.mm.SetSerializer(txSerializer)
-	app.mp.StartBroadcasterHandler(app.Logger(), apiSvr.ClientCtx, txSerializer)
-	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
+
+	// Create a TxSerializer.
+	serializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig)
+
+	// Initialize services.
+	app.mm.Init(serializer)
+	app.mp.Init(app.Logger(), apiSvr.ClientCtx, serializer)
+
+	// Register services with Polaris.
+	app.EVMKeeper.RegisterServices(apiSvr.ClientCtx, []node.Lifecycle{
+		app.mp,
+	})
 }
 
+// Close shuts down the application.
 func (app *SimApp) Close() error {
 	if pl := app.EVMKeeper.Polaris(); pl != nil {
-		return pl.StopServices()
+		return pl.Close()
 	}
 	return nil
 }

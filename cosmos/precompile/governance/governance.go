@@ -92,6 +92,9 @@ func (c *Contract) SubmitProposal(
 
 	// Create the proposal.
 	res, err := c.msgServer.SubmitProposal(ctx, &p)
+	if err != nil {
+		return 0, err
+	}
 
 	// emit an event at the end of this successful proposal submission
 	polarCtx := vm.UnwrapPolarContext(ctx)
@@ -104,7 +107,7 @@ func (c *Contract) SubmitProposal(
 	)
 
 	// Return the proposal ID.
-	return res.ProposalId, err
+	return res.ProposalId, nil
 }
 
 // CancelProposal is the method for the `cancelProposal` method of the governance precompile contract.

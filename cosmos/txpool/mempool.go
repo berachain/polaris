@@ -38,8 +38,11 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-// Mempool implements the mempool.Mempool interface.
-var _ mempool.Mempool = (*Mempool)(nil)
+// Mempool implements the mempool.Mempool & Lifecycle interfaces.
+var (
+	_ mempool.Mempool = (*Mempool)(nil)
+	_ Lifecycle       = (*Mempool)(nil)
+)
 
 // GethTxPool represents the interface to interact with the geth txpool.
 type GethTxPool interface {
@@ -48,9 +51,10 @@ type GethTxPool interface {
 	SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscription
 }
 
-// Startable represents a type that can be started.
-type Startable interface {
-	Start()
+// Lifecycle represents a lifecycle object.
+type Lifecycle interface {
+	Start() error
+	Stop() error
 }
 
 // Mempool is a mempool that adheres to the cosmos mempool interface.
@@ -59,24 +63,33 @@ type Startable interface {
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
 	txpool  GethTxPool
-	handler Startable
+	handler Lifecycle
 }
 
 // NewMempool creates a new Mempool.
-func NewMempool(txpool GethTxPool) *Mempool {
+func New(txpool GethTxPool) *Mempool {
 	return &Mempool{
 		txpool: txpool,
 	}
 }
 
-// StartBroadcasterHandler implements the Startable interface.
-func (m *Mempool) StartBroadcasterHandler(
+// Init intializes the Mempool (notably the TxHandler).
+func (m *Mempool) Init(
 	logger log.Logger,
 	txBroadcaster TxBroadcaster,
 	txSerializer TxSerializer,
 ) {
 	m.handler = newHandler(txBroadcaster, m.txpool, txSerializer, logger)
-	m.handler.Start() // todo: handle closing.
+}
+
+// Start starts the Mempool TxHandler.
+func (m *Mempool) Start() error {
+	return m.handler.Start()
+}
+
+// Stop stops the Mempool TxHandler.
+func (m *Mempool) Stop() error {
+	return m.handler.Stop()
 }
 
 // Insert attempts to insert a Tx into the app-side mempool returning

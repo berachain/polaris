@@ -32,6 +32,7 @@ import (
 	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/miner"
+	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -61,6 +62,9 @@ type NetworkingStack interface {
 
 	// RegisterAPIs registers JSON-RPC handlers for the networking stack.
 	RegisterAPIs([]rpc.API)
+
+	// RegisterLifecycles registers objects to have their lifecycle manged by the stack.
+	RegisterLifecycle(node.Lifecycle)
 
 	// Start starts the networking stack.
 	Start() error
@@ -127,15 +131,21 @@ func NewWithNetworkingStack(
 
 // Init initializes the Polaris struct.
 func (pl *Polaris) Init() error {
-	pl.spminer = oldminer.New(pl)
-
 	var err error
+	pl.spminer = oldminer.New(pl)
+	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
+
+	// For now, we only have a legacy pool, we will implement blob pool later.
 	legacyPool := legacypool.New(
 		pl.cfg.LegacyTxPool, pl.Blockchain(),
 	)
 
-	pl.txPool, err = txpool.New(big.NewInt(0), pl.blockchain, []txpool.SubPool{legacyPool})
-	if err != nil {
+	// Setup the transaction pool and attach the legacyPool.
+	if pl.txPool, err = txpool.New(
+		new(big.Int).SetUint64(pl.cfg.LegacyTxPool.PriceLimit),
+		pl.blockchain,
+		[]txpool.SubPool{legacyPool},
+	); err != nil {
 		return err
 	}
 
@@ -143,7 +153,6 @@ func (pl *Polaris) Init() error {
 	// TODO: miner config to app.toml
 	pl.miner = miner.New(pl, &miner.DefaultConfig,
 		pl.host.GetConfigurationPlugin().ChainConfig(), mux, pl.beacon, pl.IsLocalBlock)
-	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 
 	// Build and set the RPC Backend and other services.
 
@@ -190,7 +199,12 @@ func (pl *Polaris) StartServices() error {
 	return nil
 }
 
-func (pl *Polaris) StopServices() error {
+// RegisterService adds a service to the networking stack.
+func (pl *Polaris) RegisterService(lc node.Lifecycle) {
+	pl.stack.RegisterLifecycle(lc)
+}
+
+func (pl *Polaris) Close() error {
 	return pl.stack.Close()
 }
 
