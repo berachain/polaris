@@ -50,8 +50,7 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	}
 
 	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
-	k.polaris.Blockchain().
-		PreparePlugins(ctx, uint64(sCtx.BlockHeight()), uint64(sCtx.BlockTime().Unix()))
+	k.polaris.Blockchain().PreparePlugins(ctx, uint64(sCtx.BlockHeight()), uint64(sCtx.BlockTime().Unix()))
 
 	if err = k.polaris.Blockchain().InsertBlockWithoutSetHead(block); err != nil {
 		return nil, err
@@ -61,4 +60,12 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	gasMeter.ConsumeGas(block.GasUsed(), "block gas used")
 
 	return &evmtypes.WrappedPayloadEnvelopeResponse{}, nil
+}
+
+// EthTransaction implements the MsgServer interface. It is intentionally a no-op, but is required
+// for the cosmos-sdk to not freak out.
+func (k *Keeper) EthTransaction(
+	context.Context, *evmtypes.WrappedEthereumTransaction,
+) (*evmtypes.WrappedEthereumTransactionResult, error) {
+	panic("intentionally not implemented")
 }

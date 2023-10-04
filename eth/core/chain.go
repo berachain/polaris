@@ -22,6 +22,7 @@ package core
 
 import (
 	"context"
+	"errors"
 	"math/big"
 	"sync/atomic"
 
@@ -138,14 +139,16 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 	return bc
 }
 
-func (bc *blockchain) LoadLastState(ctx context.Context) error {
+func (bc *blockchain) LoadLastState(ctx context.Context, number uint64) error {
 	// ctx here is the one created from app.CommitMultistore().
-	bc.PreparePlugins(ctx, 0, 0)
-	return bc.loadLastState()
+	bc.PreparePlugins(ctx, number, 0)
+
+	return bc.loadLastState(number)
 }
 
 func (bc *blockchain) PreparePlugins(ctx context.Context, number, time uint64) {
 	bc.sp.Prepare(ctx)
+	bc.sp.Reset(ctx)
 	bc.bp.Prepare(ctx)
 	bc.cp.Prepare(ctx)
 	bc.gp.Prepare(ctx)
@@ -167,7 +170,15 @@ func (bc *blockchain) Config() *params.ChainConfig {
 
 // loadLastState loads the last known chain state from the database. This method
 // assumes that the chain manager mutex is held.
-func (bc *blockchain) loadLastState() error {
+func (bc *blockchain) loadLastState(number uint64) error {
 	bc.logger.Info("loading last state")
+	b := bc.GetBlockByNumber(number)
+	if number == 0 {
+		return nil
+	}
+	if b == nil {
+		return errors.New("block is nil at load last state")
+	}
+	bc.currentBlock.Store(b)
 	return nil
 }

@@ -242,8 +242,9 @@ func NewPolarisApp(
 	cmsCtx := sdk.Context{}.
 		WithMultiStore(app.CommitMultiStore()).
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
-		WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
-	if err := app.EVMKeeper.Polaris().Blockchain().LoadLastState(cmsCtx); err != nil {
+		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
+	if err := app.EVMKeeper.Polaris().Blockchain().
+		LoadLastState(cmsCtx, uint64(app.LastBlockHeight())); err != nil {
 		panic(err)
 	}
 

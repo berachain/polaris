@@ -28,6 +28,10 @@ option go_package = "pkg.berachain.dev/polaris/cosmos/x/evm/types";
 // Msg defines the x/evm Msg service.
 service MsgService {
   option (cosmos.msg.v1.service) = true;
+
+  // EthTransaction defines a method submitting Ethereum transactions.
+  rpc EthTransaction(WrappedEthereumTransaction) returns (WrappedEthereumTransactionResult);
+
   // ProcessPayloadEnvelope defines a method to process CL paylods.
   rpc ProcessPayloadEnvelope(WrappedPayloadEnvelope) returns (WrappedPayloadEnvelopeResponse);
 }
