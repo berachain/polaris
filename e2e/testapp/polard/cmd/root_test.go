@@ -55,7 +55,7 @@ var _ = Describe("Init command", func() {
 		rootCmd.SetArgs([]string{
 			"init",        // Test the init cmd
 			"simapp-test", // Moniker
-			fmt.Sprintf("--%s=%s", cli.FlagOverwrite, "true"), // Overwrite genesis.json, in case it already exists
+			fmt.Sprintf("--%s=%s", cli.FlagOverwrite, "true"), // Overwrite genesis.json
 		})
 
 		err := svrcmd.Execute(rootCmd, "", testapp.DefaultNodeHome)

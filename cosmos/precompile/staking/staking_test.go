@@ -62,8 +62,12 @@ func createValAddrs(count int) ([]sdk.AccAddress, []sdk.ValAddress) {
 	return addrs, valAddrs
 }
 
-func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey) (stakingtypes.Validator, error) {
-	return stakingtypes.NewValidator(operator.String() /* todo move to codec */, pubKey, stakingtypes.Description{})
+func NewValidator(
+	operator sdk.ValAddress, pubKey cryptotypes.PubKey,
+) (stakingtypes.Validator, error) {
+	return stakingtypes.NewValidator(
+		operator.String() /* todo move to codec */, pubKey, stakingtypes.Description{},
+	)
 }
 
 var (
@@ -603,7 +607,12 @@ var _ = Describe("Staking", func() {
 	})
 })
 
-func FundAccount(ctx sdk.Context, bk bankkeeper.BaseKeeper, account sdk.AccAddress, coins sdk.Coins) error {
+func FundAccount(
+	ctx sdk.Context,
+	bk bankkeeper.BaseKeeper,
+	account sdk.AccAddress,
+	coins sdk.Coins,
+) error {
 	if err := bk.MintCoins(ctx, stakingtypes.ModuleName, coins); err != nil {
 		return err
 	}

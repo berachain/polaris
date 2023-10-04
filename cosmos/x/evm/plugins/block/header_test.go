@@ -47,7 +47,8 @@ var _ = Describe("Header", func() {
 		_, _, _, sk := testutil.SetupMinimalKeepers()
 		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
 		p = utils.MustGetAs[*plugin](NewPlugin(testutil.EvmKey, sk))
-		p.SetQueryContextFn(func() func(height int64, prove bool) (sdk.Context, error) { return mockQueryContext })
+		p.SetQueryContextFn(
+			func() func(height int64, prove bool) (sdk.Context, error) { return mockQueryContext })
 		p.Prepare(ctx) // on block 0 (genesis)
 	})
 

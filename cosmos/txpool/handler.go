@@ -64,11 +64,6 @@ type Subscription interface {
 	event.Subscription
 }
 
-// Handler exposes a basic interface to utilize the Handler.
-type Handler interface {
-	Lifecycle
-}
-
 // handler listens for new insertions into the geth txpool and broadcasts them to the CometBFT
 // layer for p2p and ABCI.
 type handler struct {
@@ -83,13 +78,6 @@ type handler struct {
 	stopCh  chan struct{}
 	txsSub  Subscription
 	running atomic.Bool
-}
-
-// NewHandler creates a new Handler.
-func NewHandler(
-	clientCtx TxBroadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
-) Handler {
-	return newHandler(clientCtx, txPool, serializer, logger)
 }
 
 // newHandler creates a new handler.

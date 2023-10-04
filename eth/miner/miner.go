@@ -196,7 +196,8 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		if chainConfig.IsCancun(parent.Number, parent.Time) {
 			excessBlobGas = eip4844.CalcExcessBlobGas(*parent.ExcessBlobGas, *parent.BlobGasUsed)
 		} else {
-			// For the first post-fork block, both parent.data_gas_used and parent.excess_data_gas are evaluated as 0
+			// For the first post-fork block, both parent.data_gas_used and
+			// parent.excess_data_gas are evaluated as 0
 			excessBlobGas = eip4844.CalcExcessBlobGas(0, 0)
 		}
 		m.pendingHeader.BlobGasUsed = new(uint64)
@@ -206,7 +207,6 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 
 	m.logger.Info("preparing evm block", "seal_hash", m.pendingHeader.Hash())
 
-	// TODO: abstract the evm from the miner, so that the miner is only concerned with txs and blocks.
 	var (
 		// TODO: we are hardcoding author to coinbase, this may be incorrect.
 		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
@@ -219,19 +219,19 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	// TODO: miner should not have a processor. Copy what dydx does in which validators and full nodes
 	// have different prepare and process proposals.
-	//
 	// Heuristic: Validators get miners. Full nodes get processors.
 	m.processor.Prepare(
 		vmenv,
 		m.pendingHeader,
 	)
-
 	return m.pendingHeader
 }
 
-// ProcessTransaction processes the given transaction and returns the receipt after applying
-// the state transition. This method is called for each tx in the block.
-func (m *miner) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
+// ProcessTransaction processes the given transaction and returns the receipt after
+// applying the state transition. This method is called for each tx in the block.
+func (m *miner) ProcessTransaction(
+	ctx context.Context, tx *types.Transaction,
+) (*types.Receipt, error) {
 	m.logger.Debug("processing evm transaction", "tx_hash", tx.Hash())
 
 	// Reset the Gas and State plugins for the tx.

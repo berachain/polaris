@@ -32,7 +32,6 @@ import (
 	genutilmodulev1 "cosmossdk.io/api/cosmos/genutil/module/v1"
 	govmodulev1 "cosmossdk.io/api/cosmos/gov/module/v1"
 	mintmodulev1 "cosmossdk.io/api/cosmos/mint/module/v1"
-	paramsmodulev1 "cosmossdk.io/api/cosmos/params/module/v1"
 	slashingmodulev1 "cosmossdk.io/api/cosmos/slashing/module/v1"
 	stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
@@ -53,12 +52,8 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -74,7 +69,6 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/crisis"         // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/distribution"   // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/mint"           // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/params"         // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/slashing"       // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/staking"        // import for side-effects
 	_ "pkg.berachain.dev/polaris/cosmos/x/evm"        // import for side-effects
@@ -85,11 +79,16 @@ var (
 	moduleAccPerms = []*authmodulev1.ModuleAccountPermission{
 		{Account: authtypes.FeeCollectorName},
 		{Account: distrtypes.ModuleName},
-		{Account: minttypes.ModuleName, Permissions: []string{authtypes.Minter}},
-		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
-		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
-		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
-		{Account: evmtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
+		{Account: minttypes.ModuleName,
+			Permissions: []string{authtypes.Minter}},
+		{Account: stakingtypes.BondedPoolName,
+			Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
+		{Account: stakingtypes.NotBondedPoolName,
+			Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
+		{Account: govtypes.ModuleName,
+			Permissions: []string{authtypes.Burner}},
+		{Account: evmtypes.ModuleName,
+			Permissions: []string{authtypes.Minter, authtypes.Burner}},
 	}
 
 	// blocked account addresses.
@@ -151,7 +150,8 @@ func MakeAppConfig(bech32Prefix string) depinject.Config {
 					},
 					// NOTE: The genutils module must occur after staking so that pools are
 					// properly initialized with tokens from genesis accounts.
-					// NOTE: The genutils module must also occur after auth so that it can access the params from auth.
+					// NOTE: The genutils module must also occur after auth so that
+					// it can access the params from auth.
 					InitGenesis: []string{
 						authtypes.ModuleName,
 						banktypes.ModuleName,
@@ -163,7 +163,6 @@ func MakeAppConfig(bech32Prefix string) depinject.Config {
 						crisistypes.ModuleName,
 						genutiltypes.ModuleName,
 						evidencetypes.ModuleName,
-						paramstypes.ModuleName,
 						upgradetypes.ModuleName,
 						vestingtypes.ModuleName,
 						consensustypes.ModuleName,
@@ -181,7 +180,8 @@ func MakeAppConfig(bech32Prefix string) depinject.Config {
 				Config: appconfig.WrapAny(&authmodulev1.Module{
 					Bech32Prefix:             bech32Prefix,
 					ModuleAccountPermissions: moduleAccPerms,
-					// By default modules authority is the governance module. This is configurable with the following:
+					// By default modules authority is the governance module.
+					// This is configurable with the following:
 					// Authority: "group", // A custom module authority can be set using a module name
 					// Authority: "cosmos1cwwv22j5ca08ggdv9c2uky355k908694z577tv", // or a specific address
 				}),
@@ -203,10 +203,6 @@ func MakeAppConfig(bech32Prefix string) depinject.Config {
 			{
 				Name:   slashingtypes.ModuleName,
 				Config: appconfig.WrapAny(&slashingmodulev1.Module{}),
-			},
-			{
-				Name:   paramstypes.ModuleName,
-				Config: appconfig.WrapAny(&paramsmodulev1.Module{}),
 			},
 			{
 				Name:   "tx",
@@ -254,11 +250,6 @@ func MakeAppConfig(bech32Prefix string) depinject.Config {
 			// supply custom module basics
 			map[string]module.AppModuleBasic{
 				genutiltypes.ModuleName: genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
-				govtypes.ModuleName: gov.NewAppModuleBasic(
-					[]govclient.ProposalHandler{
-						paramsclient.ProposalHandler,
-					},
-				),
 			},
 		))
 }
