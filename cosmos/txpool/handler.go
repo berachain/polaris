@@ -109,7 +109,6 @@ func newHandler(
 
 // Start starts the handler.
 func (h *handler) Start() error {
-	defer h.running.Store(true)
 	if h.running.Load() {
 		return errors.New("handler already started")
 	}
@@ -131,6 +130,7 @@ func (h *handler) eventLoop() {
 	// Connect to the subscription.
 	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
 	h.logger.With("module", "txpool-handler").Info("starting txpool handler")
+	h.running.Store(true)
 
 	// Handle events.
 	var err error
