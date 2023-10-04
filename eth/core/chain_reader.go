@@ -196,7 +196,8 @@ func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
 	// check the historical plugin
 	receipts, err := bc.hp.GetReceiptsByHash(blockHash)
 	if receipts == nil || err != nil {
-		bc.logger.Debug("failed to get receipts from historical plugin", "receipts", receipts, "err", err)
+		bc.logger.Debug(
+			"failed to get receipts from historical plugin", "receipts", receipts, "err", err)
 		return nil
 	}
 

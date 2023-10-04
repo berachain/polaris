@@ -79,7 +79,8 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	}
 }
 
-// SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
+// SubmitProposal is the method for the `submitProposal` method of the
+// governance precompile contract.
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
 	proposalMsg []byte,
@@ -101,7 +102,8 @@ func (c *Contract) SubmitProposal(
 	sdk.UnwrapSDKContext(polarCtx.Context()).EventManager().EmitEvent(
 		sdk.NewEvent(
 			EventTypeProposalSubmitted,
-			sdk.NewAttribute(govtypes.AttributeKeyProposalID, strconv.FormatUint(res.ProposalId, 10)),
+			sdk.NewAttribute(
+				govtypes.AttributeKeyProposalID, strconv.FormatUint(res.ProposalId, 10)),
 			sdk.NewAttribute(AttributeProposalSender, polarCtx.MsgSender().Hex()),
 		),
 	)
@@ -110,7 +112,8 @@ func (c *Contract) SubmitProposal(
 	return res.ProposalId, nil
 }
 
-// CancelProposal is the method for the `cancelProposal` method of the governance precompile contract.
+// CancelProposal is the method for the `cancelProposal` method of the
+// governance precompile contract.
 func (c *Contract) CancelProposal(
 	ctx context.Context,
 	id uint64,
@@ -250,7 +253,9 @@ func (c *Contract) GetProposal(
 	return cosmlib.SdkProposalToGovProposal(*res.Proposal), nil
 }
 
-// GetProposals is the method for the `getProposal` method of the governance precompile contract.
+// GetProposals is the method for the `getProposal`
+//
+//	method of the governance precompile contract.
 func (c *Contract) GetProposals(
 	ctx context.Context,
 	proposalStatus int32,
@@ -272,7 +277,8 @@ func (c *Contract) GetProposals(
 	return proposals, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
-// GetProposalDeposits is the method for the `getProposalDeposits` method of the governance precompile contract.
+// GetProposalDeposits is the method for the `getProposalDeposits`
+// method of the governance precompile contract.
 func (c *Contract) GetProposalDeposits(
 	ctx context.Context,
 	proposalID uint64,
@@ -325,7 +331,8 @@ func (c *Contract) GetProposalDepositsByDepositor(
 	return deposits, nil
 }
 
-// GetProposalVotes is the method for the `getProposalVotes` method of the governance precompile contract.
+// GetProposalVotes is the method for the `getProposalVotes` method of the
+// governance precompile contract.
 func (c *Contract) GetProposalTallyResult(
 	ctx context.Context,
 	proposalID uint64,
@@ -345,7 +352,8 @@ func (c *Contract) GetProposalTallyResult(
 	}, nil
 }
 
-// GetProposalVotes is the method for the `getProposalVotes` method of the governance precompile contract.
+// GetProposalVotes is the method for the `getProposalVotes` method of the
+// governance precompile contract.
 func (c *Contract) GetProposalVotes(
 	ctx context.Context,
 	proposalID uint64,
@@ -387,8 +395,8 @@ func (c *Contract) GetProposalVotes(
 	return votes, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
-// GetProposalVotesByVoter is the method for the `getProposalVotesByVoter` method of the governance
-// precompile contract.
+// GetProposalVotesByVoter is the method for the `getProposalVotesByVoter`
+// method of the governance precompile contract.
 func (c *Contract) GetProposalVotesByVoter(
 	ctx context.Context,
 	proposalID uint64,
@@ -425,8 +433,8 @@ func (c *Contract) GetProposalVotesByVoter(
 	}, nil
 }
 
-// GetProposalVoteByVoter is the method for the `getProposalVoteByVoter` method of the governance
-// precompile contract.
+// GetProposalVoteByVoter is the method for the `getProposalVoteByVoter`
+// method of the governance precompile contract.
 func (c *Contract) GetParams(
 	ctx context.Context,
 ) (generated.IGovernanceModuleParams, error) {
@@ -469,7 +477,8 @@ func (c *Contract) GetParams(
 	}, nil
 }
 
-// GetDepositParams is the method for the `getDepositParams` method of the governance precompile contract.
+// GetDepositParams is the method for the `getDepositParams` method of the
+// governance precompile contract.
 func (c *Contract) GetDepositParams(
 	ctx context.Context,
 ) (generated.IGovernanceModuleDepositParams, error) {
@@ -491,7 +500,8 @@ func (c *Contract) GetDepositParams(
 	}, nil
 }
 
-// GetVotingParams is the method for the `getVotingParams` method of the governance precompile contract.
+// GetVotingParams is the method for the `getVotingParams` method of the
+// governance precompile contract.
 func (c *Contract) GetVotingParams(
 	ctx context.Context,
 ) (generated.IGovernanceModuleVotingParams, error) {
@@ -505,7 +515,8 @@ func (c *Contract) GetVotingParams(
 	}, nil
 }
 
-// GetTallyParams is the method for the `getTallyParams` method of the governance precompile contract.
+// GetTallyParams is the method for the `getTallyParams` method of the
+// governance precompile contract.
 func (c *Contract) GetTallyParams(
 	ctx context.Context,
 ) (generated.IGovernanceModuleTallyParams, error) {
@@ -521,7 +532,8 @@ func (c *Contract) GetTallyParams(
 	}, nil
 }
 
-// GetConstitution is the method for the `getConstitution` method of the governance precompile contract.
+// GetConstitution is the method for the `getConstitution` method of the
+// governance precompile contract.
 func (c *Contract) GetConstitution(
 	ctx context.Context,
 ) (string, error) {

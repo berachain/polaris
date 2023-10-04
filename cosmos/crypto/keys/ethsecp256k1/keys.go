@@ -46,7 +46,8 @@ const (
 // ===============================================================================================
 
 // PrivKey is a wrapper around the Ethereum secp256k1 private key type. This wrapper conforms to
-// crypotypes.Pubkey to allow for the use of the Ethereum secp256k1 private key type within the Cosmos SDK.
+// crypotypes.Pubkey to allow for the use of the Ethereum secp256k1 private key type within the
+// Cosmos SDK.
 
 // Compile-time type assertion.
 var _ cryptotypes.PrivKey = &PrivKey{}
@@ -71,7 +72,8 @@ func (privKey PrivKey) PubKey() cryptotypes.PubKey {
 
 // Equals returns true if two ECDSA private keys are equal and false otherwise.
 func (privKey PrivKey) Equals(other cryptotypes.LedgerPrivKey) bool {
-	return privKey.Type() == other.Type() && subtle.ConstantTimeCompare(privKey.Bytes(), other.Bytes()) == 1
+	return privKey.Type() == other.Type() &&
+		subtle.ConstantTimeCompare(privKey.Bytes(), other.Bytes()) == 1
 }
 
 // Type returns eth_secp256k1.

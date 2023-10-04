@@ -73,8 +73,8 @@ var (
 	_ precompile.ValueDecoder = ConvertCommonHexAddress
 )
 
-// ConvertSdkCoins converts the string representation of an `sdk.Coins` to a `[]generated.CosmosCoin`.
-//
+// ConvertSdkCoins converts the string representation of an `sdk.Coins`
+// to a `[]generated.CosmosCoin`.
 // ConvertSdkCoins is a `precompile.ValueDecoder`.
 func ConvertSdkCoins(attributeValue string) (any, error) {
 	// extract the sdk.Coins from string value

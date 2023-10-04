@@ -66,7 +66,8 @@ func DeployOnEVMFromPrecompile(
 	)
 
 	// consume gas used by EVM during contract creation
-	ctx.GasMeter().ConsumeGas(suppliedGas-gasRemaining, "EVM contract creation "+contractAddr.Hex())
+	ctx.GasMeter().ConsumeGas(
+		suppliedGas-gasRemaining, "EVM contract creation "+contractAddr.Hex())
 	return contractAddr, ret, err
 }
 
@@ -116,7 +117,8 @@ func CallEVMFromPrecompileUnpackArgs(
 	methodName string,
 	args ...any,
 ) ([]any, error) {
-	ret, err := CallEVMFromPrecompile(ctx, plugin, evm, caller, address, contract, value, methodName, args...)
+	ret, err := CallEVMFromPrecompile(
+		ctx, plugin, evm, caller, address, contract, value, methodName, args...)
 	if err != nil {
 		return nil, err
 	}

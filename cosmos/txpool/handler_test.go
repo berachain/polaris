@@ -83,7 +83,9 @@ var _ = Describe("", func() {
 			serializer.On("SerializeToBytes", mock.Anything).Return([]byte{123}, nil).Once()
 			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Once()
 
-			h.txsCh <- core.NewTxsEvent{Txs: []*coretypes.Transaction{coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5})}}
+			h.txsCh <- core.NewTxsEvent{
+				Txs: []*coretypes.Transaction{coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5})},
+			}
 		})
 
 		It("should handle multiple tx", func() {

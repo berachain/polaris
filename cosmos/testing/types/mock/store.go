@@ -196,7 +196,8 @@ func (t TestKVStore) Iterator(start, end []byte) types.Iterator {
 	return newMockIterator(start, end, t.store)
 }
 
-// ReverseIterator returns an iterator that iterates over all keys in the given domain in reverse order.
+// ReverseIterator returns an iterator
+// that iterates over all keys in the given domain in reverse order.
 func (t TestKVStore) ReverseIterator(start, end []byte) types.Iterator {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
@@ -231,7 +232,8 @@ func newMockIterator(start, end []byte, content map[string][]byte) *mockIterator
 	for k := range content {
 		b := []byte(k)
 
-		if (start == nil && end == nil) || (bytes.Compare(b, start) >= 0 && bytes.Compare(b, end) < 0) {
+		if (start == nil && end == nil) ||
+			(bytes.Compare(b, start) >= 0 && bytes.Compare(b, end) < 0) {
 			// make sure data is a copy so that there is no concurrent writing
 			temp := make([]byte, len(k))
 			copy(temp, k)

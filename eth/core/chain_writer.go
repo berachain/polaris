@@ -42,7 +42,11 @@ func (*blockchain) WriteBlockAndSetHead(
 }
 
 // InsertBlock inserts a block into the canonical chain and updates the state of the blockchain.
-func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error {
+func (bc *blockchain) InsertBlock(
+	block *types.Block,
+	receipts types.Receipts,
+	logs []*types.Log,
+) error {
 	var err error
 
 	// TODO: prepare historical plugin here?
@@ -56,7 +60,8 @@ func (bc *blockchain) InsertBlock(block *types.Block, receipts types.Receipts, l
 	// TODO: restructure this function / flow it sucks //
 	// *********************************************** //
 	blockHash, blockNum := block.Hash(), block.Number().Uint64()
-	bc.logger.Info("finalizing evm block", "block_hash", blockHash.Hex(), "num_txs", len(receipts))
+	bc.logger.Info(
+		"finalizing evm block", "block_hash", blockHash.Hex(), "num_txs", len(receipts))
 
 	// store the block header on the host chain
 	err = bc.bp.StoreHeader(block.Header())

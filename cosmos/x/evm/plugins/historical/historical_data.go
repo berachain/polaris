@@ -51,17 +51,19 @@ func (p *plugin) StoreBlock(block *coretypes.Block) error {
 	if err != nil {
 		return err
 	}
-	prefix.NewStore(store, []byte{types.BlockNumKeyToBlockPrefix}).Set(numBz, blockBz)
+	prefix.NewStore(store, []byte{types.BlockNumKeyToBlockPrefix}).
+		Set(numBz, blockBz)
 
 	// store block hash to block number.
-	prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).Set(block.Hash().Bytes(), numBz)
+	prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).
+		Set(block.Hash().Bytes(), numBz)
 
 	// store the version offchain for consistency.
 	offChainNum := sdk.BigEndianToUint64(store.Get([]byte{types.VersionKey}))
 	if blockNum > 0 && offChainNum != blockNum-1 {
 		panic(
 			fmt.Errorf(
-				"off-chain store's latest block number %d is not synced with previous block number %d",
+				"off-chain store's latest block number %d not synced with prev block number %d",
 				offChainNum,
 				blockNum-1,
 			),
@@ -131,7 +133,8 @@ func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
 // GetBlockByHash returns the block at the given hash.
 func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error) {
 	store := p.ctx.KVStore(p.storeKey)
-	numBz := prefix.NewStore(store, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
+	numBz := prefix.NewStore(
+		store, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
 	if numBz == nil {
 		return nil, core.ErrBlockNotFound
 	}
@@ -149,7 +152,8 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 // GetTransactionByHash returns the transaction lookup entry with the given hash.
 func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEntry, error) {
 	// get tx from off chain.
-	tleBz := prefix.NewStore(p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
+	tleBz := prefix.NewStore(
+		p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
 	if tleBz == nil {
 		return nil, core.ErrTxNotFound
 	}
@@ -171,7 +175,8 @@ func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, e
 	}
 	receipts, err := coretypes.UnmarshalReceipts(receiptsBz)
 	if err != nil {
-		return nil, errorslib.Wrapf(err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
+		return nil, errorslib.Wrapf(
+			err, "failed to unmarshal receipts for block hash %s", blockHash.Hex())
 	}
 
 	// get block to derive fields on receipts

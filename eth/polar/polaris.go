@@ -76,8 +76,9 @@ type NetworkingStack interface {
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
 	cfg *Config
-	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC API.
-	// Although possible, it does not handle p2p networking like its sibling in geth would.
+	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC
+	// APIs. Although possible, it does not handle p2p networking like its sibling in geth
+	// would.
 	stack NetworkingStack
 
 	// core pieces of the polaris stack
@@ -87,7 +88,8 @@ type Polaris struct {
 	spminer    oldminer.Miner
 	miner      *miner.Miner
 
-	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the core piecepl.
+	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs
+	// and the core pieces.
 	backend Backend
 
 	// engine represents the consensus engine for the backend.
@@ -133,7 +135,6 @@ func NewWithNetworkingStack(
 func (pl *Polaris) Init() error {
 	var err error
 	pl.spminer = oldminer.New(pl)
-	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 
 	// For now, we only have a legacy pool, we will implement blob pool later.
 	legacyPool := legacypool.New(
@@ -151,9 +152,10 @@ func (pl *Polaris) Init() error {
 
 	mux := new(event.TypeMux) //nolint:staticcheck // todo fix.
 	// TODO: miner config to app.toml
-	pl.miner = miner.New(pl, &miner.DefaultConfig,
+	cfg := &miner.DefaultConfig
+	pl.miner = miner.New(pl, cfg,
 		pl.host.GetConfigurationPlugin().ChainConfig(), mux, pl.beacon, pl.IsLocalBlock)
-
+	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 	// Build and set the RPC Backend and other services.
 
 	// if eth.APIBackend.allowUnprotectedTxs {

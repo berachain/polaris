@@ -278,9 +278,11 @@ var _ = Describe("State Plugin", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(bobStorage).To(HaveLen(1))
 				Expect(bobStorage[0].Key).
-					To(Equal(common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000001")))
+					To(Equal(common.HexToHash(
+						"0x0000000000000000000000000000000000000000000000000000000000000001")))
 				Expect(bobStorage[0].Value).
-					To(Equal(common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000002")))
+					To(Equal(common.HexToHash(
+						"0x0000000000000000000000000000000000000000000000000000000000000002")))
 
 				sp.SetState(bob, common.BytesToHash([]byte{3}), common.BytesToHash([]byte{4}))
 				var bobStorage2 Storage

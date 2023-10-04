@@ -46,39 +46,4 @@ var _ = Describe("", func() {
 		// mempool = &Miner{}
 	})
 
-	// When("we call insert", func() {
-	// 	When("the txpool does not error", func() {
-	// 		It("does not error", func() {
-	// 			sdkTx.On("GetMsgs").Return([]sdk.Msg{evmtypes.NewFromTransaction(coretypes.NewTx(&coretypes.LegacyTx{}))}).Once()
-	// 			txPool.On("Add", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
-	// 			Expect(mempool.Insert(ctx, sdkTx)).ToNot(HaveOccurred())
-	// 		})
-	// 	})
-	// 	When("the txpool errors", func() {
-	// 		It("does error", func() {
-	// 			sdkTx.On("GetMsgs").Return([]sdk.Msg{evmtypes.NewFromTransaction(coretypes.NewTx(&coretypes.LegacyTx{}))}).Once()
-	// 			txPool.On("Add", mock.Anything, mock.Anything, mock.Anything).Return([]error{errors.New("mock error")}).Once()
-	// 			Expect(mempool.Insert(ctx, sdkTx)).To(HaveOccurred())
-	// 		})
-	// 	})
-	// 	When("we use an sdkTx with no messages", func() {
-	// 		It("errors", func() {
-	// 			sdkTx.On("GetMsgs").Return([]sdk.Msg{}).Once()
-	// 			Expect(mempool.Insert(ctx, sdkTx)).To(HaveOccurred())
-	// 		})
-	// 	})
-	// 	When("we use an that is not an ethereum msg", func() {
-	// 		It("errors", func() {
-	// 			sdkTx.On("GetMsgs").Return([]sdk.Msg{nil}).Once()
-	// 			Expect(mempool.Insert(ctx, sdkTx)).To(HaveOccurred())
-	// 		})
-	// 	})
-	// })
-
-	// When("we call stats", func() {
-	// 	It("returns", func() {
-	// 		txPool.On("Stats").Return(16, 12).Once()
-	// 		Expect(mempool.CountTx()).To(Equal(28))
-	// 	})
-	// })
 })

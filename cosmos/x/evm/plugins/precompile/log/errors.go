@@ -25,15 +25,19 @@ import "errors"
 var (
 	// ErrNoAttributeKeyFound is returned when no Cosmos event attribute is provided for a
 	// certain Ethereum event's argument.
-	ErrNoAttributeKeyFound = errors.New("this Ethereum event argument has no matching Cosmos attribute key")
+	ErrNoAttributeKeyFound = errors.New(
+		"this Ethereum event argument has no matching Cosmos attribute key")
 	// ErrNotEnoughAttributes is returned when a Cosmos event does not have enough attributes for
 	// its corresponding Ethereum event; there are less Cosmos event attributes than Ethereum event
 	// arguments.
-	ErrNotEnoughAttributes = errors.New("not enough event attributes provided")
+	ErrNotEnoughAttributes = errors.New(
+		"not enough event attributes provided")
 	// ErrNoValueDecoderFunc is returned when a Cosmos event's attribute key is not mapped to any
 	// attribute value decoder function.
-	ErrNoValueDecoderFunc = errors.New("no value decoder function is found for event attribute key")
+	ErrNoValueDecoderFunc = errors.New(
+		"no value decoder function is found for event attribute key")
 	// ErrNumberOfCoinsNotSupported is returned when the number of coins in a Cosmos event for the
 	// "amount" attribute is not equal to 1.
-	ErrNumberOfCoinsNotSupported = errors.New("number of coins not supported")
+	ErrNumberOfCoinsNotSupported = errors.New(
+		"number of coins not supported")
 )
