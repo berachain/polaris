@@ -132,9 +132,8 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 	// TODO: hmm...
 	// THIS IN ITS CURRENT STATE WILL CAUSE CONSENSUS ISSUES.
 	bc.currentBlock.Store(
-		types.NewBlock(&types.Header{Number: big.NewInt(0),
+		types.NewBlock(&types.Header{Time: 0, Number: big.NewInt(0),
 			BaseFee: big.NewInt(0)}, nil, nil, nil, trie.NewStackTrie(nil)))
-	bc.currentBlock.Store(nil)
 	bc.finalizedBlock.Store(nil)
 	return bc
 }

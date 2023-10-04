@@ -133,7 +133,9 @@ func NewPolarisApp(
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
 			MakeAppConfig(bech32Prefix),
-			depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners, evmtypes.ProvideWrappedPayloadGetSigners),
+			depinject.Provide(
+				evmtypes.ProvideEthereumTransactionGetSigners,
+				evmtypes.ProvideWrappedPayloadGetSigners),
 			depinject.Supply(
 				// supply the application options
 				appOpts,
@@ -192,6 +194,9 @@ func NewPolarisApp(
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
+	// SetupPrecompiles is used to setup the precompile contracts post depinject.
+	app.EVMKeeper.SetupPrecompiles()
+
 	// Setup TxPool Wrapper
 	app.mp = txpool.New(app.EVMKeeper.Polaris().TxPool())
 	app.SetMempool(app.mp)
@@ -241,10 +246,6 @@ func NewPolarisApp(
 	if err := app.EVMKeeper.Polaris().Blockchain().LoadLastState(cmsCtx); err != nil {
 		panic(err)
 	}
-
-	// SetupPrecompiles is used to setup the precompile contracts post depinject.
-	app.EVMKeeper.SetupPrecompiles()
-	// bz := ctx.KVStore(app.kvStoreKeys()[evmtypes.StoreKey]).Get([]byte{evmtypes.GenesisHeaderKey})
 
 	return app
 }
