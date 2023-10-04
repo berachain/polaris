@@ -32,23 +32,23 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 )
 
-// MockEngine is a mock implementation of the Engine interface.
-type MockEngine struct{}
+// DummyEthOne is a mock implementation of the Engine interface.
+type DummyEthOne struct{}
 
 // Author is a mock implementation.
-func (m *MockEngine) Author(header *types.Header) (common.Address, error) {
+func (m *DummyEthOne) Author(header *types.Header) (common.Address, error) {
 	return common.Address{}, nil
 }
 
 // VerifyHeader is a mock implementation.
-func (m *MockEngine) VerifyHeader(chain consensus.ChainHeaderReader, header *types.Header) error {
+func (m *DummyEthOne) VerifyHeader(chain consensus.ChainHeaderReader, header *types.Header) error {
 	// Set the correct difficulty
 	header.Difficulty = new(big.Int).SetUint64(1)
 	return nil
 }
 
 // VerifyHeaders is a mock implementation.
-func (m *MockEngine) VerifyHeaders(
+func (m *DummyEthOne) VerifyHeaders(
 	chain consensus.ChainHeaderReader, headers []*types.Header) (chan<- struct{}, <-chan error) {
 	for _, h := range headers {
 		if err := m.VerifyHeader(chain, h); err != nil {
@@ -59,24 +59,24 @@ func (m *MockEngine) VerifyHeaders(
 }
 
 // VerifyUncles is a mock implementation.
-func (m *MockEngine) VerifyUncles(chain consensus.ChainReader, block *types.Block) error {
+func (m *DummyEthOne) VerifyUncles(chain consensus.ChainReader, block *types.Block) error {
 	return nil
 }
 
 // Prepare is a mock implementation.
-func (m *MockEngine) Prepare(chain consensus.ChainHeaderReader, header *types.Header) error {
+func (m *DummyEthOne) Prepare(chain consensus.ChainHeaderReader, header *types.Header) error {
 	header.Difficulty = new(big.Int).SetUint64(0)
 	return nil
 }
 
 // Finalize is a mock implementation.
-func (m *MockEngine) Finalize(chain consensus.ChainHeaderReader,
+func (m *DummyEthOne) Finalize(chain consensus.ChainHeaderReader,
 	header *types.Header, state state.StateDBI, txs []*types.Transaction,
 	uncles []*types.Header, withdrawals []*types.Withdrawal) {
 }
 
 // FinalizeAndAssemble is a mock implementation.
-func (m *MockEngine) FinalizeAndAssemble(chain consensus.ChainHeaderReader,
+func (m *DummyEthOne) FinalizeAndAssemble(chain consensus.ChainHeaderReader,
 	header *types.Header, state state.StateDBI, txs []*types.Transaction,
 	uncles []*types.Header, receipts []*types.Receipt,
 	withdrawals []*types.Withdrawal) (*types.Block, error) {
@@ -84,7 +84,7 @@ func (m *MockEngine) FinalizeAndAssemble(chain consensus.ChainHeaderReader,
 }
 
 // Seal is a mock implementation.
-func (m *MockEngine) Seal(chain consensus.ChainHeaderReader,
+func (m *DummyEthOne) Seal(chain consensus.ChainHeaderReader,
 	block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
 	sealedBlock := block // .seal()
 	results <- sealedBlock
@@ -92,22 +92,22 @@ func (m *MockEngine) Seal(chain consensus.ChainHeaderReader,
 }
 
 // SealHash is a mock implementation.
-func (m *MockEngine) SealHash(header *types.Header) common.Hash {
+func (m *DummyEthOne) SealHash(header *types.Header) common.Hash {
 	return header.Hash()
 }
 
 // CalcDifficulty is a mock implementation.
-func (m *MockEngine) CalcDifficulty(chain consensus.ChainHeaderReader,
+func (m *DummyEthOne) CalcDifficulty(chain consensus.ChainHeaderReader,
 	time uint64, parent *types.Header) *big.Int {
 	return big.NewInt(0)
 }
 
 // APIs is a mock implementation.
-func (m *MockEngine) APIs(chain consensus.ChainHeaderReader) []rpc.API {
+func (m *DummyEthOne) APIs(chain consensus.ChainHeaderReader) []rpc.API {
 	return nil
 }
 
 // Close is a mock implementation.
-func (m *MockEngine) Close() error {
+func (m *DummyEthOne) Close() error {
 	return nil
 }

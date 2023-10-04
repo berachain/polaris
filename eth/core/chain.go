@@ -33,6 +33,7 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -65,6 +66,7 @@ type blockchain struct {
 	pp PrecompilePlugin
 	sp StatePlugin
 
+	engine    consensus.Engine
 	processor core.Processor
 
 	// statedb is the state database that is used to mange state during transactions.
@@ -125,9 +127,10 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		chainHeadFeed:  event.Feed{},
 		scope:          event.SubscriptionScope{},
 		logger:         log.Root(),
+		engine:         beacon.New(&consensus.DummyEthOne{}),
 	}
 	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
-	bc.processor = core.NewStateProcessor(bc.cp.ChainConfig(), bc, beacon.New(nil))
+	bc.processor = core.NewStateProcessor(bc.cp.ChainConfig(), bc, bc.engine)
 	// TODO: hmm...
 	// THIS IN ITS CURRENT STATE WILL CAUSE CONSENSUS ISSUES.
 	bc.currentBlock.Store(
