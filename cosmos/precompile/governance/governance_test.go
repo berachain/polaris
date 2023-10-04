@@ -29,17 +29,19 @@ import (
 	"github.com/golang/mock/gomock"
 
 	sdkmath "cosmossdk.io/math"
-
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	governancekeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/cosmos/gogoproto/proto"
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
+	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/types"
@@ -68,6 +70,7 @@ var _ = Describe("Governance Precompile", func() {
 		contract *Contract
 		sf       *ethprecompile.StatefulFactory
 		ctx      context.Context
+		ir       = codectypes.NewInterfaceRegistry()
 	)
 
 	BeforeEach(func() {
@@ -76,10 +79,13 @@ var _ = Describe("Governance Precompile", func() {
 		types.SetupCosmosConfig()
 		caller = testutils.Alice.Bytes()
 		sdkCtx, ak, bk, gk = setupGovTest(mockCtrl, caller)
+		sdk.RegisterInterfaces(ir)
+		ir.RegisterImplementations((*sdk.Msg)(nil), &banktypes.MsgUpdateParams{})
 		contract = utils.MustGetAs[*Contract](NewPrecompileContract(
 			ak,
 			governancekeeper.NewMsgServerImpl(gk),
 			governancekeeper.NewQueryServer(gk),
+			ir,
 		))
 		types.SetupCosmosConfig()
 		sf = ethprecompile.NewStatefulFactory()
@@ -126,10 +132,10 @@ var _ = Describe("Governance Precompile", func() {
 	})
 
 	When("submitting proposal handler", func() {
-		It("should fail if the proposal cant be unmarshalled", func() {
+		It("should fail if the proposal is empty", func() {
 			_, err := contract.SubmitProposal(
 				vm.NewPolarContext(sdk.Context{}, nil, common.Address{}, nil),
-				[]byte("invalid"),
+				generated.IGovernanceModuleMsgSubmitProposal{},
 			)
 			Expect(err).To(HaveOccurred())
 		})
@@ -137,7 +143,12 @@ var _ = Describe("Governance Precompile", func() {
 
 	When("Submitting a proposal", func() {
 		It("should succeed", func() {
-			initDeposit := sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
+			initDeposit := []generated.CosmosCoin{
+				{
+					Denom:  "abera",
+					Amount: big.NewInt(100),
+				},
+			}
 			govAcct := gk.GetGovernanceAccount(ctx).GetAddress()
 			err := testutils.MintCoinsToAddress(
 				sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
@@ -149,8 +160,21 @@ var _ = Describe("Governance Precompile", func() {
 			)
 			Expect(err).ToNot(HaveOccurred())
 
+			msg := &banktypes.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(governancetypes.ModuleName).String(),
+				Params: banktypes.Params{
+					DefaultSendEnabled: true,
+				},
+			}
+			msgBz, err := proto.Marshal(msg)
+			Expect(err).ToNot(HaveOccurred())
+
 			// Create and marshal the proposal.
-			proposal := v1.MsgSubmitProposal{
+			proposal := governance.IGovernanceModuleMsgSubmitProposal{
+				Messages: []governance.CosmosCodecAny{{
+					Value:   msgBz,
+					TypeUrl: "/cosmos.bank.v1beta1.MsgUpdateParams",
+				}},
 				InitialDeposit: initDeposit,
 				Proposer:       caller.String(),
 				Metadata:       "metadata",
@@ -158,12 +182,11 @@ var _ = Describe("Governance Precompile", func() {
 				Summary:        "summary",
 				Expedited:      false,
 			}
-			proposalBz, err := proposal.Marshal()
-			Expect(err).ToNot(HaveOccurred())
+
 			// Submit the proposal.
 			res, err := contract.SubmitProposal(
 				ctx,
-				proposalBz,
+				proposal,
 			)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).ToNot(BeNil())

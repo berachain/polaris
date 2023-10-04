@@ -32,6 +32,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
@@ -55,10 +56,13 @@ type Contract struct {
 	addressCodec address.Codec
 	msgServer    v1.MsgServer
 	querier      v1.QueryServer
+	ir           codectypes.InterfaceRegistry
 }
 
 // NewPrecompileContract creates a new precompile contract for the governance module.
-func NewPrecompileContract(ak cosmlib.CodecProvider, m v1.MsgServer, q v1.QueryServer) *Contract {
+func NewPrecompileContract(
+	ak cosmlib.CodecProvider, m v1.MsgServer, q v1.QueryServer,
+	ir codectypes.InterfaceRegistry) *Contract {
 	return &Contract{
 		BaseContract: ethprecompile.NewBaseContract(
 			generated.GovernanceModuleMetaData.ABI,
@@ -68,6 +72,7 @@ func NewPrecompileContract(ak cosmlib.CodecProvider, m v1.MsgServer, q v1.QueryS
 		addressCodec: ak.AddressCodec(),
 		msgServer:    m,
 		querier:      q,
+		ir:           ir,
 	}
 }
 
@@ -82,16 +87,16 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 // SubmitProposal is the method for the `submitProposal` method of the governance precompile contract.
 func (c *Contract) SubmitProposal(
 	ctx context.Context,
-	proposalMsg []byte,
+	proposal generated.IGovernanceModuleMsgSubmitProposal,
 ) (uint64, error) {
 	// Decode the proposal bytes into  v1.Proposal.
-	var p v1.MsgSubmitProposal
-	if err := p.Unmarshal(proposalMsg); err != nil {
+	msgSubmitProposal, err := cosmlib.ConvertMsgSubmitProposalToSdk(proposal, c.ir)
+	if err != nil {
 		return 0, err
 	}
 
 	// Create the proposal.
-	res, err := c.msgServer.SubmitProposal(ctx, &p)
+	res, err := c.msgServer.SubmitProposal(ctx, msgSubmitProposal)
 	if err != nil {
 		return 0, err
 	}

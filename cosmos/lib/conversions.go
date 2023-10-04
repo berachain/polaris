@@ -25,7 +25,7 @@ import (
 
 	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
-
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -209,23 +209,26 @@ func SdkValidatorsToStakingValidators(valAddrCodec address.Codec, vals []staking
 // SdkProposalToGovProposal is a helper function to transform a `v1.Proposal` to an
 // `IGovernanceModule.Proposal`.
 func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModuleProposal {
-	message := make([]byte, 0)
-	for _, msg := range proposal.Messages {
-		message = append(message, msg.Value...)
+	messages := make([]governance.CosmosCodecAny, len(proposal.Messages))
+	for i, msg := range proposal.Messages {
+		messages[i] = governance.CosmosCodecAny{
+			Value:   msg.Value,
+			TypeUrl: msg.TypeUrl,
+		}
 	}
 
-	totalDeposit := make([]governance.CosmosCoin, 0)
-	for _, coin := range proposal.TotalDeposit {
-		totalDeposit = append(totalDeposit, governance.CosmosCoin{
+	totalDeposit := make([]governance.CosmosCoin, len(proposal.TotalDeposit))
+	for i, coin := range proposal.TotalDeposit {
+		totalDeposit[i] = governance.CosmosCoin{
 			Denom:  coin.Denom,
 			Amount: coin.Amount.BigInt(),
-		})
+		}
 	}
 
 	return governance.IGovernanceModuleProposal{
-		Id:      proposal.Id,
-		Message: message,
-		Status:  int32(proposal.Status), // Status is an alias for int32.
+		Id:       proposal.Id,
+		Messages: messages,
+		Status:   int32(proposal.Status), // Status is an alias for int32.
 		FinalTallyResult: governance.IGovernanceModuleTallyResult{
 			YesCount:        proposal.FinalTallyResult.YesCount,
 			AbstainCount:    proposal.FinalTallyResult.AbstainCount,
@@ -242,4 +245,41 @@ func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModule
 		Summary:         proposal.Summary,
 		Proposer:        proposal.Proposer,
 	}
+}
+
+// ConvertMsgSubmitProposalToSdk is a helper function to convert a `MsgSubmitProposal` to the gov
+// `v1.MsgSubmitProposal`.
+func ConvertMsgSubmitProposalToSdk(
+	proposal governance.IGovernanceModuleMsgSubmitProposal,
+	ir codectypes.InterfaceRegistry,
+) (*v1.MsgSubmitProposal, error) {
+	messages := make([]*codectypes.Any, len(proposal.Messages))
+	for i, genCodecAny := range proposal.Messages {
+		messages[i] = &codectypes.Any{
+			Value:   genCodecAny.Value,
+			TypeUrl: genCodecAny.TypeUrl,
+		}
+		var msg sdk.Msg
+		if err := ir.UnpackAny(messages[i], &msg); err != nil {
+			return nil, err
+		}
+	}
+
+	initialDeposit := make(sdk.Coins, len(proposal.InitialDeposit))
+	for i, coin := range proposal.InitialDeposit {
+		initialDeposit[i] = sdk.Coin{
+			Denom:  coin.Denom,
+			Amount: sdkmath.NewIntFromBigInt(coin.Amount),
+		}
+	}
+
+	return &v1.MsgSubmitProposal{
+		Messages:       messages,
+		InitialDeposit: initialDeposit,
+		Proposer:       proposal.Proposer,
+		Metadata:       proposal.Metadata,
+		Title:          proposal.Title,
+		Summary:        proposal.Summary,
+		Expedited:      proposal.Expedited,
+	}, nil
 }

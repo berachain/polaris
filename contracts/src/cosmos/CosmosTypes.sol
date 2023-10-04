@@ -49,6 +49,14 @@ library Cosmos {
         string nextKey;
         uint64 total;
     }
+
+    /**
+     * @dev Represents a Cosmos SDK `codectypes.Any`.
+     */
+    struct CodecAny {
+        string typeUrl;
+        bytes value;
+    }
 }
 
 /**
@@ -58,4 +66,5 @@ contract CosmosTypes {
     function coin(Cosmos.Coin calldata) public pure {}
     function pageRequest(Cosmos.PageRequest calldata) public pure {}
     function pageResponse(Cosmos.PageResponse calldata) public pure {}
+    function codecAny(Cosmos.CodecAny calldata) public pure {}
 }
