@@ -258,7 +258,7 @@ test-hive:
 	@cd $(CLONE_PATH) && \
 		hive --sim polaris/rpc -client polard
 
-testv-hive:
+test-hive-v:
 	@cd $(CLONE_PATH) && \
 		hive --sim polaris/rpc -client polard --docker.output
 
@@ -430,7 +430,7 @@ repo-rinse: |
 	abigen-install moq-install mockery-install mockery \
 	start test-unit test-unit-race test-unit-cover forge-test \
 	test-e2e test-e2e-no-build hive-setup hive-view test-hive \
-	testv-hive test-localnet test-localnet-no-build format lint \
+	test-hive-v test-localnet test-localnet-no-build format lint \
 	forge-lint-fix forge-lint golangci-install golangci golangci-fix \
 	golines-install golines license-install license license-fix \
 	gosec-install gosec buf-install buf-lint-fix buf-lint sync tidy repo-rinse
