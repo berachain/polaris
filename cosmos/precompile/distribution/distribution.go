@@ -193,6 +193,9 @@ func (c *Contract) GetAllDelegatorRewards(
 	rewards := make([]generated.IDistributionModuleValidatorReward, 0, len(res.Rewards))
 	for _, reward := range res.Rewards {
 		var amount []generated.CosmosCoin
+		if reward.Reward.Len() == 0 {
+			continue
+		}
 		for _, coin := range reward.Reward {
 			amount = append(amount, generated.CosmosCoin{
 				Denom:  coin.Denom,
