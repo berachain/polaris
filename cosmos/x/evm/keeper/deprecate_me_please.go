@@ -49,7 +49,8 @@ func (k *Keeper) AddBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.In
 		return
 	}
 	ethAddr := common.BytesToAddress(addr)
-	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), new(big.Int).Add(k.GetBalance(ctx, addr), amount).Bytes())
+	ctx.KVStore(k.storeKey).Set(
+		state.BalanceKeyFor(ethAddr), new(big.Int).Add(k.GetBalance(ctx, addr), amount).Bytes())
 }
 
 func (k *Keeper) SubBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.Int) {
@@ -57,5 +58,6 @@ func (k *Keeper) SubBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.In
 		return
 	}
 	ethAddr := common.BytesToAddress(addr)
-	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), new(big.Int).Sub(k.GetBalance(ctx, addr), amount).Bytes())
+	ctx.KVStore(k.storeKey).Set(
+		state.BalanceKeyFor(ethAddr), new(big.Int).Sub(k.GetBalance(ctx, addr), amount).Bytes())
 }

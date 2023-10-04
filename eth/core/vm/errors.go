@@ -25,5 +25,6 @@ import "errors"
 var (
 	// ErrStateDBNotSupported is returned when the state DB is not compatible for running
 	// stateful precompiles.
-	ErrStateDBNotSupported = errors.New("given StateDB is not compatible for running stateful precompiles")
+	ErrStateDBNotSupported = errors.New(
+		"given StateDB is not compatible for running stateful precompiles")
 )

@@ -74,8 +74,10 @@ var _ = Describe("Snapmulti Store", func() {
 
 	It("CorrectStoreType", func() {
 		// Test that the correct store type is returned
-		Expect(reflect.TypeOf(cms.GetKVStore(evmStoreKey))).To(Equal(reflect.TypeOf(&sdkcachekv.Store{})))
-		Expect(reflect.TypeOf(cms.GetKVStore(accStoreKey))).To(Equal(reflect.TypeOf(&sdkcachekv.Store{})))
+		Expect(reflect.TypeOf(cms.GetKVStore(evmStoreKey))).
+			To(Equal(reflect.TypeOf(&sdkcachekv.Store{})))
+		Expect(reflect.TypeOf(cms.GetKVStore(accStoreKey))).
+			To(Equal(reflect.TypeOf(&sdkcachekv.Store{})))
 	})
 
 	It("TestWrite", func() {

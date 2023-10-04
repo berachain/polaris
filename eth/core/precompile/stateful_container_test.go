@@ -144,21 +144,27 @@ var _ = Describe("Stateful Container", func() {
 // MOCKS BELOW.
 
 var (
-	mock, _                      = solidity.MockPrecompileMetaData.GetAbi()
-	getOutputABI                 = mock.Methods["getOutput"]
-	getOutputPartialABI          = mock.Methods["getOutputPartial"]
-	contractFuncAddrABI          = mock.Methods["contractFunc"]
-	contractFuncStrABI           = mock.Methods["contractFuncStr"]
-	overloadedFuncABI            = mock.Methods["overloadedFunc"]
-	overloadedFunc0ABI           = mock.Methods["overloadedFunc0"]
-	mockStatefulDummy            = &mockStateful{&mockBase{}}
-	getOutputFunc, _             = reflect.TypeOf(mockStatefulDummy).MethodByName("GetOutput")
-	getOutputPartialFunc, _      = reflect.TypeOf(mockStatefulDummy).MethodByName("GetOutputPartial")
-	contractFuncAddrInputFunc, _ = reflect.TypeOf(mockStatefulDummy).MethodByName("ContractFuncAddrInput")
-	contractFuncStrInputFunc, _  = reflect.TypeOf(mockStatefulDummy).MethodByName("ContractFuncStrInput")
-	overloadedFunc, _            = reflect.TypeOf(mockStatefulDummy).MethodByName("OverloadedFunc")
-	overloadedFunc0, _           = reflect.TypeOf(mockStatefulDummy).MethodByName("OverloadedFunc0")
-	mockIdsToMethods             = map[methodID]*method{
+	mock, _             = solidity.MockPrecompileMetaData.GetAbi()
+	getOutputABI        = mock.Methods["getOutput"]
+	getOutputPartialABI = mock.Methods["getOutputPartial"]
+	contractFuncAddrABI = mock.Methods["contractFunc"]
+	contractFuncStrABI  = mock.Methods["contractFuncStr"]
+	overloadedFuncABI   = mock.Methods["overloadedFunc"]
+	overloadedFunc0ABI  = mock.Methods["overloadedFunc0"]
+	mockStatefulDummy   = &mockStateful{&mockBase{}}
+	getOutputFunc, _    = reflect.TypeOf(
+		mockStatefulDummy).MethodByName("GetOutput")
+	getOutputPartialFunc, _ = reflect.TypeOf(
+		mockStatefulDummy).MethodByName("GetOutputPartial")
+	contractFuncAddrInputFunc, _ = reflect.TypeOf(
+		mockStatefulDummy).MethodByName("ContractFuncAddrInput")
+	contractFuncStrInputFunc, _ = reflect.TypeOf(
+		mockStatefulDummy).MethodByName("ContractFuncStrInput")
+	overloadedFunc, _ = reflect.TypeOf(
+		mockStatefulDummy).MethodByName("OverloadedFunc")
+	overloadedFunc0, _ = reflect.TypeOf(
+		mockStatefulDummy).MethodByName("OverloadedFunc0")
+	mockIdsToMethods = map[methodID]*method{
 		methodID(getOutputABI.ID): newMethod(
 			mockStatefulDummy,
 			getOutputABI,

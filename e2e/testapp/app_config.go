@@ -88,11 +88,16 @@ var (
 	moduleAccPerms = []*authmodulev1.ModuleAccountPermission{
 		{Account: authtypes.FeeCollectorName},
 		{Account: distrtypes.ModuleName},
-		{Account: minttypes.ModuleName, Permissions: []string{authtypes.Minter}},
-		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
-		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
-		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
-		{Account: evmtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
+		{Account: minttypes.ModuleName,
+			Permissions: []string{authtypes.Minter}},
+		{Account: stakingtypes.BondedPoolName,
+			Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
+		{Account: stakingtypes.NotBondedPoolName,
+			Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
+		{Account: govtypes.ModuleName,
+			Permissions: []string{authtypes.Burner}},
+		{Account: evmtypes.ModuleName,
+			Permissions: []string{authtypes.Minter, authtypes.Burner}},
 	}
 
 	// blocked account addresses.
@@ -155,7 +160,8 @@ func MakeAppConfig(bech32Prefix string) depinject.Config {
 					},
 					// NOTE: The genutils module must occur after staking so that pools are
 					// properly initialized with tokens from genesis accounts.
-					// NOTE: The genutils module must also occur after auth so that it can access the params from auth.
+					// NOTE: The genutils module must also occur after auth so that
+					// it can access the params from auth.
 					InitGenesis: []string{
 						authtypes.ModuleName,
 						banktypes.ModuleName,
@@ -186,7 +192,8 @@ func MakeAppConfig(bech32Prefix string) depinject.Config {
 				Config: appconfig.WrapAny(&authmodulev1.Module{
 					Bech32Prefix:             bech32Prefix,
 					ModuleAccountPermissions: moduleAccPerms,
-					// By default modules authority is the governance module. This is configurable with the following:
+					// By default modules authority is the governance module.
+					// This is configurable with the following:
 					// Authority: "group", // A custom module authority can be set using a module name
 					// Authority: "cosmos1cwwv22j5ca08ggdv9c2uky355k908694z577tv", // or a specific address
 				}),

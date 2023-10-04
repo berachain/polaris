@@ -131,9 +131,9 @@ func (s *store) RevertToSnapshot(id int) {
 	s.journal.PopToSize(id)
 }
 
-// Finalize commits each of the individual cachekv stores to its corresponding parent cachekv stores
-// in the journal. Finally it commits the root cachekv stores. Skip committing writes to the
-// underlying multistore if in read-only mode.
+// Finalize commits each of the individual cachekv stores to its corresponding parent cachekv
+// stores in the journal. Finally it commits the root cachekv stores. Skip committing writes
+// to the underlying multistore if in read-only mode.
 //
 // Finalize implements `libtypes.Controllable`.
 func (s *store) Finalize() {

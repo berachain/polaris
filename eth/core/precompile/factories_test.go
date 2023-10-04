@@ -53,7 +53,9 @@ var _ = Describe("Container Factories", func() {
 			Expect(pc).ToNot(BeNil())
 
 			_, err = scf.Build(&mockBase{}, nil)
-			Expect(err.Error()).To(Equal("wrong container factory for this precompile implementation: StatelessImpl"))
+			Expect(err.Error()).
+				To(Equal(
+					"wrong container factory for this precompile implementation: StatelessImpl"))
 		})
 	})
 
@@ -83,7 +85,10 @@ var _ = Describe("Container Factories", func() {
 
 		It("should error on missing precompile method for ABI method", func() {
 			_, err := scf.Build(&badMockStateful{&mockBase{}}, nil)
-			Expect(err.Error()).To(Equal("this ABI method does not have a corresponding precompile method: getOutputPartial"))
+			Expect(err.Error()).
+				To(Equal(
+					"this ABI method does not have a " +
+						"corresponding precompile method: getOutputPartial"))
 		})
 	})
 

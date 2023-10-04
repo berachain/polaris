@@ -113,10 +113,18 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 		}
 		return num, nil
 	}
-	getFloat64 := func(key string) (float64, error) { return cast.ToFloat64E(opts.Get(key)) }
-	getBool := func(key string) (bool, error) { return cast.ToBoolE(opts.Get(key)) }
-	getStringSlice := func(key string) ([]string, error) { return cast.ToStringSliceE(opts.Get(key)) }
-	getTimeDuration := func(key string) (time.Duration, error) { return cast.ToDurationE(opts.Get(key)) }
+	getFloat64 := func(key string) (float64, error) {
+		return cast.ToFloat64E(opts.Get(key))
+	}
+	getBool := func(key string) (bool, error) {
+		return cast.ToBoolE(opts.Get(key))
+	}
+	getStringSlice := func(key string) ([]string, error) {
+		return cast.ToStringSliceE(opts.Get(key))
+	}
+	getTimeDuration := func(key string) (time.Duration, error) {
+		return cast.ToDurationE(opts.Get(key))
+	}
 
 	// Polar settings
 	if conf.Polar.RPCGasCap, err = getUint64(flagRPCGasCap); err != nil {
@@ -195,10 +203,12 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 		return nil, handleError(err, flagVerkleTime)
 	}
 
-	if conf.Polar.Chain.TerminalTotalDifficulty, err = getBigInt(flagTerminalTotalDifficulty); err != nil {
+	if conf.Polar.Chain.TerminalTotalDifficulty, err = getBigInt(
+		flagTerminalTotalDifficulty); err != nil {
 		return nil, handleError(err, flagTerminalTotalDifficulty)
 	}
-	if conf.Polar.Chain.TerminalTotalDifficultyPassed, err = getBool(flagTerminalTotalDifficultyPassed); err != nil {
+	if conf.Polar.Chain.TerminalTotalDifficultyPassed, err = getBool(
+		flagTerminalTotalDifficultyPassed); err != nil {
 		return nil, handleError(err, flagTerminalTotalDifficultyPassed)
 	}
 	if conf.Polar.Chain.IsDevMode, err = getBool(flagIsDevMode); err != nil {
@@ -387,7 +397,8 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 	if conf.Node.HTTPTimeouts.ReadTimeout, err = getTimeDuration(flagReadTimeout); err != nil {
 		return nil, handleError(err, flagReadTimeout)
 	}
-	if conf.Node.HTTPTimeouts.ReadHeaderTimeout, err = getTimeDuration(flagReadHeaderTimeout); err != nil {
+	if conf.Node.HTTPTimeouts.ReadHeaderTimeout, err = getTimeDuration(
+		flagReadHeaderTimeout); err != nil {
 		return nil, handleError(err, flagReadHeaderTimeout)
 	}
 	if conf.Node.HTTPTimeouts.WriteTimeout, err = getTimeDuration(flagWriteTimeout); err != nil {

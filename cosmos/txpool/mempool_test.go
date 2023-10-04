@@ -54,15 +54,21 @@ var _ = Describe("", func() {
 	When("we call insert", func() {
 		When("the txpool does not error", func() {
 			It("does not error", func() {
-				sdkTx.On("GetMsgs").Return([]sdk.Msg{evmtypes.NewFromTransaction(coretypes.NewTx(&coretypes.LegacyTx{}))}).Once()
-				txPool.On("Add", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+				sdkTx.On("GetMsgs").
+					Return([]sdk.Msg{evmtypes.NewFromTransaction(coretypes.NewTx(&coretypes.LegacyTx{}))}).
+					Once()
+				txPool.On("Add", mock.Anything, mock.Anything, mock.Anything).
+					Return(nil).Once()
 				Expect(mempool.Insert(ctx, sdkTx)).ToNot(HaveOccurred())
 			})
 		})
 		When("the txpool errors", func() {
 			It("does error", func() {
-				sdkTx.On("GetMsgs").Return([]sdk.Msg{evmtypes.NewFromTransaction(coretypes.NewTx(&coretypes.LegacyTx{}))}).Once()
-				txPool.On("Add", mock.Anything, mock.Anything, mock.Anything).Return([]error{errors.New("mock error")}).Once()
+				sdkTx.On("GetMsgs").Return(
+					[]sdk.Msg{evmtypes.NewFromTransaction(coretypes.NewTx(&coretypes.LegacyTx{}))}).Once()
+				txPool.On("Add",
+					mock.Anything, mock.Anything, mock.Anything).
+					Return([]error{errors.New("mock error")}).Once()
 				Expect(mempool.Insert(ctx, sdkTx)).To(HaveOccurred())
 			})
 		})
