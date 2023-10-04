@@ -28,8 +28,8 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
-// ChainResources is the interface that defines functions for code paths within the chain to acquire
-// resources to use in execution such as StateDBss and EVMss.
+// ChainResources is the interface that defines functions for code paths within the chain to
+// acquire resources to use in execution such as StateDBss and EVMss.
 type ChainResources interface {
 	StateAtBlockNumber(uint64) (state.StateDBI, error)
 	StateAt(root common.Hash) (state.StateDBI, error)

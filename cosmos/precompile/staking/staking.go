@@ -326,7 +326,8 @@ func (c *Contract) GetUnbondingDelegation(
 	return cosmlib.SdkUDEToStakingUDE(res.GetUnbond().Entries), nil
 }
 
-// GetDelegatorUnbondingDelegations implements the `getDelegatorUnbondingDelegations(address)` method.
+// GetDelegatorUnbondingDelegations implements the `getDelegatorUnbondingDelegations(address)`
+// method.
 func (c *Contract) GetDelegatorUnbondingDelegations(
 	ctx context.Context,
 	delegatorAddress common.Address,
@@ -337,10 +338,11 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
-	res, err := c.querier.DelegatorUnbondingDelegations(ctx, &stakingtypes.QueryDelegatorUnbondingDelegationsRequest{
-		DelegatorAddr: delAddr,
-		Pagination:    cosmlib.ExtractPageRequestFromInput(pagination),
-	})
+	res, err := c.querier.DelegatorUnbondingDelegations(ctx,
+		&stakingtypes.QueryDelegatorUnbondingDelegationsRequest{
+			DelegatorAddr: delAddr,
+			Pagination:    cosmlib.ExtractPageRequestFromInput(pagination),
+		})
 	if status.Code(err) == codes.NotFound {
 		return []generated.IStakingModuleUnbondingDelegation{},
 			cbindings.CosmosPageResponse{}, nil
@@ -355,7 +357,8 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 			delegator common.Address
 		)
 
-		valAddr, err = cosmlib.EthAddressFromString(c.vs.ValidatorAddressCodec(), u.ValidatorAddress)
+		valAddr, err = cosmlib.EthAddressFromString(
+			c.vs.ValidatorAddressCodec(), u.ValidatorAddress)
 		if err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}

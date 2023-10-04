@@ -26,7 +26,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// TODO: replace this file with a proper mining object and use message passing instead of direct calls.
+// TODO: replace this file with a proper mining object and use message passing
 // Prepare prepares the Polaris chain for processing a new block at the given height.
 func (pl *Polaris) Prepare(ctx context.Context, number uint64) {
 	header := pl.spminer.Prepare(ctx, number)
@@ -36,7 +36,10 @@ func (pl *Polaris) Prepare(ctx context.Context, number uint64) {
 }
 
 // ProcessTransaction processes the given transaction and returns the receipt.
-func (pl *Polaris) ProcessTransaction(ctx context.Context, tx *types.Transaction) (*types.Receipt, error) {
+func (pl *Polaris) ProcessTransaction(
+	ctx context.Context,
+	tx *types.Transaction,
+) (*types.Receipt, error) {
 	return pl.spminer.ProcessTransaction(ctx, tx)
 }
 

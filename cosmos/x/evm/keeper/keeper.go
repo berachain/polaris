@@ -21,20 +21,19 @@
 package keeper
 
 import (
-	"math/big"
-
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ethereum/go-ethereum/node"
+
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/polar"
@@ -61,7 +60,6 @@ func NewKeeper(
 	pcs func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
 	logger log.Logger,
-	_ client.TxConfig,
 	polarisCfg *config.Config,
 ) *Keeper {
 	host := NewHost(
@@ -101,6 +99,7 @@ func NewKeeper(
 	}
 }
 
+// SetupPrecompiles initializes precompiles and the polaris node.
 func (k *Keeper) SetupPrecompiles() {
 	k.host.SetupPrecompiles()
 
@@ -119,38 +118,19 @@ func (k *Keeper) Polaris() *polar.Polaris {
 	return k.polaris
 }
 
-func (k *Keeper) SetClientCtx(clientContext client.Context) {
+// Register Services allows for the application to register lifecycles with the evm
+// networking stack.
+func (k *Keeper) RegisterServices(clientContext client.Context, lcs []node.Lifecycle) {
+	// TODO: probably get rid of engine plugin or something and handle rpc methods better.
 	k.host.GetEnginePlugin().(engine.Plugin).Start(clientContext)
 
+	// Register the services with polaris.
+	for _, lc := range lcs {
+		k.polaris.RegisterService(lc)
+	}
+
+	// Start the services.
 	if err := k.polaris.StartServices(); err != nil {
 		panic(err)
 	}
-}
-
-// TODO: Remove these, because they're hacky af.
-// Required temporarily for BGT plugin.
-func (k *Keeper) GetBalance(ctx sdk.Context, addr sdk.AccAddress) *big.Int {
-	ethAddr := common.BytesToAddress(addr)
-	return new(big.Int).SetBytes(ctx.KVStore(k.storeKey).Get(state.BalanceKeyFor(ethAddr)))
-}
-
-func (k *Keeper) SetBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.Int) {
-	ethAddr := common.BytesToAddress(addr)
-	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), amount.Bytes())
-}
-
-func (k *Keeper) AddBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.Int) {
-	if amount.Sign() == 0 {
-		return
-	}
-	ethAddr := common.BytesToAddress(addr)
-	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), new(big.Int).Add(k.GetBalance(ctx, addr), amount).Bytes())
-}
-
-func (k *Keeper) SubBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.Int) {
-	if amount.Sign() == 0 {
-		return
-	}
-	ethAddr := common.BytesToAddress(addr)
-	ctx.KVStore(k.storeKey).Set(state.BalanceKeyFor(ethAddr), new(big.Int).Sub(k.GetBalance(ctx, addr), amount).Bytes())
 }

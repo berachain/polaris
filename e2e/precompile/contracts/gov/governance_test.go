@@ -95,7 +95,8 @@ var _ = Describe("Call the Precompile Directly", func() {
 
 		// Alice Submits a proposal.
 		amt := sdkmath.NewInt(100000000)
-		prop, _ := propAndMsgBz(accCodec, cosmlib.MustStringFromEthAddress(accCodec, tf.Address("alice")), amt)
+		prop, _ := propAndMsgBz(
+			accCodec, cosmlib.MustStringFromEthAddress(accCodec, tf.Address("alice")), amt)
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err = precompile.SubmitProposal(txr, prop)
 		Expect(err).ToNot(HaveOccurred())

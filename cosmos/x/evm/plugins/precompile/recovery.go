@@ -38,7 +38,8 @@ func RecoveryHandler(err *error) {
 		// is ErrWriteProtection, Cosmos ErrorOutOfGas, Cosmos ErrorGasOverflow, or Cosmos
 		// ErrorNegativeGasConsumed.
 		switch {
-		case utils.Implements[error](panicked) && errors.Is(utils.MustGetAs[error](panicked), vm.ErrWriteProtection):
+		case utils.Implements[error](panicked) &&
+			errors.Is(utils.MustGetAs[error](panicked), vm.ErrWriteProtection):
 			*err = vm.ErrWriteProtection
 		case utils.Implements[storetypes.ErrorGasOverflow](panicked):
 			fallthrough

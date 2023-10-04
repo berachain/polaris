@@ -32,6 +32,7 @@ import (
 	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/miner"
+	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -62,6 +63,9 @@ type NetworkingStack interface {
 	// RegisterAPIs registers JSON-RPC handlers for the networking stack.
 	RegisterAPIs([]rpc.API)
 
+	// RegisterLifecycles registers objects to have their lifecycle manged by the stack.
+	RegisterLifecycle(node.Lifecycle)
+
 	// Start starts the networking stack.
 	Start() error
 
@@ -72,8 +76,9 @@ type NetworkingStack interface {
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
 	cfg *Config
-	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC API.
-	// Although possible, it does not handle p2p networking like its sibling in geth would.
+	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC
+	// APIs. Although possible, it does not handle p2p networking like its sibling in geth
+	// would.
 	stack NetworkingStack
 
 	// core pieces of the polaris stack
@@ -83,7 +88,8 @@ type Polaris struct {
 	spminer    oldminer.Miner
 	miner      *miner.Miner
 
-	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs and the core piecepl.
+	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs
+	// and the core pieces.
 	backend Backend
 
 	// engine represents the consensus engine for the backend.
@@ -127,24 +133,29 @@ func NewWithNetworkingStack(
 
 // Init initializes the Polaris struct.
 func (pl *Polaris) Init() error {
+	var err error
 	pl.spminer = oldminer.New(pl)
 
-	var err error
+	// For now, we only have a legacy pool, we will implement blob pool later.
 	legacyPool := legacypool.New(
 		pl.cfg.LegacyTxPool, pl.Blockchain(),
 	)
 
-	pl.txPool, err = txpool.New(big.NewInt(0), pl.blockchain, []txpool.SubPool{legacyPool})
-	if err != nil {
+	// Setup the transaction pool and attach the legacyPool.
+	if pl.txPool, err = txpool.New(
+		new(big.Int).SetUint64(pl.cfg.LegacyTxPool.PriceLimit),
+		pl.blockchain,
+		[]txpool.SubPool{legacyPool},
+	); err != nil {
 		return err
 	}
 
 	mux := new(event.TypeMux) //nolint:staticcheck // todo fix.
 	// TODO: miner config to app.toml
-	pl.miner = miner.New(pl, &miner.DefaultConfig,
+	cfg := &miner.DefaultConfig
+	pl.miner = miner.New(pl, cfg,
 		pl.host.GetConfigurationPlugin().ChainConfig(), mux, pl.beacon, pl.IsLocalBlock)
 	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
-
 	// Build and set the RPC Backend and other services.
 
 	// if eth.APIBackend.allowUnprotectedTxs {
@@ -190,7 +201,12 @@ func (pl *Polaris) StartServices() error {
 	return nil
 }
 
-func (pl *Polaris) StopServices() error {
+// RegisterService adds a service to the networking stack.
+func (pl *Polaris) RegisterService(lc node.Lifecycle) {
+	pl.stack.RegisterLifecycle(lc)
+}
+
+func (pl *Polaris) Close() error {
 	return pl.stack.Close()
 }
 

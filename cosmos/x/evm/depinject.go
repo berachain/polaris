@@ -26,7 +26,6 @@ import (
 	"cosmossdk.io/log"
 	store "cosmossdk.io/store/types"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -56,7 +55,6 @@ type DepInjectInput struct {
 	PolarisCfg        func() *config.Config
 	CustomPrecompiles func() *ethprecompile.Injector `optional:"true"`
 	QueryContextFn    func() func(height int64, prove bool) (sdk.Context, error)
-	TxConfig          client.TxConfig
 
 	AccountKeeper AccountKeeper
 	StakingKeeper StakingKeeper
@@ -84,7 +82,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.CustomPrecompiles,
 		in.QueryContextFn,
 		in.Logger,
-		in.TxConfig,
 		in.PolarisCfg(),
 	)
 	m := NewAppModule(k, in.AccountKeeper)

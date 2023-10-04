@@ -30,7 +30,8 @@ type Node struct {
 	*node.Node
 }
 
-// NewGetNetworkingStack creates a new NetworkingStack instance for use on an underlying blockchain.
+// NewGetNetworkingStack creates a new NetworkingStack instance for use on an
+// underlying blockchain.
 func NewGethNetworkingStack(config *node.Config) (NetworkingStack, error) {
 	node, err := node.New(config)
 	if err != nil {

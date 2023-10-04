@@ -30,7 +30,7 @@ import (
 )
 
 type StakingKeeper interface {
-	GetValidatorByConsAddr(ctx context.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, err error)
+	GetValidatorByConsAddr(context.Context, sdk.ConsAddress) (stakingtypes.Validator, error)
 	ValidatorAddressCodec() addresscodec.Codec
 }
 

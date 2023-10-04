@@ -45,17 +45,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
+	"github.com/ethereum/go-ethereum/node"
 
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
@@ -94,14 +93,13 @@ type SimApp struct {
 	GovKeeper             *govkeeper.Keeper
 	CrisisKeeper          *crisiskeeper.Keeper
 	UpgradeKeeper         *upgradekeeper.Keeper
-	ParamsKeeper          paramskeeper.Keeper
-	AuthzKeeper           authzkeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
 	// polaris keepers
 	EVMKeeper *evmkeeper.Keeper
 
+	// polaris componets
 	mm *miner.Miner
 	mp *txpool.Mempool
 }
@@ -183,8 +181,6 @@ func NewPolarisApp(
 		&app.GovKeeper,
 		&app.CrisisKeeper,
 		&app.UpgradeKeeper,
-		&app.ParamsKeeper,
-		&app.AuthzKeeper,
 		&app.EvidenceKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.EVMKeeper,
@@ -199,7 +195,7 @@ func NewPolarisApp(
 	app.EVMKeeper.SetupPrecompiles()
 
 	// Setup TxPool Wrapper
-	app.mp = txpool.NewMempool(app.EVMKeeper.Polaris().TxPool())
+	app.mp = txpool.New(app.EVMKeeper.Polaris().TxPool())
 	app.SetMempool(app.mp)
 
 	// Setup Miner Wrapper
@@ -295,14 +291,6 @@ func (app *SimApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 	return keys
 }
 
-// GetSubspace returns a param subspace for a given module name.
-//
-// NOTE: This is solely to be used for testing purposes.
-func (app *SimApp) GetSubspace(moduleName string) paramstypes.Subspace {
-	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
-	return subspace
-}
-
 // SimulationManager implements the SimulationApp interface.
 func (app *SimApp) SimulationManager() *module.SimulationManager {
 	return nil
@@ -313,18 +301,29 @@ func (app *SimApp) SimulationManager() *module.SimulationManager {
 func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
 	// register swagger API in app.go so that other applications can override easily
-	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
+	if err := server.RegisterSwaggerAPI(
+		apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger,
+	); err != nil {
 		panic(err)
 	}
-	txSerializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig)
-	app.mm.SetSerializer(txSerializer)
-	app.mp.StartBroadcasterHandler(app.Logger(), apiSvr.ClientCtx, txSerializer)
-	app.EVMKeeper.SetClientCtx(apiSvr.ClientCtx)
+
+	// Create a TxSerializer.
+	serializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig)
+
+	// Initialize services.
+	app.mm.Init(serializer)
+	app.mp.Init(app.Logger(), apiSvr.ClientCtx, serializer)
+
+	// Register services with Polaris.
+	app.EVMKeeper.RegisterServices(apiSvr.ClientCtx, []node.Lifecycle{
+		app.mp,
+	})
 }
 
+// Close shuts down the application.
 func (app *SimApp) Close() error {
 	if pl := app.EVMKeeper.Polaris(); pl != nil {
-		return pl.StopServices()
+		return pl.Close()
 	}
 	return nil
 }

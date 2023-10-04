@@ -62,6 +62,7 @@ var (
 )
 
 var (
-	// ErrInsufficientBalanceForGas is the error return when gas required to execute a transaction overflows.
+	// ErrInsufficientBalanceForGas is the error return when
+	// gas required to execute a transaction overflows.
 	ErrGasUintOverflow = core.ErrGasUintOverflow
 )

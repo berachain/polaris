@@ -91,7 +91,8 @@ func NewFixtureConfig(
 	}
 }
 
-// TestFixture is a testing fixture that runs a single Polaris validator node in a Docker container.
+// TestFixture is a testing fixture that runs a single Polaris validator
+// node in a Docker container.
 type TestFixture struct {
 	ContainerizedNode
 	t       ginkgo.FullGinkgoTInterface

@@ -21,6 +21,7 @@
 package txpool
 
 import (
+	"errors"
 	"sync/atomic"
 
 	"cosmossdk.io/log"
@@ -63,13 +64,6 @@ type Subscription interface {
 	event.Subscription
 }
 
-// Handler exposes a basic interface to utilize the Handler.
-type Handler interface {
-	Start()
-	Running() bool
-	Stop()
-}
-
 // handler listens for new insertions into the geth txpool and broadcasts them to the CometBFT
 // layer for p2p and ABCI.
 type handler struct {
@@ -84,13 +78,6 @@ type handler struct {
 	stopCh  chan struct{}
 	txsSub  Subscription
 	running atomic.Bool
-}
-
-// NewHandler creates a new Handler.
-func NewHandler(
-	clientCtx TxBroadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
-) Handler {
-	return newHandler(clientCtx, txPool, serializer, logger)
 }
 
 // newHandler creates a new handler.
@@ -109,16 +96,29 @@ func newHandler(
 }
 
 // Start starts the handler.
-func (h *handler) Start() {
+func (h *handler) Start() error {
+	if h.running.Load() {
+		return errors.New("handler already started")
+	}
 	go h.eventLoop()
+	return nil
+}
+
+// Stop stops the handler.
+func (h *handler) Stop() error {
+	if !h.Running() {
+		return errors.New("handler already stopped")
+	}
+	h.stopCh <- struct{}{}
+	return nil
 }
 
 // start handles the subscription to the txpool and broadcasts transactions.
 func (h *handler) eventLoop() {
 	// Connect to the subscription.
 	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
-	h.running.Store(true)
 	h.logger.With("module", "txpool-handler").Info("starting txpool handler")
+	h.running.Store(true)
 
 	// Handle events.
 	var err error
@@ -138,15 +138,6 @@ func (h *handler) eventLoop() {
 // Running returns true if the handler is running.
 func (h *handler) Running() bool {
 	return h.running.Load()
-}
-
-// Stop stops the handler.
-func (h *handler) Stop() {
-	if h.Running() {
-		h.stopCh <- struct{}{}
-	} else {
-		panic("stopping already stopped handler")
-	}
 }
 
 // stop stops the handler.

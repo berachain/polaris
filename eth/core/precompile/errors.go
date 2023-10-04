@@ -24,21 +24,26 @@ import "errors"
 
 var (
 	// ErrMethodNotFound is returned when the precompile method is not found.
-	ErrMethodNotFound = errors.New("precompile method not found in contract ABI")
+	ErrMethodNotFound = errors.New(
+		"precompile method not found in contract ABI")
 
 	// ErrContainerHasNoMethods is returned when a stateful container function is invoked but no
 	// precompile methods were registered.
-	ErrContainerHasNoMethods = errors.New("the stateful precompile has no methods to run")
+	ErrContainerHasNoMethods = errors.New(
+		"the stateful precompile has no methods to run")
 
 	// ErrInvalidInputToPrecompile is returned when a precompile container receives invalid
 	// input.
-	ErrInvalidInputToPrecompile = errors.New("input bytes to precompile container are invalid")
+	ErrInvalidInputToPrecompile = errors.New(
+		"input bytes to precompile container are invalid")
 
 	// ErrWrongContainerFactory is returned when the wrong precompile container factory is used
 	// to build a precompile contract.
-	ErrWrongContainerFactory = errors.New("wrong container factory for this precompile implementation")
+	ErrWrongContainerFactory = errors.New(
+		"wrong container factory for this precompile implementation")
 
 	// ErrNoPrecompileMethodForABIMethod is returned when no precompile method is provided for a
 	// corresponding ABI method.
-	ErrNoPrecompileMethodForABIMethod = errors.New("this ABI method does not have a corresponding precompile method")
+	ErrNoPrecompileMethodForABIMethod = errors.New(
+		"this ABI method does not have a corresponding precompile method")
 )

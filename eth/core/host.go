@@ -128,10 +128,6 @@ type (
 		// StateAtBlockNumber returns the state at the given block height.
 		StateAtBlockNumber(uint64) (StatePlugin, error)
 	}
-
-	// TxPoolPlugin defines the methods that the chain running Polaris EVM should implement to
-	// support the transaction pool.
-	TxPoolPlugin interface{}
 )
 
 // =============================================================================

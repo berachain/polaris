@@ -73,7 +73,8 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	}
 }
 
-// SetWithdrawAddress is the precompile contract method for the `setWithdrawAddress(address)` method.
+// SetWithdrawAddress is the precompile contract method for the
+// `setWithdrawAddress(address)` method.
 func (c *Contract) SetWithdrawAddress(
 	ctx context.Context,
 	withdrawAddress common.Address,
@@ -96,7 +97,8 @@ func (c *Contract) SetWithdrawAddress(
 	return err == nil, err
 }
 
-// GetWithdrawAddress is the precompile contract method for the `getWithdrawAddress(address)` method.
+// GetWithdrawAddress is the precompile contract method for the
+// `getWithdrawAddress(address)` method.
 func (c *Contract) GetWithdrawAddress(
 	ctx context.Context,
 	delegator common.Address,
@@ -147,10 +149,11 @@ func (c *Contract) WithdrawDelegatorReward(
 		return nil, err
 	}
 
-	res, err := c.msgServer.WithdrawDelegatorReward(ctx, &distributiontypes.MsgWithdrawDelegatorReward{
-		DelegatorAddress: delAddr,
-		ValidatorAddress: valAddr,
-	})
+	res, err := c.msgServer.WithdrawDelegatorReward(ctx,
+		&distributiontypes.MsgWithdrawDelegatorReward{
+			DelegatorAddress: delAddr,
+			ValidatorAddress: valAddr,
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -193,6 +196,9 @@ func (c *Contract) GetAllDelegatorRewards(
 	rewards := make([]generated.IDistributionModuleValidatorReward, 0, len(res.Rewards))
 	for _, reward := range res.Rewards {
 		var amount []generated.CosmosCoin
+		if reward.Reward.Len() == 0 {
+			continue
+		}
 		for _, coin := range reward.Reward {
 			amount = append(amount, generated.CosmosCoin{
 				Denom:  coin.Denom,

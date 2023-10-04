@@ -73,7 +73,9 @@ var _ = Describe("Historical Data", func() {
 				Number:   big.NewInt(1),
 				GasLimit: 1000,
 			}
-			tx := coretypes.NewTransaction(0, common.Address{0x1}, big.NewInt(1), 1000, big.NewInt(1), []byte{0x12})
+			tx := coretypes.NewTransaction(
+				0, common.Address{0x1}, big.NewInt(1), 1000, big.NewInt(1), []byte{0x12},
+			)
 			txHash := tx.Hash()
 			receipts := coretypes.Receipts{
 				{

@@ -51,8 +51,12 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey) (stakingtypes.Validator, error) {
-	return stakingtypes.NewValidator(operator.String() /* todo move to codec */, pubKey, stakingtypes.Description{})
+func NewValidator(
+	operator sdk.ValAddress,
+	pubKey cryptotypes.PubKey,
+) (stakingtypes.Validator, error) {
+	return stakingtypes.NewValidator(
+		operator.String() /* todo move to codec */, pubKey, stakingtypes.Description{})
 }
 
 var (
@@ -97,7 +101,6 @@ var _ = Describe("Processor", func() {
 			},
 			nil,
 			log.NewTestLogger(GinkgoT()),
-			nil,
 			cfg,
 		)
 		k.SetupPrecompiles()
@@ -168,7 +171,8 @@ var _ = Describe("Processor", func() {
 			// create the contract
 			// Zero out the meters.
 			ctx.BlockGasMeter().RefundGas(
-				ctx.BlockGasMeter().GasConsumed(), "reset gas meter prior to ethereum state transition")
+				ctx.BlockGasMeter().GasConsumed(),
+				"reset gas meter prior to ethereum state transition")
 			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal(uint64(0)))
 
 			// Execute state transition.
@@ -188,7 +192,8 @@ var _ = Describe("Processor", func() {
 			var solmateABI abi.ABI
 			err = solmateABI.UnmarshalJSON([]byte(bindings.SolmateERC20ABI))
 			Expect(err).ToNot(HaveOccurred())
-			input, err := solmateABI.Pack("mint", common.BytesToAddress([]byte{0x88}), big.NewInt(8888888))
+			input, err := solmateABI.Pack("mint", common.BytesToAddress([]byte{0x88}),
+				big.NewInt(8888888))
 			Expect(err).ToNot(HaveOccurred())
 			legacyTxData.Data = input
 			legacyTxData.Nonce++
@@ -222,7 +227,8 @@ var _ = Describe("Processor", func() {
 			Expect(ctx.GasMeter().GasConsumed()).To(Equal((result3.GasUsed)))
 			// After the tx is fully processed.
 			ctx.BlockGasMeter().ConsumeGas(result3.GasUsed, "consume gas")
-			Expect(ctx.BlockGasMeter().GasConsumed()).To(Equal((result.GasUsed + result2.GasUsed + result3.GasUsed)))
+			Expect(ctx.BlockGasMeter().GasConsumed()).
+				To(Equal((result.GasUsed + result2.GasUsed + result3.GasUsed)))
 		})
 	})
 })

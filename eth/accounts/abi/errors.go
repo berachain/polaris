@@ -23,7 +23,9 @@ package abi
 import "errors"
 
 var (
-	// ErrTooManyIndexedArgs is returned when the number of indexed arguments in an event exceeds
-	// the maximum allowed by the Ethereum event log.
-	ErrTooManyIndexedArgs = errors.New("number of indexed arguments is more than allowed by Eth event log")
+	// ErrTooManyIndexedArgs is returned when the number of indexed arguments in an
+	// event exceeds the maximum allowed by the Ethereum event log.
+	ErrTooManyIndexedArgs = errors.New(
+		"number of indexed arguments is more than allowed by Eth event log",
+	)
 )
