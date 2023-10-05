@@ -61,7 +61,7 @@ type blockchain struct {
 	sp StatePlugin
 
 	// statedb is the state database that is used to mange state during transactions.
-	statedb vm.PolarisStateDB
+	statedb state.StateDBI
 	// vmConfig is the configuration used to create the EVM.
 	vmConfig *vm.Config
 

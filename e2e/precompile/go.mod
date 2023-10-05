@@ -2,12 +2,8 @@ module pkg.berachain.dev/polaris/e2e/precompile
 
 go 1.21
 
-replace (
-	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231002143448-814ffd5ffe13
-	// Required at the moment until a bug in the comsos-sdk is fixed.
-	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-)
+// Required at the moment until a bug in the comsos-sdk is fixed.
+replace github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 
 require (
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.1

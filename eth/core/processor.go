@@ -22,17 +22,14 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // initialTxsCapacity is the initial capacity of the transactions and receipts slice.
@@ -54,9 +51,6 @@ type StateProcessor struct {
 	// extract the underlying message from a transaction object in `ProcessTransaction`.
 	signer types.Signer
 
-	// evm is the EVM that is used to process transactions. We re-use a single EVM for processing
-	// the entire block. This is done in order to reduce memory allocs.
-	evm *vm.GethEVM
 	// statedb is the state database that is used to mange state during transactions.
 	statedb vm.PolarisStateDB
 	// vmConfig is the configuration for the EVM.
@@ -95,7 +89,7 @@ func NewStateProcessor(
 // ==============================================================================
 
 // Prepare prepares the state processor for processing a block.
-func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
+func (sp *StateProcessor) Prepare(header *types.Header) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
 	sp.mtx.Lock()
@@ -110,32 +104,20 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 	// increased.
 	chainConfig := sp.cp.ChainConfig()
 	sp.signer = types.MakeSigner(chainConfig, sp.header.Number, sp.header.Time)
-
-	// Setup the EVM for this block.
-	rules := chainConfig.Rules(sp.header.Number, true, sp.header.Time)
-
-	// We re-register the default geth precompiles every block, this isn't optimal, but since
-	// *technically* the precompiles change based on the chain config rules, to be fully correct,
-	// we should check every block.
-	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
-	sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(&rules))
-	sp.evm = evm
 }
 
 // ProcessTransaction applies a transaction to the current state of the blockchain.
 func (sp *StateProcessor) ProcessTransaction(
-	_ context.Context, gasPool *GasPool, tx *types.Transaction,
+	_ context.Context, chainContext ChainContext, gasPool *GasPool, tx *types.Transaction,
 ) (*types.Receipt, error) {
 	// Set the transaction context in the state database.
 	// This clears the logs and sets the transaction info.
 	sp.statedb.SetTxContext(tx.Hash(), len(sp.txs))
 
 	// Inshallah we will be able to apply the transaction.
-	receipt, err := ApplyTransactionWithEVM(
-		sp.evm, sp.cp.ChainConfig(), gasPool, sp.statedb,
-		sp.header, tx, &sp.header.GasUsed,
-	)
-
+	receipt, err := ApplyTransaction(
+		sp.cp.ChainConfig(), chainContext, &sp.header.Coinbase, gasPool, sp.statedb,
+		sp.header, tx, &sp.header.GasUsed, *sp.vmConfig)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
 	}
@@ -179,46 +161,4 @@ func (sp *StateProcessor) Finalize(
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return block, sp.receipts, logs, nil
-}
-
-// ===========================================================================
-// Utilities
-// ===========================================================================
-
-// BuildAndRegisterPrecompiles builds the given precompiles and registers them with the precompile
-// plugin.
-// TODO: move precompile registration out of the state processor?
-func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []precompile.Registrable) {
-	for _, pc := range precompiles {
-		// skip registering precompiles that are already registered.
-		if sp.pp.Has(pc.RegistryKey()) {
-			continue
-		}
-
-		// choose the appropriate precompile factory
-		var af precompile.AbstractFactory
-		switch {
-		case utils.Implements[precompile.StatefulImpl](pc):
-			af = precompile.NewStatefulFactory()
-		case utils.Implements[precompile.StatelessImpl](pc):
-			af = precompile.NewStatelessFactory()
-		default:
-			panic(
-				fmt.Sprintf(
-					"native precompile %s not properly implemented", pc.RegistryKey().Hex(),
-				),
-			)
-		}
-
-		// build the precompile container and register with the plugin
-		container, err := af.Build(pc, sp.pp)
-		if err != nil {
-			panic(err)
-		}
-		// TODO: set code on the statedb for every precompiled contract.
-		err = sp.pp.Register(container)
-		if err != nil {
-			panic(err)
-		}
-	}
 }

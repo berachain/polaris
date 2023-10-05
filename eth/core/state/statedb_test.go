@@ -24,12 +24,13 @@ import (
 	"errors"
 	"math/big"
 
+	tmock "github.com/stretchr/testify/mock"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/state/mock"
 	"pkg.berachain.dev/polaris/eth/core/state/mocks"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/params"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -43,7 +44,7 @@ var (
 )
 
 var _ = Describe("StateDB", func() {
-	var sdb vm.PolarisStateDB
+	var sdb state.StateDBI
 	var sp *mock.PluginMock
 	var pp *mocks.PrecompilePlugin
 
@@ -132,9 +133,9 @@ var _ = Describe("StateDB", func() {
 	})
 
 	It("should return code for precompiles", func() {
-		pp.On("Has", common.Address{0x7}).Return(true).Once()
+		pp.On("Get", common.Address{0x7}, tmock.Anything).Return(nil, true).Once()
 		Expect(sdb.GetCode(common.Address{0x7})).To(Equal([]byte{0x1}))
-		pp.On("Has", common.Address{0x7}).Return(false).Once()
+		pp.On("Get", common.Address{0x7}, tmock.Anything).Return(nil, false).Once()
 		Expect(sdb.GetCode(common.Address{0x7})).To(Equal([]byte{}))
 	})
 })

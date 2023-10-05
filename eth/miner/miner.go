@@ -78,7 +78,7 @@ type miner struct {
 	sp        core.StatePlugin
 	logger    log.Logger
 	vmConfig  vm.Config
-	statedb   vm.PolarisStateDB
+	statedb   state.StateDB
 
 	// TODO: historical plugin has no purpose here in the miner.
 	// Should be handled async via channel
@@ -129,7 +129,7 @@ func (m *miner) NextBaseFee() *big.Int {
 // Prepare prepares the blockchain for processing a new block at the given height.
 func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
-	m.sp.Prepare(ctx)
+	m.sp.Reset(ctx)
 	m.bp.Prepare(ctx)
 	m.cp.Prepare(ctx)
 	m.gp.Prepare(ctx)
@@ -208,21 +208,11 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 
 	m.logger.Info("preparing evm block", "seal_hash", m.pendingHeader.Hash())
 
-	var (
-		// TODO: we are hardcoding author to coinbase, this may be incorrect.
-		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
-		context = core.NewEVMBlockContext(m.pendingHeader, m.chain, &m.pendingHeader.Coinbase)
-		vmenv   = vm.NewGethEVMWithPrecompiles(context,
-			vm.TxContext{}, m.statedb, chainConfig, m.vmConfig, m.pp,
-		)
-	)
-
 	// Prepare the State Processor, StateDB and the EVM for the block.
 	// TODO: miner should not have a processor. Copy what dydx does in which validators and full nodes
 	// have different prepare and process proposals.
 	// Heuristic: Validators get miners. Full nodes get processors.
 	m.processor.Prepare(
-		vmenv,
 		m.pendingHeader,
 	)
 	return m.pendingHeader
@@ -248,7 +238,7 @@ func (m *miner) ProcessTransaction(
 		panic("gas consumed mismatch")
 	}
 
-	receipt, err := m.processor.ProcessTransaction(ctx, m.gasPool, tx)
+	receipt, err := m.processor.ProcessTransaction(ctx, m.chain, m.gasPool, tx)
 	if err != nil {
 		return nil, errorslib.Wrapf(
 			err, "could not process transaction [%s]", tx.Hash().Hex(),

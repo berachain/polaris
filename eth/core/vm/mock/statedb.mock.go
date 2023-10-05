@@ -102,6 +102,9 @@ var _ vm.PolarisStateDB = &PolarisStateDBMock{}
 //			GetOrNewStateObjectFunc: func(addr common.Address) *state.StateObject {
 //				panic("mock out the GetOrNewStateObject method")
 //			},
+//			GetPrecompileManagerFunc: func() any {
+//				panic("mock out the GetPrecompileManager method")
+//			},
 //			GetRefundFunc: func() uint64 {
 //				panic("mock out the GetRefund method")
 //			},
@@ -270,6 +273,9 @@ type PolarisStateDBMock struct {
 
 	// GetOrNewStateObjectFunc mocks the GetOrNewStateObject method.
 	GetOrNewStateObjectFunc func(addr common.Address) *state.StateObject
+
+	// GetPrecompileManagerFunc mocks the GetPrecompileManager method.
+	GetPrecompileManagerFunc func() any
 
 	// GetRefundFunc mocks the GetRefund method.
 	GetRefundFunc func() uint64
@@ -495,6 +501,9 @@ type PolarisStateDBMock struct {
 			// Addr is the addr argument value.
 			Addr common.Address
 		}
+		// GetPrecompileManager holds details about calls to the GetPrecompileManager method.
+		GetPrecompileManager []struct {
+		}
 		// GetRefund holds details about calls to the GetRefund method.
 		GetRefund []struct {
 		}
@@ -686,6 +695,7 @@ type PolarisStateDBMock struct {
 	lockGetLogs                sync.RWMutex
 	lockGetNonce               sync.RWMutex
 	lockGetOrNewStateObject    sync.RWMutex
+	lockGetPrecompileManager   sync.RWMutex
 	lockGetRefund              sync.RWMutex
 	lockGetState               sync.RWMutex
 	lockGetStorageRoot         sync.RWMutex
@@ -1557,6 +1567,33 @@ func (mock *PolarisStateDBMock) GetOrNewStateObjectCalls() []struct {
 	mock.lockGetOrNewStateObject.RLock()
 	calls = mock.calls.GetOrNewStateObject
 	mock.lockGetOrNewStateObject.RUnlock()
+	return calls
+}
+
+// GetPrecompileManager calls GetPrecompileManagerFunc.
+func (mock *PolarisStateDBMock) GetPrecompileManager() any {
+	if mock.GetPrecompileManagerFunc == nil {
+		panic("PolarisStateDBMock.GetPrecompileManagerFunc: method is nil but PolarisStateDB.GetPrecompileManager was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetPrecompileManager.Lock()
+	mock.calls.GetPrecompileManager = append(mock.calls.GetPrecompileManager, callInfo)
+	mock.lockGetPrecompileManager.Unlock()
+	return mock.GetPrecompileManagerFunc()
+}
+
+// GetPrecompileManagerCalls gets all the calls that were made to GetPrecompileManager.
+// Check the length with:
+//
+//	len(mockedPolarisStateDB.GetPrecompileManagerCalls())
+func (mock *PolarisStateDBMock) GetPrecompileManagerCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetPrecompileManager.RLock()
+	calls = mock.calls.GetPrecompileManager
+	mock.lockGetPrecompileManager.RUnlock()
 	return calls
 }
 
