@@ -43,6 +43,7 @@ type Plugin interface {
 	GetContext() context.Context
 	// Error returns the current saved error of the state plugin.
 	Error() error
+	ResetForTx()
 
 	// CreateAccount creates an account with the given `address`.
 	CreateAccount(common.Address)

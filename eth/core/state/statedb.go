@@ -95,6 +95,11 @@ func newStateDBWithJournals(
 	}
 }
 
+func (sdb *stateDB) SetTxContext(thash common.Hash, ti int) {
+	sdb.Log.SetTxContext(thash, ti)
+	sdb.Plugin.ResetForTx()
+}
+
 // =============================================================================
 // Plugin
 // =============================================================================

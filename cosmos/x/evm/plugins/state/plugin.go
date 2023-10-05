@@ -91,12 +91,15 @@ type Plugin interface {
 type plugin struct {
 	libtypes.Controller[string, libtypes.Controllable[string]]
 
+	rootCtx sdk.Context
 	// We maintain a context in the StateDB, so that we can pass it with the correctly
 	// configured multi-store to the precompiled contracts.
 	ctx sdk.Context
 
 	// Store a reference to the multi-store, in `ctx` so that we can access it directly.
 	cms ControllableMultiStore
+
+	cem sdk.EventManagerI
 
 	// Store a precompile log factory that builds Eth logs from Cosmos events
 	plf events.PrecompileLogFactory
@@ -141,31 +144,28 @@ func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
 //
 // Prepare implements `core.StatePlugin`.
 func (p *plugin) Prepare(ctx context.Context) {
-	p.ctx = sdk.UnwrapSDKContext(ctx).
+	p.rootCtx = sdk.UnwrapSDKContext(ctx).
 		WithKVGasConfig(storetypes.GasConfig{}).
 		WithTransientKVGasConfig(storetypes.GasConfig{})
-}
-
-// Reset sets up the state plugin for execution of a new transaction. It sets up the snapshottable
-// multi store so that Cosmos KV store changes can revert according to the EVM.
-//
-// Reset implements `core.StatePlugin`.
-func (p *plugin) Reset(ctx context.Context) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// We have to build a custom `SnapMulti` to use with the StateDB. This is because the
 	// ethereum utilizes the concept of snapshots, whereas the current implementation of the
 	// Cosmos-SDK `CacheKV` uses "wraps".
-	p.cms = snapmulti.NewStoreFrom(sdkCtx.MultiStore())
+	p.cms = snapmulti.NewStoreFrom(p.rootCtx.MultiStore())
 
 	// We have to build a custom event manager to use with the StateDB. This is because the we want
 	// a way to handle converting Cosmos events from precompiles into Ethereum logs.
-	cem := events.NewManagerFrom(sdkCtx.EventManager(), p.plf)
+	p.cem = events.NewManagerFrom(sdk.NewEventManager(), p.plf)
 
 	// We need to build a custom configuration for the context in order to handle precompile event
 	// logs and proper gas consumption.
-	p.ctx = sdkCtx.WithMultiStore(p.cms).WithEventManager(cem)
+	p.ctx = p.rootCtx.WithMultiStore(p.cms).WithEventManager(p.cem)
 
+	// We then process the remaining logic as required on a pr tx basic.
+	p.ResetForTx()
+}
+
+func (p *plugin) ResetForTx() {
 	// We also remove the KVStore gas metering from the context prior to entering the EVM
 	// state transition. This is because the EVM is not aware of the Cosmos SDK's gas metering
 	// and is designed to be used in a standalone manner, as each of the EVM's opcodes are priced
@@ -177,10 +177,28 @@ func (p *plugin) Reset(ctx context.Context) {
 	// and EventManager.
 	p.Controller = snapshot.NewController[string, libtypes.Controllable[string]]()
 	_ = p.Controller.Register(p.cms)
-	_ = p.Controller.Register(cem)
+	_ = p.Controller.Register(p.cem.(libtypes.Controllable[string]))
 
 	// We reset the saved error, so that we can check for errors in the next state transition.
 	p.savedErr = nil
+
+	// We setup a snapshot controller to properly revert the Controllable MultiStore
+	// and EventManager.
+	p.Controller = snapshot.NewController[string, libtypes.Controllable[string]]()
+	_ = p.Controller.Register(p.cms)
+	_ = p.Controller.Register(p.cem.(libtypes.Controllable[string]))
+
+	// We reset the saved error, so that we can check for errors in the next state transition.
+	p.savedErr = nil
+}
+
+// Reset sets up the state plugin for execution of a new transaction. It sets up the snapshottable
+// multi store so that Cosmos KV store changes can revert according to the EVM.
+//
+// Reset implements `core.StatePlugin`.
+func (p *plugin) Reset(ctx context.Context) {
+	// Alias for now, todo modify api interface.
+	p.Prepare(ctx)
 }
 
 // RegistryKey implements `libtypes.Registrable`.
