@@ -27,6 +27,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
+	"github.com/ethereum/go-ethereum/miner"
 
 	"pkg.berachain.dev/polaris/eth/params"
 )
@@ -45,6 +46,7 @@ func DefaultConfig() *Config {
 	gpoConfig.Default = big.NewInt(gpoDefault)
 	return &Config{
 		Chain:         *params.DefaultChainConfig,
+		Miner:         miner.DefaultConfig,
 		GPO:           gpoConfig,
 		LegacyTxPool:  legacypool.DefaultConfig,
 		RPCGasCap:     ethconfig.Defaults.RPCGasCap,
@@ -57,6 +59,9 @@ func DefaultConfig() *Config {
 type Config struct {
 	// The chain configuration to use.
 	Chain params.ChainConfig
+
+	// Mining options
+	Miner miner.Config
 
 	// Gas Price Oracle config.
 	GPO gasprice.Config
