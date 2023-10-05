@@ -143,7 +143,7 @@ func (sdb *stateDB) Finalise(bool) {
 
 // Commit implements vm.PolarisStateDB.
 // TODO: determine sideaffects of this function.
-func (sdb *stateDB) Commit(_ uint64, deleteEmptyObjects bool) (common.Hash, error) {
+func (sdb *stateDB) Commit(_ uint64, _ bool) (common.Hash, error) {
 	return common.Hash{}, sdb.Error()
 }
 
