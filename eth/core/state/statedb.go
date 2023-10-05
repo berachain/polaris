@@ -21,28 +21,28 @@
 package state
 
 import (
-	"fmt"
+	"context"
 
+	"github.com/ethereum/go-ethereum/core/state"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state/journal"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/snapshot"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
-// PrecompilePlugin defines the interface to check for the existence of a precompile at an
-// address.
+// For mocks
 type PrecompilePlugin interface {
-	Has(common.Address) bool
+	precompile.Plugin
 }
 
 // stateDB is a struct that holds the plugins and controller to manage Ethereum state.
 type stateDB struct {
 	// Plugin is injected by the chain running the Polaris EVM.
 	Plugin
-	pp PrecompilePlugin
+	pp precompile.Plugin
 
 	// Journals built internally and required for the stateDB.
 	journal.Log
@@ -53,10 +53,17 @@ type stateDB struct {
 
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
+
+	rules *params.Rules
+}
+
+type StateDB interface {
+	state.StateDBI
+	GetContext() context.Context
 }
 
 // NewStateDB returns a vm.PolarisStateDB with the given StatePlugin and new journals.
-func NewStateDB(sp Plugin, pp PrecompilePlugin) vm.PolarisStateDB {
+func NewStateDB(sp Plugin, pp precompile.Plugin) StateDB {
 	return newStateDBWithJournals(
 		sp, pp, journal.NewLogs(), journal.NewRefund(), journal.NewAccesslist(),
 		journal.NewSelfDestructs(sp), journal.NewTransientStorage(),
@@ -65,9 +72,9 @@ func NewStateDB(sp Plugin, pp PrecompilePlugin) vm.PolarisStateDB {
 
 // newStateDBWithJournals returns a vm.PolarisStateDB with the given StatePlugin and journals.
 func newStateDBWithJournals(
-	sp Plugin, pp PrecompilePlugin, lj journal.Log, rj journal.Refund, aj journal.Accesslist,
+	sp Plugin, pp precompile.Plugin, lj journal.Log, rj journal.Refund, aj journal.Accesslist,
 	sj journal.SelfDestructs, tj journal.TransientStorage,
-) vm.PolarisStateDB {
+) *stateDB {
 	if sp == nil {
 		panic("StatePlugin is nil in newStateDBWithJournals")
 	} else if pp == nil {
@@ -102,6 +109,10 @@ func newStateDBWithJournals(
 // GetPlugin returns the plugin from statedb.
 func (sdb *stateDB) GetPlugin() Plugin {
 	return sdb.Plugin
+}
+
+func (sdb *stateDB) GetPrecompileManager() any {
+	return sdb.pp
 }
 
 // =============================================================================
@@ -144,7 +155,11 @@ func (sdb *stateDB) Commit(_ uint64, deleteEmptyObjects bool) (common.Hash, erro
 //
 // Prepare implements vm.PolarisStateDB.
 func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
-	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList) {
+	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList,
+) {
+	copyRules := rules
+	sdb.rules = &copyRules
+
 	if rules.IsBerlin {
 		// Clear out any leftover from previous executions
 		sdb.Accesslist = journal.NewAccesslist()
@@ -191,7 +206,7 @@ func (sdb *stateDB) Preimages() map[common.Hash][]byte {
 // code associated with the given account.
 func (sdb *stateDB) GetCode(addr common.Address) []byte {
 	// We return a single byte for client compatibility w/precompiles.
-	if sdb.pp.Has(addr) {
+	if _, ok := sdb.pp.Get(addr, sdb.rules); ok {
 		return []byte{0x01}
 	}
 	return sdb.Plugin.GetCode(addr)
@@ -208,18 +223,16 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 // =============================================================================
 
 // Copy returns a new statedb with cloned plugin and journals.
-func (sdb *stateDB) Copy() StateDBI {
+func (sdb *stateDB) Copy() state.StateDBI {
 	logs := sdb.Log.Clone()
 	if logs == nil {
 		panic("failed to clone logs")
 	}
-	statedb, ok := newStateDBWithJournals(
+	statedb := newStateDBWithJournals(
 		sdb.Plugin.Clone(), sdb.pp, logs, sdb.Refund.Clone(),
 		sdb.Accesslist.Clone(), sdb.SelfDestructs.Clone(), sdb.TransientStorage.Clone(),
-	).(StateDBI)
-	if !ok {
-		panic(fmt.Sprintf("failed to clone stateDB: %T", sdb.Plugin))
-	}
+	)
+	statedb.rules = sdb.rules
 	return statedb
 }
 

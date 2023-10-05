@@ -20,7 +20,9 @@
 
 package state
 
-import "github.com/ethereum/go-ethereum/core/state"
+import (
+	"github.com/ethereum/go-ethereum/core/state"
+)
 
 type (
 	Dump          = state.Dump

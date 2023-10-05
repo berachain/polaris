@@ -417,8 +417,8 @@ func (b *backend) GetEVM(_ context.Context, msg *core.Message, state state.State
 		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
 		context = core.NewEVMBlockContext(header, b.polar.Blockchain(), &header.Coinbase)
 	}
-	return vm.NewGethEVMWithPrecompiles(context, txContext, state, b.polar.blockchain.Config(),
-		*vmConfig, b.polar.Host().GetPrecompilePlugin()), state.Error
+	return vm.NewEVM(context, txContext, state, b.polar.blockchain.Config(),
+		*vmConfig), state.Error
 }
 
 // GetBlockContext returns a new block context to be used by a EVM.

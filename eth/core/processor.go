@@ -31,6 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/params"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -54,9 +55,6 @@ type StateProcessor struct {
 	// extract the underlying message from a transaction object in `ProcessTransaction`.
 	signer types.Signer
 
-	// evm is the EVM that is used to process transactions. We re-use a single EVM for processing
-	// the entire block. This is done in order to reduce memory allocs.
-	evm *vm.GethEVM
 	// statedb is the state database that is used to mange state during transactions.
 	statedb vm.PolarisStateDB
 	// vmConfig is the configuration for the EVM.
@@ -95,7 +93,7 @@ func NewStateProcessor(
 // ==============================================================================
 
 // Prepare prepares the state processor for processing a block.
-func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
+func (sp *StateProcessor) Prepare(header *types.Header) {
 	// We lock the state processor as a safety measure to ensure that Prepare is not called again
 	// before finalize.
 	sp.mtx.Lock()
@@ -117,23 +115,21 @@ func (sp *StateProcessor) Prepare(evm *vm.GethEVM, header *types.Header) {
 	// We re-register the default geth precompiles every block, this isn't optimal, but since
 	// *technically* the precompiles change based on the chain config rules, to be fully correct,
 	// we should check every block.
-	sp.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
-	sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(&rules))
-	sp.evm = evm
+	sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(&rules), &rules)
 }
 
 // ProcessTransaction applies a transaction to the current state of the blockchain.
 func (sp *StateProcessor) ProcessTransaction(
-	_ context.Context, gasPool *GasPool, tx *types.Transaction,
+	_ context.Context, chainContext ChainContext, gasPool *GasPool, tx *types.Transaction,
 ) (*types.Receipt, error) {
 	// Set the transaction context in the state database.
 	// This clears the logs and sets the transaction info.
 	sp.statedb.SetTxContext(tx.Hash(), len(sp.txs))
 
 	// Inshallah we will be able to apply the transaction.
-	receipt, err := ApplyTransactionWithEVM(
-		sp.evm, sp.cp.ChainConfig(), gasPool, sp.statedb,
-		sp.header, tx, &sp.header.GasUsed,
+	receipt, err := ApplyTransaction(
+		sp.cp.ChainConfig(), chainContext, &sp.header.Coinbase, gasPool, sp.statedb,
+		sp.header, tx, &sp.header.GasUsed, *sp.vmConfig,
 	)
 
 	if err != nil {
@@ -188,10 +184,10 @@ func (sp *StateProcessor) Finalize(
 // BuildAndRegisterPrecompiles builds the given precompiles and registers them with the precompile
 // plugin.
 // TODO: move precompile registration out of the state processor?
-func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []precompile.Registrable) {
+func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []precompile.Registrable, rules *params.Rules) {
 	for _, pc := range precompiles {
 		// skip registering precompiles that are already registered.
-		if sp.pp.Has(pc.RegistryKey()) {
+		if _, ok := sp.pp.Get(pc.RegistryKey(), rules); ok {
 			continue
 		}
 

@@ -34,6 +34,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
 
+	"github.com/ethereum/go-ethereum/consensus"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -46,9 +47,10 @@ var (
 	_             = signer
 	blockGasLimit = 10000000
 	dummyHeader   = &types.Header{
-		Number:   big.NewInt(1),
-		BaseFee:  big.NewInt(1),
-		GasLimit: uint64(blockGasLimit),
+		Number:     big.NewInt(1),
+		BaseFee:    big.NewInt(1),
+		GasLimit:   uint64(blockGasLimit),
+		Difficulty: big.NewInt(0),
 	}
 	legacyTxData = &types.LegacyTx{
 		Nonce:    0,
@@ -66,7 +68,6 @@ var _ = Describe("StateProcessor", func() {
 		cp  *mock.ConfigurationPluginMock
 		pp  *mock.PrecompilePluginMock
 		sp  *core.StateProcessor
-		evm *vm.GethEVM
 	)
 
 	BeforeEach(func() {
@@ -75,20 +76,21 @@ var _ = Describe("StateProcessor", func() {
 		bp.GetNewBlockMetadataFunc = func(n uint64) (common.Address, uint64) {
 			return common.BytesToAddress([]byte{2}), uint64(3)
 		}
-		pp.HasFunc = func(addr common.Address) bool {
-			return false
+		sdb.GetPrecompileManagerFunc = func() any {
+			return pp
 		}
-		sdb.SetTxContextFunc = func(thash common.Hash, ti int) {}
-		sdb.TxIndexFunc = func() int { return 0 }
+		sdb.TxIndexFunc = func() int {
+			return 0
+		}
+		pp.GetActiveFunc = func(params.Rules) []common.Address {
+			return []common.Address{}
+		}
+		pp.GetFunc = func(common.Address, *params.Rules) (vm.PrecompiledContract, bool) {
+			return nil, false
+		}
 		sp = core.NewStateProcessor(cp, pp, sdb, &vm.Config{})
 		Expect(sp).ToNot(BeNil())
-		evm = vm.NewGethEVMWithPrecompiles(
-			vm.BlockContext{
-				Transfer:    core.Transfer,
-				CanTransfer: core.CanTransfer,
-			}, vm.TxContext{}, sdb, cp.ChainConfig(), vm.Config{}, pp,
-		)
-		sp.Prepare(evm, dummyHeader)
+		sp.Prepare(dummyHeader)
 	})
 
 	Context("Empty block", func() {
@@ -105,12 +107,13 @@ var _ = Describe("StateProcessor", func() {
 		BeforeEach(func() {
 			_, _, _, err := sp.Finalize(context.Background())
 			Expect(err).ToNot(HaveOccurred())
-			sp.Prepare(evm, dummyHeader)
+			sp.Prepare(dummyHeader)
 		})
 
 		It("should error on an unsigned transaction", func() {
 			gasPool := new(core.GasPool).AddGas(1000002)
-			receipt, err := sp.ProcessTransaction(context.Background(), gasPool, types.NewTx(legacyTxData))
+			receipt, err := sp.ProcessTransaction(
+				context.Background(), &mockChainContext{}, gasPool, types.NewTx(legacyTxData))
 			Expect(err).To(HaveOccurred())
 			Expect(receipt).To(BeNil())
 			block, receipts, logs, err := sp.Finalize(context.Background())
@@ -125,9 +128,9 @@ var _ = Describe("StateProcessor", func() {
 			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
 				return big.NewInt(1000001)
 			}
-			sdb.FinaliseFunc = func(bool) {}
 			gasPool := new(core.GasPool).AddGas(1000002)
-			result, err := sp.ProcessTransaction(context.Background(), gasPool, signedTx)
+			result, err := sp.ProcessTransaction(
+				context.Background(), &mockChainContext{}, gasPool, signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
 			Expect(result.Status).To(Equal(uint64(1)))
@@ -153,17 +156,18 @@ var _ = Describe("StateProcessor", func() {
 				if addr != dummyContract {
 					return common.Hash{}
 				}
-				return crypto.Keccak256Hash(common.Hex2Bytes(bindings.PrecompileConstructorMetaData.Bin))
+				return crypto.Keccak256Hash(
+					common.Hex2Bytes(bindings.PrecompileConstructorMetaData.Bin))
 			}
 			sdb.ExistFunc = func(addr common.Address) bool {
 				return addr == dummyContract
 			}
-			sdb.FinaliseFunc = func(bool) {}
 			legacyTxData.To = nil
 			legacyTxData.Value = new(big.Int)
 			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
 			gasPool := new(core.GasPool).AddGas(1000002)
-			result, err := sp.ProcessTransaction(context.Background(), gasPool, signedTx)
+			result, err := sp.ProcessTransaction(
+				context.Background(), &mockChainContext{}, gasPool, signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
 			Expect(result.Status).To(Equal(uint64(1)))
@@ -172,7 +176,8 @@ var _ = Describe("StateProcessor", func() {
 			legacyTxData.To = &dummyContract
 			signedTx = types.MustSignNewTx(key, signer, legacyTxData)
 			gasPool = new(core.GasPool).AddGas(1000002)
-			result, err = sp.ProcessTransaction(context.Background(), gasPool, signedTx)
+			result, err = sp.ProcessTransaction(
+				context.Background(), &mockChainContext{}, gasPool, signedTx)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result).ToNot(BeNil())
 			Expect(result.Status).To(Equal(uint64(1)))
@@ -194,9 +199,21 @@ var _ = Describe("No precompile plugin provided", func() {
 		}
 		sp := core.NewStateProcessor(cp, pp, vmmock.NewEmptyStateDB(), &vm.Config{})
 		Expect(func() {
-			sp.Prepare(nil, &types.Header{
+			sp.Prepare(&types.Header{
 				GasLimit: uint64(blockGasLimit),
 			})
 		}).ToNot(Panic())
 	})
 })
+
+type mockChainContext struct{}
+
+// Engine retrieves the chain's consensus engine.
+func (mockChainContext) Engine() consensus.Engine {
+	return nil
+}
+
+// GetHeader returns the header corresponding to the hash/number argument pair.
+func (mockChainContext) GetHeader(common.Hash, uint64) *types.Header {
+	return nil
+}

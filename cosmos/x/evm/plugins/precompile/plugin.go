@@ -21,6 +21,7 @@
 package precompile
 
 import (
+	"fmt"
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
@@ -30,6 +31,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/precompile"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	ethstate "pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -54,7 +56,7 @@ type polarisStateDB interface {
 
 // plugin runs precompile containers in the Cosmos environment with the context gas configs.
 type plugin struct {
-	libtypes.Registry[common.Address, vm.PrecompileContainer]
+	libtypes.Registry[common.Address, vm.PrecompiledContract]
 	// precompiles is all supported precompile contracts.
 	precompiles []ethprecompile.Registrable
 	// kvGasConfig is the gas config for the KV store.
@@ -66,7 +68,7 @@ type plugin struct {
 // NewPlugin creates and returns a plugin with the default KV store gas configs.
 func NewPlugin(precompiles []ethprecompile.Registrable) Plugin {
 	return &plugin{
-		Registry:    registry.NewMap[common.Address, vm.PrecompileContainer](),
+		Registry:    registry.NewMap[common.Address, vm.PrecompiledContract](),
 		precompiles: precompiles,
 		// NOTE: these are hardcoded as they are also hardcoded in the sdk.
 		// This should be updated if it ever changes.
@@ -75,7 +77,42 @@ func NewPlugin(precompiles []ethprecompile.Registrable) Plugin {
 	}
 }
 
+func (p *plugin) Get(addr common.Address, rules *params.Rules) (vm.PrecompiledContract, bool) {
+	// TODO: handle rules
+	val := p.Registry.Get(addr)
+	if val == nil {
+		return nil, false
+	}
+	return val.(vm.PrecompiledContract), true
+}
+
 func (p *plugin) SetPrecompiles(precompiles []ethprecompile.Registrable) {
+	for _, pc := range precompiles {
+		// choose the appropriate precompile factory
+		var af precompile.AbstractFactory
+		switch {
+		case utils.Implements[precompile.StatefulImpl](pc):
+			af = precompile.NewStatefulFactory()
+		case utils.Implements[precompile.StatelessImpl](pc):
+			af = precompile.NewStatelessFactory()
+		default:
+			panic(
+				fmt.Sprintf(
+					"native precompile %s not properly implemented", pc.RegistryKey().Hex(),
+				),
+			)
+		}
+		// build the precompile container and register with the plugin
+		container, err := af.Build(pc, p)
+		if err != nil {
+			panic(err)
+		}
+
+		err = p.Register(container)
+		if err != nil {
+			panic(err)
+		}
+	}
 	p.precompiles = precompiles
 }
 
@@ -85,14 +122,11 @@ func (p *plugin) GetPrecompiles(_ *params.Rules) []ethprecompile.Registrable {
 }
 
 // GetActive implements core.PrecompilePlugin.
-func (p *plugin) GetActive(rules *params.Rules) []common.Address {
-	defaults := ethprecompile.GetDefaultPrecompiles(rules)
-	active := make([]common.Address, len(p.precompiles)+len(defaults))
+func (p *plugin) GetActive(rules params.Rules) []common.Address {
+	// TODO: enable hardfork activation and de-activation.
+	active := make([]common.Address, len(p.precompiles))
 	for i, pc := range p.precompiles {
 		active[i] = pc.RegistryKey()
-	}
-	for i, pc := range defaults {
-		active[i+len(p.precompiles)] = pc.RegistryKey()
 	}
 	return active
 }
