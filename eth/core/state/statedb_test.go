@@ -25,6 +25,7 @@ import (
 	"math/big"
 
 	tmock "github.com/stretchr/testify/mock"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/state/mock"

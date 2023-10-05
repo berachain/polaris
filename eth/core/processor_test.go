@@ -24,6 +24,8 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/consensus"
+
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -34,7 +36,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
 
-	"github.com/ethereum/go-ethereum/consensus"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )

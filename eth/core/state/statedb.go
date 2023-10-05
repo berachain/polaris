@@ -24,6 +24,7 @@ import (
 	"context"
 
 	"github.com/ethereum/go-ethereum/core/state"
+
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state/journal"
@@ -33,7 +34,7 @@ import (
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
-// For mocks
+// For mocks.
 type PrecompilePlugin interface {
 	precompile.Plugin
 }
