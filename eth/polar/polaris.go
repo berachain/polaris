@@ -113,7 +113,7 @@ func NewWithNetworkingStack(
 		stack:      stack,
 		host:       host,
 		engine:     host.GetEnginePlugin(),
-		beacon:     &consensus.MockEngine{},
+		beacon:     &consensus.DummyEngine{},
 	}
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
@@ -150,11 +150,11 @@ func (pl *Polaris) Init() error {
 		return err
 	}
 
-	mux := new(event.TypeMux) //nolint:staticcheck // todo fix.
+	mux := new(event.TypeMux) //nolint:staticcheck
 	// TODO: miner config to app.toml
-	cfg := &miner.DefaultConfig
-	pl.miner = miner.New(pl, cfg,
+	pl.miner = miner.New(pl, &pl.cfg.Miner,
 		pl.host.GetConfigurationPlugin().ChainConfig(), mux, pl.beacon, pl.IsLocalBlock)
+	// extra data must be nil until 1 block 1 transaction.
 	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 	// Build and set the RPC Backend and other services.
 
