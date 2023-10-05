@@ -115,11 +115,6 @@ func (p *plugin) SetPrecompiles(precompiles []ethprecompile.Registrable) {
 	p.precompiles = precompiles
 }
 
-// GetPrecompiles implements core.PrecompilePlugin.
-func (p *plugin) GetPrecompiles(_ *params.Rules) []ethprecompile.Registrable {
-	return p.precompiles
-}
-
 // GetActive implements core.PrecompilePlugin.
 func (p *plugin) GetActive(_ params.Rules) []common.Address {
 	// TODO: enable hardfork activation and de-activation.

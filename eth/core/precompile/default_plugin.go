@@ -55,11 +55,6 @@ func (dp *defaultPlugin) Get(_ common.Address, _ *params.Rules) (vm.PrecompiledC
 	return nil, false
 }
 
-// GetPrecompiles implements core.PrecompilePlugin.
-func (dp *defaultPlugin) GetPrecompiles(_ *params.Rules) []Registrable {
-	return nil
-}
-
 // GetActive implements core.PrecompilePlugin.
 func (dp *defaultPlugin) GetActive(_ params.Rules) []common.Address {
 	return nil

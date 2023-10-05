@@ -24,7 +24,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/eth/params"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
@@ -35,9 +34,6 @@ type (
 	Plugin interface {
 		// PrecompileManager is the manager for the native precompiles.
 		vm.PrecompileManager
-
-		// GetPrecompiles returns the native precompiles for the chain.
-		GetPrecompiles(rules *params.Rules) []Registrable
 		// Register registers a new precompiled contract at the given address.
 		Register(vm.PrecompileContainer) error
 
