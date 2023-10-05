@@ -37,6 +37,7 @@ import (
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -266,7 +267,7 @@ func SdkProposalToGovProposal(
 // ConvertMsgSubmitProposalToSdk is a helper function to convert a `MsgSubmitProposal` to the gov
 // `v1.MsgSubmitProposal`.
 func ConvertMsgSubmitProposalToSdk(
-	prop any, ir codectypes.InterfaceRegistry,
+	prop any, ir codectypes.InterfaceRegistry, addressCodec address.Codec,
 ) (*v1.MsgSubmitProposal, error) {
 	// Convert the prop object to the desired unnamed struct using reflection.
 	propValue := reflect.ValueOf(prop)
@@ -302,10 +303,16 @@ func ConvertMsgSubmitProposalToSdk(
 	}
 
 	// Return the v1.MsgSubmitProposal with all string fields attached.
+	proposer, err := StringFromEthAddress(
+		addressCodec, propValue.FieldByName("Proposer").Interface().(common.Address),
+	)
+	if err != nil {
+		return nil, err
+	}
 	return &v1.MsgSubmitProposal{
 		Messages:       messages,
 		InitialDeposit: initialDeposit,
-		Proposer:       "",
+		Proposer:       proposer,
 		Metadata:       propValue.FieldByName("Metadata").Interface().(string),
 		Title:          propValue.FieldByName("Title").Interface().(string),
 		Summary:        propValue.FieldByName("Summary").Interface().(string),

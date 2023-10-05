@@ -91,7 +91,7 @@ func (c *Contract) SubmitProposal(
 	proposal any,
 ) (uint64, error) {
 	// Convert the submit proposal msg into v1.MsgSubmitProposal.
-	msgSubmitProposal, err := cosmlib.ConvertMsgSubmitProposalToSdk(proposal, c.ir)
+	msgSubmitProposal, err := cosmlib.ConvertMsgSubmitProposalToSdk(proposal, c.ir, c.addressCodec)
 	if err != nil {
 		return 0, err
 	}
