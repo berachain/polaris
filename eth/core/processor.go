@@ -22,18 +22,14 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/eth/params"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // initialTxsCapacity is the initial capacity of the transactions and receipts slice.
@@ -108,14 +104,6 @@ func (sp *StateProcessor) Prepare(header *types.Header) {
 	// increased.
 	chainConfig := sp.cp.ChainConfig()
 	sp.signer = types.MakeSigner(chainConfig, sp.header.Number, sp.header.Time)
-
-	// Setup the EVM for this block.
-	rules := chainConfig.Rules(sp.header.Number, true, sp.header.Time)
-
-	// We re-register the default geth precompiles every block, this isn't optimal, but since
-	// *technically* the precompiles change based on the chain config rules, to be fully correct,
-	// we should check every block.
-	sp.BuildAndRegisterPrecompiles(sp.pp.GetPrecompiles(&rules), &rules)
 }
 
 // ProcessTransaction applies a transaction to the current state of the blockchain.
@@ -129,9 +117,7 @@ func (sp *StateProcessor) ProcessTransaction(
 	// Inshallah we will be able to apply the transaction.
 	receipt, err := ApplyTransaction(
 		sp.cp.ChainConfig(), chainContext, &sp.header.Coinbase, gasPool, sp.statedb,
-		sp.header, tx, &sp.header.GasUsed, *sp.vmConfig,
-	)
-
+		sp.header, tx, &sp.header.GasUsed, *sp.vmConfig)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
 	}
@@ -175,48 +161,4 @@ func (sp *StateProcessor) Finalize(
 
 	// We return a new block with the updated header and the receipts to the `blockchain`.
 	return block, sp.receipts, logs, nil
-}
-
-// ===========================================================================
-// Utilities
-// ===========================================================================
-
-// BuildAndRegisterPrecompiles builds the given precompiles and registers them with the precompile
-// plugin.
-// TODO: move precompile registration out of the state processor?
-func (sp *StateProcessor) BuildAndRegisterPrecompiles(
-	precompiles []precompile.Registrable, rules *params.Rules,
-) {
-	for _, pc := range precompiles {
-		// skip registering precompiles that are already registered.
-		if _, ok := sp.pp.Get(pc.RegistryKey(), rules); ok {
-			continue
-		}
-
-		// choose the appropriate precompile factory
-		var af precompile.AbstractFactory
-		switch {
-		case utils.Implements[precompile.StatefulImpl](pc):
-			af = precompile.NewStatefulFactory()
-		case utils.Implements[precompile.StatelessImpl](pc):
-			af = precompile.NewStatelessFactory()
-		default:
-			panic(
-				fmt.Sprintf(
-					"native precompile %s not properly implemented", pc.RegistryKey().Hex(),
-				),
-			)
-		}
-
-		// build the precompile container and register with the plugin
-		container, err := af.Build(pc, sp.pp)
-		if err != nil {
-			panic(err)
-		}
-		// TODO: set code on the statedb for every precompiled contract.
-		err = sp.pp.Register(container)
-		if err != nil {
-			panic(err)
-		}
-	}
 }
