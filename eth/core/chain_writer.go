@@ -76,7 +76,10 @@ func (bc *blockchain) InsertBlock(
 		return err
 	}
 
-	if _, err = bc.statedb.Commit(block.NumberU64(), bc.cp.ChainConfig().IsEIP158(b.header.Number)); err != nil {
+	if _, err = bc.statedb.Commit(
+		block.NumberU64(),
+		bc.cp.ChainConfig().IsEIP158(block.Header().Number),
+	); err != nil {
 		return err
 	}
 	// TODO: prepare historical plugin here?
