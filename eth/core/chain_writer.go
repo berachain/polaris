@@ -37,7 +37,7 @@ type ChainWriter interface {
 	InsertBlockWithoutSetHead(block *types.Block) error
 	WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log,
 		state state.StateDBI, emitHeadEvent bool) (status core.WriteStatus, err error)
-	PreparePlugins(context.Context, uint64, uint64)
+	PreparePlugins(context.Context)
 }
 
 // WriteBlockAndSetHead is a no-op in the current implementation. Potentially usable later.

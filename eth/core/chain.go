@@ -141,12 +141,12 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 
 func (bc *blockchain) LoadLastState(ctx context.Context, number uint64) error {
 	// ctx here is the one created from app.CommitMultistore().
-	bc.PreparePlugins(ctx, number, 0)
+	bc.PreparePlugins(ctx)
 
 	return bc.loadLastState(number)
 }
 
-func (bc *blockchain) PreparePlugins(ctx context.Context, number, time uint64) {
+func (bc *blockchain) PreparePlugins(ctx context.Context) {
 	bc.sp.Prepare(ctx)
 	bc.sp.Reset(ctx)
 	bc.bp.Prepare(ctx)

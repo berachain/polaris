@@ -51,7 +51,7 @@ func (k *Keeper) ProcessPayloadEnvelope(
 
 	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
 	k.polaris.Blockchain().
-		PreparePlugins(ctx, uint64(sCtx.BlockHeight()), uint64(sCtx.BlockTime().Unix()))
+		PreparePlugins(ctx)
 
 	if err = k.polaris.Blockchain().InsertBlockWithoutSetHead(block); err != nil {
 		return nil, err
