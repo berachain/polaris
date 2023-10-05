@@ -31,7 +31,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	ethstate "pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -77,24 +76,24 @@ func NewPlugin(precompiles []ethprecompile.Registrable) Plugin {
 	}
 }
 
-func (p *plugin) Get(addr common.Address, rules *params.Rules) (vm.PrecompiledContract, bool) {
+func (p *plugin) Get(addr common.Address, _ *params.Rules) (vm.PrecompiledContract, bool) {
 	// TODO: handle rules
 	val := p.Registry.Get(addr)
 	if val == nil {
 		return nil, false
 	}
-	return val.(vm.PrecompiledContract), true
+	return val, true
 }
 
 func (p *plugin) SetPrecompiles(precompiles []ethprecompile.Registrable) {
 	for _, pc := range precompiles {
 		// choose the appropriate precompile factory
-		var af precompile.AbstractFactory
+		var af ethprecompile.AbstractFactory
 		switch {
-		case utils.Implements[precompile.StatefulImpl](pc):
-			af = precompile.NewStatefulFactory()
-		case utils.Implements[precompile.StatelessImpl](pc):
-			af = precompile.NewStatelessFactory()
+		case utils.Implements[ethprecompile.StatefulImpl](pc):
+			af = ethprecompile.NewStatefulFactory()
+		case utils.Implements[ethprecompile.StatelessImpl](pc):
+			af = ethprecompile.NewStatelessFactory()
 		default:
 			panic(
 				fmt.Sprintf(
@@ -122,7 +121,7 @@ func (p *plugin) GetPrecompiles(_ *params.Rules) []ethprecompile.Registrable {
 }
 
 // GetActive implements core.PrecompilePlugin.
-func (p *plugin) GetActive(rules params.Rules) []common.Address {
+func (p *plugin) GetActive(_ params.Rules) []common.Address {
 	// TODO: enable hardfork activation and de-activation.
 	active := make([]common.Address, len(p.precompiles))
 	for i, pc := range p.precompiles {

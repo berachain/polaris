@@ -58,7 +58,7 @@ type stateDB struct {
 	rules *params.Rules
 }
 
-type StateDB interface {
+type StateDB interface { //nolint:revive // to match geth.
 	state.StateDBI
 	GetContext() context.Context
 }

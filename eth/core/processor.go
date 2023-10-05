@@ -184,7 +184,9 @@ func (sp *StateProcessor) Finalize(
 // BuildAndRegisterPrecompiles builds the given precompiles and registers them with the precompile
 // plugin.
 // TODO: move precompile registration out of the state processor?
-func (sp *StateProcessor) BuildAndRegisterPrecompiles(precompiles []precompile.Registrable, rules *params.Rules) {
+func (sp *StateProcessor) BuildAndRegisterPrecompiles(
+	precompiles []precompile.Registrable, rules *params.Rules,
+) {
 	for _, pc := range precompiles {
 		// skip registering precompiles that are already registered.
 		if _, ok := sp.pp.Get(pc.RegistryKey(), rules); ok {

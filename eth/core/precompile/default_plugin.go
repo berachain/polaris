@@ -51,17 +51,17 @@ func (dp *defaultPlugin) Register(vm.PrecompileContainer) error {
 	return nil
 }
 
-func (dp *defaultPlugin) Get(addr common.Address, rules *params.Rules) (vm.PrecompiledContract, bool) {
+func (dp *defaultPlugin) Get(_ common.Address, _ *params.Rules) (vm.PrecompiledContract, bool) {
 	return nil, false
 }
 
 // GetPrecompiles implements core.PrecompilePlugin.
-func (dp *defaultPlugin) GetPrecompiles(rules *params.Rules) []Registrable {
+func (dp *defaultPlugin) GetPrecompiles(_ *params.Rules) []Registrable {
 	return nil
 }
 
 // GetActive implements core.PrecompilePlugin.
-func (dp *defaultPlugin) GetActive(rules params.Rules) []common.Address {
+func (dp *defaultPlugin) GetActive(_ params.Rules) []common.Address {
 	return nil
 }
 
