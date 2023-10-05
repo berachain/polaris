@@ -277,8 +277,8 @@ func (c *Contract) GetProposals(
 
 	govProposals := make([]generated.IGovernanceModuleProposal, len(res.Proposals))
 	for i, sdkProposal := range res.Proposals {
-		govProposal, err := cosmlib.SdkProposalToGovProposal(sdkProposal, c.addressCodec)
-		if err != nil {
+		var govProposal generated.IGovernanceModuleProposal
+		if govProposal, err = cosmlib.SdkProposalToGovProposal(sdkProposal, c.addressCodec); err != nil {
 			return nil, cbindings.CosmosPageResponse{}, err
 		}
 		govProposals[i] = govProposal
