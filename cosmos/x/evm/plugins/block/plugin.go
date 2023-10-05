@@ -29,6 +29,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	polarstoretypes "pkg.berachain.dev/polaris/cosmos/store/types"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -62,7 +63,7 @@ func NewPlugin(storekey storetypes.StoreKey, sk StakingKeeper) Plugin {
 
 // Prepare implements core.BlockPlugin.
 func (p *plugin) Prepare(ctx context.Context) {
-	p.ctx = sdk.UnwrapSDKContext(ctx)
+	p.ctx = sdk.UnwrapSDKContext(ctx).WithGasMeter(polarstoretypes.NewNoopGasMeter())
 }
 
 // BaseFee implements core.BlockPlugin.
