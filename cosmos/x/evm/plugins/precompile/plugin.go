@@ -63,7 +63,7 @@ type plugin struct {
 }
 
 // NewPlugin creates and returns a plugin with the default KV store gas configs.
-func NewPlugin(precompiles []ethprecompile.Registrable) Plugin {
+func NewPlugin() Plugin {
 	return &plugin{
 		Registry: registry.NewMap[common.Address, vm.PrecompiledContract](),
 		// NOTE: these are hardcoded as they are also hardcoded in the sdk.
@@ -114,8 +114,8 @@ func (p *plugin) RegisterPrecompiles(precompiles []ethprecompile.Registrable) {
 // GetActive implements core.PrecompilePlugin.
 func (p *plugin) GetActive(_ params.Rules) []common.Address {
 	// TODO: enable hardfork activation and de-activation.
-	var active []common.Address
-	for k, _ := range p.Registry.Iterate() {
+	active := make([]common.Address, 0)
+	for k := range p.Registry.Iterate() {
 		active = append(active, k)
 	}
 	return active

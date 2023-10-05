@@ -94,7 +94,7 @@ func NewHost(
 	// Setup the state, precompile, historical, and txpool plugins
 	// TODO: re-enable historical plugin using ABCI listener.
 	h.hp = historical.NewPlugin(h.cp, h.bp, nil, h.storeKey)
-	h.pp = precompile.NewPlugin(nil)
+	h.pp = precompile.NewPlugin()
 	h.sp = state.NewPlugin(h.ak, h.storeKey, nil)
 	h.bp.SetQueryContextFn(h.qc)
 	h.sp.SetQueryContextFn(h.qc)
