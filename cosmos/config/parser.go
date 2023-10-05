@@ -29,6 +29,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/common/hexutil"
 )
 
 // baseTen is for the big.Int string conversation.
@@ -50,15 +51,39 @@ func NewAppOptionsParser(opts servertypes.AppOptions) *AppOptionsParser {
 	return &AppOptionsParser{opts}
 }
 
+// GetCommonAddress returns the common.Address for the provided key.
+func (c *AppOptionsParser) GetCommonAddress(key string) (common.Address, error) {
+	addressStr, err := c.GetString(key)
+	if err != nil {
+		return common.Address{}, err
+	}
+	if !common.IsHexAddress(addressStr) {
+		return common.Address{}, fmt.Errorf("invalid address: %s", addressStr)
+	}
+	return common.HexToAddress(addressStr), nil
+}
+
 // GetCommonAddressList retrieves a list of common.Address from a configuration key.
-func (c *AppOptionsParser) GetCommonAddressList(key string) []common.Address {
+func (c *AppOptionsParser) GetCommonAddressList(key string) ([]common.Address, error) {
 	addresses := make([]common.Address, 0)
 	addressStrs := cast.ToStringSlice(c.Get(key))
 	for _, addressStr := range addressStrs {
 		address := common.HexToAddress(addressStr)
+		if !common.IsHexAddress(addressStr) {
+			return nil, fmt.Errorf("invalid address: %s", addressStr)
+		}
 		addresses = append(addresses, address)
 	}
-	return addresses
+	return addresses, nil
+}
+
+// GetHexutilBytes returns a hexutil.Bytes from a configuration key.
+func (c *AppOptionsParser) GetHexutilBytes(key string) (hexutil.Bytes, error) {
+	bytesStr, err := c.GetString(key)
+	if err != nil {
+		return hexutil.Bytes{}, err
+	}
+	return hexutil.Decode(bytesStr)
 }
 
 // GetString retrieves a string value from a configuration key.

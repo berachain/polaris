@@ -26,7 +26,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 
-	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
 
 	"pkg.berachain.dev/polaris/eth/polar"
@@ -44,7 +43,6 @@ func DefaultConfig() *Config {
 }
 
 type Config struct {
-	Miner miner.Config
 	Polar polar.Config
 	Node  node.Config
 }
@@ -78,6 +76,37 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 	}
 	if conf.Polar.RPCTxFeeCap, err =
 		parser.GetFloat64(flagRPCTxFeeCap); err != nil {
+		return nil, err
+	}
+
+	// Polar Miner settings
+	if conf.Polar.Miner.Etherbase, err =
+		parser.GetCommonAddress(flagMinerEtherbase); err != nil {
+		return nil, err
+	}
+	if conf.Polar.Miner.ExtraData, err =
+		parser.GetHexutilBytes(flagMinerExtraData); err != nil {
+		return nil, err
+	}
+	if conf.Polar.Miner.GasFloor, err =
+		parser.GetUint64(flagMinerGasFloor); err != nil {
+		return nil, err
+	}
+	if conf.Polar.Miner.GasCeil, err =
+		parser.GetUint64(flagMinerGasCeil); err != nil {
+		return nil, err
+	}
+	if conf.Polar.Miner.GasPrice, err =
+		parser.GetBigInt(flagMinerGasPrice); err != nil {
+		return nil, err
+	}
+	if conf.Polar.Miner.Recommit, err =
+		parser.GetTimeDuration(flagMinerRecommit); err != nil {
+		return nil, err
+	}
+
+	if conf.Polar.Miner.NewPayloadTimeout, err =
+		parser.GetTimeDuration(flagMinerNewPayloadTimeout); err != nil {
 		return nil, err
 	}
 
@@ -219,8 +248,10 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 	conf.Polar.GPO.IgnorePrice = big.NewInt(val)
 
 	// LegacyPool
-	conf.Polar.LegacyTxPool.Locals = parser.GetCommonAddressList(flagDefault)
-
+	if conf.Polar.LegacyTxPool.Locals, err =
+		parser.GetCommonAddressList(flagLocals); err != nil {
+		return nil, err
+	}
 	if conf.Polar.LegacyTxPool.NoLocals, err =
 		parser.GetBool(flagNoLocals); err != nil {
 		return nil, err

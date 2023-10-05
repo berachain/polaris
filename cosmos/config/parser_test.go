@@ -25,6 +25,8 @@ import (
 	"time"
 
 	"pkg.berachain.dev/polaris/cosmos/config/mocks"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/common/hexutil"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -40,74 +42,99 @@ var _ = Describe("Parser", func() {
 	var appOpts *mocks.AppOptions
 
 	BeforeEach(func() {
-		appOpts = new(mocks.AppOptions) // Initialize the mock
+		appOpts = new(mocks.AppOptions)
 		parser = NewAppOptionsParser(appOpts)
 	})
 
-	// GetString
 	It("should set and retrieve a string option", func() {
 		value := "testValue"
 		runTest(appOpts, parser.GetString, value)
 	})
 
-	// GetInt
 	It("should set and retrieve an integer option", func() {
 		value := int(42)
 		runTest(appOpts, parser.GetInt, value)
 	})
 
-	// GetInt64
 	It("should handle an int64 option", func() {
 		value := int64(42)
 		runTest(appOpts, parser.GetInt64, value)
 	})
 
-	// GetUint64
 	It("should set and retrieve a uint64 option", func() {
 		value := uint64(42)
 		runTest(appOpts, parser.GetUint64, value)
 	})
 
-	// GetUint64Ptr
 	It("should set and retrieve a pointer to a uint64 option", func() {
 		value := uint64(42)
-		runTestUint64Ptr(appOpts, parser.GetUint64Ptr, value)
+		runTestWithOutput(appOpts, parser.GetUint64Ptr, "42", &value)
 	})
 
-	// GetBigInt
 	It("should set and retrieve a big.Int option", func() {
 		value := new(big.Int).SetInt64(42)
-		runTestBigInt(appOpts, parser.GetBigInt, *value)
+		runTestWithOutput(appOpts, parser.GetBigInt, "42", value)
 	})
 
-	// GetFloat64
 	It("should set and retrieve a float64 option", func() {
 		value := 3.14159
 		runTest(appOpts, parser.GetFloat64, value)
 	})
 
-	// GetBool
 	It("should set and retrieve a boolean option", func() {
 		value := true
 		runTest(appOpts, parser.GetBool, value)
 	})
 
-	// GetStringSlice
 	It("should set and retrieve a string slice option", func() {
 		value := []string{"apple", "banana", "cherry"}
 		runTest(appOpts, parser.GetStringSlice, value)
 	})
 
-	// GetTimeDuration
 	It("should set and retrieve a time.Duration option", func() {
 		value := time.Second * 10
 		runTest(appOpts, parser.GetTimeDuration, value)
+	})
+
+	It("should set and retrieve a common.Address option", func() {
+		addressStr := "0x18df82c7e422a42d47345ed86b0e935e9718ebda"
+		runTestWithOutput(
+			appOpts, parser.GetCommonAddress, addressStr, common.HexToAddress(addressStr))
+	})
+
+	It("should set and retrieve a list of common.Address options", func() {
+		addressStrs := []string{
+			"0x20f33ce90a13a4b5e7697e3544c3083b8f8a51d4",
+			"0x18df82c7e422a42d47345ed86b0e935e9718ebda",
+		}
+		expectedAddresses := []common.Address{
+			common.HexToAddress(addressStrs[0]),
+			common.HexToAddress(addressStrs[1]),
+		}
+
+		// Run the test using the runTest function
+		runTestWithOutput(
+			appOpts, parser.GetCommonAddressList, addressStrs, expectedAddresses)
+	})
+
+	It("should set and retrieve a hexutil.Bytes option", func() {
+		bytesStr := "0x1234567890abcdef"
+		expectedBytes := hexutil.MustDecode(bytesStr)
+
+		// Run the test using the runTest function
+		runTest(appOpts, parser.GetHexutilBytes, expectedBytes)
 	})
 })
 
 // runTest handles testing of various types.
 func runTest[A any](
 	appOpts *mocks.AppOptions, parser func(string) (A, error), value A) {
+	runTestWithOutput(appOpts, parser, value, value)
+}
+
+// runTest handles testing of various types.
+func runTestWithOutput[A, B any](
+	appOpts *mocks.AppOptions, parser func(string) (B, error), value A, output B) {
 	// Set the value.
 	appOpts.On("Get", "myTestKey").Return(value).Once()
 
@@ -115,31 +142,5 @@ func runTest[A any](
 	retrievedValue, err := parser("myTestKey")
 
 	Expect(err).ToNot(HaveOccurred())
-	Expect(retrievedValue).To(Equal(value))
-}
-
-// runTestUint64Ptr handles testing of uint64 pointers.
-func runTestUint64Ptr(
-	appOpts *mocks.AppOptions, parser func(string) (*uint64, error), value uint64) {
-	// Set the value.
-	appOpts.On("Get", "myTestKey").Return("42").Once()
-
-	// Retrieve the option
-	retrievedValue, err := parser("myTestKey")
-
-	Expect(err).ToNot(HaveOccurred())
-	Expect(*retrievedValue).To(Equal(value))
-}
-
-// runTestBigInt handles testing of big.Int values.
-func runTestBigInt(
-	appOpts *mocks.AppOptions, parser func(string) (*big.Int, error), value big.Int) {
-	// Set the value.
-	appOpts.On("Get", "myTestKey").Return("42").Once()
-
-	// Retrieve the option
-	retrievedValue, err := parser("myTestKey")
-
-	Expect(err).ToNot(HaveOccurred())
-	Expect(*retrievedValue).To(Equal(value))
+	Expect(retrievedValue).To(Equal(output))
 }

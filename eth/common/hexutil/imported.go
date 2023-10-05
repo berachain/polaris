@@ -29,4 +29,7 @@ type (
 	Uint  = hexutil.Uint
 )
 
-var MustDecode = hexutil.MustDecode
+var (
+	MustDecode = hexutil.MustDecode
+	Decode     = hexutil.Decode
+)
