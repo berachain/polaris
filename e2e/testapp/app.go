@@ -196,6 +196,9 @@ func NewPolarisApp(
 
 	// SetupPrecompiles is used to setup the precompile contracts post depinject.
 	app.EVMKeeper.SetupPrecompiles()
+	if err := app.EVMKeeper.Polaris().Init(); err != nil {
+		panic(err)
+	}
 
 	// Setup TxPool Wrapper
 	app.mp = txpool.New(app.EVMKeeper.Polaris().TxPool())

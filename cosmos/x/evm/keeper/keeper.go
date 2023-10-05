@@ -102,10 +102,6 @@ func NewKeeper(
 // SetupPrecompiles initializes precompiles and the polaris node.
 func (k *Keeper) SetupPrecompiles() {
 	k.host.SetupPrecompiles()
-
-	if err := k.polaris.Init(); err != nil {
-		panic(err)
-	}
 }
 
 // Logger returns a module-specific logger.
