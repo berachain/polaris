@@ -29,17 +29,14 @@ var _ core.PrecompilePlugin = &PrecompilePluginMock{}
 //			EnableReentrancyFunc: func(precompileEVM vm.PrecompileEVM)  {
 //				panic("mock out the EnableReentrancy method")
 //			},
-//			GetFunc: func(addr common.Address) vm.PrecompiledContract {
+//			GetFunc: func(addr common.Address, rules *params.Rules) (vm.PrecompiledContract, bool) {
 //				panic("mock out the Get method")
 //			},
-//			GetActiveFunc: func(rules *params.Rules) []common.Address {
+//			GetActiveFunc: func(rules params.Rules) []common.Address {
 //				panic("mock out the GetActive method")
 //			},
 //			GetPrecompilesFunc: func(rules *params.Rules) []precompile.Registrable {
 //				panic("mock out the GetPrecompiles method")
-//			},
-//			HasFunc: func(addr common.Address) bool {
-//				panic("mock out the Has method")
 //			},
 //			RegisterFunc: func(precompiledContract vm.PrecompiledContract) error {
 //				panic("mock out the Register method")
@@ -61,16 +58,13 @@ type PrecompilePluginMock struct {
 	EnableReentrancyFunc func(precompileEVM vm.PrecompileEVM)
 
 	// GetFunc mocks the Get method.
-	GetFunc func(addr common.Address) vm.PrecompiledContract
+	GetFunc func(addr common.Address, rules *params.Rules) (vm.PrecompiledContract, bool)
 
 	// GetActiveFunc mocks the GetActive method.
-	GetActiveFunc func(rules *params.Rules) []common.Address
+	GetActiveFunc func(rules params.Rules) []common.Address
 
 	// GetPrecompilesFunc mocks the GetPrecompiles method.
 	GetPrecompilesFunc func(rules *params.Rules) []precompile.Registrable
-
-	// HasFunc mocks the Has method.
-	HasFunc func(addr common.Address) bool
 
 	// RegisterFunc mocks the Register method.
 	RegisterFunc func(precompiledContract vm.PrecompiledContract) error
@@ -94,21 +88,18 @@ type PrecompilePluginMock struct {
 		Get []struct {
 			// Addr is the addr argument value.
 			Addr common.Address
+			// Rules is the rules argument value.
+			Rules *params.Rules
 		}
 		// GetActive holds details about calls to the GetActive method.
 		GetActive []struct {
 			// Rules is the rules argument value.
-			Rules *params.Rules
+			Rules params.Rules
 		}
 		// GetPrecompiles holds details about calls to the GetPrecompiles method.
 		GetPrecompiles []struct {
 			// Rules is the rules argument value.
 			Rules *params.Rules
-		}
-		// Has holds details about calls to the Has method.
-		Has []struct {
-			// Addr is the addr argument value.
-			Addr common.Address
 		}
 		// Register holds details about calls to the Register method.
 		Register []struct {
@@ -138,7 +129,6 @@ type PrecompilePluginMock struct {
 	lockGet               sync.RWMutex
 	lockGetActive         sync.RWMutex
 	lockGetPrecompiles    sync.RWMutex
-	lockHas               sync.RWMutex
 	lockRegister          sync.RWMutex
 	lockRun               sync.RWMutex
 }
@@ -208,19 +198,21 @@ func (mock *PrecompilePluginMock) EnableReentrancyCalls() []struct {
 }
 
 // Get calls GetFunc.
-func (mock *PrecompilePluginMock) Get(addr common.Address) vm.PrecompiledContract {
+func (mock *PrecompilePluginMock) Get(addr common.Address, rules *params.Rules) (vm.PrecompiledContract, bool) {
 	if mock.GetFunc == nil {
 		panic("PrecompilePluginMock.GetFunc: method is nil but PrecompilePlugin.Get was just called")
 	}
 	callInfo := struct {
-		Addr common.Address
+		Addr  common.Address
+		Rules *params.Rules
 	}{
-		Addr: addr,
+		Addr:  addr,
+		Rules: rules,
 	}
 	mock.lockGet.Lock()
 	mock.calls.Get = append(mock.calls.Get, callInfo)
 	mock.lockGet.Unlock()
-	return mock.GetFunc(addr)
+	return mock.GetFunc(addr, rules)
 }
 
 // GetCalls gets all the calls that were made to Get.
@@ -228,10 +220,12 @@ func (mock *PrecompilePluginMock) Get(addr common.Address) vm.PrecompiledContrac
 //
 //	len(mockedPrecompilePlugin.GetCalls())
 func (mock *PrecompilePluginMock) GetCalls() []struct {
-	Addr common.Address
+	Addr  common.Address
+	Rules *params.Rules
 } {
 	var calls []struct {
-		Addr common.Address
+		Addr  common.Address
+		Rules *params.Rules
 	}
 	mock.lockGet.RLock()
 	calls = mock.calls.Get
@@ -240,12 +234,12 @@ func (mock *PrecompilePluginMock) GetCalls() []struct {
 }
 
 // GetActive calls GetActiveFunc.
-func (mock *PrecompilePluginMock) GetActive(rules *params.Rules) []common.Address {
+func (mock *PrecompilePluginMock) GetActive(rules params.Rules) []common.Address {
 	if mock.GetActiveFunc == nil {
 		panic("PrecompilePluginMock.GetActiveFunc: method is nil but PrecompilePlugin.GetActive was just called")
 	}
 	callInfo := struct {
-		Rules *params.Rules
+		Rules params.Rules
 	}{
 		Rules: rules,
 	}
@@ -260,10 +254,10 @@ func (mock *PrecompilePluginMock) GetActive(rules *params.Rules) []common.Addres
 //
 //	len(mockedPrecompilePlugin.GetActiveCalls())
 func (mock *PrecompilePluginMock) GetActiveCalls() []struct {
-	Rules *params.Rules
+	Rules params.Rules
 } {
 	var calls []struct {
-		Rules *params.Rules
+		Rules params.Rules
 	}
 	mock.lockGetActive.RLock()
 	calls = mock.calls.GetActive
@@ -300,38 +294,6 @@ func (mock *PrecompilePluginMock) GetPrecompilesCalls() []struct {
 	mock.lockGetPrecompiles.RLock()
 	calls = mock.calls.GetPrecompiles
 	mock.lockGetPrecompiles.RUnlock()
-	return calls
-}
-
-// Has calls HasFunc.
-func (mock *PrecompilePluginMock) Has(addr common.Address) bool {
-	if mock.HasFunc == nil {
-		panic("PrecompilePluginMock.HasFunc: method is nil but PrecompilePlugin.Has was just called")
-	}
-	callInfo := struct {
-		Addr common.Address
-	}{
-		Addr: addr,
-	}
-	mock.lockHas.Lock()
-	mock.calls.Has = append(mock.calls.Has, callInfo)
-	mock.lockHas.Unlock()
-	return mock.HasFunc(addr)
-}
-
-// HasCalls gets all the calls that were made to Has.
-// Check the length with:
-//
-//	len(mockedPrecompilePlugin.HasCalls())
-func (mock *PrecompilePluginMock) HasCalls() []struct {
-	Addr common.Address
-} {
-	var calls []struct {
-		Addr common.Address
-	}
-	mock.lockHas.RLock()
-	calls = mock.calls.Has
-	mock.lockHas.RUnlock()
 	return calls
 }
 
