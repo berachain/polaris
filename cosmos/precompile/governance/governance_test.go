@@ -173,7 +173,7 @@ var _ = Describe("Governance Precompile", func() {
 					Denom:  "abera",
 					Amount: big.NewInt(100),
 				}},
-				Proposer:  caller.String(),
+				Proposer:  common.BytesToAddress(caller.Bytes()),
 				Metadata:  "metadata",
 				Title:     "title",
 				Summary:   "summary",

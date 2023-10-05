@@ -31,15 +31,12 @@ import (
 
 	"github.com/cosmos/gogoproto/proto"
 
-	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing/governance"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	cosmtypes "pkg.berachain.dev/polaris/cosmos/types"
 	network "pkg.berachain.dev/polaris/e2e/localnet/network"
 	utils "pkg.berachain.dev/polaris/e2e/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -63,7 +60,6 @@ var _ = Describe("Call the Precompile Directly", func() {
 		wrapper        *tbindings.GovernanceWrapper
 		bankPrecompile *bbindings.BankModule
 		wrapperAddr    common.Address
-		accCodec       = addresscodec.NewBech32Codec(cosmtypes.Bech32PrefixAccAddr)
 	)
 
 	BeforeEach(func() {
@@ -93,7 +89,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 
 		// Alice Submits a proposal.
 		amt := big.NewInt(100000000)
-		prop := getProposal(cosmlib.MustStringFromEthAddress(accCodec, tf.Address("alice")), amt)
+		prop := getProposal(tf.Address("alice"), amt)
 		txr := tf.GenerateTransactOpts("alice")
 		tx, err = precompile.SubmitProposal(txr, prop)
 		Expect(err).ToNot(HaveOccurred())
@@ -112,7 +108,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
 		// Wrapper submits a proposal.
-		prop = getProposal(cosmlib.MustStringFromEthAddress(accCodec, wrapperAddr), amt)
+		prop = getProposal(wrapperAddr, amt)
 		txr = tf.GenerateTransactOpts("alice")
 		tx, err = wrapper.Submit(txr, getTestProposal(prop), "abgt", amt)
 		Expect(err).ToNot(HaveOccurred())
@@ -203,7 +199,9 @@ var _ = Describe("Call the Precompile Directly", func() {
 })
 
 // Returns a proposal that updates the bank module params.
-func getProposal(proposer string, amount *big.Int) bindings.IGovernanceModuleMsgSubmitProposal {
+func getProposal(
+	proposer common.Address, amount *big.Int,
+) bindings.IGovernanceModuleMsgSubmitProposal {
 	// Prepare the message.
 	msg := &banktypes.MsgUpdateParams{
 		Authority: authtypes.NewModuleAddress("gov").String(),
