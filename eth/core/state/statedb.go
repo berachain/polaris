@@ -21,8 +21,6 @@
 package state
 
 import (
-	"fmt"
-
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state/journal"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -129,10 +127,18 @@ func (sdb *stateDB) Finalise(bool) {
 	sdb.ctrl.Finalize()
 }
 
+// Intermediate root is called in lieu of Finalise pre-Byzantium. They are
+// equivalent at the moment in Polaris as we do not leverage the state root.
+func (sdb *stateDB) IntermediateRoot(bool) common.Hash {
+	sdb.Finalise(true)
+	return common.Hash{}
+}
+
 // Commit implements vm.PolarisStateDB.
-// TODO: determine sideaffects of this function.
-func (sdb *stateDB) Commit(_ uint64, deleteEmptyObjects bool) (common.Hash, error) {
-	sdb.Finalise(deleteEmptyObjects)
+func (sdb *stateDB) Commit(_ uint64, _ bool) (common.Hash, error) {
+	if err := sdb.Error(); err != nil {
+		return common.Hash{}, err
+	}
 	return common.Hash{}, nil
 }
 
@@ -167,6 +173,8 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 			sdb.AddAddressToAccessList(coinbase)
 		}
 	}
+	// Reset TransientStorage for the new transaction
+	sdb.TransientStorage = journal.NewTransientStorage()
 }
 
 // =============================================================================
@@ -209,18 +217,10 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 
 // Copy returns a new statedb with cloned plugin and journals.
 func (sdb *stateDB) Copy() StateDBI {
-	logs := sdb.Log.Clone()
-	if logs == nil {
-		panic("failed to clone logs")
-	}
-	statedb, ok := newStateDBWithJournals(
-		sdb.Plugin.Clone(), sdb.pp, logs, sdb.Refund.Clone(),
+	return newStateDBWithJournals(
+		sdb.Plugin.Clone(), sdb.pp, sdb.Log.Clone(), sdb.Refund.Clone(),
 		sdb.Accesslist.Clone(), sdb.SelfDestructs.Clone(), sdb.TransientStorage.Clone(),
-	).(StateDBI)
-	if !ok {
-		panic(fmt.Sprintf("failed to clone stateDB: %T", sdb.Plugin))
-	}
-	return statedb
+	)
 }
 
 func (sdb *stateDB) DumpToCollector(_ DumpCollector, _ *DumpConfig) []byte {
@@ -246,10 +246,6 @@ func (sdb *stateDB) Database() Database {
 func (sdb *stateDB) StartPrefetcher(_ string) {}
 
 func (sdb *stateDB) StopPrefetcher() {}
-
-func (sdb *stateDB) IntermediateRoot(_ bool) common.Hash {
-	return common.Hash{}
-}
 
 func (sdb *stateDB) StorageTrie(_ common.Address) (Trie, error) {
 	return nil, nil

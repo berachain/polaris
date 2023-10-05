@@ -109,10 +109,6 @@ func New(backend Backend) Miner {
 	if m.pp == nil {
 		m.pp = precompile.NewDefaultPlugin()
 	}
-	m.statedb = state.NewStateDB(m.sp, m.pp)
-	m.processor = core.NewStateProcessor(
-		m.cp, m.pp, m.statedb, &m.vmConfig,
-	)
 
 	return m
 }
@@ -172,11 +168,6 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		m.pendingHeader.MixDigest = common.Hash{}
 	}
 
-	// TODO: we need to have header verification setup somewhere.
-	// if err := misc.VerifyEip1559Header(chainCfg, parent, header); err != nil {
-	// 	panic(err)
-	// }
-
 	// Apply EIP-1559.
 	// TODO: Move to PrepareProposal.
 	if chainConfig.IsLondon(m.pendingHeader.Number) {
@@ -207,6 +198,12 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 
 	m.logger.Info("preparing evm block", "seal_hash", m.pendingHeader.Hash())
 
+	// Create new statedb and processor every block to clear out journals and stuff.
+	// DEPRECATED VIA 1 Block 1 Txn anyways, but works for now.
+	m.statedb = state.NewStateDB(m.sp, m.pp)
+	m.processor = core.NewStateProcessor(
+		m.cp, m.pp, m.statedb, &m.vmConfig,
+	)
 	var (
 		// TODO: we are hardcoding author to coinbase, this may be incorrect.
 		// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
@@ -216,10 +213,6 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		)
 	)
 
-	// Prepare the State Processor, StateDB and the EVM for the block.
-	// TODO: miner should not have a processor. Copy what dydx does in which validators and full nodes
-	// have different prepare and process proposals.
-	// Heuristic: Validators get miners. Full nodes get processors.
 	m.processor.Prepare(
 		vmenv,
 		m.pendingHeader,
