@@ -150,7 +150,7 @@ func (pl *Polaris) Init() error {
 		return err
 	}
 
-	mux := new(event.TypeMux) //nolint:staticcheck
+	mux := new(event.TypeMux) //nolint:staticcheck // deprecated but still in geth.
 	// TODO: miner config to app.toml
 	pl.miner = miner.New(pl, &pl.cfg.Miner,
 		pl.host.GetConfigurationPlugin().ChainConfig(), mux, pl.beacon, pl.IsLocalBlock)
