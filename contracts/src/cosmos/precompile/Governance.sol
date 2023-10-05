@@ -168,7 +168,7 @@ interface IGovernanceModule {
     struct MsgSubmitProposal {
         Cosmos.CodecAny[] messages;
         Cosmos.Coin[] initialDeposit;
-        string proposer;
+        address proposer;
         string metadata;
         string title;
         string summary;
@@ -191,7 +191,7 @@ interface IGovernanceModule {
         string metadata;
         string title;
         string summary;
-        string proposer;
+        address proposer;
     }
 
     /**

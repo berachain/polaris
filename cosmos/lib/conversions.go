@@ -217,7 +217,9 @@ func SdkValidatorsToStakingValidators(
 
 // SdkProposalToGovProposal is a helper function to transform a `v1.Proposal` to an
 // `IGovernanceModule.Proposal`.
-func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModuleProposal {
+func SdkProposalToGovProposal(
+	proposal *v1.Proposal, addressCodec address.Codec,
+) (governance.IGovernanceModuleProposal, error) {
 	messages := make([]governance.CosmosCodecAny, len(proposal.Messages))
 	for i, msg := range proposal.Messages {
 		messages[i] = governance.CosmosCodecAny{
@@ -232,6 +234,11 @@ func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModule
 			Denom:  coin.Denom,
 			Amount: coin.Amount.BigInt(),
 		}
+	}
+
+	proposerAddr, err := EthAddressFromString(addressCodec, proposal.Proposer)
+	if err != nil {
+		return governance.IGovernanceModuleProposal{}, err
 	}
 
 	return governance.IGovernanceModuleProposal{
@@ -252,8 +259,8 @@ func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModule
 		Metadata:        proposal.Metadata,
 		Title:           proposal.Title,
 		Summary:         proposal.Summary,
-		Proposer:        proposal.Proposer,
-	}
+		Proposer:        proposerAddr,
+	}, nil
 }
 
 // ConvertMsgSubmitProposalToSdk is a helper function to convert a `MsgSubmitProposal` to the gov
@@ -298,7 +305,7 @@ func ConvertMsgSubmitProposalToSdk(
 	return &v1.MsgSubmitProposal{
 		Messages:       messages,
 		InitialDeposit: initialDeposit,
-		Proposer:       propValue.FieldByName("Proposer").Interface().(string),
+		Proposer:       "",
 		Metadata:       propValue.FieldByName("Metadata").Interface().(string),
 		Title:          propValue.FieldByName("Title").Interface().(string),
 		Summary:        propValue.FieldByName("Summary").Interface().(string),

@@ -255,7 +255,8 @@ func (c *Contract) GetProposal(
 	if err != nil {
 		return generated.IGovernanceModuleProposal{}, err
 	}
-	return cosmlib.SdkProposalToGovProposal(*res.Proposal), nil
+
+	return cosmlib.SdkProposalToGovProposal(res.Proposal, c.addressCodec)
 }
 
 // GetProposals is the method for the `getProposal`
@@ -274,12 +275,16 @@ func (c *Contract) GetProposals(
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
-	proposals := make([]generated.IGovernanceModuleProposal, 0)
-	for _, proposal := range res.Proposals {
-		proposals = append(proposals, cosmlib.SdkProposalToGovProposal(*proposal))
+	govProposals := make([]generated.IGovernanceModuleProposal, len(res.Proposals))
+	for i, sdkProposal := range res.Proposals {
+		govProposal, err := cosmlib.SdkProposalToGovProposal(sdkProposal, c.addressCodec)
+		if err != nil {
+			return nil, cbindings.CosmosPageResponse{}, err
+		}
+		govProposals[i] = govProposal
 	}
 
-	return proposals, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
+	return govProposals, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
 // GetProposalDeposits is the method for the `getProposalDeposits`
