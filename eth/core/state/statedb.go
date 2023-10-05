@@ -136,7 +136,6 @@ func (sdb *stateDB) IntermediateRoot(bool) common.Hash {
 
 // Commit implements vm.PolarisStateDB.
 func (sdb *stateDB) Commit(_ uint64, _ bool) (common.Hash, error) {
-	sdb.Log = journal.NewLogs()
 	if err := sdb.Error(); err != nil {
 		return common.Hash{}, err
 	}
