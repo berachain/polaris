@@ -2,16 +2,24 @@ dir: "{{.InterfaceDir}}/mocks"
 mockname: "{{.InterfaceNameCamel}}"
 filename: "{{.InterfaceNameSnake}}.go"
 outpkg: "mocks"
+config:
+  recursive: True
+  with-expecter: true
+  all: True
 packages:
+  pkg.berachain.dev/polaris/cosmos/config:
+    config:
+      recursive: True
+      with-expecter: true
+      all: True
   pkg.berachain.dev/polaris/cosmos/txpool:
     config:
-      all: True
       recursive: True
       with-expecter: true
+      all: True
   pkg.berachain.dev/polaris/eth/core/state:
     config:
-      all: True
       recursive: True
       with-expecter: true
-
+      all: True
   
