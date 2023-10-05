@@ -65,6 +65,7 @@ func (l *logs) RegistryKey() string {
 
 // SetTxContext sets the transaction hash and index for the current transaction.
 func (l *logs) SetTxContext(thash common.Hash, ti int) {
+	l.baseJournal = newBaseJournal[*coretypes.Log](initCapacity)
 	// Set the transaction hash and index.
 	l.txHash = thash
 	l.txIndex = ti
@@ -107,9 +108,7 @@ func (l *logs) GetLogs(_ common.Hash, blockNumber uint64, blockHash common.Hash)
 // Finalize clears the journal of the tx logs.
 //
 // Finalize implements `libtypes.Controllable`.
-func (l *logs) Finalize() {
-	l.baseJournal = newBaseJournal[*coretypes.Log](initCapacity)
-}
+func (l *logs) Finalize() {}
 
 // Clone implements `libtypes.Cloneable`.
 func (l *logs) Clone() Log {
