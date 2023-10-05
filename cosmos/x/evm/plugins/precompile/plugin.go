@@ -181,7 +181,7 @@ func (p *plugin) Run(
 	return //nolint:nakedret // named returns.
 }
 
-// Enablexecution can enter the EVM again.
+// EnableReentrancy sets the state so that execution can enter the EVM again.
 //
 // EnableReentrancy implements core.PrecompilePlugin.
 func (p *plugin) EnableReentrancy(evm vm.PrecompileEVM) {
