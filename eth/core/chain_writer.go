@@ -37,6 +37,13 @@ func (bc *blockchain) InsertBlock(
 ) error {
 	var err error
 
+	if _, err = bc.statedb.Commit(
+		block.NumberU64(),
+		bc.cp.ChainConfig().IsEIP158(block.Header().Number),
+	); err != nil {
+		return err
+	}
+
 	// TODO: prepare historical plugin here?
 	// TBH still think we should deprecate it and run in another routine as indexer.
 

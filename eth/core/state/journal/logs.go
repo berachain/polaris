@@ -122,6 +122,7 @@ func (l *logs) Clone() Log {
 		baseJournal: newBaseJournal[*coretypes.Log](l.Capacity()),
 		txHash:      l.txHash,
 		txIndex:     l.txIndex,
+		logSize:     l.logSize,
 	}
 
 	// copy every individual log from the journal
