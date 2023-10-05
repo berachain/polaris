@@ -34,7 +34,6 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/consensus"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -70,7 +69,7 @@ type blockchain struct {
 	processor core.Processor
 
 	// statedb is the state database that is used to mange state during transactions.
-	statedb vm.PolarisStateDB
+	statedb state.StateDBI
 	// vmConfig is the configuration used to create the EVM.
 	vmConfig *vm.Config
 
@@ -155,12 +154,6 @@ func (bc *blockchain) PreparePlugins(ctx context.Context, number, time uint64) {
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
 	}
-
-	// TODO: I think we have to do this in the geth fork because the miner won't get the
-	// precompile update for the next block. So it'll always be one block behind.
-	rules := bc.cp.ChainConfig().Rules(new(big.Int).SetUint64(number), true, time)
-	bc.BuildAndRegisterPrecompiles(precompile.GetDefaultPrecompiles(&rules))
-	bc.BuildAndRegisterPrecompiles(bc.pp.GetPrecompiles(&rules))
 }
 
 // ChainConfig returns the Ethereum chain config of the  chain.

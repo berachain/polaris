@@ -2,21 +2,15 @@ module pkg.berachain.dev/polaris/e2e/precompile
 
 go 1.21
 
-replace (
-	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231002222728-0c73bc8663ae
-	// Required at the moment until a bug in the comsos-sdk is fixed.
-	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-)
+// Required at the moment until a bug in the comsos-sdk is fixed.
+replace github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 
 require (
-	cosmossdk.io/core v0.11.0
-	cosmossdk.io/math v1.1.3-rc.1
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.1
+	github.com/cosmos/gogoproto v1.4.11
 	github.com/onsi/ginkgo/v2 v2.12.1
 	github.com/onsi/gomega v1.27.10
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230919154905-0c53dfe1360a
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20230919154905-0c53dfe1360a
 	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230919154905-0c53dfe1360a
 	pkg.berachain.dev/polaris/eth v0.0.0-20230919154905-0c53dfe1360a
 )
@@ -24,9 +18,11 @@ require (
 require (
 	cosmossdk.io/api v0.7.1 // indirect
 	cosmossdk.io/collections v0.4.0 // indirect
+	cosmossdk.io/core v0.11.0 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
 	cosmossdk.io/errors v1.0.0 // indirect
 	cosmossdk.io/log v1.2.1 // indirect
+	cosmossdk.io/math v1.1.3-rc.1 // indirect
 	cosmossdk.io/store v1.0.0-rc.0 // indirect
 	cosmossdk.io/x/tx v0.10.0 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
@@ -59,7 +55,6 @@ require (
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
-	github.com/cosmos/gogoproto v1.4.11 // indirect
 	github.com/cosmos/iavl v1.0.0-rc.1 // indirect
 	github.com/cosmos/ics23/go v0.10.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.0 // indirect
@@ -203,6 +198,7 @@ require (
 	gotest.tools/v3 v3.5.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20230919154905-0c53dfe1360a // indirect
 	pkg.berachain.dev/polaris/lib v0.0.0-20230919154905-0c53dfe1360a // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect

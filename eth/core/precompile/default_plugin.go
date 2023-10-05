@@ -51,19 +51,13 @@ func (dp *defaultPlugin) Register(vm.PrecompileContainer) error {
 	return nil
 }
 
-// GetPrecompiles implements core.PrecompilePlugin.
-func (dp *defaultPlugin) GetPrecompiles(rules *params.Rules) []Registrable {
-	return GetDefaultPrecompiles(rules)
+func (dp *defaultPlugin) Get(_ common.Address, _ *params.Rules) (vm.PrecompiledContract, bool) {
+	return nil, false
 }
 
 // GetActive implements core.PrecompilePlugin.
-func (dp *defaultPlugin) GetActive(rules *params.Rules) []common.Address {
-	pc := dp.GetPrecompiles(rules)
-	active := make([]common.Address, 0, len(pc))
-	for i, p := range pc {
-		active[i] = p.RegistryKey()
-	}
-	return active
+func (dp *defaultPlugin) GetActive(_ params.Rules) []common.Address {
+	return nil
 }
 
 // Run supports executing stateless precompiles with the background context.
@@ -89,25 +83,3 @@ func (dp *defaultPlugin) EnableReentrancy(vm.PrecompileEVM) {}
 
 // DisableReentrancy implements core.PrecompilePlugin.
 func (dp *defaultPlugin) DisableReentrancy(vm.PrecompileEVM) {}
-
-// GetDefaultPrecompiles returns the default set of precompiles for the given rules.
-func GetDefaultPrecompiles(rules *params.Rules) []Registrable {
-	// Depending on the hard fork rules, we need to register a different set of precompiles.
-	var addrToPrecompiles map[common.Address]vm.PrecompileContainer
-	switch {
-	case rules.IsIstanbul:
-		addrToPrecompiles = vm.PrecompiledContractsIstanbul
-	case rules.IsBerlin:
-		addrToPrecompiles = vm.PrecompiledContractsBerlin
-	case rules.IsByzantium:
-		addrToPrecompiles = vm.PrecompiledContractsByzantium
-	case rules.IsHomestead:
-		addrToPrecompiles = vm.PrecompiledContractsHomestead
-	}
-
-	allPrecompiles := make([]Registrable, 0, len(addrToPrecompiles))
-	for _, precompile := range addrToPrecompiles {
-		allPrecompiles = append(allPrecompiles, precompile)
-	}
-	return allPrecompiles
-}

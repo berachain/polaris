@@ -4,7 +4,8 @@ go 1.21
 
 replace (
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231002222728-0c73bc8663ae
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231005195105-e21d980905b4
+
 	// Required at the moment until a bug in the comsos-sdk is fixed.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
@@ -15,7 +16,7 @@ require (
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/upgrade v0.0.0-20230915171831-2196edacb99d
 	github.com/stretchr/testify v1.8.4
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20230928142528-23cc5f141354
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20231004235344-d975586a7cdd
 	pkg.berachain.dev/polaris/eth v0.0.0-20230928142528-23cc5f141354
 )
 
@@ -272,7 +273,7 @@ require (
 	gotest.tools/v3 v3.5.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230925142347-326426fa61f6 // indirect
+	pkg.berachain.dev/polaris/contracts v0.0.0-20230928142528-23cc5f141354 // indirect
 	pkg.berachain.dev/polaris/lib v0.0.0-20230928142528-23cc5f141354 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect

@@ -72,7 +72,9 @@ func (bc *blockchain) InsertBlock(
 	logs []*types.Log,
 ) error {
 	var err error
-
+	if err = bc.statedb.Error(); err != nil {
+		return err
+	}
 	// TODO: prepare historical plugin here?
 	// TBH still think we should deprecate it and run in another routine as indexer.
 

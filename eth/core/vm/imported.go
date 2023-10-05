@@ -39,15 +39,12 @@ type (
 	PrecompileEVM       = vm.PrecompileEVM
 	TransferFunc        = vm.TransferFunc
 	TxContext           = vm.TxContext
+	PrecompiledContract = vm.PrecompiledContract
 )
 
 var (
-	NewGethEVMWithPrecompiles     = vm.NewEVMWithPrecompiles
-	ErrOutOfGas                   = vm.ErrOutOfGas
-	ErrExecutionReverted          = vm.ErrExecutionReverted
-	ErrWriteProtection            = vm.ErrWriteProtection
-	PrecompiledContractsBerlin    = vm.PrecompiledContractsBerlin
-	PrecompiledContractsByzantium = vm.PrecompiledContractsByzantium
-	PrecompiledContractsHomestead = vm.PrecompiledContractsHomestead
-	PrecompiledContractsIstanbul  = vm.PrecompiledContractsIstanbul
+	NewEVM               = vm.NewEVM
+	ErrOutOfGas          = vm.ErrOutOfGas
+	ErrExecutionReverted = vm.ErrExecutionReverted
+	ErrWriteProtection   = vm.ErrWriteProtection
 )

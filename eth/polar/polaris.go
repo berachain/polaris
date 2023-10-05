@@ -146,11 +146,11 @@ func (pl *Polaris) Init() error {
 		return err
 	}
 
-	mux := new(event.TypeMux) //nolint:staticcheck // todo fix.
+	mux := new(event.TypeMux) //nolint:staticcheck // deprecated but still in geth.
 	// TODO: miner config to app.toml
-	cfg := &miner.DefaultConfig
-	pl.miner = miner.New(pl, cfg,
+	pl.miner = miner.New(pl, &pl.cfg.Miner,
 		pl.host.GetConfigurationPlugin().ChainConfig(), mux, pl.beacon, pl.IsLocalBlock)
+	// extra data must be nil until 1 block 1 transaction.
 	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 	// Build and set the RPC Backend and other services.
 
