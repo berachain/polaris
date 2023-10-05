@@ -15,7 +15,6 @@ require (
 	github.com/onsi/ginkgo/v2 v2.12.1
 	github.com/onsi/gomega v1.27.10
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230919154905-0c53dfe1360a
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20230919154905-0c53dfe1360a
 	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20230919154905-0c53dfe1360a
 	pkg.berachain.dev/polaris/eth v0.0.0-20230919154905-0c53dfe1360a
 )
@@ -203,6 +202,7 @@ require (
 	gotest.tools/v3 v3.5.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20230919154905-0c53dfe1360a // indirect
 	pkg.berachain.dev/polaris/lib v0.0.0-20230919154905-0c53dfe1360a // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect

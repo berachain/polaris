@@ -37,6 +37,7 @@ import (
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
@@ -217,7 +218,9 @@ func SdkValidatorsToStakingValidators(
 
 // SdkProposalToGovProposal is a helper function to transform a `v1.Proposal` to an
 // `IGovernanceModule.Proposal`.
-func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModuleProposal {
+func SdkProposalToGovProposal(
+	proposal *v1.Proposal, addressCodec address.Codec,
+) (governance.IGovernanceModuleProposal, error) {
 	messages := make([]governance.CosmosCodecAny, len(proposal.Messages))
 	for i, msg := range proposal.Messages {
 		messages[i] = governance.CosmosCodecAny{
@@ -232,6 +235,11 @@ func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModule
 			Denom:  coin.Denom,
 			Amount: coin.Amount.BigInt(),
 		}
+	}
+
+	proposerAddr, err := EthAddressFromString(addressCodec, proposal.Proposer)
+	if err != nil {
+		return governance.IGovernanceModuleProposal{}, err
 	}
 
 	return governance.IGovernanceModuleProposal{
@@ -252,14 +260,14 @@ func SdkProposalToGovProposal(proposal v1.Proposal) governance.IGovernanceModule
 		Metadata:        proposal.Metadata,
 		Title:           proposal.Title,
 		Summary:         proposal.Summary,
-		Proposer:        proposal.Proposer,
-	}
+		Proposer:        proposerAddr,
+	}, nil
 }
 
 // ConvertMsgSubmitProposalToSdk is a helper function to convert a `MsgSubmitProposal` to the gov
 // `v1.MsgSubmitProposal`.
 func ConvertMsgSubmitProposalToSdk(
-	prop any, ir codectypes.InterfaceRegistry,
+	prop any, ir codectypes.InterfaceRegistry, addressCodec address.Codec,
 ) (*v1.MsgSubmitProposal, error) {
 	// Convert the prop object to the desired unnamed struct using reflection.
 	propValue := reflect.ValueOf(prop)
@@ -295,10 +303,16 @@ func ConvertMsgSubmitProposalToSdk(
 	}
 
 	// Return the v1.MsgSubmitProposal with all string fields attached.
+	proposer, err := StringFromEthAddress(
+		addressCodec, propValue.FieldByName("Proposer").Interface().(common.Address),
+	)
+	if err != nil {
+		return nil, err
+	}
 	return &v1.MsgSubmitProposal{
 		Messages:       messages,
 		InitialDeposit: initialDeposit,
-		Proposer:       propValue.FieldByName("Proposer").Interface().(string),
+		Proposer:       proposer,
 		Metadata:       propValue.FieldByName("Metadata").Interface().(string),
 		Title:          propValue.FieldByName("Title").Interface().(string),
 		Summary:        propValue.FieldByName("Summary").Interface().(string),
