@@ -10,5 +10,3 @@ use (
 	./lib
 	./tools
 )
-
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231005195105-e21d980905b4

@@ -34,11 +34,11 @@ interface IGovernanceModule {
     ////////////////////////////////////////// Write Methods /////////////////////////////////////////////
     /**
      * @dev Submit a proposal to the governance module.
-     * @param proposalMsg The proposal to submit (as marshaled bytes). NOTE: use the codec to
-     * marshal the proposal message.
+     * @notice Use the codec to marshal the proposal messages.
+     * @param proposal The proposal to submit.
      * @return The id of the proposal.
      */
-    function submitProposal(bytes calldata proposalMsg) external returns (uint64);
+    function submitProposal(MsgSubmitProposal calldata proposal) external returns (uint64);
 
     /**
      * @dev Cancel a proposal.
@@ -163,11 +163,24 @@ interface IGovernanceModule {
     }
 
     /**
+     * @dev Represents a governance module `MsgSubmitProposal`.
+     */
+    struct MsgSubmitProposal {
+        Cosmos.CodecAny[] messages;
+        Cosmos.Coin[] initialDeposit;
+        address proposer;
+        string metadata;
+        string title;
+        string summary;
+        bool expedited;
+    }
+
+    /**
      * @dev Represents a governance module `Proposal`.
      */
     struct Proposal {
         uint64 id;
-        bytes message;
+        Cosmos.CodecAny[] messages;
         int32 status;
         TallyResult finalTallyResult;
         uint64 submitTime;
@@ -178,7 +191,7 @@ interface IGovernanceModule {
         string metadata;
         string title;
         string summary;
-        string proposer;
+        address proposer;
     }
 
     /**
