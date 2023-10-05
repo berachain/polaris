@@ -240,6 +240,7 @@ rpc-evm-timeout = "5s"
 rpc-tx-fee-cap = "1"
 
 
+# Chain config
 [polaris.polar.chain]
 chain-id = "2061"
 
@@ -295,37 +296,61 @@ merge-netsplit-block = "0"
 shanghai-time = "0"
 
 # Cancun switch time (nil == no fork, 0 = already on cancun)
-cancun-time = "null"
+cancun-time = "<nil>"
 
 # Prague switch time (nil == no fork, 0 = already on prague)
-prague-time = "null"
+prague-time = "<nil>"
 
 # Verkle switch time (nil == no fork, 0 = already on verkle)
-verkle-time = "null"
+verkle-time = "<nil>"
 
 # Terminal total difficulty
 terminal-total-difficulty = "0"
 
 # Whether terminal total difficulty has passed
-terminal-total-difficulty-passed = true
+terminal-total-difficulty-passed = "true"
 
 # DevMode enabled
 is-dev-mode = false
 
 
+# Miner config
+[polaris.polar.miner]
+# The address to which mining rewards will be sent
+etherbase = "0x0000000000000000000000000000000000000000"
+
+# Extra data included in mined blocks
+extra-data = "0x"
+
+# Gas price for transactions included in blocks
+gas-price = "1000000000"
+
+# Minimum gas limit for transactions included in blocks
+gas-floor = "0"
+
+# Maximum gas limit for transactions included in blocks
+gas-ceil = "30000000"
+
+# Whether to enable recommit feature
+recommit = "2s"
+
+# Timeout for creating a new payload
+new-payload-timeout = "2s"
+
+
 # Gas price oracle settings for Polaris
 [polaris.polar.gpo]
 # Number of blocks to check for gas prices
-blocks = 20
+blocks = "20"
 
 # Percentile of gas price to use
-percentile = 60
+percentile = "60"
 
 # Maximum header history for gas price determination
-max-header-history = 1024
+max-header-history = "1024"
 
 # Maximum block history for gas price determination
-max-block-history = 1024
+max-block-history = "1024"
 
 # Default gas price value
 default = "1000000000"
@@ -352,22 +377,22 @@ journal = "transactions.rlp"
 rejournal = "1h0m0s"
 
 # Minimum gas price to enforce for acceptance into the pool
-price-limit = 1
+price-limit = "1"
 
 # Minimum price bump percentage to replace an already existing transaction (nonce)
-price-bump = 10
+price-bump = "10"
 
 # Number of executable transaction slots guaranteed per account
-account-slots = 16
+account-slots = "16"
 
 #  Maximum number of executable transaction slots for all accounts
-account-queue = 64
+account-queue = "64"
 
 # Maximum number of non-executable transaction slots permitted per account
-global-slots = 5120
+global-slots = "5120"
 
 # Maximum number of non-executable transaction slots for all accounts
-global-queue = 1024
+global-queue = "1024"
 
 # Maximum amount of time non-executable transaction are queued
 lifetime = "3h0m0s"

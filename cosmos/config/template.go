@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-//nolint:lll,cyclop // template file.
+//nolint:lll // template file.
 package config
 
 const (
@@ -40,6 +40,7 @@ rpc-evm-timeout = "{{ .Polaris.Polar.RPCEVMTimeout }}"
 rpc-tx-fee-cap = "{{ .Polaris.Polar.RPCTxFeeCap }}"
 
 
+# Chain config
 [polaris.polar.chain] 
 chain-id = "{{ .Polaris.Polar.Chain.ChainID }}"
 
@@ -111,6 +112,30 @@ terminal-total-difficulty-passed = "{{ .Polaris.Polar.Chain.TerminalTotalDifficu
 
 # DevMode enabled
 is-dev-mode = {{ .Polaris.Polar.Chain.IsDevMode }}
+
+
+# Miner config
+[polaris.polar.miner]
+# The address to which mining rewards will be sent
+etherbase = "{{.Polaris.Polar.Miner.Etherbase }}"
+
+# Extra data included in mined blocks
+extra-data = "{{.Polaris.Polar.Miner.ExtraData }}"
+
+# Gas price for transactions included in blocks
+gas-price = "{{.Polaris.Polar.Miner.GasPrice }}"
+
+# Minimum gas limit for transactions included in blocks
+gas-floor = "{{.Polaris.Polar.Miner.GasFloor }}"
+
+# Maximum gas limit for transactions included in blocks
+gas-ceil = "{{.Polaris.Polar.Miner.GasCeil }}"
+
+# Whether to enable recommit feature
+recommit = "{{.Polaris.Polar.Miner.Recommit }}"
+
+# Timeout for creating a new payload
+new-payload-timeout = "{{.Polaris.Polar.Miner.NewPayloadTimeout }}"
 
 
 # Gas price oracle settings for Polaris
