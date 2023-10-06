@@ -199,6 +199,11 @@ func NewPolarisApp(
 		panic(err)
 	}
 
+	// Init intializes the polaris struct and starts the lifecycles.
+	if err := app.EVMKeeper.Init(); err != nil {
+		panic(err)
+	}
+
 	// Setup TxPool Wrapper
 	app.mp = txpool.New(app.EVMKeeper.Polaris().TxPool())
 	app.SetMempool(app.mp)
