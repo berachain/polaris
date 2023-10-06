@@ -1,3 +1,4 @@
+#!/bin/bash
 # SPDX-License-Identifier: BUSL-1.1
 #
 # Copyright (C) 2023, Berachain Foundation. All rights reserved.
@@ -18,31 +19,20 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-if [ -z "$CHAINID" ]; then
-    CHAINID="brickchain-666"
-fi
-if [ -z "$KEYRING" ]; then
-    KEYRING="test"
-fi
-if [ -z "$KEYALGO" ]; then
-    KEYALGO="eth_secp256k1"
-fi
-if [ -z "$LOGLEVEL" ]; then
-    LOGLEVEL="info"
-fi
-if [ -z "$HOMEDIR" ]; then
-    HOMEDIR="/.polard"
-fi
 
-KEY="$1"
-MONIKER="$1"
-TRACE=""
-GENESIS=$HOMEDIR/config/genesis.json
-TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
+# Execute the cURL command and capture the response
+response=$(curl -s -X POST -H "Content-Type: application/json" -d '{
+    "jsonrpc":"2.0",
+    "method": "eth_syncing",
+    "params": [],
+    "id": 1
+}' http://localhost:8545)
 
-
-polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
-
-polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
-
-polard keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
+# Check if the response contains the "result" field
+if echo "$response" | grep -q '"result":.*false'; then
+  echo "Syncing is not in progress"
+  exit 0 # Exit with success code
+else
+  echo "Syncing is in progress or port is not up"
+  exit 1 # Exit with failed code
+fi

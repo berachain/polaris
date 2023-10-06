@@ -23,7 +23,7 @@ CONTAINER1="polard-node1"
 CONTAINER2="polard-node2"
 CONTAINER3="polard-node3"
 
-HOMEDIR="/root/.polard"
+HOMEDIR="/.polard"
 SCRIPTS="/scripts"
 
 rm -rf ./temp
