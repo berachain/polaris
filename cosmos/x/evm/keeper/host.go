@@ -46,7 +46,7 @@ var _ core.PolarisHostChain = (*host)(nil)
 type Host interface {
 	core.PolarisHostChain
 	GetAllPlugins() []any
-	SetupPrecompiles()
+	SetupPrecompiles() error
 }
 
 type host struct {
@@ -100,11 +100,16 @@ func NewHost(
 }
 
 // SetupPrecompiles intializes the precompile contracts.
-func (h *host) SetupPrecompiles() {
+func (h *host) SetupPrecompiles() error {
 	// Set the query context function for the block and state plugins
 	pcs := h.pcs().GetPrecompiles()
-	h.pp.RegisterPrecompiles(pcs)
+
+	if err := h.pp.RegisterPrecompiles(pcs); err != nil {
+		return err
+	}
+
 	h.sp.SetPrecompileLogFactory(pclog.NewFactory(pcs))
+	return nil
 }
 
 // GetBlockPlugin returns the header plugin.

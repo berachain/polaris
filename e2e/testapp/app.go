@@ -195,8 +195,7 @@ func NewPolarisApp(
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
 	// SetupPrecompiles is used to setup the precompile contracts post depinject.
-	app.EVMKeeper.SetupPrecompiles()
-	if err := app.EVMKeeper.Polaris().Init(); err != nil {
+	if err := app.EVMKeeper.SetupPrecompiles(); err != nil {
 		panic(err)
 	}
 
