@@ -44,7 +44,6 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
@@ -59,11 +58,10 @@ import (
 
 	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
-	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
+	antelib "pkg.berachain.dev/polaris/cosmos/lib/ante"
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
 	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
-	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
@@ -215,21 +213,7 @@ func NewPolarisApp(
 	app.SetPrepareProposal(app.mm.PrepareProposal)
 
 	// Setup Custom Ante Handler
-	ch, _ := evmante.NewAnteHandler(
-		ante.HandlerOptions{
-			AccountKeeper:   app.AccountKeeper,
-			BankKeeper:      app.BankKeeper,
-			SignModeHandler: app.txConfig.SignModeHandler(),
-			FeegrantKeeper:  nil,
-			SigGasConsumer:  evmante.SigVerificationGasConsumer,
-		},
-	)
-	app.SetAnteHandler(
-		ch,
-	)
-
-	// Register eth_secp256k1 keys
-	ethcryptocodec.RegisterInterfaces(app.interfaceRegistry)
+	app.SetAnteHandler(antelib.NewMinimalHandler())
 
 	// ----- END EVM SETUP -------------------------------------------------
 

@@ -18,16 +18,15 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package hd
+package antelib
 
 import (
-	"testing"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 )
 
-func TestHD(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/crypto/hd")
+// NewMinimalHandler produces the absolute minimum handler that can produce valid
+// blocks.
+func NewMinimalHandler() sdk.AnteHandler {
+	return sdk.ChainAnteDecorators(ante.NewSetUpContextDecorator())
 }

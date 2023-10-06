@@ -22,12 +22,12 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
-	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
@@ -103,7 +103,7 @@ func (s *serializer) PayloadToSdkTx(payload *engine.ExecutionPayloadEnvelope) (s
 				// over so that it can verify the signature in the ante handler.
 				Signature: []byte{0x01},
 			},
-			PubKey: &ethsecp256k1.PubKey{Key: []byte{0x01}},
+			PubKey: &secp256k1.PubKey{Key: []byte{0x01}},
 		},
 	); err != nil {
 		return nil, err
@@ -141,7 +141,7 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 				// over so that it can verify the signature in the ante handler.
 				Signature: []byte{0x0},
 			},
-			PubKey: &ethsecp256k1.PubKey{Key: []byte{0x0}},
+			PubKey: &secp256k1.PubKey{Key: []byte{0x0}},
 		},
 	); err != nil {
 		return nil, err
