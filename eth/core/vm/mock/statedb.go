@@ -29,11 +29,11 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
-//go:generate moq -out ./statedb.mock.go -pkg mock ../ PolarisStateDB
+//go:generate moq -out ./statedb.mock.go -pkg mock ../ PolarStateDB
 
 // NewEmptyStateDB creates a new `StateDBMock` instance.
-func NewEmptyStateDB() *PolarisStateDBMock {
-	mockedPolarisStateDB := &PolarisStateDBMock{
+func NewEmptyStateDB() *PolarStateDBMock {
+	mockedPolarStateDB := &PolarStateDBMock{
 		AddAddressToAccessListFunc: func(addr common.Address) {
 
 		},
@@ -132,12 +132,12 @@ func NewEmptyStateDB() *PolarisStateDBMock {
 		SelfDestructFunc: func(address common.Address) {
 		},
 	}
-	mockedPolarisStateDB.LogsFunc = func() []*types.Log {
+	mockedPolarStateDB.LogsFunc = func() []*types.Log {
 		logs := []*types.Log{}
-		for _, l := range mockedPolarisStateDB.AddLogCalls() {
+		for _, l := range mockedPolarStateDB.AddLogCalls() {
 			logs = append(logs, l.Log)
 		}
 		return logs
 	}
-	return mockedPolarisStateDB
+	return mockedPolarStateDB
 }

@@ -36,7 +36,6 @@ func (bc *blockchain) InsertBlock(
 	logs []*types.Log,
 ) error {
 	var err error
-
 	if _, err = bc.statedb.Commit(
 		block.NumberU64(),
 		bc.cp.ChainConfig().IsEIP158(block.Header().Number),

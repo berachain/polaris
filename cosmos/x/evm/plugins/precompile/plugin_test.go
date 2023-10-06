@@ -54,7 +54,7 @@ var _ = Describe("plugin", func() {
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
-		p = utils.MustGetAs[*plugin](NewPlugin(nil))
+		p = utils.MustGetAs[*plugin](NewPlugin())
 		e = &mockEVM{nil, ctx, &mockSDB{nil, ctx, 0}}
 	})
 
@@ -116,12 +116,12 @@ type mockEVM struct {
 	ms  *mockSDB
 }
 
-func (me *mockEVM) GetStateDB() vm.GethStateDB {
+func (me *mockEVM) GetStateDB() vm.StateDB {
 	return me.ms
 }
 
 type mockSDB struct {
-	vm.PolarisStateDB
+	vm.PolarStateDB
 	ctx  sdk.Context
 	logs int
 }

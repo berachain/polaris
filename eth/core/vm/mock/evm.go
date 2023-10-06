@@ -31,7 +31,7 @@ import (
 func NewEVM() *PrecompileEVMMock {
 	mockSDB := NewEmptyStateDB()
 	return &PrecompileEVMMock{
-		GetStateDBFunc: func() vm.GethStateDB {
+		GetStateDBFunc: func() vm.StateDB {
 			return mockSDB
 		},
 		GetContextFunc: func() *vm.BlockContext {

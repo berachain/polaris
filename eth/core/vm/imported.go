@@ -27,27 +27,19 @@ import (
 type (
 	AccountRef          = vm.AccountRef
 	BlockContext        = vm.BlockContext
-	CanTransferFunc     = vm.CanTransferFunc
-	ContractRef         = vm.ContractRef
 	Config              = vm.Config
-	EVMLogger           = vm.EVMLogger
-	GethEVM             = vm.EVM
-	GethStateDB         = vm.StateDB
-	GetHashFunc         = vm.GetHashFunc
+	EVM                 = vm.EVM
+	StateDB             = vm.StateDB
 	PrecompileContainer = vm.PrecompiledContract
 	PrecompileManager   = vm.PrecompileManager
 	PrecompileEVM       = vm.PrecompileEVM
-	TransferFunc        = vm.TransferFunc
 	TxContext           = vm.TxContext
+	PrecompiledContract = vm.PrecompiledContract
 )
 
 var (
-	NewGethEVMWithPrecompiles     = vm.NewEVMWithPrecompiles
-	ErrOutOfGas                   = vm.ErrOutOfGas
-	ErrExecutionReverted          = vm.ErrExecutionReverted
-	ErrWriteProtection            = vm.ErrWriteProtection
-	PrecompiledContractsBerlin    = vm.PrecompiledContractsBerlin
-	PrecompiledContractsByzantium = vm.PrecompiledContractsByzantium
-	PrecompiledContractsHomestead = vm.PrecompiledContractsHomestead
-	PrecompiledContractsIstanbul  = vm.PrecompiledContractsIstanbul
+	NewEVM               = vm.NewEVM
+	ErrOutOfGas          = vm.ErrOutOfGas
+	ErrExecutionReverted = vm.ErrExecutionReverted
+	ErrWriteProtection   = vm.ErrWriteProtection
 )

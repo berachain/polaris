@@ -110,9 +110,9 @@ type plugin struct {
 	// getQueryContext allows for querying state a historical height.
 	getQueryContext func() func(height int64, prove bool) (sdk.Context, error)
 
-	// savedErr stores any error that is returned from state modifications on the underlying
+	// dbErr stores any error that is returned from state modifications on the underlying
 	// keepers.
-	savedErr error
+	dbErr error
 
 	mu sync.Mutex
 }
@@ -180,7 +180,7 @@ func (p *plugin) Reset(ctx context.Context) {
 	_ = p.Controller.Register(cem)
 
 	// We reset the saved error, so that we can check for errors in the next state transition.
-	p.savedErr = nil
+	p.dbErr = nil
 }
 
 // RegistryKey implements `libtypes.Registrable`.
@@ -195,7 +195,7 @@ func (p *plugin) GetContext() context.Context {
 
 // Error implements `core.StatePlugin`.
 func (p *plugin) Error() error {
-	return p.savedErr
+	return p.dbErr
 }
 
 // ===========================================================================
@@ -221,7 +221,7 @@ func (p *plugin) Exist(addr common.Address) bool {
 	return p.ak.HasAccount(p.ctx, addr[:])
 }
 
-// Empty implements the `PolarisStateDB` interface by returning whether the state object
+// Empty implements the `PolarStateDB` interface by returning whether the state object
 // is either non-existent or empty according to the EIP161 epecification
 // (balance = nonce = code = 0)
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md
@@ -317,7 +317,7 @@ func (p *plugin) SetNonce(addr common.Address, nonce uint64) {
 	}
 
 	if err := acc.SetSequence(nonce); err != nil {
-		p.savedErr = err
+		p.dbErr = err
 	}
 
 	p.ak.SetAccount(p.ctx, acc)
@@ -378,7 +378,7 @@ func (p *plugin) IterateCode(fn func(addr common.Address, value common.Hash) boo
 	)
 	defer func() {
 		if err := it.Close(); err != nil {
-			p.savedErr = err
+			p.dbErr = err
 		}
 	}()
 
@@ -445,7 +445,7 @@ func (p *plugin) IterateState(cb func(addr common.Address, key, value common.Has
 	)
 	defer func() {
 		if err := it.Close(); err != nil {
-			p.savedErr = err
+			p.dbErr = err
 		}
 	}()
 
@@ -506,7 +506,7 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 	)
 	defer func() {
 		if err := it.Close(); err != nil {
-			p.savedErr = err
+			p.dbErr = err
 		}
 	}()
 
