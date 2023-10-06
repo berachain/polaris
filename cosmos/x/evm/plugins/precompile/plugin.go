@@ -43,7 +43,7 @@ import (
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
 	core.PrecompilePlugin
-	RegisterPrecompiles([]ethprecompile.Registrable)
+	RegisterPrecompiles([]ethprecompile.Registrable) error
 }
 
 // PolarStateDB is the interface that must be implemented by the state DB.
@@ -82,7 +82,7 @@ func (p *plugin) Get(addr common.Address, _ *params.Rules) (vm.PrecompiledContra
 	return val, true
 }
 
-func (p *plugin) RegisterPrecompiles(precompiles []ethprecompile.Registrable) {
+func (p *plugin) RegisterPrecompiles(precompiles []ethprecompile.Registrable) error {
 	for _, pc := range precompiles {
 		// choose the appropriate precompile factory
 		var af ethprecompile.AbstractFactory
@@ -92,23 +92,20 @@ func (p *plugin) RegisterPrecompiles(precompiles []ethprecompile.Registrable) {
 		case utils.Implements[ethprecompile.StatelessImpl](pc):
 			af = ethprecompile.NewStatelessFactory()
 		default:
-			panic(
-				fmt.Sprintf(
-					"native precompile %s not properly implemented", pc.RegistryKey().Hex(),
-				),
-			)
+			return fmt.Errorf("unknown precompile type %T", pc)
 		}
 		// build the precompile container and register with the plugin
 		container, err := af.Build(pc, p)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		err = p.Register(container)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
+	return nil
 }
 
 // GetActive implements core.PrecompilePlugin.
