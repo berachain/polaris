@@ -282,12 +282,13 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
-	// Create a TxSerializer.
-	serializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig)
+	// Create the Serializers.
+	txSerializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig, evmtypes.WrapTx)
+	payloadSerializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig, evmtypes.WrapPayload)
 
 	// Initialize services.
-	app.mm.Init(serializer)
-	app.mp.Init(app.Logger(), apiSvr.ClientCtx, serializer)
+	app.mm.Init(payloadSerializer)
+	app.mp.Init(app.Logger(), apiSvr.ClientCtx, txSerializer)
 
 	// Register services with Polaris.
 	app.EVMKeeper.RegisterServices(apiSvr.ClientCtx, []node.Lifecycle{

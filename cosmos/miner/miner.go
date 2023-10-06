@@ -28,6 +28,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
 
@@ -41,7 +42,7 @@ var emptyHash = common.Hash{}
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
 	*miner.Miner
-	serializer     evmtypes.TxSerializer
+	serializer     evmtypes.TxSerializer[*engine.ExecutionPayloadEnvelope]
 	currentPayload *miner.Payload
 }
 
@@ -53,7 +54,7 @@ func New(gm *miner.Miner) *Miner {
 }
 
 // Init sets the transaction serializer.
-func (m *Miner) Init(serializer evmtypes.TxSerializer) {
+func (m *Miner) Init(serializer evmtypes.TxSerializer[*engine.ExecutionPayloadEnvelope]) {
 	m.serializer = serializer
 }
 
@@ -113,7 +114,8 @@ func (m *Miner) resolveEnvelope() []byte {
 	if m.currentPayload == nil {
 		return nil
 	}
-	bz, err := m.serializer.PayloadToSdkTxBytes(m.currentPayload.ResolveFull())
+	envelope := m.currentPayload.ResolveFull()
+	bz, err := m.serializer.ToSdkTxBytes(envelope, envelope.ExecutionPayload.GasLimit)
 	if err != nil {
 		panic(err)
 	}
