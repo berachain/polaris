@@ -1,3 +1,4 @@
+#!/bin/bash
 # SPDX-License-Identifier: BUSL-1.1
 #
 # Copyright (C) 2023, Berachain Foundation. All rights reserved.
@@ -18,31 +19,36 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-if [ -z "$CHAINID" ]; then
-    CHAINID="brickchain-666"
-fi
-if [ -z "$KEYRING" ]; then
-    KEYRING="test"
-fi
-if [ -z "$KEYALGO" ]; then
-    KEYALGO="eth_secp256k1"
-fi
-if [ -z "$LOGLEVEL" ]; then
-    LOGLEVEL="info"
-fi
-if [ -z "$HOMEDIR" ]; then
-    HOMEDIR="/.polard"
+
+# Execute the cURL command and capture the response
+response=$(curl -s -X POST -H "Content-Type: application/json" -d '{
+    "jsonrpc":"2.0",
+    "method": "eth_blockNumber",
+    "params": [],
+    "id": 1
+}' http://localhost:8545)
+
+height=$(echo "$response" | jq -r '.result')
+
+file="last_height.txt"
+
+# Check if the file exists
+if [ -e "$file" ]; then
+  # Read the contents of the file into the result variable
+  last_height=$(cat "$file")
+else
+  # File does not exist, set result to an empty string
+  last_height=""
 fi
 
-KEY="$1"
-MONIKER="$1"
-TRACE=""
-GENESIS=$HOMEDIR/config/genesis.json
-TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
+rm $file
+echo "$height" >> $file
 
-
-polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
-
-polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
-
-polard keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
+# Check if the two input strings are equal
+if [ "$height" == "$last_height" ]; then
+  # Strings are equal, return 1
+  exit 1
+else
+  # Strings are not equal, return 0
+  exit 0
+fi
