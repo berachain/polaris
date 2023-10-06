@@ -43,19 +43,21 @@ var _ = Describe("", func() {
 		sdkTx   *mocks.SdkTx
 		mempool *Mempool
 		ctx     = sdk.Context{}.WithIsCheckTx(true)
+		wet     *evmtypes.WrappedEthereumTransaction
 	)
 
 	BeforeEach(func() {
 		txPool = mocks.NewGethTxPool(t)
 		sdkTx = mocks.NewSdkTx(t)
 		mempool = &Mempool{txpool: txPool}
+		wet, _ = evmtypes.WrapTx(coretypes.NewTx(&coretypes.LegacyTx{}))
 	})
 
 	When("we call insert", func() {
 		When("the txpool does not error", func() {
 			It("does not error", func() {
 				sdkTx.On("GetMsgs").
-					Return([]sdk.Msg{evmtypes.NewFromTransaction(coretypes.NewTx(&coretypes.LegacyTx{}))}).
+					Return([]sdk.Msg{wet}).
 					Once()
 				txPool.On("Add", mock.Anything, mock.Anything, mock.Anything).
 					Return(nil).Once()
@@ -65,7 +67,7 @@ var _ = Describe("", func() {
 		When("the txpool errors", func() {
 			It("does error", func() {
 				sdkTx.On("GetMsgs").Return(
-					[]sdk.Msg{evmtypes.NewFromTransaction(coretypes.NewTx(&coretypes.LegacyTx{}))}).Once()
+					[]sdk.Msg{wet}).Once()
 				txPool.On("Add",
 					mock.Anything, mock.Anything, mock.Anything).
 					Return([]error{errors.New("mock error")}).Once()

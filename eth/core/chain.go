@@ -132,7 +132,6 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
 	bc.processor = core.NewStateProcessor(bc.cp.ChainConfig(), bc, bc.engine)
 	// TODO: hmm...
-	// THIS IN ITS CURRENT STATE WILL CAUSE CONSENSUS ISSUES.
 	bc.currentBlock.Store(
 		types.NewBlock(&types.Header{Time: 0, Number: big.NewInt(0),
 			BaseFee: big.NewInt(0)}, nil, nil, nil, trie.NewStackTrie(nil)))

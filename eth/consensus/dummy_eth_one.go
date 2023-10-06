@@ -105,7 +105,7 @@ func (m *DummyEthOne) SealHash(header *types.Header) common.Hash {
 // CalcDifficulty is a mock implementation.
 func (m *DummyEthOne) CalcDifficulty(chain consensus.ChainHeaderReader,
 	time uint64, parent *types.Header) *big.Int {
-	return new(big.Int).SetUint64(0)
+	return big.NewInt(0)
 }
 
 // APIs is a mock implementation.

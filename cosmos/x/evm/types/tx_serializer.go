@@ -36,7 +36,7 @@ import (
 type TxSerializer interface {
 	SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
 	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
-	PayloadToBytes(payload *engine.ExecutionPayloadEnvelope) ([]byte, error)
+	PayloadToSdkTxBytes(payload *engine.ExecutionPayloadEnvelope) ([]byte, error)
 	PayloadToSdkTx(payload *engine.ExecutionPayloadEnvelope) (sdk.Tx, error)
 }
 
@@ -52,9 +52,11 @@ func NewSerializer(txConfig client.TxConfig) TxSerializer {
 	}
 }
 
-// SerializeToBytes converts an Ethereum transaction to Cosmos formatted txBytes which allows for
-// it to broadcast it to CometBFT.
-func (s *serializer) PayloadToBytes(payload *engine.ExecutionPayloadEnvelope) ([]byte, error) {
+// SerializeToBytes converts an Ethereum transaction to Cosmos formatted
+// txBytes which allows for it to broadcast it to CometBFT.
+func (s *serializer) PayloadToSdkTxBytes(
+	payload *engine.ExecutionPayloadEnvelope,
+) ([]byte, error) {
 	// First, we convert the Ethereum transaction to a Cosmos transaction.
 	cosmosTx, err := s.PayloadToSdkTx(payload)
 	if err != nil {
@@ -71,6 +73,7 @@ func (s *serializer) PayloadToBytes(payload *engine.ExecutionPayloadEnvelope) ([
 	return txBytes, nil
 }
 
+// PayloadToSdkTx converts an ExecutionPayloadEnvelope to an sdk.Tx.
 func (s *serializer) PayloadToSdkTx(payload *engine.ExecutionPayloadEnvelope) (sdk.Tx, error) {
 	var err error
 	// TODO: do we really need to use extensions for anything? Since we
@@ -84,6 +87,7 @@ func (s *serializer) PayloadToSdkTx(payload *engine.ExecutionPayloadEnvelope) (s
 	if err != nil {
 		return nil, err
 	}
+
 	wp := &WrappedPayloadEnvelope{
 		Data: bz,
 	}
@@ -116,27 +120,12 @@ func (s *serializer) PayloadToSdkTx(payload *engine.ExecutionPayloadEnvelope) (s
 
 // SerializeToSdkTx converts an ethereum transaction to a Cosmos native transaction.
 func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error) {
-	// TODO: do we really need to use extensions for anything? Since we
+	var err error
 	// are using the standard ante handler stuff I don't think we actually need to.
 	tx := s.txConfig.NewTxBuilder()
 
-	// We can also retrievepothe gaslimit for the transaction from the ethereum transaction.
-	tx.SetGasLimit(signedTx.Gas())
-
-	// Thirdly, we set the nonce equal to the nonce of the transaction and also derive the PubKey
-	// from the V,R,S values of the transaction. This allows us for a little trick to allow
-	// ethereum transactions to work in the standard cosmos app-side mempool with no modifications.
-	// Some gigabrain shit tbh.
-	pkBz, err := coretypes.PubkeyFromTx(
-		signedTx, coretypes.LatestSignerForChainID(signedTx.ChainId()),
-	)
-	if err != nil {
-		return nil, err
-	}
-
 	// Create the WrappedEthereumTransaction message.
-	wrappedEthTx := NewFromTransaction(signedTx)
-	sig, err := wrappedEthTx.GetSignature()
+	wrappedEthTx, err := WrapTx(signedTx)
 	if err != nil {
 		return nil, err
 	}
@@ -150,9 +139,9 @@ func (s *serializer) SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, 
 				// objects, as this was the bytes that were signed. We pass these into the
 				// SingleSignatureData as the SignModeHandler needs to know what data was signed
 				// over so that it can verify the signature in the ante handler.
-				Signature: sig,
+				Signature: []byte{0x0},
 			},
-			PubKey: &ethsecp256k1.PubKey{Key: pkBz},
+			PubKey: &ethsecp256k1.PubKey{Key: []byte{0x0}},
 		},
 	); err != nil {
 		return nil, err

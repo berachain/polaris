@@ -61,43 +61,51 @@ func (m *Miner) Init(serializer evmtypes.TxSerializer) {
 func (m *Miner) PrepareProposal(
 	ctx sdk.Context, _ *abci.RequestPrepareProposal,
 ) (*abci.ResponsePrepareProposal, error) {
-	var txs [][]byte
+	var payloadEnvelopeBz []byte
 	var err error
-	if txs, err = m.buildBlock(ctx); err != nil {
+	if payloadEnvelopeBz, err = m.buildBlock(ctx); err != nil {
 		return nil, err
 	}
-	return &abci.ResponsePrepareProposal{Txs: txs}, err
+	return &abci.ResponsePrepareProposal{Txs: [][]byte{payloadEnvelopeBz}}, err
 }
 
 // buildBlock builds and submits a payload, it also waits for the txs
 // to resolve from the underying worker.
-func (m *Miner) buildBlock(ctx sdk.Context) ([][]byte, error) {
-	defer func() { m.currentPayload = nil }()
+func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, error) {
+	defer m.clearPayload()
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
 		return nil, err
 	}
-	return [][]byte{m.resolveEnvelope()}, nil
+	return m.resolveEnvelope(), nil
 }
 
 // submitPayloadForBuilding submits a payload for building.
 func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	sCtx.Logger().Info("Submitting payload for building")
-	payload, err := m.BuildPayload(&miner.BuildPayloadArgs{
-		Parent:    common.Hash{}, // Empty parent is fine, geth miner will handle.
-		Timestamp: uint64(sCtx.BlockTime().Unix()),
-		// TODO: properly fill in the rest of the payload.
-		FeeRecipient: common.Address{},
-		Random:       common.Hash{},
-		Withdrawals:  make(types.Withdrawals, 0),
-		BeaconRoot:   &emptyHash,
-	})
-	if err != nil {
-		sCtx.Logger().Error("Failed to build payload", "err", err)
+	var (
+		err     error
+		payload *miner.Payload
+		sCtx    = sdk.UnwrapSDKContext(ctx)
+	)
+
+	// Build Payload
+	if payload, err = m.BuildPayload(m.constructPayloadArgs(sCtx)); err != nil {
+		sCtx.Logger().Error("failed to build payload", "err", err)
 		return err
 	}
 	m.currentPayload = payload
+	sCtx.Logger().Info("submitted payload for building")
 	return nil
+}
+
+// constructPayloadArgs builds a payload to submit to the miner.
+func (m *Miner) constructPayloadArgs(ctx sdk.Context) *miner.BuildPayloadArgs {
+	return &miner.BuildPayloadArgs{
+		Timestamp:    uint64(ctx.BlockTime().Unix()),
+		FeeRecipient: common.Address{}, /* todo: set etherbase */
+		Random:       common.Hash{},    /* todo: generated random */
+		Withdrawals:  make(types.Withdrawals, 0),
+		BeaconRoot:   &emptyHash,
+	}
 }
 
 // resolveEnvelope resolves the payload.
@@ -105,9 +113,14 @@ func (m *Miner) resolveEnvelope() []byte {
 	if m.currentPayload == nil {
 		return nil
 	}
-	bz, err := m.serializer.PayloadToBytes(m.currentPayload.ResolveFull())
+	bz, err := m.serializer.PayloadToSdkTxBytes(m.currentPayload.ResolveFull())
 	if err != nil {
 		panic(err)
 	}
 	return bz
+}
+
+// clearPayload clears the payload.
+func (m *Miner) clearPayload() {
+	m.currentPayload = nil
 }
