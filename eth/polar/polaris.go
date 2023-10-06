@@ -113,7 +113,7 @@ func NewWithNetworkingStack(
 		stack:      stack,
 		host:       host,
 		engine:     host.GetEnginePlugin(),
-		beacon:     &consensus.DummyEngine{},
+		beacon:     &consensus.DummyEthOne{},
 	}
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we

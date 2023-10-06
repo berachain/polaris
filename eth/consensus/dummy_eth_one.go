@@ -24,31 +24,37 @@ package consensus
 import (
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/trie"
+
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/state"
+	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
-// DummyEngine is a mock implementation of the Engine interface.
-type DummyEngine struct{}
+type Engine consensus.Engine
+
+// DummyEthOne is a dummy implementation of the consensus.Engine interface.
+var _ Engine = (*DummyEthOne)(nil)
+
+// DummyEthOne is a mock implementation of the Engine interface.
+type DummyEthOne struct{}
 
 // Author is a mock implementation.
-func (m *DummyEngine) Author(header *types.Header) (common.Address, error) {
+func (m *DummyEthOne) Author(header *types.Header) (common.Address, error) {
 	return common.Address{}, nil
 }
 
 // VerifyHeader is a mock implementation.
-func (m *DummyEngine) VerifyHeader(chain consensus.ChainHeaderReader, header *types.Header) error {
+func (m *DummyEthOne) VerifyHeader(chain consensus.ChainHeaderReader, header *types.Header) error {
 	// Set the correct difficulty
 	header.Difficulty = new(big.Int).SetUint64(1)
 	return nil
 }
 
 // VerifyHeaders is a mock implementation.
-func (m *DummyEngine) VerifyHeaders(
+func (m *DummyEthOne) VerifyHeaders(
 	chain consensus.ChainHeaderReader, headers []*types.Header) (chan<- struct{}, <-chan error) {
 	for _, h := range headers {
 		if err := m.VerifyHeader(chain, h); err != nil {
@@ -59,32 +65,32 @@ func (m *DummyEngine) VerifyHeaders(
 }
 
 // VerifyUncles is a mock implementation.
-func (m *DummyEngine) VerifyUncles(chain consensus.ChainReader, block *types.Block) error {
+func (m *DummyEthOne) VerifyUncles(chain consensus.ChainReader, block *types.Block) error {
 	return nil
 }
 
 // Prepare is a mock implementation.
-func (m *DummyEngine) Prepare(chain consensus.ChainHeaderReader, header *types.Header) error {
+func (m *DummyEthOne) Prepare(chain consensus.ChainHeaderReader, header *types.Header) error {
 	header.Difficulty = new(big.Int).SetUint64(0)
 	return nil
 }
 
 // Finalize is a mock implementation.
-func (m *DummyEngine) Finalize(chain consensus.ChainHeaderReader,
-	header *types.Header, state state.StateDBI, txs []*types.Transaction,
+func (m *DummyEthOne) Finalize(chain consensus.ChainHeaderReader,
+	header *types.Header, state state.StateDB, txs []*types.Transaction,
 	uncles []*types.Header, withdrawals []*types.Withdrawal) {
 }
 
 // FinalizeAndAssemble is a mock implementation.
-func (m *DummyEngine) FinalizeAndAssemble(chain consensus.ChainHeaderReader,
-	header *types.Header, state state.StateDBI, txs []*types.Transaction,
+func (m *DummyEthOne) FinalizeAndAssemble(chain consensus.ChainHeaderReader,
+	header *types.Header, state state.StateDB, txs []*types.Transaction,
 	uncles []*types.Header, receipts []*types.Receipt,
 	withdrawals []*types.Withdrawal) (*types.Block, error) {
 	return types.NewBlock(header, txs, uncles, receipts, trie.NewStackTrie(nil)), nil
 }
 
 // Seal is a mock implementation.
-func (m *DummyEngine) Seal(chain consensus.ChainHeaderReader,
+func (m *DummyEthOne) Seal(chain consensus.ChainHeaderReader,
 	block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
 	sealedBlock := block // .seal()
 	results <- sealedBlock
@@ -92,22 +98,22 @@ func (m *DummyEngine) Seal(chain consensus.ChainHeaderReader,
 }
 
 // SealHash is a mock implementation.
-func (m *DummyEngine) SealHash(header *types.Header) common.Hash {
+func (m *DummyEthOne) SealHash(header *types.Header) common.Hash {
 	return header.Hash()
 }
 
 // CalcDifficulty is a mock implementation.
-func (m *DummyEngine) CalcDifficulty(chain consensus.ChainHeaderReader,
+func (m *DummyEthOne) CalcDifficulty(chain consensus.ChainHeaderReader,
 	time uint64, parent *types.Header) *big.Int {
 	return big.NewInt(0)
 }
 
 // APIs is a mock implementation.
-func (m *DummyEngine) APIs(chain consensus.ChainHeaderReader) []rpc.API {
+func (m *DummyEthOne) APIs(chain consensus.ChainHeaderReader) []rpc.API {
 	return nil
 }
 
 // Close is a mock implementation.
-func (m *DummyEngine) Close() error {
+func (m *DummyEthOne) Close() error {
 	return nil
 }
