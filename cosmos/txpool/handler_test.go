@@ -43,7 +43,6 @@ func TestTxpool(t *testing.T) {
 
 var _ = Describe("", func() {
 	var h *handler
-	t := GinkgoT()
 
 	var subscription *mocks.Subscription
 	var serializer *mocks.TxSerializer
@@ -51,6 +50,8 @@ var _ = Describe("", func() {
 	var subprovider *mocks.TxSubProvider
 
 	BeforeEach(func() {
+		t := GinkgoT()
+		defer GinkgoRecover()
 		subscription = mocks.NewSubscription(t)
 		subscription.On("Err").Return(nil)
 		subscription.On("Unsubscribe").Return()
@@ -80,21 +81,23 @@ var _ = Describe("", func() {
 
 	When("", func() {
 		It("should handle 1 tx", func() {
-			serializer.On("TxToSdkTxBytes", mock.Anything).Return([]byte{123}, nil).Once()
+			defer GinkgoRecover()
+			serializer.On("ToSdkTxBytes", mock.Anything, mock.Anything).Return([]byte{123}, nil).Once()
 			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Once()
 
 			h.txsCh <- core.NewTxsEvent{
-				Txs: []*coretypes.Transaction{coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5})},
+				Txs: []*coretypes.Transaction{coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5, Gas: 100})},
 			}
 		})
 
 		It("should handle multiple tx", func() {
-			serializer.On("TxToSdkTxBytes", mock.Anything).Return([]byte{123}, nil).Twice()
+			defer GinkgoRecover()
+			serializer.On("ToSdkTxBytes", mock.Anything, mock.Anything).Return([]byte{123}, nil).Twice()
 			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Twice()
 
 			h.txsCh <- core.NewTxsEvent{Txs: []*coretypes.Transaction{
-				coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5}),
-				coretypes.NewTx(&coretypes.LegacyTx{Nonce: 6}),
+				coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5, Gas: 10}),
+				coretypes.NewTx(&coretypes.LegacyTx{Nonce: 6, Gas: 10}),
 			}}
 		})
 	})
