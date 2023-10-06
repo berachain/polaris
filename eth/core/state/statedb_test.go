@@ -23,6 +23,7 @@ package state_test
 import (
 	"errors"
 	"math/big"
+	"testing"
 
 	tmock "github.com/stretchr/testify/mock"
 
@@ -42,6 +43,11 @@ var (
 	bob   = common.Address{2}
 	slot  = common.Hash{1}
 )
+
+func TestState(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "eth/core/state")
+}
 
 var _ = Describe("StateDB", func() {
 	var sdb state.StateDB
