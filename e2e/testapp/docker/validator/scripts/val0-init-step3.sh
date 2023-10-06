@@ -20,7 +20,7 @@
 
 KEY1="val0"
 KEYRING="test"
-HOMEDIR="/root/.polard"
+HOMEDIR="/.polard"
 VAL_JSON="$HOMEDIR/config/validator.json"
 
 # Generating a JSON string (https://stackoverflow.com/a/48470227)

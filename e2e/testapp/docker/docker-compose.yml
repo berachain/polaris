@@ -18,7 +18,7 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
-version: '3.3'
+version: "3.3"
 
 services:
   node0:
@@ -27,9 +27,10 @@ services:
     ports:
       - "26656-26658:26656-26658"
       - "9090-9091:9090-9091"
-      - "8545-8546:8545-8546"
+      - "1545-1546:8545-8546"
     environment:
       - ID=0
+      - CHAINID=berachain-localnet-666
     volumes:
       - type: bind
         source: ./temp/seed0
@@ -44,9 +45,10 @@ services:
     ports:
       - "26659-26661:26656-26658"
       - "9092-9093:9090-9091"
-      - "8547-8548:8545-8546"
+      - "2547-2548:8545-8546"
     environment:
       - ID=1
+      - CHAINID=berachain-localnet-666
     volumes:
       - type: bind
         source: ./temp/seed1
@@ -61,9 +63,10 @@ services:
     ports:
       - "26662-26664:26656-26658"
       - "9094-9095:9090-9091"
-      - "8549-8550:8545-8546"
+      - "3549-3550:8545-8546"
     environment:
       - ID=2
+      - CHAINID=berachain-localnet-666
     volumes:
       - type: bind
         source: ./temp/seed2
@@ -78,9 +81,10 @@ services:
     ports:
       - "26665-26667:26656-26658"
       - "9096-9097:9090-9091"
-      - "8551-8552:8545-8546"
+      - "4551-4552:8545-8546"
     environment:
       - ID=3
+      - CHAINID=berachain-localnet-666
     volumes:
       - type: bind
         source: ./temp/seed3
@@ -88,6 +92,17 @@ services:
     networks:
       localnet:
         ipv4_address: 192.168.10.13
+
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "8545:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.14
 
 networks:
   localnet:
