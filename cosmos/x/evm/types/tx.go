@@ -23,13 +23,8 @@ package types
 import (
 	"fmt"
 
-	"google.golang.org/protobuf/proto"
-
-	"cosmossdk.io/x/tx/signing"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	v1alpha1evm "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
@@ -55,28 +50,4 @@ func (etr *WrappedEthereumTransaction) UnwrapTx() *coretypes.Transaction {
 		return nil
 	}
 	return tx
-}
-
-// ProvideEthereumTransactionGetSigners defines a custom function for
-// utilizing custom signer handling for `WrappedEthereumTransaction`s.
-func ProvideWrappedPayloadGetSigners() signing.CustomGetSigner {
-	return signing.CustomGetSigner{
-		MsgType: proto.MessageName(&v1alpha1evm.WrappedPayloadEnvelope{}),
-		Fn: func(msg proto.Message) ([][]byte, error) {
-			// Return the signer in the required format.
-			return [][]byte{{0x0}}, nil
-		},
-	}
-}
-
-// ProvideEthereumTransactionGetSigners defines a custom function for
-// utilizing custom signer handling for `WrappedEthereumTransaction`s.
-func ProvideEthereumTransactionGetSigners() signing.CustomGetSigner {
-	return signing.CustomGetSigner{
-		MsgType: proto.MessageName(&v1alpha1evm.WrappedEthereumTransaction{}),
-		Fn: func(msg proto.Message) ([][]byte, error) {
-			// Return the signer in the required format.
-			return [][]byte{{0x0}}, nil
-		},
-	}
 }

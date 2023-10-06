@@ -61,10 +61,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
+	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
 	testapp "pkg.berachain.dev/polaris/e2e/testapp"
 )
 
@@ -89,7 +90,9 @@ func NewRootCmd() *cobra.Command {
 			log.NewNopLogger(),
 			simtestutil.NewAppOptionsWithFlagHome(tempDir()),
 		),
-		depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners, evmtypes.ProvideWrappedPayloadGetSigners)),
+		depinject.Provide(
+			signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
+			signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope])),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,

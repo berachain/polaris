@@ -57,8 +57,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/node"
 
+	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
+	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
 	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
@@ -134,8 +136,8 @@ func NewPolarisApp(
 		appConfig = depinject.Configs(
 			MakeAppConfig(bech32Prefix),
 			depinject.Provide(
-				evmtypes.ProvideEthereumTransactionGetSigners,
-				evmtypes.ProvideWrappedPayloadGetSigners),
+				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
+				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope]),
 			depinject.Supply(
 				// supply the application options
 				appOpts,
