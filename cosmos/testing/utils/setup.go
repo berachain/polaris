@@ -146,7 +146,7 @@ func SetupMinimalKeepers() (
 		},
 		// TODO: switch to eip-55 fuck bech32.
 		addrCodec,
-		types.Bech32Prefix,
+		"polar",
 		authority,
 	)
 
