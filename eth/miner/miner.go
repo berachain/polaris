@@ -124,7 +124,7 @@ func (m *miner) NextBaseFee() *big.Int {
 // Prepare prepares the blockchain for processing a new block at the given height.
 func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 	// Prepare the State, Block, Configuration, Gas, and Historical plugins for the block.
-	m.sp.Reset(ctx)
+	m.sp.Prepare(ctx)
 	m.bp.Prepare(ctx)
 	m.cp.Prepare(ctx)
 	m.gp.Prepare(ctx)
@@ -205,10 +205,6 @@ func (m *miner) Prepare(ctx context.Context, number uint64) *types.Header {
 		m.cp, m.pp, m.statedb, &m.vmConfig,
 	)
 
-	// Prepare the State Processor, StateDB and the EVM for the block.
-	// TODO: miner should not have a processor. Copy what dydx does in which validators and full nodes
-	// have different prepare and process proposals.
-	// Heuristic: Validators get miners. Full nodes get processors.
 	m.processor.Prepare(
 		m.pendingHeader,
 	)
