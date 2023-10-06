@@ -61,9 +61,9 @@ type stateDB struct {
 
 type (
 	// StateDB is an alias for StateDBI.
-	StateDB = state.StateDBI //nolint:revive // to match geth.
+	StateDB = state.StateDBI //nolint:revive // to match geth naming.
 
-	// PolarStateDB is a Polaris StateDB with a context.
+	// PolarStateDB is a Polaris StateDB that has a context.
 	PolarStateDB interface {
 		StateDB
 		GetContext() context.Context

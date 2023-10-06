@@ -18,4 +18,32 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package cosmos
+package miner
+
+import (
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+func TestMiner(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "cosmos/miner")
+}
+
+var _ = Describe("", func() {
+
+	var (
+	// t       = GinkgoT()
+	// txPool  *mocks.GethTxPool
+	// sdkTx   *mocks.SdkTx
+	// mempool *Miner
+	// ctx     = context.Background()
+	)
+
+	BeforeEach(func() {
+		// mempool = &Miner{}
+	})
+
+})

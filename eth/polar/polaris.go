@@ -30,11 +30,15 @@ import (
 	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/filters"
+	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
 
+	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/log"
-	"pkg.berachain.dev/polaris/eth/miner"
+	oldminer "pkg.berachain.dev/polaris/eth/miner"
 	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
@@ -48,9 +52,9 @@ var defaultEthConfig = ethconfig.Config{
 	FilterLogCacheSize: 0,
 }
 
-// NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC apis.
+// NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC API.
 type NetworkingStack interface {
-	// IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC APIs.
+	// IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC API.
 	ExtRPCEnabled() bool
 
 	// RegisterHandler manually registers a new handler into the networking stack.
@@ -81,7 +85,8 @@ type Polaris struct {
 	host       core.PolarisHostChain
 	blockchain core.Blockchain
 	txPool     *txpool.TxPool
-	miner      miner.Miner
+	spminer    oldminer.Miner
+	miner      *miner.Miner
 
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs
 	// and the core pieces.
@@ -89,6 +94,7 @@ type Polaris struct {
 
 	// engine represents the consensus engine for the backend.
 	engine core.EnginePlugin
+	beacon consensus.Engine
 
 	// filterSystem is the filter system that is used by the filter API.
 	// TODO: relocate
@@ -107,6 +113,7 @@ func NewWithNetworkingStack(
 		stack:      stack,
 		host:       host,
 		engine:     host.GetEnginePlugin(),
+		beacon:     &consensus.DummyEthOne{},
 	}
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
@@ -127,8 +134,7 @@ func NewWithNetworkingStack(
 // Init initializes the Polaris struct.
 func (pl *Polaris) Init() error {
 	var err error
-	pl.miner = miner.New(pl)
-	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
+	pl.spminer = oldminer.New(pl)
 
 	// For now, we only have a legacy pool, we will implement blob pool later.
 	legacyPool := legacypool.New(
@@ -144,9 +150,12 @@ func (pl *Polaris) Init() error {
 		return err
 	}
 
-	// eth.miner = miner.New(eth,
-	// &config.Miner, eth.blockchain.Config(), eth.EventMux(), eth.engine, eth.isLocalBlock)
-
+	mux := new(event.TypeMux) //nolint:staticcheck // deprecated but still in geth.
+	// TODO: miner config to app.toml
+	pl.miner = miner.New(pl, &pl.cfg.Miner,
+		pl.host.GetConfigurationPlugin().ChainConfig(), mux, pl.beacon, pl.IsLocalBlock)
+	// extra data must be nil until 1 block 1 transaction.
+	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 	// Build and set the RPC Backend and other services.
 
 	// if eth.APIBackend.allowUnprotectedTxs {
@@ -205,14 +214,27 @@ func (pl *Polaris) Host() core.PolarisHostChain {
 	return pl.host
 }
 
-func (pl *Polaris) Miner() miner.Miner {
+func (pl *Polaris) Miner() *miner.Miner {
 	return pl.miner
+}
+
+func (pl *Polaris) SPMiner() oldminer.Miner {
+	return pl.spminer
 }
 
 func (pl *Polaris) TxPool() *txpool.TxPool {
 	return pl.txPool
 }
 
+func (pl *Polaris) MinerChain() miner.BlockChain {
+	return pl.blockchain
+}
+
 func (pl *Polaris) Blockchain() core.Blockchain {
 	return pl.blockchain
+}
+
+func (pl *Polaris) IsLocalBlock(_ *types.Header) bool {
+	// Unused.
+	return true
 }

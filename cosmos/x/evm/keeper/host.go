@@ -106,9 +106,11 @@ func NewHost(
 func (h *host) SetupPrecompiles() error {
 	// Set the query context function for the block and state plugins
 	pcs := h.pcs().GetPrecompiles()
+
 	if err := h.pp.RegisterPrecompiles(pcs); err != nil {
 		return err
 	}
+
 	h.sp.SetPrecompileLogFactory(pclog.NewFactory(pcs))
 	return nil
 }

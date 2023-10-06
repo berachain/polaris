@@ -32,7 +32,6 @@ type ChainSubscriber interface {
 	SubscribeChainHeadEvent(chan<- ChainHeadEvent) event.Subscription
 	SubscribeChainSideEvent(ch chan<- ChainSideEvent) event.Subscription // currently not used
 	SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription
-	SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription
 }
 
 // SubscribeRemovedLogsEvent registers a subscription of RemovedLogsEvent.
@@ -58,9 +57,4 @@ func (bc *blockchain) SubscribeChainSideEvent(ch chan<- ChainSideEvent) event.Su
 // SubscribeLogsEvent registers a subscription of []*types.Log.
 func (bc *blockchain) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription {
 	return bc.scope.Track(bc.logsFeed.Subscribe(ch))
-}
-
-// SubscribePendingLogsEvent registers a subscription of []*types.Log.
-func (bc *blockchain) SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription {
-	return bc.scope.Track(bc.pendingLogsFeed.Subscribe(ch))
 }

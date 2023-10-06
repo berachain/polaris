@@ -29,7 +29,7 @@ import (
 // TODO: replace this file with a proper mining object and use message passing
 // Prepare prepares the Polaris chain for processing a new block at the given height.
 func (pl *Polaris) Prepare(ctx context.Context, number uint64) {
-	header := pl.miner.Prepare(ctx, number)
+	header := pl.spminer.Prepare(ctx, number)
 	if header == nil {
 		panic("blockchain produced nil header")
 	}
@@ -40,10 +40,10 @@ func (pl *Polaris) ProcessTransaction(
 	ctx context.Context,
 	tx *types.Transaction,
 ) (*types.Receipt, error) {
-	return pl.miner.ProcessTransaction(ctx, tx)
+	return pl.spminer.ProcessTransaction(ctx, tx)
 }
 
 // Finalize finalizes the current block.
 func (pl *Polaris) Finalize(ctx context.Context) error {
-	return pl.miner.Finalize(ctx)
+	return pl.spminer.Finalize(ctx)
 }

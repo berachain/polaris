@@ -56,9 +56,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/node"
 
-	"pkg.berachain.dev/polaris/cosmos/abci/prepare"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
+	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -98,8 +98,10 @@ type SimApp struct {
 
 	// polaris keepers
 	EVMKeeper *evmkeeper.Keeper
-	pp        *prepare.Handler
-	mp        *txpool.Mempool
+
+	// polaris componets
+	mm *miner.Miner
+	mp *txpool.Mempool
 }
 
 //nolint:gochecknoinits // from sdk.
@@ -198,9 +200,9 @@ func NewPolarisApp(
 	app.mp = txpool.New(app.EVMKeeper.Polaris().TxPool())
 	app.SetMempool(app.mp)
 
-	// Setup Prepare Proposal
-	app.pp = prepare.NewHandler(app.EVMKeeper.Polaris(), app)
-	app.SetPrepareProposal(app.pp.PrepareProposal)
+	// Setup Miner Wrapper
+	app.mm = miner.New(app.EVMKeeper.Polaris().Miner())
+	app.SetPrepareProposal(app.mm.PrepareProposal)
 
 	// Setup Custom Ante Handler
 	ch, _ := evmante.NewAnteHandler(
@@ -281,7 +283,7 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	serializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig)
 
 	// Initialize services.
-	app.pp.Init(serializer)
+	app.mm.Init(serializer)
 	app.mp.Init(app.Logger(), apiSvr.ClientCtx, serializer)
 
 	// Register services with Polaris.
