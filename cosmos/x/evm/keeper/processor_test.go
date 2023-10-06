@@ -103,7 +103,8 @@ var _ = Describe("Processor", func() {
 			log.NewTestLogger(GinkgoT()),
 			cfg,
 		)
-		k.SetupPrecompiles()
+		err = k.SetupPrecompiles()
+		Expect(err).ToNot(HaveOccurred())
 		ctx = ctx.WithBlockHeight(0)
 		genState := core.DefaultGenesis
 		Expect(k.InitGenesis(ctx, genState)).ToNot(HaveOccurred())

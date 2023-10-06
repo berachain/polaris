@@ -55,23 +55,30 @@ type stateDB struct {
 	// ctrl is used to manage snapshots and reverts across plugins and journals.
 	ctrl libtypes.Controller[string, libtypes.Controllable[string]]
 
+	// rules is used to store the rules for the chain.
 	rules *params.Rules
 }
 
-type StateDB interface { //nolint:revive // to match geth.
-	state.StateDBI
-	GetContext() context.Context
-}
+type (
+	// StateDB is an alias for StateDBI.
+	StateDB = state.StateDBI //nolint:revive // to
 
-// NewStateDB returns a vm.PolarisStateDB with the given StatePlugin and new journals.
-func NewStateDB(sp Plugin, pp precompile.Plugin) StateDB {
+	// PolarStateDB is a Polaris StateDB with a context.
+	PolarStateDB interface {
+		StateDB
+		GetContext() context.Context
+	}
+)
+
+// NewStateDB returns a vm.PolarStateDB with the given StatePlugin and new journals.
+func NewStateDB(sp Plugin, pp precompile.Plugin) PolarStateDB {
 	return newStateDBWithJournals(
 		sp, pp, journal.NewLogs(), journal.NewRefund(), journal.NewAccesslist(),
 		journal.NewSelfDestructs(sp), journal.NewTransientStorage(),
 	)
 }
 
-// newStateDBWithJournals returns a vm.PolarisStateDB with the given StatePlugin and journals.
+// newStateDBWithJournals returns a vm.PolarStateDB with the given StatePlugin and journals.
 func newStateDBWithJournals(
 	sp Plugin, pp precompile.Plugin, lj journal.Log, rj journal.Refund, aj journal.Accesslist,
 	sj journal.SelfDestructs, tj journal.TransientStorage,
@@ -120,12 +127,12 @@ func (sdb *stateDB) GetPrecompileManager() any {
 // Snapshot
 // =============================================================================
 
-// Snapshot implements vm.PolarisStateDB.
+// Snapshot implements vm.PolarStateDB.
 func (sdb *stateDB) Snapshot() int {
 	return sdb.ctrl.Snapshot()
 }
 
-// RevertToSnapshot implements vm.PolarisStateDB.
+// RevertToSnapshot implements vm.PolarStateDB.
 func (sdb *stateDB) RevertToSnapshot(id int) {
 	sdb.ctrl.RevertToSnapshot(id)
 }
@@ -141,19 +148,28 @@ func (sdb *stateDB) Finalise(bool) {
 	sdb.ctrl.Finalize()
 }
 
-// Commit implements vm.PolarisStateDB.
-// TODO: determine sideaffects of this function.
+// Intermediate root is called in lieu of Finalise pre-Byzantium. They are
+// equivalent at the moment in Polaris as we do not leverage the state root.
+func (sdb *stateDB) IntermediateRoot(bool) common.Hash {
+	sdb.Finalise(true)
+	return common.Hash{}
+}
+
+// Commit implements vm.PolarStateDB.
 func (sdb *stateDB) Commit(_ uint64, _ bool) (common.Hash, error) {
-	return common.Hash{}, sdb.Error()
+	if err := sdb.Error(); err != nil {
+		return common.Hash{}, err
+	}
+	return common.Hash{}, nil
 }
 
 // =============================================================================
 // Prepare
 // =============================================================================
 
-// Implementation taken directly from the vm.PolarisStateDB in Go-Ethereum.
+// Implementation taken directly from the vm.PolarStateDB in Go-Ethereum.
 //
-// Prepare implements vm.PolarisStateDB.
+// Prepare implements vm.PolarStateDB.
 func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList,
 ) {
@@ -182,13 +198,15 @@ func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
 			sdb.AddAddressToAccessList(coinbase)
 		}
 	}
+	// Reset TransientStorage for the new transaction
+	sdb.TransientStorage = journal.NewTransientStorage()
 }
 
 // =============================================================================
 // PreImage
 // =============================================================================
 
-// AddPreimage implements the the vm.PolarisStateDB interface, but currently
+// AddPreimage implements the the vm.PolarStateDB interface, but currently
 // performs a no-op since the EnablePreimageRecording flag is disabled.
 func (sdb *stateDB) AddPreimage(_ common.Hash, _ []byte) {}
 
@@ -202,7 +220,7 @@ func (sdb *stateDB) Preimages() map[common.Hash][]byte {
 // Code
 // =============================================================================
 
-// GetCodeSize implements the vm.PolarisStateDB interface by returning the size of the
+// GetCodeSize implements the vm.PolarStateDB interface by returning the size of the
 // code associated with the given account.
 func (sdb *stateDB) GetCode(addr common.Address) []byte {
 	// We return a single byte for client compatibility w/precompiles.
@@ -212,7 +230,7 @@ func (sdb *stateDB) GetCode(addr common.Address) []byte {
 	return sdb.Plugin.GetCode(addr)
 }
 
-// GetCodeSize implements the vm.PolarisStateDB interface by returning the size of the
+// GetCodeSize implements the vm.PolarStateDB interface by returning the size of the
 // code associated with the given account.
 func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 	return len(sdb.GetCode(addr))
@@ -223,36 +241,30 @@ func (sdb *stateDB) GetCodeSize(addr common.Address) int {
 // =============================================================================
 
 // Copy returns a new statedb with cloned plugin and journals.
-func (sdb *stateDB) Copy() state.StateDBI {
-	logs := sdb.Log.Clone()
-	if logs == nil {
-		panic("failed to clone logs")
-	}
-	statedb := newStateDBWithJournals(
-		sdb.Plugin.Clone(), sdb.pp, logs, sdb.Refund.Clone(),
+func (sdb *stateDB) Copy() StateDB {
+	return newStateDBWithJournals(
+		sdb.Plugin.Clone(), sdb.pp, sdb.Log.Clone(), sdb.Refund.Clone(),
 		sdb.Accesslist.Clone(), sdb.SelfDestructs.Clone(), sdb.TransientStorage.Clone(),
 	)
-	statedb.rules = sdb.rules
-	return statedb
 }
 
-func (sdb *stateDB) DumpToCollector(_ DumpCollector, _ *DumpConfig) []byte {
+func (sdb *stateDB) DumpToCollector(_ state.DumpCollector, _ *state.DumpConfig) []byte {
 	return nil
 }
 
-func (sdb *stateDB) Dump(_ *DumpConfig) []byte {
+func (sdb *stateDB) Dump(_ *state.DumpConfig) []byte {
 	return nil
 }
 
-func (sdb *stateDB) RawDump(_ *DumpConfig) Dump {
-	return Dump{}
+func (sdb *stateDB) RawDump(_ *state.DumpConfig) state.Dump {
+	return state.Dump{}
 }
 
-func (sdb *stateDB) IteratorDump(_ *DumpConfig) IteratorDump {
-	return IteratorDump{}
+func (sdb *stateDB) IteratorDump(_ *state.DumpConfig) state.IteratorDump {
+	return state.IteratorDump{}
 }
 
-func (sdb *stateDB) Database() Database {
+func (sdb *stateDB) Database() state.Database {
 	return nil
 }
 
@@ -260,11 +272,7 @@ func (sdb *stateDB) StartPrefetcher(_ string) {}
 
 func (sdb *stateDB) StopPrefetcher() {}
 
-func (sdb *stateDB) IntermediateRoot(_ bool) common.Hash {
-	return common.Hash{}
-}
-
-func (sdb *stateDB) StorageTrie(_ common.Address) (Trie, error) {
+func (sdb *stateDB) StorageTrie(_ common.Address) (state.Trie, error) {
 	return nil, nil
 }
 
@@ -276,7 +284,7 @@ func (sdb *stateDB) GetProof(_ common.Address) ([][]byte, error) {
 	return nil, nil
 }
 
-func (sdb *stateDB) GetOrNewStateObject(_ common.Address) *StateObject {
+func (sdb *stateDB) GetOrNewStateObject(_ common.Address) *state.StateObject {
 	return nil
 }
 

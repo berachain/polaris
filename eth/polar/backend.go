@@ -322,7 +322,7 @@ func (b *backend) StateAndHeaderByNumber(
 func (b *backend) StateAndHeaderByNumberOrHash(
 	ctx context.Context,
 	blockNrOrHash rpc.BlockNumberOrHash,
-) (state.StateDBI, *types.Header, error) {
+) (state.StateDB, *types.Header, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.StateAndHeaderByNumber(ctx, blockNr)
 	}
@@ -402,9 +402,9 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 }
 
 // GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.
-func (b *backend) GetEVM(_ context.Context, msg *core.Message, state state.StateDBI,
+func (b *backend) GetEVM(_ context.Context, msg *core.Message, state state.StateDB,
 	header *types.Header, vmConfig *vm.Config, blockCtx *vm.BlockContext,
-) (*vm.GethEVM, func() error) {
+) (*vm.EVM, func() error) {
 	if vmConfig == nil {
 		vmConfig = b.polar.blockchain.GetVMConfig()
 	}

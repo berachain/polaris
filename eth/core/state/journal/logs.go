@@ -49,6 +49,7 @@ type logs struct {
 	baseJournal[*coretypes.Log]
 	txHash  common.Hash
 	txIndex int
+	logSize int
 }
 
 // NewLogs returns a new `logs` journal.
@@ -80,6 +81,7 @@ func (l *logs) TxIndex() int {
 func (l *logs) AddLog(log *coretypes.Log) {
 	log.TxHash = l.txHash
 	log.TxIndex = uint(l.txIndex)
+	log.Index = uint(l.logSize) + uint(l.Size())
 	l.Push(log)
 }
 
@@ -108,7 +110,11 @@ func (l *logs) GetLogs(_ common.Hash, blockNumber uint64, blockHash common.Hash)
 // Finalize clears the journal of the tx logs.
 //
 // Finalize implements `libtypes.Controllable`.
-func (l *logs) Finalize() {}
+func (l *logs) Finalize() {
+	// increase in finalize based on the final size of the
+	// logs
+	l.logSize += l.Size()
+}
 
 // Clone implements `libtypes.Cloneable`.
 func (l *logs) Clone() Log {
@@ -116,6 +122,7 @@ func (l *logs) Clone() Log {
 		baseJournal: newBaseJournal[*coretypes.Log](l.Capacity()),
 		txHash:      l.txHash,
 		txIndex:     l.txIndex,
+		logSize:     l.logSize,
 	}
 
 	// copy every individual log from the journal

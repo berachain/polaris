@@ -52,7 +52,7 @@ type StateProcessor struct {
 	signer types.Signer
 
 	// statedb is the state database that is used to mange state during transactions.
-	statedb vm.PolarisStateDB
+	statedb vm.PolarStateDB
 	// vmConfig is the configuration for the EVM.
 	vmConfig *vm.Config
 
@@ -70,7 +70,7 @@ type StateProcessor struct {
 func NewStateProcessor(
 	cp ConfigurationPlugin,
 	pp PrecompilePlugin,
-	statedb vm.PolarisStateDB,
+	statedb vm.PolarStateDB,
 	vmConfig *vm.Config,
 ) *StateProcessor {
 	sp := &StateProcessor{
@@ -141,10 +141,9 @@ func (sp *StateProcessor) Finalize(
 	var (
 		// "FinalizeAndAssemble" the block with the txs and receipts (sets the TxHash, ReceiptHash,
 		// and Bloom).
-		block    = types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
-		hash     = block.Hash()
-		logs     []*types.Log
-		logIndex uint
+		block = types.NewBlock(sp.header, sp.txs, nil, sp.receipts, trie.NewStackTrie(nil))
+		hash  = block.Hash()
+		logs  []*types.Log
 	)
 
 	// Update the block hash in all logs since it is now available and not when the receipt/log of
@@ -153,8 +152,6 @@ func (sp *StateProcessor) Finalize(
 		receipt.BlockHash = hash
 		for _, log := range receipt.Logs {
 			log.BlockHash = hash
-			log.Index = logIndex
-			logIndex++
 		}
 		logs = append(logs, receipt.Logs...)
 	}

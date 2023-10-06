@@ -25,10 +25,11 @@ import (
 )
 
 type (
-	// PolarisStateDB defines an extension to the interface provided by Go-Ethereum to support
+	// PolarStateDB defines an extension to the interface provided by Go-Ethereum to support
 	// additional state transition functionalities.
-	PolarisStateDB interface {
-		GethStateDB
+	PolarStateDB interface {
+		// StateDB represents vm.StateDB
+		StateDB
 		// GetContext returns the current context of the state plugin.
 		GetContext() context.Context
 	}

@@ -10,8 +10,6 @@ import (
 
 	params "github.com/ethereum/go-ethereum/params"
 
-	precompile "pkg.berachain.dev/polaris/eth/core/precompile"
-
 	vm "github.com/ethereum/go-ethereum/core/vm"
 )
 
@@ -189,50 +187,6 @@ func (_c *PrecompilePlugin_GetActive_Call) Return(_a0 []common.Address) *Precomp
 }
 
 func (_c *PrecompilePlugin_GetActive_Call) RunAndReturn(run func(params.Rules) []common.Address) *PrecompilePlugin_GetActive_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetPrecompiles provides a mock function with given fields: rules
-func (_m *PrecompilePlugin) GetPrecompiles(rules *params.Rules) []precompile.Registrable {
-	ret := _m.Called(rules)
-
-	var r0 []precompile.Registrable
-	if rf, ok := ret.Get(0).(func(*params.Rules) []precompile.Registrable); ok {
-		r0 = rf(rules)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]precompile.Registrable)
-		}
-	}
-
-	return r0
-}
-
-// PrecompilePlugin_GetPrecompiles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPrecompiles'
-type PrecompilePlugin_GetPrecompiles_Call struct {
-	*mock.Call
-}
-
-// GetPrecompiles is a helper method to define mock.On call
-//   - rules *params.Rules
-func (_e *PrecompilePlugin_Expecter) GetPrecompiles(rules interface{}) *PrecompilePlugin_GetPrecompiles_Call {
-	return &PrecompilePlugin_GetPrecompiles_Call{Call: _e.mock.On("GetPrecompiles", rules)}
-}
-
-func (_c *PrecompilePlugin_GetPrecompiles_Call) Run(run func(rules *params.Rules)) *PrecompilePlugin_GetPrecompiles_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*params.Rules))
-	})
-	return _c
-}
-
-func (_c *PrecompilePlugin_GetPrecompiles_Call) Return(_a0 []precompile.Registrable) *PrecompilePlugin_GetPrecompiles_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *PrecompilePlugin_GetPrecompiles_Call) RunAndReturn(run func(*params.Rules) []precompile.Registrable) *PrecompilePlugin_GetPrecompiles_Call {
 	_c.Call.Return(run)
 	return _c
 }

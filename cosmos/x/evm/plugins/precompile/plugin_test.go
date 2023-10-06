@@ -116,12 +116,12 @@ type mockEVM struct {
 	ms  *mockSDB
 }
 
-func (me *mockEVM) GetStateDB() vm.GethStateDB {
+func (me *mockEVM) GetStateDB() vm.StateDB {
 	return me.ms
 }
 
 type mockSDB struct {
-	vm.PolarisStateDB
+	vm.PolarStateDB
 	ctx  sdk.Context
 	logs int
 }

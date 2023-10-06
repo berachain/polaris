@@ -44,7 +44,7 @@ var (
 )
 
 var _ = Describe("StateDB", func() {
-	var sdb state.StateDBI
+	var sdb state.StateDB
 	var sp *mock.PluginMock
 	var pp *mocks.PrecompilePlugin
 

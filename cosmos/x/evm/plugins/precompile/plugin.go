@@ -43,12 +43,12 @@ import (
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
 	core.PrecompilePlugin
-	RegisterPrecompiles([]ethprecompile.Registrable)
+	RegisterPrecompiles([]ethprecompile.Registrable) error
 }
 
-// polarisStateDB is the interface that must be implemented by the state DB.
+// PolarStateDB is the interface that must be implemented by the state DB.
 // The stateDB must allow retrieving the plugin in order to set it's gas config.
-type polarisStateDB interface {
+type PolarStateDB interface {
 	// GetPlugin retrieves the underlying state plugin from the StateDB.
 	GetPlugin() ethstate.Plugin
 }
@@ -82,7 +82,7 @@ func (p *plugin) Get(addr common.Address, _ *params.Rules) (vm.PrecompiledContra
 	return val, true
 }
 
-func (p *plugin) RegisterPrecompiles(precompiles []ethprecompile.Registrable) {
+func (p *plugin) RegisterPrecompiles(precompiles []ethprecompile.Registrable) error {
 	for _, pc := range precompiles {
 		// choose the appropriate precompile factory
 		var af ethprecompile.AbstractFactory
@@ -92,23 +92,20 @@ func (p *plugin) RegisterPrecompiles(precompiles []ethprecompile.Registrable) {
 		case utils.Implements[ethprecompile.StatelessImpl](pc):
 			af = ethprecompile.NewStatelessFactory()
 		default:
-			panic(
-				fmt.Sprintf(
-					"native precompile %s not properly implemented", pc.RegistryKey().Hex(),
-				),
-			)
+			return fmt.Errorf("unknown precompile type %T", pc)
 		}
 		// build the precompile container and register with the plugin
 		container, err := af.Build(pc, p)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		err = p.Register(container)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
+	return nil
 }
 
 // GetActive implements core.PrecompilePlugin.
@@ -133,7 +130,7 @@ func (p *plugin) Run(
 	caller common.Address, value *big.Int, suppliedGas uint64, readOnly bool,
 ) (ret []byte, gasRemaining uint64, err error) {
 	// get native Cosmos SDK context, MultiStore, and EventManager from the Polaris StateDB
-	sdb := utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB())
+	sdb := utils.MustGetAs[vm.PolarStateDB](evm.GetStateDB())
 	ctx := sdk.UnwrapSDKContext(sdb.GetContext())
 	ms := utils.MustGetAs[MultiStore](ctx.MultiStore())
 	cem := utils.MustGetAs[state.ControllableEventManager](ctx.EventManager())
@@ -185,10 +182,10 @@ func (p *plugin) Run(
 //
 // EnableReentrancy implements core.PrecompilePlugin.
 func (p *plugin) EnableReentrancy(evm vm.PrecompileEVM) {
-	p.enableReentrancy(utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB()))
+	p.enableReentrancy(utils.MustGetAs[vm.PolarStateDB](evm.GetStateDB()))
 }
 
-func (p *plugin) enableReentrancy(sdb vm.PolarisStateDB) {
+func (p *plugin) enableReentrancy(sdb vm.PolarStateDB) {
 	sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
 
 	// end precompile execution => stop emitting Cosmos event as Eth logs for now
@@ -197,7 +194,7 @@ func (p *plugin) enableReentrancy(sdb vm.PolarisStateDB) {
 
 	// remove Cosmos gas consumption so gas is consumed only per OPCODE
 	utils.MustGetAs[state.Plugin](
-		utils.MustGetAs[polarisStateDB](sdb).GetPlugin(),
+		utils.MustGetAs[PolarStateDB](sdb).GetPlugin(),
 	).SetGasConfig(storetypes.GasConfig{}, storetypes.GasConfig{})
 }
 
@@ -205,10 +202,10 @@ func (p *plugin) enableReentrancy(sdb vm.PolarisStateDB) {
 //
 // DisableReentrancy implements core.PrecompilePlugin.
 func (p *plugin) DisableReentrancy(evm vm.PrecompileEVM) {
-	p.disableReentrancy(utils.MustGetAs[vm.PolarisStateDB](evm.GetStateDB()))
+	p.disableReentrancy(utils.MustGetAs[vm.PolarStateDB](evm.GetStateDB()))
 }
 
-func (p *plugin) disableReentrancy(sdb vm.PolarisStateDB) {
+func (p *plugin) disableReentrancy(sdb vm.PolarStateDB) {
 	sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
 
 	// resume precompile execution => begin emitting Cosmos event as Eth logs again
@@ -217,6 +214,6 @@ func (p *plugin) disableReentrancy(sdb vm.PolarisStateDB) {
 
 	// restore ctx gas configs for continuing precompile execution
 	utils.MustGetAs[state.Plugin](
-		utils.MustGetAs[polarisStateDB](sdb).GetPlugin(),
+		utils.MustGetAs[PolarStateDB](sdb).GetPlugin(),
 	).SetGasConfig(p.kvGasConfig, p.transientKVGasConfig)
 }
