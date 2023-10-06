@@ -36,13 +36,12 @@ type ChainWriter interface {
 	InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error
 	InsertBlockWithoutSetHead(block *types.Block) error
 	WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log,
-		state state.StateDBI, emitHeadEvent bool) (status core.WriteStatus, err error)
-	PreparePlugins(context.Context)
+		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
 
 // WriteBlockAndSetHead is a no-op in the current implementation. Potentially usable later.
 func (*blockchain) WriteBlockAndSetHead(
-	_ *types.Block, _ []*types.Receipt, _ []*types.Log, _ state.StateDBI,
+	_ *types.Block, _ []*types.Receipt, _ []*types.Log, _ state.StateDB,
 	_ bool) (core.WriteStatus, error) {
 	return core.NonStatTy, nil
 }

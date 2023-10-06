@@ -24,13 +24,19 @@ package consensus
 import (
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/trie"
+
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/state"
+	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/rpc"
 )
+
+type Engine consensus.Engine
+
+// DummyEthOne is a dummy implementation of the consensus.Engine interface.
+var _ Engine = (*DummyEthOne)(nil)
 
 // DummyEthOne is a mock implementation of the Engine interface.
 type DummyEthOne struct{}
@@ -71,13 +77,13 @@ func (m *DummyEthOne) Prepare(chain consensus.ChainHeaderReader, header *types.H
 
 // Finalize is a mock implementation.
 func (m *DummyEthOne) Finalize(chain consensus.ChainHeaderReader,
-	header *types.Header, state state.StateDBI, txs []*types.Transaction,
+	header *types.Header, state state.StateDB, txs []*types.Transaction,
 	uncles []*types.Header, withdrawals []*types.Withdrawal) {
 }
 
 // FinalizeAndAssemble is a mock implementation.
 func (m *DummyEthOne) FinalizeAndAssemble(chain consensus.ChainHeaderReader,
-	header *types.Header, state state.StateDBI, txs []*types.Transaction,
+	header *types.Header, state state.StateDB, txs []*types.Transaction,
 	uncles []*types.Header, receipts []*types.Receipt,
 	withdrawals []*types.Withdrawal) (*types.Block, error) {
 	return types.NewBlock(header, txs, uncles, receipts, trie.NewStackTrie(nil)), nil

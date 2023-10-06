@@ -61,9 +61,9 @@ type stateDB struct {
 
 type (
 	// StateDB is an alias for StateDBI.
-	StateDB = state.StateDBI //nolint:revive // to
+	StateDB = state.StateDBI //nolint:revive // to match geth naming.
 
-	// PolarStateDB is a Polaris StateDB with a context.
+	// PolarStateDB is a Polaris StateDB that has a context.
 	PolarStateDB interface {
 		StateDB
 		GetContext() context.Context
@@ -272,7 +272,7 @@ func (sdb *stateDB) StartPrefetcher(_ string) {}
 
 func (sdb *stateDB) StopPrefetcher() {}
 
-func (sdb *stateDB) StorageTrie(_ common.Address) (Trie, error) {
+func (sdb *stateDB) StorageTrie(_ common.Address) (state.Trie, error) {
 	return nil, nil
 }
 

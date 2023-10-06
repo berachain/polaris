@@ -48,6 +48,7 @@ const defaultCacheSize = 1024
 var _ Blockchain = (*blockchain)(nil)
 
 type Blockchain interface {
+	PreparePlugins(ctx context.Context)
 	Config() *params.ChainConfig
 	ChainReader
 	ChainWriter

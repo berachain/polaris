@@ -290,7 +290,7 @@ func (b *backend) BlockByNumberOrHash(
 func (b *backend) StateAndHeaderByNumber(
 	ctx context.Context,
 	number rpc.BlockNumber,
-) (state.StateDBI, *types.Header, error) {
+) (state.StateDB, *types.Header, error) {
 	// Pending state is only known by the miner
 	if number == rpc.PendingBlockNumber {
 		block, state := b.polar.miner.Pending()
