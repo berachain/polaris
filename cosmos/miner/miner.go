@@ -72,7 +72,7 @@ func (m *Miner) PrepareProposal(
 // buildBlock builds and submits a payload, it also waits for the txs
 // to resolve from the underying worker.
 func (m *Miner) buildBlock(ctx sdk.Context) ([][]byte, error) {
-	defer func() { m.currentPayload = nil }()
+	defer m.clearPayload()
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
 		return nil, err
 	}
@@ -81,23 +81,31 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([][]byte, error) {
 
 // submitPayloadForBuilding submits a payload for building.
 func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	sCtx.Logger().Info("Submitting payload for building")
-	payload, err := m.BuildPayload(&miner.BuildPayloadArgs{
-		Parent:    common.Hash{}, // Empty parent is fine, geth miner will handle.
-		Timestamp: uint64(sCtx.BlockTime().Unix()),
-		// TODO: properly fill in the rest of the payload.
-		FeeRecipient: common.Address{},
-		Random:       common.Hash{},
-		Withdrawals:  make(types.Withdrawals, 0),
-		BeaconRoot:   &emptyHash,
-	})
-	if err != nil {
-		sCtx.Logger().Error("Failed to build payload", "err", err)
+	var (
+		err     error
+		payload *miner.Payload
+		sCtx    = sdk.UnwrapSDKContext(ctx)
+	)
+
+	// Build Payload
+	if payload, err = m.BuildPayload(m.constructPayloadArgs(sCtx)); err != nil {
+		sCtx.Logger().Error("failed to build payload", "err", err)
 		return err
 	}
 	m.currentPayload = payload
+	sCtx.Logger().Info("submitted payload for building")
 	return nil
+}
+
+// constructPayloadArgs builds a payload to submit to the miner.
+func (m *Miner) constructPayloadArgs(ctx sdk.Context) *miner.BuildPayloadArgs {
+	return &miner.BuildPayloadArgs{
+		Timestamp:    uint64(ctx.BlockTime().Unix()),
+		FeeRecipient: common.Address{}, /* todo: set etherbase */
+		Random:       common.Hash{},    /* todo: generated random */
+		Withdrawals:  make(types.Withdrawals, 0),
+		BeaconRoot:   &emptyHash,
+	}
 }
 
 // resolveTxs resolves the transactions from the payload.
@@ -122,4 +130,9 @@ func (m *Miner) resolveTxs() [][]byte {
 		txs[i] = bz
 	}
 	return txs
+}
+
+// clearPayload clears the payload.
+func (m *Miner) clearPayload() {
+	m.currentPayload = nil
 }
