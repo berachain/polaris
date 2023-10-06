@@ -32,7 +32,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
 
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
@@ -42,7 +42,7 @@ var emptyHash = common.Hash{}
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
 	*miner.Miner
-	serializer     evmtypes.TxSerializer[*engine.ExecutionPayloadEnvelope]
+	serializer     libtx.TxSerializer[*engine.ExecutionPayloadEnvelope]
 	currentPayload *miner.Payload
 }
 
@@ -54,7 +54,7 @@ func New(gm *miner.Miner) *Miner {
 }
 
 // Init sets the transaction serializer.
-func (m *Miner) Init(serializer evmtypes.TxSerializer[*engine.ExecutionPayloadEnvelope]) {
+func (m *Miner) Init(serializer libtx.TxSerializer[*engine.ExecutionPayloadEnvelope]) {
 	m.serializer = serializer
 }
 

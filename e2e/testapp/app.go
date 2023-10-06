@@ -60,6 +60,7 @@ import (
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	antelib "pkg.berachain.dev/polaris/cosmos/lib/ante"
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
+	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -283,8 +284,8 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	}
 
 	// Create the Serializers.
-	txSerializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig, evmtypes.WrapTx)
-	payloadSerializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig, evmtypes.WrapPayload)
+	txSerializer := libtx.NewSerializer(apiSvr.ClientCtx.TxConfig, evmtypes.WrapTx)
+	payloadSerializer := libtx.NewSerializer(apiSvr.ClientCtx.TxConfig, evmtypes.WrapPayload)
 
 	// Initialize services.
 	app.mm.Init(payloadSerializer)
