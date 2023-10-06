@@ -50,8 +50,8 @@ type TxSubProvider interface {
 
 // TxSerializer provides an interface to Serialize Geth Transactions to Bytes (via sdk.Tx).
 type TxSerializer interface {
-	SerializeToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
-	SerializeToBytes(signedTx *coretypes.Transaction) ([]byte, error)
+	TxToSdkTx(signedTx *coretypes.Transaction) (sdk.Tx, error)
+	TxToSdkTxBytes(signedTx *coretypes.Transaction) ([]byte, error)
 }
 
 // TxBroadcaster provides an interface to broadcast TxBytes to the comet p2p layer.
@@ -163,7 +163,7 @@ func (h *handler) broadcastTransactions(txs coretypes.Transactions) {
 	h.logger.Debug("broadcasting transactions", "num_txs", len(txs))
 	for _, signedEthTx := range txs {
 		// Serialize the transaction to Bytes
-		txBytes, err := h.serializer.SerializeToBytes(signedEthTx)
+		txBytes, err := h.serializer.TxToSdkTxBytes(signedEthTx)
 		if err != nil {
 			h.logger.Error("failed to serialize transaction", "err", err)
 			continue
