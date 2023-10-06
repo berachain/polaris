@@ -49,17 +49,14 @@ func (k *Keeper) ProcessPayloadEnvelope(
 		return nil, err
 	}
 
-	// ctx = sCtx.WithKVGasConfig(storetypes.KVGasConfig{})
-
 	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
 	k.polaris.Blockchain().
 		PreparePlugins(ctx)
 
-	fmt.Println("PRE INSERT")
 	if err = k.polaris.Blockchain().InsertBlockWithoutSetHead(block); err != nil {
 		return nil, err
 	}
-	fmt.Println("POST INSERT")
+
 	// Consume the gas used by the execution of the ethereum block.
 	gasMeter.ConsumeGas(block.GasUsed(), "block gas used")
 
