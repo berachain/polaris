@@ -204,21 +204,21 @@ func (_ConsumeGas *ConsumeGasTransactorRaw) Transact(opts *bind.TransactOpts, me
 
 // ConsumeGas is a paid mutator transaction binding the contract method 0xa329e8de.
 //
-// Solidity: function consumeGas(uint256 targetGas) returns()
+// Solidity: function consumeGas(uint256 targetGas) returns().
 func (_ConsumeGas *ConsumeGasTransactor) ConsumeGas(opts *bind.TransactOpts, targetGas *big.Int) (*types.Transaction, error) {
 	return _ConsumeGas.contract.Transact(opts, "consumeGas", targetGas)
 }
 
 // ConsumeGas is a paid mutator transaction binding the contract method 0xa329e8de.
 //
-// Solidity: function consumeGas(uint256 targetGas) returns()
+// Solidity: function consumeGas(uint256 targetGas) returns().
 func (_ConsumeGas *ConsumeGasSession) ConsumeGas(targetGas *big.Int) (*types.Transaction, error) {
 	return _ConsumeGas.Contract.ConsumeGas(&_ConsumeGas.TransactOpts, targetGas)
 }
 
 // ConsumeGas is a paid mutator transaction binding the contract method 0xa329e8de.
 //
-// Solidity: function consumeGas(uint256 targetGas) returns()
+// Solidity: function consumeGas(uint256 targetGas) returns().
 func (_ConsumeGas *ConsumeGasTransactorSession) ConsumeGas(targetGas *big.Int) (*types.Transaction, error) {
 	return _ConsumeGas.Contract.ConsumeGas(&_ConsumeGas.TransactOpts, targetGas)
 }
@@ -298,9 +298,8 @@ type ConsumeGasGasConsumed struct {
 
 // FilterGasConsumed is a free log retrieval operation binding the contract event 0x1a2dc18f5a2dabdf3809a83ec652290b81d97d915bf5561908090bad91deffc4.
 //
-// Solidity: event GasConsumed(uint256 gasUsed)
+// Solidity: event GasConsumed(uint256 gasUsed).
 func (_ConsumeGas *ConsumeGasFilterer) FilterGasConsumed(opts *bind.FilterOpts) (*ConsumeGasGasConsumedIterator, error) {
-
 	logs, sub, err := _ConsumeGas.contract.FilterLogs(opts, "GasConsumed")
 	if err != nil {
 		return nil, err
@@ -310,9 +309,8 @@ func (_ConsumeGas *ConsumeGasFilterer) FilterGasConsumed(opts *bind.FilterOpts) 
 
 // WatchGasConsumed is a free log subscription operation binding the contract event 0x1a2dc18f5a2dabdf3809a83ec652290b81d97d915bf5561908090bad91deffc4.
 //
-// Solidity: event GasConsumed(uint256 gasUsed)
+// Solidity: event GasConsumed(uint256 gasUsed).
 func (_ConsumeGas *ConsumeGasFilterer) WatchGasConsumed(opts *bind.WatchOpts, sink chan<- *ConsumeGasGasConsumed) (event.Subscription, error) {
-
 	logs, sub, err := _ConsumeGas.contract.WatchLogs(opts, "GasConsumed")
 	if err != nil {
 		return nil, err
@@ -347,7 +345,7 @@ func (_ConsumeGas *ConsumeGasFilterer) WatchGasConsumed(opts *bind.WatchOpts, si
 
 // ParseGasConsumed is a log parse operation binding the contract event 0x1a2dc18f5a2dabdf3809a83ec652290b81d97d915bf5561908090bad91deffc4.
 //
-// Solidity: event GasConsumed(uint256 gasUsed)
+// Solidity: event GasConsumed(uint256 gasUsed).
 func (_ConsumeGas *ConsumeGasFilterer) ParseGasConsumed(log types.Log) (*ConsumeGasGasConsumed, error) {
 	event := new(ConsumeGasGasConsumed)
 	if err := _ConsumeGas.contract.UnpackLog(event, "GasConsumed", log); err != nil {

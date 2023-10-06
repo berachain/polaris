@@ -221,7 +221,7 @@ func (p *plugin) Exist(addr common.Address) bool {
 	return p.ak.HasAccount(p.ctx, addr[:])
 }
 
-// Empty implements the `PolarisStateDB` interface by returning whether the state object
+// Empty implements the `PolarStateDB` interface by returning whether the state object
 // is either non-existent or empty according to the EIP161 epecification
 // (balance = nonce = code = 0)
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md

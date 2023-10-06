@@ -4,9 +4,10 @@
 package mock
 
 import (
+	"sync"
+
 	"github.com/ethereum/go-ethereum/core/types"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
-	"sync"
 )
 
 // Ensure, that LogsDBMock does implement events.LogsDB.

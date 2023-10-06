@@ -52,7 +52,7 @@ type StateProcessor struct {
 	signer types.Signer
 
 	// statedb is the state database that is used to mange state during transactions.
-	statedb vm.PolarisStateDB
+	statedb vm.PolarStateDB
 	// vmConfig is the configuration for the EVM.
 	vmConfig *vm.Config
 
@@ -70,7 +70,7 @@ type StateProcessor struct {
 func NewStateProcessor(
 	cp ConfigurationPlugin,
 	pp PrecompilePlugin,
-	statedb vm.PolarisStateDB,
+	statedb vm.PolarStateDB,
 	vmConfig *vm.Config,
 ) *StateProcessor {
 	sp := &StateProcessor{

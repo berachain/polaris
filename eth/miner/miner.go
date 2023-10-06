@@ -77,7 +77,7 @@ type miner struct {
 	sp        core.StatePlugin
 	logger    log.Logger
 	vmConfig  vm.Config
-	statedb   state.StateDB
+	statedb   state.PolarStateDB
 
 	// TODO: historical plugin has no purpose here in the miner.
 	// Should be handled async via channel

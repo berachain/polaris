@@ -4,9 +4,10 @@
 package mock
 
 import (
-	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 	"sync"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // selfDestructStatePluginMock is a mock implementation of journal.selfDestructStatePlugin.

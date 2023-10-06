@@ -5,11 +5,12 @@ package mock
 
 import (
 	"context"
+	"sync"
+
 	"github.com/ethereum/go-ethereum/common"
 	ethereumcoretypes "github.com/ethereum/go-ethereum/core/types"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethcoretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"sync"
 )
 
 // Ensure, that HistoricalPluginMock does implement core.HistoricalPlugin.

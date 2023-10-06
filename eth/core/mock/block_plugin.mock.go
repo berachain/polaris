@@ -5,11 +5,12 @@ package mock
 
 import (
 	"context"
+	"math/big"
+	"sync"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"math/big"
 	"pkg.berachain.dev/polaris/eth/core"
-	"sync"
 )
 
 // Ensure, that BlockPluginMock does implement core.BlockPlugin.

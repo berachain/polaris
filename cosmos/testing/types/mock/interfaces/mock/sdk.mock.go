@@ -4,12 +4,13 @@
 package mock
 
 import (
+	"sync"
+
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/gogoproto/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"pkg.berachain.dev/polaris/cosmos/testing/types/mock/interfaces"
-	"sync"
 )
 
 // Ensure, that MsgMock does implement interfaces.Msg.

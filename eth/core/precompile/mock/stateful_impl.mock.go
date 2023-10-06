@@ -4,10 +4,11 @@
 package mock
 
 import (
+	"sync"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
-	"sync"
 )
 
 // StatefulImplMock is a mock implementation of precompile.StatefulImpl.
