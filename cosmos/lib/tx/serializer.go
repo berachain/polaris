@@ -62,15 +62,11 @@ func (s *serializer[I, O]) ToSdkTx(input I, gasLimit uint64) (sdk.Tx, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Lastly, we set the signature. We can pull the sequence from the nonce of the ethereum tx.
+	// TODO: figure out if we can ignore setting sigs.
 	if err = tx.SetSignatures(
 		signingtypes.SignatureV2{
 			Sequence: 0,
 			Data: &signingtypes.SingleSignatureData{
-				// We retrieve the hash of the signed transaction from the ethereum transaction
-				// objects, as this was the bytes that were signed. We pass these into the
-				// SingleSignatureData as the SignModeHandler needs to know what data was signed
-				// over so that it can verify the signature in the ante handler.
 				Signature: []byte{0x01},
 			},
 			PubKey: &secp256k1.PubKey{Key: []byte{0x01}},
