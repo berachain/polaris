@@ -204,7 +204,7 @@ func (_Swapper *SwapperTransactorRaw) Transact(opts *bind.TransactOpts, method s
 
 // Erc20Module is a free data retrieval call binding the contract method 0x714ba40c.
 //
-// Solidity: function erc20Module() view returns(address).
+// Solidity: function erc20Module() view returns(address)
 func (_Swapper *SwapperCaller) Erc20Module(opts *bind.CallOpts) (common.Address, error) {
 	var out []interface{}
 	err := _Swapper.contract.Call(opts, &out, "erc20Module")
@@ -216,25 +216,26 @@ func (_Swapper *SwapperCaller) Erc20Module(opts *bind.CallOpts) (common.Address,
 	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
 
 	return out0, err
+
 }
 
 // Erc20Module is a free data retrieval call binding the contract method 0x714ba40c.
 //
-// Solidity: function erc20Module() view returns(address).
+// Solidity: function erc20Module() view returns(address)
 func (_Swapper *SwapperSession) Erc20Module() (common.Address, error) {
 	return _Swapper.Contract.Erc20Module(&_Swapper.CallOpts)
 }
 
 // Erc20Module is a free data retrieval call binding the contract method 0x714ba40c.
 //
-// Solidity: function erc20Module() view returns(address).
+// Solidity: function erc20Module() view returns(address)
 func (_Swapper *SwapperCallerSession) Erc20Module() (common.Address, error) {
 	return _Swapper.Contract.Erc20Module(&_Swapper.CallOpts)
 }
 
 // GetPolarisERC20 is a free data retrieval call binding the contract method 0xd6ece467.
 //
-// Solidity: function getPolarisERC20(string denom) view returns(address).
+// Solidity: function getPolarisERC20(string denom) view returns(address)
 func (_Swapper *SwapperCaller) GetPolarisERC20(opts *bind.CallOpts, denom string) (common.Address, error) {
 	var out []interface{}
 	err := _Swapper.contract.Call(opts, &out, "getPolarisERC20", denom)
@@ -246,81 +247,82 @@ func (_Swapper *SwapperCaller) GetPolarisERC20(opts *bind.CallOpts, denom string
 	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
 
 	return out0, err
+
 }
 
 // GetPolarisERC20 is a free data retrieval call binding the contract method 0xd6ece467.
 //
-// Solidity: function getPolarisERC20(string denom) view returns(address).
+// Solidity: function getPolarisERC20(string denom) view returns(address)
 func (_Swapper *SwapperSession) GetPolarisERC20(denom string) (common.Address, error) {
 	return _Swapper.Contract.GetPolarisERC20(&_Swapper.CallOpts, denom)
 }
 
 // GetPolarisERC20 is a free data retrieval call binding the contract method 0xd6ece467.
 //
-// Solidity: function getPolarisERC20(string denom) view returns(address).
+// Solidity: function getPolarisERC20(string denom) view returns(address)
 func (_Swapper *SwapperCallerSession) GetPolarisERC20(denom string) (common.Address, error) {
 	return _Swapper.Contract.GetPolarisERC20(&_Swapper.CallOpts, denom)
 }
 
 // Deposit is a paid mutator transaction binding the contract method 0x47e7ef24.
 //
-// Solidity: function deposit(address token, uint256 amount) returns().
+// Solidity: function deposit(address token, uint256 amount) returns()
 func (_Swapper *SwapperTransactor) Deposit(opts *bind.TransactOpts, token common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _Swapper.contract.Transact(opts, "deposit", token, amount)
 }
 
 // Deposit is a paid mutator transaction binding the contract method 0x47e7ef24.
 //
-// Solidity: function deposit(address token, uint256 amount) returns().
+// Solidity: function deposit(address token, uint256 amount) returns()
 func (_Swapper *SwapperSession) Deposit(token common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _Swapper.Contract.Deposit(&_Swapper.TransactOpts, token, amount)
 }
 
 // Deposit is a paid mutator transaction binding the contract method 0x47e7ef24.
 //
-// Solidity: function deposit(address token, uint256 amount) returns().
+// Solidity: function deposit(address token, uint256 amount) returns()
 func (_Swapper *SwapperTransactorSession) Deposit(token common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _Swapper.Contract.Deposit(&_Swapper.TransactOpts, token, amount)
 }
 
 // Swap is a paid mutator transaction binding the contract method 0x9d456b62.
 //
-// Solidity: function swap(string denom, uint256 amount) returns().
+// Solidity: function swap(string denom, uint256 amount) returns()
 func (_Swapper *SwapperTransactor) Swap(opts *bind.TransactOpts, denom string, amount *big.Int) (*types.Transaction, error) {
 	return _Swapper.contract.Transact(opts, "swap", denom, amount)
 }
 
 // Swap is a paid mutator transaction binding the contract method 0x9d456b62.
 //
-// Solidity: function swap(string denom, uint256 amount) returns().
+// Solidity: function swap(string denom, uint256 amount) returns()
 func (_Swapper *SwapperSession) Swap(denom string, amount *big.Int) (*types.Transaction, error) {
 	return _Swapper.Contract.Swap(&_Swapper.TransactOpts, denom, amount)
 }
 
 // Swap is a paid mutator transaction binding the contract method 0x9d456b62.
 //
-// Solidity: function swap(string denom, uint256 amount) returns().
+// Solidity: function swap(string denom, uint256 amount) returns()
 func (_Swapper *SwapperTransactorSession) Swap(denom string, amount *big.Int) (*types.Transaction, error) {
 	return _Swapper.Contract.Swap(&_Swapper.TransactOpts, denom, amount)
 }
 
 // Swap0 is a paid mutator transaction binding the contract method 0xd004f0f7.
 //
-// Solidity: function swap(address token, uint256 amount) returns().
+// Solidity: function swap(address token, uint256 amount) returns()
 func (_Swapper *SwapperTransactor) Swap0(opts *bind.TransactOpts, token common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _Swapper.contract.Transact(opts, "swap0", token, amount)
 }
 
 // Swap0 is a paid mutator transaction binding the contract method 0xd004f0f7.
 //
-// Solidity: function swap(address token, uint256 amount) returns().
+// Solidity: function swap(address token, uint256 amount) returns()
 func (_Swapper *SwapperSession) Swap0(token common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _Swapper.Contract.Swap0(&_Swapper.TransactOpts, token, amount)
 }
 
 // Swap0 is a paid mutator transaction binding the contract method 0xd004f0f7.
 //
-// Solidity: function swap(address token, uint256 amount) returns().
+// Solidity: function swap(address token, uint256 amount) returns()
 func (_Swapper *SwapperTransactorSession) Swap0(token common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _Swapper.Contract.Swap0(&_Swapper.TransactOpts, token, amount)
 }

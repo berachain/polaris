@@ -59,7 +59,7 @@ type CosmosPageResponse struct {
 // CosmosTypesMetaData contains all meta data concerning the CosmosTypes contract.
 var CosmosTypesMetaData = &bind.MetaData{
 	ABI: "[{\"inputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"typeURL\",\"type\":\"string\"},{\"internalType\":\"uint8[]\",\"name\":\"value\",\"type\":\"uint8[]\"}],\"internalType\":\"structCosmos.CodecAny\",\"name\":\"\",\"type\":\"tuple\"}],\"name\":\"codecAny\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"denom\",\"type\":\"string\"}],\"internalType\":\"structCosmos.Coin\",\"name\":\"\",\"type\":\"tuple\"}],\"name\":\"coin\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"key\",\"type\":\"string\"},{\"internalType\":\"uint64\",\"name\":\"offset\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"limit\",\"type\":\"uint64\"},{\"internalType\":\"bool\",\"name\":\"countTotal\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"reverse\",\"type\":\"bool\"}],\"internalType\":\"structCosmos.PageRequest\",\"name\":\"\",\"type\":\"tuple\"}],\"name\":\"pageRequest\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"nextKey\",\"type\":\"string\"},{\"internalType\":\"uint64\",\"name\":\"total\",\"type\":\"uint64\"}],\"internalType\":\"structCosmos.PageResponse\",\"name\":\"\",\"type\":\"tuple\"}],\"name\":\"pageResponse\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"}]",
-	Bin: "0x608060405234801561000f575f80fd5b506102a08061001d5f395ff3fe608060405234801561000f575f80fd5b506004361061004a575f3560e01c8063050cea7c1461004e5780631acc976f1461006a5780632ff6e5df14610086578063426ce1a9146100a2575b5f80fd5b610068600480360381019061006391906100f4565b6100be565b005b610084600480360381019061007f9190610159565b6100c1565b005b6100a0600480360381019061009b91906101be565b6100c4565b005b6100bc60048036038101906100b79190610223565b6100c7565b005b50565b50565b50565b50565b5f80fd5b5f80fd5b5f80fd5b5f604082840312156100eb576100ea6100d2565b5b81905092915050565b5f60208284031215610109576101086100ca565b5b5f82013567ffffffffffffffff811115610126576101256100ce565b5b610132848285016100d6565b91505092915050565b5f60a082840312156101505761014f6100d2565b5b81905092915050565b5f6020828403121561016e5761016d6100ca565b5b5f82013567ffffffffffffffff81111561018b5761018a6100ce565b5b6101978482850161013b565b91505092915050565b5f604082840312156101b5576101b46100d2565b5b81905092915050565b5f602082840312156101d3576101d26100ca565b5b5f82013567ffffffffffffffff8111156101f0576101ef6100ce565b5b6101fc848285016101a0565b91505092915050565b5f6040828403121561021a576102196100d2565b5b81905092915050565b5f60208284031215610238576102376100ca565b5b5f82013567ffffffffffffffff811115610255576102546100ce565b5b61026184828501610205565b9150509291505056fea2646970667358221220b24960b7384ca1abf8290dc87cefbb7f835f93af11afbf266c837880cf6cd57064736f6c63430008150033",
+	Bin: "0x608060405234801561000f575f80fd5b506102a08061001d5f395ff3fe608060405234801561000f575f80fd5b506004361061004a575f3560e01c8063050cea7c1461004e5780631acc976f1461006a5780632ff6e5df14610086578063426ce1a9146100a2575b5f80fd5b610068600480360381019061006391906100f4565b6100be565b005b610084600480360381019061007f9190610159565b6100c1565b005b6100a0600480360381019061009b91906101be565b6100c4565b005b6100bc60048036038101906100b79190610223565b6100c7565b005b50565b50565b50565b50565b5f80fd5b5f80fd5b5f80fd5b5f604082840312156100eb576100ea6100d2565b5b81905092915050565b5f60208284031215610109576101086100ca565b5b5f82013567ffffffffffffffff811115610126576101256100ce565b5b610132848285016100d6565b91505092915050565b5f60a082840312156101505761014f6100d2565b5b81905092915050565b5f6020828403121561016e5761016d6100ca565b5b5f82013567ffffffffffffffff81111561018b5761018a6100ce565b5b6101978482850161013b565b91505092915050565b5f604082840312156101b5576101b46100d2565b5b81905092915050565b5f602082840312156101d3576101d26100ca565b5b5f82013567ffffffffffffffff8111156101f0576101ef6100ce565b5b6101fc848285016101a0565b91505092915050565b5f6040828403121561021a576102196100d2565b5b81905092915050565b5f60208284031215610238576102376100ca565b5b5f82013567ffffffffffffffff811115610255576102546100ce565b5b61026184828501610205565b9150509291505056fea2646970667358221220880f5489e49453362eeb55c21b28be9c028d9623e18b1acd73c94dc970ebbda164736f6c63430008150033",
 }
 
 // CosmosTypesABI is the input ABI used to generate the binding from.
@@ -231,7 +231,7 @@ func (_CosmosTypes *CosmosTypesTransactorRaw) Transact(opts *bind.TransactOpts, 
 
 // CodecAny is a free data retrieval call binding the contract method 0x050cea7c.
 //
-// Solidity: function codecAny((string,uint8[]) ) pure returns().
+// Solidity: function codecAny((string,uint8[]) ) pure returns()
 func (_CosmosTypes *CosmosTypesCaller) CodecAny(opts *bind.CallOpts, arg0 CosmosCodecAny) error {
 	var out []interface{}
 	err := _CosmosTypes.contract.Call(opts, &out, "codecAny", arg0)
@@ -241,25 +241,26 @@ func (_CosmosTypes *CosmosTypesCaller) CodecAny(opts *bind.CallOpts, arg0 Cosmos
 	}
 
 	return err
+
 }
 
 // CodecAny is a free data retrieval call binding the contract method 0x050cea7c.
 //
-// Solidity: function codecAny((string,uint8[]) ) pure returns().
+// Solidity: function codecAny((string,uint8[]) ) pure returns()
 func (_CosmosTypes *CosmosTypesSession) CodecAny(arg0 CosmosCodecAny) error {
 	return _CosmosTypes.Contract.CodecAny(&_CosmosTypes.CallOpts, arg0)
 }
 
 // CodecAny is a free data retrieval call binding the contract method 0x050cea7c.
 //
-// Solidity: function codecAny((string,uint8[]) ) pure returns().
+// Solidity: function codecAny((string,uint8[]) ) pure returns()
 func (_CosmosTypes *CosmosTypesCallerSession) CodecAny(arg0 CosmosCodecAny) error {
 	return _CosmosTypes.Contract.CodecAny(&_CosmosTypes.CallOpts, arg0)
 }
 
 // Coin is a free data retrieval call binding the contract method 0x2ff6e5df.
 //
-// Solidity: function coin((uint256,string) ) pure returns().
+// Solidity: function coin((uint256,string) ) pure returns()
 func (_CosmosTypes *CosmosTypesCaller) Coin(opts *bind.CallOpts, arg0 CosmosCoin) error {
 	var out []interface{}
 	err := _CosmosTypes.contract.Call(opts, &out, "coin", arg0)
@@ -269,25 +270,26 @@ func (_CosmosTypes *CosmosTypesCaller) Coin(opts *bind.CallOpts, arg0 CosmosCoin
 	}
 
 	return err
+
 }
 
 // Coin is a free data retrieval call binding the contract method 0x2ff6e5df.
 //
-// Solidity: function coin((uint256,string) ) pure returns().
+// Solidity: function coin((uint256,string) ) pure returns()
 func (_CosmosTypes *CosmosTypesSession) Coin(arg0 CosmosCoin) error {
 	return _CosmosTypes.Contract.Coin(&_CosmosTypes.CallOpts, arg0)
 }
 
 // Coin is a free data retrieval call binding the contract method 0x2ff6e5df.
 //
-// Solidity: function coin((uint256,string) ) pure returns().
+// Solidity: function coin((uint256,string) ) pure returns()
 func (_CosmosTypes *CosmosTypesCallerSession) Coin(arg0 CosmosCoin) error {
 	return _CosmosTypes.Contract.Coin(&_CosmosTypes.CallOpts, arg0)
 }
 
 // PageRequest is a free data retrieval call binding the contract method 0x1acc976f.
 //
-// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns().
+// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns()
 func (_CosmosTypes *CosmosTypesCaller) PageRequest(opts *bind.CallOpts, arg0 CosmosPageRequest) error {
 	var out []interface{}
 	err := _CosmosTypes.contract.Call(opts, &out, "pageRequest", arg0)
@@ -297,25 +299,26 @@ func (_CosmosTypes *CosmosTypesCaller) PageRequest(opts *bind.CallOpts, arg0 Cos
 	}
 
 	return err
+
 }
 
 // PageRequest is a free data retrieval call binding the contract method 0x1acc976f.
 //
-// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns().
+// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns()
 func (_CosmosTypes *CosmosTypesSession) PageRequest(arg0 CosmosPageRequest) error {
 	return _CosmosTypes.Contract.PageRequest(&_CosmosTypes.CallOpts, arg0)
 }
 
 // PageRequest is a free data retrieval call binding the contract method 0x1acc976f.
 //
-// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns().
+// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns()
 func (_CosmosTypes *CosmosTypesCallerSession) PageRequest(arg0 CosmosPageRequest) error {
 	return _CosmosTypes.Contract.PageRequest(&_CosmosTypes.CallOpts, arg0)
 }
 
 // PageResponse is a free data retrieval call binding the contract method 0x426ce1a9.
 //
-// Solidity: function pageResponse((string,uint64) ) pure returns().
+// Solidity: function pageResponse((string,uint64) ) pure returns()
 func (_CosmosTypes *CosmosTypesCaller) PageResponse(opts *bind.CallOpts, arg0 CosmosPageResponse) error {
 	var out []interface{}
 	err := _CosmosTypes.contract.Call(opts, &out, "pageResponse", arg0)
@@ -325,18 +328,19 @@ func (_CosmosTypes *CosmosTypesCaller) PageResponse(opts *bind.CallOpts, arg0 Co
 	}
 
 	return err
+
 }
 
 // PageResponse is a free data retrieval call binding the contract method 0x426ce1a9.
 //
-// Solidity: function pageResponse((string,uint64) ) pure returns().
+// Solidity: function pageResponse((string,uint64) ) pure returns()
 func (_CosmosTypes *CosmosTypesSession) PageResponse(arg0 CosmosPageResponse) error {
 	return _CosmosTypes.Contract.PageResponse(&_CosmosTypes.CallOpts, arg0)
 }
 
 // PageResponse is a free data retrieval call binding the contract method 0x426ce1a9.
 //
-// Solidity: function pageResponse((string,uint64) ) pure returns().
+// Solidity: function pageResponse((string,uint64) ) pure returns()
 func (_CosmosTypes *CosmosTypesCallerSession) PageResponse(arg0 CosmosPageResponse) error {
 	return _CosmosTypes.Contract.PageResponse(&_CosmosTypes.CallOpts, arg0)
 }

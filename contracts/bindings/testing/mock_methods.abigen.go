@@ -187,42 +187,42 @@ func (_MockMethods *MockMethodsTransactorRaw) Transact(opts *bind.TransactOpts, 
 
 // ExampleFunc is a paid mutator transaction binding the contract method 0x6eae29f5.
 //
-// Solidity: function exampleFunc(uint256 a, address b, (uint256)[] c) returns(bool).
+// Solidity: function exampleFunc(uint256 a, address b, (uint256)[] c) returns(bool)
 func (_MockMethods *MockMethodsTransactor) ExampleFunc(opts *bind.TransactOpts, a *big.Int, b common.Address, c []MockMethodsmockStruct) (*types.Transaction, error) {
 	return _MockMethods.contract.Transact(opts, "exampleFunc", a, b, c)
 }
 
 // ExampleFunc is a paid mutator transaction binding the contract method 0x6eae29f5.
 //
-// Solidity: function exampleFunc(uint256 a, address b, (uint256)[] c) returns(bool).
+// Solidity: function exampleFunc(uint256 a, address b, (uint256)[] c) returns(bool)
 func (_MockMethods *MockMethodsSession) ExampleFunc(a *big.Int, b common.Address, c []MockMethodsmockStruct) (*types.Transaction, error) {
 	return _MockMethods.Contract.ExampleFunc(&_MockMethods.TransactOpts, a, b, c)
 }
 
 // ExampleFunc is a paid mutator transaction binding the contract method 0x6eae29f5.
 //
-// Solidity: function exampleFunc(uint256 a, address b, (uint256)[] c) returns(bool).
+// Solidity: function exampleFunc(uint256 a, address b, (uint256)[] c) returns(bool)
 func (_MockMethods *MockMethodsTransactorSession) ExampleFunc(a *big.Int, b common.Address, c []MockMethodsmockStruct) (*types.Transaction, error) {
 	return _MockMethods.Contract.ExampleFunc(&_MockMethods.TransactOpts, a, b, c)
 }
 
 // ZeroReturn is a paid mutator transaction binding the contract method 0x307bcbcc.
 //
-// Solidity: function zeroReturn() returns().
+// Solidity: function zeroReturn() returns()
 func (_MockMethods *MockMethodsTransactor) ZeroReturn(opts *bind.TransactOpts) (*types.Transaction, error) {
 	return _MockMethods.contract.Transact(opts, "zeroReturn")
 }
 
 // ZeroReturn is a paid mutator transaction binding the contract method 0x307bcbcc.
 //
-// Solidity: function zeroReturn() returns().
+// Solidity: function zeroReturn() returns()
 func (_MockMethods *MockMethodsSession) ZeroReturn() (*types.Transaction, error) {
 	return _MockMethods.Contract.ZeroReturn(&_MockMethods.TransactOpts)
 }
 
 // ZeroReturn is a paid mutator transaction binding the contract method 0x307bcbcc.
 //
-// Solidity: function zeroReturn() returns().
+// Solidity: function zeroReturn() returns()
 func (_MockMethods *MockMethodsTransactorSession) ZeroReturn() (*types.Transaction, error) {
 	return _MockMethods.Contract.ZeroReturn(&_MockMethods.TransactOpts)
 }

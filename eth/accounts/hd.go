@@ -31,6 +31,8 @@ var (
 	BIP44HDPath = DefaultBaseDerivationPath.String()
 )
 
+
+
 // HDPathIterator creates a generic iterator for a given base path.
 func NewHDPathIterator(basePath string, ledgerIter bool) (HDPathIterator, error) {
 	hdPath, err := ParseDerivationPath(basePath)

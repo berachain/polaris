@@ -194,7 +194,7 @@ func (_DistributionModule *DistributionModuleTransactorRaw) Transact(opts *bind.
 
 // GetAllDelegatorRewards is a free data retrieval call binding the contract method 0x36e22c98.
 //
-// Solidity: function getAllDelegatorRewards(address delegator) view returns((address,(uint256,string)[])[]).
+// Solidity: function getAllDelegatorRewards(address delegator) view returns((address,(uint256,string)[])[])
 func (_DistributionModule *DistributionModuleCaller) GetAllDelegatorRewards(opts *bind.CallOpts, delegator common.Address) ([]IDistributionModuleValidatorReward, error) {
 	var out []interface{}
 	err := _DistributionModule.contract.Call(opts, &out, "getAllDelegatorRewards", delegator)
@@ -206,25 +206,26 @@ func (_DistributionModule *DistributionModuleCaller) GetAllDelegatorRewards(opts
 	out0 := *abi.ConvertType(out[0], new([]IDistributionModuleValidatorReward)).(*[]IDistributionModuleValidatorReward)
 
 	return out0, err
+
 }
 
 // GetAllDelegatorRewards is a free data retrieval call binding the contract method 0x36e22c98.
 //
-// Solidity: function getAllDelegatorRewards(address delegator) view returns((address,(uint256,string)[])[]).
+// Solidity: function getAllDelegatorRewards(address delegator) view returns((address,(uint256,string)[])[])
 func (_DistributionModule *DistributionModuleSession) GetAllDelegatorRewards(delegator common.Address) ([]IDistributionModuleValidatorReward, error) {
 	return _DistributionModule.Contract.GetAllDelegatorRewards(&_DistributionModule.CallOpts, delegator)
 }
 
 // GetAllDelegatorRewards is a free data retrieval call binding the contract method 0x36e22c98.
 //
-// Solidity: function getAllDelegatorRewards(address delegator) view returns((address,(uint256,string)[])[]).
+// Solidity: function getAllDelegatorRewards(address delegator) view returns((address,(uint256,string)[])[])
 func (_DistributionModule *DistributionModuleCallerSession) GetAllDelegatorRewards(delegator common.Address) ([]IDistributionModuleValidatorReward, error) {
 	return _DistributionModule.Contract.GetAllDelegatorRewards(&_DistributionModule.CallOpts, delegator)
 }
 
 // GetTotalDelegatorReward is a free data retrieval call binding the contract method 0xce3341b4.
 //
-// Solidity: function getTotalDelegatorReward(address delegator) view returns((uint256,string)[]).
+// Solidity: function getTotalDelegatorReward(address delegator) view returns((uint256,string)[])
 func (_DistributionModule *DistributionModuleCaller) GetTotalDelegatorReward(opts *bind.CallOpts, delegator common.Address) ([]CosmosCoin, error) {
 	var out []interface{}
 	err := _DistributionModule.contract.Call(opts, &out, "getTotalDelegatorReward", delegator)
@@ -236,25 +237,26 @@ func (_DistributionModule *DistributionModuleCaller) GetTotalDelegatorReward(opt
 	out0 := *abi.ConvertType(out[0], new([]CosmosCoin)).(*[]CosmosCoin)
 
 	return out0, err
+
 }
 
 // GetTotalDelegatorReward is a free data retrieval call binding the contract method 0xce3341b4.
 //
-// Solidity: function getTotalDelegatorReward(address delegator) view returns((uint256,string)[]).
+// Solidity: function getTotalDelegatorReward(address delegator) view returns((uint256,string)[])
 func (_DistributionModule *DistributionModuleSession) GetTotalDelegatorReward(delegator common.Address) ([]CosmosCoin, error) {
 	return _DistributionModule.Contract.GetTotalDelegatorReward(&_DistributionModule.CallOpts, delegator)
 }
 
 // GetTotalDelegatorReward is a free data retrieval call binding the contract method 0xce3341b4.
 //
-// Solidity: function getTotalDelegatorReward(address delegator) view returns((uint256,string)[]).
+// Solidity: function getTotalDelegatorReward(address delegator) view returns((uint256,string)[])
 func (_DistributionModule *DistributionModuleCallerSession) GetTotalDelegatorReward(delegator common.Address) ([]CosmosCoin, error) {
 	return _DistributionModule.Contract.GetTotalDelegatorReward(&_DistributionModule.CallOpts, delegator)
 }
 
 // GetWithdrawAddress is a free data retrieval call binding the contract method 0xafe46ea2.
 //
-// Solidity: function getWithdrawAddress(address delegator) view returns(address).
+// Solidity: function getWithdrawAddress(address delegator) view returns(address)
 func (_DistributionModule *DistributionModuleCaller) GetWithdrawAddress(opts *bind.CallOpts, delegator common.Address) (common.Address, error) {
 	var out []interface{}
 	err := _DistributionModule.contract.Call(opts, &out, "getWithdrawAddress", delegator)
@@ -266,25 +268,26 @@ func (_DistributionModule *DistributionModuleCaller) GetWithdrawAddress(opts *bi
 	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
 
 	return out0, err
+
 }
 
 // GetWithdrawAddress is a free data retrieval call binding the contract method 0xafe46ea2.
 //
-// Solidity: function getWithdrawAddress(address delegator) view returns(address).
+// Solidity: function getWithdrawAddress(address delegator) view returns(address)
 func (_DistributionModule *DistributionModuleSession) GetWithdrawAddress(delegator common.Address) (common.Address, error) {
 	return _DistributionModule.Contract.GetWithdrawAddress(&_DistributionModule.CallOpts, delegator)
 }
 
 // GetWithdrawAddress is a free data retrieval call binding the contract method 0xafe46ea2.
 //
-// Solidity: function getWithdrawAddress(address delegator) view returns(address).
+// Solidity: function getWithdrawAddress(address delegator) view returns(address)
 func (_DistributionModule *DistributionModuleCallerSession) GetWithdrawAddress(delegator common.Address) (common.Address, error) {
 	return _DistributionModule.Contract.GetWithdrawAddress(&_DistributionModule.CallOpts, delegator)
 }
 
 // GetWithdrawEnabled is a free data retrieval call binding the contract method 0x39cc4c86.
 //
-// Solidity: function getWithdrawEnabled() view returns(bool).
+// Solidity: function getWithdrawEnabled() view returns(bool)
 func (_DistributionModule *DistributionModuleCaller) GetWithdrawEnabled(opts *bind.CallOpts) (bool, error) {
 	var out []interface{}
 	err := _DistributionModule.contract.Call(opts, &out, "getWithdrawEnabled")
@@ -296,60 +299,61 @@ func (_DistributionModule *DistributionModuleCaller) GetWithdrawEnabled(opts *bi
 	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
 
 	return out0, err
+
 }
 
 // GetWithdrawEnabled is a free data retrieval call binding the contract method 0x39cc4c86.
 //
-// Solidity: function getWithdrawEnabled() view returns(bool).
+// Solidity: function getWithdrawEnabled() view returns(bool)
 func (_DistributionModule *DistributionModuleSession) GetWithdrawEnabled() (bool, error) {
 	return _DistributionModule.Contract.GetWithdrawEnabled(&_DistributionModule.CallOpts)
 }
 
 // GetWithdrawEnabled is a free data retrieval call binding the contract method 0x39cc4c86.
 //
-// Solidity: function getWithdrawEnabled() view returns(bool).
+// Solidity: function getWithdrawEnabled() view returns(bool)
 func (_DistributionModule *DistributionModuleCallerSession) GetWithdrawEnabled() (bool, error) {
 	return _DistributionModule.Contract.GetWithdrawEnabled(&_DistributionModule.CallOpts)
 }
 
 // SetWithdrawAddress is a paid mutator transaction binding the contract method 0x3ab1a494.
 //
-// Solidity: function setWithdrawAddress(address withdrawAddress) returns(bool).
+// Solidity: function setWithdrawAddress(address withdrawAddress) returns(bool)
 func (_DistributionModule *DistributionModuleTransactor) SetWithdrawAddress(opts *bind.TransactOpts, withdrawAddress common.Address) (*types.Transaction, error) {
 	return _DistributionModule.contract.Transact(opts, "setWithdrawAddress", withdrawAddress)
 }
 
 // SetWithdrawAddress is a paid mutator transaction binding the contract method 0x3ab1a494.
 //
-// Solidity: function setWithdrawAddress(address withdrawAddress) returns(bool).
+// Solidity: function setWithdrawAddress(address withdrawAddress) returns(bool)
 func (_DistributionModule *DistributionModuleSession) SetWithdrawAddress(withdrawAddress common.Address) (*types.Transaction, error) {
 	return _DistributionModule.Contract.SetWithdrawAddress(&_DistributionModule.TransactOpts, withdrawAddress)
 }
 
 // SetWithdrawAddress is a paid mutator transaction binding the contract method 0x3ab1a494.
 //
-// Solidity: function setWithdrawAddress(address withdrawAddress) returns(bool).
+// Solidity: function setWithdrawAddress(address withdrawAddress) returns(bool)
 func (_DistributionModule *DistributionModuleTransactorSession) SetWithdrawAddress(withdrawAddress common.Address) (*types.Transaction, error) {
 	return _DistributionModule.Contract.SetWithdrawAddress(&_DistributionModule.TransactOpts, withdrawAddress)
 }
 
 // WithdrawDelegatorReward is a paid mutator transaction binding the contract method 0x562c67a4.
 //
-// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint256,string)[]).
+// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint256,string)[])
 func (_DistributionModule *DistributionModuleTransactor) WithdrawDelegatorReward(opts *bind.TransactOpts, delegator common.Address, validator common.Address) (*types.Transaction, error) {
 	return _DistributionModule.contract.Transact(opts, "withdrawDelegatorReward", delegator, validator)
 }
 
 // WithdrawDelegatorReward is a paid mutator transaction binding the contract method 0x562c67a4.
 //
-// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint256,string)[]).
+// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint256,string)[])
 func (_DistributionModule *DistributionModuleSession) WithdrawDelegatorReward(delegator common.Address, validator common.Address) (*types.Transaction, error) {
 	return _DistributionModule.Contract.WithdrawDelegatorReward(&_DistributionModule.TransactOpts, delegator, validator)
 }
 
 // WithdrawDelegatorReward is a paid mutator transaction binding the contract method 0x562c67a4.
 //
-// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint256,string)[]).
+// Solidity: function withdrawDelegatorReward(address delegator, address validator) returns((uint256,string)[])
 func (_DistributionModule *DistributionModuleTransactorSession) WithdrawDelegatorReward(delegator common.Address, validator common.Address) (*types.Transaction, error) {
 	return _DistributionModule.Contract.WithdrawDelegatorReward(&_DistributionModule.TransactOpts, delegator, validator)
 }
@@ -429,8 +433,9 @@ type DistributionModuleSetWithdrawAddress struct {
 
 // FilterSetWithdrawAddress is a free log retrieval operation binding the contract event 0xb13cf87e0a7b64f90565a1b68b63ae634d746fa785450bbdef7cbd281997cfb0.
 //
-// Solidity: event SetWithdrawAddress(address indexed withdrawAddress).
+// Solidity: event SetWithdrawAddress(address indexed withdrawAddress)
 func (_DistributionModule *DistributionModuleFilterer) FilterSetWithdrawAddress(opts *bind.FilterOpts, withdrawAddress []common.Address) (*DistributionModuleSetWithdrawAddressIterator, error) {
+
 	var withdrawAddressRule []interface{}
 	for _, withdrawAddressItem := range withdrawAddress {
 		withdrawAddressRule = append(withdrawAddressRule, withdrawAddressItem)
@@ -445,8 +450,9 @@ func (_DistributionModule *DistributionModuleFilterer) FilterSetWithdrawAddress(
 
 // WatchSetWithdrawAddress is a free log subscription operation binding the contract event 0xb13cf87e0a7b64f90565a1b68b63ae634d746fa785450bbdef7cbd281997cfb0.
 //
-// Solidity: event SetWithdrawAddress(address indexed withdrawAddress).
+// Solidity: event SetWithdrawAddress(address indexed withdrawAddress)
 func (_DistributionModule *DistributionModuleFilterer) WatchSetWithdrawAddress(opts *bind.WatchOpts, sink chan<- *DistributionModuleSetWithdrawAddress, withdrawAddress []common.Address) (event.Subscription, error) {
+
 	var withdrawAddressRule []interface{}
 	for _, withdrawAddressItem := range withdrawAddress {
 		withdrawAddressRule = append(withdrawAddressRule, withdrawAddressItem)
@@ -486,7 +492,7 @@ func (_DistributionModule *DistributionModuleFilterer) WatchSetWithdrawAddress(o
 
 // ParseSetWithdrawAddress is a log parse operation binding the contract event 0xb13cf87e0a7b64f90565a1b68b63ae634d746fa785450bbdef7cbd281997cfb0.
 //
-// Solidity: event SetWithdrawAddress(address indexed withdrawAddress).
+// Solidity: event SetWithdrawAddress(address indexed withdrawAddress)
 func (_DistributionModule *DistributionModuleFilterer) ParseSetWithdrawAddress(log types.Log) (*DistributionModuleSetWithdrawAddress, error) {
 	event := new(DistributionModuleSetWithdrawAddress)
 	if err := _DistributionModule.contract.UnpackLog(event, "SetWithdrawAddress", log); err != nil {
@@ -572,8 +578,9 @@ type DistributionModuleWithdrawRewards struct {
 
 // FilterWithdrawRewards is a free log retrieval operation binding the contract event 0x68e5a74be48fc61c2ca4536b8819962850d1d39d7aa32ca670914f8b10aa6e5b.
 //
-// Solidity: event WithdrawRewards(address indexed validator, (uint256,string)[] amount).
+// Solidity: event WithdrawRewards(address indexed validator, (uint256,string)[] amount)
 func (_DistributionModule *DistributionModuleFilterer) FilterWithdrawRewards(opts *bind.FilterOpts, validator []common.Address) (*DistributionModuleWithdrawRewardsIterator, error) {
+
 	var validatorRule []interface{}
 	for _, validatorItem := range validator {
 		validatorRule = append(validatorRule, validatorItem)
@@ -588,8 +595,9 @@ func (_DistributionModule *DistributionModuleFilterer) FilterWithdrawRewards(opt
 
 // WatchWithdrawRewards is a free log subscription operation binding the contract event 0x68e5a74be48fc61c2ca4536b8819962850d1d39d7aa32ca670914f8b10aa6e5b.
 //
-// Solidity: event WithdrawRewards(address indexed validator, (uint256,string)[] amount).
+// Solidity: event WithdrawRewards(address indexed validator, (uint256,string)[] amount)
 func (_DistributionModule *DistributionModuleFilterer) WatchWithdrawRewards(opts *bind.WatchOpts, sink chan<- *DistributionModuleWithdrawRewards, validator []common.Address) (event.Subscription, error) {
+
 	var validatorRule []interface{}
 	for _, validatorItem := range validator {
 		validatorRule = append(validatorRule, validatorItem)
@@ -629,7 +637,7 @@ func (_DistributionModule *DistributionModuleFilterer) WatchWithdrawRewards(opts
 
 // ParseWithdrawRewards is a log parse operation binding the contract event 0x68e5a74be48fc61c2ca4536b8819962850d1d39d7aa32ca670914f8b10aa6e5b.
 //
-// Solidity: event WithdrawRewards(address indexed validator, (uint256,string)[] amount).
+// Solidity: event WithdrawRewards(address indexed validator, (uint256,string)[] amount)
 func (_DistributionModule *DistributionModuleFilterer) ParseWithdrawRewards(log types.Log) (*DistributionModuleWithdrawRewards, error) {
 	event := new(DistributionModuleWithdrawRewards)
 	if err := _DistributionModule.contract.UnpackLog(event, "WithdrawRewards", log); err != nil {

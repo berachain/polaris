@@ -274,7 +274,7 @@ func (_StakingModule *StakingModuleTransactorRaw) Transact(opts *bind.TransactOp
 
 // GetBondedValidators is a free data retrieval call binding the contract method 0xcf3f2340.
 //
-// Solidity: function getBondedValidators((string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64)).
+// Solidity: function getBondedValidators((string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64))
 func (_StakingModule *StakingModuleCaller) GetBondedValidators(opts *bind.CallOpts, pagination CosmosPageRequest) ([]IStakingModuleValidator, CosmosPageResponse, error) {
 	var out []interface{}
 	err := _StakingModule.contract.Call(opts, &out, "getBondedValidators", pagination)
@@ -287,25 +287,26 @@ func (_StakingModule *StakingModuleCaller) GetBondedValidators(opts *bind.CallOp
 	out1 := *abi.ConvertType(out[1], new(CosmosPageResponse)).(*CosmosPageResponse)
 
 	return out0, out1, err
+
 }
 
 // GetBondedValidators is a free data retrieval call binding the contract method 0xcf3f2340.
 //
-// Solidity: function getBondedValidators((string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64)).
+// Solidity: function getBondedValidators((string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64))
 func (_StakingModule *StakingModuleSession) GetBondedValidators(pagination CosmosPageRequest) ([]IStakingModuleValidator, CosmosPageResponse, error) {
 	return _StakingModule.Contract.GetBondedValidators(&_StakingModule.CallOpts, pagination)
 }
 
 // GetBondedValidators is a free data retrieval call binding the contract method 0xcf3f2340.
 //
-// Solidity: function getBondedValidators((string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64)).
+// Solidity: function getBondedValidators((string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64))
 func (_StakingModule *StakingModuleCallerSession) GetBondedValidators(pagination CosmosPageRequest) ([]IStakingModuleValidator, CosmosPageResponse, error) {
 	return _StakingModule.Contract.GetBondedValidators(&_StakingModule.CallOpts, pagination)
 }
 
 // GetBondedValidatorsByPower is a free data retrieval call binding the contract method 0xdcaf464a.
 //
-// Solidity: function getBondedValidatorsByPower() view returns(address[]).
+// Solidity: function getBondedValidatorsByPower() view returns(address[])
 func (_StakingModule *StakingModuleCaller) GetBondedValidatorsByPower(opts *bind.CallOpts) ([]common.Address, error) {
 	var out []interface{}
 	err := _StakingModule.contract.Call(opts, &out, "getBondedValidatorsByPower")
@@ -317,25 +318,26 @@ func (_StakingModule *StakingModuleCaller) GetBondedValidatorsByPower(opts *bind
 	out0 := *abi.ConvertType(out[0], new([]common.Address)).(*[]common.Address)
 
 	return out0, err
+
 }
 
 // GetBondedValidatorsByPower is a free data retrieval call binding the contract method 0xdcaf464a.
 //
-// Solidity: function getBondedValidatorsByPower() view returns(address[]).
+// Solidity: function getBondedValidatorsByPower() view returns(address[])
 func (_StakingModule *StakingModuleSession) GetBondedValidatorsByPower() ([]common.Address, error) {
 	return _StakingModule.Contract.GetBondedValidatorsByPower(&_StakingModule.CallOpts)
 }
 
 // GetBondedValidatorsByPower is a free data retrieval call binding the contract method 0xdcaf464a.
 //
-// Solidity: function getBondedValidatorsByPower() view returns(address[]).
+// Solidity: function getBondedValidatorsByPower() view returns(address[])
 func (_StakingModule *StakingModuleCallerSession) GetBondedValidatorsByPower() ([]common.Address, error) {
 	return _StakingModule.Contract.GetBondedValidatorsByPower(&_StakingModule.CallOpts)
 }
 
 // GetDelegation is a free data retrieval call binding the contract method 0x15049a5a.
 //
-// Solidity: function getDelegation(address delegatorAddress, address validatorAddress) view returns(uint256).
+// Solidity: function getDelegation(address delegatorAddress, address validatorAddress) view returns(uint256)
 func (_StakingModule *StakingModuleCaller) GetDelegation(opts *bind.CallOpts, delegatorAddress common.Address, validatorAddress common.Address) (*big.Int, error) {
 	var out []interface{}
 	err := _StakingModule.contract.Call(opts, &out, "getDelegation", delegatorAddress, validatorAddress)
@@ -347,25 +349,26 @@ func (_StakingModule *StakingModuleCaller) GetDelegation(opts *bind.CallOpts, de
 	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
 	return out0, err
+
 }
 
 // GetDelegation is a free data retrieval call binding the contract method 0x15049a5a.
 //
-// Solidity: function getDelegation(address delegatorAddress, address validatorAddress) view returns(uint256).
+// Solidity: function getDelegation(address delegatorAddress, address validatorAddress) view returns(uint256)
 func (_StakingModule *StakingModuleSession) GetDelegation(delegatorAddress common.Address, validatorAddress common.Address) (*big.Int, error) {
 	return _StakingModule.Contract.GetDelegation(&_StakingModule.CallOpts, delegatorAddress, validatorAddress)
 }
 
 // GetDelegation is a free data retrieval call binding the contract method 0x15049a5a.
 //
-// Solidity: function getDelegation(address delegatorAddress, address validatorAddress) view returns(uint256).
+// Solidity: function getDelegation(address delegatorAddress, address validatorAddress) view returns(uint256)
 func (_StakingModule *StakingModuleCallerSession) GetDelegation(delegatorAddress common.Address, validatorAddress common.Address) (*big.Int, error) {
 	return _StakingModule.Contract.GetDelegation(&_StakingModule.CallOpts, delegatorAddress, validatorAddress)
 }
 
 // GetDelegatorUnbondingDelegations is a free data retrieval call binding the contract method 0xd2b3c8fe.
 //
-// Solidity: function getDelegatorUnbondingDelegations(address delegatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,address,(int64,string,uint256,uint256,uint64)[])[], (string,uint64)).
+// Solidity: function getDelegatorUnbondingDelegations(address delegatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,address,(int64,string,uint256,uint256,uint64)[])[], (string,uint64))
 func (_StakingModule *StakingModuleCaller) GetDelegatorUnbondingDelegations(opts *bind.CallOpts, delegatorAddress common.Address, pagination CosmosPageRequest) ([]IStakingModuleUnbondingDelegation, CosmosPageResponse, error) {
 	var out []interface{}
 	err := _StakingModule.contract.Call(opts, &out, "getDelegatorUnbondingDelegations", delegatorAddress, pagination)
@@ -378,25 +381,26 @@ func (_StakingModule *StakingModuleCaller) GetDelegatorUnbondingDelegations(opts
 	out1 := *abi.ConvertType(out[1], new(CosmosPageResponse)).(*CosmosPageResponse)
 
 	return out0, out1, err
+
 }
 
 // GetDelegatorUnbondingDelegations is a free data retrieval call binding the contract method 0xd2b3c8fe.
 //
-// Solidity: function getDelegatorUnbondingDelegations(address delegatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,address,(int64,string,uint256,uint256,uint64)[])[], (string,uint64)).
+// Solidity: function getDelegatorUnbondingDelegations(address delegatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,address,(int64,string,uint256,uint256,uint64)[])[], (string,uint64))
 func (_StakingModule *StakingModuleSession) GetDelegatorUnbondingDelegations(delegatorAddress common.Address, pagination CosmosPageRequest) ([]IStakingModuleUnbondingDelegation, CosmosPageResponse, error) {
 	return _StakingModule.Contract.GetDelegatorUnbondingDelegations(&_StakingModule.CallOpts, delegatorAddress, pagination)
 }
 
 // GetDelegatorUnbondingDelegations is a free data retrieval call binding the contract method 0xd2b3c8fe.
 //
-// Solidity: function getDelegatorUnbondingDelegations(address delegatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,address,(int64,string,uint256,uint256,uint64)[])[], (string,uint64)).
+// Solidity: function getDelegatorUnbondingDelegations(address delegatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,address,(int64,string,uint256,uint256,uint64)[])[], (string,uint64))
 func (_StakingModule *StakingModuleCallerSession) GetDelegatorUnbondingDelegations(delegatorAddress common.Address, pagination CosmosPageRequest) ([]IStakingModuleUnbondingDelegation, CosmosPageResponse, error) {
 	return _StakingModule.Contract.GetDelegatorUnbondingDelegations(&_StakingModule.CallOpts, delegatorAddress, pagination)
 }
 
 // GetDelegatorValidators is a free data retrieval call binding the contract method 0xb067c623.
 //
-// Solidity: function getDelegatorValidators(address delegatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64)).
+// Solidity: function getDelegatorValidators(address delegatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64))
 func (_StakingModule *StakingModuleCaller) GetDelegatorValidators(opts *bind.CallOpts, delegatorAddress common.Address, pagination CosmosPageRequest) ([]IStakingModuleValidator, CosmosPageResponse, error) {
 	var out []interface{}
 	err := _StakingModule.contract.Call(opts, &out, "getDelegatorValidators", delegatorAddress, pagination)
@@ -409,25 +413,26 @@ func (_StakingModule *StakingModuleCaller) GetDelegatorValidators(opts *bind.Cal
 	out1 := *abi.ConvertType(out[1], new(CosmosPageResponse)).(*CosmosPageResponse)
 
 	return out0, out1, err
+
 }
 
 // GetDelegatorValidators is a free data retrieval call binding the contract method 0xb067c623.
 //
-// Solidity: function getDelegatorValidators(address delegatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64)).
+// Solidity: function getDelegatorValidators(address delegatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64))
 func (_StakingModule *StakingModuleSession) GetDelegatorValidators(delegatorAddress common.Address, pagination CosmosPageRequest) ([]IStakingModuleValidator, CosmosPageResponse, error) {
 	return _StakingModule.Contract.GetDelegatorValidators(&_StakingModule.CallOpts, delegatorAddress, pagination)
 }
 
 // GetDelegatorValidators is a free data retrieval call binding the contract method 0xb067c623.
 //
-// Solidity: function getDelegatorValidators(address delegatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64)).
+// Solidity: function getDelegatorValidators(address delegatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64))
 func (_StakingModule *StakingModuleCallerSession) GetDelegatorValidators(delegatorAddress common.Address, pagination CosmosPageRequest) ([]IStakingModuleValidator, CosmosPageResponse, error) {
 	return _StakingModule.Contract.GetDelegatorValidators(&_StakingModule.CallOpts, delegatorAddress, pagination)
 }
 
 // GetRedelegations is a free data retrieval call binding the contract method 0x1c441040.
 //
-// Solidity: function getRedelegations(address delegatorAddress, address srcValidator, address dstValidator, (string,uint64,uint64,bool,bool) pagination) view returns((int64,string,uint256,uint256,uint64)[], (string,uint64)).
+// Solidity: function getRedelegations(address delegatorAddress, address srcValidator, address dstValidator, (string,uint64,uint64,bool,bool) pagination) view returns((int64,string,uint256,uint256,uint64)[], (string,uint64))
 func (_StakingModule *StakingModuleCaller) GetRedelegations(opts *bind.CallOpts, delegatorAddress common.Address, srcValidator common.Address, dstValidator common.Address, pagination CosmosPageRequest) ([]IStakingModuleRedelegationEntry, CosmosPageResponse, error) {
 	var out []interface{}
 	err := _StakingModule.contract.Call(opts, &out, "getRedelegations", delegatorAddress, srcValidator, dstValidator, pagination)
@@ -440,25 +445,26 @@ func (_StakingModule *StakingModuleCaller) GetRedelegations(opts *bind.CallOpts,
 	out1 := *abi.ConvertType(out[1], new(CosmosPageResponse)).(*CosmosPageResponse)
 
 	return out0, out1, err
+
 }
 
 // GetRedelegations is a free data retrieval call binding the contract method 0x1c441040.
 //
-// Solidity: function getRedelegations(address delegatorAddress, address srcValidator, address dstValidator, (string,uint64,uint64,bool,bool) pagination) view returns((int64,string,uint256,uint256,uint64)[], (string,uint64)).
+// Solidity: function getRedelegations(address delegatorAddress, address srcValidator, address dstValidator, (string,uint64,uint64,bool,bool) pagination) view returns((int64,string,uint256,uint256,uint64)[], (string,uint64))
 func (_StakingModule *StakingModuleSession) GetRedelegations(delegatorAddress common.Address, srcValidator common.Address, dstValidator common.Address, pagination CosmosPageRequest) ([]IStakingModuleRedelegationEntry, CosmosPageResponse, error) {
 	return _StakingModule.Contract.GetRedelegations(&_StakingModule.CallOpts, delegatorAddress, srcValidator, dstValidator, pagination)
 }
 
 // GetRedelegations is a free data retrieval call binding the contract method 0x1c441040.
 //
-// Solidity: function getRedelegations(address delegatorAddress, address srcValidator, address dstValidator, (string,uint64,uint64,bool,bool) pagination) view returns((int64,string,uint256,uint256,uint64)[], (string,uint64)).
+// Solidity: function getRedelegations(address delegatorAddress, address srcValidator, address dstValidator, (string,uint64,uint64,bool,bool) pagination) view returns((int64,string,uint256,uint256,uint64)[], (string,uint64))
 func (_StakingModule *StakingModuleCallerSession) GetRedelegations(delegatorAddress common.Address, srcValidator common.Address, dstValidator common.Address, pagination CosmosPageRequest) ([]IStakingModuleRedelegationEntry, CosmosPageResponse, error) {
 	return _StakingModule.Contract.GetRedelegations(&_StakingModule.CallOpts, delegatorAddress, srcValidator, dstValidator, pagination)
 }
 
 // GetUnbondingDelegation is a free data retrieval call binding the contract method 0xc60b8213.
 //
-// Solidity: function getUnbondingDelegation(address delegatorAddress, address validatorAddress) view returns((int64,string,uint256,uint256,uint64)[]).
+// Solidity: function getUnbondingDelegation(address delegatorAddress, address validatorAddress) view returns((int64,string,uint256,uint256,uint64)[])
 func (_StakingModule *StakingModuleCaller) GetUnbondingDelegation(opts *bind.CallOpts, delegatorAddress common.Address, validatorAddress common.Address) ([]IStakingModuleUnbondingDelegationEntry, error) {
 	var out []interface{}
 	err := _StakingModule.contract.Call(opts, &out, "getUnbondingDelegation", delegatorAddress, validatorAddress)
@@ -470,25 +476,26 @@ func (_StakingModule *StakingModuleCaller) GetUnbondingDelegation(opts *bind.Cal
 	out0 := *abi.ConvertType(out[0], new([]IStakingModuleUnbondingDelegationEntry)).(*[]IStakingModuleUnbondingDelegationEntry)
 
 	return out0, err
+
 }
 
 // GetUnbondingDelegation is a free data retrieval call binding the contract method 0xc60b8213.
 //
-// Solidity: function getUnbondingDelegation(address delegatorAddress, address validatorAddress) view returns((int64,string,uint256,uint256,uint64)[]).
+// Solidity: function getUnbondingDelegation(address delegatorAddress, address validatorAddress) view returns((int64,string,uint256,uint256,uint64)[])
 func (_StakingModule *StakingModuleSession) GetUnbondingDelegation(delegatorAddress common.Address, validatorAddress common.Address) ([]IStakingModuleUnbondingDelegationEntry, error) {
 	return _StakingModule.Contract.GetUnbondingDelegation(&_StakingModule.CallOpts, delegatorAddress, validatorAddress)
 }
 
 // GetUnbondingDelegation is a free data retrieval call binding the contract method 0xc60b8213.
 //
-// Solidity: function getUnbondingDelegation(address delegatorAddress, address validatorAddress) view returns((int64,string,uint256,uint256,uint64)[]).
+// Solidity: function getUnbondingDelegation(address delegatorAddress, address validatorAddress) view returns((int64,string,uint256,uint256,uint64)[])
 func (_StakingModule *StakingModuleCallerSession) GetUnbondingDelegation(delegatorAddress common.Address, validatorAddress common.Address) ([]IStakingModuleUnbondingDelegationEntry, error) {
 	return _StakingModule.Contract.GetUnbondingDelegation(&_StakingModule.CallOpts, delegatorAddress, validatorAddress)
 }
 
 // GetValAddressFromConsAddress is a free data retrieval call binding the contract method 0x411dee2d.
 //
-// Solidity: function getValAddressFromConsAddress(bytes consAddr) pure returns(address).
+// Solidity: function getValAddressFromConsAddress(bytes consAddr) pure returns(address)
 func (_StakingModule *StakingModuleCaller) GetValAddressFromConsAddress(opts *bind.CallOpts, consAddr []byte) (common.Address, error) {
 	var out []interface{}
 	err := _StakingModule.contract.Call(opts, &out, "getValAddressFromConsAddress", consAddr)
@@ -500,25 +507,26 @@ func (_StakingModule *StakingModuleCaller) GetValAddressFromConsAddress(opts *bi
 	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
 
 	return out0, err
+
 }
 
 // GetValAddressFromConsAddress is a free data retrieval call binding the contract method 0x411dee2d.
 //
-// Solidity: function getValAddressFromConsAddress(bytes consAddr) pure returns(address).
+// Solidity: function getValAddressFromConsAddress(bytes consAddr) pure returns(address)
 func (_StakingModule *StakingModuleSession) GetValAddressFromConsAddress(consAddr []byte) (common.Address, error) {
 	return _StakingModule.Contract.GetValAddressFromConsAddress(&_StakingModule.CallOpts, consAddr)
 }
 
 // GetValAddressFromConsAddress is a free data retrieval call binding the contract method 0x411dee2d.
 //
-// Solidity: function getValAddressFromConsAddress(bytes consAddr) pure returns(address).
+// Solidity: function getValAddressFromConsAddress(bytes consAddr) pure returns(address)
 func (_StakingModule *StakingModuleCallerSession) GetValAddressFromConsAddress(consAddr []byte) (common.Address, error) {
 	return _StakingModule.Contract.GetValAddressFromConsAddress(&_StakingModule.CallOpts, consAddr)
 }
 
 // GetValidator is a free data retrieval call binding the contract method 0x1904bb2e.
 //
-// Solidity: function getValidator(address validatorAddress) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])).
+// Solidity: function getValidator(address validatorAddress) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[]))
 func (_StakingModule *StakingModuleCaller) GetValidator(opts *bind.CallOpts, validatorAddress common.Address) (IStakingModuleValidator, error) {
 	var out []interface{}
 	err := _StakingModule.contract.Call(opts, &out, "getValidator", validatorAddress)
@@ -530,25 +538,26 @@ func (_StakingModule *StakingModuleCaller) GetValidator(opts *bind.CallOpts, val
 	out0 := *abi.ConvertType(out[0], new(IStakingModuleValidator)).(*IStakingModuleValidator)
 
 	return out0, err
+
 }
 
 // GetValidator is a free data retrieval call binding the contract method 0x1904bb2e.
 //
-// Solidity: function getValidator(address validatorAddress) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])).
+// Solidity: function getValidator(address validatorAddress) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[]))
 func (_StakingModule *StakingModuleSession) GetValidator(validatorAddress common.Address) (IStakingModuleValidator, error) {
 	return _StakingModule.Contract.GetValidator(&_StakingModule.CallOpts, validatorAddress)
 }
 
 // GetValidator is a free data retrieval call binding the contract method 0x1904bb2e.
 //
-// Solidity: function getValidator(address validatorAddress) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])).
+// Solidity: function getValidator(address validatorAddress) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[]))
 func (_StakingModule *StakingModuleCallerSession) GetValidator(validatorAddress common.Address) (IStakingModuleValidator, error) {
 	return _StakingModule.Contract.GetValidator(&_StakingModule.CallOpts, validatorAddress)
 }
 
 // GetValidatorDelegations is a free data retrieval call binding the contract method 0x1f360742.
 //
-// Solidity: function getValidatorDelegations(address validatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,uint256,uint256)[], (string,uint64)).
+// Solidity: function getValidatorDelegations(address validatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,uint256,uint256)[], (string,uint64))
 func (_StakingModule *StakingModuleCaller) GetValidatorDelegations(opts *bind.CallOpts, validatorAddress common.Address, pagination CosmosPageRequest) ([]IStakingModuleDelegation, CosmosPageResponse, error) {
 	var out []interface{}
 	err := _StakingModule.contract.Call(opts, &out, "getValidatorDelegations", validatorAddress, pagination)
@@ -561,25 +570,26 @@ func (_StakingModule *StakingModuleCaller) GetValidatorDelegations(opts *bind.Ca
 	out1 := *abi.ConvertType(out[1], new(CosmosPageResponse)).(*CosmosPageResponse)
 
 	return out0, out1, err
+
 }
 
 // GetValidatorDelegations is a free data retrieval call binding the contract method 0x1f360742.
 //
-// Solidity: function getValidatorDelegations(address validatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,uint256,uint256)[], (string,uint64)).
+// Solidity: function getValidatorDelegations(address validatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,uint256,uint256)[], (string,uint64))
 func (_StakingModule *StakingModuleSession) GetValidatorDelegations(validatorAddress common.Address, pagination CosmosPageRequest) ([]IStakingModuleDelegation, CosmosPageResponse, error) {
 	return _StakingModule.Contract.GetValidatorDelegations(&_StakingModule.CallOpts, validatorAddress, pagination)
 }
 
 // GetValidatorDelegations is a free data retrieval call binding the contract method 0x1f360742.
 //
-// Solidity: function getValidatorDelegations(address validatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,uint256,uint256)[], (string,uint64)).
+// Solidity: function getValidatorDelegations(address validatorAddress, (string,uint64,uint64,bool,bool) pagination) view returns((address,uint256,uint256)[], (string,uint64))
 func (_StakingModule *StakingModuleCallerSession) GetValidatorDelegations(validatorAddress common.Address, pagination CosmosPageRequest) ([]IStakingModuleDelegation, CosmosPageResponse, error) {
 	return _StakingModule.Contract.GetValidatorDelegations(&_StakingModule.CallOpts, validatorAddress, pagination)
 }
 
 // GetValidators is a free data retrieval call binding the contract method 0xbfc4dcd5.
 //
-// Solidity: function getValidators((string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64)).
+// Solidity: function getValidators((string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64))
 func (_StakingModule *StakingModuleCaller) GetValidators(opts *bind.CallOpts, pagination CosmosPageRequest) ([]IStakingModuleValidator, CosmosPageResponse, error) {
 	var out []interface{}
 	err := _StakingModule.contract.Call(opts, &out, "getValidators", pagination)
@@ -592,102 +602,103 @@ func (_StakingModule *StakingModuleCaller) GetValidators(opts *bind.CallOpts, pa
 	out1 := *abi.ConvertType(out[1], new(CosmosPageResponse)).(*CosmosPageResponse)
 
 	return out0, out1, err
+
 }
 
 // GetValidators is a free data retrieval call binding the contract method 0xbfc4dcd5.
 //
-// Solidity: function getValidators((string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64)).
+// Solidity: function getValidators((string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64))
 func (_StakingModule *StakingModuleSession) GetValidators(pagination CosmosPageRequest) ([]IStakingModuleValidator, CosmosPageResponse, error) {
 	return _StakingModule.Contract.GetValidators(&_StakingModule.CallOpts, pagination)
 }
 
 // GetValidators is a free data retrieval call binding the contract method 0xbfc4dcd5.
 //
-// Solidity: function getValidators((string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64)).
+// Solidity: function getValidators((string,uint64,uint64,bool,bool) pagination) view returns((address,bytes,bool,string,uint256,uint256,(string,string,string,string,string),int64,string,((uint256,uint256,uint256),string),uint256,int64,uint64[])[], (string,uint64))
 func (_StakingModule *StakingModuleCallerSession) GetValidators(pagination CosmosPageRequest) ([]IStakingModuleValidator, CosmosPageResponse, error) {
 	return _StakingModule.Contract.GetValidators(&_StakingModule.CallOpts, pagination)
 }
 
 // BeginRedelegate is a paid mutator transaction binding the contract method 0xb3a8ae3b.
 //
-// Solidity: function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) payable returns(bool).
+// Solidity: function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactor) BeginRedelegate(opts *bind.TransactOpts, srcValidator common.Address, dstValidator common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.contract.Transact(opts, "beginRedelegate", srcValidator, dstValidator, amount)
 }
 
 // BeginRedelegate is a paid mutator transaction binding the contract method 0xb3a8ae3b.
 //
-// Solidity: function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) payable returns(bool).
+// Solidity: function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleSession) BeginRedelegate(srcValidator common.Address, dstValidator common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.BeginRedelegate(&_StakingModule.TransactOpts, srcValidator, dstValidator, amount)
 }
 
 // BeginRedelegate is a paid mutator transaction binding the contract method 0xb3a8ae3b.
 //
-// Solidity: function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) payable returns(bool).
+// Solidity: function beginRedelegate(address srcValidator, address dstValidator, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactorSession) BeginRedelegate(srcValidator common.Address, dstValidator common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.BeginRedelegate(&_StakingModule.TransactOpts, srcValidator, dstValidator, amount)
 }
 
 // CancelUnbondingDelegation is a paid mutator transaction binding the contract method 0x69a2f536.
 //
-// Solidity: function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight) payable returns(bool).
+// Solidity: function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight) payable returns(bool)
 func (_StakingModule *StakingModuleTransactor) CancelUnbondingDelegation(opts *bind.TransactOpts, validatorAddress common.Address, amount *big.Int, creationHeight int64) (*types.Transaction, error) {
 	return _StakingModule.contract.Transact(opts, "cancelUnbondingDelegation", validatorAddress, amount, creationHeight)
 }
 
 // CancelUnbondingDelegation is a paid mutator transaction binding the contract method 0x69a2f536.
 //
-// Solidity: function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight) payable returns(bool).
+// Solidity: function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight) payable returns(bool)
 func (_StakingModule *StakingModuleSession) CancelUnbondingDelegation(validatorAddress common.Address, amount *big.Int, creationHeight int64) (*types.Transaction, error) {
 	return _StakingModule.Contract.CancelUnbondingDelegation(&_StakingModule.TransactOpts, validatorAddress, amount, creationHeight)
 }
 
 // CancelUnbondingDelegation is a paid mutator transaction binding the contract method 0x69a2f536.
 //
-// Solidity: function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight) payable returns(bool).
+// Solidity: function cancelUnbondingDelegation(address validatorAddress, uint256 amount, int64 creationHeight) payable returns(bool)
 func (_StakingModule *StakingModuleTransactorSession) CancelUnbondingDelegation(validatorAddress common.Address, amount *big.Int, creationHeight int64) (*types.Transaction, error) {
 	return _StakingModule.Contract.CancelUnbondingDelegation(&_StakingModule.TransactOpts, validatorAddress, amount, creationHeight)
 }
 
 // Delegate is a paid mutator transaction binding the contract method 0x026e402b.
 //
-// Solidity: function delegate(address validatorAddress, uint256 amount) payable returns(bool).
+// Solidity: function delegate(address validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactor) Delegate(opts *bind.TransactOpts, validatorAddress common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.contract.Transact(opts, "delegate", validatorAddress, amount)
 }
 
 // Delegate is a paid mutator transaction binding the contract method 0x026e402b.
 //
-// Solidity: function delegate(address validatorAddress, uint256 amount) payable returns(bool).
+// Solidity: function delegate(address validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleSession) Delegate(validatorAddress common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.Delegate(&_StakingModule.TransactOpts, validatorAddress, amount)
 }
 
 // Delegate is a paid mutator transaction binding the contract method 0x026e402b.
 //
-// Solidity: function delegate(address validatorAddress, uint256 amount) payable returns(bool).
+// Solidity: function delegate(address validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactorSession) Delegate(validatorAddress common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.Delegate(&_StakingModule.TransactOpts, validatorAddress, amount)
 }
 
 // Undelegate is a paid mutator transaction binding the contract method 0x4d99dd16.
 //
-// Solidity: function undelegate(address validatorAddress, uint256 amount) payable returns(bool).
+// Solidity: function undelegate(address validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactor) Undelegate(opts *bind.TransactOpts, validatorAddress common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.contract.Transact(opts, "undelegate", validatorAddress, amount)
 }
 
 // Undelegate is a paid mutator transaction binding the contract method 0x4d99dd16.
 //
-// Solidity: function undelegate(address validatorAddress, uint256 amount) payable returns(bool).
+// Solidity: function undelegate(address validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleSession) Undelegate(validatorAddress common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.Undelegate(&_StakingModule.TransactOpts, validatorAddress, amount)
 }
 
 // Undelegate is a paid mutator transaction binding the contract method 0x4d99dd16.
 //
-// Solidity: function undelegate(address validatorAddress, uint256 amount) payable returns(bool).
+// Solidity: function undelegate(address validatorAddress, uint256 amount) payable returns(bool)
 func (_StakingModule *StakingModuleTransactorSession) Undelegate(validatorAddress common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _StakingModule.Contract.Undelegate(&_StakingModule.TransactOpts, validatorAddress, amount)
 }
@@ -770,8 +781,9 @@ type StakingModuleCancelUnbondingDelegation struct {
 
 // FilterCancelUnbondingDelegation is a free log retrieval operation binding the contract event 0x30c2800a487f4891694e92c2748f62229fc352c93ae350a7ff63e3ab605a4aa5.
 //
-// Solidity: event CancelUnbondingDelegation(address indexed validator, address indexed delegator, (uint256,string)[] amount, int64 creationHeight).
+// Solidity: event CancelUnbondingDelegation(address indexed validator, address indexed delegator, (uint256,string)[] amount, int64 creationHeight)
 func (_StakingModule *StakingModuleFilterer) FilterCancelUnbondingDelegation(opts *bind.FilterOpts, validator []common.Address, delegator []common.Address) (*StakingModuleCancelUnbondingDelegationIterator, error) {
+
 	var validatorRule []interface{}
 	for _, validatorItem := range validator {
 		validatorRule = append(validatorRule, validatorItem)
@@ -790,8 +802,9 @@ func (_StakingModule *StakingModuleFilterer) FilterCancelUnbondingDelegation(opt
 
 // WatchCancelUnbondingDelegation is a free log subscription operation binding the contract event 0x30c2800a487f4891694e92c2748f62229fc352c93ae350a7ff63e3ab605a4aa5.
 //
-// Solidity: event CancelUnbondingDelegation(address indexed validator, address indexed delegator, (uint256,string)[] amount, int64 creationHeight).
+// Solidity: event CancelUnbondingDelegation(address indexed validator, address indexed delegator, (uint256,string)[] amount, int64 creationHeight)
 func (_StakingModule *StakingModuleFilterer) WatchCancelUnbondingDelegation(opts *bind.WatchOpts, sink chan<- *StakingModuleCancelUnbondingDelegation, validator []common.Address, delegator []common.Address) (event.Subscription, error) {
+
 	var validatorRule []interface{}
 	for _, validatorItem := range validator {
 		validatorRule = append(validatorRule, validatorItem)
@@ -835,7 +848,7 @@ func (_StakingModule *StakingModuleFilterer) WatchCancelUnbondingDelegation(opts
 
 // ParseCancelUnbondingDelegation is a log parse operation binding the contract event 0x30c2800a487f4891694e92c2748f62229fc352c93ae350a7ff63e3ab605a4aa5.
 //
-// Solidity: event CancelUnbondingDelegation(address indexed validator, address indexed delegator, (uint256,string)[] amount, int64 creationHeight).
+// Solidity: event CancelUnbondingDelegation(address indexed validator, address indexed delegator, (uint256,string)[] amount, int64 creationHeight)
 func (_StakingModule *StakingModuleFilterer) ParseCancelUnbondingDelegation(log types.Log) (*StakingModuleCancelUnbondingDelegation, error) {
 	event := new(StakingModuleCancelUnbondingDelegation)
 	if err := _StakingModule.contract.UnpackLog(event, "CancelUnbondingDelegation", log); err != nil {
@@ -921,8 +934,9 @@ type StakingModuleCreateValidator struct {
 
 // FilterCreateValidator is a free log retrieval operation binding the contract event 0x2bc39078c6a3394560520acda6eedb30ee0e6a2cf247ebf0857d3f3e11bd69e8.
 //
-// Solidity: event CreateValidator(address indexed validator, (uint256,string)[] amount).
+// Solidity: event CreateValidator(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) FilterCreateValidator(opts *bind.FilterOpts, validator []common.Address) (*StakingModuleCreateValidatorIterator, error) {
+
 	var validatorRule []interface{}
 	for _, validatorItem := range validator {
 		validatorRule = append(validatorRule, validatorItem)
@@ -937,8 +951,9 @@ func (_StakingModule *StakingModuleFilterer) FilterCreateValidator(opts *bind.Fi
 
 // WatchCreateValidator is a free log subscription operation binding the contract event 0x2bc39078c6a3394560520acda6eedb30ee0e6a2cf247ebf0857d3f3e11bd69e8.
 //
-// Solidity: event CreateValidator(address indexed validator, (uint256,string)[] amount).
+// Solidity: event CreateValidator(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) WatchCreateValidator(opts *bind.WatchOpts, sink chan<- *StakingModuleCreateValidator, validator []common.Address) (event.Subscription, error) {
+
 	var validatorRule []interface{}
 	for _, validatorItem := range validator {
 		validatorRule = append(validatorRule, validatorItem)
@@ -978,7 +993,7 @@ func (_StakingModule *StakingModuleFilterer) WatchCreateValidator(opts *bind.Wat
 
 // ParseCreateValidator is a log parse operation binding the contract event 0x2bc39078c6a3394560520acda6eedb30ee0e6a2cf247ebf0857d3f3e11bd69e8.
 //
-// Solidity: event CreateValidator(address indexed validator, (uint256,string)[] amount).
+// Solidity: event CreateValidator(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) ParseCreateValidator(log types.Log) (*StakingModuleCreateValidator, error) {
 	event := new(StakingModuleCreateValidator)
 	if err := _StakingModule.contract.UnpackLog(event, "CreateValidator", log); err != nil {
@@ -1064,8 +1079,9 @@ type StakingModuleDelegate struct {
 
 // FilterDelegate is a free log retrieval operation binding the contract event 0x86d06596b16cc784c8990ddf4c3e195fd968c238f5999435057d48c77ba49f2f.
 //
-// Solidity: event Delegate(address indexed validator, (uint256,string)[] amount).
+// Solidity: event Delegate(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) FilterDelegate(opts *bind.FilterOpts, validator []common.Address) (*StakingModuleDelegateIterator, error) {
+
 	var validatorRule []interface{}
 	for _, validatorItem := range validator {
 		validatorRule = append(validatorRule, validatorItem)
@@ -1080,8 +1096,9 @@ func (_StakingModule *StakingModuleFilterer) FilterDelegate(opts *bind.FilterOpt
 
 // WatchDelegate is a free log subscription operation binding the contract event 0x86d06596b16cc784c8990ddf4c3e195fd968c238f5999435057d48c77ba49f2f.
 //
-// Solidity: event Delegate(address indexed validator, (uint256,string)[] amount).
+// Solidity: event Delegate(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) WatchDelegate(opts *bind.WatchOpts, sink chan<- *StakingModuleDelegate, validator []common.Address) (event.Subscription, error) {
+
 	var validatorRule []interface{}
 	for _, validatorItem := range validator {
 		validatorRule = append(validatorRule, validatorItem)
@@ -1121,7 +1138,7 @@ func (_StakingModule *StakingModuleFilterer) WatchDelegate(opts *bind.WatchOpts,
 
 // ParseDelegate is a log parse operation binding the contract event 0x86d06596b16cc784c8990ddf4c3e195fd968c238f5999435057d48c77ba49f2f.
 //
-// Solidity: event Delegate(address indexed validator, (uint256,string)[] amount).
+// Solidity: event Delegate(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) ParseDelegate(log types.Log) (*StakingModuleDelegate, error) {
 	event := new(StakingModuleDelegate)
 	if err := _StakingModule.contract.UnpackLog(event, "Delegate", log); err != nil {
@@ -1208,8 +1225,9 @@ type StakingModuleRedelegate struct {
 
 // FilterRedelegate is a free log retrieval operation binding the contract event 0xe723c90c78f428142cef6e47c9395b54bab8137eaaa44f34a1edbf930114c1eb.
 //
-// Solidity: event Redelegate(address indexed sourceValidator, address indexed destinationValidator, (uint256,string)[] amount).
+// Solidity: event Redelegate(address indexed sourceValidator, address indexed destinationValidator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) FilterRedelegate(opts *bind.FilterOpts, sourceValidator []common.Address, destinationValidator []common.Address) (*StakingModuleRedelegateIterator, error) {
+
 	var sourceValidatorRule []interface{}
 	for _, sourceValidatorItem := range sourceValidator {
 		sourceValidatorRule = append(sourceValidatorRule, sourceValidatorItem)
@@ -1228,8 +1246,9 @@ func (_StakingModule *StakingModuleFilterer) FilterRedelegate(opts *bind.FilterO
 
 // WatchRedelegate is a free log subscription operation binding the contract event 0xe723c90c78f428142cef6e47c9395b54bab8137eaaa44f34a1edbf930114c1eb.
 //
-// Solidity: event Redelegate(address indexed sourceValidator, address indexed destinationValidator, (uint256,string)[] amount).
+// Solidity: event Redelegate(address indexed sourceValidator, address indexed destinationValidator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) WatchRedelegate(opts *bind.WatchOpts, sink chan<- *StakingModuleRedelegate, sourceValidator []common.Address, destinationValidator []common.Address) (event.Subscription, error) {
+
 	var sourceValidatorRule []interface{}
 	for _, sourceValidatorItem := range sourceValidator {
 		sourceValidatorRule = append(sourceValidatorRule, sourceValidatorItem)
@@ -1273,7 +1292,7 @@ func (_StakingModule *StakingModuleFilterer) WatchRedelegate(opts *bind.WatchOpt
 
 // ParseRedelegate is a log parse operation binding the contract event 0xe723c90c78f428142cef6e47c9395b54bab8137eaaa44f34a1edbf930114c1eb.
 //
-// Solidity: event Redelegate(address indexed sourceValidator, address indexed destinationValidator, (uint256,string)[] amount).
+// Solidity: event Redelegate(address indexed sourceValidator, address indexed destinationValidator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) ParseRedelegate(log types.Log) (*StakingModuleRedelegate, error) {
 	event := new(StakingModuleRedelegate)
 	if err := _StakingModule.contract.UnpackLog(event, "Redelegate", log); err != nil {
@@ -1359,8 +1378,9 @@ type StakingModuleUnbond struct {
 
 // FilterUnbond is a free log retrieval operation binding the contract event 0x9b3dc86ff4188cb66e4fbacecb81f0fa1648e8fde176887bdfedafb075f5bb3e.
 //
-// Solidity: event Unbond(address indexed validator, (uint256,string)[] amount).
+// Solidity: event Unbond(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) FilterUnbond(opts *bind.FilterOpts, validator []common.Address) (*StakingModuleUnbondIterator, error) {
+
 	var validatorRule []interface{}
 	for _, validatorItem := range validator {
 		validatorRule = append(validatorRule, validatorItem)
@@ -1375,8 +1395,9 @@ func (_StakingModule *StakingModuleFilterer) FilterUnbond(opts *bind.FilterOpts,
 
 // WatchUnbond is a free log subscription operation binding the contract event 0x9b3dc86ff4188cb66e4fbacecb81f0fa1648e8fde176887bdfedafb075f5bb3e.
 //
-// Solidity: event Unbond(address indexed validator, (uint256,string)[] amount).
+// Solidity: event Unbond(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) WatchUnbond(opts *bind.WatchOpts, sink chan<- *StakingModuleUnbond, validator []common.Address) (event.Subscription, error) {
+
 	var validatorRule []interface{}
 	for _, validatorItem := range validator {
 		validatorRule = append(validatorRule, validatorItem)
@@ -1416,7 +1437,7 @@ func (_StakingModule *StakingModuleFilterer) WatchUnbond(opts *bind.WatchOpts, s
 
 // ParseUnbond is a log parse operation binding the contract event 0x9b3dc86ff4188cb66e4fbacecb81f0fa1648e8fde176887bdfedafb075f5bb3e.
 //
-// Solidity: event Unbond(address indexed validator, (uint256,string)[] amount).
+// Solidity: event Unbond(address indexed validator, (uint256,string)[] amount)
 func (_StakingModule *StakingModuleFilterer) ParseUnbond(log types.Log) (*StakingModuleUnbond, error) {
 	event := new(StakingModuleUnbond)
 	if err := _StakingModule.contract.UnpackLog(event, "Unbond", log); err != nil {

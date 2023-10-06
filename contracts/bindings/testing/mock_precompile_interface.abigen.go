@@ -188,126 +188,126 @@ func (_MockPrecompile *MockPrecompileTransactorRaw) Transact(opts *bind.Transact
 
 // ContractFunc is a paid mutator transaction binding the contract method 0xc7dda0b9.
 //
-// Solidity: function contractFunc(address addr) returns(uint256 ans).
+// Solidity: function contractFunc(address addr) returns(uint256 ans)
 func (_MockPrecompile *MockPrecompileTransactor) ContractFunc(opts *bind.TransactOpts, addr common.Address) (*types.Transaction, error) {
 	return _MockPrecompile.contract.Transact(opts, "contractFunc", addr)
 }
 
 // ContractFunc is a paid mutator transaction binding the contract method 0xc7dda0b9.
 //
-// Solidity: function contractFunc(address addr) returns(uint256 ans).
+// Solidity: function contractFunc(address addr) returns(uint256 ans)
 func (_MockPrecompile *MockPrecompileSession) ContractFunc(addr common.Address) (*types.Transaction, error) {
 	return _MockPrecompile.Contract.ContractFunc(&_MockPrecompile.TransactOpts, addr)
 }
 
 // ContractFunc is a paid mutator transaction binding the contract method 0xc7dda0b9.
 //
-// Solidity: function contractFunc(address addr) returns(uint256 ans).
+// Solidity: function contractFunc(address addr) returns(uint256 ans)
 func (_MockPrecompile *MockPrecompileTransactorSession) ContractFunc(addr common.Address) (*types.Transaction, error) {
 	return _MockPrecompile.Contract.ContractFunc(&_MockPrecompile.TransactOpts, addr)
 }
 
 // ContractFuncStr is a paid mutator transaction binding the contract method 0x04bb5393.
 //
-// Solidity: function contractFuncStr(string str) returns(bool).
+// Solidity: function contractFuncStr(string str) returns(bool)
 func (_MockPrecompile *MockPrecompileTransactor) ContractFuncStr(opts *bind.TransactOpts, str string) (*types.Transaction, error) {
 	return _MockPrecompile.contract.Transact(opts, "contractFuncStr", str)
 }
 
 // ContractFuncStr is a paid mutator transaction binding the contract method 0x04bb5393.
 //
-// Solidity: function contractFuncStr(string str) returns(bool).
+// Solidity: function contractFuncStr(string str) returns(bool)
 func (_MockPrecompile *MockPrecompileSession) ContractFuncStr(str string) (*types.Transaction, error) {
 	return _MockPrecompile.Contract.ContractFuncStr(&_MockPrecompile.TransactOpts, str)
 }
 
 // ContractFuncStr is a paid mutator transaction binding the contract method 0x04bb5393.
 //
-// Solidity: function contractFuncStr(string str) returns(bool).
+// Solidity: function contractFuncStr(string str) returns(bool)
 func (_MockPrecompile *MockPrecompileTransactorSession) ContractFuncStr(str string) (*types.Transaction, error) {
 	return _MockPrecompile.Contract.ContractFuncStr(&_MockPrecompile.TransactOpts, str)
 }
 
 // GetOutput is a paid mutator transaction binding the contract method 0xb5c11fc2.
 //
-// Solidity: function getOutput(string str) returns((uint256,string)[]).
+// Solidity: function getOutput(string str) returns((uint256,string)[])
 func (_MockPrecompile *MockPrecompileTransactor) GetOutput(opts *bind.TransactOpts, str string) (*types.Transaction, error) {
 	return _MockPrecompile.contract.Transact(opts, "getOutput", str)
 }
 
 // GetOutput is a paid mutator transaction binding the contract method 0xb5c11fc2.
 //
-// Solidity: function getOutput(string str) returns((uint256,string)[]).
+// Solidity: function getOutput(string str) returns((uint256,string)[])
 func (_MockPrecompile *MockPrecompileSession) GetOutput(str string) (*types.Transaction, error) {
 	return _MockPrecompile.Contract.GetOutput(&_MockPrecompile.TransactOpts, str)
 }
 
 // GetOutput is a paid mutator transaction binding the contract method 0xb5c11fc2.
 //
-// Solidity: function getOutput(string str) returns((uint256,string)[]).
+// Solidity: function getOutput(string str) returns((uint256,string)[])
 func (_MockPrecompile *MockPrecompileTransactorSession) GetOutput(str string) (*types.Transaction, error) {
 	return _MockPrecompile.Contract.GetOutput(&_MockPrecompile.TransactOpts, str)
 }
 
 // GetOutputPartial is a paid mutator transaction binding the contract method 0x7acaaeb9.
 //
-// Solidity: function getOutputPartial() returns((uint256,string)).
+// Solidity: function getOutputPartial() returns((uint256,string))
 func (_MockPrecompile *MockPrecompileTransactor) GetOutputPartial(opts *bind.TransactOpts) (*types.Transaction, error) {
 	return _MockPrecompile.contract.Transact(opts, "getOutputPartial")
 }
 
 // GetOutputPartial is a paid mutator transaction binding the contract method 0x7acaaeb9.
 //
-// Solidity: function getOutputPartial() returns((uint256,string)).
+// Solidity: function getOutputPartial() returns((uint256,string))
 func (_MockPrecompile *MockPrecompileSession) GetOutputPartial() (*types.Transaction, error) {
 	return _MockPrecompile.Contract.GetOutputPartial(&_MockPrecompile.TransactOpts)
 }
 
 // GetOutputPartial is a paid mutator transaction binding the contract method 0x7acaaeb9.
 //
-// Solidity: function getOutputPartial() returns((uint256,string)).
+// Solidity: function getOutputPartial() returns((uint256,string))
 func (_MockPrecompile *MockPrecompileTransactorSession) GetOutputPartial() (*types.Transaction, error) {
 	return _MockPrecompile.Contract.GetOutputPartial(&_MockPrecompile.TransactOpts)
 }
 
 // OverloadedFunc is a paid mutator transaction binding the contract method 0x1e61d5aa.
 //
-// Solidity: function overloadedFunc() returns(uint256 ans).
+// Solidity: function overloadedFunc() returns(uint256 ans)
 func (_MockPrecompile *MockPrecompileTransactor) OverloadedFunc(opts *bind.TransactOpts) (*types.Transaction, error) {
 	return _MockPrecompile.contract.Transact(opts, "overloadedFunc")
 }
 
 // OverloadedFunc is a paid mutator transaction binding the contract method 0x1e61d5aa.
 //
-// Solidity: function overloadedFunc() returns(uint256 ans).
+// Solidity: function overloadedFunc() returns(uint256 ans)
 func (_MockPrecompile *MockPrecompileSession) OverloadedFunc() (*types.Transaction, error) {
 	return _MockPrecompile.Contract.OverloadedFunc(&_MockPrecompile.TransactOpts)
 }
 
 // OverloadedFunc is a paid mutator transaction binding the contract method 0x1e61d5aa.
 //
-// Solidity: function overloadedFunc() returns(uint256 ans).
+// Solidity: function overloadedFunc() returns(uint256 ans)
 func (_MockPrecompile *MockPrecompileTransactorSession) OverloadedFunc() (*types.Transaction, error) {
 	return _MockPrecompile.Contract.OverloadedFunc(&_MockPrecompile.TransactOpts)
 }
 
 // OverloadedFunc0 is a paid mutator transaction binding the contract method 0x5482a42b.
 //
-// Solidity: function overloadedFunc(uint256 a) returns(uint256 ans).
+// Solidity: function overloadedFunc(uint256 a) returns(uint256 ans)
 func (_MockPrecompile *MockPrecompileTransactor) OverloadedFunc0(opts *bind.TransactOpts, a *big.Int) (*types.Transaction, error) {
 	return _MockPrecompile.contract.Transact(opts, "overloadedFunc0", a)
 }
 
 // OverloadedFunc0 is a paid mutator transaction binding the contract method 0x5482a42b.
 //
-// Solidity: function overloadedFunc(uint256 a) returns(uint256 ans).
+// Solidity: function overloadedFunc(uint256 a) returns(uint256 ans)
 func (_MockPrecompile *MockPrecompileSession) OverloadedFunc0(a *big.Int) (*types.Transaction, error) {
 	return _MockPrecompile.Contract.OverloadedFunc0(&_MockPrecompile.TransactOpts, a)
 }
 
 // OverloadedFunc0 is a paid mutator transaction binding the contract method 0x5482a42b.
 //
-// Solidity: function overloadedFunc(uint256 a) returns(uint256 ans).
+// Solidity: function overloadedFunc(uint256 a) returns(uint256 ans)
 func (_MockPrecompile *MockPrecompileTransactorSession) OverloadedFunc0(a *big.Int) (*types.Transaction, error) {
 	return _MockPrecompile.Contract.OverloadedFunc0(&_MockPrecompile.TransactOpts, a)
 }

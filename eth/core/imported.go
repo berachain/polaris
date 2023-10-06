@@ -33,8 +33,6 @@ type (
 	ChainHeadEvent = core.ChainHeadEvent
 	// ChainSideEvent is posted when a new side block is added to the chain.
 	ChainSideEvent = core.ChainSideEvent
-	// ExecutionResult is the result of executing a transaction.
-	ExecutionResult = core.ExecutionResult
 	// GasPool is a pool of gas that can be consumed by transactions.
 	GasPool = core.GasPool
 	// NewTxsEvent is posted when a batch of transactions enter the transaction pool.
@@ -51,13 +49,6 @@ var (
 	NewEVMTxContext = core.NewEVMTxContext
 	// NewEVMBlockContext creates a new block context for a given header.
 	NewEVMBlockContext = core.NewEVMBlockContext
-	// GetHashFn returns a GetHashFunc.
-	GetHashFn = core.GetHashFn
-	// TransactionToMessage converts a transaction to a message.
-	TransactionToMessage = core.TransactionToMessage
-
-	Transfer    = core.Transfer
-	CanTransfer = core.CanTransfer
 )
 
 var (

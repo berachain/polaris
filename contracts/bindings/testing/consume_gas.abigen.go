@@ -32,7 +32,7 @@ var (
 // ConsumeGasMetaData contains all meta data concerning the ConsumeGas contract.
 var ConsumeGasMetaData = &bind.MetaData{
 	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"gasUsed\",\"type\":\"uint256\"}],\"name\":\"GasConsumed\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"targetGas\",\"type\":\"uint256\"}],\"name\":\"consumeGas\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
-	Bin: "0x608060405234801561000f575f80fd5b506101cb8061001d5f395ff3fe608060405234801561000f575f80fd5b5060043610610029575f3560e01c8063a329e8de1461002d575b5f80fd5b610047600480360381019061004291906100e2565b610049565b005b5f5a90505b818161005a919061013a565b5a1161004e575f5a8261006d919061013a565b90507f1a2dc18f5a2dabdf3809a83ec652290b81d97d915bf5561908090bad91deffc48160405161009e919061017c565b60405180910390a1505050565b5f80fd5b5f819050919050565b6100c1816100af565b81146100cb575f80fd5b50565b5f813590506100dc816100b8565b92915050565b5f602082840312156100f7576100f66100ab565b5b5f610104848285016100ce565b91505092915050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601160045260245ffd5b5f610144826100af565b915061014f836100af565b92508282039050818111156101675761016661010d565b5b92915050565b610176816100af565b82525050565b5f60208201905061018f5f83018461016d565b9291505056fea2646970667358221220115db31d6671601a577bae4be2d7cb75bdc4dbfd5e7b3b99a7e00c4560d03a2d64736f6c63430008150033",
+	Bin: "0x608060405234801561000f575f80fd5b506101cb8061001d5f395ff3fe608060405234801561000f575f80fd5b5060043610610029575f3560e01c8063a329e8de1461002d575b5f80fd5b610047600480360381019061004291906100e2565b610049565b005b5f5a90505b818161005a919061013a565b5a1161004e575f5a8261006d919061013a565b90507f1a2dc18f5a2dabdf3809a83ec652290b81d97d915bf5561908090bad91deffc48160405161009e919061017c565b60405180910390a1505050565b5f80fd5b5f819050919050565b6100c1816100af565b81146100cb575f80fd5b50565b5f813590506100dc816100b8565b92915050565b5f602082840312156100f7576100f66100ab565b5b5f610104848285016100ce565b91505092915050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601160045260245ffd5b5f610144826100af565b915061014f836100af565b92508282039050818111156101675761016661010d565b5b92915050565b610176816100af565b82525050565b5f60208201905061018f5f83018461016d565b9291505056fea2646970667358221220d55ff6e47540c6013ff6f852d1f50dafdad161b2c9b5cc3e82260979ddd5d45864736f6c63430008150033",
 }
 
 // ConsumeGasABI is the input ABI used to generate the binding from.
@@ -204,21 +204,21 @@ func (_ConsumeGas *ConsumeGasTransactorRaw) Transact(opts *bind.TransactOpts, me
 
 // ConsumeGas is a paid mutator transaction binding the contract method 0xa329e8de.
 //
-// Solidity: function consumeGas(uint256 targetGas) returns().
+// Solidity: function consumeGas(uint256 targetGas) returns()
 func (_ConsumeGas *ConsumeGasTransactor) ConsumeGas(opts *bind.TransactOpts, targetGas *big.Int) (*types.Transaction, error) {
 	return _ConsumeGas.contract.Transact(opts, "consumeGas", targetGas)
 }
 
 // ConsumeGas is a paid mutator transaction binding the contract method 0xa329e8de.
 //
-// Solidity: function consumeGas(uint256 targetGas) returns().
+// Solidity: function consumeGas(uint256 targetGas) returns()
 func (_ConsumeGas *ConsumeGasSession) ConsumeGas(targetGas *big.Int) (*types.Transaction, error) {
 	return _ConsumeGas.Contract.ConsumeGas(&_ConsumeGas.TransactOpts, targetGas)
 }
 
 // ConsumeGas is a paid mutator transaction binding the contract method 0xa329e8de.
 //
-// Solidity: function consumeGas(uint256 targetGas) returns().
+// Solidity: function consumeGas(uint256 targetGas) returns()
 func (_ConsumeGas *ConsumeGasTransactorSession) ConsumeGas(targetGas *big.Int) (*types.Transaction, error) {
 	return _ConsumeGas.Contract.ConsumeGas(&_ConsumeGas.TransactOpts, targetGas)
 }
@@ -298,8 +298,9 @@ type ConsumeGasGasConsumed struct {
 
 // FilterGasConsumed is a free log retrieval operation binding the contract event 0x1a2dc18f5a2dabdf3809a83ec652290b81d97d915bf5561908090bad91deffc4.
 //
-// Solidity: event GasConsumed(uint256 gasUsed).
+// Solidity: event GasConsumed(uint256 gasUsed)
 func (_ConsumeGas *ConsumeGasFilterer) FilterGasConsumed(opts *bind.FilterOpts) (*ConsumeGasGasConsumedIterator, error) {
+
 	logs, sub, err := _ConsumeGas.contract.FilterLogs(opts, "GasConsumed")
 	if err != nil {
 		return nil, err
@@ -309,8 +310,9 @@ func (_ConsumeGas *ConsumeGasFilterer) FilterGasConsumed(opts *bind.FilterOpts) 
 
 // WatchGasConsumed is a free log subscription operation binding the contract event 0x1a2dc18f5a2dabdf3809a83ec652290b81d97d915bf5561908090bad91deffc4.
 //
-// Solidity: event GasConsumed(uint256 gasUsed).
+// Solidity: event GasConsumed(uint256 gasUsed)
 func (_ConsumeGas *ConsumeGasFilterer) WatchGasConsumed(opts *bind.WatchOpts, sink chan<- *ConsumeGasGasConsumed) (event.Subscription, error) {
+
 	logs, sub, err := _ConsumeGas.contract.WatchLogs(opts, "GasConsumed")
 	if err != nil {
 		return nil, err
@@ -345,7 +347,7 @@ func (_ConsumeGas *ConsumeGasFilterer) WatchGasConsumed(opts *bind.WatchOpts, si
 
 // ParseGasConsumed is a log parse operation binding the contract event 0x1a2dc18f5a2dabdf3809a83ec652290b81d97d915bf5561908090bad91deffc4.
 //
-// Solidity: event GasConsumed(uint256 gasUsed).
+// Solidity: event GasConsumed(uint256 gasUsed)
 func (_ConsumeGas *ConsumeGasFilterer) ParseGasConsumed(log types.Log) (*ConsumeGasGasConsumed, error) {
 	event := new(ConsumeGasGasConsumed)
 	if err := _ConsumeGas.contract.UnpackLog(event, "GasConsumed", log); err != nil {
