@@ -209,7 +209,7 @@ func NewPolarisApp(
 		ante.HandlerOptions{
 			AccountKeeper:   app.AccountKeeper,
 			BankKeeper:      app.BankKeeper,
-			SignModeHandler: app.TxConfig().SignModeHandler(),
+			SignModeHandler: app.txConfig.SignModeHandler(),
 			FeegrantKeeper:  nil,
 			SigGasConsumer:  evmante.SigVerificationGasConsumer,
 		},
@@ -250,36 +250,6 @@ func (app *SimApp) Name() string { return app.BaseApp.Name() }
 // for modules to register their own custom testing types.
 func (app *SimApp) LegacyAmino() *codec.LegacyAmino {
 	return app.legacyAmino
-}
-
-// AppCodec returns SimApp's app codec.
-//
-// NOTE: This is solely to be used for testing purposes as it may be desirable
-// for modules to register their own custom testing types.
-func (app *SimApp) AppCodec() codec.Codec {
-	return app.appCodec
-}
-
-// InterfaceRegistry returns SimApp's InterfaceRegistry.
-func (app *SimApp) InterfaceRegistry() codectypes.InterfaceRegistry {
-	return app.interfaceRegistry
-}
-
-// TxConfig returns SimApp's TxConfig.
-func (app *SimApp) TxConfig() client.TxConfig {
-	return app.txConfig
-}
-
-// GetKey returns the KVStoreKey for the provided store key.
-//
-// NOTE: This is solely to be used for testing purposes.
-func (app *SimApp) GetKey(storeKey string) *storetypes.KVStoreKey {
-	sk := app.UnsafeFindStoreKey(storeKey)
-	kvStoreKey, ok := sk.(*storetypes.KVStoreKey)
-	if !ok {
-		return nil
-	}
-	return kvStoreKey
 }
 
 func (app *SimApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
@@ -327,34 +297,5 @@ func (app *SimApp) Close() error {
 	if pl := app.EVMKeeper.Polaris(); pl != nil {
 		return pl.Close()
 	}
-	return nil
-}
-
-// GetMaccPerms returns a copy of the module account permissions
-//
-// NOTE: This is solely to be used for testing purposes.
-func GetMaccPerms() map[string][]string {
-	dup := make(map[string][]string)
-	for _, perms := range moduleAccPerms {
-		dup[perms.Account] = perms.Permissions
-	}
-
-	return dup
-}
-
-// BlockedAddresses returns all the app's blocked account addresses.
-func BlockedAddresses() map[string]bool {
-	result := make(map[string]bool)
-
-	if len(blockAccAddrs) > 0 {
-		for _, addr := range blockAccAddrs {
-			result[addr] = true
-		}
-	} else {
-		for addr := range GetMaccPerms() {
-			result[addr] = true
-		}
-	}
-
-	return result
+	return app.BaseApp.Close()
 }
