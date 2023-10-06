@@ -4,12 +4,11 @@
 package mock
 
 import (
-	"math/big"
-	"sync"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/holiman/uint256"
+	"math/big"
+	"sync"
 )
 
 // PrecompileEVMMock is a mock implementation of vm.PrecompileEVM.

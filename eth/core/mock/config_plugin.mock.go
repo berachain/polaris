@@ -5,10 +5,9 @@ package mock
 
 import (
 	"context"
-	"sync"
-
 	"github.com/ethereum/go-ethereum/params"
 	"pkg.berachain.dev/polaris/eth/core"
+	"sync"
 )
 
 // Ensure, that ConfigurationPluginMock does implement core.ConfigurationPlugin.

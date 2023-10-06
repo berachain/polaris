@@ -5,14 +5,13 @@ package mock
 
 import (
 	"context"
-	"math/big"
-	"sync"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
+	"math/big"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"sync"
 )
 
 // Ensure, that PolarStateDBMock does implement vm.PolarStateDB.

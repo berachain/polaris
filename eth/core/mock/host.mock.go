@@ -4,10 +4,9 @@
 package mock
 
 import (
-	"sync"
-
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"sync"
 )
 
 // Ensure, that PolarisHostChainMock does implement core.PolarisHostChain.

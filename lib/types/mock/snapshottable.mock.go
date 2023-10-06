@@ -4,9 +4,8 @@
 package mock
 
 import (
-	"sync"
-
 	"pkg.berachain.dev/polaris/lib/types"
+	"sync"
 )
 
 // Ensure, that SnapshottableMock does implement types.Snapshottable.

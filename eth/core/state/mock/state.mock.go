@@ -5,11 +5,10 @@ package mock
 
 import (
 	"context"
-	"math/big"
-	"sync"
-
 	"github.com/ethereum/go-ethereum/common"
+	"math/big"
 	"pkg.berachain.dev/polaris/eth/core/state"
+	"sync"
 )
 
 // PluginMock is a mock implementation of state.Plugin.
