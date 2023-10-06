@@ -80,7 +80,7 @@ var _ = Describe("", func() {
 
 	When("", func() {
 		It("should handle 1 tx", func() {
-			serializer.On("TxToSdkTxBytes", mock.Anything).Return([]byte{123}, nil).Once()
+			serializer.On("SerializeToBytes", mock.Anything).Return([]byte{123}, nil).Once()
 			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Once()
 
 			h.txsCh <- core.NewTxsEvent{
@@ -89,7 +89,7 @@ var _ = Describe("", func() {
 		})
 
 		It("should handle multiple tx", func() {
-			serializer.On("TxToSdkTxBytes", mock.Anything).Return([]byte{123}, nil).Twice()
+			serializer.On("SerializeToBytes", mock.Anything).Return([]byte{123}, nil).Twice()
 			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Twice()
 
 			h.txsCh <- core.NewTxsEvent{Txs: []*coretypes.Transaction{
