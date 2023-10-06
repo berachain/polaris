@@ -58,7 +58,7 @@ func PrecompilesToInject(
 				app.AccountKeeper,
 				govkeeper.NewMsgServerImpl(app.GovKeeper),
 				govkeeper.NewQueryServer(app.GovKeeper),
-				app.InterfaceRegistry(),
+				app.interfaceRegistry,
 			),
 			stakingprecompile.NewPrecompileContract(app.AccountKeeper, app.StakingKeeper),
 		}...)
