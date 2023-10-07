@@ -72,7 +72,7 @@ var _ = Describe("Bank", func() {
 	})
 
 	It("should call functions on the precompile directly", func() {
-		numberOfDenoms := 8
+		numberOfDenoms := 7
 		coinsToBeSent := []bindings.CosmosCoin{
 			{
 				Denom:  denom,
