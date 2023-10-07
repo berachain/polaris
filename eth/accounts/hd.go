@@ -20,7 +20,9 @@
 
 package accounts
 
-import "github.com/ethereum/go-ethereum/accounts"
+import (
+	"github.com/ethereum/go-ethereum/accounts"
+)
 
 var (
 	// Bip44CoinType was defined by EIP-84 (https://github.com/ethereum/EIPs/issues/84).
