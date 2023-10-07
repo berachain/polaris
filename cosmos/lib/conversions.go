@@ -261,7 +261,7 @@ func SdkProposalToGovProposal(
 	}
 
 	if proposal.SubmitTime != nil {
-		output.DepositEndTime = uint64(proposal.DepositEndTime.Unix())
+		output.SubmitTime = uint64(proposal.SubmitTime.Unix())
 	}
 
 	if proposal.DepositEndTime != nil {
