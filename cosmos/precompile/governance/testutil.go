@@ -80,7 +80,7 @@ func setupGovTest(ctrl *gomock.Controller, caller sdk.AccAddress) (
 	msr := baseapp.NewMsgServiceRouter()
 
 	stakingParams := stakingtypes.DefaultParams()
-	stakingParams.BondDenom = "abgt"
+	stakingParams.BondDenom = "abera"
 	err := sk.SetParams(ctx, stakingParams)
 	if err != nil {
 		panic(err)

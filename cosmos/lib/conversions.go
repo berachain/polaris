@@ -242,7 +242,7 @@ func SdkProposalToGovProposal(
 		return governance.IGovernanceModuleProposal{}, err
 	}
 
-	return governance.IGovernanceModuleProposal{
+	output := governance.IGovernanceModuleProposal{
 		Id:       proposal.Id,
 		Messages: messages,
 		Status:   int32(proposal.Status), // Status is an alias for int32.
@@ -252,16 +252,31 @@ func SdkProposalToGovProposal(
 			NoCount:         proposal.FinalTallyResult.NoCount,
 			NoWithVetoCount: proposal.FinalTallyResult.NoWithVetoCount,
 		},
-		SubmitTime:      uint64(proposal.SubmitTime.Unix()),
-		DepositEndTime:  uint64(proposal.DepositEndTime.Unix()),
-		VotingStartTime: uint64(proposal.VotingStartTime.Unix()),
-		VotingEndTime:   uint64(proposal.VotingEndTime.Unix()),
-		TotalDeposit:    totalDeposit,
-		Metadata:        proposal.Metadata,
-		Title:           proposal.Title,
-		Summary:         proposal.Summary,
-		Proposer:        proposerAddr,
-	}, nil
+
+		TotalDeposit: totalDeposit,
+		Metadata:     proposal.Metadata,
+		Title:        proposal.Title,
+		Summary:      proposal.Summary,
+		Proposer:     proposerAddr,
+	}
+
+	if proposal.SubmitTime != nil {
+		output.DepositEndTime = uint64(proposal.DepositEndTime.Unix())
+	}
+
+	if proposal.DepositEndTime != nil {
+		output.DepositEndTime = uint64(proposal.DepositEndTime.Unix())
+	}
+
+	if proposal.VotingStartTime != nil {
+		output.VotingStartTime = uint64(proposal.VotingStartTime.Unix())
+	}
+
+	if proposal.VotingEndTime != nil {
+		output.VotingEndTime = uint64(proposal.VotingEndTime.Unix())
+	}
+
+	return output, nil
 }
 
 // ConvertMsgSubmitProposalToSdk is a helper function to convert a `MsgSubmitProposal` to the gov

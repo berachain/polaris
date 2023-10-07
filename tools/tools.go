@@ -44,6 +44,5 @@ import (
 	_ "github.com/matryer/moq"
 	_ "github.com/onsi/ginkgo/v2/ginkgo"
 	_ "github.com/securego/gosec/v2/cmd/gosec"
-	_ "github.com/segmentio/golines"
 	_ "github.com/vektra/mockery/v2"
 )

@@ -98,7 +98,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		// Send coins to the wrapper.
 		coins := []bbindings.CosmosCoin{
 			{
-				Denom:  "abgt",
+				Denom:  "abera",
 				Amount: amt,
 			},
 		}
@@ -110,7 +110,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 		// Wrapper submits a proposal.
 		prop = getProposal(wrapperAddr, amt)
 		txr = tf.GenerateTransactOpts("alice")
-		tx, err = wrapper.Submit(txr, getTestProposal(prop), "abgt", amt)
+		tx, err = wrapper.Submit(txr, getTestProposal(prop), "abera", amt)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
@@ -222,7 +222,7 @@ func getProposal(
 		},
 		InitialDeposit: []bindings.CosmosCoin{
 			{
-				Denom:  "abgt",
+				Denom:  "abera",
 				Amount: amount,
 			},
 		},

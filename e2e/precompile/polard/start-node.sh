@@ -66,7 +66,10 @@ done
 # Change parameter token denominations to abera
 jq '.app_state["staking"]["params"]["bond_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state["crisis"]["constant_fee"]["denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+jq '.app_state["gov"]["params"]["min_deposit"][0]["denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS";
+jq '.app_state["gov"]["params"]["min_deposit"][0]["amount"]="1"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS";
+jq '.app_state["gov"]["params"]["expedited_min_deposit"][0]["denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS";
+jq '.app_state["gov"]["params"]["expedited_min_deposit"][0]["amount"]="2"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS";
 jq '.app_state["mint"]["params"]["mint_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.consensus["params"]["block"]["max_gas"]="30000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
@@ -79,14 +82,14 @@ for KEY in "${KEYS[@]}"; do
     polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 done
 
-# alice polar1dgtgps0vxwt90hu6f3cceqypc5k664cz2kml8y
-# bob polar1h08vp7xt40nks7d0mlg47duyv54ewdxryjqtp8
-# charlie polar14nqnr8l8y2se3uu47qtyqehdfccfgwdlsrc04n
+# alice cosmos1dgtgps0vxwt90hu6f3cceqypc5k664czp95ank
+# bob cosmos1h08vp7xt40nks7d0mlg47duyv54ewdxr0p0f44
+# charlie cosmos14nqnr8l8y2se3uu47qtyqehdfccfgwdlmshdpp
 
 # Give alice, bob and charlie some bank tokens.
-polard genesis add-genesis-account polar1dgtgps0vxwt90hu6f3cceqypc5k664cz2kml8y 1000000000000000000abera,1000000000000000000abgt,1000000000000000000asupply,1000000000000000000atoken,12345bAKT,1000000000000000000bATOM,24690bOSMO,1000000000000000000stake  --keyring-backend $KEYRING --home "$HOMEDIR"
-polard genesis add-genesis-account polar1h08vp7xt40nks7d0mlg47duyv54ewdxryjqtp8 100abera,100atoken,1000000000000000000stake --keyring-backend $KEYRING --home "$HOMEDIR"
-polard genesis add-genesis-account polar14nqnr8l8y2se3uu47qtyqehdfccfgwdlsrc04n 1000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+polard genesis add-genesis-account cosmos1dgtgps0vxwt90hu6f3cceqypc5k664czp95ank 1000000000000000000abera,1000000000000000000asupply,1000000000000000000atoken,12345bAKT,1000000000000000000bATOM,24690bOSMO,1000000000000000000stake  --keyring-backend $KEYRING --home "$HOMEDIR"
+polard genesis add-genesis-account cosmos1h08vp7xt40nks7d0mlg47duyv54ewdxr0p0f44 100abera,100atoken,1000000000000000000stake --keyring-backend $KEYRING --home "$HOMEDIR"
+polard genesis add-genesis-account cosmos14nqnr8l8y2se3uu47qtyqehdfccfgwdlmshdpp 1000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 
 # Give alice, bob and charlie some evm tokens.
 jq '.app_state["evm"]["alloc"]["6A1680c1Ec339657df9a4c718C8081C52daD5702"]["balance"]="0x4563918244f40000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
