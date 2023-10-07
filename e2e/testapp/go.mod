@@ -15,7 +15,7 @@ require (
 	cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/upgrade v0.0.0-20230915171831-2196edacb99d
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20231004235344-d975586a7cdd
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20231007233125-8af23216be65
 	pkg.berachain.dev/polaris/eth v0.0.0-20230928142528-23cc5f141354
 )
 
