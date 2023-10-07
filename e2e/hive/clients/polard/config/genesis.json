@@ -1,7 +1,7 @@
 {
   "app_name": "simd",
-  "app_version": "0.0.1-142-g5a93af91",
-  "genesis_time": "2023-10-07T20:40:01.361547Z",
+  "app_version": "0.0.1-143-g2b1aad6c",
+  "genesis_time": "2023-10-07T21:52:47.079407Z",
   "chain_id": "polaris-2061",
   "initial_height": 1,
   "app_hash": null,
@@ -17,28 +17,28 @@
       "accounts": [
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "polar102gw5uchsrgkuwxmu9m2md3u3k3x32987kk98a",
+          "address": "cosmos13zcakq5wcyr2lhmg4ptnslfdfzrql4ql5sy05m",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "polar1g5y564mkmlk3gjqeu2f0h7wep2dlm2ns5wmczy",
+          "address": "cosmos1ey3nyhcvrg74fggs4l5ct9e72vru6zqxxd05x5",
           "pub_key": null,
           "account_number": "1",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "polar16a0t8am49dwxf35g8eq4elhax84y4h5pcf4tfd",
+          "address": "cosmos1vxd6z6xnuany8w85wvtwk80sf2mqq7kz5uda04",
           "pub_key": null,
           "account_number": "2",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "polar1yrene6g2zwjttemf0c65fscg8w8c55w5vhc9hd",
+          "address": "cosmos1yrene6g2zwjttemf0c65fscg8w8c55w58yh8rl",
           "pub_key": null,
           "account_number": "3",
           "sequence": "0"
@@ -52,7 +52,7 @@
       },
       "balances": [
         {
-          "address": "polar1yrene6g2zwjttemf0c65fscg8w8c55w5vhc9hd",
+          "address": "cosmos1yrene6g2zwjttemf0c65fscg8w8c55w58yh8rl",
           "coins": [
             {
               "denom": "abera",
@@ -61,7 +61,7 @@
           ]
         },
         {
-          "address": "polar1g5y564mkmlk3gjqeu2f0h7wep2dlm2ns5wmczy",
+          "address": "cosmos1vxd6z6xnuany8w85wvtwk80sf2mqq7kz5uda04",
           "coins": [
             {
               "denom": "abera",
@@ -70,7 +70,7 @@
           ]
         },
         {
-          "address": "polar102gw5uchsrgkuwxmu9m2md3u3k3x32987kk98a",
+          "address": "cosmos13zcakq5wcyr2lhmg4ptnslfdfzrql4ql5sy05m",
           "coins": [
             {
               "denom": "abera",
@@ -79,7 +79,7 @@
           ]
         },
         {
-          "address": "polar16a0t8am49dwxf35g8eq4elhax84y4h5pcf4tfd",
+          "address": "cosmos1ey3nyhcvrg74fggs4l5ct9e72vru6zqxxd05x5",
           "coins": [
             {
               "denom": "abera",
@@ -168,10 +168,10 @@
                 },
                 "min_self_delegation": "1",
                 "delegator_address": "",
-                "validator_address": "polarvaloper102gw5uchsrgkuwxmu9m2md3u3k3x3298zyxrvj",
+                "validator_address": "cosmosvaloper13zcakq5wcyr2lhmg4ptnslfdfzrql4ql3ys6cg",
                 "pubkey": {
                   "@type": "/cosmos.crypto.ed25519.PubKey",
-                  "key": "UGcqhzb6UgJtyFrX/UwGipE7jR0t+B7ZLM9OVMi8vUM="
+                  "key": "LwHSR856UG6sDdBIgCqtGpBlH53yx67v+6ZNP6vAd3Y="
                 },
                 "value": {
                   "denom": "abera",
@@ -179,7 +179,7 @@
                 }
               }
             ],
-            "memo": "8819d6f9620867c4c21fd09aabac9e5f09413d34@192.168.2.10:26656",
+            "memo": "38a0bcc434b04cb4c7945f45c7c0022f5a57acd2@192.168.2.10:26656",
             "timeout_height": "0",
             "extension_options": [],
             "non_critical_extension_options": []
@@ -189,7 +189,7 @@
               {
                 "public_key": {
                   "@type": "/cosmos.crypto.secp256k1.PubKey",
-                  "key": "AuNifAOefgUQhJpvOww4eEFKtDWxxFSYR3LoWV95ZwYY"
+                  "key": "AyHZXiBwjVyE6puI4xoNdUpTGMi4jmCiaNVDwKzCgjh9"
                 },
                 "mode_info": {
                   "single": {
@@ -208,7 +208,7 @@
             "tip": null
           },
           "signatures": [
-            "2Cbrgbzu1bx0b+FMZ9QStDLMG/ojTJVu68ji3xNAEfkB3+mvDBF3kU61DP8sb1DgQAcMXIy0dGB80J7xKbA0ZA=="
+            "1yYRv6fPB2BeTLxa/wAY1FDBsEeR7nmyWOURVzyf6ahce4NOa6NpxyBDjquMj6nYahmecSbKr23eBLQu1AXqkw=="
           ]
         }
       ]
