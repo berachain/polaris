@@ -56,7 +56,7 @@ proto:
 	@$(MAKE) buf-lint-fix buf-lint proto-build
 
 proto-build:
-	@docker run --rm -v ${CURRENT_DIR}:/workspace --workdir /workspace $(protoImageName):$(protoImageVersion) sh ./cosmos/proto/scripts/proto_generate.sh
+	@docker run --rm -v ${CURRENT_DIR}:/workspace --workdir /workspace $(protoImageName):$(protoImageVersion) sh ./scripts/proto_generate.sh
 
 ###############################################################################
 ###                                 Docker                                  ###
@@ -366,7 +366,7 @@ gosec:
 #     proto     #
 #################
 
-protoDir := "cosmos/proto"
+protoDir := "proto"
 
 buf-install:
 	@echo "--> Installing buf"
