@@ -49,15 +49,6 @@ var _ = Describe("Configuration", func() {
 		Expect(config.GetBech32ConsensusAddrPrefix()).To(Equal(sdk.Bech32PrefixConsAddr))
 		Expect(config.GetBech32ConsensusPubPrefix()).To(Equal(sdk.Bech32PrefixConsPub))
 
-		sgconfig.SetBech32Prefixes(config)
-
-		Expect(config.GetBech32AccountAddrPrefix()).To(Equal(sgconfig.Bech32PrefixAccAddr))
-		Expect(config.GetBech32AccountPubPrefix()).To(Equal(sgconfig.Bech32PrefixAccPub))
-		Expect(config.GetBech32ValidatorAddrPrefix()).To(Equal(sgconfig.Bech32PrefixValAddr))
-		Expect(config.GetBech32ValidatorPubPrefix()).To(Equal(sgconfig.Bech32PrefixValPub))
-		Expect(config.GetBech32ConsensusAddrPrefix()).To(Equal(sgconfig.Bech32PrefixConsAddr))
-		Expect(config.GetBech32ConsensusPubPrefix()).To(Equal(sgconfig.Bech32PrefixConsPub))
-
 		Expect(config.GetBech32AccountAddrPrefix()).
 			To(Equal(sdk.GetConfig().GetBech32AccountAddrPrefix()))
 		Expect(config.GetBech32AccountPubPrefix()).

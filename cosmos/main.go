@@ -28,7 +28,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 )
 
-const prefix = "polar"
+const prefix = "cosmos"
 
 // alice 0x6A1680c1Ec339657df9a4c718C8081C52daD5702
 // bob 0xbBcec0f8cBAbe76879AfdfD15F3784652B9734C3
@@ -36,11 +36,11 @@ const prefix = "polar"
 
 func main() {
 	if false {
-		cosmosAddr := "polar1dgtgps0vxwt90hu6f3cceqypc5k664cz2kml8y"
+		cosmosAddr := "polar1yrene6g2zwjttemf0c65fscg8w8c55w5vhc9hd"
 		sdk.GetConfig().SetBech32PrefixForAccount(prefix, prefix+sdk.PrefixPublic)
 		fmt.Println("0x" + common.Bytes2Hex(sdk.MustAccAddressFromBech32(cosmosAddr).Bytes()))
 	} else {
-		ethAddress := common.HexToAddress("0xacc1319Fe722A198F395F0164066ED4E309439Bf")
+		ethAddress := common.HexToAddress("0x20f33ce90a13a4b5e7697e3544c3083b8f8a51d4")
 		fmt.Println(sdk.MustBech32ifyAddressBytes(prefix, ethAddress.Bytes()))
 	}
 }
