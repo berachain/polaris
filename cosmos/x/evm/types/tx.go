@@ -45,8 +45,8 @@ func WrapTx(tx *coretypes.Transaction) (*WrappedEthereumTransaction, error) {
 	}, nil
 }
 
-// AsTransaction extracts the transaction as an `coretypes.Transaction`.
-func (etr *WrappedEthereumTransaction) UnwrapTx() *coretypes.Transaction {
+// Unwrap extracts the transaction as an `coretypes.Transaction`.
+func (etr *WrappedEthereumTransaction) Unwrap() *coretypes.Transaction {
 	tx := new(coretypes.Transaction)
 	if err := tx.UnmarshalBinary(etr.Data); err != nil {
 		return nil

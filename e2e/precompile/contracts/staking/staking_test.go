@@ -55,21 +55,23 @@ var _ = Describe("Staking", func() {
 		tf                *network.TestFixture
 		stakingPrecompile *bindings.StakingModule
 		bankPrecompile    *bbindings.BankModule
-		validator         common.Address
 		delegateAmt       = big.NewInt(123450000000)
+		validator         common.Address
 	)
 
 	BeforeEach(func() {
 		// Setup the network and clients here.
 		tf = network.NewTestFixture(GinkgoT(), utils.NewPolarisFixtureConfig())
-
-		validator = tf.ValAddr()
 		stakingPrecompile, _ = bindings.NewStakingModule(
 			common.HexToAddress("0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF"), tf.EthClient())
 		bankPrecompile, _ = bbindings.NewBankModule(
 			common.BytesToAddress(authtypes.NewModuleAddress(banktypes.ModuleName)),
 			tf.EthClient(),
 		)
+		validators, _, err := stakingPrecompile.GetBondedValidators(nil, bindings.CosmosPageRequest{})
+		Expect(err).ToNot(HaveOccurred())
+		Expect(validators).To(HaveLen(1))
+		validator = common.BytesToAddress(validators[0].OperatorAddr[:])
 	})
 
 	AfterEach(func() {
@@ -83,10 +85,6 @@ var _ = Describe("Staking", func() {
 	})
 
 	It("should call functions on the precompile directly", func() {
-		validators, _, err := stakingPrecompile.GetBondedValidators(nil, bindings.CosmosPageRequest{})
-		Expect(err).ToNot(HaveOccurred())
-		Expect(validators[0].OperatorAddr).To(Equal(validator))
-
 		delegated, err := stakingPrecompile.GetDelegation(nil, tf.Address("alice"), validator)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(delegated.Cmp(big.NewInt(0))).To(Equal(0))

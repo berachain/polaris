@@ -505,7 +505,11 @@ var _ = Describe("Governance Precompile", func() {
 
 		// Embed the send msg into a proposal.
 		proposal := v1.MsgSubmitProposal{
-			Messages: []*codectypes.Any{msgAny},
+			InitialDeposit: sdk.NewCoins(sdk.NewCoin("abera", sdkmath.NewInt(100))),
+			Messages:       []*codectypes.Any{msgAny},
+			Proposer:       sdk.AccAddress([]byte("proposer")).String(),
+			Metadata:       "metadata",
+			Title:          "title",
 		}
 
 		// Marshal the proposal.

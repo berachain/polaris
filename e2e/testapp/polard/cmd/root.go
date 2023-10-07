@@ -80,17 +80,19 @@ func NewRootCmd() *cobra.Command {
 		moduleBasicManager module.BasicManager
 	)
 
-	if err := depinject.Inject(depinject.Configs(
-		testapp.MakeAppConfig(""),
-		depinject.Supply(
-			testapp.PolarisConfigFn(evmconfig.DefaultConfig()),
-			testapp.QueryContextFn((&testapp.SimApp{})),
-			log.NewNopLogger(),
-			simtestutil.NewAppOptionsWithFlagHome(tempDir()),
+	if err := depinject.Inject(
+		depinject.Configs(
+			testapp.MakeAppConfig(""),
+			depinject.Supply(
+				testapp.PolarisConfigFn(evmconfig.DefaultConfig()),
+				testapp.QueryContextFn((&testapp.SimApp{})),
+				log.NewNopLogger(),
+				simtestutil.NewAppOptionsWithFlagHome(tempDir()),
+			),
+			depinject.Provide(
+				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
+				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope]),
 		),
-		depinject.Provide(
-			signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
-			signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope])),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,

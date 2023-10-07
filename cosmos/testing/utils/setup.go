@@ -89,8 +89,8 @@ type TestEncodingConfig struct {
 func MakeTestEncodingConfig(modules ...module.AppModuleBasic) TestEncodingConfig {
 	aminoCodec := codec.NewLegacyAmino()
 	interfaceRegistry := codectestutil.CodecOptions{
-		AccAddressPrefix: "polar",
-		ValAddressPrefix: "polarvaloper",
+		AccAddressPrefix: "cosmos",
+		ValAddressPrefix: "cosmosvaloper",
 	}.NewInterfaceRegistry()
 	codec := codec.NewProtoCodec(interfaceRegistry)
 
@@ -146,7 +146,7 @@ func SetupMinimalKeepers() (
 		},
 		// TODO: switch to eip-55 fuck bech32.
 		addrCodec,
-		types.Bech32Prefix,
+		"cosmos",
 		authority,
 	)
 
