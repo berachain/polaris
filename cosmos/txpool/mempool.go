@@ -104,7 +104,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); !ok {
 		return errors.New("only WrappedEthereumTransactions are supported")
 	} else if errs := m.txpool.Add(
-		[]*coretypes.Transaction{wet.AsTransaction()}, false, false,
+		[]*coretypes.Transaction{wet.Unwrap()}, false, false,
 	); len(errs) != 0 {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
 		if errors.Is(errs[0], legacypool.ErrAlreadyKnown) && sCtx.IsCheckTx() {

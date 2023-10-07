@@ -113,16 +113,6 @@ interface IBankModule {
      */
     function getAllSupply() external view returns (Cosmos.Coin[] memory);
 
-    /**
-     * @dev Returns the coin denomination's metadata
-     */
-    function getDenomMetadata(string calldata denom) external view returns (DenomMetadata memory);
-
-    /**
-     * @dev Returns if the coin is enabled to be sent (transfered)
-     */
-    function getSendEnabled(string calldata denom) external view returns (bool);
-
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
     /**

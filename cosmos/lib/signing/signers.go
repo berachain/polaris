@@ -18,24 +18,22 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package codec
+package signing
 
 import (
-	"testing"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/cosmos/cosmos-sdk/codec/types"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"cosmossdk.io/x/tx/signing"
 )
 
-func TestCodec(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/crypto/codec")
+// ProvideNoopGetSigners returns a CustomGetSigner that always returns 0x0.
+func ProvideNoopGetSigners[T proto.Message]() signing.CustomGetSigner {
+	var t T
+	return signing.CustomGetSigner{
+		MsgType: proto.MessageName(t),
+		Fn: func(msg proto.Message) ([][]byte, error) {
+			// Return the signer in the required format.
+			return [][]byte{{0x0}}, nil
+		},
+	}
 }
-
-var _ = Describe("Codec", func() {
-	It("should not panic", func() {
-		RegisterInterfaces(types.NewInterfaceRegistry())
-	})
-})

@@ -61,10 +61,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
+	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
-	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
-	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
 	testapp "pkg.berachain.dev/polaris/e2e/testapp"
 )
 
@@ -81,15 +80,19 @@ func NewRootCmd() *cobra.Command {
 		moduleBasicManager module.BasicManager
 	)
 
-	if err := depinject.Inject(depinject.Configs(
-		testapp.MakeAppConfig(""),
-		depinject.Supply(
-			testapp.PolarisConfigFn(evmconfig.DefaultConfig()),
-			testapp.QueryContextFn((&testapp.SimApp{})),
-			log.NewNopLogger(),
-			simtestutil.NewAppOptionsWithFlagHome(tempDir()),
+	if err := depinject.Inject(
+		depinject.Configs(
+			testapp.MakeAppConfig(""),
+			depinject.Supply(
+				testapp.PolarisConfigFn(evmconfig.DefaultConfig()),
+				testapp.QueryContextFn((&testapp.SimApp{})),
+				log.NewNopLogger(),
+				simtestutil.NewAppOptionsWithFlagHome(tempDir()),
+			),
+			depinject.Provide(
+				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
+			),
 		),
-		depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners)),
 		&interfaceRegistry,
 		&appCodec,
 		&txConfig,
@@ -100,8 +103,6 @@ func NewRootCmd() *cobra.Command {
 		panic(err)
 	}
 
-	ethcryptocodec.RegisterInterfaces(interfaceRegistry)
-
 	initClientCtx := client.Context{}.
 		WithCodec(appCodec).
 		WithInterfaceRegistry(interfaceRegistry).
@@ -109,8 +110,7 @@ func NewRootCmd() *cobra.Command {
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithHomeDir(testapp.DefaultNodeHome).
-		WithViper(""). // In simapp, we don't use any prefix for env variables.
-		WithKeyringOptions(keyring.EthSecp256k1Option())
+		WithViper("") // In simapp, we don't use any prefix for env variables.
 
 	rootCmd := &cobra.Command{
 		Use:   "polard",

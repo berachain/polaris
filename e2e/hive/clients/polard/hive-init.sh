@@ -28,7 +28,7 @@ MONIKER="localtestnet"
 # otherwise your balance will be wiped quickly
 # The keyring test does not require private key to steal tokens from you
 KEYRING="test"
-KEYALGO="eth_secp256k1"
+KEYALGO="secp256k1"
 LOGLEVEL="info"
 # Set dedicated home directory for the ./bin/polard instance
 HOMEDIR="/"
@@ -43,7 +43,7 @@ GENESIS=$HOMEDIR/config/genesis.json
 TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 
 # used to exit on first error (any non-zero exit code)
-set
+set -e
 
 # Reinstall daemon
 # make build

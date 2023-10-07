@@ -106,7 +106,8 @@ prometheus-retention-time = 0
 #
 # Example:
 # [["chain_id", "cosmoshub-1"]]
-global-labels = []
+global-labels = [
+]
 
 ###############################################################################
 ###                           API Configuration                             ###
@@ -241,7 +242,7 @@ rpc-tx-fee-cap = "1"
 
 
 # Chain config
-[polaris.polar.chain]
+[polaris.polar.chain] 
 chain-id = "2061"
 
 # Homestead switch block

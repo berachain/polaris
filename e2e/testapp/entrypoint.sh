@@ -28,7 +28,7 @@ MONIKER="localtestnet"
 # otherwise your balance will be wiped quickly
 # The keyring test does not require private key to steal tokens from you
 KEYRING="test"
-KEYALGO="eth_secp256k1"
+KEYALGO="secp256k1"
 LOGLEVEL="info"
 # Set dedicated home directory for the ./bin/polard instance
 HOMEDIR="./.tmp/polard"
@@ -59,11 +59,11 @@ fi
 
 # Setup local node if overwrite is set to Yes, otherwise skip setup
 if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
-	# Remove the previous folder
-	rm -rf "$HOMEDIR"
+	# # Remove the previous folder
+	# rm -rf "$HOMEDIR"
 
-	# Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
-	./bin/polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
+	# # Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
+	# ./bin/polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
 
 	# Set client config
 	./bin/polard config set client keyring-backend $KEYRING --home "$HOMEDIR"

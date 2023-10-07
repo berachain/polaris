@@ -22,7 +22,7 @@ KEY1="val0"
 CHAINID="brickchain-666"
 MONIKER1="val-0"
 KEYRING="test"
-KEYALGO="eth_secp256k1"
+KEYALGO="secp256k1"
 HOMEDIR="/.polard"
 
 polard init $MONIKER1 -o --chain-id $CHAINID --home "$HOMEDIR"

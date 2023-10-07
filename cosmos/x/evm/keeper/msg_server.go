@@ -37,7 +37,7 @@ func (k *Keeper) EthTransaction(
 	ctx context.Context, msg *types.WrappedEthereumTransaction,
 ) (*types.WrappedEthereumTransactionResult, error) {
 	// Process the transaction and return the result.
-	receipt, err := k.ProcessTransaction(ctx, msg.AsTransaction())
+	receipt, err := k.ProcessTransaction(ctx, msg.Unwrap())
 	if err != nil {
 		return &types.WrappedEthereumTransactionResult{
 			Status: types.Status_STATUS_NOT_INCLUDED,

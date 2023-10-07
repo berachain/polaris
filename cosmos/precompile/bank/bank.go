@@ -32,7 +32,6 @@ import (
 	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	bankgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -186,56 +185,6 @@ func (c *Contract) GetAllSupply(
 	}
 
 	return cosmlib.SdkCoinsToEvmCoins(res.Supply), nil
-}
-
-// GetDenomMetadata implements `getDenomMetadata(string)` method.
-func (c *Contract) GetDenomMetadata(
-	ctx context.Context,
-	denom string,
-) (bankgenerated.IBankModuleDenomMetadata, error) {
-	res, err := c.querier.DenomMetadata(ctx, &banktypes.QueryDenomMetadataRequest{
-		Denom: denom,
-	})
-	if err != nil {
-		return bankgenerated.IBankModuleDenomMetadata{}, err
-	}
-
-	denomUnits := make([]bankgenerated.IBankModuleDenomUnit, len(res.Metadata.DenomUnits))
-	for i, d := range res.Metadata.DenomUnits {
-		denomUnits[i] = bankgenerated.IBankModuleDenomUnit{
-			Denom:    d.Denom,
-			Aliases:  d.Aliases,
-			Exponent: d.Exponent,
-		}
-	}
-
-	result := bankgenerated.IBankModuleDenomMetadata{
-		Description: res.Metadata.Description,
-		DenomUnits:  denomUnits,
-		Base:        res.Metadata.Base,
-		Display:     res.Metadata.Display,
-		Name:        res.Metadata.Name,
-		Symbol:      res.Metadata.Symbol,
-	}
-	return result, nil
-}
-
-// GetSendEnabled implements `getSendEnabled(string)` method.
-func (c *Contract) GetSendEnabled(
-	ctx context.Context,
-	denom string,
-) (bool, error) {
-	res, err := c.querier.SendEnabled(ctx, &banktypes.QuerySendEnabledRequest{
-		Denoms: []string{denom},
-	})
-	if err != nil {
-		return false, err
-	}
-	if len(res.SendEnabled) == 0 {
-		return false, precompile.ErrInvalidString
-	}
-
-	return res.SendEnabled[0].Enabled, nil
 }
 
 // Send implements `send(address,(uint256,string)[])` method.

@@ -63,6 +63,27 @@
           "pub_key": null,
           "account_number": "6",
           "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "polar1xexwd2fmjsyq539y8p758e2crqpt6kwe326y09",
+          "pub_key": null,
+          "account_number": "7",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "polar15el0rdwz6r59c0xjfxky5d78vh6lmzlck3gm53",
+          "pub_key": null,
+          "account_number": "8",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "polar1tl4t4fzuuwwn0qt9fw963sgy9nnayhq8r9hv6x",
+          "pub_key": null,
+          "account_number": "9",
+          "sequence": "0"
         }
       ]
     },
@@ -73,16 +94,7 @@
       },
       "balances": [
         {
-          "address": "polar1yrene6g2zwjttemf0c65fscg8w8c55w5vhc9hd",
-          "coins": [
-            {
-              "denom": "abera",
-              "amount": "69000000000000000000000000"
-            }
-          ]
-        },
-        {
-          "address": "polar1ymets0a3x3acej049mgk084f0zuq4g0nngdk0v",
+          "address": "polar1xexwd2fmjsyq539y8p758e2crqpt6kwe326y09",
           "coins": [
             {
               "denom": "abera",
@@ -91,7 +103,7 @@
           ]
         },
         {
-          "address": "polar1xst3m55fkvlrnm0nqekca70yh70ffsz8dlhtrj",
+          "address": "polar1tl4t4fzuuwwn0qt9fw963sgy9nnayhq8r9hv6x",
           "coins": [
             {
               "denom": "abera",
@@ -100,16 +112,7 @@
           ]
         },
         {
-          "address": "polar1495yj0z9uvfa0q6vr9egd6cdv6d93qtfqv45p6",
-          "coins": [
-            {
-              "denom": "abera",
-              "amount": "100000000000000000000000000"
-            }
-          ]
-        },
-        {
-          "address": "polar1dgtgps0vxwt90hu6f3cceqypc5k664cz2kml8y",
+          "address": "`polar1dgtgps0vxwt90hu6f3cceqypc5k664cz2kml8y`",
           "coins": [
             {
               "denom": "abera",
@@ -146,6 +149,33 @@
           ]
         },
         {
+          "address": "polar15el0rdwz6r59c0xjfxky5d78vh6lmzlck3gm53",
+          "coins": [
+            {
+              "denom": "abera",
+              "amount": "100000000000000000000000000"
+            }
+          ]
+        },
+        {
+          "address": "polar1495yj0z9uvfa0q6vr9egd6cdv6d93qtfqv45p6",
+          "coins": [
+            {
+              "denom": "abera",
+              "amount": "100000000000000000000000000"
+            }
+          ]
+        },
+        {
+          "address": "polar14nqnr8l8y2se3uu47qtyqehdfccfgwdlsrc04n",
+          "coins": [
+            {
+              "denom": "abera",
+              "amount": "1000000000000000000"
+            }
+          ]
+        },
+        {
           "address": "polar1h08vp7xt40nks7d0mlg47duyv54ewdxryjqtp8",
           "coins": [
             {
@@ -161,21 +191,12 @@
               "amount": "1000000000000000000"
             }
           ]
-        },
-        {
-          "address": "polar14nqnr8l8y2se3uu47qtyqehdfccfgwdlsrc04n",
-          "coins": [
-            {
-              "denom": "abera",
-              "amount": "1000000000000000000"
-            }
-          ]
         }
       ],
       "supply": [
         {
           "denom": "abera",
-          "amount": "369000002000000000000000100"
+          "amount": "669000002000000000000000100"
         },
         {
           "denom": "abgt",
@@ -208,8 +229,6 @@
       ],
       "denom_metadata": [
         {
-          "name": "Berachain bera",
-          "symbol": "BERA",
           "description": "The Bera.",
           "denom_units": [
             {
@@ -235,11 +254,13 @@
             }
           ],
           "base": "bera",
-          "display": "bera"
+          "display": "bera",
+          "name": "Berachain bera",
+          "symbol": "BERA",
+          "uri": "",
+          "uri_hash": ""
         },
         {
-          "name": "Berachain bgt",
-          "symbol": "BGT",
           "description": "The BGT.",
           "denom_units": [
             {
@@ -265,11 +286,14 @@
             }
           ],
           "base": "bgt",
-          "display": "bgt"
+          "display": "bgt",
+          "name": "Berachain bgt",
+          "symbol": "BGT",
+          "uri": "",
+          "uri_hash": ""
         },
         {
-          "name": "Osmosis",
-          "symbol": "bOSMO",
+          "description": "",
           "denom_units": [
             {
               "denom": "osmo",
@@ -294,11 +318,14 @@
             }
           ],
           "base": "osmo",
-          "display": "osmo"
+          "display": "osmo",
+          "name": "Osmosis",
+          "symbol": "bOSMO",
+          "uri": "",
+          "uri_hash": ""
         },
         {
-          "name": "Akash",
-          "symbol": "AKT",
+          "description": "",
           "denom_units": [
             {
               "denom": "akt",
@@ -323,7 +350,11 @@
             }
           ],
           "base": "akt",
-          "display": "akt"
+          "display": "akt",
+          "name": "Akash",
+          "symbol": "AKT",
+          "uri": "",
+          "uri_hash": ""
         }
       ],
       "send_enabled": [
@@ -421,70 +452,7 @@
       "baseFeePerGas": "0x3b9aca00"
     },
     "genutil": {
-      "gen_txs": [
-        {
-          "body": {
-            "messages": [
-              {
-                "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
-                "description": {
-                  "moniker": "localtestnet",
-                  "identity": "",
-                  "website": "",
-                  "security_contact": "",
-                  "details": ""
-                },
-                "commission": {
-                  "rate": "0.100000000000000000",
-                  "max_rate": "0.200000000000000000",
-                  "max_change_rate": "0.010000000000000000"
-                },
-                "min_self_delegation": "1",
-                "delegator_address": "",
-                "validator_address": "polarvaloper1495yj0z9uvfa0q6vr9egd6cdv6d93qtfu79j24",
-                "pubkey": {
-                  "@type": "/cosmos.crypto.ed25519.PubKey",
-                  "key": "kJ7vtR1OBWtyG8XGqSYA/kmCsB6dd4kfDlubmvps4AU="
-                },
-                "value": {
-                  "denom": "abera",
-                  "amount": "1000000000000000000000"
-                }
-              }
-            ],
-            "memo": "4354a78701907c06155caf2bf230ba7988115799@192.168.0.226:26656",
-            "timeout_height": "0",
-            "extension_options": [],
-            "non_critical_extension_options": []
-          },
-          "auth_info": {
-            "signer_infos": [
-              {
-                "public_key": {
-                  "@type": "/polaris.crypto.ethsecp256k1.v1.PubKey",
-                  "key": "AzdysLoPMtCAH1HKf+HkCnZY5JRF91ufsyi2T5VGeWtK"
-                },
-                "mode_info": {
-                  "single": {
-                    "mode": "SIGN_MODE_DIRECT"
-                  }
-                },
-                "sequence": "0"
-              }
-            ],
-            "fee": {
-              "amount": [],
-              "gas_limit": "200000",
-              "payer": "",
-              "granter": ""
-            },
-            "tip": null
-          },
-          "signatures": [
-            "qDKf04Is1Ag3r7N3TGQmHhy5HQuw5b4i8ZoaTm0nVFt5xsaidxam2iqVBQfK4MQQAMP4CztrToojOzPRqXkeQQE="
-          ]
-        }
-      ]
+      "gen_txs": []
     },
     "gov": {
       "starting_proposal_id": "1",
@@ -494,7 +462,7 @@
       "deposit_params": {
         "min_deposit": [
           {
-            "denom": "abgt",
+            "denom": "abera",
             "amount": "0"
           }
         ]

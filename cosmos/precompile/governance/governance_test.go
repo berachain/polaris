@@ -494,6 +494,8 @@ var _ = Describe("Governance Precompile", func() {
 	})
 
 	It("Should be able to marshal and unmarshal porposalMsg", func() {
+		sdk.GetConfig().SetBech32PrefixForAccount("polar", "polarpub")
+
 		// Create the send msg.
 		msg := banktypes.MsgSend{
 			FromAddress: sdk.AccAddress([]byte("from")).String(),
