@@ -23,7 +23,8 @@ WORKDIR /
 # Add a default genesis file + Inject the startup script
 ADD version.txt /version.txt
 ADD hive-init.sh /hive-init.sh
-ADD config /config
+
+ADD config/config.toml config/config.toml
 
 RUN export HIVE_CHAIN_ID=2061
 RUN export HIVE_NETWORK_ID=2061
