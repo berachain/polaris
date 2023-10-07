@@ -25,7 +25,7 @@ if [ -z "$KEYRING" ]; then
     KEYRING="test"
 fi
 if [ -z "$KEYALGO" ]; then
-    KEYALGO="eth_secp256k1"
+    KEYALGO="secp256k1"
 fi
 if [ -z "$LOGLEVEL" ]; then
     LOGLEVEL="info"

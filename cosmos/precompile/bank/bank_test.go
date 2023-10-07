@@ -34,7 +34,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
 	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
@@ -389,61 +388,6 @@ var _ = Describe("Bank Precompile Test", func() {
 			})
 		})
 
-		When("GetDenomMetadata", func() {
-
-			It("should fail if input denom is not a valid Denom", func() {
-				res, err := contract.GetDenomMetadata(
-					ctx,
-					"_invalid_denom",
-				)
-
-				Expect(err).To(HaveOccurred())
-				Expect(res).To(Equal(generated.IBankModuleDenomMetadata{}))
-			})
-
-			It("should succeed", func() {
-				expectedResult := generated.IBankModuleDenomMetadata{
-					Name:        "Berachain bera",
-					Symbol:      "BERA",
-					Description: "The Bera.",
-					DenomUnits: []generated.IBankModuleDenomUnit{
-						{Denom: "bera", Exponent: uint32(0), Aliases: []string{"bera"}},
-						{Denom: "nbera", Exponent: uint32(9), Aliases: []string{"nanobera"}},
-						{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
-					},
-					Base:    "abera",
-					Display: "bera",
-				}
-
-				metadata := getTestMetadata()
-				bk.SetDenomMetaData(ctx, metadata[0])
-
-				res, err := contract.GetDenomMetadata(
-					ctx,
-					metadata[0].Base,
-				)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(res).To(Equal(expectedResult))
-			})
-		})
-
-		When("GetSendEnabled", func() {
-			It("should succeed", func() {
-				enabledDenom := "enabledDenom"
-				// disabledDenom := "disabledDenom"
-
-				bk.SetSendEnabled(ctx, enabledDenom, true)
-
-				res, err := contract.GetSendEnabled(
-					ctx,
-					enabledDenom,
-				)
-				Expect(err).ToNot(HaveOccurred())
-
-				Expect(res).To(BeTrue())
-			})
-		})
-
 		When("Send", func() {
 			It("should succeed", func() {
 
@@ -531,36 +475,6 @@ func FundAccount(
 	}
 	return bk.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, account, coins)
 }
-
-func getTestMetadata() []banktypes.Metadata {
-	return []banktypes.Metadata{
-		{
-			Name:        "Berachain bera",
-			Symbol:      "BERA",
-			Description: "The Bera.",
-			DenomUnits: []*banktypes.DenomUnit{
-				{Denom: "bera", Exponent: uint32(0), Aliases: []string{"bera"}},
-				{Denom: "nbera", Exponent: uint32(9), Aliases: []string{"nanobera"}},
-				{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
-			},
-			Base:    "abera",
-			Display: "bera",
-		},
-		{
-			Name:        "Token",
-			Symbol:      "TOKEN",
-			Description: "The native staking token of the Token Hub.",
-			DenomUnits: []*banktypes.DenomUnit{
-				{Denom: "1token", Exponent: uint32(5), Aliases: []string{"decitoken"}},
-				{Denom: "2token", Exponent: uint32(4), Aliases: []string{"centitoken"}},
-				{Denom: "3token", Exponent: uint32(7), Aliases: []string{"dekatoken"}},
-			},
-			Base:    "utoken",
-			Display: "token",
-		},
-	}
-}
-
 func sdkCoinsToEvmCoins(sdkCoins sdk.Coins) []struct {
 	Amount *big.Int `json:"amount"`
 	Denom  string   `json:"denom"`

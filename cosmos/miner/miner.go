@@ -31,17 +31,23 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
 
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // emptyHash is a common.Hash initialized to all zeros.
 var emptyHash = common.Hash{}
 
+// EthTxSerializer represents a struct that can serialize ethereum transactions
+// to valid sdk.Tx's and bytes that can be used by CometBFT.
+type EthTxSerializer interface {
+	ToSdkTx(input *types.Transaction, gasLimit uint64) (sdk.Tx, error)
+	ToSdkTxBytes(input *types.Transaction, gasLimit uint64) ([]byte, error)
+}
+
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
 	*miner.Miner
-	serializer     evmtypes.TxSerializer
+	serializer     EthTxSerializer
 	currentPayload *miner.Payload
 }
 
@@ -53,7 +59,7 @@ func New(gm *miner.Miner) *Miner {
 }
 
 // Init sets the transaction serializer.
-func (m *Miner) Init(serializer evmtypes.TxSerializer) {
+func (m *Miner) Init(serializer EthTxSerializer) {
 	m.serializer = serializer
 }
 
@@ -123,7 +129,7 @@ func (m *Miner) resolveTxs() [][]byte {
 		if err := tx.UnmarshalBinary(ethTxBz); err != nil {
 			return nil
 		}
-		bz, err := m.serializer.SerializeToBytes(&tx)
+		bz, err := m.serializer.ToSdkTxBytes(&tx, tx.Gas())
 		if err != nil {
 			panic(err)
 		}

@@ -72,7 +72,7 @@ var _ = Describe("Bank", func() {
 	})
 
 	It("should call functions on the precompile directly", func() {
-		numberOfDenoms := 8
+		numberOfDenoms := 7
 		coinsToBeSent := []bindings.CosmosCoin{
 			{
 				Denom:  denom,
@@ -92,18 +92,6 @@ var _ = Describe("Bank", func() {
 				Denom:  denom3,
 				Amount: big.NewInt(1000000000000000000),
 			},
-		}
-		evmDenomMetadata := bindings.IBankModuleDenomMetadata{
-			Name:        "Berachain bera",
-			Symbol:      "BERA",
-			Description: "The Bera.",
-			DenomUnits: []bindings.IBankModuleDenomUnit{
-				{Denom: "bera", Exponent: uint32(0), Aliases: []string{"bera"}},
-				{Denom: "nbera", Exponent: uint32(9), Aliases: []string{"nanobera"}},
-				{Denom: "abera", Exponent: uint32(18), Aliases: []string{"attobera"}},
-			},
-			Base:    "bera",
-			Display: "bera",
 		}
 
 		// charlie initially has 1000000000000000000 abera
@@ -149,13 +137,5 @@ var _ = Describe("Bank", func() {
 		totalSupply, err := bankPrecompile.GetAllSupply(nil)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(totalSupply).To(HaveLen(numberOfDenoms))
-
-		denomMetadata, err := bankPrecompile.GetDenomMetadata(nil, "bera")
-		Expect(err).ShouldNot(HaveOccurred())
-		Expect(denomMetadata).To(Equal(evmDenomMetadata))
-
-		sendEnabled, err := bankPrecompile.GetSendEnabled(nil, "abera")
-		Expect(err).ShouldNot(HaveOccurred())
-		Expect(sendEnabled).To(BeTrue())
 	})
 })

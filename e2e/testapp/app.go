@@ -43,7 +43,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
@@ -56,13 +55,16 @@ import (
 
 	"github.com/ethereum/go-ethereum/node"
 
+	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
-	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
+	antelib "pkg.berachain.dev/polaris/cosmos/lib/ante"
+	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
+	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
-	evmante "pkg.berachain.dev/polaris/cosmos/x/evm/ante"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // DefaultNodeHome default home directories for the application daemon.
@@ -132,7 +134,9 @@ func NewPolarisApp(
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
 			MakeAppConfig(bech32Prefix),
-			depinject.Provide(evmtypes.ProvideEthereumTransactionGetSigners),
+			depinject.Provide(
+				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
+			),
 			depinject.Supply(
 				// supply the application options
 				appOpts,
@@ -205,21 +209,9 @@ func NewPolarisApp(
 	app.SetPrepareProposal(app.mm.PrepareProposal)
 
 	// Setup Custom Ante Handler
-	ch, _ := evmante.NewAnteHandler(
-		ante.HandlerOptions{
-			AccountKeeper:   app.AccountKeeper,
-			BankKeeper:      app.BankKeeper,
-			SignModeHandler: app.txConfig.SignModeHandler(),
-			FeegrantKeeper:  nil,
-			SigGasConsumer:  evmante.SigVerificationGasConsumer,
-		},
-	)
 	app.SetAnteHandler(
-		ch,
+		antelib.NewMinimalHandler(),
 	)
-
-	// Register eth_secp256k1 keys
-	ethcryptocodec.RegisterInterfaces(app.interfaceRegistry)
 
 	// ----- END EVM SETUP -------------------------------------------------
 
@@ -280,7 +272,8 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	}
 
 	// Create a TxSerializer.
-	serializer := evmtypes.NewSerializer(apiSvr.ClientCtx.TxConfig)
+	serializer := libtx.NewSerializer[*coretypes.Transaction](
+		apiSvr.ClientCtx.TxConfig, evmtypes.WrapTx)
 
 	// Initialize services.
 	app.mm.Init(serializer)

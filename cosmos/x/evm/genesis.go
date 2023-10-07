@@ -54,18 +54,7 @@ func (AppModuleBasic) ValidateGenesis(
 		return err
 	}
 
-	// TODO: this code actually needs to be removed as it will cause issues.
-	// for address, account := range ethGen.Alloc {
-	// 	if ethGen.Config.IsEIP155(big.NewInt(0)) && account.Code != nil &&
-	// account.Nonce == 0 {
-	// 		// NOTE: EIP 161 was released at the same block as EIP 155.
-	// 		return fmt.Errorf(
-	// 			"EIP-161 requires an account with code (%s) to have nonce of at
-	// least 1, given (0)",
-	// 			address.Hex(),
-	// 		)
-	// 	}
-	// }
+	// TODO: figure out what in geth we need to call in order to validate the genesis.
 
 	return nil
 }

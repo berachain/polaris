@@ -33,12 +33,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	"pkg.berachain.dev/polaris/cosmos/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/crypto"
-	"pkg.berachain.dev/polaris/lib/encoding"
 )
 
 const (
@@ -196,33 +192,6 @@ func (tf *TestFixture) setupTestAccounts(config *FixtureConfig) error {
 		}
 
 		tf.keysMap[strings.Split(keyFileName, ".")[0]] = privKey
-	}
-
-	// read the validator public key from the genesis file
-	genFile := filepath.Join(config.path, genFilePath)
-	genBz, err := os.ReadFile(filepath.Clean(genFile))
-	if err != nil {
-		return err
-	}
-
-	valAddr := encoding.MustUnmarshalJSON[struct {
-		AppState struct {
-			GenUtil struct {
-				GenTxs []struct {
-					Body struct {
-						Messages []struct {
-							ValidatorAddress string `json:"validator_address"`
-						} `json:"messages"`
-					} `json:"body"`
-				} `json:"gen_txs"`
-			} `json:"genutil"`
-		} `json:"app_state"`
-	}](genBz).AppState.GenUtil.GenTxs[0].Body.Messages[0].ValidatorAddress
-	types.SetupCosmosConfig()
-	_, _, _, sk := testutil.SetupMinimalKeepers()
-	tf.valAddr, err = cosmlib.EthAddressFromString(sk.ValidatorAddressCodec(), valAddr)
-	if err != nil {
-		return err
 	}
 
 	return nil

@@ -56,7 +56,7 @@ proto:
 	@$(MAKE) buf-lint-fix buf-lint proto-build
 
 proto-build:
-	@docker run --rm -v ${CURRENT_DIR}:/workspace --workdir /workspace $(protoImageName):$(protoImageVersion) sh ./cosmos/proto/scripts/proto_generate.sh
+	@docker run --rm -v ${CURRENT_DIR}:/workspace --workdir /workspace $(protoImageName):$(protoImageVersion) sh ./scripts/proto_generate.sh
 
 ###############################################################################
 ###                                 Docker                                  ###
@@ -286,7 +286,7 @@ test-localnet-no-build:
 ###############################################################################
 
 format:
-	@$(MAKE) license-fix buf-lint-fix forge-lint-fix golines golangci-fix
+	@$(MAKE) license-fix buf-lint-fix forge-lint-fix golangci-fix
 
 lint:
 	@$(MAKE) license buf-lint forge-lint golangci gosec
@@ -323,20 +323,6 @@ golangci-fix:
 	@$(MAKE) golangci-install
 	@echo "--> Running linter"
 	@go list -f '{{.Dir}}/...' -m | xargs golangci-lint run  --timeout=10m --fix --concurrency 8 -v 
-
-
-#################
-#    golines    #
-#################
-
-golines-install:
-	@echo "--> Installing golines"
-	@go install github.com/segmentio/golines
-
-golines:
-	@$(MAKE) golines-install
-	@echo "--> Running golines"
-	@golines --reformat-tags --shorten-comments --write-output --max-len=99 -l ./.
 
 
 #################
@@ -380,7 +366,7 @@ gosec:
 #     proto     #
 #################
 
-protoDir := "cosmos/proto"
+protoDir := "proto"
 
 buf-install:
 	@echo "--> Installing buf"
@@ -432,5 +418,5 @@ repo-rinse: |
 	test-e2e test-e2e-no-build hive-setup hive-view test-hive \
 	test-hive-v test-localnet test-localnet-no-build format lint \
 	forge-lint-fix forge-lint golangci-install golangci golangci-fix \
-	golines-install golines license-install license license-fix \
+	license-install license license-fix \
 	gosec-install gosec buf-install buf-lint-fix buf-lint sync tidy repo-rinse
