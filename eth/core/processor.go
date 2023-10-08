@@ -27,6 +27,7 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
@@ -112,11 +113,11 @@ func (sp *StateProcessor) ProcessTransaction(
 ) (*types.Receipt, error) {
 	// Set the transaction context in the state database.
 	// This clears the logs and sets the transaction info.
-	sp.statedb.SetTxContext(tx.Hash(), len(sp.txs))
+	sp.statedb.(state.StateDB).SetTxContext(tx.Hash(), len(sp.txs))
 
 	// Inshallah we will be able to apply the transaction.
 	receipt, err := ApplyTransaction(
-		sp.cp.ChainConfig(), chainContext, &sp.header.Coinbase, gasPool, sp.statedb,
+		sp.cp.ChainConfig(), chainContext, &sp.header.Coinbase, gasPool, sp.statedb.(state.StateDB),
 		sp.header, tx, &sp.header.GasUsed, *sp.vmConfig)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())

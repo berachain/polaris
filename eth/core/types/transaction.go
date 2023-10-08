@@ -24,7 +24,6 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 
 	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/crypto"
 )
 
 // TxLookupEntry is a positional metadata to help looking up a transaction by hash.
@@ -42,31 +41,13 @@ func (tle *TxLookupEntry) UnmarshalBinary(data []byte) error {
 	return rlp.DecodeBytes(data, tle)
 }
 
-// MarshalBinary encodes the tx lookup enßtry into the Ethereum RLP format.
+// MarshalBinary encodes the tx lookup enßtry into the Ethereum RLP formatp
 func (tle *TxLookupEntry) MarshalBinary() ([]byte, error) {
 	bz, err := rlp.EncodeToBytes(tle)
 	if err != nil {
 		return nil, err
 	}
 	return bz, nil
-}
-
-// PubkeyFromTx returns the public key of the signer of the transaction.
-func PubkeyFromTx(signedTx *Transaction, signer Signer) ([]byte, error) {
-	// signer.PubKey returns the uncompressed public key.
-	uncompressed, err := signer.PubKey(signedTx)
-	if err != nil {
-		return nil, err
-	}
-
-	// We marshal it to a *ecdsa.PublicKey.
-	pubKey, err := crypto.UnmarshalPubkey(uncompressed)
-	if err != nil {
-		return nil, err
-	}
-
-	// Then we can compress it to adhere to the required format.
-	return crypto.CompressPubkey(pubKey), nil
 }
 
 // GetSender returns the sender of the transaction.
