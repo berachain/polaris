@@ -122,15 +122,17 @@ sed -i "s/terminal-total-difficulty-passed = .*/terminal-total-difficulty-passed
 
 
 # Adjust timeouts for CometBFT: 
-# TODO: figure out why hive is sensitive to these values 
-sed -i 's/timeout_propose = "3s"/timeout_propose = "1s"/g' $CONFIG_TOML
-sed -i 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "1s"/g' $CONFIG_TOML
-sed -i 's/timeout_prevote = "1s"/timeout_prevote = "1s"/g' $CONFIG_TOML
-sed -i 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "1s"/g' $CONFIG_TOML
-sed -i 's/timeout_precommit = "1s"/timeout_precommit = "1s"/g' $CONFIG_TOML
-sed -i 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "1s"/g' $CONFIG_TOML
-sed -i 's/timeout_commit = "5s"/timeout_commit = "1s"/g' $CONFIG_TOML
-sed -i 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "1s"/g' $CONFIG_TOML
+# TODO: these values are sensitive due to a race condition in the json-rpc ports opening.
+# If the JSON-RPC opens before the first block is committed, hive tests will start failing.
+# This needs to be fixed before mainnet as its ghetto af.
+sed -i 's/timeout_propose = "3s"/timeout_propose = "2s"/g' $CONFIG_TOML
+sed -i 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "2s"/g' $CONFIG_TOML
+sed -i 's/timeout_prevote = "1s"/timeout_prevote = "2s"/g' $CONFIG_TOML
+sed -i 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "2s"/g' $CONFIG_TOML
+sed -i 's/timeout_precommit = "1s"/timeout_precommit = "2s"/g' $CONFIG_TOML
+sed -i 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "2s"/g' $CONFIG_TOML
+sed -i 's/timeout_commit = "5s"/timeout_commit = "2s"/g' $CONFIG_TOML
+sed -i 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "2s"/g' $CONFIG_TOML
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)m
 polard start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --api.swagger --minimum-gas-prices=0.0001abera --home "$HOMEDIR"
