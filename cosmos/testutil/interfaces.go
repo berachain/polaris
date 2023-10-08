@@ -18,18 +18,19 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package interfaces
+package testutil
 
-import storetypes "cosmossdk.io/store/types"
+import (
+	"context"
 
-// Interface wrappers for mocking
-//
-//go:generate moq -out ./mock/store.mock.go -pkg mock . MultiStore CacheMultiStore KVStore
-type (
-	// MultiStore wrapper for github.com/cosmos/cosmos-sdk/types.MultiStore.
-	MultiStore storetypes.MultiStore
-	// CacheMultiStore wrapper for github.com/cosmos/cosmos-sdk/types.CacheMultiStore.
-	CacheMultiStore storetypes.CacheMultiStore
-	// KVStore wrapper for github.com/cosmos/cosmos-sdk/types.KVStore.
-	KVStore storetypes.KVStore
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
+
+type BankKeeper interface {
+	SendCoinsFromModuleToAccount(ctx context.Context, senderModule string,
+		recipientAddr sdk.AccAddress, amt sdk.Coins) error
+	SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress,
+		recipientModule string, amt sdk.Coins) error
+	MintCoins(ctx context.Context, moduleName string, amt sdk.Coins) error
+	BurnCoins(ctx context.Context, moduleName string, amt sdk.Coins) error
+}

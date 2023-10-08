@@ -18,12 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package utils
+package testutil
 
 import (
 	"testing"
 
+	cdb "github.com/cosmos/cosmos-db"
+
 	"cosmossdk.io/log"
+	"cosmossdk.io/store/metrics"
+	"cosmossdk.io/store/rootmulti"
 	storetypes "cosmossdk.io/store/types"
 
 	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -50,7 +54,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
 	"pkg.berachain.dev/polaris/cosmos/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -66,13 +69,26 @@ var (
 )
 
 // NewContext creates a SDK context and mounts a mock multistore.
-func NewContext() sdk.Context {
-	return sdk.NewContext(
-		mock.NewMultiStore(), cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
+func NewContext(logger log.Logger, storekeys ...storetypes.StoreKey) sdk.Context {
+	cdb := cdb.NewMemDB()
+	rms := rootmulti.NewStore(cdb, logger, metrics.NewNoOpMetrics())
+
+	// Register defaults
+	rms.MountStoreWithDB(AccKey, storetypes.StoreTypeIAVL, cdb)
+	rms.MountStoreWithDB(BankKey, storetypes.StoreTypeIAVL, cdb)
+	rms.MountStoreWithDB(EvmKey, storetypes.StoreTypeIAVL, cdb)
+	rms.MountStoreWithDB(StakingKey, storetypes.StoreTypeIAVL, cdb)
+
+	// Allow extending the
+	for _, storeKey := range storekeys {
+		rms.MountStoreWithDB(storeKey, storetypes.StoreTypeIAVL, cdb)
+	}
+	_ = rms.LoadLatestVersion()
+	return NewContextWithMultiStore(rms, logger)
 }
 
-func NewContextWithMultiStore(ms storetypes.MultiStore) sdk.Context {
-	return sdk.NewContext(ms, cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
+func NewContextWithMultiStore(ms storetypes.MultiStore, logger log.Logger) sdk.Context {
+	return sdk.NewContext(ms, cometproto.Header{}, false, logger)
 }
 
 // TestEncodingConfig defines an encoding configuration that is used for testing
@@ -112,14 +128,14 @@ func MakeTestEncodingConfig(modules ...module.AppModuleBasic) TestEncodingConfig
 }
 
 // SetupMinimalKeepers creates and returns keepers for the base SDK modules.
-func SetupMinimalKeepers() (
+func SetupMinimalKeepers(logger log.Logger, keys ...storetypes.StoreKey) (
 	sdk.Context,
 	authkeeper.AccountKeeper,
 	bankkeeper.BaseKeeper,
 	stakingkeeper.Keeper,
 ) {
 	types.SetupCosmosConfig()
-	ctx := NewContext().WithBlockHeight(1)
+	ctx := NewContext(logger, keys...).WithBlockHeight(1)
 
 	encodingConfig := testutil.MakeTestEncodingConfig(
 		auth.AppModuleBasic{},
@@ -144,7 +160,6 @@ func SetupMinimalKeepers() (
 			govtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 			distrtypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		},
-		// TODO: switch to eip-55 fuck bech32.
 		addrCodec,
 		"cosmos",
 		authority,

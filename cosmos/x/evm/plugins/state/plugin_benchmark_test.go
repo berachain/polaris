@@ -24,7 +24,9 @@ import (
 	"math/big"
 	"testing"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"cosmossdk.io/log"
+
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -37,7 +39,7 @@ var (
 )
 
 func GetNewStatePlugin() core.StatePlugin {
-	ctx, ak, _, _ := testutil.SetupMinimalKeepers()
+	ctx, ak, _, _ := testutil.SetupMinimalKeepers(log.NewTestLogger(&testing.B{}))
 	sp := state.NewPlugin(ak, testutil.EvmKey, nil)
 	sp.Reset(ctx)
 	return sp

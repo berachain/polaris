@@ -26,6 +26,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -43,7 +44,7 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutils "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/eth/common"
 
 	//nolint:stylecheck,revive // Ginkgo is the testing framework.
@@ -67,7 +68,10 @@ func setupGovTest(ctrl *gomock.Controller, caller sdk.AccAddress) (
 	sdk.Context, authkeeper.AccountKeeperI, bankkeeper.Keeper, *governancekeeper.Keeper,
 ) {
 	// Setup the keepers and context.
-	ctx, ak, bk, sk := testutils.SetupMinimalKeepers()
+	govKey := storetypes.NewKVStoreKey(governancetypes.StoreKey)
+	ctx, ak, bk, sk := testutils.SetupMinimalKeepers(
+		log.NewTestLogger(GinkgoT()), []storetypes.StoreKey{govKey}...,
+	)
 	dk := govtestutil.NewMockDistributionKeeper(ctrl)
 
 	// Create the codec.
@@ -94,7 +98,7 @@ func setupGovTest(ctrl *gomock.Controller, caller sdk.AccAddress) (
 	}
 	gk := governancekeeper.NewKeeper(
 		encCfg.Codec,
-		runtime.NewKVStoreService(storetypes.NewKVStoreKey(governancetypes.StoreKey)),
+		runtime.NewKVStoreService(govKey),
 		ak,
 		bk,
 		sk,

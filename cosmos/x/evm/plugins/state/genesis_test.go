@@ -23,9 +23,11 @@ package state_test
 import (
 	"math/big"
 
+	"cosmossdk.io/log"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -44,7 +46,7 @@ var _ = Describe("Genesis", func() {
 
 	BeforeEach(func() {
 		var ak state.AccountKeeper
-		ctx, ak, _, _ = testutil.SetupMinimalKeepers()
+		ctx, ak, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
 		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
 
 		// Create account for alice, bob

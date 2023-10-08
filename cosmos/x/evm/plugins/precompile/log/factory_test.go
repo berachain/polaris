@@ -24,13 +24,14 @@ import (
 	"errors"
 	"strconv"
 
+	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/precompile"
@@ -54,7 +55,7 @@ var _ = Describe("Factory", func() {
 	)
 
 	BeforeEach(func() {
-		_, _, _, sk = testutil.SetupMinimalKeepers()
+		_, _, _, sk = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
 		valAddr = sdk.ValAddress([]byte("alice"))
 		delAddr = sdk.AccAddress([]byte("bob"))
 		creationHeight = int64(10)

@@ -25,12 +25,13 @@ import (
 	"errors"
 	"math/big"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	tmock "pkg.berachain.dev/polaris/cosmos/testing/types/mock"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	"pkg.berachain.dev/polaris/cosmos/store/snapmulti"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
@@ -50,10 +51,11 @@ var _ = Describe("plugin", func() {
 	var ctx sdk.Context
 
 	BeforeEach(func() {
-		ctx = testutil.NewContext()
+		ctx = testutil.NewContext(log.NewTestLogger(GinkgoT()))
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)
+		ctx = ctx.WithMultiStore(snapmulti.NewStoreFrom(ctx.MultiStore()))
 		p = utils.MustGetAs[*plugin](NewPlugin())
 		e = &mockEVM{nil, ctx, &mockSDB{nil, ctx, 0}}
 	})
@@ -70,7 +72,7 @@ var _ = Describe("plugin", func() {
 	})
 
 	It("should handle read-only static calls", func() {
-		ms := utils.MustGetAs[tmock.MultiStore](ctx.MultiStore())
+		ms := utils.MustGetAs[MultiStore](ctx.MultiStore())
 		cem := utils.MustGetAs[state.ControllableEventManager](ctx.EventManager())
 		// verify its not read-only right now
 		Expect(ms.IsReadOnly()).To(BeFalse())

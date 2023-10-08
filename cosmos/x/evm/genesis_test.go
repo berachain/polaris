@@ -27,7 +27,6 @@ import (
 	"math/big"
 
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,7 +34,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
@@ -64,7 +63,7 @@ var _ = Describe("", func() {
 	)
 
 	BeforeEach(func() {
-		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
+		ctx, ak, _, sk = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
 		ctx = ctx.WithBlockHeight(0)
 		sc = staking.NewPrecompileContract(ak, &sk)
 		cfg := config.DefaultConfig()
@@ -73,7 +72,7 @@ var _ = Describe("", func() {
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
 		k = keeper.NewKeeper(
 			ak, sk,
-			storetypes.NewKVStoreKey("evm"),
+			testutil.EvmKey,
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},

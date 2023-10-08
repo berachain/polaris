@@ -26,14 +26,14 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
-var _ storetypes.CacheKVStore = (*ReadOnlyStore)(nil)
+var _ storetypes.KVStore = (*ReadOnlyStore)(nil)
 
 // ReadOnlyStore is a wrapper around cachekv.Store that panics on any write operation.
 type ReadOnlyStore struct {
-	storetypes.CacheKVStore
+	storetypes.KVStore
 }
 
-func NewReadOnlyStoreFor(cacheKVStore storetypes.CacheKVStore) *ReadOnlyStore {
+func NewReadOnlyStoreFor(cacheKVStore storetypes.KVStore) *ReadOnlyStore {
 	return &ReadOnlyStore{cacheKVStore}
 }
 

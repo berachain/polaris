@@ -43,7 +43,7 @@ import (
 
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
-	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutils "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"

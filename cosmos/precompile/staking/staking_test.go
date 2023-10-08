@@ -25,6 +25,7 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -38,7 +39,7 @@ import (
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -88,7 +89,7 @@ var _ = Describe("Staking", func() {
 	)
 
 	BeforeEach(func() {
-		sdkCtx, ak, bk, sk = testutil.SetupMinimalKeepers()
+		sdkCtx, ak, bk, sk = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
 		contract = libutils.MustGetAs[*Contract](NewPrecompileContract(ak, &sk))
 		sf = ethprecompile.NewStatefulFactory()
 	})

@@ -23,9 +23,11 @@ package state_test
 import (
 	"math/big"
 
+	"cosmossdk.io/log"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -47,7 +49,7 @@ var _ = Describe("State Plugin", func() {
 	var sp state.Plugin
 
 	BeforeEach(func() {
-		ctx, ak, _, _ = testutil.SetupMinimalKeepers()
+		ctx, ak, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
 		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
 		sp.Reset(ctx)
 	})
@@ -63,7 +65,7 @@ var _ = Describe("State Plugin", func() {
 			sp.SetCode(alice, []byte{1, 2, 3})
 			sp.SetState(alice, common.BytesToHash([]byte{1}), common.BytesToHash([]byte{2}))
 
-			sp.Reset(testutil.NewContext())
+			sp.Reset(testutil.NewContext(log.NewTestLogger(GinkgoT())))
 
 			Expect(sp.Exist(alice)).To(BeFalse())
 			Expect(sp.GetBalance(alice)).To(Equal(new(big.Int)))
