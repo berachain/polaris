@@ -36,7 +36,7 @@ import (
 	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/accounts/abi"
@@ -88,7 +88,7 @@ var _ = Describe("Processor", func() {
 		}
 
 		// before chain, init genesis state
-		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
+		ctx, ak, _, sk = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
 		cfg := config.DefaultConfig()
 		cfg.Node.DataDir = GinkgoT().TempDir()
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()

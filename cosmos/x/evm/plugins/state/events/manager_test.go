@@ -18,9 +18,11 @@
 package events_test
 
 import (
+	"cosmossdk.io/log"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
@@ -37,7 +39,7 @@ var _ = Describe("Manager", func() {
 	BeforeEach(func() {
 		ldb = mock.NewEmptyLogsDB()
 
-		ctx = testutil.NewContext()
+		ctx = testutil.NewContext(log.NewTestLogger(GinkgoT()))
 		ctx.EventManager().EmitEvent(sdk.NewEvent("1"))
 
 		cem = events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory())

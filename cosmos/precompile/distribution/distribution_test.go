@@ -25,6 +25,7 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 
@@ -44,8 +45,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
+	pclog "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -77,7 +78,9 @@ func setup() (
 	*stakingkeeper.Keeper,
 	*bankkeeper.BaseKeeper,
 ) {
-	ctx, ak, bk, sk := testutil.SetupMinimalKeepers()
+	distrKey := storetypes.NewKVStoreKey(distributiontypes.StoreKey)
+	ctx, ak, bk, sk := testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()),
+		[]storetypes.StoreKey{distrKey}...)
 
 	encCfg := cosmostestutil.MakeTestEncodingConfig(
 		distribution.AppModuleBasic{},
@@ -85,7 +88,7 @@ func setup() (
 
 	dk := distrkeeper.NewKeeper(
 		encCfg.Codec,
-		runtime.NewKVStoreService(storetypes.NewKVStoreKey(distributiontypes.StoreKey)),
+		runtime.NewKVStoreService(distrKey),
 		ak,
 		bk,
 		sk,
@@ -107,7 +110,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 	var (
 		contract *Contract
 		valAddr  sdk.ValAddress
-		f        *log.Factory
+		f        *pclog.Factory
 		amt      sdk.Coin
 
 		ctx sdk.Context
@@ -131,7 +134,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 		))
 
 		// Register the events.
-		f = log.NewFactory([]ethprecompile.Registrable{contract})
+		f = pclog.NewFactory([]ethprecompile.Registrable{contract})
 
 		// Set up the stateful factory.
 		sf = ethprecompile.NewStatefulFactory()

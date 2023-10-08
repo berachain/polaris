@@ -25,12 +25,13 @@ import (
 	"errors"
 	"math/big"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/store/snapmulti"
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
@@ -50,7 +51,7 @@ var _ = Describe("plugin", func() {
 	var ctx sdk.Context
 
 	BeforeEach(func() {
-		ctx = testutil.NewContext()
+		ctx = testutil.NewContext(log.NewTestLogger(GinkgoT()))
 		ctx = ctx.WithEventManager(
 			events.NewManagerFrom(ctx.EventManager(), mock.NewPrecompileLogFactory()),
 		)

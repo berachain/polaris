@@ -24,11 +24,12 @@ import (
 	"errors"
 	"math/big"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -44,8 +45,10 @@ var _ = Describe("Header", func() {
 	var p *plugin
 
 	BeforeEach(func() {
-		_, _, _, sk := testutil.SetupMinimalKeepers()
-		ctx = testutil.NewContext().WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
+		_, _, _, sk := testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
+		ctx = testutil.NewContext(
+			log.NewTestLogger(GinkgoT())).
+			WithBlockGasMeter(storetypes.NewGasMeter(uint64(10000)))
 		p = utils.MustGetAs[*plugin](NewPlugin(testutil.EvmKey, sk))
 		p.SetQueryContextFn(
 			func() func(height int64, prove bool) (sdk.Context, error) { return mockQueryContext })
@@ -134,7 +137,7 @@ func mockQueryContext(height int64, _ bool) (sdk.Context, error) {
 	if height <= 0 {
 		return sdk.Context{}, errors.New("cannot query context at this height")
 	}
-	ctx := testutil.NewContext().WithBlockHeight(height)
+	ctx := testutil.NewContext(log.NewTestLogger(GinkgoT())).WithBlockHeight(height)
 	header := generateHeaderAtHeight(height)
 	headerBz, err := types.MarshalHeader(header)
 	if err != nil {

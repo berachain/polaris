@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package utils
+package testutil
 
 import (
 	"testing"
@@ -57,8 +57,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
-
-	. "github.com/onsi/ginkgo/v2"
 )
 
 var (
@@ -71,9 +69,9 @@ var (
 )
 
 // NewContext creates a SDK context and mounts a mock multistore.
-func NewContext(storekeys ...storetypes.StoreKey) sdk.Context {
+func NewContext(logger log.Logger, storekeys ...storetypes.StoreKey) sdk.Context {
 	cdb := cdb.NewMemDB()
-	rms := rootmulti.NewStore(cdb, log.NewTestLogger(GinkgoT()), metrics.NewNoOpMetrics())
+	rms := rootmulti.NewStore(cdb, logger, metrics.NewNoOpMetrics())
 
 	// Register defaults
 	rms.MountStoreWithDB(AccKey, storetypes.StoreTypeIAVL, cdb)
@@ -86,11 +84,11 @@ func NewContext(storekeys ...storetypes.StoreKey) sdk.Context {
 		rms.MountStoreWithDB(storeKey, storetypes.StoreTypeIAVL, cdb)
 	}
 	_ = rms.LoadLatestVersion()
-	return NewContextWithMultiStore(rms)
+	return NewContextWithMultiStore(rms, logger)
 }
 
-func NewContextWithMultiStore(ms storetypes.MultiStore) sdk.Context {
-	return sdk.NewContext(ms, cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
+func NewContextWithMultiStore(ms storetypes.MultiStore, logger log.Logger) sdk.Context {
+	return sdk.NewContext(ms, cometproto.Header{}, false, logger)
 }
 
 // TestEncodingConfig defines an encoding configuration that is used for testing
@@ -130,14 +128,14 @@ func MakeTestEncodingConfig(modules ...module.AppModuleBasic) TestEncodingConfig
 }
 
 // SetupMinimalKeepers creates and returns keepers for the base SDK modules.
-func SetupMinimalKeepers() (
+func SetupMinimalKeepers(logger log.Logger, keys ...storetypes.StoreKey) (
 	sdk.Context,
 	authkeeper.AccountKeeper,
 	bankkeeper.BaseKeeper,
 	stakingkeeper.Keeper,
 ) {
 	types.SetupCosmosConfig()
-	ctx := NewContext().WithBlockHeight(1)
+	ctx := NewContext(logger, keys...).WithBlockHeight(1)
 
 	encodingConfig := testutil.MakeTestEncodingConfig(
 		auth.AppModuleBasic{},
@@ -162,7 +160,6 @@ func SetupMinimalKeepers() (
 			govtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 			distrtypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		},
-		// TODO: switch to eip-55 fuck bech32.
 		addrCodec,
 		"cosmos",
 		authority,

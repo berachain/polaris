@@ -23,11 +23,12 @@ package gas
 import (
 	"math"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -43,14 +44,14 @@ var _ = Describe("plugin", func() {
 	BeforeEach(func() {
 		// new block
 		blockGasMeter = storetypes.NewGasMeter(blockGasLimit)
-		ctx = testutil.NewContext().WithBlockGasMeter(blockGasMeter)
+		ctx = testutil.NewContext(log.NewTestLogger(GinkgoT())).WithBlockGasMeter(blockGasMeter)
 		p = utils.MustGetAs[*plugin](NewPlugin())
 		p.Reset(ctx)
 		p.Prepare(ctx)
 	})
 
 	It("correctly consume, refund, and report cumulative in the same block", func() {
-		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
+		p.Reset(testutil.NewContext(log.NewTestLogger(GinkgoT())).WithBlockGasMeter(blockGasMeter))
 
 		// tx 1
 		p.gasMeter = storetypes.NewGasMeter(1000)
@@ -65,7 +66,7 @@ var _ = Describe("plugin", func() {
 		// as block gas is handled by the baseapp.
 		blockGasMeter.ConsumeGas(250, "") // finalize tx 1
 
-		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
+		p.Reset(testutil.NewContext(log.NewTestLogger(GinkgoT())).WithBlockGasMeter(blockGasMeter))
 
 		// tx 2
 		p.gasMeter = storetypes.NewGasMeter(1000)
@@ -77,7 +78,7 @@ var _ = Describe("plugin", func() {
 		Expect(p.BlockGasConsumed()).To(Equal(uint64(250))) // shouldn't use any xtra gas yet.
 		blockGasMeter.ConsumeGas(1000, "")                  // finalize tx 2
 		Expect(p.BlockGasConsumed()).To(Equal(uint64(1250)))
-		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
+		p.Reset(testutil.NewContext(log.NewTestLogger(GinkgoT())).WithBlockGasMeter(blockGasMeter))
 
 		// tx 3
 		p.gasMeter = storetypes.NewGasMeter(1000)
@@ -110,14 +111,14 @@ var _ = Describe("plugin", func() {
 	It("should error on block gas overconsumption", func() {
 		Expect(p.BlockGasLimit()).To(Equal(blockGasLimit))
 
-		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
+		p.Reset(testutil.NewContext(log.NewTestLogger(GinkgoT())).WithBlockGasMeter(blockGasMeter))
 
 		// tx 1
 		err := p.ConsumeTxGas(1000)
 		Expect(err).ToNot(HaveOccurred())
 		blockGasMeter.ConsumeGas(1000, "") // finalize tx 1
 
-		p.Reset(testutil.NewContext().WithBlockGasMeter(blockGasMeter))
+		p.Reset(testutil.NewContext(log.NewTestLogger(GinkgoT())).WithBlockGasMeter(blockGasMeter))
 
 		// tx 2
 		err = p.ConsumeTxGas(1000)
