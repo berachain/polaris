@@ -22,9 +22,9 @@ WORKDIR /
 
 # Add a default genesis file + Inject the startup script
 ADD version.txt /version.txt
-ADD hive-init.sh /hive-init.sh
+ADD entrypoint.sh /entrypoint.sh
 
 # Export the usual networking ports to allow outside access to the node
 EXPOSE 8545 8546 8547 8551
 
-CMD ["bash", "hive-init.sh"]
+CMD ["bash", "entrypoint.sh"]

@@ -19,36 +19,23 @@
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 # TITLE.
 
+# Constants
 KEYS[0]="dev0"
-KEYS[1]="dev1"
-KEYS[2]="dev2"
 CHAINID="polaris-2061"
 MONIKER="localtestnet"
-# Remember to change to other types of keyring like 'file' in-case exposing to outside world,
-# otherwise your balance will be wiped quickly
-# The keyring test does not require private key to steal tokens from you
 KEYRING="test"
 KEYALGO="secp256k1"
 LOGLEVEL="info"
-# Set dedicated home directory for the ./bin/polard instance
 HOMEDIR="/"
-# to trace evm
-#TRACE="--trace"
-TRACE=""
-
-# Path variables
+ETH_GENESIS_JSON="genesis.json"
+ETH_GENESIS_SOURCE=$(cat genesis.json)
 CONFIG_TOML=$HOMEDIR/config/config.toml
 APP_TOML=$HOMEDIR/config/app.toml
 GENESIS=$HOMEDIR/config/genesis.json
 TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 
-# used to exit on first error (any non-zero exit code)
+# Used to exit on first error (any non-zero exit code)
 set -e
-
-# Reinstall daemon
-# make build
-
-# Remove the previous folder
 
  # Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
 polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
@@ -62,19 +49,11 @@ for KEY in "${KEYS[@]}"; do
     polard keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
 done
 
-ETH_GENESIS_SOURCE=$(cat genesis.json)
-JSON_FILE="genesis.json"
+# Update cosmos genesis.json by copying the ethereum genesis.json into the cosmos genesis.
 temp_genesis=$(cat $GENESIS)
-echo "eth_gen dump: "
-echo $ETH_GENESIS_SOURCE
-
-
-# # # Change eth_genesis in config/genesis.json
-# # # TODO FIX TO SETUP APP.TOML STUFF
 updated_genesis=$(echo "$temp_genesis" | jq --argjson eth_gen "$ETH_GENESIS_SOURCE" '.app_state["evm"] = $eth_gen')
 echo "$updated_genesis" > "$GENESIS"
 
-# echo "UPDATED FILE"
 
 # Change parameter token denominations to abera
 jq '.app_state["staking"]["params"]["bond_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -83,10 +62,6 @@ jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="abera"' "$GE
 jq '.app_state["mint"]["params"]["mint_denom"]="abera"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.consensus["params"]["block"]["max_gas"]="30000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
-# Dump genesis
-# echo "genesis state:"
-# cat $GENESIS
-
 # Allocate genesis accounts (cosmos formatted addresses)
 for KEY in "${KEYS[@]}"; do
     polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
@@ -94,12 +69,6 @@ done
 
 # Sign genesis transaction
 polard genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
-## In case you want to create multiple validators at genesis
-## 1. Back to `./bin/polard keys add` step, init more keys
-## 2. Back to `./bin/polard add-genesis-account` step, add balance for those
-## 3. Clone this ~/../bin/polard home directory into some others, let's say `~/.cloned./bin/polard`
-## 4. Run `gentx` in each of those folders
-## 5. Copy the `gentx-*` folders under `~/.cloned./bin/polard/config/gentx/` folders into the original `~/../bin/polard/config/gentx`
 
 # Collect genesis tx
 polard genesis collect-gentxs --home "$HOMEDIR"
@@ -107,31 +76,27 @@ polard genesis collect-gentxs --home "$HOMEDIR"
 # Run this to ensure everything worked and that the genesis file is setup correctly
 polard genesis validate-genesis --home "$HOMEDIR"
 
-if [[ $1 == "pending" ]]; then
-    echo "pending mode is on, please wait for the first block committed."
-fi
-
-# Read values from JSON
-CHAIN_ID=$(jq '.config.chainId' $JSON_FILE)
-HOMESTEAD_BLOCK=$(jq '.config.homesteadBlock' $JSON_FILE)
-DAO_FORK_BLOCK=$(jq '.config.daoForkBlock' $JSON_FILE)
-DAO_FORK_SUPPORT=$(jq '.config.daoForkSupport' $JSON_FILE)
-EIP150_BLOCK=$(jq '.config.eip150Block' $JSON_FILE)
-EIP155_BLOCK=$(jq '.config.eip155Block' $JSON_FILE)
-EIP158_BLOCK=$(jq '.config.eip158Block' $JSON_FILE)
-BYZANTIUM_BLOCK=$(jq '.config.byzantiumBlock' $JSON_FILE)
-CONSTANTINOPLE_BLOCK=$(jq '.config.constantinopleBlock' $JSON_FILE)
-PETERSBURG_BLOCK=$(jq '.config.petersburgBlock' $JSON_FILE)
-ISTANBUL_BLOCK=$(jq '.config.istanbulBlock' $JSON_FILE)
-BERLIN_BLOCK=$(jq '.config.berlinBlock' $JSON_FILE)
-LONDON_BLOCK=$(jq '.config.londonBlock' $JSON_FILE)
-MUIR_GLACIER_BLOCK=$(jq '.config.muirGlacierBlock' $JSON_FILE)
-ARROW_GLACIER_BLOCK=$(jq '.config.arrowGlacierBlock' $JSON_FILE)
-GRAY_GLACIER_BLOCK=$(jq '.config.grayGlacierBlock' $JSON_FILE)
-MERGE_NETSPLIT_BLOCK=$(jq '.config.mergeNetsplitBlock' $JSON_FILE)
-SHANGHAI_TIME=$(jq '.config.shanghaiTime' $JSON_FILE)
-TERMINAL_TOTAL_DIFFICULTY=$(jq '.config.terminalTotalDifficulty' $JSON_FILE)
-TERMINAL_TOTAL_DIFFICULTY_PASSED=$(jq '.config.terminalTotalDifficultyPassed' $JSON_FILE)
+# Update app.toml with the correct ethereum chain config stuff.
+CHAIN_ID=$(jq '.config.chainId' $ETH_GENESIS_JSON)
+HOMESTEAD_BLOCK=$(jq '.config.homesteadBlock' $ETH_GENESIS_JSON)
+DAO_FORK_BLOCK=$(jq '.config.daoForkBlock' $ETH_GENESIS_JSON)
+DAO_FORK_SUPPORT=$(jq '.config.daoForkSupport' $ETH_GENESIS_JSON)
+EIP150_BLOCK=$(jq '.config.eip150Block' $ETH_GENESIS_JSON)
+EIP155_BLOCK=$(jq '.config.eip155Block' $ETH_GENESIS_JSON)
+EIP158_BLOCK=$(jq '.config.eip158Block' $ETH_GENESIS_JSON)
+BYZANTIUM_BLOCK=$(jq '.config.byzantiumBlock' $ETH_GENESIS_JSON)
+CONSTANTINOPLE_BLOCK=$(jq '.config.constantinopleBlock' $ETH_GENESIS_JSON)
+PETERSBURG_BLOCK=$(jq '.config.petersburgBlock' $ETH_GENESIS_JSON)
+ISTANBUL_BLOCK=$(jq '.config.istanbulBlock' $ETH_GENESIS_JSON)
+BERLIN_BLOCK=$(jq '.config.berlinBlock' $ETH_GENESIS_JSON)
+LONDON_BLOCK=$(jq '.config.londonBlock' $ETH_GENESIS_JSON)
+MUIR_GLACIER_BLOCK=$(jq '.config.muirGlacierBlock' $ETH_GENESIS_JSON)
+ARROW_GLACIER_BLOCK=$(jq '.config.arrowGlacierBlock' $ETH_GENESIS_JSON)
+GRAY_GLACIER_BLOCK=$(jq '.config.grayGlacierBlock' $ETH_GENESIS_JSON)
+MERGE_NETSPLIT_BLOCK=$(jq '.config.mergeNetsplitBlock' $ETH_GENESIS_JSON)
+SHANGHAI_TIME=$(jq '.config.shanghaiTime' $ETH_GENESIS_JSON)
+TERMINAL_TOTAL_DIFFICULTY=$(jq '.config.terminalTotalDifficulty' $ETH_GENESIS_JSON)
+TERMINAL_TOTAL_DIFFICULTY_PASSED=$(jq '.config.terminalTotalDifficultyPassed' $ETH_GENESIS_JSON)
 
 # Update values in TOML using sed command for Linux with -i and empty string argument
 sed -i "s/chain-id = .*/chain-id = \"$CHAIN_ID\"/" $APP_TOML
@@ -155,15 +120,9 @@ sed -i "s/shanghai-time = .*/shanghai-time = \"$SHANGHAI_TIME\"/" $APP_TOML
 sed -i "s/terminal-total-difficulty = .*/terminal-total-difficulty = \"$TERMINAL_TOTAL_DIFFICULTY\"/" $APP_TOML
 sed -i "s/terminal-total-difficulty-passed = .*/terminal-total-difficulty-passed = $TERMINAL_TOTAL_DIFFICULTY_PASSED/" $APP_TOML
 
-# sed -i 's/"null"/null/g' $APP_TOML
-# sed -i 's/"null"/null/g' $APP_TOML
-# cat "POSTSED"
-# cat $APP_TOML
-cat $APP_TOML
-echo "BINGBONG"
-cat $CONFIG_TOML
 
-# Adjust timeout: #TODO: figure out why hive is sensitive to tehse values 
+# Adjust timeouts for CometBFT: 
+# TODO: figure out why hive is sensitive to these values 
 sed -i 's/timeout_propose = "3s"/timeout_propose = "1s"/g' $CONFIG_TOML
 sed -i 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "1s"/g' $CONFIG_TOML
 sed -i 's/timeout_prevote = "1s"/timeout_prevote = "1s"/g' $CONFIG_TOML
