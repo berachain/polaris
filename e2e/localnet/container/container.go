@@ -48,6 +48,7 @@ type Client interface {
 	// GetEndpoint returns the endpoint for the given id of the container.
 	GetEndpoint(string) string
 
+	// GetContainerLogs retrieves the logs out of the container.
 	GetContainerLogs() ([]byte, error)
 }
 
