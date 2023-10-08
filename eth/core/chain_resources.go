@@ -38,7 +38,7 @@ type ChainResources interface {
 
 // StateAt returns a statedb configured to read what the state of the blockchain is/was at a given.
 func (bc *blockchain) StateAt(common.Hash) (state.StateDB, error) {
-	return nil, errors.New("not implemented")
+	return nil, errors.New("StateAt is not implemented in polaris due state root")
 }
 
 // StateAtBlockNumber returns a statedb configured to read what the state of the blockchain is/was

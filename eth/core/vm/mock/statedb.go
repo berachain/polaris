@@ -61,15 +61,6 @@ func NewEmptyStateDB() *PolarStateDBMock {
 		EmptyFunc: func(address common.Address) bool {
 			return true
 		},
-		ErrorFunc: func() error {
-			return nil
-		},
-		ExistFunc: func(address common.Address) bool {
-			return false
-		},
-		FinaliseFunc: func(bool) {
-			// no-op
-		},
 		GetBalanceFunc: func(address common.Address) *big.Int {
 			return big.NewInt(0)
 		},
@@ -84,9 +75,6 @@ func NewEmptyStateDB() *PolarStateDBMock {
 		},
 		GetCommittedStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 			return common.Hash{}
-		},
-		GetLogsFunc: func(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*types.Log {
-			return []*types.Log{}
 		},
 		GetNonceFunc: func(address common.Address) uint64 {
 			return 0
@@ -116,7 +104,6 @@ func NewEmptyStateDB() *PolarStateDBMock {
 		SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash) {
 
 		},
-		SetTxContextFunc: func(thash common.Hash, ti int) {},
 		SlotInAccessListFunc: func(addr common.Address, slot common.Hash) (bool, bool) {
 			return false, false
 		},
@@ -131,13 +118,6 @@ func NewEmptyStateDB() *PolarStateDBMock {
 		},
 		SelfDestructFunc: func(address common.Address) {
 		},
-	}
-	mockedPolarStateDB.LogsFunc = func() []*types.Log {
-		logs := []*types.Log{}
-		for _, l := range mockedPolarStateDB.AddLogCalls() {
-			logs = append(logs, l.Log)
-		}
-		return logs
 	}
 	return mockedPolarStateDB
 }

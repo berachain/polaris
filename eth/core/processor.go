@@ -27,6 +27,7 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	errorslib "pkg.berachain.dev/polaris/lib/errors"
@@ -52,7 +53,7 @@ type StateProcessor struct {
 	signer types.Signer
 
 	// statedb is the state database that is used to mange state during transactions.
-	statedb vm.PolarStateDB
+	statedb state.StateDB
 	// vmConfig is the configuration for the EVM.
 	vmConfig *vm.Config
 
@@ -70,7 +71,7 @@ type StateProcessor struct {
 func NewStateProcessor(
 	cp ConfigurationPlugin,
 	pp PrecompilePlugin,
-	statedb vm.PolarStateDB,
+	statedb state.StateDB,
 	vmConfig *vm.Config,
 ) *StateProcessor {
 	sp := &StateProcessor{

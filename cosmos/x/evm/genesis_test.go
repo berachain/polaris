@@ -35,6 +35,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
+	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -65,6 +66,7 @@ var _ = Describe("", func() {
 
 	BeforeEach(func() {
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
+		ctx = ctx.WithMultiStore(mock.NewMultiStore())
 		ctx = ctx.WithBlockHeight(0)
 		sc = staking.NewPrecompileContract(ak, &sk)
 		cfg := config.DefaultConfig()
@@ -77,24 +79,17 @@ var _ = Describe("", func() {
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},
-			nil,
+			func() func(height int64, prove bool) (sdk.Context, error) {
+				return func(height int64, prove bool) (sdk.Context, error) {
+					return ctx, nil
+				}
+			},
 			log.NewTestLogger(GinkgoT()),
 			cfg,
 		)
 		err = k.SetupPrecompiles()
 		Expect(err).ToNot(HaveOccurred())
 		am = evm.NewAppModule(k, ak)
-	})
-
-	Context("On ValidateGenesis", func() {
-		BeforeEach(func() {
-		})
-
-		When("", func() {
-			It("", func() {
-
-			})
-		})
 	})
 
 	Context("On InitGenesis", func() {
@@ -110,9 +105,6 @@ var _ = Describe("", func() {
 		})
 
 		When("the genesis is valid", func() {
-			BeforeEach(func() {
-
-			})
 			It("should succeed without error", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})

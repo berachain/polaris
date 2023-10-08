@@ -85,8 +85,6 @@ func newStateDBWithJournals(
 ) *stateDB {
 	if sp == nil {
 		panic("StatePlugin is nil in newStateDBWithJournals")
-	} else if pp == nil {
-		panic("PrecompilePlugin is nil in newStateDBWithJournals")
 	}
 
 	// Build the controller and register the plugins and journals
@@ -224,8 +222,10 @@ func (sdb *stateDB) Preimages() map[common.Hash][]byte {
 // code associated with the given account.
 func (sdb *stateDB) GetCode(addr common.Address) []byte {
 	// We return a single byte for client compatibility w/precompiles.
-	if _, ok := sdb.pp.Get(addr, sdb.rules); ok {
-		return []byte{0x01}
+	if sdb.pp != nil {
+		if _, ok := sdb.pp.Get(addr, sdb.rules); ok {
+			return []byte{0x01}
+		}
 	}
 	return sdb.Plugin.GetCode(addr)
 }
