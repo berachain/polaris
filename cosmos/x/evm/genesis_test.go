@@ -27,7 +27,6 @@ import (
 	"math/big"
 
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -73,7 +72,7 @@ var _ = Describe("", func() {
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
 		k = keeper.NewKeeper(
 			ak, sk,
-			storetypes.NewKVStoreKey("evm"),
+			testutil.EvmKey,
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},

@@ -95,7 +95,7 @@ var _ = Describe("Processor", func() {
 		sc = staking.NewPrecompileContract(ak, &sk)
 		k = keeper.NewKeeper(
 			ak, sk,
-			storetypes.NewKVStoreKey("evm"),
+			testutil.EvmKey,
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
 			},

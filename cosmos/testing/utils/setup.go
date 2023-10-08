@@ -23,7 +23,11 @@ package utils
 import (
 	"testing"
 
+	cdb "github.com/cosmos/cosmos-db"
+
 	"cosmossdk.io/log"
+	"cosmossdk.io/store/metrics"
+	"cosmossdk.io/store/rootmulti"
 	storetypes "cosmossdk.io/store/types"
 
 	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -50,10 +54,11 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
 	"pkg.berachain.dev/polaris/cosmos/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
+
+	. "github.com/onsi/ginkgo/v2"
 )
 
 var (
@@ -66,9 +71,22 @@ var (
 )
 
 // NewContext creates a SDK context and mounts a mock multistore.
-func NewContext() sdk.Context {
-	return sdk.NewContext(
-		mock.NewMultiStore(), cometproto.Header{}, false, log.NewTestLogger(&testing.T{}))
+func NewContext(storekeys ...storetypes.StoreKey) sdk.Context {
+	cdb := cdb.NewMemDB()
+	rms := rootmulti.NewStore(cdb, log.NewTestLogger(GinkgoT()), metrics.NewNoOpMetrics())
+
+	// Register defaults
+	rms.MountStoreWithDB(AccKey, storetypes.StoreTypeIAVL, cdb)
+	rms.MountStoreWithDB(BankKey, storetypes.StoreTypeIAVL, cdb)
+	rms.MountStoreWithDB(EvmKey, storetypes.StoreTypeIAVL, cdb)
+	rms.MountStoreWithDB(StakingKey, storetypes.StoreTypeIAVL, cdb)
+
+	// Allow extending the
+	for _, storeKey := range storekeys {
+		rms.MountStoreWithDB(storeKey, storetypes.StoreTypeIAVL, cdb)
+	}
+	_ = rms.LoadLatestVersion()
+	return NewContextWithMultiStore(rms)
 }
 
 func NewContextWithMultiStore(ms storetypes.MultiStore) sdk.Context {
