@@ -80,9 +80,6 @@ var _ = Describe("StateProcessor", func() {
 		sdb.GetPrecompileManagerFunc = func() any {
 			return pp
 		}
-		sdb.TxIndexFunc = func() int {
-			return 0
-		}
 		pp.GetActiveFunc = func(params.Rules) []common.Address {
 			return []common.Address{}
 		}

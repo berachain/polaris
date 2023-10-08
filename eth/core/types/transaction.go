@@ -49,9 +49,3 @@ func (tle *TxLookupEntry) MarshalBinary() ([]byte, error) {
 	}
 	return bz, nil
 }
-
-// GetSender returns the sender of the transaction.
-func GetSender(tx *Transaction) common.Address {
-	sender, _ := LatestSignerForChainID(tx.ChainId()).Sender(tx)
-	return sender
-}
