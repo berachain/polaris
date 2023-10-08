@@ -41,7 +41,7 @@ func (tle *TxLookupEntry) UnmarshalBinary(data []byte) error {
 	return rlp.DecodeBytes(data, tle)
 }
 
-// MarshalBinary encodes the tx lookup enßtry into the Ethereum RLP formatp
+// MarshalBinary encodes the tx lookup enßtry into the Ethereum RLP format.
 func (tle *TxLookupEntry) MarshalBinary() ([]byte, error) {
 	bz, err := rlp.EncodeToBytes(tle)
 	if err != nil {
