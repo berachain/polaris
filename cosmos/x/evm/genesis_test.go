@@ -35,7 +35,6 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
-	"pkg.berachain.dev/polaris/cosmos/testing/types/mock"
 	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -66,7 +65,6 @@ var _ = Describe("", func() {
 
 	BeforeEach(func() {
 		ctx, ak, _, sk = testutil.SetupMinimalKeepers()
-		ctx = ctx.WithMultiStore(mock.NewMultiStore())
 		ctx = ctx.WithBlockHeight(0)
 		sc = staking.NewPrecompileContract(ak, &sk)
 		cfg := config.DefaultConfig()

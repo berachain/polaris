@@ -49,22 +49,3 @@ func MintCoinsToAddress(
 	// Send the bank denomination to the receipient.
 	return bk.SendCoinsFromModuleToAccount(ctx, moduleAcc, recipient.Bytes(), coins)
 }
-
-// BurnCoinsFromAddress burns coins from a given address.
-func BurnCoinsFromAddress(
-	ctx context.Context,
-	bk BankKeeper,
-	moduleAcc string,
-	sender common.Address,
-	denom string,
-	amount *big.Int,
-) error {
-	// Burn the corresponding bank denom.
-	coins := sdk.Coins{{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)}}
-	if err := bk.SendCoinsFromAccountToModule(ctx, sender.Bytes(), moduleAcc, coins); err != nil {
-		return err
-	}
-
-	// Burn the bank denomination.
-	return bk.BurnCoins(ctx, moduleAcc, coins)
-}
