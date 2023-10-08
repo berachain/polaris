@@ -105,6 +105,10 @@ var _ = Describe("Processor", func() {
 		)
 		err = k.SetupPrecompiles()
 		Expect(err).ToNot(HaveOccurred())
+		// Init won't work yet due to no multistore existing yet at genesis.
+		// TODO: probably need to refactor state/plugin.StateAtBlockNumber (its really hood rn).
+		err = k.Init()
+		Expect(err).To(HaveOccurred())
 		ctx = ctx.WithBlockHeight(0)
 		genState := core.DefaultGenesis
 		Expect(k.InitGenesis(ctx, genState)).ToNot(HaveOccurred())

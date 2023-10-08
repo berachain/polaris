@@ -101,11 +101,11 @@ func NewKeeper(
 
 // SetupPrecompiles initializes precompiles and the polaris node.
 func (k *Keeper) SetupPrecompiles() error {
-	if err := k.host.SetupPrecompiles(); err != nil {
-		return err
-	}
+	return k.host.SetupPrecompiles()
+}
 
-	// TODO: move this.
+// Init calls Init on the underlying polaris struct.
+func (k *Keeper) Init() error {
 	return k.polaris.Init()
 }
 
