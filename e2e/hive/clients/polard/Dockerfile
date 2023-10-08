@@ -24,11 +24,6 @@ WORKDIR /
 ADD version.txt /version.txt
 ADD hive-init.sh /hive-init.sh
 
-ADD config/config.toml config/config.toml
-
-RUN export HIVE_CHAIN_ID=2061
-RUN export HIVE_NETWORK_ID=2061
-
 # Export the usual networking ports to allow outside access to the node
 EXPOSE 8545 8546 8547 8551
 
