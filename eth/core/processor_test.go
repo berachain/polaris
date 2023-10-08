@@ -26,13 +26,13 @@ import (
 
 	"github.com/ethereum/go-ethereum/consensus"
 
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/mock"
+	"pkg.berachain.dev/polaris/eth/core/state"
+	statemock "pkg.berachain.dev/polaris/eth/core/state/mock"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
-	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
 	"pkg.berachain.dev/polaris/eth/crypto"
 	"pkg.berachain.dev/polaris/eth/params"
 
@@ -64,21 +64,23 @@ var (
 
 var _ = Describe("StateProcessor", func() {
 	var (
-		sdb *vmmock.PolarStateDBMock
+		sdb state.StateDB
 		bp  *mock.BlockPluginMock
 		cp  *mock.ConfigurationPluginMock
 		pp  *mock.PrecompilePluginMock
+		spm *statemock.PluginMock
 		sp  *core.StateProcessor
 	)
 
 	BeforeEach(func() {
-		sdb = vmmock.NewEmptyStateDB()
+		spm = statemock.NewEmptyStatePlugin()
+		spm.RegistryKeyFunc = func() string {
+			return "sp"
+		}
+		sdb = state.NewStateDB(spm, nil)
 		_, bp, cp, _, _, pp, _ = mock.NewMockHostAndPlugins()
 		bp.GetNewBlockMetadataFunc = func(n uint64) (common.Address, uint64) {
 			return common.BytesToAddress([]byte{2}), uint64(3)
-		}
-		sdb.GetPrecompileManagerFunc = func() any {
-			return pp
 		}
 		pp.GetActiveFunc = func(params.Rules) []common.Address {
 			return []common.Address{}
@@ -110,8 +112,9 @@ var _ = Describe("StateProcessor", func() {
 
 		It("should error on an unsigned transaction", func() {
 			gasPool := new(core.GasPool).AddGas(1000002)
+			tx := types.NewTx(legacyTxData)
 			receipt, err := sp.ProcessTransaction(
-				context.Background(), &mockChainContext{}, gasPool, types.NewTx(legacyTxData))
+				context.Background(), &mockChainContext{}, gasPool, tx)
 			Expect(err).To(HaveOccurred())
 			Expect(receipt).To(BeNil())
 			block, receipts, logs, err := sp.Finalize(context.Background())
@@ -123,10 +126,10 @@ var _ = Describe("StateProcessor", func() {
 
 		It("should not error on a signed transaction", func() {
 			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
-			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
-				return big.NewInt(1000001)
-			}
 			gasPool := new(core.GasPool).AddGas(1000002)
+			sender, _ := signer.Sender(signedTx)
+			val, _ := new(big.Int).SetString("10000000000000000000", 10)
+			sdb.AddBalance(sender, val)
 			result, err := sp.ProcessTransaction(
 				context.Background(), &mockChainContext{}, gasPool, signedTx)
 			Expect(err).ToNot(HaveOccurred())
@@ -141,28 +144,12 @@ var _ = Describe("StateProcessor", func() {
 		})
 
 		It("should handle", func() {
-			sdb.GetBalanceFunc = func(addr common.Address) *big.Int {
-				return big.NewInt(1000001)
-			}
-			sdb.GetCodeFunc = func(addr common.Address) []byte {
-				if addr != dummyContract {
-					return nil
-				}
-				return common.Hex2Bytes(bindings.PrecompileConstructorMetaData.Bin)
-			}
-			sdb.GetCodeHashFunc = func(addr common.Address) common.Hash {
-				if addr != dummyContract {
-					return common.Hash{}
-				}
-				return crypto.Keccak256Hash(
-					common.Hex2Bytes(bindings.PrecompileConstructorMetaData.Bin))
-			}
-			sdb.ExistFunc = func(addr common.Address) bool {
-				return addr == dummyContract
-			}
 			legacyTxData.To = nil
 			legacyTxData.Value = new(big.Int)
 			signedTx := types.MustSignNewTx(key, signer, legacyTxData)
+			sender, _ := signer.Sender(signedTx)
+			val, _ := new(big.Int).SetString("10000000000000000000", 10)
+			sdb.AddBalance(sender, val)
 			gasPool := new(core.GasPool).AddGas(1000002)
 			result, err := sp.ProcessTransaction(
 				context.Background(), &mockChainContext{}, gasPool, signedTx)
@@ -185,22 +172,6 @@ var _ = Describe("StateProcessor", func() {
 			Expect(receipts).To(HaveLen(2))
 			Expect(logs).To(BeEmpty())
 		})
-	})
-})
-
-var _ = Describe("No precompile plugin provided", func() {
-	It("should use the default plugin if none is provided", func() {
-		_, bp, cp, gp, _, pp, _ := mock.NewMockHostAndPlugins()
-		gp.SetBlockGasLimit(uint64(blockGasLimit))
-		bp.GetNewBlockMetadataFunc = func(n uint64) (common.Address, uint64) {
-			return common.BytesToAddress([]byte{2}), uint64(3)
-		}
-		sp := core.NewStateProcessor(cp, pp, vmmock.NewEmptyStateDB(), &vm.Config{})
-		Expect(func() {
-			sp.Prepare(&types.Header{
-				GasLimit: uint64(blockGasLimit),
-			})
-		}).ToNot(Panic())
 	})
 })
 

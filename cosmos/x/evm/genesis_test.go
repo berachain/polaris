@@ -105,9 +105,6 @@ var _ = Describe("", func() {
 		})
 
 		When("the genesis is valid", func() {
-			BeforeEach(func() {
-
-			})
 			It("should succeed without error", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})

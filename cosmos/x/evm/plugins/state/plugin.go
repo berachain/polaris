@@ -540,11 +540,12 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
 	// Investigate and hopefully remove this GTE.
 	if int64Number >= p.ctx.BlockHeight() {
+		// TODO: Manager properly
 		if p.ctx.MultiStore() == nil {
-			return nil, errors.New("no multi-store set in host chain")
+			ctx = p.ctx.WithEventManager(sdk.NewEventManager())
+		} else {
+			ctx, _ = p.ctx.CacheContext()
 		}
-
-		ctx, _ = p.ctx.CacheContext()
 	} else {
 		// Get the query context at the given height.
 		var err error
@@ -556,7 +557,10 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 
 	// Create a State Plugin with the requested chain height.
 	sp := NewPlugin(p.ak, p.storeKey, p.plf)
-	sp.Reset(ctx)
+	// TODO: Manager properly
+	if p.ctx.MultiStore() != nil {
+		sp.Reset(ctx)
+	}
 	return sp, nil
 }
 
@@ -567,8 +571,11 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 // Clone implements libtypes.Cloneable.
 func (p *plugin) Clone() ethstate.Plugin {
 	sp := NewPlugin(p.ak, p.storeKey, p.plf)
-	cacheCtx, _ := p.ctx.CacheContext()
-	sp.Reset(cacheCtx)
+	// TODO: Manager properly
+	if p.ctx.MultiStore() != nil {
+		cacheCtx, _ := p.ctx.CacheContext()
+		sp.Reset(cacheCtx)
+	}
 	return sp
 }
 

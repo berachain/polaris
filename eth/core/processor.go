@@ -53,7 +53,7 @@ type StateProcessor struct {
 	signer types.Signer
 
 	// statedb is the state database that is used to mange state during transactions.
-	statedb vm.PolarStateDB
+	statedb state.StateDB
 	// vmConfig is the configuration for the EVM.
 	vmConfig *vm.Config
 
@@ -71,7 +71,7 @@ type StateProcessor struct {
 func NewStateProcessor(
 	cp ConfigurationPlugin,
 	pp PrecompilePlugin,
-	statedb vm.PolarStateDB,
+	statedb state.StateDB,
 	vmConfig *vm.Config,
 ) *StateProcessor {
 	sp := &StateProcessor{
@@ -113,11 +113,11 @@ func (sp *StateProcessor) ProcessTransaction(
 ) (*types.Receipt, error) {
 	// Set the transaction context in the state database.
 	// This clears the logs and sets the transaction info.
-	sp.statedb.(state.StateDB).SetTxContext(tx.Hash(), len(sp.txs))
+	sp.statedb.SetTxContext(tx.Hash(), len(sp.txs))
 
 	// Inshallah we will be able to apply the transaction.
 	receipt, err := ApplyTransaction(
-		sp.cp.ChainConfig(), chainContext, &sp.header.Coinbase, gasPool, sp.statedb.(state.StateDB),
+		sp.cp.ChainConfig(), chainContext, &sp.header.Coinbase, gasPool, sp.statedb,
 		sp.header, tx, &sp.header.GasUsed, *sp.vmConfig)
 	if err != nil {
 		return nil, errorslib.Wrapf(err, "could not apply transaction [%s]", tx.Hash().Hex())
