@@ -197,7 +197,7 @@ func (pl *Polaris) StartServices() error {
 		// If the JSON-RPC opens before the first block is committed, hive tests will start failing.
 		// This needs to be fixed before mainnet as its ghetto af. If the block time is too long
 		// and this sleep is too short, it will cause hive tests to error out.
-		time.Sleep(5 * time.Second) //nolint:gomnd
+		time.Sleep(5 * time.Second) //nolint:gomnd // as explained above.
 		if err := pl.stack.Start(); err != nil {
 			panic(err)
 		}
