@@ -54,7 +54,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"pkg.berachain.dev/polaris/cosmos/types"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 )
@@ -134,7 +133,6 @@ func SetupMinimalKeepers(logger log.Logger, keys ...storetypes.StoreKey) (
 	bankkeeper.BaseKeeper,
 	stakingkeeper.Keeper,
 ) {
-	types.SetupCosmosConfig()
 	ctx := NewContext(logger, keys...).WithBlockHeight(1)
 
 	encodingConfig := testutil.MakeTestEncodingConfig(

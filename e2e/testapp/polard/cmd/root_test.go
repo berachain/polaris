@@ -29,7 +29,6 @@ import (
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	"pkg.berachain.dev/polaris/cosmos/types"
 	testapp "pkg.berachain.dev/polaris/e2e/testapp"
 	"pkg.berachain.dev/polaris/e2e/testapp/polard/cmd"
 
@@ -41,10 +40,6 @@ func TestCmd(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "e2e/testapp/polard/cmd")
 }
-
-var _ = BeforeSuite(func() {
-	types.SetupCosmosConfig()
-})
 
 var _ = Describe("Init command", func() {
 	It("should initialize the app with given options", func() {

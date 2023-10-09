@@ -44,7 +44,6 @@ import (
 	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
 	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
 	testutils "pkg.berachain.dev/polaris/cosmos/testutil"
-	"pkg.berachain.dev/polaris/cosmos/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -76,7 +75,6 @@ var _ = Describe("Governance Precompile", func() {
 	BeforeEach(func() {
 		t := ginkgoTestReporter{}
 		mockCtrl = gomock.NewController(t)
-		types.SetupCosmosConfig()
 		caller = testutils.Alice.Bytes()
 		sdkCtx, ak, bk, gk = setupGovTest(mockCtrl, caller)
 		sdk.RegisterInterfaces(ir)
@@ -87,7 +85,6 @@ var _ = Describe("Governance Precompile", func() {
 			governancekeeper.NewQueryServer(gk),
 			ir,
 		))
-		types.SetupCosmosConfig()
 		sf = ethprecompile.NewStatefulFactory()
 		ctx = vm.NewPolarContext(
 			sdkCtx,
