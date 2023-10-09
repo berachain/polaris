@@ -21,6 +21,11 @@
 package types
 
 const (
+	StoreKey   = "evm"
+	ModuleName = "evm"
+)
+
+const (
 	CodeKeyPrefix byte = iota
 	BalanceKeyPrefix
 	StorageKeyPrefix
