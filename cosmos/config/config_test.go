@@ -18,58 +18,27 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types_test
+package config_test
 
 import (
-	"testing"
-
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	sgconfig "pkg.berachain.dev/polaris/cosmos/types"
+	sgconfig "pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/eth/accounts"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-func TestConfig(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/types")
-}
-
 var _ = Describe("Configuration", func() {
-	It("should set Bech32 prefixes", func() {
-		config := sdk.GetConfig()
-
-		Expect(config.GetBech32AccountAddrPrefix()).To(Equal(sdk.Bech32PrefixAccAddr))
-		Expect(config.GetBech32AccountPubPrefix()).To(Equal(sdk.Bech32PrefixAccPub))
-		Expect(config.GetBech32ValidatorAddrPrefix()).To(Equal(sdk.Bech32PrefixValAddr))
-		Expect(config.GetBech32ValidatorPubPrefix()).To(Equal(sdk.Bech32PrefixValPub))
-		Expect(config.GetBech32ConsensusAddrPrefix()).To(Equal(sdk.Bech32PrefixConsAddr))
-		Expect(config.GetBech32ConsensusPubPrefix()).To(Equal(sdk.Bech32PrefixConsPub))
-
-		Expect(config.GetBech32AccountAddrPrefix()).
-			To(Equal(sdk.GetConfig().GetBech32AccountAddrPrefix()))
-		Expect(config.GetBech32AccountPubPrefix()).
-			To(Equal(sdk.GetConfig().GetBech32AccountPubPrefix()))
-		Expect(config.GetBech32ValidatorAddrPrefix()).
-			To(Equal(sdk.GetConfig().GetBech32ValidatorAddrPrefix()))
-		Expect(config.GetBech32ValidatorPubPrefix()).
-			To(Equal(sdk.GetConfig().GetBech32ValidatorPubPrefix()))
-		Expect(config.GetBech32ConsensusAddrPrefix()).
-			To(Equal(sdk.GetConfig().GetBech32ConsensusAddrPrefix()))
-		Expect(config.GetBech32ConsensusPubPrefix()).
-			To(Equal(sdk.GetConfig().GetBech32ConsensusPubPrefix()))
-	})
-
 	It("should set CoinType", func() {
 		config := sdk.GetConfig()
 
 		Expect(int(config.GetCoinType())).To(Equal(sdk.CoinType))
 		Expect(config.GetFullBIP44Path()).To(Equal(sdk.FullFundraiserPath))
 
-		sgconfig.SetBip44CoinType(config)
+		sgconfig.SetupCosmosConfig()
 
 		Expect(int(config.GetCoinType())).To(Equal(int(accounts.Bip44CoinType)))
 		Expect(config.GetCoinType()).To(Equal(sdk.GetConfig().GetCoinType()))
