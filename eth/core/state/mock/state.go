@@ -36,6 +36,7 @@ type Account struct {
 	Balance  *big.Int
 	Code     []byte
 	CodeHash common.Hash
+	Nonce    uint64
 }
 
 // NewEmptyStatePlugin returns an empty `StatePluginMock`.
@@ -44,7 +45,9 @@ func NewEmptyStatePlugin() *PluginMock {
 	return &PluginMock{
 		AddBalanceFunc: func(address common.Address, intMoqParam *big.Int) {
 			if _, ok := Accounts[address]; !ok {
-				panic("acct doesnt exist")
+				Accounts[address] = &Account{
+					Balance: intMoqParam,
+				}
 			}
 			Accounts[address] = &Account{
 				Balance:  Accounts[address].Balance.Add(Accounts[address].Balance, intMoqParam),
@@ -67,7 +70,8 @@ func NewEmptyStatePlugin() *PluginMock {
 			}
 		},
 		ExistFunc: func(address common.Address) bool {
-			panic("mock out the Exist method")
+			_, ok := Accounts[address]
+			return ok
 		},
 		EmptyFunc: func(address common.Address) bool {
 			panic("mock out the Empty method")
@@ -95,7 +99,7 @@ func NewEmptyStatePlugin() *PluginMock {
 		},
 		GetCodeHashFunc: func(address common.Address) common.Hash {
 			if _, ok := Accounts[address]; !ok {
-				panic("acct doesnt exist")
+				return common.Hash{}
 			}
 			return Accounts[address].CodeHash
 		},
@@ -125,7 +129,7 @@ func NewEmptyStatePlugin() *PluginMock {
 			}
 		},
 		SetNonceFunc: func(address common.Address, v uint64) {
-			panic("mock out the SetNonce method")
+			Accounts[address].Nonce = v
 		},
 		SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash) {
 			panic("mock out the SetState method")

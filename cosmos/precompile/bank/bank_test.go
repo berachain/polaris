@@ -26,6 +26,7 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -36,8 +37,8 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/precompile"
 	"pkg.berachain.dev/polaris/cosmos/precompile/bank"
-	testutils "pkg.berachain.dev/polaris/cosmos/testing/utils"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
+	testutils "pkg.berachain.dev/polaris/cosmos/testutil"
+	pclog "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
@@ -57,14 +58,14 @@ var _ = Describe("Bank Precompile Test", func() {
 	var (
 		contract *bank.Contract
 		addr     sdk.AccAddress
-		factory  *log.Factory
+		factory  *pclog.Factory
 		ak       authkeeper.AccountKeeperI
 		bk       bankkeeper.BaseKeeper
 		ctx      context.Context
 	)
 
 	BeforeEach(func() {
-		ctx, ak, bk, _ = testutils.SetupMinimalKeepers()
+		ctx, ak, bk, _ = testutils.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
 
 		contract = utils.MustGetAs[*bank.Contract](bank.NewPrecompileContract(
 			ak, bankkeeper.NewMsgServerImpl(bk), bk),
@@ -72,7 +73,7 @@ var _ = Describe("Bank Precompile Test", func() {
 		addr = sdk.AccAddress([]byte("bank"))
 
 		// Register the events.
-		factory = log.NewFactory([]ethprecompile.Registrable{contract})
+		factory = pclog.NewFactory([]ethprecompile.Registrable{contract})
 	})
 
 	It("should register the send event", func() {

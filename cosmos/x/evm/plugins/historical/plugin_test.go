@@ -23,11 +23,13 @@ package historical
 import (
 	"math/big"
 
+	"cosmossdk.io/log"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/trie"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testing/utils"
+	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/mock"
@@ -45,7 +47,7 @@ var _ = Describe("Historical Data", func() {
 	)
 
 	BeforeEach(func() {
-		ctx = testutil.NewContext().WithBlockHeight(0)
+		ctx = testutil.NewContext(log.NewTestLogger(GinkgoT())).WithBlockHeight(0)
 		cp := mock.NewConfigurationPluginMock()
 		bp := mock.NewBlockPluginMock()
 

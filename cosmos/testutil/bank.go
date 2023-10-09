@@ -18,18 +18,34 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package interfaces
+package testutil
 
-import storetypes "cosmossdk.io/store/types"
+import (
+	"context"
+	"math/big"
 
-// Interface wrappers for mocking
-//
-//go:generate moq -out ./mock/store.mock.go -pkg mock . MultiStore CacheMultiStore KVStore
-type (
-	// MultiStore wrapper for github.com/cosmos/cosmos-sdk/types.MultiStore.
-	MultiStore storetypes.MultiStore
-	// CacheMultiStore wrapper for github.com/cosmos/cosmos-sdk/types.CacheMultiStore.
-	CacheMultiStore storetypes.CacheMultiStore
-	// KVStore wrapper for github.com/cosmos/cosmos-sdk/types.KVStore.
-	KVStore storetypes.KVStore
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"pkg.berachain.dev/polaris/eth/common"
 )
+
+// MintCoinsToAddress mints coins to a given address.
+func MintCoinsToAddress(
+	ctx context.Context,
+	bk BankKeeper,
+	moduleAcc string,
+	recipient common.Address,
+	denom string,
+	amount *big.Int,
+) error {
+	// Mint the corresponding bank denom.
+	coins := sdk.Coins{{Denom: denom, Amount: sdkmath.NewIntFromBigInt(amount)}}
+	if err := bk.MintCoins(ctx, moduleAcc, coins); err != nil {
+		return err
+	}
+
+	// Send the bank denomination to the receipient.
+	return bk.SendCoinsFromModuleToAccount(ctx, moduleAcc, recipient.Bytes(), coins)
+}

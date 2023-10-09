@@ -104,7 +104,7 @@ func (k *Keeper) SetupPrecompiles() error {
 	return k.host.SetupPrecompiles()
 }
 
-// Init initializes the polaris struct.
+// Init calls Init on the underlying polaris struct.
 func (k *Keeper) Init() error {
 	return k.polaris.Init()
 }

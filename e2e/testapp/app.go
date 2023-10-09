@@ -200,7 +200,7 @@ func NewPolarisApp(
 		panic(err)
 	}
 
-	// Init intializes the polaris struct and starts the lifecycles.
+	// Init is used to setup the polaris struct.
 	if err := app.EVMKeeper.Init(); err != nil {
 		panic(err)
 	}
