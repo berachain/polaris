@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"testing"
 
 	"cosmossdk.io/log"
 
@@ -49,6 +50,11 @@ import (
 var (
 	ethGen = core.DefaultGenesis
 )
+
+func TestGenesis(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "cosmos/x/evm")
+}
 
 var _ = Describe("", func() {
 	var (
