@@ -32,29 +32,39 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
 
-	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // emptyHash is a common.Hash initialized to all zeros.
 var emptyHash = common.Hash{}
 
+// EnvelopeSerializer is used to convert an envelope into a byte slice that represents
+// a cosmos sdk.Tx.
+type EnvelopeSerializer interface {
+	ToSdkTxBytes(*engine.ExecutionPayloadEnvelope, uint64) ([]byte, error)
+}
+
+// GethMiner represents the underlying *miner.Miner from geth.
+type GethMiner interface {
+	BuildPayload(*miner.BuildPayloadArgs) (*miner.Payload, error)
+}
+
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
-	*miner.Miner
-	serializer     libtx.TxSerializer[*engine.ExecutionPayloadEnvelope]
+	GethMiner
+	serializer     EnvelopeSerializer
 	currentPayload *miner.Payload
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm *miner.Miner) *Miner {
+func New(gm GethMiner) *Miner {
 	return &Miner{
-		Miner: gm,
+		GethMiner: gm,
 	}
 }
 
 // Init sets the transaction serializer.
-func (m *Miner) Init(serializer libtx.TxSerializer[*engine.ExecutionPayloadEnvelope]) {
+func (m *Miner) Init(serializer EnvelopeSerializer) {
 	m.serializer = serializer
 }
 

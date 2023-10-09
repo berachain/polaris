@@ -32,7 +32,6 @@ func ProvideNoopGetSigners[T proto.Message]() signing.CustomGetSigner {
 	return signing.CustomGetSigner{
 		MsgType: proto.MessageName(t),
 		Fn: func(msg proto.Message) ([][]byte, error) {
-			// Return the signer in the required format.
 			return [][]byte{{0x0}}, nil
 		},
 	}
