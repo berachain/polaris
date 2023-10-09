@@ -58,7 +58,7 @@ func (c *AppOptionsParser) GetCommonAddress(key string) (common.Address, error) 
 		return common.Address{}, err
 	}
 	if !common.IsHexAddress(addressStr) {
-		return common.Address{}, fmt.Errorf("invalid address: %s", addressStr)
+		return common.Address{}, fmt.Errorf("invalid address: %s flag %s", addressStr, key)
 	}
 	return common.HexToAddress(addressStr), nil
 }
@@ -70,7 +70,7 @@ func (c *AppOptionsParser) GetCommonAddressList(key string) ([]common.Address, e
 	for _, addressStr := range addressStrs {
 		address := common.HexToAddress(addressStr)
 		if !common.IsHexAddress(addressStr) {
-			return nil, fmt.Errorf("invalid address: %s", addressStr)
+			return nil, fmt.Errorf("invalid address in list: %s flag %s", addressStr, key)
 		}
 		addresses = append(addresses, address)
 	}
