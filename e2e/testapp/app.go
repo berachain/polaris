@@ -58,7 +58,6 @@ import (
 
 	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
-	antelib "pkg.berachain.dev/polaris/cosmos/lib/ante"
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
@@ -213,8 +212,8 @@ func NewPolarisApp(
 	app.mm = miner.New(app.EVMKeeper.Polaris().Miner())
 	app.SetPrepareProposal(app.mm.PrepareProposal)
 
-	// Setup Custom Ante Handler
-	app.SetAnteHandler(antelib.NewMinimalHandler())
+	// Set the ante handler to nil, since it is not needed.
+	app.SetAnteHandler(nil)
 
 	// ----- END EVM SETUP -------------------------------------------------
 
