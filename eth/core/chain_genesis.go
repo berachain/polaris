@@ -18,31 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package common
+package core
 
-import (
-	"github.com/ethereum/go-ethereum/common"
-)
+import "pkg.berachain.dev/polaris/eth/core/types"
 
-type (
-	Address = common.Address
-	Hash    = common.Hash
-)
-
-var (
-	AddressLength  = common.AddressLength
-	HashLength     = common.HashLength
-	BytesToAddress = common.BytesToAddress
-	Big0           = common.Big0
-	BigToHash      = common.BigToHash
-	BytesToHash    = common.BytesToHash
-	Bytes2Hex      = common.Bytes2Hex
-	FromHex        = common.FromHex
-	HexToAddress   = common.HexToAddress
-	IsHexAddress   = common.IsHexAddress
-	Hex2Bytes      = common.Hex2Bytes
-	HexToHash      = common.HexToHash
-	LeftPadBytes   = common.LeftPadBytes
-)
-
-type PrettyDuration = common.PrettyDuration
+func (bc *blockchain) WriteGenesis(*types.Header) {
+	// TODO
+}

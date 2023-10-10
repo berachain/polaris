@@ -29,7 +29,6 @@ import (
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 func (k *Keeper) ProcessPayloadEnvelope(
@@ -54,7 +53,8 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	k.polaris.Blockchain().
 		PreparePlugins(ctx)
 
-	if _, err = k.polaris.Blockchain().InsertChain(types.Blocks{block}); err != nil {
+	// TODO: SetHead in pre-commit to ensure block goes through?
+	if err = k.polaris.Blockchain().InsertBlockWithSetHead(block); err != nil {
 		return nil, err
 	}
 

@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/log"
@@ -35,9 +36,10 @@ import (
 
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
-	WriteGenesisBlock(*types.Block) error
+	WriteGenesis(*types.Header)
 	LoadLastState(context.Context, uint64) error
-	InsertChain(chain types.Blocks) (int, error)
+	InsertBlockWithoutSetHead(block *types.Block) error
+	InsertBlockWithSetHead(block *types.Block) error
 	WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
@@ -89,9 +91,15 @@ func (bc *blockchain) InsertBlockWithoutSetHead(block *types.Block) error {
 	return err
 }
 
+func (bc *blockchain) InsertBlockWithSetHead(block *types.Block) error {
+	val, err := bc.insertChain(types.Blocks{block}, true)
+	bc.logger.Debug("InsertBlockWithSetHead", "block", block.Hash(), "val", val)
+	return err
+}
+
 // insertChain attempts to insert the given batch of blocks in to the canonical
 // chain.
-func (bc *blockchain) insertChain(blocks types.Blocks, _ bool) (int, error) {
+func (bc *blockchain) insertChain(blocks types.Blocks, setHead bool) (int, error) {
 	var lastCanon *types.Block
 
 	if len(blocks) != 1 {
@@ -99,6 +107,7 @@ func (bc *blockchain) insertChain(blocks types.Blocks, _ bool) (int, error) {
 	}
 
 	block := blocks[0]
+	start := time.Now()
 
 	// Verify that the parent block exists.
 	parent := bc.GetBlock(block.ParentHash(), block.NumberU64()-1)
@@ -114,8 +123,11 @@ func (bc *blockchain) insertChain(blocks types.Blocks, _ bool) (int, error) {
 	}()
 
 	// Verify the incoming block header is valid.
-	if err := bc.engine.VerifyHeader(bc, block.Header()); err != nil {
-		return 0, err
+	if block.Number().Cmp(common.Big0) != 0 {
+		// TODO: do not skip for genesis
+		if err := bc.engine.VerifyHeader(bc, block.Header()); err != nil {
+			return 0, err
+		}
 	}
 
 	var err error
@@ -129,21 +141,46 @@ func (bc *blockchain) insertChain(blocks types.Blocks, _ bool) (int, error) {
 	if err = bc.validator.ValidateState(block, bc.statedb, receipts, usedGas); err != nil {
 		return 0, err
 	}
-	// // Write the block to the chain and get the status.
-	// var (
-	// 	status core.WriteStatus
-	// )
-	// if !setHead {
-	// 	// Don't set the head, only insert the block
-	// 	err = bc.writeBlockWithState(block, receipts, bc.statedb)
-	// } else {
-	// 	status, err = bc.writeBlockAndSetHead(block, receipts, logs, bc.statedb, false)
-	// }
 
-	// if err != nil {
-	// 	return 0, err
-	// }
-	return 0, bc.InsertBlockInternal(block, receipts, logs)
+	// Write the block to the chain and get the status.
+	var (
+		status core.WriteStatus
+	)
+
+	if !setHead {
+		// Don't set the head, only insert the block
+		err = bc.writeBlockWithState(block, receipts, bc.statedb)
+	} else {
+		status, err = bc.writeBlockAndSetHead(block, receipts, logs, bc.statedb, false)
+	}
+	if err != nil {
+		return 0, err
+	}
+
+	switch status {
+	case core.CanonStatTy:
+		log.Debug("Inserted new block", "number", block.Number(), "hash", block.Hash(),
+			"uncles", len(block.Uncles()), "txs", len(block.Transactions()), "gas", block.GasUsed(),
+			"elapsed", common.PrettyDuration(time.Since(start)),
+			"root", block.Root())
+
+		lastCanon = block
+	case core.SideStatTy:
+		log.Debug("Inserted new side block", "number", block.Number(), "hash", block.Hash(),
+			"uncles", len(block.Uncles()), "txs", len(block.Transactions()), "gas", block.GasUsed(),
+			"elapsed", common.PrettyDuration(time.Since(start)),
+			"root", block.Root())
+	case core.NonStatTy:
+	default:
+		// This in theory is impossible, but lets be nice to our future selves and leave
+		// a log, instead of trying to track down blocks imports that don't emit logs.
+		log.Warn("Inserted block with unknown status", "number", block.Number(), "hash", block.Hash(),
+			"diff", block.Difficulty(), "elapsed", common.PrettyDuration(time.Since(start)),
+			"txs", len(block.Transactions()), "gas", block.GasUsed(), "uncles", len(block.Uncles()),
+			"root", block.Root())
+	}
+
+	return -1, err
 }
 
 // writeBlockWithState writes block, metadata and corresponding state data to the
@@ -188,66 +225,40 @@ func (bc *blockchain) WriteBlockAndSetHead(
 	return bc.writeBlockAndSetHead(block, receipts, logs, state, emitHeadEvent)
 }
 
-// writeBlockAndSetHead is the internal implementation of WriteBlockAndSetHead.
-// This function expects the chain mutex to be held.
-func (bc *blockchain) writeBlockAndSetHead(
-	_ *types.Block, _ []*types.Receipt,
-	_ []*types.Log, _ state.StateDB, _ bool,
-) (core.WriteStatus, error) {
-	// if err := bc.writeBlockWithState(block, receipts, state); err != nil {
-	// 	return core.NonStatTy, err
-	// }
-	// currentBlock := bc.CurrentBlock()
-	// reorg, err := true, nil // no reorgs in polaris, lets verify this by forcing one.
-	// if err != nil {
-	// 	return core.NonStatTy, err
-	// }
-	// if reorg {
-	// 	// Reorganise the chain if the parent is not the head block
-	// 	if block.ParentHash() != currentBlock.Hash() {
-	// 		return core.NonStatTy, fmt.Errorf("reorg detected") // no reorgs in polaris
-	// 		// if err := bc.reorg(currentBlock, block); err != nil {
-	// 		// 	return core.NonStatTy, err
-	// 		// }
-	// 	}
-	// 	status = core.CanonStatTy
-	// } else {
-	// 	status = core.SideStatTy
-	// }
-	// // Set new head.
-	// if status == core.CanonStatTy {
-	// 	bc.writeHeadBlock(block)
-	// }
-	// // bc.futureBlocks.Remove(block.Hash())
-
-	// if status == core.CanonStatTy {
-	// 	bc.chainFeed.Send(ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
-	// 	if len(logs) > 0 {
-	// 		bc.logsFeed.Send(logs)
-	// 	}
-	// 	// In theory, we should fire a ChainHeadEvent when we inject
-	// 	// a canonical block, but sometimes we can insert a batch of
-	// 	// canonical blocks. Avoid firing too many ChainHeadEvents,
-	// 	// we will fire an accumulated ChainHeadEvent and disable fire
-	// 	// event here.
-	// 	if emitHeadEvent {
-	// 		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
-	// 	}
-	// } else {
-	// 	bc.chainSideFeed.Send(ChainSideEvent{Block: block})
-	// }
-	// return status, nil
-	// }
-	return 0, nil
-}
-
 // func (bc *blockchain) writeHeadBlock(block *types.Block) {}
 
 // InsertBlock inserts a block into the canonical chain and updates the state of the blockchain.
-func (bc *blockchain) InsertBlockInternal(
+func (bc *blockchain) writeBlockAndSetHead(
 	block *types.Block,
 	receipts types.Receipts,
 	logs []*types.Log,
+	_ state.StateDB,
+	emitHeadEvent bool,
+) (core.WriteStatus, error) {
+	var status = core.CanonStatTy
+	if err := bc.writeBlockWithState(block, receipts, bc.statedb); err != nil {
+		return core.NonStatTy, err
+	}
+
+	bc.chainFeed.Send(ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
+	if len(logs) > 0 {
+		bc.logsFeed.Send(logs)
+	}
+
+	// In theory, we should fire a ChainHeadEvent when we inject
+	// a canonical block, but sometimes we can insert a batch of
+	// canonical blocks. Avoid firing too many ChainHeadEvents,
+	// we will fire an accumulated ChainHeadEvent and disable fire
+	// event here.
+	if emitHeadEvent {
+		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
+	}
+
+	return status, nil
+}
+
+func (bc *blockchain) writeBlockWithState(
+	block *types.Block, receipts []*types.Receipt, _ state.StateDB,
 ) error {
 	var err error
 	if _, err = bc.statedb.Commit(
@@ -318,17 +329,6 @@ func (bc *blockchain) InsertBlockInternal(
 		bc.currentReceipts.Store(receipts)
 		bc.receiptsCache.Add(blockHash, receipts)
 	}
-	if logs != nil {
-		bc.pendingLogsFeed.Send(logs)
-		bc.currentLogs.Store(logs)
-		if len(logs) > 0 {
-			bc.logsFeed.Send(logs)
-		}
-	}
-
-	// Send chain events.
-	bc.chainFeed.Send(ChainEvent{Block: block, Hash: blockHash, Logs: logs})
-	bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
 
 	return nil
 }

@@ -24,6 +24,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -44,8 +45,9 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	}
 
 	// Insert to chain.
-	k.polaris.Blockchain().PreparePlugins(ctx.WithEventManager(sdk.NewEventManager()))
-	return k.polaris.Blockchain().WriteGenesisBlock(genState.ToBlock())
+	k.polaris.Blockchain().
+		PreparePlugins(ctx.WithEventManager(sdk.NewEventManager()))
+	return k.polaris.Blockchain().InsertBlockWithSetHead(genState.ToBlockWithRoot(common.Hash{}))
 }
 
 // ExportGenesis returns the exported genesis state.

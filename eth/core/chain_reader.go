@@ -286,18 +286,12 @@ func (bc *blockchain) HasBlock(hash common.Hash, number uint64) bool {
 	return b != nil
 }
 
-// HasBlockAndState checks if a block and associated state trie is fully present
-// in the database or not, caching it if present.
+// HasBlock returns true if the blockchain contains a block with the given
+// hash or number.
 func (bc *blockchain) HasBlockAndState(hash common.Hash, number uint64) bool {
-	// Since no state trie, for now, we assume state exists.
-	return bc.HasBlock(hash, number)
-}
-
-// WriteGenesisBlock writes the genesis block to the database.
-func (bc *blockchain) WriteGenesisBlock(block *types.Block) error {
-	if err := bc.bp.StoreHeader(block.Header()); err != nil {
-		return err
+	b := bc.GetBlockByNumber(number)
+	if b == nil {
+		b = bc.GetBlockByHash(hash)
 	}
-	// todo: this should be write state
-	return bc.InsertBlockInternal(block, nil, nil)
+	return b != nil
 }
