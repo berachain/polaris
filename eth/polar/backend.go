@@ -29,7 +29,6 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/log"
-	"pkg.berachain.dev/polaris/eth/params"
 )
 
 // Polaris is the only object that an implementing chain should use.
@@ -49,7 +48,14 @@ func NewWithNetworkingStack(
 ) *Polaris {
 	defats := &ethconfig.Defaults
 	defats.Genesis = core.DefaultGenesis
-	defats.Genesis.Config = params.DefaultChainConfig
+	defats.Genesis.Config = &config.Chain
+	defats.GPO = config.GPO
+	defats.Miner = config.Miner
+	defats.TxPool = config.LegacyTxPool
+	defats.RPCGasCap = config.RPCGasCap
+	defats.RPCTxFeeCap = config.RPCTxFeeCap
+	defats.RPCEVMTimeout = config.RPCEVMTimeout
+
 	ethereum, err := eth.New(stack, defats)
 	if err != nil {
 		panic(err)
