@@ -58,7 +58,7 @@ func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
 	bApp.SetPrepareProposal(p.mm.PrepareProposal)
 
 	// TODO: deprecate this
-	p.EVMKeeper.SetHackChain(p.Ethereum)
+	p.EVMKeeper.SetEthereum(p.Ethereum)
 
 	return nil
 }

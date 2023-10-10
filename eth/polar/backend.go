@@ -21,7 +21,6 @@
 package polar
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/ethereum/go-ethereum/eth"
@@ -31,38 +30,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/eth/rpc"
 )
-
-// TODO: break out the node into a separate package and then fully use the
-// abstracted away networking stack, by extension we will need to improve the registration
-// architecture.
-
-// var defaultEthConfig = ethconfig.Config{
-// 	SyncMode:           0,
-// 	FilterLogCacheSize: 0,
-// }
-
-// NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC API.
-type NetworkingStack interface {
-	// // IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC API.
-	// ExtRPCEnabled() bool
-
-	// RegisterHandler manually registers a new handler into the networking stack.
-	RegisterHandler(string, string, http.Handler)
-
-	// RegisterAPIs registers JSON-RPC handlers for the networking stack.
-	RegisterAPIs([]rpc.API)
-
-	// RegisterLifecycles registers objects to have their lifecycle manged by the stack.
-	RegisterLifecycle(node.Lifecycle)
-
-	// Start starts the networking stack.
-	Start() error
-
-	// Close stops the networking stack
-	Close() error
-}
 
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
@@ -110,12 +78,6 @@ func NewWithNetworkingStack(
 
 // StartServices notifies the NetworkStack to spin up (i.e json-rpc).
 func (pl *Polaris) StartServices() error {
-	// Register the JSON-RPCs with the networking stack.
-	// pl.stack.RegisterAPIs(pl.APIs())
-
-	// // Register the filter API separately in order to get access to the filterSystem
-	// pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.APIBackend, &defaultEthConfig)
-
 	go func() {
 		// TODO: these values are sensitive due to a race condition in the json-rpc ports opening.
 		// If the JSON-RPC opens before the first block is committed, hive tests will start failing.

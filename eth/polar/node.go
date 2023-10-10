@@ -25,7 +25,6 @@ import (
 )
 
 // Node is a wrapper around the go-ethereum node.Node object.
-// TODO: deprecate this and use a more elegant solution.
 type Node struct {
 	*node.Node
 }
@@ -37,19 +36,8 @@ func NewGethNetworkingStack(config *node.Config) (*node.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// In Polaris we don't use P2P at the geth level.
-	// node.SetP2PDisabled(true)
 	return node, nil
-	// return &Node{
-	// 	Node: node,
-	// }, nil
 }
-
-// // ExtRPCEnabled returns whether or not the external RPC service is enabled.
-// func (n *Node) ExtRPCEnabled() bool {
-// 	return n.Node.Config().ExtRPCEnabled()
-// }
 
 // DefaultConfig returns the default configuration for the provider.
 func DefaultGethNodeConfig() *node.Config {

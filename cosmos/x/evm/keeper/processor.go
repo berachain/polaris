@@ -60,6 +60,9 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	// Consume the gas used by the execution of the ethereum block.
 	gasMeter.ConsumeGas(block.GasUsed(), "block gas used")
 
+	// Store the state root of the block in the store.
+	k.StoreStateRoot(ctx, block.Header().Root)
+
 	return &evmtypes.WrappedPayloadEnvelopeResponse{}, nil
 }
 

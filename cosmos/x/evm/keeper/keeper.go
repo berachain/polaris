@@ -21,6 +21,8 @@
 package keeper
 
 import (
+	"context"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
@@ -28,8 +30,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/eth"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/common"
 )
+
+var stateRootKey = []byte{0x69}
 
 type Keeper struct {
 	eth      *eth.Ethereum
@@ -45,11 +49,28 @@ func NewKeeper(
 	}
 }
 
-func (k *Keeper) SetHackChain(eth *eth.Ethereum) {
+// SetEthereum sets the ethereum instance to be used by the keeper.
+func (k *Keeper) SetEthereum(eth *eth.Ethereum) {
 	k.eth = eth
 }
 
-// Logger returns a module-specific logger.
-func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With(types.ModuleName)
+// Logger returns a logger for the given context.
+func (k *Keeper) Logger(ctx context.Context) log.Logger {
+	return sdk.UnwrapSDKContext(ctx).Logger().With("module", "polaris/evm")
+}
+
+// StoreStateRoot persists the given state root in the store.
+func (k *Keeper) StoreStateRoot(ctx context.Context, stateRoot common.Hash) {
+	sdk.UnwrapSDKContext(ctx).KVStore(k.storeKey).Set(
+		stateRootKey, stateRoot.Bytes(),
+	)
+}
+
+// GetStateRoot returns the state root of the store.
+func (k *Keeper) GetStateRoot(ctx context.Context) common.Hash {
+	return common.BytesToHash(
+		sdk.UnwrapSDKContext(ctx).KVStore(k.storeKey).Get(
+			stateRootKey,
+		),
+	)
 }
