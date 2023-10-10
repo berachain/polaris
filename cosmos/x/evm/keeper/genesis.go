@@ -23,39 +23,15 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/lib/utils"
 )
 
 // InitGenesis is called during the InitGenesis.
 func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
-	// TODO: Feels jank as fuck lol, but it works.
-	genState.Config = k.Host.GetConfigurationPlugin().ChainConfig()
-
-	// Initialize all the plugins.
-	for _, plugin := range k.Host.GetAllPlugins() {
-		// checks whether plugin implements methods of HasGenesis and executes them if it does
-		if plugin, ok := utils.GetAs[plugins.HasGenesis](plugin); ok {
-			if err := plugin.InitGenesis(ctx, genState); err != nil {
-				return err
-			}
-		}
-	}
-
-	// Insert to chain.
-	k.chain.
-		PreparePlugins(ctx.WithEventManager(sdk.NewEventManager()))
-	return k.chain.InsertBlockWithoutSetHead(genState.ToBlock())
+	return nil
 }
 
 // ExportGenesis returns the exported genesis state.
 func (k *Keeper) ExportGenesis(ctx sdk.Context) *core.Genesis {
-	genesisState := new(core.Genesis)
-	for _, plugin := range k.Host.GetAllPlugins() {
-		if plugin, ok := utils.GetAs[plugins.HasGenesis](plugin); ok {
-			plugin.ExportGenesis(ctx, genesisState)
-		}
-	}
-	return genesisState
+	return nil
 }

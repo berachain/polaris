@@ -32,24 +32,24 @@ type Node struct {
 
 // NewGetNetworkingStack creates a new NetworkingStack instance for use on an
 // underlying blockchain.
-func NewGethNetworkingStack(config *node.Config) (NetworkingStack, error) {
+func NewGethNetworkingStack(config *node.Config) (*node.Node, error) {
 	node, err := node.New(config)
 	if err != nil {
 		return nil, err
 	}
 
 	// In Polaris we don't use P2P at the geth level.
-	node.SetP2PDisabled(true)
-
-	return &Node{
-		Node: node,
-	}, nil
+	// node.SetP2PDisabled(true)
+	return node, nil
+	// return &Node{
+	// 	Node: node,
+	// }, nil
 }
 
-// ExtRPCEnabled returns whether or not the external RPC service is enabled.
-func (n *Node) ExtRPCEnabled() bool {
-	return n.Node.Config().ExtRPCEnabled()
-}
+// // ExtRPCEnabled returns whether or not the external RPC service is enabled.
+// func (n *Node) ExtRPCEnabled() bool {
+// 	return n.Node.Config().ExtRPCEnabled()
+// }
 
 // DefaultConfig returns the default configuration for the provider.
 func DefaultGethNodeConfig() *node.Config {

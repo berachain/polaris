@@ -56,7 +56,7 @@ func ProvidePolarisRuntime(input DepInjectInput) DepInjectOutput {
 	}
 
 	polaris := polar.NewWithNetworkingStack(
-		&cfg.Polar, input.EVMKeeper.Host, node, ethlog.FuncHandler(
+		&cfg.Polar, node, ethlog.FuncHandler(
 			func(r *ethlog.Record) error {
 				polarisGethLogger := input.Logger.With("module", "polaris-geth")
 				switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.

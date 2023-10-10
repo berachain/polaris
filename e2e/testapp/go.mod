@@ -16,7 +16,6 @@ require (
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/upgrade v0.0.0-20230915171831-2196edacb99d
 	pkg.berachain.dev/polaris/cosmos v0.0.0-20231007233125-8af23216be65
-	pkg.berachain.dev/polaris/eth v0.0.0-20230928142528-23cc5f141354
 )
 
 require (
@@ -271,6 +270,7 @@ require (
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
 	pkg.berachain.dev/polaris/contracts v0.0.0-20230928142528-23cc5f141354 // indirect
+	pkg.berachain.dev/polaris/eth v0.0.0-20230928142528-23cc5f141354 // indirect
 	pkg.berachain.dev/polaris/lib v0.0.0-20230928142528-23cc5f141354 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect

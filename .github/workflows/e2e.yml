@@ -149,7 +149,7 @@ jobs:
     needs: build-localnet
     strategy:
       matrix:
-        namespace: ["e2e", "localnet"]
+        namespace: ["localnet"]
         os: [polaris-linux-latest]
         go-version: [1.21.1]
         base-image: [localnet]

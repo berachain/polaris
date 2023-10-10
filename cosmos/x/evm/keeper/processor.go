@@ -49,10 +49,12 @@ func (k *Keeper) ProcessPayloadEnvelope(
 		return nil, err
 	}
 
-	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
-	k.chain.PreparePlugins(ctx)
-	if err = k.chain.InsertBlockWithoutSetHead(block); err != nil {
-		return nil, err
+	if err = k.eth.BlockChain().InsertBlockWithoutSetHead(block); err != nil {
+		panic(err)
+	}
+
+	if _, err := k.eth.BlockChain().SetCanonical(block); err != nil {
+		panic(err)
 	}
 
 	// Consume the gas used by the execution of the ethereum block.

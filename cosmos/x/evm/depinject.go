@@ -76,13 +76,7 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 	}
 
 	k := keeper.NewKeeper(
-		in.AccountKeeper,
-		in.StakingKeeper,
 		in.Key,
-		in.CustomPrecompiles,
-		in.QueryContextFn,
-		in.Logger,
-		in.PolarisCfg(),
 	)
 	m := NewAppModule(k, in.AccountKeeper)
 

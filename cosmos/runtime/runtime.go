@@ -22,11 +22,9 @@ package runtime
 
 import (
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/node"
@@ -35,7 +33,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	enginep "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/polar"
@@ -52,26 +49,27 @@ type Polaris struct {
 	mp *txpool.Mempool
 }
 
+func (p *Polaris) OpenDB(home string) error {
+	// ethDB, err := pebble.New(filepath.Join(home, "data", "evm.db"), 12, 12, "", false, false)
+	// if err != nil {
+	// 	return err
+	// }
+	// gspec := &core.Genesis{Config: params.TestChainConfig}
+	// eth_ := eth.NewBacken
+	// p.EVMKeeper.SetHackChain(bc)
+	return nil
+}
+
 func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
-	// SetupPrecompiles is used to setup the precompile contracts post depinject.
-	if err := p.EVMKeeper.SetupPrecompiles(); err != nil {
-		return err
-	}
-
-	// Init is used to setup the polaris struct.
-	if err := p.Polaris.Init(); err != nil {
-		return err
-	}
-
 	// Setup TxPool Wrapper
-	p.mp = txpool.New(p.TxPool())
+	p.mp = txpool.New(p.Ethereum.TxPool())
 	bApp.SetMempool(p.mp)
 
-	p.mm = miner.New(p.Miner())
+	p.mm = miner.New(p.Ethereum.Miner())
 	bApp.SetPrepareProposal(p.mm.PrepareProposal)
 
 	// TODO: deprecate this
-	p.EVMKeeper.SetBlockchain(p.Blockchain())
+	p.EVMKeeper.SetHackChain(p.Ethereum)
 
 	return nil
 }
@@ -93,10 +91,7 @@ func (p *Polaris) Init(clientCtx client.Context, logger log.Logger) error {
 
 // Register Services allows for the application to register lifecycles with the evm
 // networking stack.
-func (p *Polaris) RegisterServices(clientContext client.Context, lcs []node.Lifecycle) {
-	// TODO: probably get rid of engine plugin or something and handle rpc methods better.
-	p.EVMKeeper.Host.GetEnginePlugin().(enginep.Plugin).Start(clientContext)
-
+func (p *Polaris) RegisterServices(_ client.Context, lcs []node.Lifecycle) {
 	// Register the services with polaris.
 	for _, lc := range lcs {
 		p.RegisterService(lc)
@@ -106,12 +101,4 @@ func (p *Polaris) RegisterServices(clientContext client.Context, lcs []node.Life
 	if err := p.StartServices(); err != nil {
 		panic(err)
 	}
-}
-
-func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint64) error {
-	cmsCtx := sdk.Context{}.
-		WithMultiStore(cms).
-		WithGasMeter(storetypes.NewInfiniteGasMeter()).
-		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
-	return p.Blockchain().LoadLastState(cmsCtx, appHeight)
 }
