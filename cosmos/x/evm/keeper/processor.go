@@ -26,51 +26,47 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/ethereum/go-ethereum/beacon/engine"
+
+	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 )
 
-// ProcessTransaction is called during the DeliverTx processing of the ABCI lifecycle.
-func (k *Keeper) ProcessTransaction(
-	ctx context.Context,
-	tx *coretypes.Transaction,
-) (*coretypes.Receipt, error) {
+func (k *Keeper) ProcessPayloadEnvelope(
+	ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope,
+) (*evmtypes.WrappedPayloadEnvelopeResponse, error) {
+	envelope := engine.ExecutionPayloadEnvelope{}
+	err := envelope.UnmarshalJSON(msg.Data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal payload envelope: %w", err)
+	}
+
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	gasMeter := sCtx.GasMeter()
-	// We zero-out the gas meter prior to evm execution in order to ensure that the receipt output
-	// from the EVM is correct. In the future, we will revisit this to allow gas metering for more
-	// complex operations prior to entering the EVM.
-	gasMeter.RefundGas(gasMeter.GasConsumed(),
-		"reset gas meter prior to ethereum state transition")
 
-	// Process the transaction and return the EVM's execution result.
-	receipt, err := k.polaris.SPMiner().ProcessTransaction(ctx, tx)
+	block, err := engine.ExecutableDataToBlock(*envelope.ExecutionPayload, nil, nil)
 	if err != nil {
-		k.Logger(sCtx).Error("failed to process transaction", "err", err)
+		k.Logger(sCtx).Error("failed to build evm block", "err", err)
 		return nil, err
 	}
 
-	// Add some safety checks.
-	// TODO: we can probably do these once at the end of the block?
-	if receipt.GasUsed != gasMeter.GasConsumed() {
-		panic(fmt.Sprintf(
-			"receipt gas used and ctx gas used differ. receipt: %d, ctx: %d",
-			receipt.GasUsed, gasMeter.GasConsumed(),
-		))
-	} else if receipt.CumulativeGasUsed != sCtx.BlockGasMeter().GasConsumed()+receipt.GasUsed {
-		panic(fmt.Sprintf(
-			"receipt cumulative gas used and block gas used differ. receipt: %d, ctx: %d",
-			receipt.CumulativeGasUsed, sCtx.BlockGasMeter().GasConsumed()+receipt.GasUsed,
-		))
+	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
+	k.polaris.Blockchain().
+		PreparePlugins(ctx)
+
+	if err = k.polaris.Blockchain().InsertBlockWithoutSetHead(block); err != nil {
+		return nil, err
 	}
 
-	// Log the receipt.
-	k.Logger(sCtx).Debug(
-		"evm execution completed",
-		"tx_hash", receipt.TxHash,
-		"gas_consumed", receipt.GasUsed,
-		"status", receipt.Status,
-	)
+	// Consume the gas used by the execution of the ethereum block.
+	gasMeter.ConsumeGas(block.GasUsed(), "block gas used")
 
-	// Return the execution result.
-	return receipt, err
+	return &evmtypes.WrappedPayloadEnvelopeResponse{}, nil
+}
+
+// EthTransaction implements the MsgServer interface. It is intentionally a no-op, but is required
+// for the cosmos-sdk to not freak out.
+func (k *Keeper) EthTransaction(
+	context.Context, *evmtypes.WrappedEthereumTransaction,
+) (*evmtypes.WrappedEthereumTransactionResult, error) {
+	panic("intentionally not implemented")
 }

@@ -38,5 +38,5 @@ func (bc *blockchain) GetHeader(hash common.Hash, number uint64) *types.Header {
 
 // Engine returns the consensus engine. For our use case, this never gets called.
 func (bc *blockchain) Engine() consensus.Engine {
-	return nil
+	return bc.engine
 }

@@ -21,6 +21,9 @@
 package core
 
 import (
+	"context"
+	"time"
+
 	"github.com/ethereum/go-ethereum/core"
 
 	"pkg.berachain.dev/polaris/eth/core/state"
@@ -29,7 +32,9 @@ import (
 
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
+	LoadLastState(context.Context, uint64) error
 	InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error
+	InsertBlockWithoutSetHead(block *types.Block) error
 	WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
@@ -39,6 +44,24 @@ func (*blockchain) WriteBlockAndSetHead(
 	_ *types.Block, _ []*types.Receipt, _ []*types.Log, _ state.StateDB,
 	_ bool) (core.WriteStatus, error) {
 	return core.NonStatTy, nil
+}
+
+func (bc *blockchain) InsertBlockWithoutSetHead(block *types.Block) error {
+	// Retrieve the parent block and it's state to execute on top
+	// parent := bc.GetBlock(block.ParentHash(), block.NumberU64()-1)
+	// if parent == nil {
+	// 	return fmt.Errorf("parent block not found")
+	// }
+
+	// Process block using the parent state as reference point
+	pstart := time.Now()
+	receipts, logs, _, err := bc.processor.Process(block, bc.statedb, *bc.vmConfig)
+	if err != nil {
+		return err
+	}
+	ptime := time.Since(pstart)
+	bc.logger.Info("processed block in", "time", ptime)
+	return bc.InsertBlock(block, receipts, logs)
 }
 
 // InsertBlock inserts a block into the canonical chain and updates the state of the blockchain.

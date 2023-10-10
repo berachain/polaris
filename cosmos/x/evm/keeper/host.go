@@ -30,7 +30,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/gas"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/historical"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
 	pclog "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
@@ -55,7 +54,6 @@ type host struct {
 	bp     block.Plugin
 	cp     configuration.Plugin
 	ep     engine.Plugin
-	gp     gas.Plugin
 	hp     historical.Plugin
 	pp     precompile.Plugin
 	sp     state.Plugin
@@ -84,7 +82,6 @@ func NewHost(
 	h.bp = block.NewPlugin(storeKey, sk)
 	h.cp = configuration.NewPlugin(&cfg.Polar.Chain)
 	h.ep = engine.NewPlugin()
-	h.gp = gas.NewPlugin()
 	h.pcs = precompiles
 	h.storeKey = storeKey
 	h.ak = ak
@@ -129,12 +126,6 @@ func (h *host) GetConfigurationPlugin() core.ConfigurationPlugin {
 func (h *host) GetEnginePlugin() core.EnginePlugin {
 	return h.ep
 }
-
-// GetGasPlugin returns the gas plugin.
-func (h *host) GetGasPlugin() core.GasPlugin {
-	return h.gp
-}
-
 func (h *host) GetHistoricalPlugin() core.HistoricalPlugin {
 	return h.hp
 }
@@ -151,5 +142,5 @@ func (h *host) GetStatePlugin() core.StatePlugin {
 
 // GetAllPlugins returns all the plugins.
 func (h *host) GetAllPlugins() []any {
-	return []any{h.bp, h.cp, h.gp, h.hp, h.pp, h.sp}
+	return []any{h.bp, h.cp, h.hp, h.pp, h.sp}
 }

@@ -25,12 +25,11 @@ import "pkg.berachain.dev/polaris/eth/core"
 //go:generate moq -out ./host.mock.go -pkg mock ../ PolarisHostChain
 
 func NewMockHostAndPlugins() (
-	*PolarisHostChainMock, *BlockPluginMock, *ConfigurationPluginMock, *GasPluginMock,
+	*PolarisHostChainMock, *BlockPluginMock, *ConfigurationPluginMock,
 	*HistoricalPluginMock, *PrecompilePluginMock, *StatePluginMock,
 ) {
 	bp := NewBlockPluginMock()
 	cp := NewConfigurationPluginMock()
-	gp := NewGasPluginMock()
 	hp := NewHistoricalPluginMock()
 	pp := NewPrecompilePluginMock()
 	sp := NewStatePluginMock()
@@ -40,9 +39,6 @@ func NewMockHostAndPlugins() (
 		},
 		GetConfigurationPluginFunc: func() core.ConfigurationPlugin {
 			return cp
-		},
-		GetGasPluginFunc: func() core.GasPlugin {
-			return gp
 		},
 		GetHistoricalPluginFunc: func() core.HistoricalPlugin {
 			return hp
@@ -54,5 +50,5 @@ func NewMockHostAndPlugins() (
 			return sp
 		},
 	}
-	return mockedPolarisHostChain, bp, cp, gp, hp, pp, sp
+	return mockedPolarisHostChain, bp, cp, hp, pp, sp
 }

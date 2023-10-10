@@ -9,7 +9,7 @@ require (
 	github.com/golangci/golangci-lint v1.54.2
 	github.com/google/addlicense v1.1.1
 	github.com/matryer/moq v0.3.2
-	github.com/onsi/ginkgo/v2 v2.12.1
+	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/securego/gosec/v2 v2.17.0
 	github.com/vektra/mockery/v2 v2.34.1
 )

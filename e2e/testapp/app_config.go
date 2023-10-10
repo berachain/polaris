@@ -133,14 +133,12 @@ func MakeAppConfig(bech32Prefix string) depinject.Config {
 						evidencetypes.ModuleName,
 						stakingtypes.ModuleName,
 						genutiltypes.ModuleName,
-						evmtypes.ModuleName,
 					},
 					EndBlockers: []string{
 						crisistypes.ModuleName,
 						govtypes.ModuleName,
 						stakingtypes.ModuleName,
 						genutiltypes.ModuleName,
-						evmtypes.ModuleName,
 					},
 					OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
 						{

@@ -91,7 +91,7 @@ func NewRootCmd() *cobra.Command {
 			),
 			depinject.Provide(
 				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
-			),
+				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope]),
 		),
 		&interfaceRegistry,
 		&appCodec,

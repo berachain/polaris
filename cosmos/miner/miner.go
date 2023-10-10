@@ -28,6 +28,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
 
@@ -37,29 +38,34 @@ import (
 // emptyHash is a common.Hash initialized to all zeros.
 var emptyHash = common.Hash{}
 
-// EthTxSerializer represents a struct that can serialize ethereum transactions
-// to valid sdk.Tx's and bytes that can be used by CometBFT.
-type EthTxSerializer interface {
-	ToSdkTx(input *types.Transaction, gasLimit uint64) (sdk.Tx, error)
-	ToSdkTxBytes(input *types.Transaction, gasLimit uint64) ([]byte, error)
+// EnvelopeSerializer is used to convert an envelope into a byte slice that represents
+// a cosmos sdk.Tx.
+type EnvelopeSerializer interface {
+	ToSdkTxBytes(*engine.ExecutionPayloadEnvelope, uint64) ([]byte, error)
+}
+
+// GethMiner represents the underlying *miner.Miner from geth.
+type GethMiner interface {
+	BuildPayload(*miner.BuildPayloadArgs) (*miner.Payload, error)
+	Etherbase() common.Address
 }
 
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
-	*miner.Miner
-	serializer     EthTxSerializer
+	GethMiner
+	serializer     EnvelopeSerializer
 	currentPayload *miner.Payload
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm *miner.Miner) *Miner {
+func New(gm GethMiner) *Miner {
 	return &Miner{
-		Miner: gm,
+		GethMiner: gm,
 	}
 }
 
 // Init sets the transaction serializer.
-func (m *Miner) Init(serializer EthTxSerializer) {
+func (m *Miner) Init(serializer EnvelopeSerializer) {
 	m.serializer = serializer
 }
 
@@ -67,22 +73,22 @@ func (m *Miner) Init(serializer EthTxSerializer) {
 func (m *Miner) PrepareProposal(
 	ctx sdk.Context, _ *abci.RequestPrepareProposal,
 ) (*abci.ResponsePrepareProposal, error) {
-	var txs [][]byte
+	var payloadEnvelopeBz []byte
 	var err error
-	if txs, err = m.buildBlock(ctx); err != nil {
+	if payloadEnvelopeBz, err = m.buildBlock(ctx); err != nil {
 		return nil, err
 	}
-	return &abci.ResponsePrepareProposal{Txs: txs}, err
+	return &abci.ResponsePrepareProposal{Txs: [][]byte{payloadEnvelopeBz}}, err
 }
 
 // buildBlock builds and submits a payload, it also waits for the txs
 // to resolve from the underying worker.
-func (m *Miner) buildBlock(ctx sdk.Context) ([][]byte, error) {
+func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, error) {
 	defer m.clearPayload()
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
 		return nil, err
 	}
-	return m.resolveTxs(), nil
+	return m.resolveEnvelope(), nil
 }
 
 // submitPayloadForBuilding submits a payload for building.
@@ -107,35 +113,24 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 func (m *Miner) constructPayloadArgs(ctx sdk.Context) *miner.BuildPayloadArgs {
 	return &miner.BuildPayloadArgs{
 		Timestamp:    uint64(ctx.BlockTime().Unix()),
-		FeeRecipient: common.Address{}, /* todo: set etherbase */
-		Random:       common.Hash{},    /* todo: generated random */
+		FeeRecipient: m.Etherbase(),
+		Random:       common.Hash{}, /* todo: generated random */
 		Withdrawals:  make(types.Withdrawals, 0),
 		BeaconRoot:   &emptyHash,
 	}
 }
 
-// resolveTxs resolves the transactions from the payload.
-func (m *Miner) resolveTxs() [][]byte {
+// resolveEnvelope resolves the payload.
+func (m *Miner) resolveEnvelope() []byte {
 	if m.currentPayload == nil {
 		return nil
 	}
 	envelope := m.currentPayload.ResolveFull()
-	ethTxBzs := envelope.ExecutionPayload.Transactions
-	txs := make([][]byte, len(envelope.ExecutionPayload.Transactions))
-
-	// encode to sdk.txs and then
-	for i, ethTxBz := range ethTxBzs {
-		var tx types.Transaction
-		if err := tx.UnmarshalBinary(ethTxBz); err != nil {
-			return nil
-		}
-		bz, err := m.serializer.ToSdkTxBytes(&tx, tx.Gas())
-		if err != nil {
-			panic(err)
-		}
-		txs[i] = bz
+	bz, err := m.serializer.ToSdkTxBytes(envelope, envelope.ExecutionPayload.GasLimit)
+	if err != nil {
+		panic(err)
 	}
-	return txs
+	return bz
 }
 
 // clearPayload clears the payload.

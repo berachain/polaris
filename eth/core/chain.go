@@ -21,14 +21,18 @@
 package core
 
 import (
+	"context"
+	"errors"
 	"math/big"
 	"sync/atomic"
 
 	lru "github.com/ethereum/go-ethereum/common/lru"
+	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/trie"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
@@ -43,6 +47,7 @@ const defaultCacheSize = 1024
 var _ Blockchain = (*blockchain)(nil)
 
 type Blockchain interface {
+	PreparePlugins(ctx context.Context)
 	Config() *params.ChainConfig
 	ChainReader
 	ChainWriter
@@ -59,6 +64,9 @@ type blockchain struct {
 	hp HistoricalPlugin
 	pp PrecompilePlugin
 	sp StatePlugin
+
+	engine    consensus.Engine
+	processor core.Processor
 
 	// statedb is the state database that is used to mange state during transactions.
 	statedb state.StateDB
@@ -103,7 +111,9 @@ type blockchain struct {
 // =========================================================================
 
 // NewChain creates and returns a `api.Chain` with the given EVM chain configuration and host.
-func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used as `api.Chain`.
+func NewChain(
+	host PolarisHostChain, engine consensus.Engine,
+) *blockchain { //nolint:revive // only used as `api.Chain`.
 	bc := &blockchain{
 		bp:             host.GetBlockPlugin(),
 		cp:             host.GetConfigurationPlugin(),
@@ -118,18 +128,51 @@ func NewChain(host PolarisHostChain) *blockchain { //nolint:revive // only used 
 		chainHeadFeed:  event.Feed{},
 		scope:          event.SubscriptionScope{},
 		logger:         log.Root(),
+		engine:         engine,
 	}
 	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
+	bc.processor = core.NewStateProcessor(bc.cp.ChainConfig(), bc, bc.engine)
 	// TODO: hmm...
 	bc.currentBlock.Store(
-		types.NewBlock(&types.Header{Number: big.NewInt(0),
+		types.NewBlock(&types.Header{Time: 0, Number: big.NewInt(0),
 			BaseFee: big.NewInt(0)}, nil, nil, nil, trie.NewStackTrie(nil)))
 	bc.finalizedBlock.Store(nil)
-
 	return bc
+}
+
+func (bc *blockchain) LoadLastState(ctx context.Context, number uint64) error {
+	// ctx here is the one created from app.CommitMultistore().
+	bc.PreparePlugins(ctx)
+
+	return bc.loadLastState(number)
+}
+
+func (bc *blockchain) PreparePlugins(ctx context.Context) {
+	bc.sp.Prepare(ctx)
+	bc.sp.Reset(ctx)
+	bc.bp.Prepare(ctx)
+	bc.cp.Prepare(ctx)
+	if bc.hp != nil {
+		bc.hp.Prepare(ctx)
+	}
 }
 
 // ChainConfig returns the Ethereum chain config of the  chain.
 func (bc *blockchain) Config() *params.ChainConfig {
 	return bc.cp.ChainConfig()
+}
+
+// loadLastState loads the last known chain state from the database. This method
+// assumes that the chain manager mutex is held.
+func (bc *blockchain) loadLastState(number uint64) error {
+	bc.logger.Info("loading last state")
+	b := bc.GetBlockByNumber(number)
+	if number == 0 {
+		return nil
+	}
+	if b == nil {
+		return errors.New("block is nil at load last state")
+	}
+	bc.currentBlock.Store(b)
+	return nil
 }

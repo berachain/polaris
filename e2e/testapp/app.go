@@ -42,6 +42,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -64,7 +65,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // DefaultNodeHome default home directories for the application daemon.
@@ -136,7 +136,7 @@ func NewPolarisApp(
 			MakeAppConfig(bech32Prefix),
 			depinject.Provide(
 				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
-			),
+				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope]),
 			depinject.Supply(
 				// supply the application options
 				appOpts,
@@ -214,9 +214,7 @@ func NewPolarisApp(
 	app.SetPrepareProposal(app.mm.PrepareProposal)
 
 	// Setup Custom Ante Handler
-	app.SetAnteHandler(
-		antelib.NewMinimalHandler(),
-	)
+	app.SetAnteHandler(antelib.NewMinimalHandler())
 
 	// ----- END EVM SETUP -------------------------------------------------
 
@@ -232,6 +230,15 @@ func NewPolarisApp(
 	app.RegisterUpgradeHandlers()
 
 	if err := app.Load(loadLatest); err != nil {
+		panic(err)
+	}
+
+	cmsCtx := sdk.Context{}.
+		WithMultiStore(app.CommitMultiStore()).
+		WithGasMeter(storetypes.NewInfiniteGasMeter()).
+		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
+	if err := app.EVMKeeper.Polaris().Blockchain().
+		LoadLastState(cmsCtx, uint64(app.LastBlockHeight())); err != nil {
 		panic(err)
 	}
 
@@ -276,13 +283,13 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
-	// Create a TxSerializer.
-	serializer := libtx.NewSerializer[*coretypes.Transaction](
-		apiSvr.ClientCtx.TxConfig, evmtypes.WrapTx)
+	// Create the Serializers.
+	txSerializer := libtx.NewSerializer(apiSvr.ClientCtx.TxConfig, evmtypes.WrapTx)
+	payloadSerializer := libtx.NewSerializer(apiSvr.ClientCtx.TxConfig, evmtypes.WrapPayload)
 
 	// Initialize services.
-	app.mm.Init(serializer)
-	app.mp.Init(app.Logger(), apiSvr.ClientCtx, serializer)
+	app.mm.Init(payloadSerializer)
+	app.mp.Init(app.Logger(), apiSvr.ClientCtx, txSerializer)
 
 	// Register services with Polaris.
 	app.EVMKeeper.RegisterServices(apiSvr.ClientCtx, []node.Lifecycle{

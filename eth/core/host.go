@@ -42,8 +42,6 @@ type PolarisHostChain interface {
 	GetConfigurationPlugin() ConfigurationPlugin
 	// GetEnginePlugin() returns the `EnginePlugin` of the Polaris host chain.
 	GetEnginePlugin() EnginePlugin
-	// GetGasPlugin returns the `GasPlugin` of the Polaris host chain.
-	GetGasPlugin() GasPlugin
 	// GetHistoricalPlugin returns the OPTIONAL `HistoricalPlugin` of the Polaris host chain.
 	GetHistoricalPlugin() HistoricalPlugin
 	// GetPrecompilePlugin returns the OPTIONAL `PrecompilePlugin` of the Polaris host chain.
@@ -97,29 +95,6 @@ type (
 		Listening(ctx context.Context) (bool, error)
 		// PeerCount returns the current number of peers connected to the host chain.
 		PeerCount(ctx context.Context) (uint64, error)
-	}
-
-	// GasPlugin is an interface that allows the Polaris EVM to consume gas on the host chain.
-	GasPlugin interface {
-		// GasPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset the
-		// GasPlugin to a default state.
-		libtypes.Preparable
-		// GasPlugin implements `libtypes.Resettable`. Calling `Reset` should reset the
-		// GasPlugin to a default state
-		libtypes.Resettable
-		// ConsumeTxGas consumes the supplied amount of gas. It should not panic due to a
-		// GasOverflow and should return `core.ErrOutOfGas` if the amount of gas remaining is
-		// less than the amount requested. If the requested amount is greater than the amount of
-		// gas remaining in the block, it should return core.ErrBlockOutOfGas.
-		ConsumeTxGas(uint64) error
-		// TxGasRemaining returns the amount of gas remaining for the current transaction.
-		TxGasRemaining() uint64
-		// BlockGasConsumed returns the amount of gas used during the current block. The value
-		// returned should NOT include any gas consumed during this transaction.
-		// It should not panic.
-		BlockGasConsumed() uint64
-		// BlockGasLimit returns the gas limit of the current block. It should not panic.
-		BlockGasLimit() uint64
 	}
 
 	// StatePlugin defines the methods that the chain running Polaris EVM should implement.

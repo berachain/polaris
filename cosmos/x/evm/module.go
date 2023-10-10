@@ -21,8 +21,6 @@
 package evm
 
 import (
-	"context"
-
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -43,11 +41,9 @@ import (
 const ConsensusVersion = 1
 
 var (
-	_ appmodule.HasServices     = AppModule{}
-	_ appmodule.HasBeginBlocker = AppModule{}
-	_ appmodule.HasEndBlocker   = AppModule{}
-	_ module.AppModule          = AppModule{}
-	_ module.AppModuleBasic     = AppModuleBasic{}
+	_ appmodule.HasServices = AppModule{}
+	_ module.AppModule      = AppModule{}
+	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
 // ==============================================================================
@@ -125,13 +121,3 @@ func (am AppModule) RegisterServices(registrar grpc.ServiceRegistrar) error {
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
-
-// BeginBlock returns the begin blocker for the evm module.
-func (am AppModule) BeginBlock(ctx context.Context) error {
-	return am.keeper.BeginBlocker(ctx)
-}
-
-// EndBlock returns the end blocker for the evm module.
-func (am AppModule) EndBlock(ctx context.Context) error {
-	return am.keeper.EndBlock(ctx)
-}

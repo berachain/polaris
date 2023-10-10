@@ -25,6 +25,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ethereum/go-ethereum/beacon/engine"
+
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
@@ -50,4 +52,25 @@ func (etr *WrappedEthereumTransaction) Unwrap() *coretypes.Transaction {
 		return nil
 	}
 	return tx
+}
+
+// WrapPayload sets the payload data from an `engine.ExecutionPayloadEnvelope`.
+func WrapPayload(envelope *engine.ExecutionPayloadEnvelope) (*WrappedPayloadEnvelope, error) {
+	bz, err := envelope.MarshalJSON()
+	if err != nil {
+		return nil, fmt.Errorf("failed to wrap payload: %w", err)
+	}
+
+	return &WrappedPayloadEnvelope{
+		Data: bz,
+	}, nil
+}
+
+// AsPayload extracts the payload as an `engine.ExecutionPayloadEnvelope`.
+func (wpe *WrappedPayloadEnvelope) UnwrapPayload() *engine.ExecutionPayloadEnvelope {
+	payload := new(engine.ExecutionPayloadEnvelope)
+	if err := payload.UnmarshalJSON(wpe.Data); err != nil {
+		return nil
+	}
+	return payload
 }

@@ -39,7 +39,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MsgService_EthTransaction_FullMethodName = "/polaris.evm.v1alpha1.MsgService/EthTransaction"
+	MsgService_EthTransaction_FullMethodName         = "/polaris.evm.v1alpha1.MsgService/EthTransaction"
+	MsgService_ProcessPayloadEnvelope_FullMethodName = "/polaris.evm.v1alpha1.MsgService/ProcessPayloadEnvelope"
 )
 
 // MsgServiceClient is the client API for MsgService service.
@@ -48,6 +49,8 @@ const (
 type MsgServiceClient interface {
 	// EthTransaction defines a method submitting Ethereum transactions.
 	EthTransaction(ctx context.Context, in *WrappedEthereumTransaction, opts ...grpc.CallOption) (*WrappedEthereumTransactionResult, error)
+	// ProcessPayloadEnvelope defines a method to process CL paylods.
+	ProcessPayloadEnvelope(ctx context.Context, in *WrappedPayloadEnvelope, opts ...grpc.CallOption) (*WrappedPayloadEnvelopeResponse, error)
 }
 
 type msgServiceClient struct {
@@ -67,12 +70,23 @@ func (c *msgServiceClient) EthTransaction(ctx context.Context, in *WrappedEthere
 	return out, nil
 }
 
+func (c *msgServiceClient) ProcessPayloadEnvelope(ctx context.Context, in *WrappedPayloadEnvelope, opts ...grpc.CallOption) (*WrappedPayloadEnvelopeResponse, error) {
+	out := new(WrappedPayloadEnvelopeResponse)
+	err := c.cc.Invoke(ctx, MsgService_ProcessPayloadEnvelope_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServiceServer is the server API for MsgService service.
 // All implementations must embed UnimplementedMsgServiceServer
 // for forward compatibility
 type MsgServiceServer interface {
 	// EthTransaction defines a method submitting Ethereum transactions.
 	EthTransaction(context.Context, *WrappedEthereumTransaction) (*WrappedEthereumTransactionResult, error)
+	// ProcessPayloadEnvelope defines a method to process CL paylods.
+	ProcessPayloadEnvelope(context.Context, *WrappedPayloadEnvelope) (*WrappedPayloadEnvelopeResponse, error)
 	mustEmbedUnimplementedMsgServiceServer()
 }
 
@@ -82,6 +96,9 @@ type UnimplementedMsgServiceServer struct {
 
 func (UnimplementedMsgServiceServer) EthTransaction(context.Context, *WrappedEthereumTransaction) (*WrappedEthereumTransactionResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EthTransaction not implemented")
+}
+func (UnimplementedMsgServiceServer) ProcessPayloadEnvelope(context.Context, *WrappedPayloadEnvelope) (*WrappedPayloadEnvelopeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProcessPayloadEnvelope not implemented")
 }
 func (UnimplementedMsgServiceServer) mustEmbedUnimplementedMsgServiceServer() {}
 
@@ -114,6 +131,24 @@ func _MsgService_EthTransaction_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MsgService_ProcessPayloadEnvelope_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WrappedPayloadEnvelope)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServiceServer).ProcessPayloadEnvelope(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MsgService_ProcessPayloadEnvelope_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServiceServer).ProcessPayloadEnvelope(ctx, req.(*WrappedPayloadEnvelope))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MsgService_ServiceDesc is the grpc.ServiceDesc for MsgService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -124,6 +159,10 @@ var MsgService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "EthTransaction",
 			Handler:    _MsgService_EthTransaction_Handler,
+		},
+		{
+			MethodName: "ProcessPayloadEnvelope",
+			Handler:    _MsgService_ProcessPayloadEnvelope_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

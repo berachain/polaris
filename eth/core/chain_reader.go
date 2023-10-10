@@ -261,6 +261,7 @@ func (bc *blockchain) GetHeaderByHash(hash common.Hash) *types.Header {
 		}
 		header = block.Header()
 	}
+
 	return header
 }
 

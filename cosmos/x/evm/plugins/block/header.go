@@ -52,7 +52,7 @@ func (p *plugin) SetQueryContextFn(fn func() func(height int64, prove bool) (sdk
 func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 	bz, err := p.readHeaderBytes(number)
 	if err != nil {
-		return nil, err
+		return nil, errorslib.Wrap(err, "GetHeaderByNumber: failed to readHeaderBytes")
 	}
 	if bz == nil {
 		return nil, core.ErrHeaderNotFound
@@ -60,7 +60,7 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 
 	header, err := coretypes.UnmarshalHeader(bz)
 	if err != nil {
-		return nil, errorslib.Wrap(err, "GetHeader: failed to unmarshal")
+		return nil, errorslib.Wrap(err, "GetHeaderByNumber: failed to unmarshal")
 	}
 
 	if header.Number.Uint64() > number {
