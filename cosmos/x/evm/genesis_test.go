@@ -90,6 +90,10 @@ var _ = Describe("", func() {
 			log.NewTestLogger(GinkgoT()),
 			cfg,
 		)
+		k.SetBlockchain(
+			core.NewChain(k.Host),
+		)
+
 		err = k.SetupPrecompiles()
 		Expect(err).ToNot(HaveOccurred())
 		am = evm.NewAppModule(k, ak)

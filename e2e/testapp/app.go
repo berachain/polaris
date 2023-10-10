@@ -193,13 +193,8 @@ func NewPolarisApp(
 		panic(err)
 	}
 
-	// TODO: deprecate this
-	app.polaris.EVMKeeper.SetBlockchain(app.polaris.Polaris)
-
 	// Setup Custom Ante Handler
 	app.SetAnteHandler(antelib.NewMinimalHandler())
-
-	// ----- END EVM SETUP -------------------------------------------------
 
 	// register streaming services
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
@@ -212,10 +207,12 @@ func NewPolarisApp(
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	app.RegisterUpgradeHandlers()
 
+	// Load the app.
 	if err := app.Load(loadLatest); err != nil {
 		panic(err)
 	}
 
+	// Load the last state of the polaris evm.
 	if err := app.polaris.LoadLastState(
 		app.CommitMultiStore(), uint64(app.LastBlockHeight()),
 	); err != nil {

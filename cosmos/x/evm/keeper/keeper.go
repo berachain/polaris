@@ -34,7 +34,6 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/polar"
 )
 
 type Blockchain interface {
@@ -78,8 +77,9 @@ func NewKeeper(
 	}
 }
 
-func (k *Keeper) SetBlockchain(pl *polar.Polaris) {
-	k.chain = pl.Blockchain()
+// SetBlock sets the underlying ethereum blockchain on the keeper.
+func (k *Keeper) SetBlockchain(chain Blockchain) {
+	k.chain = chain
 }
 
 // Logger returns a module-specific logger.

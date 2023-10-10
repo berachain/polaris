@@ -75,6 +75,9 @@ func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
 	p.mm = miner.New(p.Miner(), etherbase)
 	bApp.SetPrepareProposal(p.mm.PrepareProposal)
 
+	// TODO: deprecate this
+	p.EVMKeeper.SetBlockchain(p.Blockchain())
+
 	return nil
 }
 
