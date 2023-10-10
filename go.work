@@ -7,5 +7,6 @@ use (
 	./e2e/precompile
 	./e2e/testapp
 	./eth
+	./lib
 	./tools
 )
