@@ -58,4 +58,7 @@ var (
 	// FuncHandler is the function handler for overriding the logging method within
 	// the go-ethereum codebase.
 	FuncHandler = log.FuncHandler
+
+	// Warn is the warning log level.
+	Warn = log.Warn
 )
