@@ -67,12 +67,7 @@ func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
 	p.mp = txpool.New(p.TxPool())
 	bApp.SetMempool(p.mp)
 
-	// Setup Miner Wrapper
-	etherbase, err := p.Etherbase()
-	if err != nil {
-		return err
-	}
-	p.mm = miner.New(p.Miner(), etherbase)
+	p.mm = miner.New(p.Miner())
 	bApp.SetPrepareProposal(p.mm.PrepareProposal)
 
 	// TODO: deprecate this

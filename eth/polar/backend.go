@@ -162,7 +162,7 @@ func (pl *Polaris) Init() error {
 	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 	// Build and set the RPC Backend and other services.
 
-	// if eth.APIBackend.allowUnprotectedTxs {
+	// if pl.APIBackend.allowUnprotectedTxs {
 	// 	log.Info("Unprotected transactions allowed")
 	// }
 
