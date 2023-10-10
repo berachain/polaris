@@ -32,9 +32,7 @@ import (
 )
 
 type Keeper struct {
-	eth *eth.Ethereum
-
-	// TODO: remove this, because it's hacky af.
+	eth      *eth.Ethereum
 	storeKey storetypes.StoreKey
 }
 
