@@ -49,17 +49,6 @@ type Polaris struct {
 	mp *txpool.Mempool
 }
 
-func (p *Polaris) OpenDB(home string) error {
-	// ethDB, err := pebble.New(filepath.Join(home, "data", "evm.db"), 12, 12, "", false, false)
-	// if err != nil {
-	// 	return err
-	// }
-	// gspec := &core.Genesis{Config: params.TestChainConfig}
-	// eth_ := eth.NewBacken
-	// p.EVMKeeper.SetHackChain(bc)
-	return nil
-}
-
 func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
 	// Setup TxPool Wrapper
 	p.mp = txpool.New(p.Ethereum.TxPool())

@@ -38,10 +38,10 @@ import (
 // abstracted away networking stack, by extension we will need to improve the registration
 // architecture.
 
-var defaultEthConfig = ethconfig.Config{
-	SyncMode:           0,
-	FilterLogCacheSize: 0,
-}
+// var defaultEthConfig = ethconfig.Config{
+// 	SyncMode:           0,
+// 	FilterLogCacheSize: 0,
+// }
 
 // NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC API.
 type NetworkingStack interface {

@@ -53,7 +53,7 @@ func (k *Keeper) ProcessPayloadEnvelope(
 		panic(err)
 	}
 
-	if _, err := k.eth.BlockChain().SetCanonical(block); err != nil {
+	if _, err = k.eth.BlockChain().SetCanonical(block); err != nil {
 		panic(err)
 	}
 

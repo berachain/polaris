@@ -18,20 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package keeper
+package testapp
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"pkg.berachain.dev/polaris/eth/core"
+	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 )
 
-// InitGenesis is called during the InitGenesis.
-func (k *Keeper) InitGenesis(_ sdk.Context, _ *core.Genesis) error {
-	return nil
-}
-
-// ExportGenesis returns the exported genesis state.
-func (k *Keeper) ExportGenesis(_ sdk.Context) *core.Genesis {
-	return nil
+// PolarisConfigFn returns a function that provides the initialization of the standard
+// set of precompiles.
+func PolarisConfigFn(cfg *evmconfig.Config) func() *evmconfig.Config {
+	return func() *evmconfig.Config {
+		return cfg
+	}
 }

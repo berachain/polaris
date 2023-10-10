@@ -54,6 +54,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
+	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	antelib "pkg.berachain.dev/polaris/cosmos/lib/ante"
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
 	polarruntime "pkg.berachain.dev/polaris/cosmos/runtime"
@@ -133,8 +134,8 @@ func NewPolarisApp(
 				appOpts,
 				// supply the logger
 				logger,
-				// ADVANCED CONFIGURATION\
-				// PolarisConfigFn(evmconfig.MustReadConfigFromAppOpts(appOpts)),
+				// ADVANCED CONFIGURATION
+				PolarisConfigFn(evmconfig.MustReadConfigFromAppOpts(appOpts)),
 				// PrecompilesToInject(app),
 				// QueryContextFn(app),
 				//
@@ -191,8 +192,6 @@ func NewPolarisApp(
 	if err := app.polaris.Setup(app.BaseApp); err != nil {
 		panic(err)
 	}
-
-	app.polaris.OpenDB(appOpts.Get("home").(string))
 
 	// Setup Custom Ante Handler
 	app.SetAnteHandler(antelib.NewMinimalHandler())

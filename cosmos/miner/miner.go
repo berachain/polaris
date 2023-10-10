@@ -23,7 +23,6 @@ package miner
 
 import (
 	"context"
-	"fmt"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
@@ -79,7 +78,6 @@ func (m *Miner) PrepareProposal(
 	if payloadEnvelopeBz, err = m.buildBlock(ctx); err != nil {
 		return nil, err
 	}
-	fmt.Println("PREPARING PROPOSAL")
 	return &abci.ResponsePrepareProposal{Txs: [][]byte{payloadEnvelopeBz}}, err
 }
 
