@@ -49,6 +49,7 @@ type ChainBlockReader interface {
 	GetTransactionLookup(common.Hash) *types.TxLookupEntry
 	GetTd(common.Hash, uint64) *big.Int
 	HasBlock(common.Hash, uint64) bool
+	HasBlockAndState(hash common.Hash, number uint64) bool
 }
 
 // =========================================================================
@@ -283,4 +284,20 @@ func (bc *blockchain) HasBlock(hash common.Hash, number uint64) bool {
 		b = bc.GetBlockByHash(hash)
 	}
 	return b != nil
+}
+
+// HasBlockAndState checks if a block and associated state trie is fully present
+// in the database or not, caching it if present.
+func (bc *blockchain) HasBlockAndState(hash common.Hash, number uint64) bool {
+	// Since no state trie, for now, we assume state exists.
+	return bc.HasBlock(hash, number)
+}
+
+// WriteGenesisBlock writes the genesis block to the database.
+func (bc *blockchain) WriteGenesisBlock(block *types.Block) error {
+	if err := bc.bp.StoreHeader(block.Header()); err != nil {
+		return err
+	}
+	// todo: this should be write state
+	return bc.InsertBlockInternal(block, nil, nil)
 }

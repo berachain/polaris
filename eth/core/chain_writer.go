@@ -22,50 +22,229 @@ package core
 
 import (
 	"context"
-	"time"
+	"errors"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/core"
+	"github.com/ethereum/go-ethereum/log"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
+	WriteGenesisBlock(*types.Block) error
 	LoadLastState(context.Context, uint64) error
-	InsertBlock(block *types.Block, receipts types.Receipts, logs []*types.Log) error
-	InsertBlockWithoutSetHead(block *types.Block) error
+	InsertChain(chain types.Blocks) (int, error)
 	WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
 
-// WriteBlockAndSetHead is a no-op in the current implementation. Potentially usable later.
-func (*blockchain) WriteBlockAndSetHead(
-	_ *types.Block, _ []*types.Receipt, _ []*types.Log, _ state.StateDB,
-	_ bool) (core.WriteStatus, error) {
-	return core.NonStatTy, nil
+// InsertChain attempts to insert the given batch of blocks in to the canonical
+// chain or, otherwise, create a fork. If an error is returned it will return
+// the index number of the failing block as well an error describing what went
+// wrong. After insertion is done, all accumulated events will be fired.
+func (bc *blockchain) InsertChain(chain types.Blocks) (int, error) {
+	// Sanity check that we have something meaningful to import
+	if len(chain) == 0 {
+		return 0, nil
+	}
+	// bc.blockProcFeed.Send(true)
+	// defer bc.blockProcFeed.Send(false)
+
+	// Do a sanity check that the provided chain is actually ordered and linked.
+	for i := 1; i < len(chain); i++ {
+		block, prev := chain[i], chain[i-1]
+		if block.NumberU64() != prev.NumberU64()+1 || block.ParentHash() != prev.Hash() {
+			log.Error("Non contiguous block insert",
+				"number", block.Number(),
+				"hash", block.Hash(),
+				"parent", block.ParentHash(),
+				"prevnumber", prev.Number(),
+				"prevhash", prev.Hash(),
+			)
+			return 0, fmt.Errorf(
+				"non contiguous insert: item %d is #%d [%x..], "+
+					"item %d is #%d [%x..] (parent [%x..])",
+				i-1, prev.NumberU64(),
+				prev.Hash().Bytes()[:4],
+				i, block.NumberU64(),
+				block.Hash().Bytes()[:4],
+				block.ParentHash().Bytes()[:4],
+			)
+		}
+	}
+	return bc.insertChain(chain, true)
 }
 
+// InsertBlockWithoutSetHead executes the block, runs the necessary verification
+// upon it and then persist the block and the associate state into the database.
+// The key difference between the InsertChain is it won't do the canonical chain
+// updating. It relies on the additional SetCanonical call to finalize the entire
+// procedure.
 func (bc *blockchain) InsertBlockWithoutSetHead(block *types.Block) error {
-	// Retrieve the parent block and it's state to execute on top
-	// parent := bc.GetBlock(block.ParentHash(), block.NumberU64()-1)
-	// if parent == nil {
-	// 	return fmt.Errorf("parent block not found")
+	_, err := bc.insertChain(types.Blocks{block}, false)
+	return err
+}
+
+// insertChain attempts to insert the given batch of blocks in to the canonical
+// chain.
+func (bc *blockchain) insertChain(blocks types.Blocks, _ bool) (int, error) {
+	var lastCanon *types.Block
+
+	if len(blocks) != 1 {
+		return 0, errors.New("polaris only supports inserting chains of length 1")
+	}
+
+	block := blocks[0]
+
+	// Verify that the parent block exists.
+	parent := bc.GetBlock(block.ParentHash(), block.NumberU64()-1)
+	if block.Number().Cmp(common.Big0) != 0 && parent == nil {
+		return 0, fmt.Errorf("parent block not found")
+	}
+
+	// Fire a single chain head event if we've progressed the chain
+	defer func() {
+		if lastCanon != nil && bc.CurrentBlock().Hash() == lastCanon.Hash() {
+			bc.chainHeadFeed.Send(ChainHeadEvent{Block: lastCanon})
+		}
+	}()
+
+	// Verify the incoming block header is valid.
+	if err := bc.engine.VerifyHeader(bc, block.Header()); err != nil {
+		return 0, err
+	}
+
+	var err error
+	// Execute the state transition
+	receipts, logs, usedGas, err := bc.processor.Process(block, bc.statedb, *bc.vmConfig)
+	if err != nil {
+		return 0, err
+	}
+
+	// Validate the state of the chain after running the state tranisitons.
+	if err = bc.validator.ValidateState(block, bc.statedb, receipts, usedGas); err != nil {
+		return 0, err
+	}
+	// // Write the block to the chain and get the status.
+	// var (
+	// 	status core.WriteStatus
+	// )
+	// if !setHead {
+	// 	// Don't set the head, only insert the block
+	// 	err = bc.writeBlockWithState(block, receipts, bc.statedb)
+	// } else {
+	// 	status, err = bc.writeBlockAndSetHead(block, receipts, logs, bc.statedb, false)
 	// }
 
-	// Process block using the parent state as reference point
-	pstart := time.Now()
-	receipts, logs, _, err := bc.processor.Process(block, bc.statedb, *bc.vmConfig)
-	if err != nil {
-		return err
-	}
-	ptime := time.Since(pstart)
-	bc.logger.Info("processed block in", "time", ptime)
-	return bc.InsertBlock(block, receipts, logs)
+	// if err != nil {
+	// 	return 0, err
+	// }
+	return 0, bc.InsertBlockInternal(block, receipts, logs)
 }
 
+// writeBlockWithState writes block, metadata and corresponding state data to the
+// database.
+// func (bc *blockchain) writeBlockWithState(
+// block *types.Block, receipts []*types.Receipt, state state.StateDB) error {
+// 	// Calculate the total difficulty of the block
+// 	ptd := bc.GetTd(block.ParentHash(), block.NumberU64()-1)
+// 	if ptd == nil {
+// 		return consensus.ErrUnknownAncestor
+// 	}
+// 	// // Make sure no inconsistent state is leaked during insertion
+// 	// externTd := new(big.Int).Add(block.Difficulty(), ptd)
+
+// 	// Irrelevant of the canonical status, write the block itself to the database.
+// 	//
+// 	// Note all the components of block(td, hash->number map, header, body, receipts)
+// 	// // should be written atomically. BlockBatch is used for containing all components.
+// 	// blockBatch := bc.db.NewBatch()
+// 	// rawdb.WriteTd(blockBatch, block.Hash(), block.NumberU64(), externTd)
+// 	// rawdb.WriteBlock(blockBatch, block)
+// 	// rawdb.WriteReceipts(blockBatch, block.Hash(), block.NumberU64(), receipts)
+// 	// rawdb.WritePreimages(blockBatch, state.Preimages())
+// 	// if err := blockBatch.Write(); err != nil {
+// 	// 	log.Crit("Failed to write block into disk", "err", err)
+// 	// }
+
+// 	// Commit all cached state changes into underlying memory database.
+// 	_, err := state.Commit(block.NumberU64(), bc.cp.ChainConfig().IsEIP158(block.Number()))
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
+
+// WriteBlockAndSetHead is a no-op in the current implementation. Potentially usable later.
+func (bc *blockchain) WriteBlockAndSetHead(
+	block *types.Block, receipts []*types.Receipt,
+	logs []*types.Log, state state.StateDB,
+	emitHeadEvent bool) (core.WriteStatus, error) {
+	return bc.writeBlockAndSetHead(block, receipts, logs, state, emitHeadEvent)
+}
+
+// writeBlockAndSetHead is the internal implementation of WriteBlockAndSetHead.
+// This function expects the chain mutex to be held.
+func (bc *blockchain) writeBlockAndSetHead(
+	_ *types.Block, _ []*types.Receipt,
+	_ []*types.Log, _ state.StateDB, _ bool,
+) (core.WriteStatus, error) {
+	// if err := bc.writeBlockWithState(block, receipts, state); err != nil {
+	// 	return core.NonStatTy, err
+	// }
+	// currentBlock := bc.CurrentBlock()
+	// reorg, err := true, nil // no reorgs in polaris, lets verify this by forcing one.
+	// if err != nil {
+	// 	return core.NonStatTy, err
+	// }
+	// if reorg {
+	// 	// Reorganise the chain if the parent is not the head block
+	// 	if block.ParentHash() != currentBlock.Hash() {
+	// 		return core.NonStatTy, fmt.Errorf("reorg detected") // no reorgs in polaris
+	// 		// if err := bc.reorg(currentBlock, block); err != nil {
+	// 		// 	return core.NonStatTy, err
+	// 		// }
+	// 	}
+	// 	status = core.CanonStatTy
+	// } else {
+	// 	status = core.SideStatTy
+	// }
+	// // Set new head.
+	// if status == core.CanonStatTy {
+	// 	bc.writeHeadBlock(block)
+	// }
+	// // bc.futureBlocks.Remove(block.Hash())
+
+	// if status == core.CanonStatTy {
+	// 	bc.chainFeed.Send(ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
+	// 	if len(logs) > 0 {
+	// 		bc.logsFeed.Send(logs)
+	// 	}
+	// 	// In theory, we should fire a ChainHeadEvent when we inject
+	// 	// a canonical block, but sometimes we can insert a batch of
+	// 	// canonical blocks. Avoid firing too many ChainHeadEvents,
+	// 	// we will fire an accumulated ChainHeadEvent and disable fire
+	// 	// event here.
+	// 	if emitHeadEvent {
+	// 		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
+	// 	}
+	// } else {
+	// 	bc.chainSideFeed.Send(ChainSideEvent{Block: block})
+	// }
+	// return status, nil
+	// }
+	return 0, nil
+}
+
+// func (bc *blockchain) writeHeadBlock(block *types.Block) {}
+
 // InsertBlock inserts a block into the canonical chain and updates the state of the blockchain.
-func (bc *blockchain) InsertBlock(
+func (bc *blockchain) InsertBlockInternal(
 	block *types.Block,
 	receipts types.Receipts,
 	logs []*types.Log,

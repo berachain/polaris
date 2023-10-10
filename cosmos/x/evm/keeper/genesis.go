@@ -44,9 +44,8 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	}
 
 	// Insert to chain.
-	k.polaris.Blockchain().
-		PreparePlugins(ctx.WithEventManager(sdk.NewEventManager()))
-	return k.polaris.Blockchain().InsertBlockWithoutSetHead(genState.ToBlock())
+	k.polaris.Blockchain().PreparePlugins(ctx.WithEventManager(sdk.NewEventManager()))
+	return k.polaris.Blockchain().WriteGenesisBlock(genState.ToBlock())
 }
 
 // ExportGenesis returns the exported genesis state.

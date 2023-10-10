@@ -67,6 +67,7 @@ type blockchain struct {
 
 	engine    consensus.Engine
 	processor core.Processor
+	validator core.Validator
 
 	// statedb is the state database that is used to mange state during transactions.
 	statedb state.StateDB
@@ -132,6 +133,7 @@ func NewChain(
 	}
 	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
 	bc.processor = core.NewStateProcessor(bc.cp.ChainConfig(), bc, bc.engine)
+	bc.validator = core.NewBlockValidator(bc.cp.ChainConfig(), bc, bc.engine)
 	// TODO: hmm...
 	bc.currentBlock.Store(
 		types.NewBlock(&types.Header{Time: 0, Number: big.NewInt(0),
