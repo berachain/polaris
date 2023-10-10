@@ -111,7 +111,9 @@ type blockchain struct {
 // =========================================================================
 
 // NewChain creates and returns a `api.Chain` with the given EVM chain configuration and host.
-func NewChain(host PolarisHostChain, engine consensus.Engine) *blockchain { //nolint:revive // only used as `api.Chain`.
+func NewChain(
+	host PolarisHostChain, engine consensus.Engine,
+) *blockchain { //nolint:revive // only used as `api.Chain`.
 	bc := &blockchain{
 		bp:             host.GetBlockPlugin(),
 		cp:             host.GetConfigurationPlugin(),
