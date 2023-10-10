@@ -32,6 +32,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	"github.com/ethereum/go-ethereum/consensus/beacon"
 
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
@@ -91,7 +92,7 @@ var _ = Describe("", func() {
 			cfg,
 		)
 		k.SetBlockchain(
-			core.NewChain(k.Host),
+			core.NewChain(k.Host, beacon.NewFaker()),
 		)
 
 		err = k.SetupPrecompiles()

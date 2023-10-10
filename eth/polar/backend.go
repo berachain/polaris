@@ -21,13 +21,12 @@
 package polar
 
 import (
-	"errors"
 	"math/big"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/consensus/beacon"
 	"github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
@@ -36,7 +35,6 @@ import (
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
 
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -88,7 +86,6 @@ type Polaris struct {
 	blockchain core.Blockchain
 	txPool     *txpool.TxPool
 	miner      *miner.Miner
-	etherbase  common.Address
 
 	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs
 	// and the core pieces.
@@ -101,9 +98,6 @@ type Polaris struct {
 	// filterSystem is the filter system that is used by the filter API.
 	// TODO: relocate
 	filterSystem *filters.FilterSystem
-
-	lock sync.RWMutex // Protects the variadic fields (e.g. gas price and etherbase)
-
 }
 
 func NewWithNetworkingStack(
@@ -112,14 +106,14 @@ func NewWithNetworkingStack(
 	stack NetworkingStack,
 	logHandler log.Handler,
 ) *Polaris {
+	engine := beacon.New(&consensus.DummyEthOne{})
 	pl := &Polaris{
 		config:       config,
-		blockchain:   core.NewChain(host),
+		blockchain:   core.NewChain(host, engine),
 		stack:        stack,
 		host:         host,
 		enginePlugin: host.GetEnginePlugin(),
-		engine:       &consensus.DummyEthOne{},
-		etherbase:    config.Miner.Etherbase,
+		engine:       engine,
 	}
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
@@ -188,18 +182,6 @@ func (pl *Polaris) APIs() []rpc.API {
 	}...)
 }
 
-// Etherbase returns the current etherbase for this node.
-func (pl *Polaris) Etherbase() (common.Address, error) {
-	pl.lock.RLock()
-	etherbase := pl.etherbase
-	pl.lock.RUnlock()
-
-	if etherbase != (common.Address{}) {
-		return etherbase, nil
-	}
-	return common.Address{}, errors.New("etherbase must be explicitly specified")
-}
-
 // isLocalBlock checks whether the specified block is mined
 // by local miner accounts.
 //
@@ -215,10 +197,7 @@ func (pl *Polaris) isLocalBlock(header *types.Header) bool {
 		return false
 	}
 	// Check whether the given address is etherbase.
-	pl.lock.RLock()
-	etherbase := pl.etherbase
-	pl.lock.RUnlock()
-	if author == etherbase {
+	if author == pl.miner.Etherbase() {
 		return true
 	}
 	// Check whether the given address is specified by `txpool.local`

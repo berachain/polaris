@@ -59,6 +59,6 @@ var (
 	// the go-ethereum codebase.
 	FuncHandler = log.FuncHandler
 
-	// Warn is the warning level log.
+	// Warn is the warning log level.
 	Warn = log.Warn
 )
