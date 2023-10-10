@@ -29,6 +29,7 @@ import (
 	"github.com/ethereum/go-ethereum/eth/gasprice"
 	"github.com/ethereum/go-ethereum/miner"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
@@ -44,9 +45,12 @@ const (
 func DefaultConfig() *Config {
 	gpoConfig := ethconfig.FullNodeGPO
 	gpoConfig.Default = big.NewInt(gpoDefault)
+	minerCfg := miner.DefaultConfig
+	// TODO: setup proper command line flags
+	minerCfg.Etherbase = common.Address{1}
 	return &Config{
 		Chain:         *params.DefaultChainConfig,
-		Miner:         miner.DefaultConfig,
+		Miner:         minerCfg,
 		GPO:           gpoConfig,
 		LegacyTxPool:  legacypool.DefaultConfig,
 		RPCGasCap:     ethconfig.Defaults.RPCGasCap,

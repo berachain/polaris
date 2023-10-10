@@ -52,14 +52,16 @@ type GethMiner interface {
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
 	GethMiner
+	etherbase      common.Address
 	serializer     EnvelopeSerializer
 	currentPayload *miner.Payload
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm GethMiner) *Miner {
+func New(gm GethMiner, etherbase common.Address) *Miner {
 	return &Miner{
 		GethMiner: gm,
+		etherbase: etherbase,
 	}
 }
 
@@ -112,8 +114,8 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 func (m *Miner) constructPayloadArgs(ctx sdk.Context) *miner.BuildPayloadArgs {
 	return &miner.BuildPayloadArgs{
 		Timestamp:    uint64(ctx.BlockTime().Unix()),
-		FeeRecipient: common.Address{}, /* todo: set etherbase */
-		Random:       common.Hash{},    /* todo: generated random */
+		FeeRecipient: m.etherbase,
+		Random:       common.Hash{}, /* todo: generated random */
 		Withdrawals:  make(types.Withdrawals, 0),
 		BeaconRoot:   &emptyHash,
 	}
