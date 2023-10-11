@@ -338,32 +338,32 @@ func ConvertMsgSubmitProposalToSdk(
 // decodeProposalMessages is a helper function to convert the unnamed type of Messages into a
 // usable Messages slice.
 func decodeProposalMessages(propMsgs any) ([]struct {
-	TypeURL string  `json:"typeURL"`
-	Value   []uint8 `json:"value"`
+	TypeURL string `json:"typeURL"`
+	Value   []byte `json:"value"`
 }, error) {
 	var proposalMsgs []struct {
-		TypeURL string  `json:"typeURL"`
-		Value   []uint8 `json:"value"`
+		TypeURL string `json:"typeURL"`
+		Value   []byte `json:"value"`
 	}
 
 	switch reflect.TypeOf(propMsgs) {
 	case reflect.TypeOf([]governance.CosmosCodecAny{}):
 		for _, propMsg := range utils.MustGetAs[[]governance.CosmosCodecAny](propMsgs) {
 			proposalMsgs = append(proposalMsgs, struct {
-				TypeURL string  `json:"typeURL"`
-				Value   []uint8 `json:"value"`
+				TypeURL string `json:"typeURL"`
+				Value   []byte `json:"value"`
 			}{
 				TypeURL: propMsg.TypeURL,
 				Value:   propMsg.Value,
 			})
 		}
 	case reflect.TypeOf([]struct {
-		TypeURL string  `json:"typeURL"`
-		Value   []uint8 `json:"value"`
+		TypeURL string `json:"typeURL"`
+		Value   []byte `json:"value"`
 	}{}):
 		proposalMsgs = utils.MustGetAs[[]struct {
-			TypeURL string  `json:"typeURL"`
-			Value   []uint8 `json:"value"`
+			TypeURL string `json:"typeURL"`
+			Value   []byte `json:"value"`
 		}](propMsgs)
 	default:
 		return nil, precompile.ErrInvalidSubmitProposal
