@@ -48,8 +48,8 @@ type Polaris struct {
 	EVMKeeper *evmkeeper.Keeper
 
 	// polaris componets
-	mm *miner.Miner
-	mp *txpool.Mempool
+	WrappedMiner  *miner.Miner
+	WrappedTxPool *txpool.Mempool
 }
 
 func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
@@ -64,11 +64,11 @@ func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
 	}
 
 	// Setup TxPool Wrapper
-	p.mp = txpool.New(p.TxPool())
-	bApp.SetMempool(p.mp)
+	p.WrappedTxPool = txpool.New(p.TxPool())
+	bApp.SetMempool(p.WrappedTxPool)
 
-	p.mm = miner.New(p.Miner())
-	bApp.SetPrepareProposal(p.mm.PrepareProposal)
+	p.WrappedMiner = miner.New(p.Miner())
+	bApp.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
 
 	// TODO: deprecate this
 	p.EVMKeeper.SetBlockchain(p.Blockchain())
@@ -78,15 +78,15 @@ func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
 
 func (p *Polaris) Init(clientCtx client.Context, logger log.Logger) error {
 	// Initialize services.
-	p.mm.Init(libtx.NewSerializer[*engine.ExecutionPayloadEnvelope](
+	p.WrappedMiner.Init(libtx.NewSerializer[*engine.ExecutionPayloadEnvelope](
 		clientCtx.TxConfig, evmtypes.WrapPayload))
 
-	p.mp.Init(logger, clientCtx, libtx.NewSerializer[*coretypes.Transaction](
+	p.WrappedTxPool.Init(logger, clientCtx, libtx.NewSerializer[*coretypes.Transaction](
 		clientCtx.TxConfig, evmtypes.WrapTx))
 
 	// Register services with Polaris.
 	p.RegisterServices(clientCtx, []node.Lifecycle{
-		p.mp,
+		p.WrappedTxPool,
 	})
 	return nil
 }
