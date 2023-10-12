@@ -45,6 +45,7 @@ const ConsensusVersion = 1
 var (
 	_ appmodule.HasServices          = AppModule{}
 	_ appmodule.HasPrepareCheckState = AppModule{}
+	_ appmodule.HasPrecommit         = AppModule{}
 	_ module.AppModule               = AppModule{}
 	_ module.AppModuleBasic          = AppModuleBasic{}
 )
@@ -127,4 +128,8 @@ func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
 func (am AppModule) PrepareCheckState(ctx context.Context) error {
 	return am.keeper.PrepareCheckState(ctx)
+}
+
+func (am AppModule) Precommit(ctx context.Context) error {
+	return am.keeper.Precommit(ctx)
 }

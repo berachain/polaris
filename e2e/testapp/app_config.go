@@ -143,6 +143,9 @@ func MakeAppConfig(bech32Prefix string) depinject.Config {
 						stakingtypes.ModuleName,
 						genutiltypes.ModuleName,
 					},
+					Precommiters: []string{
+						evmtypes.ModuleName,
+					},
 					OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
 						{
 							ModuleName: authtypes.ModuleName,

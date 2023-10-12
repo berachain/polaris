@@ -39,6 +39,7 @@ import (
 type Blockchain interface {
 	PreparePlugins(context.Context)
 	core.ChainWriter
+	core.ChainReader
 }
 
 type Keeper struct {
