@@ -60,11 +60,14 @@ func ProvidePolarisRuntime(input DepInjectInput) DepInjectOutput {
 			func(r *ethlog.Record) error {
 				polarisGethLogger := input.Logger.With("module", "polaris-geth")
 				switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
-				case ethlog.LvlTrace, ethlog.LvlDebug:
+				case ethlog.LvlTrace:
+				case ethlog.LvlDebug:
 					polarisGethLogger.Debug(r.Msg, r.Ctx...)
-				case ethlog.LvlInfo, ethlog.LvlWarn:
+				case ethlog.LvlInfo:
 					polarisGethLogger.Info(r.Msg, r.Ctx...)
-				case ethlog.LvlError, ethlog.LvlCrit:
+				case ethlog.LvlWarn:
+				case ethlog.LvlCrit:
+				case ethlog.LvlError:
 					polarisGethLogger.Error(r.Msg, r.Ctx...)
 				}
 				return nil

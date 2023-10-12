@@ -134,6 +134,11 @@ func NewWithNetworkingStack(
 // Init initializes the Polaris struct.
 func (pl *Polaris) Init() error {
 	var err error
+
+	// Run safety message for feedback to the user if they are running
+	// with development configs.
+	pl.config.SafetyMessage()
+
 	// For now, we only have a legacy pool, we will implement blob pool later.
 	legacyPool := legacypool.New(
 		pl.config.LegacyTxPool, pl.Blockchain(),

@@ -18,49 +18,13 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package log
+package keeper
 
-import "github.com/ethereum/go-ethereum/log"
-
-type (
-	// Record is a log record.
-	Record = log.Record
-
-	// Logger defines the logger interface.
-	Logger = log.Logger
-
-	// Handler defines the log handler interface.
-	Handler = log.Handler
+import (
+	"context"
 )
 
-var (
-	// Root is the root logger.
-	Root = log.Root
-
-	// LvlTrace is the trace log level.
-	LvlTrace = log.LvlTrace
-
-	// LvlDebug is the debug log level.
-	LvlDebug = log.LvlDebug
-
-	// LvlInfo is the info log level.
-	LvlInfo = log.LvlInfo
-
-	// LvlWarn is the warn log level.
-	LvlWarn = log.LvlWarn
-
-	// LvlError is the error log level.
-	LvlError = log.LvlError
-
-	// LvlCrit is the critical log level.
-	LvlCrit = log.LvlCrit
-
-	// FuncHandler is the function handler for overriding the logging method within
-	// the go-ethereum codebase.
-	FuncHandler = log.FuncHandler
-
-	// Warn is the warning log level.
-	Warn = log.Warn
-
-	Error = log.Error
-)
+func (k *Keeper) PrepareCheckState(ctx context.Context) error {
+	k.sp.Prepare(ctx)
+	return nil
+}

@@ -123,6 +123,9 @@ func MakeAppConfig(bech32Prefix string) depinject.Config {
 					// there is nothing left over in the validator fee pool, so as to keep the
 					// CanWithdrawInvariant invariant.
 					// NOTE: staking module is required if HistoricalEntries param > 0
+					PrepareCheckStaters: []string{
+						evmtypes.ModuleName,
+					},
 					PreBlockers: []string{
 						upgradetypes.ModuleName,
 					},

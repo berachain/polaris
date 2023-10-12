@@ -115,6 +115,8 @@ type plugin struct {
 	dbErr error
 
 	mu sync.Mutex
+
+	latestState sdk.Context
 }
 
 // NewPlugin returns a plugin with the given context and keepers.
@@ -136,14 +138,10 @@ func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
 	p.plf = plf
 }
 
-// Prepare sets up the context on the state plugin for a new block. It sets the gas configs to be 0
-// so that query calls to the EVM (ones that do not invoke a new transaction) do not charge gas.
-//
+// Prepare sets up the context on the state plugin for use in JSON-RPC calls.
 // Prepare implements `core.StatePlugin`.
 func (p *plugin) Prepare(ctx context.Context) {
-	p.ctx = sdk.UnwrapSDKContext(ctx).
-		WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{})
+	p.latestState = sdk.UnwrapSDKContext(ctx)
 }
 
 // Reset sets up the state plugin for execution of a new transaction. It sets up the snapshottable
@@ -196,6 +194,10 @@ func (p *plugin) GetContext() context.Context {
 // Error implements `core.StatePlugin`.
 func (p *plugin) Error() error {
 	return p.dbErr
+}
+
+func (p *plugin) Finalize() {
+	p.Controller.Finalize()
 }
 
 // ===========================================================================
@@ -539,12 +541,12 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	int64Number := int64(number)
 	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
 	// Investigate and hopefully remove this GTE.
-	if int64Number >= p.ctx.BlockHeight() {
+	if int64Number >= p.latestState.BlockHeight() {
 		// TODO: Manager properly
-		if p.ctx.MultiStore() == nil {
-			ctx = p.ctx.WithEventManager(sdk.NewEventManager())
+		if p.latestState.MultiStore() == nil {
+			ctx = p.latestState.WithEventManager(sdk.NewEventManager())
 		} else {
-			ctx, _ = p.ctx.CacheContext()
+			ctx, _ = p.latestState.CacheContext()
 		}
 	} else {
 		// Get the query context at the given height.
@@ -558,7 +560,7 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	// Create a State Plugin with the requested chain height.
 	sp := NewPlugin(p.ak, p.storeKey, p.plf)
 	// TODO: Manager properly
-	if p.ctx.MultiStore() != nil {
+	if p.latestState.MultiStore() != nil {
 		sp.Reset(ctx)
 	}
 	return sp, nil
