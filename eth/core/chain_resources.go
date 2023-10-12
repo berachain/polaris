@@ -48,6 +48,7 @@ func (bc *blockchain) StateAtBlockNumber(number uint64) (state.StateDB, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return state.NewStateDB(sp, bc.pp), nil
 }
 

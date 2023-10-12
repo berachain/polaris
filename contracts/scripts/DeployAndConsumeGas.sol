@@ -27,18 +27,18 @@ pragma solidity ^0.8.17;
 
 import "../lib/forge-std/src/Script.sol";
 import "../src/testing/SolmateERC20.sol";
+import "../src/testing/ConsumeGas.sol";
 
-contract DeployAndCallERC20 is Script {
+contract DeployAndConsumeGas is Script {
   function run() public {
     address dropAddress = address(12);
     uint256 quantity = 50000;
 
     vm.startBroadcast();
-    SolmateERC20 drop = new SolmateERC20();
+    ConsumeGas drop = new ConsumeGas();
 
-    for (uint256 i = 0; i < 66; i++) {
-      quantity += 50000;
-      drop.mint(dropAddress, quantity);
+    for (uint256 i = 0; i < 1000; i++) {
+      drop.consumeGas(300000);
     }
 
     vm.stopBroadcast();

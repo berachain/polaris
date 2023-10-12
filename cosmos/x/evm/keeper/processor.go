@@ -29,36 +29,42 @@ import (
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 func (k *Keeper) ProcessPayloadEnvelope(
 	ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope,
 ) (*evmtypes.WrappedPayloadEnvelopeResponse, error) {
+	var err error
+	var block *types.Block
+
+	// TODO: maybe we just consume the block gas limit and call it a day?
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	gasMeter := sCtx.GasMeter()
+	blockGasMeter := sCtx.BlockGasMeter()
+
+	// Reset GasMeter to 0.
+	gasMeter.RefundGas(gasMeter.GasConsumed(), "reset before evm block")
+	blockGasMeter.RefundGas(blockGasMeter.GasConsumed(), "reset before evm block")
+	defer gasMeter.ConsumeGas(gasMeter.GasConsumed(), "reset after evm")
+
 	envelope := engine.ExecutionPayloadEnvelope{}
-	err := envelope.UnmarshalJSON(msg.Data)
+	err = envelope.UnmarshalJSON(msg.Data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal payload envelope: %w", err)
 	}
 
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	gasMeter := sCtx.GasMeter()
-
-	block, err := engine.ExecutableDataToBlock(*envelope.ExecutionPayload, nil, nil)
+	block, err = engine.ExecutableDataToBlock(*envelope.ExecutionPayload, nil, nil)
 	if err != nil {
 		k.Logger(sCtx).Error("failed to build evm block", "err", err)
 		return nil, err
 	}
 
 	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
-	k.polaris.Blockchain().
-		PreparePlugins(ctx)
-
-	if err = k.polaris.Blockchain().InsertBlockWithoutSetHead(block); err != nil {
+	k.chain.PreparePlugins(ctx)
+	if err = k.chain.InsertBlockWithoutSetHead(block); err != nil {
 		return nil, err
 	}
-
-	// Consume the gas used by the execution of the ethereum block.
-	gasMeter.ConsumeGas(block.GasUsed(), "block gas used")
 
 	return &evmtypes.WrappedPayloadEnvelopeResponse{}, nil
 }

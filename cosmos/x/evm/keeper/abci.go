@@ -18,49 +18,37 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package log
+package keeper
 
-import "github.com/ethereum/go-ethereum/log"
+import (
+	"context"
+	"fmt"
 
-type (
-	// Record is a log record.
-	Record = log.Record
-
-	// Logger defines the logger interface.
-	Logger = log.Logger
-
-	// Handler defines the log handler interface.
-	Handler = log.Handler
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var (
-	// Root is the root logger.
-	Root = log.Root
+// Precommit runs on the Cosmo-SDK lifecycle Precommit().
+func (k *Keeper) Precommit(ctx context.Context) error {
+	// Verify that the EVM block was written.
+	// TODO: Set/GetHead to set and get the canonical head.
+	blockNum := uint64(sdk.UnwrapSDKContext(ctx).BlockHeight())
+	block := k.chain.GetBlockByNumber(blockNum)
+	if block == nil {
+		panic(
+			fmt.Sprintf("EVM BLOCK FAILURE AT BLOCK %d", blockNum),
+		)
+	} else if block.NumberU64() != blockNum {
+		panic(
+			fmt.Sprintf(
+				"EVM BLOCK [%d] DOES NOT MATCH COMET BLOCK [%d]", block.NumberU64(), blockNum,
+			),
+		)
+	}
+	return nil
+}
 
-	// LvlTrace is the trace log level.
-	LvlTrace = log.LvlTrace
-
-	// LvlDebug is the debug log level.
-	LvlDebug = log.LvlDebug
-
-	// LvlInfo is the info log level.
-	LvlInfo = log.LvlInfo
-
-	// LvlWarn is the warn log level.
-	LvlWarn = log.LvlWarn
-
-	// LvlError is the error log level.
-	LvlError = log.LvlError
-
-	// LvlCrit is the critical log level.
-	LvlCrit = log.LvlCrit
-
-	// FuncHandler is the function handler for overriding the logging method within
-	// the go-ethereum codebase.
-	FuncHandler = log.FuncHandler
-
-	// Warn is the warning log level.
-	Warn = log.Warn
-
-	Error = log.Error
-)
+// PrepareCheckState runs on the Cosmos-SDK lifecycle PrepareCheckState().
+func (k *Keeper) PrepareCheckState(ctx context.Context) error {
+	k.sp.Prepare(ctx)
+	return nil
+}

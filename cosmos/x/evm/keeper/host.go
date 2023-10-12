@@ -39,17 +39,9 @@ import (
 )
 
 // Compile-time interface assertion.
-var _ core.PolarisHostChain = (*host)(nil)
+var _ core.PolarisHostChain = (*Host)(nil)
 
-// Host is the interface that must be implemented by the host.
-// It includes core.PolarisHostChain and functions that are called in other packages.
-type Host interface {
-	core.PolarisHostChain
-	GetAllPlugins() []any
-	SetupPrecompiles() error
-}
-
-type host struct {
+type Host struct {
 	// The various plugins that are are used to implement core.PolarisHostChain.
 	bp     block.Plugin
 	cp     configuration.Plugin
@@ -74,9 +66,9 @@ func NewHost(
 	precompiles func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
 	logger log.Logger,
-) Host {
+) *Host {
 	// We setup the host with some Cosmos standard sauce.
-	h := &host{}
+	h := &Host{}
 
 	// Build the Plugins
 	h.bp = block.NewPlugin(storeKey, sk)
@@ -89,7 +81,6 @@ func NewHost(
 	h.logger = logger
 
 	// Setup the state, precompile, historical, and txpool plugins
-	// TODO: re-enable historical plugin using ABCI listener.
 	h.hp = historical.NewPlugin(h.cp, h.bp, nil, h.storeKey)
 	h.pp = precompile.NewPlugin()
 	h.sp = state.NewPlugin(h.ak, h.storeKey, nil)
@@ -100,7 +91,7 @@ func NewHost(
 }
 
 // SetupPrecompiles intializes the precompile contracts.
-func (h *host) SetupPrecompiles() error {
+func (h *Host) SetupPrecompiles() error {
 	// Set the query context function for the block and state plugins
 	pcs := h.pcs().GetPrecompiles()
 
@@ -113,34 +104,34 @@ func (h *host) SetupPrecompiles() error {
 }
 
 // GetBlockPlugin returns the header plugin.
-func (h *host) GetBlockPlugin() core.BlockPlugin {
+func (h *Host) GetBlockPlugin() core.BlockPlugin {
 	return h.bp
 }
 
 // GetConfigurationPlugin returns the configuration plugin.
-func (h *host) GetConfigurationPlugin() core.ConfigurationPlugin {
+func (h *Host) GetConfigurationPlugin() core.ConfigurationPlugin {
 	return h.cp
 }
 
 // GetEnginePlugin returns the engine plugin.
-func (h *host) GetEnginePlugin() core.EnginePlugin {
+func (h *Host) GetEnginePlugin() core.EnginePlugin {
 	return h.ep
 }
-func (h *host) GetHistoricalPlugin() core.HistoricalPlugin {
+func (h *Host) GetHistoricalPlugin() core.HistoricalPlugin {
 	return h.hp
 }
 
 // GetPrecompilePlugin returns the precompile plugin.
-func (h *host) GetPrecompilePlugin() core.PrecompilePlugin {
+func (h *Host) GetPrecompilePlugin() core.PrecompilePlugin {
 	return h.pp
 }
 
 // GetStatePlugin returns the state plugin.
-func (h *host) GetStatePlugin() core.StatePlugin {
+func (h *Host) GetStatePlugin() core.StatePlugin {
 	return h.sp
 }
 
 // GetAllPlugins returns all the plugins.
-func (h *host) GetAllPlugins() []any {
+func (h *Host) GetAllPlugins() []any {
 	return []any{h.bp, h.cp, h.hp, h.pp, h.sp}
 }

@@ -42,7 +42,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -54,16 +53,10 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/ethereum/go-ethereum/node"
-
 	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
-	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
-	"pkg.berachain.dev/polaris/cosmos/miner"
-	"pkg.berachain.dev/polaris/cosmos/txpool"
-	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	polarruntime "pkg.berachain.dev/polaris/cosmos/runtime"
 )
 
 // DefaultNodeHome default home directories for the application daemon.
@@ -97,12 +90,9 @@ type SimApp struct {
 	EvidenceKeeper        evidencekeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
-	// polaris keepers
-	EVMKeeper *evmkeeper.Keeper
-
-	// polaris componets
-	mm *miner.Miner
-	mp *txpool.Mempool
+	// polaris contains all the required components for the
+	// polaris evm.
+	polaris *polarruntime.Polaris
 }
 
 //nolint:gochecknoinits // from sdk.
@@ -128,20 +118,22 @@ func NewPolarisApp(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *SimApp {
 	var (
-		app        = &SimApp{}
+		app        = &SimApp{polaris: &polarruntime.Polaris{}}
 		appBuilder *runtime.AppBuilder
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
 			MakeAppConfig(bech32Prefix),
 			depinject.Provide(
 				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
-				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope]),
+				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope],
+				polarruntime.ProvidePolarisRuntime,
+			),
 			depinject.Supply(
 				// supply the application options
 				appOpts,
 				// supply the logger
 				logger,
-				// ADVANCED CONFIGURATION
+				// ADVANCED CONFIGURATION\
 				PolarisConfigFn(evmconfig.MustReadConfigFromAppOpts(appOpts)),
 				PrecompilesToInject(app),
 				QueryContextFn(app),
@@ -186,7 +178,8 @@ func NewPolarisApp(
 		&app.UpgradeKeeper,
 		&app.EvidenceKeeper,
 		&app.ConsensusParamsKeeper,
-		&app.EVMKeeper,
+		&app.polaris,
+		&app.polaris.EVMKeeper,
 	); err != nil {
 		panic(err)
 	}
@@ -194,28 +187,13 @@ func NewPolarisApp(
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
-	// SetupPrecompiles is used to setup the precompile contracts post depinject.
-	if err := app.EVMKeeper.SetupPrecompiles(); err != nil {
+	// Initialize Polaris Runtime.
+	if err := app.polaris.Setup(app.BaseApp); err != nil {
 		panic(err)
 	}
-
-	// Init is used to setup the polaris struct.
-	if err := app.EVMKeeper.Init(); err != nil {
-		panic(err)
-	}
-
-	// Setup TxPool Wrapper
-	app.mp = txpool.New(app.EVMKeeper.Polaris().TxPool())
-	app.SetMempool(app.mp)
-
-	// Setup Miner Wrapper
-	app.mm = miner.New(app.EVMKeeper.Polaris().Miner())
-	app.SetPrepareProposal(app.mm.PrepareProposal)
 
 	// Set the ante handler to nil, since it is not needed.
 	app.SetAnteHandler(nil)
-
-	// ----- END EVM SETUP -------------------------------------------------
 
 	// register streaming services
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
@@ -228,16 +206,15 @@ func NewPolarisApp(
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	app.RegisterUpgradeHandlers()
 
+	// Load the app.
 	if err := app.Load(loadLatest); err != nil {
 		panic(err)
 	}
 
-	cmsCtx := sdk.Context{}.
-		WithMultiStore(app.CommitMultiStore()).
-		WithGasMeter(storetypes.NewInfiniteGasMeter()).
-		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
-	if err := app.EVMKeeper.Polaris().Blockchain().
-		LoadLastState(cmsCtx, uint64(app.LastBlockHeight())); err != nil {
+	// Load the last state of the polaris evm.
+	if err := app.polaris.LoadLastState(
+		app.CommitMultiStore(), uint64(app.LastBlockHeight()),
+	); err != nil {
 		panic(err)
 	}
 
@@ -282,23 +259,14 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
-	// Create the Serializers.
-	txSerializer := libtx.NewSerializer(apiSvr.ClientCtx.TxConfig, evmtypes.WrapTx)
-	payloadSerializer := libtx.NewSerializer(apiSvr.ClientCtx.TxConfig, evmtypes.WrapPayload)
-
-	// Initialize services.
-	app.mm.Init(payloadSerializer)
-	app.mp.Init(app.Logger(), apiSvr.ClientCtx, txSerializer)
-
-	// Register services with Polaris.
-	app.EVMKeeper.RegisterServices(apiSvr.ClientCtx, []node.Lifecycle{
-		app.mp,
-	})
+	if err := app.polaris.Init(apiSvr.ClientCtx, app.Logger()); err != nil {
+		panic(err)
+	}
 }
 
 // Close shuts down the application.
 func (app *SimApp) Close() error {
-	if pl := app.EVMKeeper.Polaris(); pl != nil {
+	if pl := app.polaris; pl != nil {
 		return pl.Close()
 	}
 	return app.BaseApp.Close()

@@ -30,6 +30,7 @@ import (
 	"github.com/ethereum/go-ethereum/miner"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
@@ -39,6 +40,11 @@ const (
 
 	// gpoDefault is the default gpo starting point.
 	gpoDefault = 1000000000
+
+	// developmentCoinbase is the address used for development.
+	// DO NOT USE IN PRODUCTION.
+	// 0xf8637fa70e8e329ecb8463b788d96914f8cfe191d15ae36f161227629e3f5693.
+	developmentCoinbase = "0xAf15f95bed0D3913a29092Fd7837451Ce4de64D3"
 )
 
 // DefaultConfig returns the default JSON-RPC config.
@@ -46,8 +52,8 @@ func DefaultConfig() *Config {
 	gpoConfig := ethconfig.FullNodeGPO
 	gpoConfig.Default = big.NewInt(gpoDefault)
 	minerCfg := miner.DefaultConfig
+	minerCfg.Etherbase = common.HexToAddress(developmentCoinbase)
 	// TODO: setup proper command line flags
-	minerCfg.Etherbase = common.Address{1}
 	return &Config{
 		Chain:         *params.DefaultChainConfig,
 		Miner:         minerCfg,
@@ -56,6 +62,16 @@ func DefaultConfig() *Config {
 		RPCGasCap:     ethconfig.Defaults.RPCGasCap,
 		RPCTxFeeCap:   ethconfig.Defaults.RPCTxFeeCap,
 		RPCEVMTimeout: ethconfig.Defaults.RPCEVMTimeout,
+	}
+}
+
+// SafetyMessage is a safety check for the JSON-RPC config.
+func (c *Config) SafetyMessage() {
+	if c.Miner.Etherbase == common.HexToAddress(developmentCoinbase) {
+		log.Error(
+			"development etherbase in use - please verify this is intentional", "address",
+			c.Miner.Etherbase,
+		)
 	}
 }
 

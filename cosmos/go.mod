@@ -44,16 +44,15 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230726155614-23370e0ffb3e // indirect
 	google.golang.org/grpc v1.58.1
 	google.golang.org/protobuf v1.31.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230928142528-23cc5f141354
-	pkg.berachain.dev/polaris/eth v0.0.0-20230928142528-23cc5f141354
-	pkg.berachain.dev/polaris/lib v0.0.0-20230928142528-23cc5f141354
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231010191645-a5ed99983be4
+	pkg.berachain.dev/polaris/eth v0.0.0-20231010191645-a5ed99983be4
+	pkg.berachain.dev/polaris/lib v0.0.0-20231010191645-a5ed99983be4
 )
 
 require (
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
-	github.com/BurntSushi/toml v1.3.2 // indirect
 	github.com/DataDog/zstd v1.5.5 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/VictoriaMetrics/fastcache v1.12.1 // indirect

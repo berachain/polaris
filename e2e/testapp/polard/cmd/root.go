@@ -64,6 +64,7 @@ import (
 	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
+	polarruntime "pkg.berachain.dev/polaris/cosmos/runtime"
 	testapp "pkg.berachain.dev/polaris/e2e/testapp"
 )
 
@@ -90,6 +91,7 @@ func NewRootCmd() *cobra.Command {
 				simtestutil.NewAppOptionsWithFlagHome(tempDir()),
 			),
 			depinject.Provide(
+				polarruntime.ProvidePolarisRuntime,
 				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
 				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope]),
 		),
