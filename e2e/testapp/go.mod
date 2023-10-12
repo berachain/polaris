@@ -4,7 +4,7 @@ go 1.21
 
 replace (
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231010014032-30e3547d965c
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231012174642-6e1d46cd32f5
 
 	// Required at the moment until a bug in the comsos-sdk is fixed.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
@@ -15,8 +15,8 @@ require (
 	cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/upgrade v0.0.0-20230915171831-2196edacb99d
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20231007233125-8af23216be65
-	pkg.berachain.dev/polaris/eth v0.0.0-20230928142528-23cc5f141354
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20231012162131-c1edabdcf30e
+	pkg.berachain.dev/polaris/eth v0.0.0-20231010191645-a5ed99983be4
 )
 
 require (
@@ -61,7 +61,6 @@ require (
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
-	github.com/BurntSushi/toml v1.3.2 // indirect
 	github.com/DataDog/zstd v1.5.5 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/VictoriaMetrics/fastcache v1.12.1 // indirect
@@ -270,8 +269,8 @@ require (
 	gotest.tools/v3 v3.5.0 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
-	pkg.berachain.dev/polaris/contracts v0.0.0-20230928142528-23cc5f141354 // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20230928142528-23cc5f141354 // indirect
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231010191645-a5ed99983be4 // indirect
+	pkg.berachain.dev/polaris/lib v0.0.0-20231010191645-a5ed99983be4 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
