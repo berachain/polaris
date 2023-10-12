@@ -91,7 +91,7 @@ func NewRootCmd() *cobra.Command {
 				simtestutil.NewAppOptionsWithFlagHome(tempDir()),
 			),
 			depinject.Provide(
-				polarruntime.ProvidePolarisRuntime,
+				polarruntime.New,
 				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
 				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope]),
 		),

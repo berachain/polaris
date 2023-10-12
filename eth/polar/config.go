@@ -68,10 +68,14 @@ func DefaultConfig() *Config {
 // SafetyMessage is a safety check for the JSON-RPC config.
 func (c *Config) SafetyMessage() {
 	if c.Miner.Etherbase == common.HexToAddress(developmentCoinbase) {
+		log.Error("###############################################################")
+		log.Error("###############################################################")
 		log.Error(
 			"development etherbase in use - please verify this is intentional", "address",
 			c.Miner.Etherbase,
 		)
+		log.Error("###############################################################")
+		log.Error("###############################################################")
 	}
 }
 

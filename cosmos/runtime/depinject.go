@@ -46,9 +46,9 @@ type DepInjectOutput struct {
 	Polaris *Polaris
 }
 
-// ProvidePolarisRuntime creates a new Polaris runtime from the provided
+// New creates a new Polaris runtime from the provided
 // dependencies.
-func ProvidePolarisRuntime(input DepInjectInput) DepInjectOutput {
+func New(input DepInjectInput) DepInjectOutput {
 	cfg := input.Config()
 	node, err := polar.NewGethNetworkingStack(&cfg.Node)
 	if err != nil {

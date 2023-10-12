@@ -35,6 +35,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -126,7 +127,7 @@ func NewPolarisApp(
 			depinject.Provide(
 				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
 				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope],
-				polarruntime.ProvidePolarisRuntime,
+				polarruntime.New,
 			),
 			depinject.Supply(
 				// supply the application options
@@ -208,6 +209,11 @@ func NewPolarisApp(
 
 	// Load the app.
 	if err := app.Load(loadLatest); err != nil {
+		panic(err)
+	}
+
+	// 
+	if err := app.polaris.OpenDB(appOpts.Get(flags.FlagHome).(string)); err != nil {
 		panic(err)
 	}
 

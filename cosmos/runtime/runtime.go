@@ -29,6 +29,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
+	"github.com/ethereum/go-ethereum/core/rawdb"
+	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/node"
 
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
@@ -50,6 +52,21 @@ type Polaris struct {
 	// polaris componets
 	WrappedMiner  *miner.Miner
 	WrappedTxPool *txpool.Mempool
+
+	// 
+	db ethdb.Database
+}
+
+func (p *Polaris) OpenDB(homeDir string) error {
+	opts := rawdb.OpenOptions{
+		Type:              "pebble",
+		Directory:         homeDir + "/data/evm.db",
+		AncientsDirectory: homeDir + "/data/evm_ancients.db",
+	}
+
+	var err error
+	p.db, err = rawdb.Open(opts)
+	return err
 }
 
 func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
@@ -69,6 +86,8 @@ func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
 
 	p.WrappedMiner = miner.New(p.Miner())
 	bApp.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
+
+	bApp.CommitMultiStore()
 
 	// TODO: deprecate this
 	p.EVMKeeper.SetBlockchain(p.Blockchain())
