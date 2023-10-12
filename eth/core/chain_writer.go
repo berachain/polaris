@@ -90,7 +90,7 @@ func (bc *blockchain) InsertBlock(
 	// *********************************************** //
 	blockHash, blockNum := block.Hash(), block.Number().Uint64()
 	bc.logger.Info(
-		"finalizing evm block", "block_hash", blockHash.Hex(), "num_txs", len(receipts))
+		"finalizing evm block", "hash", blockHash.Hex(), "num_txs", len(receipts))
 
 	// store the block header on the host chain
 	err = bc.bp.StoreHeader(block.Header())
