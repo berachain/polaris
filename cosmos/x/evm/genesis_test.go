@@ -21,9 +21,7 @@
 package evm_test
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	"math/big"
 	"testing"
 
@@ -52,10 +50,10 @@ var (
 
 func TestGenesis(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/x/evm")
+	RunSpecs(t, "Genesis Suite")
 }
 
-var _ = Describe("", func() {
+var _ = Describe("Genesis", func() {
 	var (
 		ctx sdk.Context
 		ak  state.AccountKeeper
@@ -94,19 +92,17 @@ var _ = Describe("", func() {
 		am = evm.NewAppModule(k, ak)
 	})
 
-	Context("On InitGenesis", func() {
+	Describe("On InitGenesis", func() {
+		var bz []byte
 		BeforeEach(func() {
+			bz, err = json.Marshal(ethGen)
+			Expect(err).ToNot(HaveOccurred())
 		})
 		JustBeforeEach(func() {
-			var bz []byte
-			bz, err = json.Marshal(ethGen)
-			if err != nil {
-				panic(err)
-			}
 			am.InitGenesis(ctx, nil, bz)
 		})
 
-		When("the genesis is valid", func() {
+		Context("when the genesis is valid", func() {
 			It("should succeed without error", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -119,16 +115,14 @@ var _ = Describe("", func() {
 				sp := k.Host.GetStatePlugin()
 				for addr, acc := range ethGen.Alloc {
 					balance := sp.GetBalance(addr)
-					cmp := balance.Cmp(acc.Balance)
-					Expect(cmp).To(BeZero())
+					Expect(balance).To(Equal(acc.Balance))
 				}
 			})
 			It("should have the correct code", func() {
 				sp := k.Host.GetStatePlugin()
 				for addr, acc := range ethGen.Alloc {
 					code := sp.GetCode(addr)
-					cmp := bytes.Compare(code, acc.Code)
-					Expect(cmp).To(BeZero())
+					Expect(code).To(Equal(acc.Code))
 				}
 			})
 			It("should have the correct hash", func() {
@@ -136,36 +130,31 @@ var _ = Describe("", func() {
 				for addr, acc := range ethGen.Alloc {
 					for key, expectedHash := range acc.Storage {
 						actualHash := sp.GetState(addr, key)
-						cmp := bytes.Compare(actualHash.Bytes(), expectedHash.Bytes())
-						Expect(cmp).To(BeZero())
+						Expect(actualHash.Bytes()).To(Equal(expectedHash.Bytes()))
 					}
 				}
 			})
 		})
 	})
 
-	Context("On ExportGenesis", func() {
+	Describe("On ExportGenesis", func() {
 		var (
 			actualGenesis core.Genesis
+			bz            []byte
 		)
-		JustBeforeEach(func() {
-			var bz []byte
+		BeforeEach(func() {
 			bz, err = json.Marshal(ethGen)
-			if err != nil {
-				panic(err)
-			}
+			Expect(err).ToNot(HaveOccurred())
 			am.InitGenesis(ctx, nil, bz)
-
+		})
+		JustBeforeEach(func() {
 			data := am.ExportGenesis(ctx, nil)
-			if data == nil {
-				panic(fmt.Errorf("data is nil"))
-			}
-			if err = actualGenesis.UnmarshalJSON(data); err != nil {
-				panic(err)
-			}
+			Expect(data).ToNot(BeNil())
+			err = actualGenesis.UnmarshalJSON(data)
+			Expect(err).ToNot(HaveOccurred())
 		})
 
-		When("the genesis is valid", func() {
+		Context("when the genesis is valid", func() {
 			It("should export without fail", func() {
 				ethGen.Config = nil
 				ethGen.BaseFee = big.NewInt(int64(params.InitialBaseFee))
