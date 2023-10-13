@@ -49,10 +49,9 @@ type Host struct {
 	sp     state.Plugin
 	logger log.Logger
 
-	ak       state.AccountKeeper
-	storeKey storetypes.StoreKey
-	pcs      func() *ethprecompile.Injector
-	qc       func() func(height int64, prove bool) (sdk.Context, error)
+	ak  state.AccountKeeper
+	pcs func() *ethprecompile.Injector
+	qc  func() func(height int64, prove bool) (sdk.Context, error)
 }
 
 // Newhost creates new instances of the plugin host.
@@ -69,19 +68,19 @@ func NewHost(
 	h := &Host{}
 
 	// Build the Plugins
-	h.bp = block.NewPlugin(storeKey, sk)
+	h.bp = block.NewPlugin(
+		storeKey, sk, h.qc,
+	)
 	h.ep = engine.NewPlugin()
 	h.pcs = precompiles
-	h.storeKey = storeKey
 	h.ak = ak
 	h.qc = qc
 	h.logger = logger
 
 	// Setup the state, precompile, historical, and txpool plugins
-	h.hp = historical.NewPlugin(&cfg.Polar.Chain, h.bp, nil, h.storeKey)
+	h.hp = historical.NewPlugin(&cfg.Polar.Chain, h.bp, nil, storeKey)
 	h.pp = precompile.NewPlugin()
-	h.sp = state.NewPlugin(h.ak, h.storeKey, nil)
-	h.bp.SetQueryContextFn(h.qc)
+	h.sp = state.NewPlugin(h.ak, storeKey, nil)
 	h.sp.SetQueryContextFn(h.qc)
 
 	return h

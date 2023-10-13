@@ -37,9 +37,6 @@ import (
 type Plugin interface {
 	plugins.HasGenesis
 	core.BlockPlugin
-
-	// SetQueryContextFn sets the function used for querying historical block headers.
-	SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error))
 }
 
 type plugin struct {
@@ -53,10 +50,14 @@ type plugin struct {
 	sk StakingKeeper
 }
 
-func NewPlugin(storekey storetypes.StoreKey, sk StakingKeeper) Plugin {
+func NewPlugin(
+	storekey storetypes.StoreKey, sk StakingKeeper,
+	qfn func() func(height int64, prove bool) (sdk.Context, error),
+) Plugin {
 	return &plugin{
-		storekey: storekey,
-		sk:       sk,
+		storekey:        storekey,
+		sk:              sk,
+		getQueryContext: qfn,
 	}
 }
 
