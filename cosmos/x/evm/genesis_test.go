@@ -31,12 +31,10 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"github.com/ethereum/go-ethereum/consensus/beacon"
 
 	"pkg.berachain.dev/polaris/cosmos/config"
-	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -64,16 +62,14 @@ var _ = Describe("", func() {
 		ctx sdk.Context
 		sc  ethprecompile.StatefulImpl
 		ak  state.AccountKeeper
-		sk  stakingkeeper.Keeper
 		k   *keeper.Keeper
 		am  evm.AppModule
 		err error
 	)
 
 	BeforeEach(func() {
-		ctx, ak, _, sk = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
+		ctx, ak, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
 		ctx = ctx.WithBlockHeight(0)
-		sc = staking.NewPrecompileContract(ak, &sk)
 		cfg := config.DefaultConfig()
 		ethGen.Config = params.DefaultChainConfig
 		cfg.Node.DataDir = GinkgoT().TempDir()

@@ -26,7 +26,6 @@ import (
 	addresscodec "cosmossdk.io/core/address"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // AccountKeeper defines the expected account keeper.
@@ -40,9 +39,4 @@ type AccountKeeper interface {
 	SetAccount(ctx context.Context, account sdk.AccountI)
 	RemoveAccount(ctx context.Context, account sdk.AccountI)
 	IterateAccounts(ctx context.Context, cb func(account sdk.AccountI) bool)
-}
-
-type StakingKeeper interface {
-	GetValidatorByConsAddr(context.Context, sdk.ConsAddress) (stakingtypes.Validator, error)
-	ValidatorAddressCodec() addresscodec.Codec
 }
