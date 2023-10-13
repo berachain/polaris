@@ -46,9 +46,9 @@ const defaultCacheSize = 1024
 // Compile-time check to ensure that `blockchain` implements the `Blockchain` api.
 var _ Blockchain = (*blockchain)(nil)
 
+// Blockchain interface defines the methods that a blockchain must have.
 type Blockchain interface {
 	PreparePlugins(ctx context.Context)
-	Config() *params.ChainConfig
 	ChainReader
 	ChainWriter
 	ChainSubscriber

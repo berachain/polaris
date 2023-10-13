@@ -30,9 +30,6 @@ type (
 )
 
 var (
-	// BloomBitsBlocks is the number of blocks a single bloom bit section vector
-	// contains on the server side.
-	BloomBitsBlocks = params.BloomBitsBlocks
 	// VersionWithMeta holds the textual version string including the metadata.
 	VersionWithMeta = params.VersionWithMeta
 	// VersionWithCommit holds the textual version string including the commit hash.
