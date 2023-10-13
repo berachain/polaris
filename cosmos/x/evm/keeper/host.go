@@ -108,6 +108,8 @@ func (h *Host) GetBlockPlugin() core.BlockPlugin {
 func (h *Host) GetEnginePlugin() core.EnginePlugin {
 	return h.ep
 }
+
+// GetHistoricalPlugin returns the historical plugin.
 func (h *Host) GetHistoricalPlugin() core.HistoricalPlugin {
 	return h.hp
 }
