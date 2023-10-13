@@ -185,5 +185,5 @@ func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, e
 		return nil, err
 	}
 
-	return coretypes.DeriveReceiptsFromBlock(p.cp.ChainConfig(), receipts, block)
+	return coretypes.DeriveReceiptsFromBlock(p.chainConfig, receipts, block)
 }

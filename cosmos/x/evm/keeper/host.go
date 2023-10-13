@@ -28,7 +28,6 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/historical"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
@@ -44,7 +43,6 @@ var _ core.PolarisHostChain = (*Host)(nil)
 type Host struct {
 	// The various plugins that are are used to implement core.PolarisHostChain.
 	bp     block.Plugin
-	cp     configuration.Plugin
 	ep     engine.Plugin
 	hp     historical.Plugin
 	pp     precompile.Plugin
@@ -72,7 +70,6 @@ func NewHost(
 
 	// Build the Plugins
 	h.bp = block.NewPlugin(storeKey, sk)
-	h.cp = configuration.NewPlugin(&cfg.Polar.Chain)
 	h.ep = engine.NewPlugin()
 	h.pcs = precompiles
 	h.storeKey = storeKey
@@ -81,7 +78,7 @@ func NewHost(
 	h.logger = logger
 
 	// Setup the state, precompile, historical, and txpool plugins
-	h.hp = historical.NewPlugin(h.cp, h.bp, nil, h.storeKey)
+	h.hp = historical.NewPlugin(&cfg.Polar.Chain, h.bp, nil, h.storeKey)
 	h.pp = precompile.NewPlugin()
 	h.sp = state.NewPlugin(h.ak, h.storeKey, nil)
 	h.bp.SetQueryContextFn(h.qc)
@@ -108,11 +105,6 @@ func (h *Host) GetBlockPlugin() core.BlockPlugin {
 	return h.bp
 }
 
-// GetConfigurationPlugin returns the configuration plugin.
-func (h *Host) GetConfigurationPlugin() core.ConfigurationPlugin {
-	return h.cp
-}
-
 // GetEnginePlugin returns the engine plugin.
 func (h *Host) GetEnginePlugin() core.EnginePlugin {
 	return h.ep
@@ -133,5 +125,5 @@ func (h *Host) GetStatePlugin() core.StatePlugin {
 
 // GetAllPlugins returns all the plugins.
 func (h *Host) GetAllPlugins() []any {
-	return []any{h.bp, h.cp, h.hp, h.pp, h.sp}
+	return []any{h.bp, h.hp, h.pp, h.sp}
 }

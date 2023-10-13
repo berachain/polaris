@@ -93,7 +93,7 @@ var _ = Describe("", func() {
 			cfg,
 		)
 		k.SetBlockchain(
-			core.NewChain(k.Host, beacon.NewFaker()),
+			core.NewChain(k.Host, params.DefaultChainConfig, beacon.NewFaker()),
 		)
 
 		err = k.SetupPrecompiles()

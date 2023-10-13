@@ -30,7 +30,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/params"
 	libtypes "pkg.berachain.dev/polaris/lib/types"
 )
 
@@ -38,8 +37,6 @@ import (
 type PolarisHostChain interface {
 	// GetBlockPlugin returns the `BlockPlugin` of the Polaris host chain.
 	GetBlockPlugin() BlockPlugin
-	// GetConfigurationPlugin returns the `ConfigurationPlugin` of the Polaris host chain.
-	GetConfigurationPlugin() ConfigurationPlugin
 	// GetEnginePlugin() returns the `EnginePlugin` of the Polaris host chain.
 	GetEnginePlugin() EnginePlugin
 	// GetHistoricalPlugin returns the OPTIONAL `HistoricalPlugin` of the Polaris host chain.
@@ -74,16 +71,6 @@ type (
 		StoreHeader(*types.Header) error
 		// BaseFee returns the base fee of the current block.
 		BaseFee() *big.Int
-	}
-
-	// ConfigurationPlugin defines the methods that the chain running Polaris EVM should
-	// implement in order to configuration the parameters of the Polaris EVM.
-	ConfigurationPlugin interface {
-		// ConfigurationPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset
-		// the `ConfigurationPlugin` to a default state.
-		libtypes.Preparable
-		// ChainConfig returns the current chain configuration of the Polaris EVM.
-		ChainConfig() *params.ChainConfig
 	}
 
 	// EnginePlugin defines methods that allow the chain to have insight into the underlying

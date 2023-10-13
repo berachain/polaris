@@ -29,6 +29,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
 // Plugin is the interface that must be implemented by the plugin.
@@ -42,7 +43,7 @@ type plugin struct {
 	// ctx is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
 	// cp is used to get the current chain config.
-	cp core.ConfigurationPlugin
+	chainConfig *params.ChainConfig
 	// bp represents the block plugin, used for accessing historical block headers.
 	bp core.BlockPlugin
 	// storekey is the store key for the header store.
@@ -51,13 +52,13 @@ type plugin struct {
 
 // NewPlugin creates a new instance of the block plugin from the given context.
 func NewPlugin(
-	cp core.ConfigurationPlugin, bp core.BlockPlugin,
+	chainConfig *params.ChainConfig, bp core.BlockPlugin,
 	_ storetypes.StoreKey, storekey storetypes.StoreKey,
 ) Plugin {
 	return &plugin{
-		cp:       cp,
-		bp:       bp,
-		storeKey: storekey,
+		chainConfig: chainConfig,
+		bp:          bp,
+		storeKey:    storekey,
 	}
 }
 

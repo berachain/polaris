@@ -73,7 +73,7 @@ func (bc *blockchain) InsertBlock(
 	var err error
 	if _, err = bc.statedb.Commit(
 		block.NumberU64(),
-		bc.cp.ChainConfig().IsEIP158(block.Header().Number),
+		bc.config.IsEIP158(block.Header().Number),
 	); err != nil {
 		return err
 	}

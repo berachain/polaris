@@ -109,7 +109,7 @@ func NewWithNetworkingStack(
 	engine := beacon.New(&consensus.DummyEthOne{})
 	pl := &Polaris{
 		config:       config,
-		blockchain:   core.NewChain(host, engine),
+		blockchain:   core.NewChain(host, &config.Chain, engine),
 		stack:        stack,
 		host:         host,
 		enginePlugin: host.GetEnginePlugin(),
@@ -156,7 +156,7 @@ func (pl *Polaris) Init() error {
 	mux := new(event.TypeMux) //nolint:staticcheck // deprecated but still in geth.
 	// TODO: miner config to app.toml
 	pl.miner = miner.New(pl, &pl.config.Miner,
-		pl.host.GetConfigurationPlugin().ChainConfig(), mux, pl.engine, pl.isLocalBlock)
+		&pl.config.Chain, mux, pl.engine, pl.isLocalBlock)
 	// extra data must be nil until 1 block 1 transaction.
 	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 	// Build and set the RPC Backend and other services.

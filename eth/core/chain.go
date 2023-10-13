@@ -60,7 +60,6 @@ type Blockchain interface {
 type blockchain struct {
 	// the host chain plugins that the Polaris EVM is running on.
 	bp BlockPlugin
-	cp ConfigurationPlugin
 	hp HistoricalPlugin
 	pp PrecompilePlugin
 	sp StatePlugin
@@ -72,6 +71,9 @@ type blockchain struct {
 	statedb state.StateDB
 	// vmConfig is the configuration used to create the EVM.
 	vmConfig *vm.Config
+
+	// config represents the chain config.
+	config *params.ChainConfig
 
 	// currentBlock is the current/pending block.
 	currentBlock atomic.Pointer[types.Block]
@@ -112,14 +114,14 @@ type blockchain struct {
 
 // NewChain creates and returns a `api.Chain` with the given EVM chain configuration and host.
 func NewChain(
-	host PolarisHostChain, engine consensus.Engine,
+	host PolarisHostChain, config *params.ChainConfig, engine consensus.Engine,
 ) *blockchain { //nolint:revive // only used as `api.Chain`.
 	bc := &blockchain{
 		bp:             host.GetBlockPlugin(),
-		cp:             host.GetConfigurationPlugin(),
 		hp:             host.GetHistoricalPlugin(),
 		pp:             host.GetPrecompilePlugin(),
 		sp:             host.GetStatePlugin(),
+		config:         config,
 		vmConfig:       &vm.Config{},
 		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSize),
 		blockNumCache:  lru.NewCache[uint64, *types.Block](defaultCacheSize),
@@ -131,7 +133,7 @@ func NewChain(
 		engine:         engine,
 	}
 	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
-	bc.processor = core.NewStateProcessor(bc.cp.ChainConfig(), bc, bc.engine)
+	bc.processor = core.NewStateProcessor(bc.config, bc, bc.engine)
 	// TODO: hmm...
 	bc.currentBlock.Store(
 		types.NewBlock(&types.Header{Time: 0, Number: big.NewInt(0),
@@ -151,7 +153,6 @@ func (bc *blockchain) PreparePlugins(ctx context.Context) {
 	bc.sp.Prepare(ctx)
 	bc.sp.Reset(ctx)
 	bc.bp.Prepare(ctx)
-	bc.cp.Prepare(ctx)
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
 	}
@@ -159,7 +160,7 @@ func (bc *blockchain) PreparePlugins(ctx context.Context) {
 
 // ChainConfig returns the Ethereum chain config of the  chain.
 func (bc *blockchain) Config() *params.ChainConfig {
-	return bc.cp.ChainConfig()
+	return bc.config
 }
 
 // loadLastState loads the last known chain state from the database. This method
