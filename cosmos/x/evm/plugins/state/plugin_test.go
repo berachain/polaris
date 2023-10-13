@@ -50,7 +50,7 @@ var _ = Describe("State Plugin", func() {
 
 	BeforeEach(func() {
 		ctx, ak, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
-		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
+		sp = state.NewPlugin(ak, testutil.EvmKey, nil, &mockPLF{})
 		sp.Reset(ctx)
 	})
 

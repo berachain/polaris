@@ -25,8 +25,6 @@ import (
 	"fmt"
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -36,15 +34,6 @@ import (
 
 // prevHeaderHashes is the number of previous header hashes being stored on chain.
 const prevHeaderHashes = 256
-
-// ===========================================================================
-// Polaris Block Header Tracking
-// ===========================================================================.
-
-// SetQueryContextFn sets the query context func for the plugin.
-func (p *plugin) SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error)) {
-	p.getQueryContext = fn
-}
 
 // GetHeaderByNumber returns the header at the given height, using the plugin's query context.
 //

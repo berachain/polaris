@@ -34,6 +34,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/mock"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -48,10 +49,9 @@ var _ = Describe("Historical Data", func() {
 
 	BeforeEach(func() {
 		ctx = testutil.NewContext(log.NewTestLogger(GinkgoT())).WithBlockHeight(0)
-		cp := mock.NewConfigurationPluginMock()
 		bp := mock.NewBlockPluginMock()
 
-		p = utils.MustGetAs[*plugin](NewPlugin(cp, bp, nil, testutil.EvmKey))
+		p = utils.MustGetAs[*plugin](NewPlugin(params.DefaultChainConfig, bp, nil, testutil.EvmKey))
 		Expect(p.InitGenesis(ctx, core.DefaultGenesis)).To(Succeed())
 	})
 

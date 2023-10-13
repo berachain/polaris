@@ -57,7 +57,18 @@ import (
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
 	polarruntime "pkg.berachain.dev/polaris/cosmos/runtime"
+	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 )
+
+//nolint:gochecknoinits // from sdk.
+func init() {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
+	DefaultNodeHome = filepath.Join(userHomeDir, ".polard")
+}
 
 // DefaultNodeHome default home directories for the application daemon.
 var DefaultNodeHome string
@@ -72,6 +83,7 @@ var (
 // capabilities aren't needed for testing.
 type SimApp struct {
 	*runtime.App
+	*polarruntime.Polaris
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
 	txConfig          client.TxConfig
@@ -90,19 +102,8 @@ type SimApp struct {
 	EvidenceKeeper        evidencekeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
-	// polaris contains all the required components for the
-	// polaris evm.
-	polaris *polarruntime.Polaris
-}
-
-//nolint:gochecknoinits // from sdk.
-func init() {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-
-	DefaultNodeHome = filepath.Join(userHomeDir, ".polard")
+	// polaris required keeper
+	EVMKeeper *evmkeeper.Keeper
 }
 
 // NewPolarisApp returns a reference to an initialized SimApp.
@@ -118,7 +119,7 @@ func NewPolarisApp(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *SimApp {
 	var (
-		app        = &SimApp{polaris: &polarruntime.Polaris{}}
+		app        = &SimApp{}
 		appBuilder *runtime.AppBuilder
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
@@ -126,7 +127,6 @@ func NewPolarisApp(
 			depinject.Provide(
 				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
 				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope],
-				polarruntime.ProvidePolarisRuntime,
 			),
 			depinject.Supply(
 				// supply the application options
@@ -178,22 +178,21 @@ func NewPolarisApp(
 		&app.UpgradeKeeper,
 		&app.EvidenceKeeper,
 		&app.ConsensusParamsKeeper,
-		&app.polaris,
-		&app.polaris.EVMKeeper,
+		&app.EVMKeeper,
 	); err != nil {
 		panic(err)
 	}
 
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
+	app.Polaris = polarruntime.New(
+		evmconfig.MustReadConfigFromAppOpts(appOpts), app.Logger(), app.EVMKeeper.Host,
+	)
 
-	// Initialize Polaris Runtime.
-	if err := app.polaris.Setup(app.BaseApp); err != nil {
+	// Setup Polaris Runtime.
+	if err := app.Polaris.Setup(app.BaseApp, app.EVMKeeper); err != nil {
 		panic(err)
 	}
-
-	// Set the ante handler to nil, since it is not needed.
-	app.SetAnteHandler(nil)
 
 	// register streaming services
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
@@ -212,7 +211,7 @@ func NewPolarisApp(
 	}
 
 	// Load the last state of the polaris evm.
-	if err := app.polaris.LoadLastState(
+	if err := app.Polaris.LoadLastState(
 		app.CommitMultiStore(), uint64(app.LastBlockHeight()),
 	); err != nil {
 		panic(err)
@@ -259,14 +258,14 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
-	if err := app.polaris.Init(apiSvr.ClientCtx, app.Logger()); err != nil {
+	if err := app.Polaris.Init(apiSvr.ClientCtx, app.Logger(), app.EVMKeeper); err != nil {
 		panic(err)
 	}
 }
 
 // Close shuts down the application.
 func (app *SimApp) Close() error {
-	if pl := app.polaris; pl != nil {
+	if pl := app.Polaris; pl != nil {
 		return pl.Close()
 	}
 	return app.BaseApp.Close()

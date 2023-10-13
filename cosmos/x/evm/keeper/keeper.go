@@ -26,18 +26,20 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/config"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
 type Blockchain interface {
 	PreparePlugins(context.Context)
+	Config() *params.ChainConfig
 	core.ChainWriter
 	core.ChainReader
 }
@@ -56,7 +58,6 @@ type Keeper struct {
 // NewKeeper creates new instances of the polaris Keeper.
 func NewKeeper(
 	ak state.AccountKeeper,
-	sk block.StakingKeeper,
 	storeKey storetypes.StoreKey,
 	pcs func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
@@ -67,7 +68,6 @@ func NewKeeper(
 		*polarisCfg,
 		storeKey,
 		ak,
-		sk,
 		pcs,
 		qc,
 		logger,
@@ -76,6 +76,15 @@ func NewKeeper(
 		Host:     host,
 		storeKey: storeKey,
 	}
+}
+
+func (k *Keeper) Setup(chain Blockchain) error {
+	k.chain = chain
+	return k.SetupPrecompiles()
+}
+
+func (k *Keeper) StartEnginePlugin(ctx client.Context) {
+	k.ep.Start(ctx)
 }
 
 // SetBlock sets the underlying ethereum blockchain on the keeper.

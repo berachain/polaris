@@ -26,6 +26,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/vm"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
 // ChainResources is the interface that defines functions for code paths within the chain to
@@ -34,6 +35,7 @@ type ChainResources interface {
 	StateAtBlockNumber(uint64) (state.StateDB, error)
 	StateAt(root common.Hash) (state.StateDB, error)
 	GetVMConfig() *vm.Config
+	Config() *params.ChainConfig
 }
 
 // StateAt returns a statedb configured to read what the state of the blockchain is/was at a given.

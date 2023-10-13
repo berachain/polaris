@@ -55,8 +55,6 @@ var (
 type Plugin interface {
 	plugins.HasGenesis
 	core.StatePlugin
-	// SetQueryContextFn sets the query context func for the plugin.
-	SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error))
 	// IterateBalances iterates over the balances of all accounts and calls the callback function.
 	IterateBalances(fn func(common.Address, *big.Int) bool)
 	// IterateState iterates over the state of all accounts and calls the callback function.
@@ -107,8 +105,8 @@ type plugin struct {
 	// keepers used for balance and account information.
 	ak AccountKeeper
 
-	// getQueryContext allows for querying state a historical height.
-	getQueryContext func() func(height int64, prove bool) (sdk.Context, error)
+	// qfn allows for querying state a historical height.
+	qfn func() func(height int64, prove bool) (sdk.Context, error)
 
 	// dbErr stores any error that is returned from state modifications on the underlying
 	// keepers.
@@ -123,6 +121,7 @@ type plugin struct {
 func NewPlugin(
 	ak AccountKeeper,
 	storeKey storetypes.StoreKey,
+	qfn func() func(height int64, prove bool) (sdk.Context, error),
 	plf events.PrecompileLogFactory,
 ) Plugin {
 	return &plugin{
@@ -130,6 +129,7 @@ func NewPlugin(
 		ak:       ak,
 		plf:      plf,
 		mu:       sync.Mutex{},
+		qfn:      qfn,
 	}
 }
 
@@ -524,17 +524,12 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 // Historical State
 // =============================================================================
 
-// SetQueryContextFn sets the query context func for the plugin.
-func (p *plugin) SetQueryContextFn(fn func() func(height int64, prove bool) (sdk.Context, error)) {
-	p.getQueryContext = fn
-}
-
 // StateAtBlockNumber implements `core.StatePlugin`.
 func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	var ctx sdk.Context
 
 	// Ensure the query context function is set.
-	if p.getQueryContext == nil {
+	if p.qfn == nil {
 		return nil, errors.New("no query context function set in host chain")
 	}
 
@@ -551,14 +546,14 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	} else {
 		// Get the query context at the given height.
 		var err error
-		ctx, err = p.getQueryContext()(int64Number, false)
+		ctx, err = p.qfn()(int64Number, false)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	// Create a State Plugin with the requested chain height.
-	sp := NewPlugin(p.ak, p.storeKey, p.plf)
+	sp := NewPlugin(p.ak, p.storeKey, p.qfn, p.plf)
 	// TODO: Manager properly
 	if p.latestState.MultiStore() != nil {
 		sp.Reset(ctx)
@@ -572,7 +567,7 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 
 // Clone implements libtypes.Cloneable.
 func (p *plugin) Clone() ethstate.Plugin {
-	sp := NewPlugin(p.ak, p.storeKey, p.plf)
+	sp := NewPlugin(p.ak, p.storeKey, p.qfn, p.plf)
 	// TODO: Manager properly
 	if p.ctx.MultiStore() != nil {
 		cacheCtx, _ := p.ctx.CacheContext()

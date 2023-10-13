@@ -29,14 +29,11 @@ import (
 
 	"cosmossdk.io/log"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"github.com/ethereum/go-ethereum/consensus/beacon"
 
 	"pkg.berachain.dev/polaris/cosmos/config"
-	"pkg.berachain.dev/polaris/cosmos/precompile/staking"
 	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -60,29 +57,25 @@ func TestGenesis(t *testing.T) {
 
 var _ = Describe("", func() {
 	var (
-		cdc codec.JSONCodec
 		ctx sdk.Context
-		sc  ethprecompile.StatefulImpl
 		ak  state.AccountKeeper
-		sk  stakingkeeper.Keeper
 		k   *keeper.Keeper
 		am  evm.AppModule
 		err error
 	)
 
 	BeforeEach(func() {
-		ctx, ak, _, sk = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
+		ctx, ak, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
 		ctx = ctx.WithBlockHeight(0)
-		sc = staking.NewPrecompileContract(ak, &sk)
 		cfg := config.DefaultConfig()
 		ethGen.Config = params.DefaultChainConfig
 		cfg.Node.DataDir = GinkgoT().TempDir()
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
 		k = keeper.NewKeeper(
-			ak, sk,
+			ak,
 			testutil.EvmKey,
 			func() *ethprecompile.Injector {
-				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
+				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{}...)
 			},
 			func() func(height int64, prove bool) (sdk.Context, error) {
 				return func(height int64, prove bool) (sdk.Context, error) {
@@ -93,7 +86,7 @@ var _ = Describe("", func() {
 			cfg,
 		)
 		k.SetBlockchain(
-			core.NewChain(k.Host, beacon.NewFaker()),
+			core.NewChain(k.Host, params.DefaultChainConfig, beacon.NewFaker()),
 		)
 
 		err = k.SetupPrecompiles()
@@ -110,7 +103,7 @@ var _ = Describe("", func() {
 			if err != nil {
 				panic(err)
 			}
-			am.InitGenesis(ctx, cdc, bz)
+			am.InitGenesis(ctx, nil, bz)
 		})
 
 		When("the genesis is valid", func() {
@@ -161,9 +154,9 @@ var _ = Describe("", func() {
 			if err != nil {
 				panic(err)
 			}
-			am.InitGenesis(ctx, cdc, bz)
+			am.InitGenesis(ctx, nil, bz)
 
-			data := am.ExportGenesis(ctx, cdc)
+			data := am.ExportGenesis(ctx, nil)
 			if data == nil {
 				panic(fmt.Errorf("data is nil"))
 			}

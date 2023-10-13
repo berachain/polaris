@@ -18,37 +18,29 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package configuration
+package runtime
 
 import (
-	"context"
+	"cosmossdk.io/log"
 
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/params"
+	ethlog "pkg.berachain.dev/polaris/eth/log"
 )
 
-// Plugin is the interface that must be implemented by the plugin.
-type Plugin interface {
-	core.ConfigurationPlugin
-}
-
-// plugin implements the core.ConfigurationPlugin interface.
-type plugin struct {
-	chainConfig *params.ChainConfig
-}
-
-// NewPlugin returns a new plugin instance.
-func NewPlugin(chainConfig *params.ChainConfig) Plugin {
-	return &plugin{
-		chainConfig: chainConfig,
-	}
-}
-
-func (p *plugin) Prepare(context.Context) {
-	// no-op
-}
-
-// GetChainConfig is used to get the genesis info of the Ethereum chain.
-func (p *plugin) ChainConfig() *params.ChainConfig {
-	return p.chainConfig
+// LoggerFuncHandler injects the cosmos-sdk logger into geth.
+func LoggerFuncHandler(logger log.Logger) ethlog.Handler {
+	return ethlog.FuncHandler(func(r *ethlog.Record) error {
+		polarisGethLogger := logger.With("module", "polaris-geth")
+		switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
+		case ethlog.LvlTrace:
+		case ethlog.LvlDebug:
+			polarisGethLogger.Debug(r.Msg, r.Ctx...)
+		case ethlog.LvlInfo:
+			polarisGethLogger.Info(r.Msg, r.Ctx...)
+		case ethlog.LvlWarn:
+		case ethlog.LvlCrit:
+		case ethlog.LvlError:
+			polarisGethLogger.Error(r.Msg, r.Ctx...)
+		}
+		return nil
+	})
 }

@@ -28,7 +28,6 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/configuration"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/historical"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
@@ -44,17 +43,13 @@ var _ core.PolarisHostChain = (*Host)(nil)
 type Host struct {
 	// The various plugins that are are used to implement core.PolarisHostChain.
 	bp     block.Plugin
-	cp     configuration.Plugin
 	ep     engine.Plugin
 	hp     historical.Plugin
 	pp     precompile.Plugin
 	sp     state.Plugin
 	logger log.Logger
 
-	ak       state.AccountKeeper
-	storeKey storetypes.StoreKey
-	pcs      func() *ethprecompile.Injector
-	qc       func() func(height int64, prove bool) (sdk.Context, error)
+	pcs func() *ethprecompile.Injector
 }
 
 // Newhost creates new instances of the plugin host.
@@ -62,31 +57,24 @@ func NewHost(
 	cfg config.Config,
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
-	sk block.StakingKeeper,
 	precompiles func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
 	logger log.Logger,
 ) *Host {
 	// We setup the host with some Cosmos standard sauce.
-	h := &Host{}
+	h := &Host{
+		bp: block.NewPlugin(
+			storeKey, qc,
+		),
+		ep:     engine.NewPlugin(),
+		pcs:    precompiles,
+		pp:     precompile.NewPlugin(),
+		sp:     state.NewPlugin(ak, storeKey, qc, nil),
+		logger: logger,
+	}
 
-	// Build the Plugins
-	h.bp = block.NewPlugin(storeKey, sk)
-	h.cp = configuration.NewPlugin(&cfg.Polar.Chain)
-	h.ep = engine.NewPlugin()
-	h.pcs = precompiles
-	h.storeKey = storeKey
-	h.ak = ak
-	h.qc = qc
-	h.logger = logger
-
-	// Setup the state, precompile, historical, and txpool plugins
-	h.hp = historical.NewPlugin(h.cp, h.bp, nil, h.storeKey)
-	h.pp = precompile.NewPlugin()
-	h.sp = state.NewPlugin(h.ak, h.storeKey, nil)
-	h.bp.SetQueryContextFn(h.qc)
-	h.sp.SetQueryContextFn(h.qc)
-
+	// historical plugin requires block plugin.
+	h.hp = historical.NewPlugin(&cfg.Polar.Chain, h.bp, nil, storeKey)
 	return h
 }
 
@@ -108,15 +96,12 @@ func (h *Host) GetBlockPlugin() core.BlockPlugin {
 	return h.bp
 }
 
-// GetConfigurationPlugin returns the configuration plugin.
-func (h *Host) GetConfigurationPlugin() core.ConfigurationPlugin {
-	return h.cp
-}
-
 // GetEnginePlugin returns the engine plugin.
 func (h *Host) GetEnginePlugin() core.EnginePlugin {
 	return h.ep
 }
+
+// GetHistoricalPlugin returns the historical plugin.
 func (h *Host) GetHistoricalPlugin() core.HistoricalPlugin {
 	return h.hp
 }
@@ -133,5 +118,5 @@ func (h *Host) GetStatePlugin() core.StatePlugin {
 
 // GetAllPlugins returns all the plugins.
 func (h *Host) GetAllPlugins() []any {
-	return []any{h.bp, h.cp, h.hp, h.pp, h.sp}
+	return []any{h.bp, h.hp, h.pp, h.sp}
 }

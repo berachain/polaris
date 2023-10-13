@@ -47,7 +47,7 @@ var _ = Describe("Genesis", func() {
 	BeforeEach(func() {
 		var ak state.AccountKeeper
 		ctx, ak, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
-		sp = state.NewPlugin(ak, testutil.EvmKey, &mockPLF{})
+		sp = state.NewPlugin(ak, testutil.EvmKey, nil, &mockPLF{})
 
 		// Create account for alice, bob
 		acc := ak.NewAccountWithAddress(ctx, bob[:])
