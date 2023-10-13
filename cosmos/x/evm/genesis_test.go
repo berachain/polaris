@@ -29,7 +29,6 @@ import (
 
 	"cosmossdk.io/log"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/consensus/beacon"
@@ -58,9 +57,7 @@ func TestGenesis(t *testing.T) {
 
 var _ = Describe("", func() {
 	var (
-		cdc codec.JSONCodec
 		ctx sdk.Context
-		sc  ethprecompile.StatefulImpl
 		ak  state.AccountKeeper
 		k   *keeper.Keeper
 		am  evm.AppModule
@@ -78,7 +75,7 @@ var _ = Describe("", func() {
 			ak,
 			testutil.EvmKey,
 			func() *ethprecompile.Injector {
-				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
+				return ethprecompile.NewPrecompiles(nil)
 			},
 			func() func(height int64, prove bool) (sdk.Context, error) {
 				return func(height int64, prove bool) (sdk.Context, error) {
@@ -106,7 +103,7 @@ var _ = Describe("", func() {
 			if err != nil {
 				panic(err)
 			}
-			am.InitGenesis(ctx, cdc, bz)
+			am.InitGenesis(ctx, nil, bz)
 		})
 
 		When("the genesis is valid", func() {
@@ -157,9 +154,9 @@ var _ = Describe("", func() {
 			if err != nil {
 				panic(err)
 			}
-			am.InitGenesis(ctx, cdc, bz)
+			am.InitGenesis(ctx, nil, bz)
 
-			data := am.ExportGenesis(ctx, cdc)
+			data := am.ExportGenesis(ctx, nil)
 			if data == nil {
 				panic(fmt.Errorf("data is nil"))
 			}
