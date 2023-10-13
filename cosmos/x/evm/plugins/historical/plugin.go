@@ -42,7 +42,7 @@ type Plugin interface {
 type plugin struct {
 	// ctx is the current block context, used for accessing current block info and kv stores.
 	ctx sdk.Context
-	// cp is used to get the current chain config.
+	// chainConfig stores the chain configuration for the evm chain.
 	chainConfig *params.ChainConfig
 	// bp represents the block plugin, used for accessing historical block headers.
 	bp core.BlockPlugin
