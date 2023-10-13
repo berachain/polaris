@@ -35,9 +35,11 @@ import (
 func (k *Keeper) ProcessPayloadEnvelope(
 	ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope,
 ) (*evmtypes.WrappedPayloadEnvelopeResponse, error) {
-	var err error
-	var block *types.Block
-
+	var (
+		err      error
+		block    *types.Block
+		envelope engine.ExecutionPayloadEnvelope
+	)
 	// TODO: maybe we just consume the block gas limit and call it a day?
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	gasMeter := sCtx.GasMeter()
@@ -48,14 +50,11 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	blockGasMeter.RefundGas(blockGasMeter.GasConsumed(), "reset before evm block")
 	defer gasMeter.ConsumeGas(gasMeter.GasConsumed(), "reset after evm")
 
-	envelope := engine.ExecutionPayloadEnvelope{}
-	err = envelope.UnmarshalJSON(msg.Data)
-	if err != nil {
+	if err = envelope.UnmarshalJSON(msg.Data); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal payload envelope: %w", err)
 	}
 
-	block, err = engine.ExecutableDataToBlock(*envelope.ExecutionPayload, nil, nil)
-	if err != nil {
+	if block, err = engine.ExecutableDataToBlock(*envelope.ExecutionPayload, nil, nil); err != nil {
 		k.Logger(sCtx).Error("failed to build evm block", "err", err)
 		return nil, err
 	}
