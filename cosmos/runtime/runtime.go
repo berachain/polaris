@@ -35,7 +35,6 @@ import (
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
-	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -45,9 +44,6 @@ import (
 
 type Polaris struct {
 	*polar.Polaris
-
-	// polaris keepers
-	EVMKeeper *evmkeeper.Keeper
 
 	// polaris componets
 	WrappedMiner  *miner.Miner
