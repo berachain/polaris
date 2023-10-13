@@ -22,7 +22,6 @@ package core
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/ethereum/go-ethereum"
 
@@ -60,17 +59,12 @@ type (
 		// BlockPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset the
 		// BlockPlugin to a default state.
 		libtypes.Preparable
-		// GetNewBlockMetadata returns a new block metadata (coinbase, timestamp) for the given
-		// block number.
-		GetNewBlockMetadata(uint64) (common.Address, uint64)
 		// GetHeaderByNumber returns the block header at the given block number.
 		GetHeaderByNumber(uint64) (*types.Header, error)
 		// GetHeaderByHash returns the block header with the given block hash.
 		GetHeaderByHash(common.Hash) (*types.Header, error)
 		// StoreHeader stores the block header at the given block number.
 		StoreHeader(*types.Header) error
-		// BaseFee returns the base fee of the current block.
-		BaseFee() *big.Int
 	}
 
 	// EnginePlugin defines methods that allow the chain to have insight into the underlying

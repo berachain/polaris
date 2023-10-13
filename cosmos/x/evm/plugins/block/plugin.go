@@ -22,15 +22,12 @@ package block
 
 import (
 	"context"
-	"fmt"
-	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 )
 
@@ -64,28 +61,4 @@ func NewPlugin(
 // Prepare implements core.BlockPlugin.
 func (p *plugin) Prepare(ctx context.Context) {
 	p.ctx = sdk.UnwrapSDKContext(ctx)
-}
-
-// BaseFee implements core.BlockPlugin.
-func (p *plugin) BaseFee() *big.Int {
-	return big.NewInt(-1) // we defer to polaris' built in eip-1559 for the base fee.
-}
-
-// GetNewBlockMetadata returns the host chain block metadata for the given block height. It returns
-// the coinbase address, the timestamp of the block.
-func (p *plugin) GetNewBlockMetadata(number uint64) (common.Address, uint64) {
-	cometHeader := p.ctx.BlockHeader()
-	if uint64(cometHeader.Height) != number {
-		panic(fmt.Errorf("block height mismatch. got: %d, expected %d", cometHeader.Height, number))
-	}
-
-	val, err := p.sk.GetValidatorByConsAddr(p.ctx, cometHeader.ProposerAddress)
-	if err != nil {
-		panic(err)
-	}
-	valBz, err := p.sk.ValidatorAddressCodec().StringToBytes(val.GetOperator())
-	if err != nil {
-		panic(err)
-	}
-	return common.BytesToAddress(valBz), uint64(cometHeader.Time.UTC().Unix())
 }
