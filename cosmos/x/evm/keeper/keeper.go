@@ -86,7 +86,7 @@ func (k *Keeper) Setup(chain Blockchain) error {
 	return k.SetupPrecompiles()
 }
 
-func (k *Keeper) StartEnginePlguin(ctx client.Context) {
+func (k *Keeper) StartEnginePlugin(ctx client.Context) {
 	k.ep.Start(ctx)
 }
 
