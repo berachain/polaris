@@ -46,6 +46,9 @@ import (
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
 	Setup(evmkeeper.Blockchain) error
+
+	// TODO: remove.
+	StartEnginePlugin(client.Context)
 }
 
 // Polaris is a struct that wraps the Polaris struct from the polar package.
@@ -99,7 +102,7 @@ func (p *Polaris) Setup(bApp *baseapp.BaseApp, ek EVMKeeper) error {
 // Init is a function that initializes the Polaris struct.
 // It takes a client context and a logger as arguments.
 // It returns an error if the initialization fails.
-func (p *Polaris) Init(clientCtx client.Context, logger log.Logger) error {
+func (p *Polaris) Init(clientCtx client.Context, logger log.Logger, ek EVMKeeper) error {
 	// Initialize services.
 	p.WrappedMiner.Init(libtx.NewSerializer[*engine.ExecutionPayloadEnvelope](
 		clientCtx.TxConfig, evmtypes.WrapPayload))
@@ -111,6 +114,9 @@ func (p *Polaris) Init(clientCtx client.Context, logger log.Logger) error {
 	p.RegisterServices(clientCtx, []node.Lifecycle{
 		p.WrappedTxPool,
 	})
+
+	//
+	ek.StartEnginePlugin(clientCtx)
 	return nil
 }
 

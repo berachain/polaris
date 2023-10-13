@@ -75,7 +75,7 @@ var _ = Describe("", func() {
 			ak,
 			testutil.EvmKey,
 			func() *ethprecompile.Injector {
-				return ethprecompile.NewPrecompiles(nil)
+				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{}...)
 			},
 			func() func(height int64, prove bool) (sdk.Context, error) {
 				return func(height int64, prove bool) (sdk.Context, error) {

@@ -258,10 +258,7 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
-	// TODO, register this better.
-	app.EVMKeeper.StartEnginePlugin(apiSvr.ClientCtx)
-
-	if err := app.Polaris.Init(apiSvr.ClientCtx, app.Logger()); err != nil {
+	if err := app.Polaris.Init(apiSvr.ClientCtx, app.Logger(), app.EVMKeeper); err != nil {
 		panic(err)
 	}
 }
