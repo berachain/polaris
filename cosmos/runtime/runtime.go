@@ -39,7 +39,6 @@ import (
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
 
@@ -69,22 +68,7 @@ func New(cfg *config.Config, logger log.Logger, host core.PolarisHostChain) *Pol
 	}
 
 	polaris := polar.NewWithNetworkingStack(
-		&cfg.Polar, host, node, ethlog.FuncHandler(
-			func(r *ethlog.Record) error {
-				polarisGethLogger := logger.With("module", "polaris-geth")
-				switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
-				case ethlog.LvlTrace:
-				case ethlog.LvlDebug:
-					polarisGethLogger.Debug(r.Msg, r.Ctx...)
-				case ethlog.LvlInfo:
-					polarisGethLogger.Info(r.Msg, r.Ctx...)
-				case ethlog.LvlWarn:
-				case ethlog.LvlCrit:
-				case ethlog.LvlError:
-					polarisGethLogger.Error(r.Msg, r.Ctx...)
-				}
-				return nil
-			}),
+		&cfg.Polar, host, node, LoggerFuncHandler(logger),
 	)
 
 	return &Polaris{
