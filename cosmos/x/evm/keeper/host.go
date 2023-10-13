@@ -65,17 +65,16 @@ func NewHost(
 	logger log.Logger,
 ) *Host {
 	// We setup the host with some Cosmos standard sauce.
-	h := &Host{}
-
-	// Build the Plugins
-	h.bp = block.NewPlugin(
-		storeKey, sk, h.qc,
-	)
-	h.ep = engine.NewPlugin()
-	h.pcs = precompiles
-	h.ak = ak
-	h.qc = qc
-	h.logger = logger
+	h := &Host{
+		ak: ak,
+		bp: block.NewPlugin(
+			storeKey, sk, qc,
+		),
+		ep:     engine.NewPlugin(),
+		pcs:    precompiles,
+		qc:     qc,
+		logger: logger,
+	}
 
 	// Setup the state, precompile, historical, and txpool plugins
 	h.hp = historical.NewPlugin(&cfg.Polar.Chain, h.bp, nil, storeKey)

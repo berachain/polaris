@@ -128,13 +128,6 @@ func NewWithNetworkingStack(
 
 	pl.backend = NewBackend(pl, pl.config)
 
-	return pl
-}
-
-// Init initializes the Polaris struct.
-func (pl *Polaris) Init() error {
-	var err error
-
 	// Run safety message for feedback to the user if they are running
 	// with development configs.
 	pl.config.SafetyMessage()
@@ -145,27 +138,21 @@ func (pl *Polaris) Init() error {
 	)
 
 	// Setup the transaction pool and attach the legacyPool.
+	var err error
 	if pl.txPool, err = txpool.New(
 		new(big.Int).SetUint64(pl.config.LegacyTxPool.PriceLimit),
 		pl.blockchain,
 		[]txpool.SubPool{legacyPool},
 	); err != nil {
-		return err
+		panic(err)
 	}
 
 	mux := new(event.TypeMux) //nolint:staticcheck // deprecated but still in geth.
 	// TODO: miner config to app.toml
 	pl.miner = miner.New(pl, &pl.config.Miner,
 		&pl.config.Chain, mux, pl.engine, pl.isLocalBlock)
-	// extra data must be nil until 1 block 1 transaction.
-	// eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
-	// Build and set the RPC Backend and other services.
 
-	// if pl.APIBackend.allowUnprotectedTxs {
-	// 	log.Info("Unprotected transactions allowed")
-	// }
-
-	return nil
+	return pl
 }
 
 // APIs return the collection of RPC services the polar package offers.

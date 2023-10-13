@@ -24,9 +24,9 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/node"
@@ -45,12 +45,6 @@ import (
 
 type EVMKeeper interface {
 	Setup(evmkeeper.Blockchain) error
-}
-
-type BaseApp interface {
-	SetMempool(mempool.Mempool)
-	SetPrepareProposal(sdk.PrepareProposalHandler)
-	SetAnteHandler(sdk.AnteHandler)
 }
 
 type Polaris struct {
@@ -88,17 +82,12 @@ func New(cfg *config.Config, logger log.Logger, host core.PolarisHostChain) *Pol
 			}),
 	)
 
-	// Init is used to setup the polaris struct.
-	if err = polaris.Init(); err != nil {
-		panic(err)
-	}
-
 	return &Polaris{
 		Polaris: polaris,
 	}
 }
 
-func (p *Polaris) Setup(bApp BaseApp, ek EVMKeeper) error {
+func (p *Polaris) Setup(bApp *baseapp.BaseApp, ek EVMKeeper) error {
 	// Setup TxPool Wrapper
 	p.WrappedTxPool = txpool.New(p.TxPool())
 	bApp.SetMempool(p.WrappedTxPool)
