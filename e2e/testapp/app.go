@@ -60,6 +60,16 @@ import (
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 )
 
+//nolint:gochecknoinits // from sdk.
+func init() {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
+	DefaultNodeHome = filepath.Join(userHomeDir, ".polard")
+}
+
 // DefaultNodeHome default home directories for the application daemon.
 var DefaultNodeHome string
 
@@ -92,19 +102,8 @@ type SimApp struct {
 	EvidenceKeeper        evidencekeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
-	// polaris contains all the required components for the
-	// polaris evm.
+	// polaris required keeper
 	EVMKeeper *evmkeeper.Keeper
-}
-
-//nolint:gochecknoinits // from sdk.
-func init() {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-
-	DefaultNodeHome = filepath.Join(userHomeDir, ".polard")
 }
 
 // NewPolarisApp returns a reference to an initialized SimApp.
