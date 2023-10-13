@@ -31,13 +31,15 @@ import (
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/node"
 
+	"pkg.berachain.dev/polaris/cosmos/config"
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	enginep "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	ethlog "pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
 
@@ -52,12 +54,39 @@ type Polaris struct {
 	WrappedTxPool *txpool.Mempool
 }
 
-func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
-	// SetupPrecompiles is used to setup the precompile contracts post depinject.
-	if err := p.EVMKeeper.SetupPrecompiles(); err != nil {
-		return err
+// ProvidePolarisRuntime creates a new Polaris runtime from the provided
+// dependencies.
+func New(cfg *config.Config, logger log.Logger, host core.PolarisHostChain) *Polaris {
+	node, err := polar.NewGethNetworkingStack(&cfg.Node)
+	if err != nil {
+		panic(err)
 	}
 
+	polaris := polar.NewWithNetworkingStack(
+		&cfg.Polar, host, node, ethlog.FuncHandler(
+			func(r *ethlog.Record) error {
+				polarisGethLogger := logger.With("module", "polaris-geth")
+				switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
+				case ethlog.LvlTrace:
+				case ethlog.LvlDebug:
+					polarisGethLogger.Debug(r.Msg, r.Ctx...)
+				case ethlog.LvlInfo:
+					polarisGethLogger.Info(r.Msg, r.Ctx...)
+				case ethlog.LvlWarn:
+				case ethlog.LvlCrit:
+				case ethlog.LvlError:
+					polarisGethLogger.Error(r.Msg, r.Ctx...)
+				}
+				return nil
+			}),
+	)
+
+	return &Polaris{
+		Polaris: polaris,
+	}
+}
+
+func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
 	// Init is used to setup the polaris struct.
 	if err := p.Polaris.Init(); err != nil {
 		return err
@@ -69,9 +98,6 @@ func (p *Polaris) Setup(bApp *baseapp.BaseApp) error {
 
 	p.WrappedMiner = miner.New(p.Miner())
 	bApp.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
-
-	// TODO: deprecate this
-	p.EVMKeeper.SetBlockchain(p.Blockchain())
 
 	return nil
 }
@@ -93,10 +119,7 @@ func (p *Polaris) Init(clientCtx client.Context, logger log.Logger) error {
 
 // Register Services allows for the application to register lifecycles with the evm
 // networking stack.
-func (p *Polaris) RegisterServices(clientContext client.Context, lcs []node.Lifecycle) {
-	// TODO: probably get rid of engine plugin or something and handle rpc methods better.
-	p.EVMKeeper.Host.GetEnginePlugin().(enginep.Plugin).Start(clientContext)
-
+func (p *Polaris) RegisterServices(_ client.Context, lcs []node.Lifecycle) {
 	// Register the services with polaris.
 	for _, lc := range lcs {
 		p.RegisterService(lc)
