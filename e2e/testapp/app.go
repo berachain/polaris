@@ -58,7 +58,6 @@ import (
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
 	polarruntime "pkg.berachain.dev/polaris/cosmos/runtime"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	enginep "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 )
 
 // DefaultNodeHome default home directories for the application daemon.
@@ -191,21 +190,10 @@ func NewPolarisApp(
 		evmconfig.MustReadConfigFromAppOpts(appOpts), app.Logger(), app.EVMKeeper.Host,
 	)
 
-	// SetupPrecompiles is used to setup the precompile contracts post depinject.
-	if err := app.EVMKeeper.SetupPrecompiles(); err != nil {
+	// Setup Polaris Runtime.
+	if err := app.Polaris.Setup(app.BaseApp, app.EVMKeeper); err != nil {
 		panic(err)
 	}
-
-	// Initialize Polaris Runtime.
-	if err := app.Polaris.Setup(app.BaseApp); err != nil {
-		panic(err)
-	}
-
-	// TODO: deprecate this
-	app.EVMKeeper.SetBlockchain(app.Polaris.Blockchain())
-
-	// Set the ante handler to nil, since it is not needed.
-	app.SetAnteHandler(nil)
 
 	// register streaming services
 	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
@@ -271,8 +259,8 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
-	// TODO: probably get rid of engine plugin or something and handle rpc methods better.
-	app.EVMKeeper.Host.GetEnginePlugin().(enginep.Plugin).Start(apiSvr.ClientCtx)
+	// TODO, register this better.
+	app.EVMKeeper.StartEnginePlguin(apiSvr.ClientCtx)
 
 	if err := app.Polaris.Init(apiSvr.ClientCtx, app.Logger()); err != nil {
 		panic(err)
