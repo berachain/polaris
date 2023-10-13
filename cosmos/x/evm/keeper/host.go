@@ -49,9 +49,7 @@ type Host struct {
 	sp     state.Plugin
 	logger log.Logger
 
-	ak  state.AccountKeeper
 	pcs func() *ethprecompile.Injector
-	qc  func() func(height int64, prove bool) (sdk.Context, error)
 }
 
 // Newhost creates new instances of the plugin host.
@@ -59,20 +57,17 @@ func NewHost(
 	cfg config.Config,
 	storeKey storetypes.StoreKey,
 	ak state.AccountKeeper,
-	sk block.StakingKeeper,
 	precompiles func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
 	logger log.Logger,
 ) *Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &Host{
-		ak: ak,
 		bp: block.NewPlugin(
-			storeKey, sk, qc,
+			storeKey, qc,
 		),
 		ep:     engine.NewPlugin(),
 		pcs:    precompiles,
-		qc:     qc,
 		pp:     precompile.NewPlugin(),
 		sp:     state.NewPlugin(ak, storeKey, qc, nil),
 		logger: logger,

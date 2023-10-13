@@ -43,17 +43,14 @@ type plugin struct {
 	storekey storetypes.StoreKey
 	// getQueryContext allows for querying block headers.
 	getQueryContext func() func(height int64, prove bool) (sdk.Context, error)
-	// sk represents the cosmos staking keeper.
-	sk StakingKeeper
 }
 
 func NewPlugin(
-	storekey storetypes.StoreKey, sk StakingKeeper,
+	storekey storetypes.StoreKey,
 	qfn func() func(height int64, prove bool) (sdk.Context, error),
 ) Plugin {
 	return &plugin{
 		storekey:        storekey,
-		sk:              sk,
 		getQueryContext: qfn,
 	}
 }

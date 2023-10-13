@@ -30,7 +30,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/config"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/core"
@@ -59,7 +58,6 @@ type Keeper struct {
 // NewKeeper creates new instances of the polaris Keeper.
 func NewKeeper(
 	ak state.AccountKeeper,
-	sk block.StakingKeeper,
 	storeKey storetypes.StoreKey,
 	pcs func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
@@ -70,7 +68,6 @@ func NewKeeper(
 		*polarisCfg,
 		storeKey,
 		ak,
-		sk,
 		pcs,
 		qc,
 		logger,

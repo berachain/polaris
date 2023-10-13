@@ -57,7 +57,6 @@ type DepInjectInput struct {
 	QueryContextFn    func() func(height int64, prove bool) (sdk.Context, error)
 
 	AccountKeeper AccountKeeper
-	StakingKeeper StakingKeeper
 }
 
 // DepInjectOutput is the output for the dep inject framework.
@@ -77,7 +76,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 
 	k := keeper.NewKeeper(
 		in.AccountKeeper,
-		in.StakingKeeper,
 		in.Key,
 		in.CustomPrecompiles,
 		in.QueryContextFn,

@@ -79,7 +79,7 @@ var _ = Describe("", func() {
 		cfg.Node.DataDir = GinkgoT().TempDir()
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
 		k = keeper.NewKeeper(
-			ak, sk,
+			ak,
 			testutil.EvmKey,
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{sc}...)
