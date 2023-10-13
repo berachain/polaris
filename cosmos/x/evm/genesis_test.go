@@ -50,7 +50,7 @@ var (
 
 func TestGenesis(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Genesis Suite")
+	RunSpecs(t, "cosmos/x/evm")
 }
 
 var _ = Describe("Genesis", func() {
