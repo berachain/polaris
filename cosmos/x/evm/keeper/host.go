@@ -73,15 +73,13 @@ func NewHost(
 		ep:     engine.NewPlugin(),
 		pcs:    precompiles,
 		qc:     qc,
+		pp:     precompile.NewPlugin(),
+		sp:     state.NewPlugin(ak, storeKey, qc, nil),
 		logger: logger,
 	}
 
-	// Setup the state, precompile, historical, and txpool plugins
+	// historical plugin requires block plugin.
 	h.hp = historical.NewPlugin(&cfg.Polar.Chain, h.bp, nil, storeKey)
-	h.pp = precompile.NewPlugin()
-	h.sp = state.NewPlugin(h.ak, storeKey, nil)
-	h.sp.SetQueryContextFn(h.qc)
-
 	return h
 }
 

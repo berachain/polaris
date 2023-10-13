@@ -40,7 +40,7 @@ var (
 
 func GetNewStatePlugin() core.StatePlugin {
 	ctx, ak, _, _ := testutil.SetupMinimalKeepers(log.NewTestLogger(&testing.B{}))
-	sp := state.NewPlugin(ak, testutil.EvmKey, nil)
+	sp := state.NewPlugin(ak, testutil.EvmKey, nil, nil)
 	sp.Reset(ctx)
 	return sp
 }
