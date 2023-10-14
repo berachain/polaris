@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package engine
+package comet
 
 import (
 	"context"
@@ -28,22 +28,26 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/ethereum/go-ethereum"
+
+	"pkg.berachain.dev/polaris/eth/polar"
 )
 
-// syncView is a view of the sync status from CometBFT.
-type cometBftView struct {
+var _ polar.SyncStatusProvider = (*cometSyncStatus)(nil)
+
+// cometSyncStatus is a view of the sync status from CometBFT.
+type cometSyncStatus struct {
 	cometClient client.CometRPC
 }
 
-// newSyncView returns a new syncView.
-func newSyncView(clientCtx client.Context) *cometBftView {
-	return &cometBftView{
+// NewSyncProvider returns a new cometSyncStatus.
+func NewSyncProvider(clientCtx client.Context) polar.SyncStatusProvider {
+	return &cometSyncStatus{
 		cometClient: clientCtx.Client,
 	}
 }
 
 // PeerCount returns the number of peers currently connected to the node.
-func (sv *cometBftView) PeerCount(ctx context.Context) (uint64, error) {
+func (sv *cometSyncStatus) PeerCount(ctx context.Context) (uint64, error) {
 	result, err := sv.cometClient.(cmtclient.NetworkClient).NetInfo(ctx)
 	if err != nil {
 		return 0, err
@@ -54,7 +58,7 @@ func (sv *cometBftView) PeerCount(ctx context.Context) (uint64, error) {
 
 // Listening returns whether the node is currently listening for incoming
 // connections from other nodes.
-func (sv *cometBftView) Listening(ctx context.Context) (bool, error) {
+func (sv *cometSyncStatus) Listening(ctx context.Context) (bool, error) {
 	result, err := sv.cometClient.(cmtclient.NetworkClient).NetInfo(ctx)
 	if err != nil {
 		return false, err
@@ -64,7 +68,7 @@ func (sv *cometBftView) Listening(ctx context.Context) (bool, error) {
 }
 
 // SyncProgress returns the current sync progress.
-func (sv *cometBftView) SyncProgress(ctx context.Context) (ethereum.SyncProgress, error) {
+func (sv *cometSyncStatus) SyncProgress(ctx context.Context) (ethereum.SyncProgress, error) {
 	resultStatus, err := sv.cometClient.(cmtclient.StatusClient).Status(ctx)
 	if err != nil {
 		return ethereum.SyncProgress{}, err

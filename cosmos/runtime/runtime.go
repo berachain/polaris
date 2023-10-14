@@ -34,6 +34,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/config"
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
+	"pkg.berachain.dev/polaris/cosmos/runtime/comet"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -46,9 +47,6 @@ import (
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
 	Setup(evmkeeper.Blockchain) error
-
-	// TODO: remove.
-	StartEnginePlugin(client.Context)
 }
 
 // Polaris is a struct that wraps the Polaris struct from the polar package.
@@ -64,7 +62,12 @@ type Polaris struct {
 
 // ProvidePolarisRuntime creates a new Polaris runtime from the provided
 // dependencies.
-func New(cfg *config.Config, logger log.Logger, host core.PolarisHostChain) *Polaris {
+func New(
+	cfg *config.Config,
+	logger log.Logger,
+	host core.PolarisHostChain,
+	opts ...polar.Opts,
+) *Polaris {
 	node, err := polar.NewGethNetworkingStack(&cfg.Node)
 	if err != nil {
 		panic(err)
@@ -72,6 +75,7 @@ func New(cfg *config.Config, logger log.Logger, host core.PolarisHostChain) *Pol
 
 	polaris := polar.NewWithNetworkingStack(
 		&cfg.Polar, host, node, LoggerFuncHandler(logger),
+		opts...,
 	)
 
 	return &Polaris{
@@ -89,6 +93,8 @@ func (p *Polaris) Setup(bApp *baseapp.BaseApp, ek EVMKeeper) error {
 	p.WrappedMiner = miner.New(p.Miner())
 	bApp.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
 
+	// p.WrappedEngine = p.Engine()
+
 	if err := ek.Setup(p.Blockchain()); err != nil {
 		return err
 	}
@@ -102,7 +108,7 @@ func (p *Polaris) Setup(bApp *baseapp.BaseApp, ek EVMKeeper) error {
 // Init is a function that initializes the Polaris struct.
 // It takes a client context and a logger as arguments.
 // It returns an error if the initialization fails.
-func (p *Polaris) Init(clientCtx client.Context, logger log.Logger, ek EVMKeeper) error {
+func (p *Polaris) Init(clientCtx client.Context, logger log.Logger) error {
 	// Initialize services.
 	p.WrappedMiner.Init(libtx.NewSerializer[*engine.ExecutionPayloadEnvelope](
 		clientCtx.TxConfig, evmtypes.WrapPayload))
@@ -115,8 +121,8 @@ func (p *Polaris) Init(clientCtx client.Context, logger log.Logger, ek EVMKeeper
 		p.WrappedTxPool,
 	})
 
-	//
-	ek.StartEnginePlugin(clientCtx)
+	p.RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
+
 	return nil
 }
 

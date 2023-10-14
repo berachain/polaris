@@ -18,37 +18,12 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package engine
+package polar
 
-import (
-	"github.com/cosmos/cosmos-sdk/client"
+import "github.com/ethereum/go-ethereum/consensus"
 
-	"pkg.berachain.dev/polaris/eth/core"
-)
-
-// Compile-time type assertion.
-var _ Plugin = (*plugin)(nil)
-
-// Plugin defines the required functions of the transaction pool plugin.
-type Plugin interface {
-	core.EnginePlugin
-	Start(client.Context)
+func SetConsensusEngine(engine consensus.Engine) Opts {
+	return func(p *Polaris) {
+		p.engine = engine
+	}
 }
-
-// plugin represents the transaction pool plugin.
-type plugin struct {
-	*cometBftView
-}
-
-// NewPlugin returns a new transaction pool plugin.
-func NewPlugin() Plugin {
-	return &plugin{}
-}
-
-// Setup implements the Plugin interface.
-func (p *plugin) Start(ctx client.Context) {
-	p.cometBftView = newSyncView(ctx)
-}
-
-// IsPlugin implements the Plugin interface.
-func (plugin) IsPlugin() {}

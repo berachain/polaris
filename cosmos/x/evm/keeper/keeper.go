@@ -26,7 +26,6 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/config"
@@ -81,10 +80,6 @@ func NewKeeper(
 func (k *Keeper) Setup(chain Blockchain) error {
 	k.chain = chain
 	return k.SetupPrecompiles()
-}
-
-func (k *Keeper) StartEnginePlugin(ctx client.Context) {
-	k.ep.Start(ctx)
 }
 
 // SetBlock sets the underlying ethereum blockchain on the keeper.

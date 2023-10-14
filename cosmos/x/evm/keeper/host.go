@@ -28,7 +28,6 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/historical"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
 	pclog "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
@@ -43,7 +42,6 @@ var _ core.PolarisHostChain = (*Host)(nil)
 type Host struct {
 	// The various plugins that are are used to implement core.PolarisHostChain.
 	bp     block.Plugin
-	ep     engine.Plugin
 	hp     historical.Plugin
 	pp     precompile.Plugin
 	sp     state.Plugin
@@ -66,7 +64,6 @@ func NewHost(
 		bp: block.NewPlugin(
 			storeKey, qc,
 		),
-		ep:     engine.NewPlugin(),
 		pcs:    precompiles,
 		pp:     precompile.NewPlugin(),
 		sp:     state.NewPlugin(ak, storeKey, qc, nil),
@@ -94,11 +91,6 @@ func (h *Host) SetupPrecompiles() error {
 // GetBlockPlugin returns the header plugin.
 func (h *Host) GetBlockPlugin() core.BlockPlugin {
 	return h.bp
-}
-
-// GetEnginePlugin returns the engine plugin.
-func (h *Host) GetEnginePlugin() core.EnginePlugin {
-	return h.ep
 }
 
 // GetHistoricalPlugin returns the historical plugin.
