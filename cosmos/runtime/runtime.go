@@ -93,8 +93,6 @@ func (p *Polaris) Setup(bApp *baseapp.BaseApp, ek EVMKeeper) error {
 	p.WrappedMiner = miner.New(p.Miner())
 	bApp.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
 
-	// p.WrappedEngine = p.Engine()
-
 	if err := ek.Setup(p.Blockchain()); err != nil {
 		return err
 	}
