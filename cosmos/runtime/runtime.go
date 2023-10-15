@@ -38,6 +38,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/polar"
@@ -75,7 +76,7 @@ func New(
 	cfg *config.Config,
 	logger log.Logger,
 	host core.PolarisHostChain,
-	opts ...polar.Opts,
+	engine consensus.Engine,
 ) *Polaris {
 	node, err := polar.NewGethNetworkingStack(&cfg.Node)
 	if err != nil {
@@ -83,8 +84,7 @@ func New(
 	}
 
 	polaris := polar.NewWithNetworkingStack(
-		&cfg.Polar, host, node, LoggerFuncHandler(logger),
-		opts...,
+		&cfg.Polar, host, engine, node, LoggerFuncHandler(logger),
 	)
 
 	return &Polaris{

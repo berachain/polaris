@@ -100,29 +100,24 @@ type Polaris struct {
 	filterSystem *filters.FilterSystem
 }
 
-type Opts func(*Polaris)
-
 // NewWithNetworkingStack creates a new.
 func NewWithNetworkingStack(
 	config *Config,
 	host core.PolarisHostChain,
+	engine consensus.Engine,
 	stack NetworkingStack,
 	logHandler log.Handler,
-	polarOpts ...Opts,
 ) *Polaris {
+	if engine == nil {
+		engine = beacon.New(&consensus.DummyEthOne{})
+	}
 	pl := &Polaris{
-		config: config,
-		stack:  stack,
-		host:   host,
-		engine: beacon.New(&consensus.DummyEthOne{}),
+		config:     config,
+		stack:      stack,
+		host:       host,
+		engine:     engine,
+		blockchain: core.NewChain(host, &config.Chain, engine),
 	}
-
-	for _, opt := range polarOpts {
-		opt(pl)
-	}
-
-	// Build the blockchain object.
-	pl.blockchain = core.NewChain(host, &config.Chain, pl.engine)
 
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
