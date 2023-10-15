@@ -21,6 +21,8 @@
 package runtime
 
 import (
+	"time"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
@@ -60,6 +62,7 @@ type CosmosApp interface {
 // Polaris is a struct that wraps the Polaris struct from the polar package.
 // It also includes wrapped versions of the Geth Miner and TxPool.
 type Polaris struct {
+	polar.NetworkingStack
 	*polar.Polaris
 
 	// WrappedMiner is a wrapped version of the Miner component.
@@ -78,25 +81,27 @@ func New(
 	host core.PolarisHostChain,
 	engine consensus.Engine,
 ) *Polaris {
-	node, err := polar.NewGethNetworkingStack(&cfg.Node)
+	var err error
+	p := &Polaris{
+		logger: logger,
+	}
+
+	p.NetworkingStack, err = polar.NewGethNetworkingStack(&cfg.Node)
 	if err != nil {
 		panic(err)
 	}
 
-	polaris := polar.NewWithNetworkingStack(
-		&cfg.Polar, host, engine, node, LoggerFuncHandler(logger),
+	p.Polaris = polar.NewWithNetworkingStack(
+		&cfg.Polar, host, engine, p.NetworkingStack, LoggerFuncHandler(logger),
 	)
 
-	return &Polaris{
-		Polaris: polaris,
-		logger:  logger,
-	}
+	return p
 }
 
-// Setup is a function that sets up the Polaris struct.
+// Build is a function that sets up the Polaris struct.
 // It takes a BaseApp and an EVMKeeper as arguments.
 // It returns an error if the setup fails.
-func (p *Polaris) Setup(app CosmosApp, ek EVMKeeper) error {
+func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
 	p.WrappedTxPool = txpool.New(p.TxPool())
 	app.SetMempool(p.WrappedTxPool)
 
@@ -132,6 +137,14 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 	// Register the sync status provider with Polaris.
 	p.RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
 
+	// Register the JSON-RPCs with the networking stack.
+	p.NetworkingStack.RegisterAPIs(p.Polaris.APIs())
+
+	// Start the services. TODO: move to place race condition is solved.
+	if err := p.StartServices(); err != nil {
+		panic(err)
+	}
+
 	return nil
 }
 
@@ -143,20 +156,43 @@ func (p *Polaris) RegisterServices(_ client.Context, lcs []node.Lifecycle) {
 	for _, lc := range lcs {
 		p.RegisterService(lc)
 	}
+}
 
-	// Start the services.
-	if err := p.StartServices(); err != nil {
-		panic(err)
-	}
+// StartServices starts the services of the Polaris struct.
+func (p *Polaris) StartServices() error {
+	go func() {
+		// TODO: these values are sensitive due to a race condition in the json-rpc ports opening.
+		// If the JSON-RPC opens before the first block is committed, hive tests will start failing.
+		// This needs to be fixed before mainnet as its ghetto af. If the block time is too long
+		// and this sleep is too short, it will cause hive tests to error out.
+		time.Sleep(5 * time.Second) //nolint:gomnd // as explained above.
+		if err := p.NetworkingStack.Start(); err != nil {
+			panic(err)
+		}
+	}()
+
+	return nil
 }
 
 // LoadLastState is a function that loads the last state of the Polaris struct.
 // It takes a CommitMultiStore and an appHeight as arguments.
 // It returns an error if the loading fails.
+// TODO: is incomplete in the blockchain object.
 func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint64) error {
 	cmsCtx := sdk.Context{}.
 		WithMultiStore(cms).
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
 	return p.Blockchain().LoadLastState(cmsCtx, appHeight)
+}
+
+// Close is a method that closes the Polaris struct.
+// It closes the NetworkingStack and then calls the Close method of the Polaris struct.
+// It returns an error if there is an error closing either component.
+func (p *Polaris) Close() error {
+	err := p.NetworkingStack.Close()
+	if err != nil {
+		return err
+	}
+	return p.Polaris.Close()
 }

@@ -48,6 +48,7 @@ type EnvelopeSerializer interface {
 type GethMiner interface {
 	BuildPayload(*miner.BuildPayloadArgs) (*miner.Payload, error)
 	Etherbase() common.Address
+	Start()
 }
 
 // Miner implements the baseapp.TxSelector interface.
