@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"math/big"
+	"testing"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -44,6 +45,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+func TestPrecompile(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "cosmos/x/evm/plugins/precompile")
+}
 
 var _ = Describe("plugin", func() {
 	var p *plugin

@@ -24,9 +24,9 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/node"
@@ -49,6 +49,13 @@ type EVMKeeper interface {
 	Setup(evmkeeper.Blockchain) error
 }
 
+// CosmosApp is an interface that defines the methods needed for the Cosmos setup.
+type CosmosApp interface {
+	SetPrepareProposal(sdk.PrepareProposalHandler)
+	SetMempool(mempool.Mempool)
+	SetAnteHandler(sdk.AnteHandler)
+}
+
 // Polaris is a struct that wraps the Polaris struct from the polar package.
 // It also includes wrapped versions of the Geth Miner and TxPool.
 type Polaris struct {
@@ -58,6 +65,8 @@ type Polaris struct {
 	WrappedMiner *miner.Miner
 	// WrappedTxPool is a wrapped version of the Mempool component.
 	WrappedTxPool *txpool.Mempool
+
+	logger log.Logger
 }
 
 // ProvidePolarisRuntime creates a new Polaris runtime from the provided
@@ -80,38 +89,39 @@ func New(
 
 	return &Polaris{
 		Polaris: polaris,
+		logger:  logger,
 	}
 }
 
 // Setup is a function that sets up the Polaris struct.
 // It takes a BaseApp and an EVMKeeper as arguments.
 // It returns an error if the setup fails.
-func (p *Polaris) Setup(bApp *baseapp.BaseApp, ek EVMKeeper) error {
+func (p *Polaris) Setup(app CosmosApp, ek EVMKeeper) error {
 	p.WrappedTxPool = txpool.New(p.TxPool())
-	bApp.SetMempool(p.WrappedTxPool)
+	app.SetMempool(p.WrappedTxPool)
 
 	p.WrappedMiner = miner.New(p.Miner())
-	bApp.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
+	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
 
 	if err := ek.Setup(p.Blockchain()); err != nil {
 		return err
 	}
 
 	// Set the ante handler to nil, since it is not needed.
-	bApp.SetAnteHandler(nil)
+	app.SetAnteHandler(nil)
 
 	return nil
 }
 
-// Init is a function that initializes the Polaris struct.
-// It takes a client context and a logger as arguments.
-// It returns an error if the initialization fails.
-func (p *Polaris) Init(clientCtx client.Context, logger log.Logger) error {
+// SetupServices initializes and registers the services with Polaris.
+// It takes a client context as an argument and returns an error if the setup fails.
+func (p *Polaris) SetupServices(clientCtx client.Context) error {
+	// Initialize the miner service with a new transaction serializer.
 	// Initialize services.
 	p.WrappedMiner.Init(libtx.NewSerializer[*engine.ExecutionPayloadEnvelope](
 		clientCtx.TxConfig, evmtypes.WrapPayload))
 
-	p.WrappedTxPool.Init(logger, clientCtx, libtx.NewSerializer[*coretypes.Transaction](
+	p.WrappedTxPool.Init(p.logger, clientCtx, libtx.NewSerializer[*coretypes.Transaction](
 		clientCtx.TxConfig, evmtypes.WrapTx))
 
 	// Register services with Polaris.
@@ -119,6 +129,7 @@ func (p *Polaris) Init(clientCtx client.Context, logger log.Logger) error {
 		p.WrappedTxPool,
 	})
 
+	// Register the sync status provider with Polaris.
 	p.RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
 
 	return nil

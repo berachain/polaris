@@ -258,7 +258,7 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
-	if err := app.Polaris.Init(apiSvr.ClientCtx, app.Logger()); err != nil {
+	if err := app.Polaris.SetupServices(apiSvr.ClientCtx); err != nil {
 		panic(err)
 	}
 }

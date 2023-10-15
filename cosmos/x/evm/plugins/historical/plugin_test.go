@@ -22,6 +22,7 @@ package historical
 
 import (
 	"math/big"
+	"testing"
 
 	"cosmossdk.io/log"
 
@@ -40,6 +41,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+func TestHistoricalPlugin(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "cosmos/x/evm/plugins/historical")
+}
 
 var _ = Describe("Historical Data", func() {
 	var (
