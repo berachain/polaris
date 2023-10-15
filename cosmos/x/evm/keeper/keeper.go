@@ -60,7 +60,6 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	pcs func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
-	logger log.Logger,
 	polarisCfg *config.Config,
 ) *Keeper {
 	host := NewHost(
@@ -69,7 +68,6 @@ func NewKeeper(
 		ak,
 		pcs,
 		qc,
-		logger,
 	)
 	return &Keeper{
 		Host:     host,

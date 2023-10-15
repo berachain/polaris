@@ -23,15 +23,10 @@ package types
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
-
-// WrappedEthereumTransaction defines a Cosmos SDK message for Ethereum transactions.
-var _ sdk.Msg = (*WrappedEthereumTransaction)(nil)
 
 // WrapTx sets the transaction data from an `coretypes.Transaction`.
 func WrapTx(tx *coretypes.Transaction) (*WrappedEthereumTransaction, error) {

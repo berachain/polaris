@@ -21,7 +21,6 @@
 package keeper
 
 import (
-	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -41,11 +40,10 @@ var _ core.PolarisHostChain = (*Host)(nil)
 
 type Host struct {
 	// The various plugins that are are used to implement core.PolarisHostChain.
-	bp     block.Plugin
-	hp     historical.Plugin
-	pp     precompile.Plugin
-	sp     state.Plugin
-	logger log.Logger
+	bp block.Plugin
+	hp historical.Plugin
+	pp precompile.Plugin
+	sp state.Plugin
 
 	pcs func() *ethprecompile.Injector
 }
@@ -57,17 +55,15 @@ func NewHost(
 	ak state.AccountKeeper,
 	precompiles func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
-	logger log.Logger,
 ) *Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &Host{
 		bp: block.NewPlugin(
 			storeKey, qc,
 		),
-		pcs:    precompiles,
-		pp:     precompile.NewPlugin(),
-		sp:     state.NewPlugin(ak, storeKey, qc, nil),
-		logger: logger,
+		pcs: precompiles,
+		pp:  precompile.NewPlugin(),
+		sp:  state.NewPlugin(ak, storeKey, qc, nil),
 	}
 
 	// historical plugin requires block plugin.

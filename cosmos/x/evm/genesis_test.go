@@ -80,7 +80,6 @@ var _ = Describe("Genesis", func() {
 					return ctx, nil
 				}
 			},
-			log.NewTestLogger(GinkgoT()),
 			cfg,
 		)
 		k.SetBlockchain(

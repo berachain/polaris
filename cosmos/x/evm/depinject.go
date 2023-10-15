@@ -23,7 +23,6 @@ package evm
 import (
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
-	"cosmossdk.io/log"
 	store "cosmossdk.io/store/types"
 
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -51,7 +50,6 @@ type DepInjectInput struct {
 	Key       *store.KVStoreKey
 
 	AppOpts           servertypes.AppOptions
-	Logger            log.Logger
 	PolarisCfg        func() *config.Config
 	CustomPrecompiles func() *ethprecompile.Injector `optional:"true"`
 	QueryContextFn    func() func(height int64, prove bool) (sdk.Context, error)
@@ -79,7 +77,6 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 		in.Key,
 		in.CustomPrecompiles,
 		in.QueryContextFn,
-		in.Logger,
 		in.PolarisCfg(),
 	)
 	m := NewAppModule(k, in.AccountKeeper)
