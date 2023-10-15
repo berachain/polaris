@@ -121,37 +121,30 @@ func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
 // SetupServices initializes and registers the services with Polaris.
 // It takes a client context as an argument and returns an error if the setup fails.
 func (p *Polaris) SetupServices(clientCtx client.Context) error {
-	// Initialize the miner service with a new transaction serializer.
-	// Initialize services.
+	// Initialize the miner with a new execution payload serializer.
 	p.WrappedMiner.Init(libtx.NewSerializer[*engine.ExecutionPayloadEnvelope](
 		clientCtx.TxConfig, evmtypes.WrapPayload))
 
+	// Initialize the txpool with a new transaction serializer.
 	p.WrappedTxPool.Init(p.logger, clientCtx, libtx.NewSerializer[*coretypes.Transaction](
 		clientCtx.TxConfig, evmtypes.WrapTx))
 
 	// Register services with Polaris.
-	p.RegisterServices(clientCtx, []node.Lifecycle{
+	p.RegisterLifecycles([]node.Lifecycle{
 		p.WrappedTxPool,
 	})
 
 	// Register the sync status provider with Polaris.
 	p.RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
 
-	// Register the JSON-RPCs with the networking stack.
-	p.NetworkingStack.RegisterAPIs(p.Polaris.APIs())
-
 	// Start the services. TODO: move to place race condition is solved.
-	if err := p.StartServices(); err != nil {
-		panic(err)
-	}
-
-	return nil
+	return p.StartServices()
 }
 
 // RegisterServices is a function that allows for the application to register lifecycles with
 // the evm networking stack. It takes a client context and a slice of node.Lifecycle
 // as arguments.
-func (p *Polaris) RegisterServices(_ client.Context, lcs []node.Lifecycle) {
+func (p *Polaris) RegisterLifecycles(lcs []node.Lifecycle) {
 	// Register the services with polaris.
 	for _, lc := range lcs {
 		p.NetworkingStack.RegisterLifecycle(lc)
@@ -184,11 +177,4 @@ func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint6
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
 	return p.Blockchain().LoadLastState(cmsCtx, appHeight)
-}
-
-// Close is a method that closes the Polaris struct.
-// It closes the NetworkingStack and then calls the Close method of the Polaris struct.
-// It returns an error if there is an error closing either component.
-func (p *Polaris) Close() error {
-	return p.NetworkingStack.Close()
 }
