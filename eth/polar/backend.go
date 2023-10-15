@@ -75,11 +75,6 @@ type NetworkingStack interface {
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
 	config *Config
-	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC
-	// APIs. Although possible, it does not handle p2p networking like its sibling in geth
-	// would.
-	stack NetworkingStack
-
 	// core pieces of the polaris stack
 	host       core.PolarisHostChain
 	blockchain core.Blockchain
@@ -112,7 +107,6 @@ func NewWithNetworkingStack(
 	}
 	pl := &Polaris{
 		config:     config,
-		stack:      stack,
 		host:       host,
 		engine:     engine,
 		blockchain: core.NewChain(host, &config.Chain, engine),
@@ -130,7 +124,7 @@ func NewWithNetworkingStack(
 	}
 
 	// Build the backend api object.
-	pl.apiBackend = NewAPIBackend(pl, pl.config)
+	pl.apiBackend = NewAPIBackend(pl, stack.ExtRPCEnabled(), pl.config)
 
 	// Run safety message for feedback to the user if they are running
 	// with development configs.
@@ -154,9 +148,27 @@ func NewWithNetworkingStack(
 	mux := new(event.TypeMux) //nolint:staticcheck // deprecated but still in geth.
 	// TODO: miner config to app.toml
 	pl.miner = miner.New(pl, &pl.config.Miner,
-		&pl.config.Chain, mux, pl.engine, pl.isLocalBlock)
+		&pl.config.Chain, mux, pl.engine, func(header *types.Header) bool { return true })
 
+	// Register the backend on the node
+	stack.RegisterAPIs(pl.APIs())
+	stack.RegisterLifecycle(pl)
+
+	// Register the filter API separately in order to get access to the filterSystem
+	pl.filterSystem = utils.RegisterFilterAPI(stack, pl.apiBackend, &defaultEthConfig)
 	return pl
+}
+
+// Start implements node.Lifecycle, starting all internal goroutines needed by the
+// Polaris protocol implementation.
+func (pl *Polaris) Start() error {
+	return nil
+}
+
+// Stop implements node.Lifecycle, terminating all internal goroutines used by the
+// Polaris protocol.
+func (pl *Polaris) Stop() error {
+	return nil
 }
 
 // APIs return the collection of RPC services the polar package offers.
@@ -178,55 +190,10 @@ func (pl *Polaris) APIs() []rpc.API {
 	}...)
 }
 
-// isLocalBlock checks whether the specified block is mined
-// by local miner accounts.
-//
-// We regard two types of accounts as local miner account: etherbase
-// and accounts specified via `txpool.locals` flag.
-func (pl *Polaris) isLocalBlock(header *types.Header) bool {
-	author, err := pl.engine.Author(header)
-	if err != nil {
-		log.Warn(
-			"Failed to retrieve block author", "number",
-			header.Number.Uint64(), "hash", header.Hash(), "err", err,
-		)
-		return false
-	}
-	// Check whether the given address is etherbase.
-	if author == pl.miner.Etherbase() {
-		return true
-	}
-	// Check whether the given address is specified by `txpool.local`
-	// CLI flag.
-	for _, account := range pl.config.LegacyTxPool.Locals {
-		if account == author {
-			return true
-		}
-	}
-	return false
-}
-
-// StartServices notifies the NetworkStack to spin up (i.e json-rpc).
-func (pl *Polaris) StartServices() error {
-	// Register the filter API separately in order to get access to the filterSystem
-	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.apiBackend, &defaultEthConfig)
-
-	return nil
-}
-
-// RegisterService adds a service to the networking stack.
-func (pl *Polaris) RegisterService(lc node.Lifecycle) {
-	pl.stack.RegisterLifecycle(lc)
-}
-
 func (pl *Polaris) RegisterSyncStatusProvider(
 	syncStatus SyncStatusProvider,
 ) {
 	pl.syncStatus = syncStatus
-}
-
-func (pl *Polaris) Close() error {
-	return pl.stack.Close()
 }
 
 func (pl *Polaris) Host() core.PolarisHostChain {

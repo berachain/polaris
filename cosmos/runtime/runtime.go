@@ -154,7 +154,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 func (p *Polaris) RegisterServices(_ client.Context, lcs []node.Lifecycle) {
 	// Register the services with polaris.
 	for _, lc := range lcs {
-		p.RegisterService(lc)
+		p.NetworkingStack.RegisterLifecycle(lc)
 	}
 }
 
@@ -190,9 +190,5 @@ func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint6
 // It closes the NetworkingStack and then calls the Close method of the Polaris struct.
 // It returns an error if there is an error closing either component.
 func (p *Polaris) Close() error {
-	err := p.NetworkingStack.Close()
-	if err != nil {
-		return err
-	}
-	return p.Polaris.Close()
+	return p.NetworkingStack.Close()
 }
