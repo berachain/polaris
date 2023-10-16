@@ -55,6 +55,7 @@ type executionLayerNode interface {
 	ExtRPCEnabled() bool
 	RegisterAPIs([]rpc.API)
 	RegisterLifecycle(node.Lifecycle)
+	EventMux() *event.TypeMux //nolint:staticcheck // deprecated but still in geth.
 }
 
 // Polaris is the only object that an implementing chain should use.
@@ -130,10 +131,9 @@ func New(
 		panic(err)
 	}
 
-	mux := new(event.TypeMux) //nolint:staticcheck // deprecated but still in geth.
 	// TODO: miner config to app.toml
 	pl.miner = miner.New(pl, &pl.config.Miner,
-		&pl.config.Chain, mux, pl.engine, func(header *types.Header) bool { return true })
+		&pl.config.Chain, stack.EventMux(), pl.engine, func(header *types.Header) bool { return true })
 
 	// Register the backend on the node
 	stack.RegisterAPIs(pl.APIs())

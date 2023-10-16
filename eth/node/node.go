@@ -21,6 +21,7 @@
 package node
 
 import (
+	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/node"
 )
 
@@ -52,6 +53,11 @@ func New(config *Config) (*GethExecutionNode, error) {
 // ExtRPCEnabled returns whether or not the external RPC service is enabled.
 func (n *GethExecutionNode) ExtRPCEnabled() bool {
 	return n.Node.Config().ExtRPCEnabled()
+}
+
+// ExtRPCEnabled returns whether or not the external RPC service is enabled.
+func (n *GethExecutionNode) EventMux() *event.TypeMux { //nolint:staticcheck // still in geth.
+	return n.Node.EventMux()
 }
 
 // DefaultConfig returns the default configuration for the provider.
