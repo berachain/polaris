@@ -95,18 +95,18 @@ func New(
 	client string, cfg any, host core.PolarisHostChain,
 	engine consensus.Engine, logHandler log.Handler,
 ) (*ExecutionLayer, error) {
-	var el *ExecutionLayer
-	var err error
-	switch client {
-	case "geth":
-		// For geth client, create a new geth execution layer
-		el, err = newGethExecutionLayer(cfg, host, engine, logHandler)
-	default:
-		// For unknown client, return an error
-		err = fmt.Errorf("unknown execution layer")
+	clientFactories := map[string]func(
+		any, core.PolarisHostChain, consensus.Engine, log.Handler,
+	) (*ExecutionLayer, error){
+		"geth": newGethExecutionLayer,
 	}
 
-	return el, err
+	factory, ok := clientFactories[client]
+	if !ok {
+		return nil, fmt.Errorf("unknown execution layer: %s", client)
+	}
+
+	return factory(cfg, host, engine, logHandler)
 }
 
 // newGethExecutionLayer creates a new geth execution layer.
