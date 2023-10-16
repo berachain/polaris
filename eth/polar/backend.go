@@ -81,7 +81,7 @@ type Polaris struct {
 	filterSystem *filters.FilterSystem
 }
 
-// NewWithNetworkingStack creates a new.
+// New creates a new backend for the Polaris EVM.
 func New(
 	config *Config,
 	host core.PolarisHostChain,
@@ -89,6 +89,17 @@ func New(
 	stack executionLayerNode,
 	logHandler log.Handler,
 ) *Polaris {
+	// When creating a Polaris EVM, we allow the implementing chain
+	// to specify their own log handler. If logHandler is nil then we
+	// we use the default geth log handler.
+	// When creating a Polaris EVM, we allow the implementing chain
+	// to specify their own log handler. If logHandler is nil then we
+	// we use the default geth log handler.
+	if logHandler != nil {
+		// Root is a global in geth that is used by the evm to emit logs.
+		log.Root().SetHandler(logHandler)
+	}
+
 	if config.Miner.GasPrice == nil || config.Miner.GasPrice.Cmp(common.Big0) <= 0 {
 		log.Warn("Sanitizing invalid miner gas price",
 			"provided", config.Miner.GasPrice, "updated", ethconfig.Defaults.Miner.GasPrice)
@@ -104,17 +115,6 @@ func New(
 		host:       host,
 		engine:     engine,
 		blockchain: core.NewChain(host, &config.Chain, engine),
-	}
-
-	// When creating a Polaris EVM, we allow the implementing chain
-	// to specify their own log handler. If logHandler is nil then we
-	// we use the default geth log handler.
-	// When creating a Polaris EVM, we allow the implementing chain
-	// to specify their own log handler. If logHandler is nil then we
-	// we use the default geth log handler.
-	if logHandler != nil {
-		// Root is a global in geth that is used by the evm to emit logs.
-		log.Root().SetHandler(logHandler)
 	}
 
 	// Build the backend api object.
@@ -139,6 +139,7 @@ func New(
 		panic(err)
 	}
 
+	// Setup the miner, we use a dummy isLocal function, since it is not used.
 	pl.miner = miner.New(pl, &pl.config.Miner,
 		&pl.config.Chain, stack.EventMux(), pl.engine,
 		func(header *types.Header) bool { return true },
@@ -184,30 +185,37 @@ func (pl *Polaris) APIs() []rpc.API {
 	}...)
 }
 
+// RegisterSyncStatusProvider registers a sync status provider.
 func (pl *Polaris) RegisterSyncStatusProvider(
 	syncStatus SyncStatusProvider,
 ) {
 	pl.syncStatus = syncStatus
 }
 
+// Host returns the Polaris host chain.
 func (pl *Polaris) Host() core.PolarisHostChain {
 	return pl.host
 }
 
+// Engine returns the consensus engine.
 func (pl *Polaris) Engine() consensus.Engine { return pl.engine }
 
+// Miner returns the miner.
 func (pl *Polaris) Miner() *miner.Miner {
 	return pl.miner
 }
 
+// TxPool returns the transaction pool.
 func (pl *Polaris) TxPool() *txpool.TxPool {
 	return pl.txPool
 }
 
+// MinerChain returns the blockchain.
 func (pl *Polaris) MinerChain() miner.BlockChain {
-	return pl.blockchain
+	return pl.Blockchain()
 }
 
+// Blockchain returns the blockchain.
 func (pl *Polaris) Blockchain() core.Blockchain {
 	return pl.blockchain
 }
