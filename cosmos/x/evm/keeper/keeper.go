@@ -49,9 +49,6 @@ type Keeper struct {
 
 	// provider is the struct that houses the Polaris EVM.
 	chain Blockchain
-
-	// TODO: remove this, because it's hacky af.
-	storeKey storetypes.StoreKey
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -70,8 +67,7 @@ func NewKeeper(
 		qc,
 	)
 	return &Keeper{
-		Host:     host,
-		storeKey: storeKey,
+		Host: host,
 	}
 }
 
