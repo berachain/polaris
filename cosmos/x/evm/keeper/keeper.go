@@ -80,11 +80,6 @@ func (k *Keeper) Setup(chain Blockchain) error {
 	return k.SetupPrecompiles()
 }
 
-// SetBlock sets the underlying ethereum blockchain on the keeper.
-func (k *Keeper) SetBlockchain(chain Blockchain) {
-	k.chain = chain
-}
-
 // Logger returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)

@@ -31,19 +31,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
-	"github.com/ethereum/go-ethereum/node"
 
-	"pkg.berachain.dev/polaris/cosmos/config"
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/cosmos/runtime/comet"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/polar"
+	"pkg.berachain.dev/polaris/eth/node"
 )
 
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
@@ -62,21 +61,20 @@ type CosmosApp interface {
 // Polaris is a struct that wraps the Polaris struct from the polar package.
 // It also includes wrapped versions of the Geth Miner and TxPool.
 type Polaris struct {
-	polar.NetworkingStack
-	*polar.Polaris
+	*eth.ExecutionLayer
 
 	// WrappedMiner is a wrapped version of the Miner component.
 	WrappedMiner *miner.Miner
 	// WrappedTxPool is a wrapped version of the Mempool component.
 	WrappedTxPool *txpool.Mempool
-
+	// logger is the underlying logger supplied by the sdk.
 	logger log.Logger
 }
 
 // ProvidePolarisRuntime creates a new Polaris runtime from the provided
 // dependencies.
 func New(
-	cfg *config.Config,
+	cfg *eth.Config,
 	logger log.Logger,
 	host core.PolarisHostChain,
 	engine consensus.Engine,
@@ -86,14 +84,10 @@ func New(
 		logger: logger,
 	}
 
-	p.NetworkingStack, err = polar.NewGethNetworkingStack(&cfg.Node)
+	p.ExecutionLayer, err = eth.New("geth", cfg, host, engine, LoggerFuncHandler(logger))
 	if err != nil {
 		panic(err)
 	}
-
-	p.Polaris = polar.NewWithNetworkingStack(
-		&cfg.Polar, host, engine, p.NetworkingStack, LoggerFuncHandler(logger),
-	)
 
 	return p
 }
@@ -147,7 +141,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 func (p *Polaris) RegisterLifecycles(lcs []node.Lifecycle) {
 	// Register the services with polaris.
 	for _, lc := range lcs {
-		p.NetworkingStack.RegisterLifecycle(lc)
+		p.ExecutionLayer.RegisterLifecycle(lc)
 	}
 }
 
@@ -159,7 +153,7 @@ func (p *Polaris) StartServices() error {
 		// This needs to be fixed before mainnet as its ghetto af. If the block time is too long
 		// and this sleep is too short, it will cause hive tests to error out.
 		time.Sleep(5 * time.Second) //nolint:gomnd // as explained above.
-		if err := p.NetworkingStack.Start(); err != nil {
+		if err := p.ExecutionLayer.Start(); err != nil {
 			panic(err)
 		}
 	}()

@@ -35,8 +35,6 @@ import (
 )
 
 const (
-	// clientIdentifier is the identifier string for the client.
-	clientIdentifier = "polaris-geth"
 
 	// gpoDefault is the default gpo starting point.
 	gpoDefault = 1000000000

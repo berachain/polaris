@@ -22,7 +22,6 @@ package polar
 
 import (
 	"math/big"
-	"net/http"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/consensus/beacon"
@@ -51,25 +50,11 @@ var defaultEthConfig = ethconfig.Config{
 	FilterLogCacheSize: 0,
 }
 
-// NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC API.
-type NetworkingStack interface {
-	// IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC API.
+// executionLayerNode defines methods that allow a Polaris chain to build and expose JSON-RPC API.
+type executionLayerNode interface {
 	ExtRPCEnabled() bool
-
-	// RegisterHandler manually registers a new handler into the networking stack.
-	RegisterHandler(string, string, http.Handler)
-
-	// RegisterAPIs registers JSON-RPC handlers for the networking stack.
 	RegisterAPIs([]rpc.API)
-
-	// RegisterLifecycles registers objects to have their lifecycle manged by the stack.
 	RegisterLifecycle(node.Lifecycle)
-
-	// Start starts the networking stack.
-	Start() error
-
-	// Close stops the networking stack
-	Close() error
 }
 
 // Polaris is the only object that an implementing chain should use.
@@ -95,11 +80,11 @@ type Polaris struct {
 }
 
 // NewWithNetworkingStack creates a new.
-func NewWithNetworkingStack(
+func New(
 	config *Config,
 	host core.PolarisHostChain,
 	engine consensus.Engine,
-	stack NetworkingStack,
+	stack executionLayerNode,
 	logHandler log.Handler,
 ) *Polaris {
 	if engine == nil {

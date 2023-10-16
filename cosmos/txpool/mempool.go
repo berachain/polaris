@@ -30,10 +30,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
-	"github.com/ethereum/go-ethereum/event"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/core"
+	"pkg.berachain.dev/polaris/eth"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -43,13 +42,6 @@ var (
 	_ mempool.Mempool = (*Mempool)(nil)
 	_ Lifecycle       = (*Mempool)(nil)
 )
-
-// GethTxPool represents the interface to interact with the geth txpool.
-type GethTxPool interface {
-	Add([]*coretypes.Transaction, bool, bool) []error
-	Stats() (int, int)
-	SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscription
-}
 
 // Lifecycle represents a lifecycle object.
 type Lifecycle interface {
@@ -62,12 +54,12 @@ type Lifecycle interface {
 // is to allow for transactions coming in from CometBFT's gossip to be added to the underlying
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
-	txpool  GethTxPool
+	txpool  eth.TxPool
 	handler Lifecycle
 }
 
 // NewMempool creates a new Mempool.
-func New(txpool GethTxPool) *Mempool {
+func New(txpool eth.TxPool) *Mempool {
 	return &Mempool{
 		txpool: txpool,
 	}

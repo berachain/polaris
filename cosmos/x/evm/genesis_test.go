@@ -82,9 +82,10 @@ var _ = Describe("Genesis", func() {
 			},
 			cfg,
 		)
-		k.SetBlockchain(
+		err = k.Setup(
 			core.NewChain(k.Host, params.DefaultChainConfig, beacon.NewFaker()),
 		)
+		Expect(err).ToNot(HaveOccurred())
 
 		err = k.SetupPrecompiles()
 		Expect(err).ToNot(HaveOccurred())
