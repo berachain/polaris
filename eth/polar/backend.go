@@ -33,6 +33,7 @@ import (
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -88,9 +89,16 @@ func New(
 	stack executionLayerNode,
 	logHandler log.Handler,
 ) *Polaris {
+	if config.Miner.GasPrice == nil || config.Miner.GasPrice.Cmp(common.Big0) <= 0 {
+		log.Warn("Sanitizing invalid miner gas price",
+			"provided", config.Miner.GasPrice, "updated", ethconfig.Defaults.Miner.GasPrice)
+		config.Miner.GasPrice = new(big.Int).Set(ethconfig.Defaults.Miner.GasPrice)
+	}
+
 	if engine == nil {
 		engine = beacon.New(&consensus.DummyEthOne{})
 	}
+
 	pl := &Polaris{
 		config:     config,
 		host:       host,
@@ -131,9 +139,10 @@ func New(
 		panic(err)
 	}
 
-	// TODO: miner config to app.toml
 	pl.miner = miner.New(pl, &pl.config.Miner,
-		&pl.config.Chain, stack.EventMux(), pl.engine, func(header *types.Header) bool { return true })
+		&pl.config.Chain, stack.EventMux(), pl.engine,
+		func(header *types.Header) bool { return true },
+	)
 
 	// Register the backend on the node
 	stack.RegisterAPIs(pl.APIs())
