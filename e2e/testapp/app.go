@@ -186,11 +186,11 @@ func NewPolarisApp(
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 	app.Polaris = polarruntime.New(
-		evmconfig.MustReadConfigFromAppOpts(appOpts), app.Logger(), app.EVMKeeper.Host,
+		evmconfig.MustReadConfigFromAppOpts(appOpts), app.Logger(), app.EVMKeeper.Host, nil,
 	)
 
 	// Setup Polaris Runtime.
-	if err := app.Polaris.Setup(app.BaseApp, app.EVMKeeper); err != nil {
+	if err := app.Polaris.Build(app.BaseApp, app.EVMKeeper); err != nil {
 		panic(err)
 	}
 
@@ -258,7 +258,7 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
-	if err := app.Polaris.Init(apiSvr.ClientCtx, app.Logger(), app.EVMKeeper); err != nil {
+	if err := app.Polaris.SetupServices(apiSvr.ClientCtx); err != nil {
 		panic(err)
 	}
 }

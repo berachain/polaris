@@ -32,7 +32,7 @@ jobs:
       matrix:
         docker-type: [base] # Changed docker-version to docker-type for consistency with the Makefile
         os: [polaris-linux-latest]
-        go-version: [1.21.1]
+        go-version: [1.21.3]
         arch: [amd64] # Changed go-arch to arch for consistency with the Makefile
         image-name: ["polard/base:v0.0.0"]
         export-name: [base-image]
@@ -70,7 +70,7 @@ jobs:
         namespace: [cosmos]
         docker-type: [localnet] # Changed docker-version to docker-type for consistency with the Makefile
         os: [polaris-linux-latest]
-        go-version: [1.21.1]
+        go-version: [1.21.3]
         arch: [amd64] # Changed go-arch to arch for consistency with the Makefile
         base-image: [base-image]
         image-name: ["polard/localnet:v0.0.0"]
@@ -115,7 +115,7 @@ jobs:
     strategy:
       matrix:
         os: [polaris-linux-latest]
-        go-version: [1.21.1]
+        go-version: [1.21.3]
         base-image: [base-image]
     runs-on: ${{ matrix.os }}
     steps:
@@ -151,7 +151,7 @@ jobs:
       matrix:
         namespace: ["e2e", "localnet"]
         os: [polaris-linux-latest]
-        go-version: [1.21.1]
+        go-version: [1.21.3]
         base-image: [localnet]
     runs-on: ${{ matrix.os }}
     steps:

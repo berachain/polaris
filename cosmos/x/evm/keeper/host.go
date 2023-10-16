@@ -21,14 +21,12 @@
 package keeper
 
 import (
-	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/engine"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/historical"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
 	pclog "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
@@ -42,12 +40,10 @@ var _ core.PolarisHostChain = (*Host)(nil)
 
 type Host struct {
 	// The various plugins that are are used to implement core.PolarisHostChain.
-	bp     block.Plugin
-	ep     engine.Plugin
-	hp     historical.Plugin
-	pp     precompile.Plugin
-	sp     state.Plugin
-	logger log.Logger
+	bp block.Plugin
+	hp historical.Plugin
+	pp precompile.Plugin
+	sp state.Plugin
 
 	pcs func() *ethprecompile.Injector
 }
@@ -59,18 +55,15 @@ func NewHost(
 	ak state.AccountKeeper,
 	precompiles func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
-	logger log.Logger,
 ) *Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &Host{
 		bp: block.NewPlugin(
 			storeKey, qc,
 		),
-		ep:     engine.NewPlugin(),
-		pcs:    precompiles,
-		pp:     precompile.NewPlugin(),
-		sp:     state.NewPlugin(ak, storeKey, qc, nil),
-		logger: logger,
+		pcs: precompiles,
+		pp:  precompile.NewPlugin(),
+		sp:  state.NewPlugin(ak, storeKey, qc, nil),
 	}
 
 	// historical plugin requires block plugin.
@@ -94,11 +87,6 @@ func (h *Host) SetupPrecompiles() error {
 // GetBlockPlugin returns the header plugin.
 func (h *Host) GetBlockPlugin() core.BlockPlugin {
 	return h.bp
-}
-
-// GetEnginePlugin returns the engine plugin.
-func (h *Host) GetEnginePlugin() core.EnginePlugin {
-	return h.ep
 }
 
 // GetHistoricalPlugin returns the historical plugin.

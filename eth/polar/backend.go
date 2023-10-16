@@ -22,8 +22,6 @@ package polar
 
 import (
 	"math/big"
-	"net/http"
-	"time"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/consensus/beacon"
@@ -35,6 +33,7 @@ import (
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
 
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/types"
@@ -52,69 +51,44 @@ var defaultEthConfig = ethconfig.Config{
 	FilterLogCacheSize: 0,
 }
 
-// NetworkingStack defines methods that allow a Polaris chain to build and expose JSON-RPC API.
-type NetworkingStack interface {
-	// IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC API.
+// executionLayerNode defines methods that allow a Polaris chain to build and expose JSON-RPC API.
+type executionLayerNode interface {
 	ExtRPCEnabled() bool
-
-	// RegisterHandler manually registers a new handler into the networking stack.
-	RegisterHandler(string, string, http.Handler)
-
-	// RegisterAPIs registers JSON-RPC handlers for the networking stack.
 	RegisterAPIs([]rpc.API)
-
-	// RegisterLifecycles registers objects to have their lifecycle manged by the stack.
 	RegisterLifecycle(node.Lifecycle)
-
-	// Start starts the networking stack.
-	Start() error
-
-	// Close stops the networking stack
-	Close() error
+	EventMux() *event.TypeMux //nolint:staticcheck // deprecated but still in geth.
 }
 
 // Polaris is the only object that an implementing chain should use.
 type Polaris struct {
 	config *Config
-	// NetworkingStack represents the networking stack responsible for exposes the JSON-RPC
-	// APIs. Although possible, it does not handle p2p networking like its sibling in geth
-	// would.
-	stack NetworkingStack
-
 	// core pieces of the polaris stack
 	host       core.PolarisHostChain
 	blockchain core.Blockchain
 	txPool     *txpool.TxPool
 	miner      *miner.Miner
 
-	// backend is utilize by the api handlers as a middleware between the JSON-RPC APIs
-	// and the core pieces.
-	backend Backend
+	// apiBackend is utilize by the api handlers as a middleware between the
+	// JSON-RPC APIs and the core pieces.
+	apiBackend APIBackend
+	syncStatus SyncStatusProvider
 
 	// engine represents the consensus engine for the backend.
-	enginePlugin core.EnginePlugin
-	engine       consensus.Engine
+	engine consensus.Engine
 
 	// filterSystem is the filter system that is used by the filter API.
 	// TODO: relocate
 	filterSystem *filters.FilterSystem
 }
 
-func NewWithNetworkingStack(
+// New creates a new backend for the Polaris EVM.
+func New(
 	config *Config,
 	host core.PolarisHostChain,
-	stack NetworkingStack,
+	engine consensus.Engine,
+	stack executionLayerNode,
 	logHandler log.Handler,
 ) *Polaris {
-	engine := beacon.New(&consensus.DummyEthOne{})
-	pl := &Polaris{
-		config:       config,
-		blockchain:   core.NewChain(host, &config.Chain, engine),
-		stack:        stack,
-		host:         host,
-		enginePlugin: host.GetEnginePlugin(),
-		engine:       engine,
-	}
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
 	// we use the default geth log handler.
@@ -126,7 +100,25 @@ func NewWithNetworkingStack(
 		log.Root().SetHandler(logHandler)
 	}
 
-	pl.backend = NewBackend(pl, pl.config)
+	if config.Miner.GasPrice == nil || config.Miner.GasPrice.Cmp(common.Big0) <= 0 {
+		log.Warn("Sanitizing invalid miner gas price",
+			"provided", config.Miner.GasPrice, "updated", ethconfig.Defaults.Miner.GasPrice)
+		config.Miner.GasPrice = new(big.Int).Set(ethconfig.Defaults.Miner.GasPrice)
+	}
+
+	if engine == nil {
+		engine = beacon.New(&consensus.DummyEthOne{})
+	}
+
+	pl := &Polaris{
+		config:     config,
+		host:       host,
+		engine:     engine,
+		blockchain: core.NewChain(host, &config.Chain, engine),
+	}
+
+	// Build the backend api object.
+	pl.apiBackend = NewAPIBackend(pl, stack.ExtRPCEnabled(), pl.config)
 
 	// Run safety message for feedback to the user if they are running
 	// with development configs.
@@ -147,107 +139,83 @@ func NewWithNetworkingStack(
 		panic(err)
 	}
 
-	mux := new(event.TypeMux) //nolint:staticcheck // deprecated but still in geth.
-	// TODO: miner config to app.toml
+	// Setup the miner, we use a dummy isLocal function, since it is not used.
 	pl.miner = miner.New(pl, &pl.config.Miner,
-		&pl.config.Chain, mux, pl.engine, pl.isLocalBlock)
+		&pl.config.Chain, stack.EventMux(), pl.engine,
+		func(header *types.Header) bool { return true },
+	)
 
+	// Register the backend on the node
+	stack.RegisterAPIs(pl.APIs())
+	stack.RegisterLifecycle(pl)
+
+	// Register the filter API separately in order to get access to the filterSystem
+	pl.filterSystem = utils.RegisterFilterAPI(stack, pl.apiBackend, &defaultEthConfig)
 	return pl
+}
+
+// Start implements node.Lifecycle, starting all internal goroutines needed by the
+// Polaris protocol implementation.
+func (pl *Polaris) Start() error {
+	return nil
+}
+
+// Stop implements node.Lifecycle, terminating all internal goroutines used by the
+// Polaris protocol.
+func (pl *Polaris) Stop() error {
+	return nil
 }
 
 // APIs return the collection of RPC services the polar package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (pl *Polaris) APIs() []rpc.API {
 	// Grab a bunch of the apis from go-Polaris (thx bae)
-	apis := polarapi.GethAPIs(pl.backend, pl.blockchain)
+	apis := polarapi.GethAPIs(pl.apiBackend, pl.blockchain)
 
 	// Append all the local APIs and return
 	return append(apis, []rpc.API{
 		{
 			Namespace: "net",
-			Service:   polarapi.NewNetAPI(pl.backend),
+			Service:   polarapi.NewNetAPI(pl.apiBackend),
 		},
 		{
 			Namespace: "web3",
-			Service:   polarapi.NewWeb3API(pl.backend),
+			Service:   polarapi.NewWeb3API(pl.apiBackend),
 		},
 	}...)
 }
 
-// isLocalBlock checks whether the specified block is mined
-// by local miner accounts.
-//
-// We regard two types of accounts as local miner account: etherbase
-// and accounts specified via `txpool.locals` flag.
-func (pl *Polaris) isLocalBlock(header *types.Header) bool {
-	author, err := pl.engine.Author(header)
-	if err != nil {
-		log.Warn(
-			"Failed to retrieve block author", "number",
-			header.Number.Uint64(), "hash", header.Hash(), "err", err,
-		)
-		return false
-	}
-	// Check whether the given address is etherbase.
-	if author == pl.miner.Etherbase() {
-		return true
-	}
-	// Check whether the given address is specified by `txpool.local`
-	// CLI flag.
-	for _, account := range pl.config.LegacyTxPool.Locals {
-		if account == author {
-			return true
-		}
-	}
-	return false
+// RegisterSyncStatusProvider registers a sync status provider.
+func (pl *Polaris) RegisterSyncStatusProvider(
+	syncStatus SyncStatusProvider,
+) {
+	pl.syncStatus = syncStatus
 }
 
-// StartServices notifies the NetworkStack to spin up (i.e json-rpc).
-func (pl *Polaris) StartServices() error {
-	// Register the JSON-RPCs with the networking stack.
-	pl.stack.RegisterAPIs(pl.APIs())
-
-	// Register the filter API separately in order to get access to the filterSystem
-	pl.filterSystem = utils.RegisterFilterAPI(pl.stack, pl.backend, &defaultEthConfig)
-
-	go func() {
-		// TODO: these values are sensitive due to a race condition in the json-rpc ports opening.
-		// If the JSON-RPC opens before the first block is committed, hive tests will start failing.
-		// This needs to be fixed before mainnet as its ghetto af. If the block time is too long
-		// and this sleep is too short, it will cause hive tests to error out.
-		time.Sleep(5 * time.Second) //nolint:gomnd // as explained above.
-		if err := pl.stack.Start(); err != nil {
-			panic(err)
-		}
-	}()
-	return nil
-}
-
-// RegisterService adds a service to the networking stack.
-func (pl *Polaris) RegisterService(lc node.Lifecycle) {
-	pl.stack.RegisterLifecycle(lc)
-}
-
-func (pl *Polaris) Close() error {
-	return pl.stack.Close()
-}
-
+// Host returns the Polaris host chain.
 func (pl *Polaris) Host() core.PolarisHostChain {
 	return pl.host
 }
 
+// Engine returns the consensus engine.
+func (pl *Polaris) Engine() consensus.Engine { return pl.engine }
+
+// Miner returns the miner.
 func (pl *Polaris) Miner() *miner.Miner {
 	return pl.miner
 }
 
+// TxPool returns the transaction pool.
 func (pl *Polaris) TxPool() *txpool.TxPool {
 	return pl.txPool
 }
 
+// MinerChain returns the blockchain.
 func (pl *Polaris) MinerChain() miner.BlockChain {
-	return pl.blockchain
+	return pl.Blockchain()
 }
 
+// Blockchain returns the blockchain.
 func (pl *Polaris) Blockchain() core.Blockchain {
 	return pl.blockchain
 }

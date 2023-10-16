@@ -18,37 +18,29 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package engine
+package node
 
 import (
-	"github.com/cosmos/cosmos-sdk/client"
-
-	"pkg.berachain.dev/polaris/eth/core"
+	"github.com/ethereum/go-ethereum/node"
 )
 
-// Compile-time type assertion.
-var _ Plugin = (*plugin)(nil)
+const (
+	// clientIdentifier is the identifier string for the client.
+	clientIdentifier = "polaris-geth"
+)
 
-// Plugin defines the required functions of the transaction pool plugin.
-type Plugin interface {
-	core.EnginePlugin
-	Start(client.Context)
+// Config represents the configuration options for a node running a polar
+// evm.
+type Config struct {
+	node.Config
 }
 
-// plugin represents the transaction pool plugin.
-type plugin struct {
-	*cometBftView
+// DefaultConfig returns the default configuration for a polaris chain.
+func DefaultConfig() *Config {
+	nodeCfg := *DefaultGethNodeConfig()
+	nodeCfg.DataDir = ""
+	nodeCfg.KeyStoreDir = ""
+	return &Config{
+		Config: nodeCfg,
+	}
 }
-
-// NewPlugin returns a new transaction pool plugin.
-func NewPlugin() Plugin {
-	return &plugin{}
-}
-
-// Setup implements the Plugin interface.
-func (p *plugin) Start(ctx client.Context) {
-	p.cometBftView = newSyncView(ctx)
-}
-
-// IsPlugin implements the Plugin interface.
-func (plugin) IsPlugin() {}

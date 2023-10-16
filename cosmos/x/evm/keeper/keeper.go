@@ -26,7 +26,6 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/config"
@@ -50,9 +49,6 @@ type Keeper struct {
 
 	// provider is the struct that houses the Polaris EVM.
 	chain Blockchain
-
-	// TODO: remove this, because it's hacky af.
-	storeKey storetypes.StoreKey
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -61,7 +57,6 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	pcs func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
-	logger log.Logger,
 	polarisCfg *config.Config,
 ) *Keeper {
 	host := NewHost(
@@ -70,26 +65,15 @@ func NewKeeper(
 		ak,
 		pcs,
 		qc,
-		logger,
 	)
 	return &Keeper{
-		Host:     host,
-		storeKey: storeKey,
+		Host: host,
 	}
 }
 
 func (k *Keeper) Setup(chain Blockchain) error {
 	k.chain = chain
 	return k.SetupPrecompiles()
-}
-
-func (k *Keeper) StartEnginePlugin(ctx client.Context) {
-	k.ep.Start(ctx)
-}
-
-// SetBlock sets the underlying ethereum blockchain on the keeper.
-func (k *Keeper) SetBlockchain(chain Blockchain) {
-	k.chain = chain
 }
 
 // Logger returns a module-specific logger.

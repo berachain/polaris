@@ -32,6 +32,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
 
+	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
@@ -44,23 +45,17 @@ type EnvelopeSerializer interface {
 	ToSdkTxBytes(*engine.ExecutionPayloadEnvelope, uint64) ([]byte, error)
 }
 
-// GethMiner represents the underlying *miner.Miner from geth.
-type GethMiner interface {
-	BuildPayload(*miner.BuildPayloadArgs) (*miner.Payload, error)
-	Etherbase() common.Address
-}
-
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
-	GethMiner
+	eth.Miner
 	serializer     EnvelopeSerializer
 	currentPayload *miner.Payload
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm GethMiner) *Miner {
+func New(gm eth.Miner) *Miner {
 	return &Miner{
-		GethMiner: gm,
+		Miner: gm,
 	}
 }
 

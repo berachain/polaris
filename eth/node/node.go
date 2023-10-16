@@ -18,37 +18,46 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package polar
+package node
 
 import (
+	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/node"
 )
 
-// Node is a wrapper around the go-ethereum node.Node object.
-// TODO: deprecate this and use a more elegant solution.
-type Node struct {
-	*node.Node
-}
+type (
+	// Lifecycle represents a lifecycle object.
+	Lifecycle = node.Lifecycle
 
-// NewGetNetworkingStack creates a new NetworkingStack instance for use on an
-// underlying blockchain.
-func NewGethNetworkingStack(config *node.Config) (NetworkingStack, error) {
-	node, err := node.New(config)
+	// GethExecutionNode is the entrypoint for the evm execution environment.
+	GethExecutionNode struct {
+		*node.Node
+	}
+)
+
+// New creates a new execution layer node with the provided backend.
+func New(config *Config) (*GethExecutionNode, error) {
+	gethNode, err := node.New(&config.Config)
 	if err != nil {
 		return nil, err
 	}
 
 	// In Polaris we don't use P2P at the geth level.
-	node.SetP2PDisabled(true)
+	gethNode.SetP2PDisabled(true)
 
-	return &Node{
-		Node: node,
+	return &GethExecutionNode{
+		Node: gethNode,
 	}, nil
 }
 
 // ExtRPCEnabled returns whether or not the external RPC service is enabled.
-func (n *Node) ExtRPCEnabled() bool {
+func (n *GethExecutionNode) ExtRPCEnabled() bool {
 	return n.Node.Config().ExtRPCEnabled()
+}
+
+// ExtRPCEnabled returns whether or not the external RPC service is enabled.
+func (n *GethExecutionNode) EventMux() *event.TypeMux { //nolint:staticcheck // still in geth.
+	return n.Node.EventMux()
 }
 
 // DefaultConfig returns the default configuration for the provider.

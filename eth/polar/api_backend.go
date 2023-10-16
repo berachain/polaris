@@ -49,34 +49,50 @@ import (
 
 // Backend represents the backend object for a Polaris chain. It extends the standard
 // go-ethereum backend object.
-type Backend interface {
-	polarapi.EthBackend
-	polarapi.NetBackend
-	polarapi.Web3Backend
-}
+type (
+	APIBackend interface {
+		polarapi.EthBackend
+		polarapi.NetBackend
+		polarapi.Web3Backend
+	}
+
+	// SyncStatusProvider defines methods that allow the chain to have insight into the underlying
+	// consensus engine of the host chain.
+	SyncStatusProvider interface {
+		// SyncProgress returns the current sync progress of the host chain.
+		SyncProgress(ctx context.Context) (ethereum.SyncProgress, error)
+		// IsListening returns whether or not the host chain is listening for new blocks.
+		Listening(ctx context.Context) (bool, error)
+		// PeerCount returns the current number of peers connected to the host chain.
+		PeerCount(ctx context.Context) (uint64, error)
+	}
+)
 
 // backend represents the backend for the JSON-RPC service.
 type backend struct {
-	polar  *Polaris
-	cfg    *Config
-	gpo    *gasprice.Oracle
-	logger log.Logger
+	polar         *Polaris
+	cfg           *Config
+	extRPCEnabled bool
+	gpo           *gasprice.Oracle
+	logger        log.Logger
 }
 
 // ==============================================================================
 // Constructor
 // ==============================================================================
 
-// NewBackend returns a new `Backend` object.
-func NewBackend(
+// NewAPIBackend returns a new `Backend` object.
+func NewAPIBackend(
 	polar *Polaris,
+	extRPCEnabled bool,
 	cfg *Config,
-) Backend {
+) APIBackend {
 	b := &backend{
 
-		polar:  polar,
-		cfg:    cfg,
-		logger: log.Root(),
+		polar:         polar,
+		cfg:           cfg,
+		extRPCEnabled: extRPCEnabled,
+		logger:        log.Root(),
 	}
 
 	if cfg.GPO.Default == nil {
@@ -135,7 +151,7 @@ func (b *backend) AccountManager() *accounts.Manager {
 // ExtRPCEnabled returns whether the RPC endpoints are exposed over external
 // interfaces.
 func (b *backend) ExtRPCEnabled() bool {
-	return b.polar.stack.ExtRPCEnabled()
+	return b.extRPCEnabled
 }
 
 // RPCGasCap returns the global gas cap for eth_call over rpc: this is
@@ -568,7 +584,7 @@ func (b *backend) Version() string {
 
 // SyncProgress returns the current progress of the sync algorithm.
 func (b *backend) SyncProgress() ethereum.SyncProgress {
-	sp, err := b.polar.enginePlugin.SyncProgress(context.Background())
+	sp, err := b.polar.syncStatus.SyncProgress(context.Background())
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.SyncProgress", "err", err)
 		return ethereum.SyncProgress{}
@@ -578,7 +594,7 @@ func (b *backend) SyncProgress() ethereum.SyncProgress {
 
 // Listening returns whether the node is listening for connections.
 func (b *backend) Listening() bool {
-	listening, err := b.polar.enginePlugin.Listening(context.Background())
+	listening, err := b.polar.syncStatus.Listening(context.Background())
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.Listening", "err", err)
 		return false
@@ -588,7 +604,7 @@ func (b *backend) Listening() bool {
 
 // PeerCount returns the number of connected peers.
 func (b *backend) PeerCount() hexutil.Uint {
-	peerCount, err := b.polar.enginePlugin.PeerCount(context.Background())
+	peerCount, err := b.polar.syncStatus.PeerCount(context.Background())
 	if err != nil {
 		b.logger.Error("eth.rpc.backend.PeerCount", "err", err)
 		return hexutil.Uint(0)

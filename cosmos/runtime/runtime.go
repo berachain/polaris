@@ -21,123 +21,150 @@
 package runtime
 
 import (
+	"time"
+
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
-	"github.com/ethereum/go-ethereum/node"
 
-	"pkg.berachain.dev/polaris/cosmos/config"
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
+	"pkg.berachain.dev/polaris/cosmos/runtime/comet"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth"
+	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/polar"
+	"pkg.berachain.dev/polaris/eth/node"
 )
 
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
 	Setup(evmkeeper.Blockchain) error
+}
 
-	// TODO: remove.
-	StartEnginePlugin(client.Context)
+// CosmosApp is an interface that defines the methods needed for the Cosmos setup.
+type CosmosApp interface {
+	SetPrepareProposal(sdk.PrepareProposalHandler)
+	SetMempool(mempool.Mempool)
+	SetAnteHandler(sdk.AnteHandler)
 }
 
 // Polaris is a struct that wraps the Polaris struct from the polar package.
 // It also includes wrapped versions of the Geth Miner and TxPool.
 type Polaris struct {
-	*polar.Polaris
+	*eth.ExecutionLayer
 
 	// WrappedMiner is a wrapped version of the Miner component.
 	WrappedMiner *miner.Miner
 	// WrappedTxPool is a wrapped version of the Mempool component.
 	WrappedTxPool *txpool.Mempool
+	// logger is the underlying logger supplied by the sdk.
+	logger log.Logger
 }
 
 // ProvidePolarisRuntime creates a new Polaris runtime from the provided
 // dependencies.
-func New(cfg *config.Config, logger log.Logger, host core.PolarisHostChain) *Polaris {
-	node, err := polar.NewGethNetworkingStack(&cfg.Node)
+func New(
+	cfg *eth.Config,
+	logger log.Logger,
+	host core.PolarisHostChain,
+	engine consensus.Engine,
+) *Polaris {
+	var err error
+	p := &Polaris{
+		logger: logger,
+	}
+
+	p.ExecutionLayer, err = eth.New("geth", cfg, host, engine, LoggerFuncHandler(logger))
 	if err != nil {
 		panic(err)
 	}
 
-	polaris := polar.NewWithNetworkingStack(
-		&cfg.Polar, host, node, LoggerFuncHandler(logger),
-	)
-
-	return &Polaris{
-		Polaris: polaris,
-	}
+	return p
 }
 
-// Setup is a function that sets up the Polaris struct.
+// Build is a function that sets up the Polaris struct.
 // It takes a BaseApp and an EVMKeeper as arguments.
 // It returns an error if the setup fails.
-func (p *Polaris) Setup(bApp *baseapp.BaseApp, ek EVMKeeper) error {
+func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
 	p.WrappedTxPool = txpool.New(p.TxPool())
-	bApp.SetMempool(p.WrappedTxPool)
+	app.SetMempool(p.WrappedTxPool)
 
 	p.WrappedMiner = miner.New(p.Miner())
-	bApp.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
+	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
 
 	if err := ek.Setup(p.Blockchain()); err != nil {
 		return err
 	}
 
 	// Set the ante handler to nil, since it is not needed.
-	bApp.SetAnteHandler(nil)
+	app.SetAnteHandler(nil)
 
 	return nil
 }
 
-// Init is a function that initializes the Polaris struct.
-// It takes a client context and a logger as arguments.
-// It returns an error if the initialization fails.
-func (p *Polaris) Init(clientCtx client.Context, logger log.Logger, ek EVMKeeper) error {
-	// Initialize services.
+// SetupServices initializes and registers the services with Polaris.
+// It takes a client context as an argument and returns an error if the setup fails.
+func (p *Polaris) SetupServices(clientCtx client.Context) error {
+	// Initialize the miner with a new execution payload serializer.
 	p.WrappedMiner.Init(libtx.NewSerializer[*engine.ExecutionPayloadEnvelope](
 		clientCtx.TxConfig, evmtypes.WrapPayload))
 
-	p.WrappedTxPool.Init(logger, clientCtx, libtx.NewSerializer[*coretypes.Transaction](
+	// Initialize the txpool with a new transaction serializer.
+	p.WrappedTxPool.Init(p.logger, clientCtx, libtx.NewSerializer[*coretypes.Transaction](
 		clientCtx.TxConfig, evmtypes.WrapTx))
 
 	// Register services with Polaris.
-	p.RegisterServices(clientCtx, []node.Lifecycle{
+	p.RegisterLifecycles([]node.Lifecycle{
 		p.WrappedTxPool,
 	})
 
-	//
-	ek.StartEnginePlugin(clientCtx)
-	return nil
+	// Register the sync status provider with Polaris.
+	p.RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
+
+	// Start the services. TODO: move to place race condition is solved.
+	return p.StartServices()
 }
 
 // RegisterServices is a function that allows for the application to register lifecycles with
 // the evm networking stack. It takes a client context and a slice of node.Lifecycle
 // as arguments.
-func (p *Polaris) RegisterServices(_ client.Context, lcs []node.Lifecycle) {
+func (p *Polaris) RegisterLifecycles(lcs []node.Lifecycle) {
 	// Register the services with polaris.
 	for _, lc := range lcs {
-		p.RegisterService(lc)
+		p.ExecutionLayer.RegisterLifecycle(lc)
 	}
+}
 
-	// Start the services.
-	if err := p.StartServices(); err != nil {
-		panic(err)
-	}
+// StartServices starts the services of the Polaris struct.
+func (p *Polaris) StartServices() error {
+	go func() {
+		// TODO: these values are sensitive due to a race condition in the json-rpc ports opening.
+		// If the JSON-RPC opens before the first block is committed, hive tests will start failing.
+		// This needs to be fixed before mainnet as its ghetto af. If the block time is too long
+		// and this sleep is too short, it will cause hive tests to error out.
+		time.Sleep(5 * time.Second) //nolint:gomnd // as explained above.
+		if err := p.ExecutionLayer.Start(); err != nil {
+			panic(err)
+		}
+	}()
+
+	return nil
 }
 
 // LoadLastState is a function that loads the last state of the Polaris struct.
 // It takes a CommitMultiStore and an appHeight as arguments.
 // It returns an error if the loading fails.
+// TODO: is incomplete in the blockchain object.
 func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint64) error {
 	cmsCtx := sdk.Context{}.
 		WithMultiStore(cms).

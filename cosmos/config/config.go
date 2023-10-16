@@ -27,12 +27,14 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/node"
-
 	"pkg.berachain.dev/polaris/cosmos/config/flags"
+	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/accounts"
+	"pkg.berachain.dev/polaris/eth/node"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
+
+type Config = eth.Config
 
 // SetupCosmosConfig sets up the Cosmos SDK configuration to be compatible with the
 // semantics of etheruem.
@@ -49,20 +51,13 @@ func SetupCosmosConfig() {
 
 // DefaultConfig returns the default configuration for a polaris chain.
 func DefaultConfig() *Config {
-	nodeCfg := *polar.DefaultGethNodeConfig()
+	nodeCfg := node.DefaultConfig()
 	nodeCfg.DataDir = ""
 	nodeCfg.KeyStoreDir = ""
 	return &Config{
 		Polar: *polar.DefaultConfig(),
-		Node:  nodeCfg,
+		Node:  *nodeCfg,
 	}
-}
-
-// Config represents the configuration options for a node running a polar
-// evm.
-type Config struct {
-	Polar polar.Config
-	Node  node.Config
 }
 
 // MustReadConfigFromAppOpts reads the configuration options from the given

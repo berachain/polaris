@@ -65,7 +65,7 @@ proto-build:
 # Variables
 DOCKER_TYPE ?= base
 ARCH ?= arm64
-GO_VERSION ?= 1.21.1
+GO_VERSION ?= 1.21.3
 IMAGE_NAME ?= polard
 IMAGE_VERSION ?= v0.0.0
 BASE_IMAGE ?= polard/base:$(IMAGE_VERSION)
