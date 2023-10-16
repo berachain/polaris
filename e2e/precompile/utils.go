@@ -34,7 +34,7 @@ const (
 	containerName       = "goodcontainer"
 	polardHTTPAddress   = "8545/tcp"
 	polardWSAddress     = "8546/tcp"
-	goVersion           = "1.21.1"
+	goVersion           = "1.21.3"
 )
 
 // NewPolarisFixtureConfig returns a polaris fixture config.

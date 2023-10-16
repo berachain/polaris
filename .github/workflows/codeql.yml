@@ -34,7 +34,7 @@
 #       fail-fast: false
 #       matrix:
 #         language: ["go"]
-#         versions: [1.21.1]
+#         versions: [1.21.3]
 #         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
 #         # Use only 'java' to analyze code written in Java, Kotlin or both
 #         # Use only 'javascript' to analyze code written in JavaScript, TypeScript or both
