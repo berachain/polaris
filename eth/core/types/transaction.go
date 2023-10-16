@@ -27,6 +27,8 @@ import (
 )
 
 // TxLookupEntry is a positional metadata to help looking up a transaction by hash.
+//
+//go:generate rlpgen -type TxLookupEntry -out transaction.rlpgen.go -decoder
 type TxLookupEntry struct {
 	Tx        *Transaction
 	TxIndex   uint64
