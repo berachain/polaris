@@ -210,13 +210,6 @@ func NewPolarisApp(
 		panic(err)
 	}
 
-	// Load the last state of the polaris evm.
-	if err := app.Polaris.LoadLastState(
-		app.CommitMultiStore(), uint64(app.LastBlockHeight()),
-	); err != nil {
-		panic(err)
-	}
-
 	return app
 }
 

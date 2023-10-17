@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,7 +34,6 @@ import (
 	"pkg.berachain.dev/polaris/beacon"
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
-	"pkg.berachain.dev/polaris/cosmos/runtime/comet"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth"
@@ -130,9 +128,6 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 		p.WrappedTxPool,
 	})
 
-	// Register the sync status provider with Polaris.
-	p.ExecutionClient.Eth.RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
-
 	// Start the services. TODO: move to place race condition is solved.
 	return p.StartServices()
 }
@@ -161,16 +156,4 @@ func (p *Polaris) StartServices() error {
 	}()
 
 	return nil
-}
-
-// LoadLastState is a function that loads the last state of the Polaris struct.
-// It takes a CommitMultiStore and an appHeight as arguments.
-// It returns an error if the loading fails.
-// TODO: is incomplete in the blockchain object.
-func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint64) error {
-	cmsCtx := sdk.Context{}.
-		WithMultiStore(cms).
-		WithGasMeter(storetypes.NewInfiniteGasMeter()).
-		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
-	return p.ExecutionClient.Eth.LoadLastState(cmsCtx, appHeight)
 }

@@ -185,13 +185,6 @@ func (pl *Polaris) APIs() []rpc.API {
 	}...)
 }
 
-// RegisterSyncStatusProvider registers a sync status provider.
-func (pl *Polaris) RegisterSyncStatusProvider(
-	syncStatus SyncStatusProvider,
-) {
-	pl.syncStatus = syncStatus
-}
-
 // Host returns the Polaris host chain.
 func (pl *Polaris) Host() core.PolarisHostChain {
 	return pl.host

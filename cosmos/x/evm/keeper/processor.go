@@ -53,7 +53,6 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	}
 
 	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
-	k.executionClient.Eth.PreparePlugins(ctx)
 	if _, err = k.executionClient.Consensus.NewPayloadV3(
 		*envelope.ExecutionPayload, nil, nil,
 	); err != nil {

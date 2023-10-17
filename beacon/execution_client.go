@@ -21,8 +21,6 @@
 package beacon
 
 import (
-	"context"
-
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/miner"
@@ -35,7 +33,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/node"
 	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/eth/polar"
 )
 
 type (
@@ -62,11 +59,8 @@ type (
 		GetBlockByNumber(num uint64) *coretypes.Block
 		Config() *params.ChainConfig
 		// TODO: anything below shouldn't be in this API, but must exist for now.
-		PreparePlugins(context.Context)
-		RegisterSyncStatusProvider(polar.SyncStatusProvider)
 		RegisterLifecycle(node.Lifecycle)
 		Start() error
-		LoadLastState(context.Context, uint64) error
 	}
 )
 

@@ -21,7 +21,6 @@
 package eth
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
@@ -118,8 +117,8 @@ func New(
 // newGethExecutionLayer creates a new geth execution layer.
 // It returns a pointer to the ExecutionLayer and an error if any.
 func newGethExecutionLayer(
-	anyCfg any, host core.PolarisHostChain,
-	engine consensus.Engine, logHandler log.Handler,
+	anyCfg any, _ core.PolarisHostChain,
+	_ consensus.Engine, _ log.Handler,
 ) (*ExecutionLayer, error) {
 	cfg, ok := anyCfg.(*Config)
 	if !ok {
@@ -150,12 +149,6 @@ func newGethExecutionLayer(
 		stack:   gethNode,
 		backend: backend,
 	}, nil
-}
-
-// RegisterSyncStatusProvider registers a sync status provider to the backend of the
-// execution layer.
-func (el *ExecutionLayer) RegisterSyncStatusProvider(provider polar.SyncStatusProvider) {
-	// el.backend.RegisterSyncStatusProvider(provider)
 }
 
 // RegisterLifecycle registers a lifecycle to the networking stack of the execution layer.
@@ -221,20 +214,11 @@ func (el *ExecutionLayer) NewPayloadV3(
 	}, nil
 }
 
-// HACKED IN ETH API FOR NOW
-
+// HACKED IN ETH API FOR NOW.
 func (el *ExecutionLayer) Config() *params.ChainConfig {
 	return el.Blockchain().Config()
 }
 
-func (el *ExecutionLayer) PreparePlugins(ctx context.Context) {
-	// el.Blockchain().PreparePlugins(ctx)
-}
-
 func (el *ExecutionLayer) GetBlockByNumber(num uint64) *types.Block {
 	return el.Blockchain().GetBlockByNumber(num)
-}
-func (el *ExecutionLayer) LoadLastState(ctx context.Context, num uint64) error {
-	// return el.Blockchain().LoadLastState(ctx, num)
-	return nil
 }
