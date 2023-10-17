@@ -1,6 +1,7 @@
 go 1.21
 
 use (
+	./beacon
 	./contracts
 	./cosmos
 	./e2e/localnet

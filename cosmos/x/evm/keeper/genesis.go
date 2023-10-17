@@ -23,6 +23,8 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ethereum/go-ethereum/beacon/engine"
+
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -31,7 +33,7 @@ import (
 // InitGenesis is called during the InitGenesis.
 func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	// TODO: Feels jank as fuck lol, but it works.
-	genState.Config = k.chain.Config()
+	genState.Config = k.consensusAPI.Config()
 
 	// Initialize all the plugins.
 	for _, plugin := range k.Host.GetAllPlugins() {
@@ -44,9 +46,11 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	}
 
 	// Insert to chain.
-	k.chain.
+	k.consensusAPI.
 		PreparePlugins(ctx.WithEventManager(sdk.NewEventManager()))
-	return k.chain.InsertBlockWithoutSetHead(genState.ToBlock())
+	data := engine.BlockToExecutableData(genState.ToBlock(), nil, nil)
+	_, err := k.consensusAPI.NewPayloadV3(*data.ExecutionPayload, nil, &emptyRoot)
+	return err
 }
 
 // ExportGenesis returns the exported genesis state.

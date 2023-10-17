@@ -21,18 +21,21 @@
 package eth
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/miner"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/log"
 	"pkg.berachain.dev/polaris/eth/node"
+	"pkg.berachain.dev/polaris/eth/params"
 	"pkg.berachain.dev/polaris/eth/polar"
 	"pkg.berachain.dev/polaris/eth/rpc"
 )
@@ -47,7 +50,7 @@ type (
 
 	// TxPool represents the `TxPool` that exists on the backend of the execution layer.
 	TxPool interface {
-		Add([]*coretypes.Transaction, bool, bool) []error
+		Add([]*types.Transaction, bool, bool) []error
 		Stats() (int, int)
 		SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscription
 	}
@@ -175,4 +178,43 @@ func (el *ExecutionLayer) TxPool() TxPool {
 // Blockchain returns the blockchain interface of the backend of the execution layer.
 func (el *ExecutionLayer) Blockchain() core.Blockchain {
 	return el.backend.Blockchain()
+}
+
+// HACKED IN CONSENSUS API HERE FOR NOW.
+func (el *ExecutionLayer) NewPayloadV3(
+	params engine.ExecutableData, versionedHashes []common.Hash, beaconRoot *common.Hash,
+) (engine.PayloadStatusV1, error) {
+	var (
+		block *types.Block
+		err   error
+	)
+
+	if block, err = engine.ExecutableDataToBlock(
+		params, versionedHashes, beaconRoot,
+	); err != nil {
+		log.Error("failed to build evm block", "err", err)
+		return engine.STATUS_INVALID.PayloadStatus, err
+	}
+
+	if err = el.Blockchain().InsertBlockWithoutSetHead(block); err != nil {
+		log.Error("failed to insert evm block", "err", err)
+		return engine.STATUS_INVALID.PayloadStatus, err
+	}
+
+	insertedHash := el.Blockchain().CurrentBlock().Hash()
+	return engine.PayloadStatusV1{
+		Status: engine.VALID, LatestValidHash: &insertedHash,
+	}, nil
+}
+
+func (el *ExecutionLayer) Config() *params.ChainConfig {
+	return el.Blockchain().Config()
+}
+
+func (el *ExecutionLayer) PreparePlugins(ctx context.Context) {
+	el.Blockchain().PreparePlugins(ctx)
+}
+
+func (el *ExecutionLayer) GetBlockByNumber(num uint64) *types.Block {
+	return el.Blockchain().GetBlockByNumber(num)
 }

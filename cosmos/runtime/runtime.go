@@ -48,7 +48,7 @@ import (
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
-	Setup(evmkeeper.Blockchain) error
+	Setup(evmkeeper.ConsensusAPI) error
 }
 
 // CosmosApp is an interface that defines the methods needed for the Cosmos setup.
@@ -102,7 +102,7 @@ func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
 	p.WrappedMiner = miner.New(p.Miner())
 	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
 
-	if err := ek.Setup(p.Blockchain()); err != nil {
+	if err := ek.Setup(p); err != nil {
 		return err
 	}
 

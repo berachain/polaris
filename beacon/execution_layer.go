@@ -18,37 +18,35 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package keeper
+package beacon
 
 import (
-	"context"
-	"fmt"
+	"github.com/ethereum/go-ethereum/beacon/engine"
+	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/miner"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
-// Precommit runs on the Cosmo-SDK lifecycle Precommit().
-func (k *Keeper) Precommit(ctx context.Context) error {
-	// Verify that the EVM block was written.
-	// TODO: Set/GetHead to set and get the canonical head.
-	blockNum := uint64(sdk.UnwrapSDKContext(ctx).BlockHeight())
-	block := k.consensusAPI.GetBlockByNumber(blockNum)
-	if block == nil {
-		panic(
-			fmt.Sprintf("EVM BLOCK FAILURE AT BLOCK %d", blockNum),
-		)
-	} else if block.NumberU64() != blockNum {
-		panic(
-			fmt.Sprintf(
-				"EVM BLOCK [%d] DOES NOT MATCH COMET BLOCK [%d]", block.NumberU64(), blockNum,
-			),
-		)
+type (
+	// Miner represents the `Miner` that exists on the backend of the execution layer.
+	MinerAPI interface {
+		BuildPayload(*miner.BuildPayloadArgs) (*miner.Payload, error)
+		Etherbase() common.Address
 	}
-	return nil
-}
 
-// PrepareCheckState runs on the Cosmos-SDK lifecycle PrepareCheckState().
-func (k *Keeper) PrepareCheckState(ctx context.Context) error {
-	k.sp.Prepare(ctx)
-	return nil
-}
+	// TxPool represents the `TxPool` that exists on the backend of the execution layer.
+	TxPoolAPI interface {
+		Add([]*coretypes.Transaction, bool, bool) []error
+		Stats() (int, int)
+		SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscription
+	}
+
+	ConsensusAPI interface {
+		NewPayloadV3(
+			params engine.ExecutableData, versionedHashes []common.Hash, beaconRoot *common.Hash,
+		) (engine.PayloadStatusV1, error)
+	}
+)
