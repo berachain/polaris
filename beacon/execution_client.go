@@ -21,13 +21,21 @@
 package beacon
 
 import (
+	"context"
+
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/miner"
 
+	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/log"
+	"pkg.berachain.dev/polaris/eth/node"
+	"pkg.berachain.dev/polaris/eth/params"
+	"pkg.berachain.dev/polaris/eth/polar"
 )
 
 type (
@@ -49,4 +57,48 @@ type (
 			params engine.ExecutableData, versionedHashes []common.Hash, beaconRoot *common.Hash,
 		) (engine.PayloadStatusV1, error)
 	}
+
+	EthAPI interface {
+		GetBlockByNumber(num uint64) *coretypes.Block
+		Config() *params.ChainConfig
+		// TODO: anything below shouldn't be in this API, but must exist for now.
+		PreparePlugins(context.Context)
+		RegisterSyncStatusProvider(polar.SyncStatusProvider)
+		RegisterLifecycle(node.Lifecycle)
+		Start() error
+		LoadLastState(context.Context, uint64) error
+	}
 )
+
+// ExecutionClient represents the execution layer client.
+type ExecutionClient struct {
+	Eth       EthAPI
+	Miner     MinerAPI
+	TxPool    TxPoolAPI
+	Consensus ConsensusAPI
+}
+
+// NewInProcessExecutionClient creates a new in-process execution client.
+func NewInProcessExecutionClient(client string, cfg any, host core.PolarisHostChain,
+	engine consensus.Engine, logHandler log.Handler) (*ExecutionClient, error) {
+	el, err := eth.New(client, cfg, host, engine, logHandler)
+	if err != nil {
+		return nil, err
+	}
+	return &ExecutionClient{
+		Eth:       el,
+		Miner:     el.Miner(),
+		TxPool:    el.TxPool(),
+		Consensus: el,
+	}, nil
+}
+
+// NewRemoteExecutionClient creates a new remote execution client.
+func NewRemoteExecutionClient( /*dialURL*/ string) (*ExecutionClient, error) {
+	return &ExecutionClient{
+		Eth:       nil,
+		Miner:     nil,
+		TxPool:    nil,
+		Consensus: nil,
+	}, nil
+}

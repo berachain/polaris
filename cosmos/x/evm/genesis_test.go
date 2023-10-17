@@ -29,12 +29,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"pkg.berachain.dev/polaris/beacon"
 	"pkg.berachain.dev/polaris/cosmos/config"
 	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/params"
@@ -57,7 +57,7 @@ var _ = Describe("Genesis", func() {
 		ctx sdk.Context
 		ak  state.AccountKeeper
 		k   *keeper.Keeper
-		el  *eth.ExecutionLayer
+		el  *beacon.ExecutionClient
 		am  evm.AppModule
 		err error
 	)
@@ -82,7 +82,8 @@ var _ = Describe("Genesis", func() {
 			},
 			cfg,
 		)
-		el, err = eth.New("geth", config.DefaultConfig(), k.Host, nil, nil)
+
+		el, err = beacon.NewInProcessExecutionClient("geth", config.DefaultConfig(), k.Host, nil, nil)
 		Expect(err).ToNot(HaveOccurred())
 		err = k.Setup(
 			el,

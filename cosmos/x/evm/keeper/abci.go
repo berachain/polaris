@@ -32,7 +32,7 @@ func (k *Keeper) Precommit(ctx context.Context) error {
 	// Verify that the EVM block was written.
 	// TODO: Set/GetHead to set and get the canonical head.
 	blockNum := uint64(sdk.UnwrapSDKContext(ctx).BlockHeight())
-	block := k.consensusAPI.GetBlockByNumber(blockNum)
+	block := k.executionClient.Eth.GetBlockByNumber(blockNum)
 	if block == nil {
 		panic(
 			fmt.Sprintf("EVM BLOCK FAILURE AT BLOCK %d", blockNum),

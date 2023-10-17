@@ -21,43 +21,25 @@
 package keeper
 
 import (
-	"context"
-
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/beacon/engine"
-
+	"pkg.berachain.dev/polaris/beacon"
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/params"
 )
 
 type (
-	ConsensusAPI interface {
-		// TODO: shouldnt be in this API
-		Config() *params.ChainConfig
-		// TODO: shouldn't be in this API
-		PreparePlugins(context.Context)
-		// TODO: souldn't be in this API
-		GetBlockByNumber(num uint64) *coretypes.Block
-		NewPayloadV3(
-			params engine.ExecutableData, versionedHashes []common.Hash, beaconRoot *common.Hash,
-		) (engine.PayloadStatusV1, error)
-	}
-
 	Keeper struct {
 		// host represents the host chain
 		*Host
 
 		// consensusAPI is the consensus API
-		consensusAPI ConsensusAPI
+		executionClient *beacon.ExecutionClient
 	}
 )
 
@@ -81,8 +63,8 @@ func NewKeeper(
 	}
 }
 
-func (k *Keeper) Setup(consensusAPI ConsensusAPI) error {
-	k.consensusAPI = consensusAPI
+func (k *Keeper) Setup(executionClient *beacon.ExecutionClient) error {
+	k.executionClient = executionClient
 	return k.SetupPrecompiles()
 }
 

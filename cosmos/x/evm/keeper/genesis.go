@@ -33,7 +33,7 @@ import (
 // InitGenesis is called during the InitGenesis.
 func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	// TODO: Feels jank as fuck lol, but it works.
-	genState.Config = k.consensusAPI.Config()
+	genState.Config = k.executionClient.Eth.Config()
 
 	// Initialize all the plugins.
 	for _, plugin := range k.Host.GetAllPlugins() {
@@ -46,10 +46,10 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	}
 
 	// Insert to chain.
-	k.consensusAPI.
+	k.executionClient.Eth.
 		PreparePlugins(ctx.WithEventManager(sdk.NewEventManager()))
 	data := engine.BlockToExecutableData(genState.ToBlock(), nil, nil)
-	_, err := k.consensusAPI.NewPayloadV3(*data.ExecutionPayload, nil, &emptyRoot)
+	_, err := k.executionClient.Consensus.NewPayloadV3(*data.ExecutionPayload, nil, nil)
 	return err
 }
 

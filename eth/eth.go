@@ -207,6 +207,8 @@ func (el *ExecutionLayer) NewPayloadV3(
 	}, nil
 }
 
+// HACKED IN ETH API FOR NOW
+
 func (el *ExecutionLayer) Config() *params.ChainConfig {
 	return el.Blockchain().Config()
 }
@@ -217,4 +219,7 @@ func (el *ExecutionLayer) PreparePlugins(ctx context.Context) {
 
 func (el *ExecutionLayer) GetBlockByNumber(num uint64) *types.Block {
 	return el.Blockchain().GetBlockByNumber(num)
+}
+func (el *ExecutionLayer) LoadLastState(ctx context.Context, num uint64) error {
+	return el.Blockchain().LoadLastState(ctx, num)
 }

@@ -32,11 +32,11 @@ import (
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
+	"pkg.berachain.dev/polaris/beacon"
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/cosmos/runtime/comet"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
-	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/consensus"
@@ -48,7 +48,7 @@ import (
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
-	Setup(evmkeeper.ConsensusAPI) error
+	Setup(*beacon.ExecutionClient) error
 }
 
 // CosmosApp is an interface that defines the methods needed for the Cosmos setup.
@@ -61,7 +61,7 @@ type CosmosApp interface {
 // Polaris is a struct that wraps the Polaris struct from the polar package.
 // It also includes wrapped versions of the Geth Miner and TxPool.
 type Polaris struct {
-	*eth.ExecutionLayer
+	*beacon.ExecutionClient
 
 	// WrappedMiner is a wrapped version of the Miner component.
 	WrappedMiner *miner.Miner
@@ -84,7 +84,9 @@ func New(
 		logger: logger,
 	}
 
-	p.ExecutionLayer, err = eth.New("geth", cfg, host, engine, LoggerFuncHandler(logger))
+	p.ExecutionClient, err = beacon.NewInProcessExecutionClient(
+		"geth", cfg, host, engine, LoggerFuncHandler(logger),
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -96,13 +98,13 @@ func New(
 // It takes a BaseApp and an EVMKeeper as arguments.
 // It returns an error if the setup fails.
 func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
-	p.WrappedTxPool = txpool.New(p.TxPool())
+	p.WrappedTxPool = txpool.New(p.TxPool)
 	app.SetMempool(p.WrappedTxPool)
 
-	p.WrappedMiner = miner.New(p.Miner())
+	p.WrappedMiner = miner.New(p.Miner)
 	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
 
-	if err := ek.Setup(p); err != nil {
+	if err := ek.Setup(p.ExecutionClient); err != nil {
 		return err
 	}
 
@@ -129,7 +131,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 	})
 
 	// Register the sync status provider with Polaris.
-	p.RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
+	p.ExecutionClient.Eth.RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
 
 	// Start the services. TODO: move to place race condition is solved.
 	return p.StartServices()
@@ -141,7 +143,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 func (p *Polaris) RegisterLifecycles(lcs []node.Lifecycle) {
 	// Register the services with polaris.
 	for _, lc := range lcs {
-		p.ExecutionLayer.RegisterLifecycle(lc)
+		p.ExecutionClient.Eth.RegisterLifecycle(lc)
 	}
 }
 
@@ -153,7 +155,7 @@ func (p *Polaris) StartServices() error {
 		// This needs to be fixed before mainnet as its ghetto af. If the block time is too long
 		// and this sleep is too short, it will cause hive tests to error out.
 		time.Sleep(5 * time.Second) //nolint:gomnd // as explained above.
-		if err := p.ExecutionLayer.Start(); err != nil {
+		if err := p.ExecutionClient.Eth.Start(); err != nil {
 			panic(err)
 		}
 	}()
@@ -170,5 +172,5 @@ func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint6
 		WithMultiStore(cms).
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
-	return p.Blockchain().LoadLastState(cmsCtx, appHeight)
+	return p.ExecutionClient.Eth.LoadLastState(cmsCtx, appHeight)
 }

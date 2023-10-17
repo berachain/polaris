@@ -29,10 +29,7 @@ import (
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
 )
-
-var emptyRoot = common.Hash{}
 
 func (k *Keeper) ProcessPayloadEnvelope(
 	ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope,
@@ -56,8 +53,10 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	}
 
 	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
-	k.consensusAPI.PreparePlugins(ctx)
-	if _, err = k.consensusAPI.NewPayloadV3(*envelope.ExecutionPayload, nil, &emptyRoot); err != nil {
+	k.executionClient.Eth.PreparePlugins(ctx)
+	if _, err = k.executionClient.Consensus.NewPayloadV3(
+		*envelope.ExecutionPayload, nil, nil,
+	); err != nil {
 		return nil, err
 	}
 
