@@ -23,8 +23,6 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/beacon/engine"
-
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
 	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/lib/utils"
@@ -46,11 +44,11 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	}
 
 	// Insert to chain.
-	k.executionClient.Eth.
-		PreparePlugins(ctx.WithEventManager(sdk.NewEventManager()))
-	data := engine.BlockToExecutableData(genState.ToBlock(), nil, nil)
-	_, err := k.executionClient.Consensus.NewPayloadV3(*data.ExecutionPayload, nil, nil)
-	return err
+	// k.executionClient.Eth.
+	// 	PreparePlugins(ctx.WithEventManager(sdk.NewEventManager()))
+	// data := engine.BlockToExecutableData(genState.ToBlock(), nil, nil)
+	// _, err := k.executionClient.Consensus.NewPayloadV3(*data.ExecutionPayload, nil, nil)
+	return nil
 }
 
 // ExportGenesis returns the exported genesis state.

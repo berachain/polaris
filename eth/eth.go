@@ -26,6 +26,9 @@ import (
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
+	gethcore "github.com/ethereum/go-ethereum/core"
+	"github.com/ethereum/go-ethereum/eth"
+	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/miner"
 
@@ -81,7 +84,7 @@ type (
 		// stack handles all networking aspects of the execution layer. mainly JSON-RPC.
 		stack NetworkingStack
 		// backend is the entry point to the core logic of the execution layer.
-		backend *polar.Polaris
+		backend *eth.Ethereum
 	}
 
 	// Config struct holds the configuration for Polaris and Node.
@@ -130,11 +133,18 @@ func newGethExecutionLayer(
 	}
 
 	// In Polaris we don't use P2P at the geth level.
-	gethNode.SetP2PDisabled(true)
+	gethNode.SetP2PDisabled(false)
 
 	// Create a new Polaris backend
-	backend := polar.New(&cfg.Polar, host, engine, gethNode, logHandler)
+	// backend := //polar.New(&cfg.Polar, host, engine, gethNode, logHandler)
+	ethConfig := ethconfig.Defaults
+	ethConfig.Genesis = core.DefaultGenesis
+	ethConfig.Genesis.Config = &cfg.Polar.Chain
 
+	backend, err := eth.New(gethNode.Node, &ethConfig)
+	if err != nil {
+		return nil, err
+	}
 	// Return a new ExecutionLayer with the created gethNode and backend
 	return &ExecutionLayer{
 		stack:   gethNode,
@@ -145,7 +155,7 @@ func newGethExecutionLayer(
 // RegisterSyncStatusProvider registers a sync status provider to the backend of the
 // execution layer.
 func (el *ExecutionLayer) RegisterSyncStatusProvider(provider polar.SyncStatusProvider) {
-	el.backend.RegisterSyncStatusProvider(provider)
+	// el.backend.RegisterSyncStatusProvider(provider)
 }
 
 // RegisterLifecycle registers a lifecycle to the networking stack of the execution layer.
@@ -176,8 +186,8 @@ func (el *ExecutionLayer) TxPool() TxPool {
 }
 
 // Blockchain returns the blockchain interface of the backend of the execution layer.
-func (el *ExecutionLayer) Blockchain() core.Blockchain {
-	return el.backend.Blockchain()
+func (el *ExecutionLayer) Blockchain() *gethcore.BlockChain {
+	return el.backend.BlockChain()
 }
 
 // HACKED IN CONSENSUS API HERE FOR NOW.
@@ -201,6 +211,10 @@ func (el *ExecutionLayer) NewPayloadV3(
 		return engine.STATUS_INVALID.PayloadStatus, err
 	}
 
+	if _, err = el.Blockchain().SetCanonical(block); err != nil {
+		return engine.STATUS_INVALID.PayloadStatus, err
+	}
+
 	insertedHash := el.Blockchain().CurrentBlock().Hash()
 	return engine.PayloadStatusV1{
 		Status: engine.VALID, LatestValidHash: &insertedHash,
@@ -214,12 +228,13 @@ func (el *ExecutionLayer) Config() *params.ChainConfig {
 }
 
 func (el *ExecutionLayer) PreparePlugins(ctx context.Context) {
-	el.Blockchain().PreparePlugins(ctx)
+	// el.Blockchain().PreparePlugins(ctx)
 }
 
 func (el *ExecutionLayer) GetBlockByNumber(num uint64) *types.Block {
 	return el.Blockchain().GetBlockByNumber(num)
 }
 func (el *ExecutionLayer) LoadLastState(ctx context.Context, num uint64) error {
-	return el.Blockchain().LoadLastState(ctx, num)
+	// return el.Blockchain().LoadLastState(ctx, num)
+	return nil
 }

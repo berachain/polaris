@@ -43,7 +43,7 @@ func New(config *Config) (*GethExecutionNode, error) {
 	}
 
 	// In Polaris we don't use P2P at the geth level.
-	gethNode.SetP2PDisabled(true)
+	// gethNode.SetP2PDisabled(false)
 
 	return &GethExecutionNode{
 		Node: gethNode,
