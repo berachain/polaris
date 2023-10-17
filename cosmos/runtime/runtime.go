@@ -40,7 +40,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/node"
 )
 
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
@@ -123,28 +122,17 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 	p.WrappedTxPool.Init(p.logger, clientCtx, libtx.NewSerializer[*coretypes.Transaction](
 		clientCtx.TxConfig, evmtypes.WrapTx))
 
-	// Register services with Polaris.
-	p.RegisterLifecycles([]node.Lifecycle{
-		p.WrappedTxPool,
-	})
-
 	// Start the services. TODO: move to place race condition is solved.
 	return p.StartServices()
-}
-
-// RegisterServices is a function that allows for the application to register lifecycles with
-// the evm networking stack. It takes a client context and a slice of node.Lifecycle
-// as arguments.
-func (p *Polaris) RegisterLifecycles(lcs []node.Lifecycle) {
-	// Register the services with polaris.
-	for _, lc := range lcs {
-		p.ExecutionClient.Eth.RegisterLifecycle(lc)
-	}
 }
 
 // StartServices starts the services of the Polaris struct.
 func (p *Polaris) StartServices() error {
 	go func() {
+		if err := p.WrappedTxPool.Start(); err != nil {
+			panic(err)
+		}
+
 		// TODO: these values are sensitive due to a race condition in the json-rpc ports opening.
 		// If the JSON-RPC opens before the first block is committed, hive tests will start failing.
 		// This needs to be fixed before mainnet as its ghetto af. If the block time is too long

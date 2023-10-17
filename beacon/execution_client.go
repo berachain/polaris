@@ -31,7 +31,6 @@ import (
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/log"
-	"pkg.berachain.dev/polaris/eth/node"
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
@@ -59,7 +58,6 @@ type (
 		GetBlockByNumber(num uint64) *coretypes.Block
 		Config() *params.ChainConfig
 		// TODO: anything below shouldn't be in this API, but must exist for now.
-		RegisterLifecycle(node.Lifecycle)
 		Start() error
 	}
 )

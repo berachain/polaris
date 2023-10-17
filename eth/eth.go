@@ -68,9 +68,6 @@ type (
 		// RegisterAPIs registers JSON-RPC handlers for the networking stack.
 		RegisterAPIs([]rpc.API)
 
-		// RegisterLifecycles registers objects to have their lifecycle manged by the stack.
-		RegisterLifecycle(node.Lifecycle)
-
 		// Start starts the networking stack.
 		Start() error
 
@@ -149,11 +146,6 @@ func newGethExecutionLayer(
 		stack:   gethNode,
 		backend: backend,
 	}, nil
-}
-
-// RegisterLifecycle registers a lifecycle to the networking stack of the execution layer.
-func (el *ExecutionLayer) RegisterLifecycle(lifecycle node.Lifecycle) {
-	el.stack.RegisterLifecycle(lifecycle)
 }
 
 // Start starts the networking stack of the execution layer.
