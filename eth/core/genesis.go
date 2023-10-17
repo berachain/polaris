@@ -28,6 +28,7 @@ import (
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/common/hexutil"
 	"pkg.berachain.dev/polaris/eth/core/types"
+	"pkg.berachain.dev/polaris/eth/params"
 )
 
 type (
@@ -38,6 +39,7 @@ type (
 
 // DefaultGenesis is the default genesis block used by Polaris.
 var DefaultGenesis = &core.Genesis{
+	Config: params.DefaultChainConfig,
 	// Genesis Block
 	Nonce:     0,
 	Timestamp: 0,

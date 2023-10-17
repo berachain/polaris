@@ -114,7 +114,7 @@ func New(
 		config:     config,
 		host:       host,
 		engine:     engine,
-		blockchain: core.NewChain(host, &config.Chain, engine),
+		blockchain: core.NewChain(host, config.Genesis.Config, engine),
 	}
 
 	// Build the backend api object.
@@ -141,7 +141,7 @@ func New(
 
 	// Setup the miner, we use a dummy isLocal function, since it is not used.
 	pl.miner = miner.New(pl, &pl.config.Miner,
-		&pl.config.Chain, stack.EventMux(), pl.engine,
+		pl.config.Genesis.Config, stack.EventMux(), pl.engine,
 		func(header *types.Header) bool { return true },
 	)
 

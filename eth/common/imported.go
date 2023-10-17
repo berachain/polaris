@@ -37,6 +37,7 @@ var (
 	BigToHash      = common.BigToHash
 	BytesToHash    = common.BytesToHash
 	Bytes2Hex      = common.Bytes2Hex
+	LoadJSON       = common.LoadJSON
 	FromHex        = common.FromHex
 	HexToAddress   = common.HexToAddress
 	IsHexAddress   = common.IsHexAddress

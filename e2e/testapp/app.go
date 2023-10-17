@@ -35,6 +35,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -118,6 +119,8 @@ func NewPolarisApp(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *SimApp {
+
+	appHome := appOpts.Get(flags.FlagHome).(string)
 	var (
 		app        = &SimApp{}
 		appBuilder *runtime.AppBuilder
@@ -134,7 +137,7 @@ func NewPolarisApp(
 				// supply the logger
 				logger,
 				// ADVANCED CONFIGURATION\
-				PolarisConfigFn(evmconfig.MustReadConfigFromAppOpts(appOpts)),
+				PolarisConfigFn(evmconfig.MustReadConfigFromAppOpts(appOpts, appHome+"/config/eth-genesis.json")),
 				PrecompilesToInject(app),
 				QueryContextFn(app),
 				//
@@ -186,7 +189,7 @@ func NewPolarisApp(
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 	app.Polaris = polarruntime.New(
-		evmconfig.MustReadConfigFromAppOpts(appOpts), app.Logger(), app.EVMKeeper.Host, nil,
+		evmconfig.MustReadConfigFromAppOpts(appOpts, appHome+"/config/eth-genesis.json"), app.Logger(), app.EVMKeeper.Host, nil,
 	)
 
 	// Setup Polaris Runtime.

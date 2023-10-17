@@ -67,7 +67,7 @@ func NewHost(
 	}
 
 	// historical plugin requires block plugin.
-	h.hp = historical.NewPlugin(&cfg.Polar.Chain, h.bp, nil, storeKey)
+	h.hp = historical.NewPlugin(cfg.Polar.Genesis.Config, h.bp, nil, storeKey)
 	return h
 }
 

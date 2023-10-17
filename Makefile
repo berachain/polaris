@@ -219,8 +219,8 @@ SIMULATORS_PATH := $(SIMULATORS_ROOT)/polaris/
 BASE_HIVE_DOCKER_PATH := ./e2e/hive
 CLIENTS_PATH := $(CLONE_PATH)/clients/polard/
 SIMULATIONS := \
-	rpc:init/genesis.json:ethclient.hive \
-	rpc-compat:Dockerfile:tests \
+	rpc:init/genesis.json \
+	rpc-compat:Dockerfile \
 
 # .PHONY: setup test testv view
 
@@ -240,12 +240,12 @@ hive-setup:
 		$(foreach file,$(FILES), \
 			cp -rf $(BASE_HIVE_DOCKER_PATH)/simulators/$(SIM_NAME)/$(file) \
 			$(SIMULATORS_PATH)/$(SIM_NAME)/$(file); \
-			if [ "$(file)" = "ethclient.hive" ]; then \
-				cp -rf $(SIMULATORS_PATH)/$(SIM_NAME)/$(file) $(SIMULATORS_PATH)/$(SIM_NAME)/ethclient.go; \
-			fi; \
 		) \
 	)
 	@cd $(CLONE_PATH) && go install ./...
+# if [ "$(file)" = "ethclient.hive" ]; then \
+# 	cp -rf $(SIMULATORS_PATH)/$(SIM_NAME)/$(file) $(SIMULATORS_PATH)/$(SIM_NAME)/ethclient.go; \
+# fi; 
 
 hive-view:
 	@cd $(CLONE_PATH) && \

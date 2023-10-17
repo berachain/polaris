@@ -30,8 +30,8 @@ import (
 	"github.com/ethereum/go-ethereum/miner"
 
 	"pkg.berachain.dev/polaris/eth/common"
+	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/log"
-	"pkg.berachain.dev/polaris/eth/params"
 )
 
 const (
@@ -53,7 +53,7 @@ func DefaultConfig() *Config {
 	minerCfg.Etherbase = common.HexToAddress(developmentCoinbase)
 	// TODO: setup proper command line flags
 	return &Config{
-		Chain:         *params.DefaultChainConfig,
+		Genesis:       core.DefaultGenesis,
 		Miner:         minerCfg,
 		GPO:           gpoConfig,
 		LegacyTxPool:  legacypool.DefaultConfig,
@@ -76,7 +76,7 @@ func (c *Config) SafetyMessage() {
 // Config represents the configurable parameters for Polaris.
 type Config struct {
 	// The chain configuration to use.
-	Chain params.ChainConfig
+	Genesis *core.Genesis
 
 	// Mining options
 	Miner miner.Config

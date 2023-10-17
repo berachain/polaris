@@ -129,15 +129,17 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 // StartServices starts the services of the Polaris struct.
 func (p *Polaris) StartServices() error {
 	go func() {
-		if err := p.WrappedTxPool.Start(); err != nil {
-			panic(err)
-		}
 
 		// TODO: these values are sensitive due to a race condition in the json-rpc ports opening.
 		// If the JSON-RPC opens before the first block is committed, hive tests will start failing.
 		// This needs to be fixed before mainnet as its ghetto af. If the block time is too long
 		// and this sleep is too short, it will cause hive tests to error out.
-		time.Sleep(5 * time.Second) //nolint:gomnd // as explained above.
+		time.Sleep(10 * time.Second) //nolint:gomnd // as explained above.
+
+		if err := p.WrappedTxPool.Start(); err != nil {
+			panic(err)
+		}
+
 		if err := p.ExecutionClient.Eth.Start(); err != nil {
 			panic(err)
 		}

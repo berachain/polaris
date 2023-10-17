@@ -30,6 +30,7 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/config/flags"
 	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/accounts"
+	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/node"
 	"pkg.berachain.dev/polaris/eth/polar"
 )
@@ -62,8 +63,8 @@ func DefaultConfig() *Config {
 
 // MustReadConfigFromAppOpts reads the configuration options from the given
 // application options. Panics if the configuration cannot be read.
-func MustReadConfigFromAppOpts(opts servertypes.AppOptions) *Config {
-	cfg, err := ReadConfigFromAppOpts(opts)
+func MustReadConfigFromAppOpts(opts servertypes.AppOptions, ethGenFilePath string) *Config {
+	cfg, err := ReadConfigFromAppOpts(opts, ethGenFilePath)
 	if err != nil {
 		panic(err)
 	}
@@ -72,12 +73,12 @@ func MustReadConfigFromAppOpts(opts servertypes.AppOptions) *Config {
 
 // ReadConfigFromAppOpts reads the configuration options from the given
 // application options.
-func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
-	return readConfigFromAppOptsParser(AppOptionsParser{AppOptions: opts})
+func ReadConfigFromAppOpts(opts servertypes.AppOptions, ethGenFilePath string) (*Config, error) {
+	return readConfigFromAppOptsParser(AppOptionsParser{AppOptions: opts}, ethGenFilePath)
 }
 
 //nolint:funlen,gocognit,gocyclo,cyclop // TODO break up later.
-func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
+func readConfigFromAppOptsParser(parser AppOptionsParser, ethGenFilePath string) (*Config, error) {
 	var err error
 	var val int64
 	conf := &Config{}
@@ -127,105 +128,110 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 		return nil, err
 	}
 
-	// Polar Chain settings
-	if conf.Polar.Chain.ChainID, err =
-		parser.GetBigInt(flags.ChainID); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.HomesteadBlock, err =
-		parser.GetBigInt(flags.HomesteadBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.DAOForkBlock, err =
-		parser.GetBigInt(flags.DAOForkBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.DAOForkSupport, err =
-		parser.GetBool(flags.DAOForkSupport); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.EIP150Block, err =
-		parser.GetBigInt(flags.EIP150Block); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.EIP155Block, err =
-		parser.GetBigInt(flags.EIP155Block); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.EIP158Block, err =
-		parser.GetBigInt(flags.EIP158Block); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.ByzantiumBlock, err =
-		parser.GetBigInt(flags.ByzantiumBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.ConstantinopleBlock, err =
-		parser.GetBigInt(flags.ConstantinopleBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.PetersburgBlock, err =
-		parser.GetBigInt(flags.PetersburgBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.IstanbulBlock, err =
-		parser.GetBigInt(flags.IstanbulBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.MuirGlacierBlock, err =
-		parser.GetBigInt(flags.MuirGlacierBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.BerlinBlock, err =
-		parser.GetBigInt(flags.BerlinBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.LondonBlock, err =
-		parser.GetBigInt(flags.LondonBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.ArrowGlacierBlock, err =
-		parser.GetBigInt(flags.ArrowGlacierBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.GrayGlacierBlock, err =
-		parser.GetBigInt(flags.GrayGlacierBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.MergeNetsplitBlock, err =
-		parser.GetBigInt(flags.MergeNetsplitBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.ShanghaiTime, err =
-		parser.GetUint64Ptr(flags.ShanghaiTime); err != nil {
-		return nil, err
-	}
+	// // Polar Chain settings
+	// if conf.Polar.Genesis.Config.ChainID, err =
+	// 	parser.GetBigInt(flags.ChainID); err != nil {
+	// 	return nil, err
+	// }
 
-	if conf.Polar.Chain.CancunTime, err =
-		parser.GetUint64Ptr(flags.CancunTime); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.PragueTime, err =
-		parser.GetUint64Ptr(flags.PragueTime); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.VerkleTime, err =
-		parser.GetUint64Ptr(flags.VerkleTime); err != nil {
-		return nil, err
-	}
+	// if conf.Polar.Genesis.Config.HomesteadBlock, err =
+	// 	parser.GetBigInt(flags.HomesteadBlock); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.DAOForkBlock, err =
+	// 	parser.GetBigInt(flags.DAOForkBlock); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.DAOForkSupport, err =
+	// 	parser.GetBool(flags.DAOForkSupport); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.EIP150Block, err =
+	// 	parser.GetBigInt(flags.EIP150Block); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.EIP155Block, err =
+	// 	parser.GetBigInt(flags.EIP155Block); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.EIP158Block, err =
+	// 	parser.GetBigInt(flags.EIP158Block); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.ByzantiumBlock, err =
+	// 	parser.GetBigInt(flags.ByzantiumBlock); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.ConstantinopleBlock, err =
+	// 	parser.GetBigInt(flags.ConstantinopleBlock); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.PetersburgBlock, err =
+	// 	parser.GetBigInt(flags.PetersburgBlock); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.IstanbulBlock, err =
+	// 	parser.GetBigInt(flags.IstanbulBlock); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.MuirGlacierBlock, err =
+	// 	parser.GetBigInt(flags.MuirGlacierBlock); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.BerlinBlock, err =
+	// 	parser.GetBigInt(flags.BerlinBlock); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.LondonBlock, err =
+	// 	parser.GetBigInt(flags.LondonBlock); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.ArrowGlacierBlock, err =
+	// 	parser.GetBigInt(flags.ArrowGlacierBlock); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.GrayGlacierBlock, err =
+	// 	parser.GetBigInt(flags.GrayGlacierBlock); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.MergeNetsplitBlock, err =
+	// 	parser.GetBigInt(flags.MergeNetsplitBlock); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.ShanghaiTime, err =
+	// 	parser.GetUint64Ptr(flags.ShanghaiTime); err != nil {
+	// 	return nil, err
+	// }
 
-	if conf.Polar.Chain.TerminalTotalDifficulty, err =
-		parser.GetBigInt(
-			flags.TerminalTotalDifficulty); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.TerminalTotalDifficultyPassed, err =
-		parser.GetBool(
-			flags.TerminalTotalDifficultyPassed); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.IsDevMode, err =
-		parser.GetBool(flags.IsDevMode); err != nil {
+	// if conf.Polar.Genesis.Config.CancunTime, err =
+	// 	parser.GetUint64Ptr(flags.CancunTime); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.PragueTime, err =
+	// 	parser.GetUint64Ptr(flags.PragueTime); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.VerkleTime, err =
+	// 	parser.GetUint64Ptr(flags.VerkleTime); err != nil {
+	// 	return nil, err
+	// }
+
+	// if conf.Polar.Genesis.Config.TerminalTotalDifficulty, err =
+	// 	parser.GetBigInt(
+	// 		flags.TerminalTotalDifficulty); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.TerminalTotalDifficultyPassed, err =
+	// 	parser.GetBool(
+	// 		flags.TerminalTotalDifficultyPassed); err != nil {
+	// 	return nil, err
+	// }
+	// if conf.Polar.Genesis.Config.IsDevMode, err =
+	// 	parser.GetBool(flags.IsDevMode); err != nil {
+	// 	return nil, err
+	// }
+
+	if err = common.LoadJSON(ethGenFilePath, &conf.Polar.Genesis); err != nil {
 		return nil, err
 	}
 

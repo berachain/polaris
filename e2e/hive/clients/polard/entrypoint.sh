@@ -53,6 +53,7 @@ done
 temp_genesis=$(cat $GENESIS)
 updated_genesis=$(echo "$temp_genesis" | jq --argjson eth_gen "$ETH_GENESIS_SOURCE" '.app_state["evm"] = $eth_gen')
 echo "$updated_genesis" > "$GENESIS"
+cp genesis.json "$HOMEDIR/config/eth-genesis.json"
 
 
 # Change parameter token denominations to abera

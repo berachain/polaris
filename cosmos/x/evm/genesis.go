@@ -28,62 +28,35 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"pkg.berachain.dev/polaris/eth/core"
 )
 
 // DefaultGenesis returns default genesis state as raw bytes for the evm
 // module.
 func (AppModuleBasic) DefaultGenesis(_ codec.JSONCodec) json.RawMessage {
-	ethGen := core.DefaultGenesis
-	rawGenesis, err := ethGen.MarshalJSON()
-	if err != nil {
-		panic(err)
-	}
-	return rawGenesis
+	return nil
 }
 
 // ValidateGenesis performs genesis state validation for the evm module.
 func (AppModuleBasic) ValidateGenesis(
 	_ codec.JSONCodec,
 	_ client.TxEncodingConfig,
-	bz json.RawMessage,
+	_ json.RawMessage,
 ) error {
-	ethGen := new(core.Genesis)
-	if err := ethGen.UnmarshalJSON(bz); err != nil {
-		return err
-	}
-
-	// TODO: figure out what in geth we need to call in order to validate the genesis.
-
 	return nil
 }
 
 // InitGenesis performs genesis initialization for the evm module. It returns
 // no validator updates.
 func (am AppModule) InitGenesis(
-	ctx sdk.Context,
+	_ sdk.Context,
 	_ codec.JSONCodec,
-	data json.RawMessage,
+	_ json.RawMessage,
 ) []abci.ValidatorUpdate {
-	var ethGen core.Genesis
-	if err := ethGen.UnmarshalJSON(data); err != nil {
-		panic(err)
-	}
-
-	if err := am.keeper.InitGenesis(ctx, &ethGen); err != nil {
-		panic(err)
-	}
 	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the evm
 // module.
-func (am AppModule) ExportGenesis(ctx sdk.Context, _ codec.JSONCodec) json.RawMessage {
-	ethGen := am.keeper.ExportGenesis(ctx)
-	ethGenBz, err := ethGen.MarshalJSON()
-	if err != nil {
-		panic(err)
-	}
-	return ethGenBz
+func (am AppModule) ExportGenesis(_ sdk.Context, _ codec.JSONCodec) json.RawMessage {
+	return nil
 }

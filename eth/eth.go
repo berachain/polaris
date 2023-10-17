@@ -23,6 +23,7 @@ package eth
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	gethcore "github.com/ethereum/go-ethereum/core"
@@ -130,12 +131,26 @@ func newGethExecutionLayer(
 
 	// In Polaris we don't use P2P at the geth level.
 	gethNode.SetP2PDisabled(false)
-
 	// Create a new Polaris backend
 	// backend := //polar.New(&cfg.Polar, host, engine, gethNode, logHandler)
 	ethConfig := ethconfig.Defaults
-	ethConfig.Genesis = core.DefaultGenesis
-	ethConfig.Genesis.Config = &cfg.Polar.Chain
+
+	var genesis core.Genesis
+	err = common.LoadJSON("genesis.json", &genesis)
+	if err != nil {
+		str, _ := os.Getwd()
+		fmt.Println("READ FAILURE", err, str)
+		panic("BIG BAD REEE")
+	} else {
+		ethConfig.Genesis = &genesis
+	}
+	ethConfig.GPO = cfg.Polar.GPO
+	ethConfig.Miner = cfg.Polar.Miner
+	ethConfig.RPCEVMTimeout = cfg.Polar.RPCEVMTimeout
+	ethConfig.RPCGasCap = cfg.Polar.RPCGasCap
+	ethConfig.RPCTxFeeCap = cfg.Polar.RPCTxFeeCap
+	ethConfig.TxPool = cfg.Polar.LegacyTxPool
+	ethConfig.Genesis = cfg.Polar.Genesis
 
 	backend, err := eth.New(gethNode.Node, &ethConfig)
 	if err != nil {
