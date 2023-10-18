@@ -252,7 +252,7 @@ func (_GovernanceWrapper *GovernanceWrapperTransactorRaw) Transact(opts *bind.Tr
 
 // Bank is a free data retrieval call binding the contract method 0x76cdb03b.
 //
-// Solidity: function bank() view returns(address)
+// Solidity: function bank() view returns(address).
 func (_GovernanceWrapper *GovernanceWrapperCaller) Bank(opts *bind.CallOpts) (common.Address, error) {
 	var out []interface{}
 	err := _GovernanceWrapper.contract.Call(opts, &out, "bank")
@@ -264,26 +264,25 @@ func (_GovernanceWrapper *GovernanceWrapperCaller) Bank(opts *bind.CallOpts) (co
 	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
 
 	return out0, err
-
 }
 
 // Bank is a free data retrieval call binding the contract method 0x76cdb03b.
 //
-// Solidity: function bank() view returns(address)
+// Solidity: function bank() view returns(address).
 func (_GovernanceWrapper *GovernanceWrapperSession) Bank() (common.Address, error) {
 	return _GovernanceWrapper.Contract.Bank(&_GovernanceWrapper.CallOpts)
 }
 
 // Bank is a free data retrieval call binding the contract method 0x76cdb03b.
 //
-// Solidity: function bank() view returns(address)
+// Solidity: function bank() view returns(address).
 func (_GovernanceWrapper *GovernanceWrapperCallerSession) Bank() (common.Address, error) {
 	return _GovernanceWrapper.Contract.Bank(&_GovernanceWrapper.CallOpts)
 }
 
 // GetProposal is a free data retrieval call binding the contract method 0xf1610a28.
 //
-// Solidity: function getProposal(uint64 proposalId) view returns((uint64,(string,bytes)[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,address))
+// Solidity: function getProposal(uint64 proposalId) view returns((uint64,(string,bytes)[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,address)).
 func (_GovernanceWrapper *GovernanceWrapperCaller) GetProposal(opts *bind.CallOpts, proposalId uint64) (IGovernanceModuleProposal, error) {
 	var out []interface{}
 	err := _GovernanceWrapper.contract.Call(opts, &out, "getProposal", proposalId)
@@ -295,26 +294,25 @@ func (_GovernanceWrapper *GovernanceWrapperCaller) GetProposal(opts *bind.CallOp
 	out0 := *abi.ConvertType(out[0], new(IGovernanceModuleProposal)).(*IGovernanceModuleProposal)
 
 	return out0, err
-
 }
 
 // GetProposal is a free data retrieval call binding the contract method 0xf1610a28.
 //
-// Solidity: function getProposal(uint64 proposalId) view returns((uint64,(string,bytes)[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,address))
+// Solidity: function getProposal(uint64 proposalId) view returns((uint64,(string,bytes)[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,address)).
 func (_GovernanceWrapper *GovernanceWrapperSession) GetProposal(proposalId uint64) (IGovernanceModuleProposal, error) {
 	return _GovernanceWrapper.Contract.GetProposal(&_GovernanceWrapper.CallOpts, proposalId)
 }
 
 // GetProposal is a free data retrieval call binding the contract method 0xf1610a28.
 //
-// Solidity: function getProposal(uint64 proposalId) view returns((uint64,(string,bytes)[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,address))
+// Solidity: function getProposal(uint64 proposalId) view returns((uint64,(string,bytes)[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,address)).
 func (_GovernanceWrapper *GovernanceWrapperCallerSession) GetProposal(proposalId uint64) (IGovernanceModuleProposal, error) {
 	return _GovernanceWrapper.Contract.GetProposal(&_GovernanceWrapper.CallOpts, proposalId)
 }
 
 // GetProposals is a free data retrieval call binding the contract method 0xb5828df2.
 //
-// Solidity: function getProposals(int32 proposalStatus) view returns((uint64,(string,bytes)[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,address)[])
+// Solidity: function getProposals(int32 proposalStatus) view returns((uint64,(string,bytes)[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,address)[]).
 func (_GovernanceWrapper *GovernanceWrapperCaller) GetProposals(opts *bind.CallOpts, proposalStatus int32) ([]IGovernanceModuleProposal, error) {
 	var out []interface{}
 	err := _GovernanceWrapper.contract.Call(opts, &out, "getProposals", proposalStatus)
@@ -326,26 +324,25 @@ func (_GovernanceWrapper *GovernanceWrapperCaller) GetProposals(opts *bind.CallO
 	out0 := *abi.ConvertType(out[0], new([]IGovernanceModuleProposal)).(*[]IGovernanceModuleProposal)
 
 	return out0, err
-
 }
 
 // GetProposals is a free data retrieval call binding the contract method 0xb5828df2.
 //
-// Solidity: function getProposals(int32 proposalStatus) view returns((uint64,(string,bytes)[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,address)[])
+// Solidity: function getProposals(int32 proposalStatus) view returns((uint64,(string,bytes)[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,address)[]).
 func (_GovernanceWrapper *GovernanceWrapperSession) GetProposals(proposalStatus int32) ([]IGovernanceModuleProposal, error) {
 	return _GovernanceWrapper.Contract.GetProposals(&_GovernanceWrapper.CallOpts, proposalStatus)
 }
 
 // GetProposals is a free data retrieval call binding the contract method 0xb5828df2.
 //
-// Solidity: function getProposals(int32 proposalStatus) view returns((uint64,(string,bytes)[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,address)[])
+// Solidity: function getProposals(int32 proposalStatus) view returns((uint64,(string,bytes)[],int32,(string,string,string,string),uint64,uint64,(uint256,string)[],uint64,uint64,string,string,string,address)[]).
 func (_GovernanceWrapper *GovernanceWrapperCallerSession) GetProposals(proposalStatus int32) ([]IGovernanceModuleProposal, error) {
 	return _GovernanceWrapper.Contract.GetProposals(&_GovernanceWrapper.CallOpts, proposalStatus)
 }
 
 // GovernanceModule is a free data retrieval call binding the contract method 0x2b0a7032.
 //
-// Solidity: function governanceModule() view returns(address)
+// Solidity: function governanceModule() view returns(address).
 func (_GovernanceWrapper *GovernanceWrapperCaller) GovernanceModule(opts *bind.CallOpts) (common.Address, error) {
 	var out []interface{}
 	err := _GovernanceWrapper.contract.Call(opts, &out, "governanceModule")
@@ -357,103 +354,102 @@ func (_GovernanceWrapper *GovernanceWrapperCaller) GovernanceModule(opts *bind.C
 	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
 
 	return out0, err
-
 }
 
 // GovernanceModule is a free data retrieval call binding the contract method 0x2b0a7032.
 //
-// Solidity: function governanceModule() view returns(address)
+// Solidity: function governanceModule() view returns(address).
 func (_GovernanceWrapper *GovernanceWrapperSession) GovernanceModule() (common.Address, error) {
 	return _GovernanceWrapper.Contract.GovernanceModule(&_GovernanceWrapper.CallOpts)
 }
 
 // GovernanceModule is a free data retrieval call binding the contract method 0x2b0a7032.
 //
-// Solidity: function governanceModule() view returns(address)
+// Solidity: function governanceModule() view returns(address).
 func (_GovernanceWrapper *GovernanceWrapperCallerSession) GovernanceModule() (common.Address, error) {
 	return _GovernanceWrapper.Contract.GovernanceModule(&_GovernanceWrapper.CallOpts)
 }
 
 // CancelProposal is a paid mutator transaction binding the contract method 0x37a9a59e.
 //
-// Solidity: function cancelProposal(uint64 proposalId) returns(uint64, uint64)
+// Solidity: function cancelProposal(uint64 proposalId) returns(uint64, uint64).
 func (_GovernanceWrapper *GovernanceWrapperTransactor) CancelProposal(opts *bind.TransactOpts, proposalId uint64) (*types.Transaction, error) {
 	return _GovernanceWrapper.contract.Transact(opts, "cancelProposal", proposalId)
 }
 
 // CancelProposal is a paid mutator transaction binding the contract method 0x37a9a59e.
 //
-// Solidity: function cancelProposal(uint64 proposalId) returns(uint64, uint64)
+// Solidity: function cancelProposal(uint64 proposalId) returns(uint64, uint64).
 func (_GovernanceWrapper *GovernanceWrapperSession) CancelProposal(proposalId uint64) (*types.Transaction, error) {
 	return _GovernanceWrapper.Contract.CancelProposal(&_GovernanceWrapper.TransactOpts, proposalId)
 }
 
 // CancelProposal is a paid mutator transaction binding the contract method 0x37a9a59e.
 //
-// Solidity: function cancelProposal(uint64 proposalId) returns(uint64, uint64)
+// Solidity: function cancelProposal(uint64 proposalId) returns(uint64, uint64).
 func (_GovernanceWrapper *GovernanceWrapperTransactorSession) CancelProposal(proposalId uint64) (*types.Transaction, error) {
 	return _GovernanceWrapper.Contract.CancelProposal(&_GovernanceWrapper.TransactOpts, proposalId)
 }
 
 // Submit is a paid mutator transaction binding the contract method 0x00e66c9a.
 //
-// Solidity: function submit(((string,bytes)[],(uint256,string)[],address,string,string,string,bool) proposal, string denom, uint256 amount) payable returns(uint64)
+// Solidity: function submit(((string,bytes)[],(uint256,string)[],address,string,string,string,bool) proposal, string denom, uint256 amount) payable returns(uint64).
 func (_GovernanceWrapper *GovernanceWrapperTransactor) Submit(opts *bind.TransactOpts, proposal IGovernanceModuleMsgSubmitProposal, denom string, amount *big.Int) (*types.Transaction, error) {
 	return _GovernanceWrapper.contract.Transact(opts, "submit", proposal, denom, amount)
 }
 
 // Submit is a paid mutator transaction binding the contract method 0x00e66c9a.
 //
-// Solidity: function submit(((string,bytes)[],(uint256,string)[],address,string,string,string,bool) proposal, string denom, uint256 amount) payable returns(uint64)
+// Solidity: function submit(((string,bytes)[],(uint256,string)[],address,string,string,string,bool) proposal, string denom, uint256 amount) payable returns(uint64).
 func (_GovernanceWrapper *GovernanceWrapperSession) Submit(proposal IGovernanceModuleMsgSubmitProposal, denom string, amount *big.Int) (*types.Transaction, error) {
 	return _GovernanceWrapper.Contract.Submit(&_GovernanceWrapper.TransactOpts, proposal, denom, amount)
 }
 
 // Submit is a paid mutator transaction binding the contract method 0x00e66c9a.
 //
-// Solidity: function submit(((string,bytes)[],(uint256,string)[],address,string,string,string,bool) proposal, string denom, uint256 amount) payable returns(uint64)
+// Solidity: function submit(((string,bytes)[],(uint256,string)[],address,string,string,string,bool) proposal, string denom, uint256 amount) payable returns(uint64).
 func (_GovernanceWrapper *GovernanceWrapperTransactorSession) Submit(proposal IGovernanceModuleMsgSubmitProposal, denom string, amount *big.Int) (*types.Transaction, error) {
 	return _GovernanceWrapper.Contract.Submit(&_GovernanceWrapper.TransactOpts, proposal, denom, amount)
 }
 
 // Vote is a paid mutator transaction binding the contract method 0x19f7a0fb.
 //
-// Solidity: function vote(uint64 proposalId, int32 option, string metadata) returns(bool)
+// Solidity: function vote(uint64 proposalId, int32 option, string metadata) returns(bool).
 func (_GovernanceWrapper *GovernanceWrapperTransactor) Vote(opts *bind.TransactOpts, proposalId uint64, option int32, metadata string) (*types.Transaction, error) {
 	return _GovernanceWrapper.contract.Transact(opts, "vote", proposalId, option, metadata)
 }
 
 // Vote is a paid mutator transaction binding the contract method 0x19f7a0fb.
 //
-// Solidity: function vote(uint64 proposalId, int32 option, string metadata) returns(bool)
+// Solidity: function vote(uint64 proposalId, int32 option, string metadata) returns(bool).
 func (_GovernanceWrapper *GovernanceWrapperSession) Vote(proposalId uint64, option int32, metadata string) (*types.Transaction, error) {
 	return _GovernanceWrapper.Contract.Vote(&_GovernanceWrapper.TransactOpts, proposalId, option, metadata)
 }
 
 // Vote is a paid mutator transaction binding the contract method 0x19f7a0fb.
 //
-// Solidity: function vote(uint64 proposalId, int32 option, string metadata) returns(bool)
+// Solidity: function vote(uint64 proposalId, int32 option, string metadata) returns(bool).
 func (_GovernanceWrapper *GovernanceWrapperTransactorSession) Vote(proposalId uint64, option int32, metadata string) (*types.Transaction, error) {
 	return _GovernanceWrapper.Contract.Vote(&_GovernanceWrapper.TransactOpts, proposalId, option, metadata)
 }
 
 // Receive is a paid mutator transaction binding the contract receive function.
 //
-// Solidity: receive() payable returns()
+// Solidity: receive() payable returns().
 func (_GovernanceWrapper *GovernanceWrapperTransactor) Receive(opts *bind.TransactOpts) (*types.Transaction, error) {
 	return _GovernanceWrapper.contract.RawTransact(opts, nil) // calldata is disallowed for receive function
 }
 
 // Receive is a paid mutator transaction binding the contract receive function.
 //
-// Solidity: receive() payable returns()
+// Solidity: receive() payable returns().
 func (_GovernanceWrapper *GovernanceWrapperSession) Receive() (*types.Transaction, error) {
 	return _GovernanceWrapper.Contract.Receive(&_GovernanceWrapper.TransactOpts)
 }
 
 // Receive is a paid mutator transaction binding the contract receive function.
 //
-// Solidity: receive() payable returns()
+// Solidity: receive() payable returns().
 func (_GovernanceWrapper *GovernanceWrapperTransactorSession) Receive() (*types.Transaction, error) {
 	return _GovernanceWrapper.Contract.Receive(&_GovernanceWrapper.TransactOpts)
 }

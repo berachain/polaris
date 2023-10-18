@@ -35,7 +35,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -55,7 +54,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
-	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
 	polarruntime "pkg.berachain.dev/polaris/cosmos/runtime"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -109,7 +107,7 @@ type SimApp struct {
 
 // NewPolarisApp returns a reference to an initialized SimApp.
 //
-//nolint:funlen // from sdk.
+
 func NewPolarisApp(
 	logger log.Logger,
 	db dbm.DB,
@@ -119,8 +117,6 @@ func NewPolarisApp(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *SimApp {
-
-	appHome := appOpts.Get(flags.FlagHome).(string)
 	var (
 		app        = &SimApp{}
 		appBuilder *runtime.AppBuilder
@@ -136,10 +132,6 @@ func NewPolarisApp(
 				appOpts,
 				// supply the logger
 				logger,
-				// ADVANCED CONFIGURATION\
-				PolarisConfigFn(evmconfig.MustReadConfigFromAppOpts(appOpts, appHome+"/config/eth-genesis.json")),
-				PrecompilesToInject(app),
-				QueryContextFn(app),
 				//
 				// AUTH
 				//
@@ -188,9 +180,7 @@ func NewPolarisApp(
 
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
-	app.Polaris = polarruntime.New(
-		evmconfig.MustReadConfigFromAppOpts(appOpts, appHome+"/config/eth-genesis.json"), app.Logger(), app.EVMKeeper.Host, nil,
-	)
+	app.Polaris = polarruntime.New("http://localhost:8545", logger)
 
 	// Setup Polaris Runtime.
 	if err := app.Polaris.Build(app.BaseApp, app.EVMKeeper); err != nil {

@@ -26,46 +26,30 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/beacon"
-	"pkg.berachain.dev/polaris/cosmos/config"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
+	"pkg.berachain.dev/polaris/beacon/eth"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
 type (
 	Keeper struct {
-		// host represents the host chain
-		*Host
-
 		// consensusAPI is the consensus API
-		executionClient *beacon.ExecutionClient
+		executionClient *eth.ExecutionClient
+		storeKey        storetypes.StoreKey
 	}
 )
 
 // NewKeeper creates new instances of the polaris Keeper.
 func NewKeeper(
-	ak state.AccountKeeper,
 	storeKey storetypes.StoreKey,
-	pcs func() *ethprecompile.Injector,
-	qc func() func(height int64, prove bool) (sdk.Context, error),
-	polarisCfg *config.Config,
 ) *Keeper {
-	host := NewHost(
-		*polarisCfg,
-		storeKey,
-		ak,
-		pcs,
-		qc,
-	)
 	return &Keeper{
-		Host: host,
+		storeKey: storeKey,
 	}
 }
 
-func (k *Keeper) Setup(executionClient *beacon.ExecutionClient) error {
+func (k *Keeper) Setup(executionClient *eth.ExecutionClient) error {
 	k.executionClient = executionClient
-	return k.SetupPrecompiles()
+	return nil
 }
 
 // Logger returns a module-specific logger.

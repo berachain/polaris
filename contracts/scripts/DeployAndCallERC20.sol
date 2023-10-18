@@ -36,7 +36,7 @@ contract DeployAndCallERC20 is Script {
         vm.startBroadcast();
         SolmateERC20 drop = new SolmateERC20();
 
-        for (uint256 i = 0; i < 1166; i++) {
+        for (uint256 i = 0; i < 100; i++) {
             quantity += 50000;
             drop.mint(dropAddress, quantity);
         }

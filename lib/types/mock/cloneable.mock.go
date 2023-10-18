@@ -4,8 +4,9 @@
 package mock
 
 import (
-	"pkg.berachain.dev/polaris/lib/types"
 	"sync"
+
+	"pkg.berachain.dev/polaris/lib/types"
 )
 
 // Ensure, that CloneableMock does implement types.Cloneable.

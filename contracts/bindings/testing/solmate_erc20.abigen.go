@@ -204,7 +204,7 @@ func (_SolmateERC20 *SolmateERC20TransactorRaw) Transact(opts *bind.TransactOpts
 
 // DOMAINSEPARATOR is a free data retrieval call binding the contract method 0x3644e515.
 //
-// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32)
+// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32).
 func (_SolmateERC20 *SolmateERC20Caller) DOMAINSEPARATOR(opts *bind.CallOpts) ([32]byte, error) {
 	var out []interface{}
 	err := _SolmateERC20.contract.Call(opts, &out, "DOMAIN_SEPARATOR")
@@ -216,26 +216,25 @@ func (_SolmateERC20 *SolmateERC20Caller) DOMAINSEPARATOR(opts *bind.CallOpts) ([
 	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
 
 	return out0, err
-
 }
 
 // DOMAINSEPARATOR is a free data retrieval call binding the contract method 0x3644e515.
 //
-// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32)
+// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32).
 func (_SolmateERC20 *SolmateERC20Session) DOMAINSEPARATOR() ([32]byte, error) {
 	return _SolmateERC20.Contract.DOMAINSEPARATOR(&_SolmateERC20.CallOpts)
 }
 
 // DOMAINSEPARATOR is a free data retrieval call binding the contract method 0x3644e515.
 //
-// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32)
+// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32).
 func (_SolmateERC20 *SolmateERC20CallerSession) DOMAINSEPARATOR() ([32]byte, error) {
 	return _SolmateERC20.Contract.DOMAINSEPARATOR(&_SolmateERC20.CallOpts)
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
-// Solidity: function allowance(address , address ) view returns(uint256)
+// Solidity: function allowance(address , address ) view returns(uint256).
 func (_SolmateERC20 *SolmateERC20Caller) Allowance(opts *bind.CallOpts, arg0 common.Address, arg1 common.Address) (*big.Int, error) {
 	var out []interface{}
 	err := _SolmateERC20.contract.Call(opts, &out, "allowance", arg0, arg1)
@@ -247,26 +246,25 @@ func (_SolmateERC20 *SolmateERC20Caller) Allowance(opts *bind.CallOpts, arg0 com
 	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
 	return out0, err
-
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
-// Solidity: function allowance(address , address ) view returns(uint256)
+// Solidity: function allowance(address , address ) view returns(uint256).
 func (_SolmateERC20 *SolmateERC20Session) Allowance(arg0 common.Address, arg1 common.Address) (*big.Int, error) {
 	return _SolmateERC20.Contract.Allowance(&_SolmateERC20.CallOpts, arg0, arg1)
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
-// Solidity: function allowance(address , address ) view returns(uint256)
+// Solidity: function allowance(address , address ) view returns(uint256).
 func (_SolmateERC20 *SolmateERC20CallerSession) Allowance(arg0 common.Address, arg1 common.Address) (*big.Int, error) {
 	return _SolmateERC20.Contract.Allowance(&_SolmateERC20.CallOpts, arg0, arg1)
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(address ) view returns(uint256)
+// Solidity: function balanceOf(address ) view returns(uint256).
 func (_SolmateERC20 *SolmateERC20Caller) BalanceOf(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
 	var out []interface{}
 	err := _SolmateERC20.contract.Call(opts, &out, "balanceOf", arg0)
@@ -278,26 +276,25 @@ func (_SolmateERC20 *SolmateERC20Caller) BalanceOf(opts *bind.CallOpts, arg0 com
 	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
 	return out0, err
-
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(address ) view returns(uint256)
+// Solidity: function balanceOf(address ) view returns(uint256).
 func (_SolmateERC20 *SolmateERC20Session) BalanceOf(arg0 common.Address) (*big.Int, error) {
 	return _SolmateERC20.Contract.BalanceOf(&_SolmateERC20.CallOpts, arg0)
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(address ) view returns(uint256)
+// Solidity: function balanceOf(address ) view returns(uint256).
 func (_SolmateERC20 *SolmateERC20CallerSession) BalanceOf(arg0 common.Address) (*big.Int, error) {
 	return _SolmateERC20.Contract.BalanceOf(&_SolmateERC20.CallOpts, arg0)
 }
 
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
 //
-// Solidity: function decimals() view returns(uint8)
+// Solidity: function decimals() view returns(uint8).
 func (_SolmateERC20 *SolmateERC20Caller) Decimals(opts *bind.CallOpts) (uint8, error) {
 	var out []interface{}
 	err := _SolmateERC20.contract.Call(opts, &out, "decimals")
@@ -309,26 +306,25 @@ func (_SolmateERC20 *SolmateERC20Caller) Decimals(opts *bind.CallOpts) (uint8, e
 	out0 := *abi.ConvertType(out[0], new(uint8)).(*uint8)
 
 	return out0, err
-
 }
 
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
 //
-// Solidity: function decimals() view returns(uint8)
+// Solidity: function decimals() view returns(uint8).
 func (_SolmateERC20 *SolmateERC20Session) Decimals() (uint8, error) {
 	return _SolmateERC20.Contract.Decimals(&_SolmateERC20.CallOpts)
 }
 
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
 //
-// Solidity: function decimals() view returns(uint8)
+// Solidity: function decimals() view returns(uint8).
 func (_SolmateERC20 *SolmateERC20CallerSession) Decimals() (uint8, error) {
 	return _SolmateERC20.Contract.Decimals(&_SolmateERC20.CallOpts)
 }
 
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
 //
-// Solidity: function name() view returns(string)
+// Solidity: function name() view returns(string).
 func (_SolmateERC20 *SolmateERC20Caller) Name(opts *bind.CallOpts) (string, error) {
 	var out []interface{}
 	err := _SolmateERC20.contract.Call(opts, &out, "name")
@@ -340,26 +336,25 @@ func (_SolmateERC20 *SolmateERC20Caller) Name(opts *bind.CallOpts) (string, erro
 	out0 := *abi.ConvertType(out[0], new(string)).(*string)
 
 	return out0, err
-
 }
 
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
 //
-// Solidity: function name() view returns(string)
+// Solidity: function name() view returns(string).
 func (_SolmateERC20 *SolmateERC20Session) Name() (string, error) {
 	return _SolmateERC20.Contract.Name(&_SolmateERC20.CallOpts)
 }
 
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
 //
-// Solidity: function name() view returns(string)
+// Solidity: function name() view returns(string).
 func (_SolmateERC20 *SolmateERC20CallerSession) Name() (string, error) {
 	return _SolmateERC20.Contract.Name(&_SolmateERC20.CallOpts)
 }
 
 // Nonces is a free data retrieval call binding the contract method 0x7ecebe00.
 //
-// Solidity: function nonces(address ) view returns(uint256)
+// Solidity: function nonces(address ) view returns(uint256).
 func (_SolmateERC20 *SolmateERC20Caller) Nonces(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
 	var out []interface{}
 	err := _SolmateERC20.contract.Call(opts, &out, "nonces", arg0)
@@ -371,26 +366,25 @@ func (_SolmateERC20 *SolmateERC20Caller) Nonces(opts *bind.CallOpts, arg0 common
 	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
 	return out0, err
-
 }
 
 // Nonces is a free data retrieval call binding the contract method 0x7ecebe00.
 //
-// Solidity: function nonces(address ) view returns(uint256)
+// Solidity: function nonces(address ) view returns(uint256).
 func (_SolmateERC20 *SolmateERC20Session) Nonces(arg0 common.Address) (*big.Int, error) {
 	return _SolmateERC20.Contract.Nonces(&_SolmateERC20.CallOpts, arg0)
 }
 
 // Nonces is a free data retrieval call binding the contract method 0x7ecebe00.
 //
-// Solidity: function nonces(address ) view returns(uint256)
+// Solidity: function nonces(address ) view returns(uint256).
 func (_SolmateERC20 *SolmateERC20CallerSession) Nonces(arg0 common.Address) (*big.Int, error) {
 	return _SolmateERC20.Contract.Nonces(&_SolmateERC20.CallOpts, arg0)
 }
 
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
 //
-// Solidity: function symbol() view returns(string)
+// Solidity: function symbol() view returns(string).
 func (_SolmateERC20 *SolmateERC20Caller) Symbol(opts *bind.CallOpts) (string, error) {
 	var out []interface{}
 	err := _SolmateERC20.contract.Call(opts, &out, "symbol")
@@ -402,26 +396,25 @@ func (_SolmateERC20 *SolmateERC20Caller) Symbol(opts *bind.CallOpts) (string, er
 	out0 := *abi.ConvertType(out[0], new(string)).(*string)
 
 	return out0, err
-
 }
 
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
 //
-// Solidity: function symbol() view returns(string)
+// Solidity: function symbol() view returns(string).
 func (_SolmateERC20 *SolmateERC20Session) Symbol() (string, error) {
 	return _SolmateERC20.Contract.Symbol(&_SolmateERC20.CallOpts)
 }
 
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
 //
-// Solidity: function symbol() view returns(string)
+// Solidity: function symbol() view returns(string).
 func (_SolmateERC20 *SolmateERC20CallerSession) Symbol() (string, error) {
 	return _SolmateERC20.Contract.Symbol(&_SolmateERC20.CallOpts)
 }
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
-// Solidity: function totalSupply() view returns(uint256)
+// Solidity: function totalSupply() view returns(uint256).
 func (_SolmateERC20 *SolmateERC20Caller) TotalSupply(opts *bind.CallOpts) (*big.Int, error) {
 	var out []interface{}
 	err := _SolmateERC20.contract.Call(opts, &out, "totalSupply")
@@ -433,124 +426,123 @@ func (_SolmateERC20 *SolmateERC20Caller) TotalSupply(opts *bind.CallOpts) (*big.
 	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
 	return out0, err
-
 }
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
-// Solidity: function totalSupply() view returns(uint256)
+// Solidity: function totalSupply() view returns(uint256).
 func (_SolmateERC20 *SolmateERC20Session) TotalSupply() (*big.Int, error) {
 	return _SolmateERC20.Contract.TotalSupply(&_SolmateERC20.CallOpts)
 }
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
-// Solidity: function totalSupply() view returns(uint256)
+// Solidity: function totalSupply() view returns(uint256).
 func (_SolmateERC20 *SolmateERC20CallerSession) TotalSupply() (*big.Int, error) {
 	return _SolmateERC20.Contract.TotalSupply(&_SolmateERC20.CallOpts)
 }
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
-// Solidity: function approve(address spender, uint256 amount) returns(bool)
+// Solidity: function approve(address spender, uint256 amount) returns(bool).
 func (_SolmateERC20 *SolmateERC20Transactor) Approve(opts *bind.TransactOpts, spender common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _SolmateERC20.contract.Transact(opts, "approve", spender, amount)
 }
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
-// Solidity: function approve(address spender, uint256 amount) returns(bool)
+// Solidity: function approve(address spender, uint256 amount) returns(bool).
 func (_SolmateERC20 *SolmateERC20Session) Approve(spender common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _SolmateERC20.Contract.Approve(&_SolmateERC20.TransactOpts, spender, amount)
 }
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
-// Solidity: function approve(address spender, uint256 amount) returns(bool)
+// Solidity: function approve(address spender, uint256 amount) returns(bool).
 func (_SolmateERC20 *SolmateERC20TransactorSession) Approve(spender common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _SolmateERC20.Contract.Approve(&_SolmateERC20.TransactOpts, spender, amount)
 }
 
 // Mint is a paid mutator transaction binding the contract method 0x40c10f19.
 //
-// Solidity: function mint(address to, uint256 amount) returns()
+// Solidity: function mint(address to, uint256 amount) returns().
 func (_SolmateERC20 *SolmateERC20Transactor) Mint(opts *bind.TransactOpts, to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _SolmateERC20.contract.Transact(opts, "mint", to, amount)
 }
 
 // Mint is a paid mutator transaction binding the contract method 0x40c10f19.
 //
-// Solidity: function mint(address to, uint256 amount) returns()
+// Solidity: function mint(address to, uint256 amount) returns().
 func (_SolmateERC20 *SolmateERC20Session) Mint(to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _SolmateERC20.Contract.Mint(&_SolmateERC20.TransactOpts, to, amount)
 }
 
 // Mint is a paid mutator transaction binding the contract method 0x40c10f19.
 //
-// Solidity: function mint(address to, uint256 amount) returns()
+// Solidity: function mint(address to, uint256 amount) returns().
 func (_SolmateERC20 *SolmateERC20TransactorSession) Mint(to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _SolmateERC20.Contract.Mint(&_SolmateERC20.TransactOpts, to, amount)
 }
 
 // Permit is a paid mutator transaction binding the contract method 0xd505accf.
 //
-// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns()
+// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns().
 func (_SolmateERC20 *SolmateERC20Transactor) Permit(opts *bind.TransactOpts, owner common.Address, spender common.Address, value *big.Int, deadline *big.Int, v uint8, r [32]byte, s [32]byte) (*types.Transaction, error) {
 	return _SolmateERC20.contract.Transact(opts, "permit", owner, spender, value, deadline, v, r, s)
 }
 
 // Permit is a paid mutator transaction binding the contract method 0xd505accf.
 //
-// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns()
+// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns().
 func (_SolmateERC20 *SolmateERC20Session) Permit(owner common.Address, spender common.Address, value *big.Int, deadline *big.Int, v uint8, r [32]byte, s [32]byte) (*types.Transaction, error) {
 	return _SolmateERC20.Contract.Permit(&_SolmateERC20.TransactOpts, owner, spender, value, deadline, v, r, s)
 }
 
 // Permit is a paid mutator transaction binding the contract method 0xd505accf.
 //
-// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns()
+// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns().
 func (_SolmateERC20 *SolmateERC20TransactorSession) Permit(owner common.Address, spender common.Address, value *big.Int, deadline *big.Int, v uint8, r [32]byte, s [32]byte) (*types.Transaction, error) {
 	return _SolmateERC20.Contract.Permit(&_SolmateERC20.TransactOpts, owner, spender, value, deadline, v, r, s)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(address to, uint256 amount) returns(bool)
+// Solidity: function transfer(address to, uint256 amount) returns(bool).
 func (_SolmateERC20 *SolmateERC20Transactor) Transfer(opts *bind.TransactOpts, to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _SolmateERC20.contract.Transact(opts, "transfer", to, amount)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(address to, uint256 amount) returns(bool)
+// Solidity: function transfer(address to, uint256 amount) returns(bool).
 func (_SolmateERC20 *SolmateERC20Session) Transfer(to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _SolmateERC20.Contract.Transfer(&_SolmateERC20.TransactOpts, to, amount)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(address to, uint256 amount) returns(bool)
+// Solidity: function transfer(address to, uint256 amount) returns(bool).
 func (_SolmateERC20 *SolmateERC20TransactorSession) Transfer(to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _SolmateERC20.Contract.Transfer(&_SolmateERC20.TransactOpts, to, amount)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(address from, address to, uint256 amount) returns(bool)
+// Solidity: function transferFrom(address from, address to, uint256 amount) returns(bool).
 func (_SolmateERC20 *SolmateERC20Transactor) TransferFrom(opts *bind.TransactOpts, from common.Address, to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _SolmateERC20.contract.Transact(opts, "transferFrom", from, to, amount)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(address from, address to, uint256 amount) returns(bool)
+// Solidity: function transferFrom(address from, address to, uint256 amount) returns(bool).
 func (_SolmateERC20 *SolmateERC20Session) TransferFrom(from common.Address, to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _SolmateERC20.Contract.TransferFrom(&_SolmateERC20.TransactOpts, from, to, amount)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(address from, address to, uint256 amount) returns(bool)
+// Solidity: function transferFrom(address from, address to, uint256 amount) returns(bool).
 func (_SolmateERC20 *SolmateERC20TransactorSession) TransferFrom(from common.Address, to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _SolmateERC20.Contract.TransferFrom(&_SolmateERC20.TransactOpts, from, to, amount)
 }
@@ -632,9 +624,8 @@ type SolmateERC20Approval struct {
 
 // FilterApproval is a free log retrieval operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
-// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
+// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value).
 func (_SolmateERC20 *SolmateERC20Filterer) FilterApproval(opts *bind.FilterOpts, owner []common.Address, spender []common.Address) (*SolmateERC20ApprovalIterator, error) {
-
 	var ownerRule []interface{}
 	for _, ownerItem := range owner {
 		ownerRule = append(ownerRule, ownerItem)
@@ -653,9 +644,8 @@ func (_SolmateERC20 *SolmateERC20Filterer) FilterApproval(opts *bind.FilterOpts,
 
 // WatchApproval is a free log subscription operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
-// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
+// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value).
 func (_SolmateERC20 *SolmateERC20Filterer) WatchApproval(opts *bind.WatchOpts, sink chan<- *SolmateERC20Approval, owner []common.Address, spender []common.Address) (event.Subscription, error) {
-
 	var ownerRule []interface{}
 	for _, ownerItem := range owner {
 		ownerRule = append(ownerRule, ownerItem)
@@ -699,7 +689,7 @@ func (_SolmateERC20 *SolmateERC20Filterer) WatchApproval(opts *bind.WatchOpts, s
 
 // ParseApproval is a log parse operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
-// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
+// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value).
 func (_SolmateERC20 *SolmateERC20Filterer) ParseApproval(log types.Log) (*SolmateERC20Approval, error) {
 	event := new(SolmateERC20Approval)
 	if err := _SolmateERC20.contract.UnpackLog(event, "Approval", log); err != nil {
@@ -785,9 +775,8 @@ type SolmateERC20Mint struct {
 
 // FilterMint is a free log retrieval operation binding the contract event 0x0f6798a560793a54c3bcfe86a93cde1e73087d944c0ea20544137d4121396885.
 //
-// Solidity: event Mint(address indexed to, uint256 amount)
+// Solidity: event Mint(address indexed to, uint256 amount).
 func (_SolmateERC20 *SolmateERC20Filterer) FilterMint(opts *bind.FilterOpts, to []common.Address) (*SolmateERC20MintIterator, error) {
-
 	var toRule []interface{}
 	for _, toItem := range to {
 		toRule = append(toRule, toItem)
@@ -802,9 +791,8 @@ func (_SolmateERC20 *SolmateERC20Filterer) FilterMint(opts *bind.FilterOpts, to 
 
 // WatchMint is a free log subscription operation binding the contract event 0x0f6798a560793a54c3bcfe86a93cde1e73087d944c0ea20544137d4121396885.
 //
-// Solidity: event Mint(address indexed to, uint256 amount)
+// Solidity: event Mint(address indexed to, uint256 amount).
 func (_SolmateERC20 *SolmateERC20Filterer) WatchMint(opts *bind.WatchOpts, sink chan<- *SolmateERC20Mint, to []common.Address) (event.Subscription, error) {
-
 	var toRule []interface{}
 	for _, toItem := range to {
 		toRule = append(toRule, toItem)
@@ -844,7 +832,7 @@ func (_SolmateERC20 *SolmateERC20Filterer) WatchMint(opts *bind.WatchOpts, sink 
 
 // ParseMint is a log parse operation binding the contract event 0x0f6798a560793a54c3bcfe86a93cde1e73087d944c0ea20544137d4121396885.
 //
-// Solidity: event Mint(address indexed to, uint256 amount)
+// Solidity: event Mint(address indexed to, uint256 amount).
 func (_SolmateERC20 *SolmateERC20Filterer) ParseMint(log types.Log) (*SolmateERC20Mint, error) {
 	event := new(SolmateERC20Mint)
 	if err := _SolmateERC20.contract.UnpackLog(event, "Mint", log); err != nil {
@@ -931,9 +919,8 @@ type SolmateERC20Transfer struct {
 
 // FilterTransfer is a free log retrieval operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
-// Solidity: event Transfer(address indexed from, address indexed to, uint256 value)
+// Solidity: event Transfer(address indexed from, address indexed to, uint256 value).
 func (_SolmateERC20 *SolmateERC20Filterer) FilterTransfer(opts *bind.FilterOpts, from []common.Address, to []common.Address) (*SolmateERC20TransferIterator, error) {
-
 	var fromRule []interface{}
 	for _, fromItem := range from {
 		fromRule = append(fromRule, fromItem)
@@ -952,9 +939,8 @@ func (_SolmateERC20 *SolmateERC20Filterer) FilterTransfer(opts *bind.FilterOpts,
 
 // WatchTransfer is a free log subscription operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
-// Solidity: event Transfer(address indexed from, address indexed to, uint256 value)
+// Solidity: event Transfer(address indexed from, address indexed to, uint256 value).
 func (_SolmateERC20 *SolmateERC20Filterer) WatchTransfer(opts *bind.WatchOpts, sink chan<- *SolmateERC20Transfer, from []common.Address, to []common.Address) (event.Subscription, error) {
-
 	var fromRule []interface{}
 	for _, fromItem := range from {
 		fromRule = append(fromRule, fromItem)
@@ -998,7 +984,7 @@ func (_SolmateERC20 *SolmateERC20Filterer) WatchTransfer(opts *bind.WatchOpts, s
 
 // ParseTransfer is a log parse operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
-// Solidity: event Transfer(address indexed from, address indexed to, uint256 value)
+// Solidity: event Transfer(address indexed from, address indexed to, uint256 value).
 func (_SolmateERC20 *SolmateERC20Filterer) ParseTransfer(log types.Log) (*SolmateERC20Transfer, error) {
 	event := new(SolmateERC20Transfer)
 	if err := _SolmateERC20.contract.UnpackLog(event, "Transfer", log); err != nil {

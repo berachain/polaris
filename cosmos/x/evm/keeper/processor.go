@@ -24,8 +24,6 @@ import (
 	"context"
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
@@ -38,22 +36,13 @@ func (k *Keeper) ProcessPayloadEnvelope(
 		err      error
 		envelope engine.ExecutionPayloadEnvelope
 	)
-	// TODO: maybe we just consume the block gas limit and call it a day?
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	gasMeter := sCtx.GasMeter()
-	blockGasMeter := sCtx.BlockGasMeter()
-
-	// Reset GasMeter to 0.
-	gasMeter.RefundGas(gasMeter.GasConsumed(), "reset before evm block")
-	blockGasMeter.RefundGas(blockGasMeter.GasConsumed(), "reset before evm block")
-	defer gasMeter.ConsumeGas(gasMeter.GasConsumed(), "reset after evm")
 
 	if err = envelope.UnmarshalJSON(msg.Data); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal payload envelope: %w", err)
 	}
 
 	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
-	if _, err = k.executionClient.Consensus.NewPayloadV3(
+	if _, err = k.executionClient.Consensus.NewPayloadV3(ctx,
 		*envelope.ExecutionPayload, nil, nil,
 	); err != nil {
 		return nil, err

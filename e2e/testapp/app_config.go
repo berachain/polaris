@@ -62,12 +62,14 @@ import (
 
 	_ "cosmossdk.io/x/evidence"                       // import for side-effects
 	_ "cosmossdk.io/x/upgrade"                        // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/auth"           // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting"   // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/bank"           // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"      // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/crisis"         // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/distribution"   // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/gov"            // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/mint"           // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/slashing"       // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/staking"        // import for side-effects

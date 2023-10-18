@@ -21,8 +21,6 @@
 package runtime
 
 import (
-	"time"
-
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -31,21 +29,18 @@ import (
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
-	"pkg.berachain.dev/polaris/beacon"
+	"pkg.berachain.dev/polaris/beacon/eth"
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
-	"pkg.berachain.dev/polaris/cosmos/miner"
-	"pkg.berachain.dev/polaris/cosmos/txpool"
+	"pkg.berachain.dev/polaris/cosmos/runtime/miner"
+	"pkg.berachain.dev/polaris/cosmos/runtime/txpool"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth"
-	"pkg.berachain.dev/polaris/eth/consensus"
-	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
-	Setup(*beacon.ExecutionClient) error
+	Setup(*eth.ExecutionClient) error
 }
 
 // CosmosApp is an interface that defines the methods needed for the Cosmos setup.
@@ -58,7 +53,7 @@ type CosmosApp interface {
 // Polaris is a struct that wraps the Polaris struct from the polar package.
 // It also includes wrapped versions of the Geth Miner and TxPool.
 type Polaris struct {
-	*beacon.ExecutionClient
+	*eth.ExecutionClient
 
 	// WrappedMiner is a wrapped version of the Miner component.
 	WrappedMiner *miner.Miner
@@ -71,18 +66,17 @@ type Polaris struct {
 // ProvidePolarisRuntime creates a new Polaris runtime from the provided
 // dependencies.
 func New(
-	cfg *eth.Config,
+	dialURL string,
 	logger log.Logger,
-	host core.PolarisHostChain,
-	engine consensus.Engine,
 ) *Polaris {
 	var err error
 	p := &Polaris{
 		logger: logger,
 	}
 
-	p.ExecutionClient, err = beacon.NewInProcessExecutionClient(
-		"geth", cfg, host, engine, LoggerFuncHandler(logger),
+	logger.Info("Waiting for execution client connection...")
+	p.ExecutionClient, err = eth.NewRemoteExecutionClient(
+		dialURL,
 	)
 	if err != nil {
 		panic(err)
@@ -98,7 +92,7 @@ func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
 	p.WrappedTxPool = txpool.New(p.TxPool)
 	app.SetMempool(p.WrappedTxPool)
 
-	p.WrappedMiner = miner.New(p.Miner)
+	p.WrappedMiner = miner.New(p.ExecutionClient.BlockBuilder)
 	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
 
 	if err := ek.Setup(p.ExecutionClient); err != nil {
@@ -121,29 +115,5 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 	// Initialize the txpool with a new transaction serializer.
 	p.WrappedTxPool.Init(p.logger, clientCtx, libtx.NewSerializer[*coretypes.Transaction](
 		clientCtx.TxConfig, evmtypes.WrapTx))
-
-	// Start the services. TODO: move to place race condition is solved.
-	return p.StartServices()
-}
-
-// StartServices starts the services of the Polaris struct.
-func (p *Polaris) StartServices() error {
-	go func() {
-
-		// TODO: these values are sensitive due to a race condition in the json-rpc ports opening.
-		// If the JSON-RPC opens before the first block is committed, hive tests will start failing.
-		// This needs to be fixed before mainnet as its ghetto af. If the block time is too long
-		// and this sleep is too short, it will cause hive tests to error out.
-		time.Sleep(10 * time.Second) //nolint:gomnd // as explained above.
-
-		if err := p.WrappedTxPool.Start(); err != nil {
-			panic(err)
-		}
-
-		if err := p.ExecutionClient.Eth.Start(); err != nil {
-			panic(err)
-		}
-	}()
-
 	return nil
 }

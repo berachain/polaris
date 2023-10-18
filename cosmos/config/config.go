@@ -21,21 +21,30 @@
 package config
 
 import (
-	"math/big"
+	"time"
 
-	sdkflags "github.com/cosmos/cosmos-sdk/client/flags"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"pkg.berachain.dev/polaris/cosmos/config/flags"
-	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/accounts"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/node"
-	"pkg.berachain.dev/polaris/eth/polar"
 )
 
-type Config = eth.Config
+// Config is the main configuration struct for the Polaris chain.
+type Config struct {
+	// ExecutionClient is the configuration for the execution client.
+	ExecutionClient Client
+}
+
+// Client is the configuration struct for the execution client.
+type Client struct {
+	// RPCDialURL is the HTTP url of the execution client JSON-RPC endpoint.
+	RPCDialURL string
+	// RPCTimeout is the RPC timeout for execution client requests.
+	RPCTimeout time.Duration
+	// RPCRetries is the number of retries before shutting down consensus client.
+	RPCRetries uint64
+}
 
 // SetupCosmosConfig sets up the Cosmos SDK configuration to be compatible with the
 // semantics of etheruem.
@@ -52,19 +61,19 @@ func SetupCosmosConfig() {
 
 // DefaultConfig returns the default configuration for a polaris chain.
 func DefaultConfig() *Config {
-	nodeCfg := node.DefaultConfig()
-	nodeCfg.DataDir = ""
-	nodeCfg.KeyStoreDir = ""
 	return &Config{
-		Polar: *polar.DefaultConfig(),
-		Node:  *nodeCfg,
+		ExecutionClient: Client{
+			RPCDialURL: "http://localhost:8545",
+			RPCTimeout: time.Second * 3, //nolint:gomnd // default config.
+			RPCRetries: 3,               //nolint:gomnd // default config.
+		},
 	}
 }
 
 // MustReadConfigFromAppOpts reads the configuration options from the given
 // application options. Panics if the configuration cannot be read.
-func MustReadConfigFromAppOpts(opts servertypes.AppOptions, ethGenFilePath string) *Config {
-	cfg, err := ReadConfigFromAppOpts(opts, ethGenFilePath)
+func MustReadConfigFromAppOpts(opts servertypes.AppOptions) *Config {
+	cfg, err := ReadConfigFromAppOpts(opts)
 	if err != nil {
 		panic(err)
 	}
@@ -73,415 +82,21 @@ func MustReadConfigFromAppOpts(opts servertypes.AppOptions, ethGenFilePath strin
 
 // ReadConfigFromAppOpts reads the configuration options from the given
 // application options.
-func ReadConfigFromAppOpts(opts servertypes.AppOptions, ethGenFilePath string) (*Config, error) {
-	return readConfigFromAppOptsParser(AppOptionsParser{AppOptions: opts}, ethGenFilePath)
+func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
+	return readConfigFromAppOptsParser(AppOptionsParser{AppOptions: opts})
 }
 
-//nolint:funlen,gocognit,gocyclo,cyclop // TODO break up later.
-func readConfigFromAppOptsParser(parser AppOptionsParser, ethGenFilePath string) (*Config, error) {
+func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 	var err error
-	var val int64
 	conf := &Config{}
 
-	// Polar settings
-	if conf.Polar.RPCGasCap, err =
-		parser.GetUint64(flags.RPCGasCap); err != nil {
+	if conf.ExecutionClient.RPCDialURL, err = parser.GetString(flags.RPCDialURL); err != nil {
 		return nil, err
 	}
-	if conf.Polar.RPCEVMTimeout, err =
-		parser.GetTimeDuration(flags.RPCEvmTimeout); err != nil {
+	if conf.ExecutionClient.RPCRetries, err = parser.GetUint64(flags.RPCRetries); err != nil {
 		return nil, err
 	}
-	if conf.Polar.RPCTxFeeCap, err =
-		parser.GetFloat64(flags.RPCTxFeeCap); err != nil {
-		return nil, err
-	}
-
-	// Polar Miner settings
-	if conf.Polar.Miner.Etherbase, err =
-		parser.GetCommonAddress(flags.MinerEtherbase); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Miner.ExtraData, err =
-		parser.GetHexutilBytes(flags.MinerExtraData); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Miner.GasFloor, err =
-		parser.GetUint64(flags.MinerGasFloor); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Miner.GasCeil, err =
-		parser.GetUint64(flags.MinerGasCeil); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Miner.GasPrice, err =
-		parser.GetBigInt(flags.MinerGasPrice); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Miner.Recommit, err =
-		parser.GetTimeDuration(flags.MinerRecommit); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.Miner.NewPayloadTimeout, err =
-		parser.GetTimeDuration(flags.MinerNewPayloadTimeout); err != nil {
-		return nil, err
-	}
-
-	// // Polar Chain settings
-	// if conf.Polar.Genesis.Config.ChainID, err =
-	// 	parser.GetBigInt(flags.ChainID); err != nil {
-	// 	return nil, err
-	// }
-
-	// if conf.Polar.Genesis.Config.HomesteadBlock, err =
-	// 	parser.GetBigInt(flags.HomesteadBlock); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.DAOForkBlock, err =
-	// 	parser.GetBigInt(flags.DAOForkBlock); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.DAOForkSupport, err =
-	// 	parser.GetBool(flags.DAOForkSupport); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.EIP150Block, err =
-	// 	parser.GetBigInt(flags.EIP150Block); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.EIP155Block, err =
-	// 	parser.GetBigInt(flags.EIP155Block); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.EIP158Block, err =
-	// 	parser.GetBigInt(flags.EIP158Block); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.ByzantiumBlock, err =
-	// 	parser.GetBigInt(flags.ByzantiumBlock); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.ConstantinopleBlock, err =
-	// 	parser.GetBigInt(flags.ConstantinopleBlock); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.PetersburgBlock, err =
-	// 	parser.GetBigInt(flags.PetersburgBlock); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.IstanbulBlock, err =
-	// 	parser.GetBigInt(flags.IstanbulBlock); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.MuirGlacierBlock, err =
-	// 	parser.GetBigInt(flags.MuirGlacierBlock); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.BerlinBlock, err =
-	// 	parser.GetBigInt(flags.BerlinBlock); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.LondonBlock, err =
-	// 	parser.GetBigInt(flags.LondonBlock); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.ArrowGlacierBlock, err =
-	// 	parser.GetBigInt(flags.ArrowGlacierBlock); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.GrayGlacierBlock, err =
-	// 	parser.GetBigInt(flags.GrayGlacierBlock); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.MergeNetsplitBlock, err =
-	// 	parser.GetBigInt(flags.MergeNetsplitBlock); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.ShanghaiTime, err =
-	// 	parser.GetUint64Ptr(flags.ShanghaiTime); err != nil {
-	// 	return nil, err
-	// }
-
-	// if conf.Polar.Genesis.Config.CancunTime, err =
-	// 	parser.GetUint64Ptr(flags.CancunTime); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.PragueTime, err =
-	// 	parser.GetUint64Ptr(flags.PragueTime); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.VerkleTime, err =
-	// 	parser.GetUint64Ptr(flags.VerkleTime); err != nil {
-	// 	return nil, err
-	// }
-
-	// if conf.Polar.Genesis.Config.TerminalTotalDifficulty, err =
-	// 	parser.GetBigInt(
-	// 		flags.TerminalTotalDifficulty); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.TerminalTotalDifficultyPassed, err =
-	// 	parser.GetBool(
-	// 		flags.TerminalTotalDifficultyPassed); err != nil {
-	// 	return nil, err
-	// }
-	// if conf.Polar.Genesis.Config.IsDevMode, err =
-	// 	parser.GetBool(flags.IsDevMode); err != nil {
-	// 	return nil, err
-	// }
-
-	if err = common.LoadJSON(ethGenFilePath, &conf.Polar.Genesis); err != nil {
-		return nil, err
-	}
-
-	// Polar.GPO settings
-	if conf.Polar.GPO.Blocks, err =
-		parser.GetInt(flags.Blocks); err != nil {
-		return nil, err
-	}
-	if conf.Polar.GPO.Percentile, err =
-		parser.GetInt(flags.Percentile); err != nil {
-		return nil, err
-	}
-	if conf.Polar.GPO.MaxHeaderHistory, err =
-		parser.GetUint64(flags.MaxHeaderHistory); err != nil {
-		return nil, err
-	}
-	if conf.Polar.GPO.MaxBlockHistory, err =
-		parser.GetUint64(flags.MaxBlockHistory); err != nil {
-		return nil, err
-	}
-	if val, err =
-		parser.GetInt64(flags.Default); err != nil {
-		return nil, err
-	}
-	conf.Polar.GPO.Default = big.NewInt(val)
-
-	if val, err =
-		parser.GetInt64(flags.MaxPrice); err != nil {
-		return nil, err
-	}
-	conf.Polar.GPO.MaxPrice = big.NewInt(val)
-
-	if val, err =
-		parser.GetInt64(flags.IgnorePrice); err != nil {
-		return nil, err
-	}
-	conf.Polar.GPO.IgnorePrice = big.NewInt(val)
-
-	// LegacyPool
-	if conf.Polar.LegacyTxPool.Locals, err =
-		parser.GetCommonAddressList(flags.Locals); err != nil {
-		return nil, err
-	}
-	if conf.Polar.LegacyTxPool.NoLocals, err =
-		parser.GetBool(flags.NoLocals); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.LegacyTxPool.Journal, err =
-		parser.GetString(flags.Journal); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.LegacyTxPool.Rejournal, err =
-		parser.GetTimeDuration(flags.ReJournal); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.LegacyTxPool.PriceLimit, err =
-		parser.GetUint64(flags.PriceLimit); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.LegacyTxPool.PriceBump, err =
-		parser.GetUint64(flags.PriceBump); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.LegacyTxPool.AccountSlots, err =
-		parser.GetUint64(flags.AccountSlots); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.LegacyTxPool.GlobalSlots, err =
-		parser.GetUint64(flags.GlobalSlots); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.LegacyTxPool.AccountQueue, err =
-		parser.GetUint64(flags.AccountQueue); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.LegacyTxPool.GlobalQueue, err =
-		parser.GetUint64(flags.GlobalQueue); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.LegacyTxPool.Lifetime, err =
-		parser.GetTimeDuration(flags.Lifetime); err != nil {
-		return nil, err
-	}
-
-	// Node settings
-	if conf.Node.Name, err =
-		parser.GetString(flags.Name); err != nil {
-		return nil, err
-	}
-	if conf.Node.UserIdent, err =
-		parser.GetString(flags.UserIdent); err != nil {
-		return nil, err
-	}
-	if conf.Node.Version, err =
-		parser.GetString(flags.Version); err != nil {
-		return nil, err
-	}
-	if conf.Node.DataDir, err =
-		parser.GetString(flags.DataDir); err != nil {
-		return nil, err
-	}
-	if conf.Node.DataDir == "" {
-		conf.Node.DataDir, err =
-			parser.GetString(sdkflags.FlagHome)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if conf.Node.KeyStoreDir, err =
-		parser.GetString(flags.KeyStoreDir); err != nil {
-		return nil, err
-	}
-	if conf.Node.ExternalSigner, err =
-		parser.GetString(flags.ExternalSigner); err != nil {
-		return nil, err
-	}
-	if conf.Node.UseLightweightKDF, err =
-		parser.GetBool(flags.UseLightweightKdf); err != nil {
-		return nil, err
-	}
-	if conf.Node.InsecureUnlockAllowed, err =
-		parser.GetBool(flags.InsecureUnlockAllowed); err != nil {
-		return nil, err
-	}
-	if conf.Node.USB, err =
-		parser.GetBool(flags.Usb); err != nil {
-		return nil, err
-	}
-	if conf.Node.SmartCardDaemonPath, err =
-		parser.GetString(flags.SmartCardDaemonPath); err != nil {
-		return nil, err
-	}
-	if conf.Node.IPCPath, err =
-		parser.GetString(flags.IpcPath); err != nil {
-		return nil, err
-	}
-	if conf.Node.HTTPHost, err =
-		parser.GetString(flags.HTTPHost); err != nil {
-		return nil, err
-	}
-	if conf.Node.HTTPPort, err =
-		parser.GetInt(flags.HTTPPort); err != nil {
-		return nil, err
-	}
-	if conf.Node.HTTPCors, err =
-		parser.GetStringSlice(flags.HTTPCors); err != nil {
-		return nil, err
-	}
-	if conf.Node.HTTPVirtualHosts, err =
-		parser.GetStringSlice(flags.HTTPVirtualHosts); err != nil {
-		return nil, err
-	}
-	if conf.Node.HTTPModules, err =
-		parser.GetStringSlice(flags.HTTPModules); err != nil {
-		return nil, err
-	}
-	if conf.Node.HTTPPathPrefix, err =
-		parser.GetString(flags.HTTPPathPrefix); err != nil {
-		return nil, err
-	}
-	if conf.Node.AuthAddr, err =
-		parser.GetString(flags.AuthAddr); err != nil {
-		return nil, err
-	}
-	if conf.Node.AuthPort, err =
-		parser.GetInt(flags.AuthPort); err != nil {
-		return nil, err
-	}
-	if conf.Node.AuthVirtualHosts, err =
-		parser.GetStringSlice(flags.AuthVirtualHosts); err != nil {
-		return nil, err
-	}
-	if conf.Node.WSHost, err =
-		parser.GetString(flags.WsHost); err != nil {
-		return nil, err
-	}
-	if conf.Node.WSPort, err =
-		parser.GetInt(flags.WsPort); err != nil {
-		return nil, err
-	}
-	if conf.Node.WSPathPrefix, err =
-		parser.GetString(flags.WsPathPrefix); err != nil {
-		return nil, err
-	}
-	if conf.Node.WSOrigins, err =
-		parser.GetStringSlice(flags.WsOrigins); err != nil {
-		return nil, err
-	}
-	if conf.Node.WSModules, err =
-		parser.GetStringSlice(flags.WsModules); err != nil {
-		return nil, err
-	}
-	if conf.Node.WSExposeAll, err =
-		parser.GetBool(flags.WsExposeAll); err != nil {
-		return nil, err
-	}
-	if conf.Node.GraphQLCors, err =
-		parser.GetStringSlice(flags.GraphqlCors); err != nil {
-		return nil, err
-	}
-	if conf.Node.GraphQLVirtualHosts, err =
-		parser.GetStringSlice(flags.GraphqlVirtualHosts); err != nil {
-		return nil, err
-	}
-	if conf.Node.AllowUnprotectedTxs, err =
-		parser.GetBool(flags.AllowUnprotectedTxs); err != nil {
-		return nil, err
-	}
-	if conf.Node.BatchRequestLimit, err =
-		parser.GetInt(flags.BatchRequestLimit); err != nil {
-		return nil, err
-	}
-	if conf.Node.BatchResponseMaxSize, err =
-		parser.GetInt(flags.BatchResponseMaxSize); err != nil {
-		return nil, err
-	}
-	if conf.Node.JWTSecret, err =
-		parser.GetString(flags.JwtSecret); err != nil {
-		return nil, err
-	}
-	if conf.Node.DBEngine, err =
-		parser.GetString(flags.DBEngine); err != nil {
-		return nil, err
-	}
-
-	// Node.HTTPTimeouts settings
-	if conf.Node.HTTPTimeouts.ReadTimeout, err =
-		parser.GetTimeDuration(flags.ReadTimeout); err != nil {
-		return nil, err
-	}
-	if conf.Node.HTTPTimeouts.ReadHeaderTimeout, err =
-		parser.GetTimeDuration(
-			flags.ReadHeaderTimeout); err != nil {
-		return nil, err
-	}
-	if conf.Node.HTTPTimeouts.WriteTimeout, err =
-		parser.GetTimeDuration(flags.WriteTimeout); err != nil {
-		return nil, err
-	}
-	if conf.Node.HTTPTimeouts.IdleTimeout, err =
-		parser.GetTimeDuration(flags.IdleTimeout); err != nil {
+	if conf.ExecutionClient.RPCTimeout, err = parser.GetTimeDuration(flags.RPCTimeout); err != nil {
 		return nil, err
 	}
 

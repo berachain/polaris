@@ -231,7 +231,7 @@ func (_CosmosTypes *CosmosTypesTransactorRaw) Transact(opts *bind.TransactOpts, 
 
 // CodecAny is a free data retrieval call binding the contract method 0x1713cb13.
 //
-// Solidity: function codecAny((string,bytes) ) pure returns()
+// Solidity: function codecAny((string,bytes) ) pure returns().
 func (_CosmosTypes *CosmosTypesCaller) CodecAny(opts *bind.CallOpts, arg0 CosmosCodecAny) error {
 	var out []interface{}
 	err := _CosmosTypes.contract.Call(opts, &out, "codecAny", arg0)
@@ -241,26 +241,25 @@ func (_CosmosTypes *CosmosTypesCaller) CodecAny(opts *bind.CallOpts, arg0 Cosmos
 	}
 
 	return err
-
 }
 
 // CodecAny is a free data retrieval call binding the contract method 0x1713cb13.
 //
-// Solidity: function codecAny((string,bytes) ) pure returns()
+// Solidity: function codecAny((string,bytes) ) pure returns().
 func (_CosmosTypes *CosmosTypesSession) CodecAny(arg0 CosmosCodecAny) error {
 	return _CosmosTypes.Contract.CodecAny(&_CosmosTypes.CallOpts, arg0)
 }
 
 // CodecAny is a free data retrieval call binding the contract method 0x1713cb13.
 //
-// Solidity: function codecAny((string,bytes) ) pure returns()
+// Solidity: function codecAny((string,bytes) ) pure returns().
 func (_CosmosTypes *CosmosTypesCallerSession) CodecAny(arg0 CosmosCodecAny) error {
 	return _CosmosTypes.Contract.CodecAny(&_CosmosTypes.CallOpts, arg0)
 }
 
 // Coin is a free data retrieval call binding the contract method 0x2ff6e5df.
 //
-// Solidity: function coin((uint256,string) ) pure returns()
+// Solidity: function coin((uint256,string) ) pure returns().
 func (_CosmosTypes *CosmosTypesCaller) Coin(opts *bind.CallOpts, arg0 CosmosCoin) error {
 	var out []interface{}
 	err := _CosmosTypes.contract.Call(opts, &out, "coin", arg0)
@@ -270,26 +269,25 @@ func (_CosmosTypes *CosmosTypesCaller) Coin(opts *bind.CallOpts, arg0 CosmosCoin
 	}
 
 	return err
-
 }
 
 // Coin is a free data retrieval call binding the contract method 0x2ff6e5df.
 //
-// Solidity: function coin((uint256,string) ) pure returns()
+// Solidity: function coin((uint256,string) ) pure returns().
 func (_CosmosTypes *CosmosTypesSession) Coin(arg0 CosmosCoin) error {
 	return _CosmosTypes.Contract.Coin(&_CosmosTypes.CallOpts, arg0)
 }
 
 // Coin is a free data retrieval call binding the contract method 0x2ff6e5df.
 //
-// Solidity: function coin((uint256,string) ) pure returns()
+// Solidity: function coin((uint256,string) ) pure returns().
 func (_CosmosTypes *CosmosTypesCallerSession) Coin(arg0 CosmosCoin) error {
 	return _CosmosTypes.Contract.Coin(&_CosmosTypes.CallOpts, arg0)
 }
 
 // PageRequest is a free data retrieval call binding the contract method 0x1acc976f.
 //
-// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns()
+// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns().
 func (_CosmosTypes *CosmosTypesCaller) PageRequest(opts *bind.CallOpts, arg0 CosmosPageRequest) error {
 	var out []interface{}
 	err := _CosmosTypes.contract.Call(opts, &out, "pageRequest", arg0)
@@ -299,26 +297,25 @@ func (_CosmosTypes *CosmosTypesCaller) PageRequest(opts *bind.CallOpts, arg0 Cos
 	}
 
 	return err
-
 }
 
 // PageRequest is a free data retrieval call binding the contract method 0x1acc976f.
 //
-// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns()
+// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns().
 func (_CosmosTypes *CosmosTypesSession) PageRequest(arg0 CosmosPageRequest) error {
 	return _CosmosTypes.Contract.PageRequest(&_CosmosTypes.CallOpts, arg0)
 }
 
 // PageRequest is a free data retrieval call binding the contract method 0x1acc976f.
 //
-// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns()
+// Solidity: function pageRequest((string,uint64,uint64,bool,bool) ) pure returns().
 func (_CosmosTypes *CosmosTypesCallerSession) PageRequest(arg0 CosmosPageRequest) error {
 	return _CosmosTypes.Contract.PageRequest(&_CosmosTypes.CallOpts, arg0)
 }
 
 // PageResponse is a free data retrieval call binding the contract method 0x426ce1a9.
 //
-// Solidity: function pageResponse((string,uint64) ) pure returns()
+// Solidity: function pageResponse((string,uint64) ) pure returns().
 func (_CosmosTypes *CosmosTypesCaller) PageResponse(opts *bind.CallOpts, arg0 CosmosPageResponse) error {
 	var out []interface{}
 	err := _CosmosTypes.contract.Call(opts, &out, "pageResponse", arg0)
@@ -328,19 +325,18 @@ func (_CosmosTypes *CosmosTypesCaller) PageResponse(opts *bind.CallOpts, arg0 Co
 	}
 
 	return err
-
 }
 
 // PageResponse is a free data retrieval call binding the contract method 0x426ce1a9.
 //
-// Solidity: function pageResponse((string,uint64) ) pure returns()
+// Solidity: function pageResponse((string,uint64) ) pure returns().
 func (_CosmosTypes *CosmosTypesSession) PageResponse(arg0 CosmosPageResponse) error {
 	return _CosmosTypes.Contract.PageResponse(&_CosmosTypes.CallOpts, arg0)
 }
 
 // PageResponse is a free data retrieval call binding the contract method 0x426ce1a9.
 //
-// Solidity: function pageResponse((string,uint64) ) pure returns()
+// Solidity: function pageResponse((string,uint64) ) pure returns().
 func (_CosmosTypes *CosmosTypesCallerSession) PageResponse(arg0 CosmosPageResponse) error {
 	return _CosmosTypes.Contract.PageResponse(&_CosmosTypes.CallOpts, arg0)
 }

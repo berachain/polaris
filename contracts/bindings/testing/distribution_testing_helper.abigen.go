@@ -204,7 +204,7 @@ func (_DistributionWrapper *DistributionWrapperTransactorRaw) Transact(opts *bin
 
 // Distribution is a free data retrieval call binding the contract method 0x5ee58efc.
 //
-// Solidity: function distribution() view returns(address)
+// Solidity: function distribution() view returns(address).
 func (_DistributionWrapper *DistributionWrapperCaller) Distribution(opts *bind.CallOpts) (common.Address, error) {
 	var out []interface{}
 	err := _DistributionWrapper.contract.Call(opts, &out, "distribution")
@@ -216,26 +216,25 @@ func (_DistributionWrapper *DistributionWrapperCaller) Distribution(opts *bind.C
 	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
 
 	return out0, err
-
 }
 
 // Distribution is a free data retrieval call binding the contract method 0x5ee58efc.
 //
-// Solidity: function distribution() view returns(address)
+// Solidity: function distribution() view returns(address).
 func (_DistributionWrapper *DistributionWrapperSession) Distribution() (common.Address, error) {
 	return _DistributionWrapper.Contract.Distribution(&_DistributionWrapper.CallOpts)
 }
 
 // Distribution is a free data retrieval call binding the contract method 0x5ee58efc.
 //
-// Solidity: function distribution() view returns(address)
+// Solidity: function distribution() view returns(address).
 func (_DistributionWrapper *DistributionWrapperCallerSession) Distribution() (common.Address, error) {
 	return _DistributionWrapper.Contract.Distribution(&_DistributionWrapper.CallOpts)
 }
 
 // GetWithdrawEnabled is a free data retrieval call binding the contract method 0x39cc4c86.
 //
-// Solidity: function getWithdrawEnabled() view returns(bool)
+// Solidity: function getWithdrawEnabled() view returns(bool).
 func (_DistributionWrapper *DistributionWrapperCaller) GetWithdrawEnabled(opts *bind.CallOpts) (bool, error) {
 	var out []interface{}
 	err := _DistributionWrapper.contract.Call(opts, &out, "getWithdrawEnabled")
@@ -247,26 +246,25 @@ func (_DistributionWrapper *DistributionWrapperCaller) GetWithdrawEnabled(opts *
 	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
 
 	return out0, err
-
 }
 
 // GetWithdrawEnabled is a free data retrieval call binding the contract method 0x39cc4c86.
 //
-// Solidity: function getWithdrawEnabled() view returns(bool)
+// Solidity: function getWithdrawEnabled() view returns(bool).
 func (_DistributionWrapper *DistributionWrapperSession) GetWithdrawEnabled() (bool, error) {
 	return _DistributionWrapper.Contract.GetWithdrawEnabled(&_DistributionWrapper.CallOpts)
 }
 
 // GetWithdrawEnabled is a free data retrieval call binding the contract method 0x39cc4c86.
 //
-// Solidity: function getWithdrawEnabled() view returns(bool)
+// Solidity: function getWithdrawEnabled() view returns(bool).
 func (_DistributionWrapper *DistributionWrapperCallerSession) GetWithdrawEnabled() (bool, error) {
 	return _DistributionWrapper.Contract.GetWithdrawEnabled(&_DistributionWrapper.CallOpts)
 }
 
 // Staking is a free data retrieval call binding the contract method 0x4cf088d9.
 //
-// Solidity: function staking() view returns(address)
+// Solidity: function staking() view returns(address).
 func (_DistributionWrapper *DistributionWrapperCaller) Staking(opts *bind.CallOpts) (common.Address, error) {
 	var out []interface{}
 	err := _DistributionWrapper.contract.Call(opts, &out, "staking")
@@ -278,82 +276,81 @@ func (_DistributionWrapper *DistributionWrapperCaller) Staking(opts *bind.CallOp
 	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
 
 	return out0, err
-
 }
 
 // Staking is a free data retrieval call binding the contract method 0x4cf088d9.
 //
-// Solidity: function staking() view returns(address)
+// Solidity: function staking() view returns(address).
 func (_DistributionWrapper *DistributionWrapperSession) Staking() (common.Address, error) {
 	return _DistributionWrapper.Contract.Staking(&_DistributionWrapper.CallOpts)
 }
 
 // Staking is a free data retrieval call binding the contract method 0x4cf088d9.
 //
-// Solidity: function staking() view returns(address)
+// Solidity: function staking() view returns(address).
 func (_DistributionWrapper *DistributionWrapperCallerSession) Staking() (common.Address, error) {
 	return _DistributionWrapper.Contract.Staking(&_DistributionWrapper.CallOpts)
 }
 
 // Delegate is a paid mutator transaction binding the contract method 0x5c19a95c.
 //
-// Solidity: function delegate(address _validator) payable returns()
+// Solidity: function delegate(address _validator) payable returns().
 func (_DistributionWrapper *DistributionWrapperTransactor) Delegate(opts *bind.TransactOpts, _validator common.Address) (*types.Transaction, error) {
 	return _DistributionWrapper.contract.Transact(opts, "delegate", _validator)
 }
 
 // Delegate is a paid mutator transaction binding the contract method 0x5c19a95c.
 //
-// Solidity: function delegate(address _validator) payable returns()
+// Solidity: function delegate(address _validator) payable returns().
 func (_DistributionWrapper *DistributionWrapperSession) Delegate(_validator common.Address) (*types.Transaction, error) {
 	return _DistributionWrapper.Contract.Delegate(&_DistributionWrapper.TransactOpts, _validator)
 }
 
 // Delegate is a paid mutator transaction binding the contract method 0x5c19a95c.
 //
-// Solidity: function delegate(address _validator) payable returns()
+// Solidity: function delegate(address _validator) payable returns().
 func (_DistributionWrapper *DistributionWrapperTransactorSession) Delegate(_validator common.Address) (*types.Transaction, error) {
 	return _DistributionWrapper.Contract.Delegate(&_DistributionWrapper.TransactOpts, _validator)
 }
 
 // SetWithdrawAddress is a paid mutator transaction binding the contract method 0x3ab1a494.
 //
-// Solidity: function setWithdrawAddress(address _withdrawAddress) returns(bool)
+// Solidity: function setWithdrawAddress(address _withdrawAddress) returns(bool).
 func (_DistributionWrapper *DistributionWrapperTransactor) SetWithdrawAddress(opts *bind.TransactOpts, _withdrawAddress common.Address) (*types.Transaction, error) {
 	return _DistributionWrapper.contract.Transact(opts, "setWithdrawAddress", _withdrawAddress)
 }
 
 // SetWithdrawAddress is a paid mutator transaction binding the contract method 0x3ab1a494.
 //
-// Solidity: function setWithdrawAddress(address _withdrawAddress) returns(bool)
+// Solidity: function setWithdrawAddress(address _withdrawAddress) returns(bool).
 func (_DistributionWrapper *DistributionWrapperSession) SetWithdrawAddress(_withdrawAddress common.Address) (*types.Transaction, error) {
 	return _DistributionWrapper.Contract.SetWithdrawAddress(&_DistributionWrapper.TransactOpts, _withdrawAddress)
 }
 
 // SetWithdrawAddress is a paid mutator transaction binding the contract method 0x3ab1a494.
 //
-// Solidity: function setWithdrawAddress(address _withdrawAddress) returns(bool)
+// Solidity: function setWithdrawAddress(address _withdrawAddress) returns(bool).
 func (_DistributionWrapper *DistributionWrapperTransactorSession) SetWithdrawAddress(_withdrawAddress common.Address) (*types.Transaction, error) {
 	return _DistributionWrapper.Contract.SetWithdrawAddress(&_DistributionWrapper.TransactOpts, _withdrawAddress)
 }
 
 // WithdrawRewards is a paid mutator transaction binding the contract method 0xe20981ca.
 //
-// Solidity: function withdrawRewards(address _delegatorAddress, address _validatorAddress) returns()
+// Solidity: function withdrawRewards(address _delegatorAddress, address _validatorAddress) returns().
 func (_DistributionWrapper *DistributionWrapperTransactor) WithdrawRewards(opts *bind.TransactOpts, _delegatorAddress common.Address, _validatorAddress common.Address) (*types.Transaction, error) {
 	return _DistributionWrapper.contract.Transact(opts, "withdrawRewards", _delegatorAddress, _validatorAddress)
 }
 
 // WithdrawRewards is a paid mutator transaction binding the contract method 0xe20981ca.
 //
-// Solidity: function withdrawRewards(address _delegatorAddress, address _validatorAddress) returns()
+// Solidity: function withdrawRewards(address _delegatorAddress, address _validatorAddress) returns().
 func (_DistributionWrapper *DistributionWrapperSession) WithdrawRewards(_delegatorAddress common.Address, _validatorAddress common.Address) (*types.Transaction, error) {
 	return _DistributionWrapper.Contract.WithdrawRewards(&_DistributionWrapper.TransactOpts, _delegatorAddress, _validatorAddress)
 }
 
 // WithdrawRewards is a paid mutator transaction binding the contract method 0xe20981ca.
 //
-// Solidity: function withdrawRewards(address _delegatorAddress, address _validatorAddress) returns()
+// Solidity: function withdrawRewards(address _delegatorAddress, address _validatorAddress) returns().
 func (_DistributionWrapper *DistributionWrapperTransactorSession) WithdrawRewards(_delegatorAddress common.Address, _validatorAddress common.Address) (*types.Transaction, error) {
 	return _DistributionWrapper.Contract.WithdrawRewards(&_DistributionWrapper.TransactOpts, _delegatorAddress, _validatorAddress)
 }

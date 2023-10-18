@@ -204,7 +204,7 @@ func (_LiquidStaking *LiquidStakingTransactorRaw) Transact(opts *bind.TransactOp
 
 // DOMAINSEPARATOR is a free data retrieval call binding the contract method 0x3644e515.
 //
-// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32)
+// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32).
 func (_LiquidStaking *LiquidStakingCaller) DOMAINSEPARATOR(opts *bind.CallOpts) ([32]byte, error) {
 	var out []interface{}
 	err := _LiquidStaking.contract.Call(opts, &out, "DOMAIN_SEPARATOR")
@@ -216,26 +216,25 @@ func (_LiquidStaking *LiquidStakingCaller) DOMAINSEPARATOR(opts *bind.CallOpts) 
 	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
 
 	return out0, err
-
 }
 
 // DOMAINSEPARATOR is a free data retrieval call binding the contract method 0x3644e515.
 //
-// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32)
+// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32).
 func (_LiquidStaking *LiquidStakingSession) DOMAINSEPARATOR() ([32]byte, error) {
 	return _LiquidStaking.Contract.DOMAINSEPARATOR(&_LiquidStaking.CallOpts)
 }
 
 // DOMAINSEPARATOR is a free data retrieval call binding the contract method 0x3644e515.
 //
-// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32)
+// Solidity: function DOMAIN_SEPARATOR() view returns(bytes32).
 func (_LiquidStaking *LiquidStakingCallerSession) DOMAINSEPARATOR() ([32]byte, error) {
 	return _LiquidStaking.Contract.DOMAINSEPARATOR(&_LiquidStaking.CallOpts)
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
-// Solidity: function allowance(address , address ) view returns(uint256)
+// Solidity: function allowance(address , address ) view returns(uint256).
 func (_LiquidStaking *LiquidStakingCaller) Allowance(opts *bind.CallOpts, arg0 common.Address, arg1 common.Address) (*big.Int, error) {
 	var out []interface{}
 	err := _LiquidStaking.contract.Call(opts, &out, "allowance", arg0, arg1)
@@ -247,26 +246,25 @@ func (_LiquidStaking *LiquidStakingCaller) Allowance(opts *bind.CallOpts, arg0 c
 	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
 	return out0, err
-
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
-// Solidity: function allowance(address , address ) view returns(uint256)
+// Solidity: function allowance(address , address ) view returns(uint256).
 func (_LiquidStaking *LiquidStakingSession) Allowance(arg0 common.Address, arg1 common.Address) (*big.Int, error) {
 	return _LiquidStaking.Contract.Allowance(&_LiquidStaking.CallOpts, arg0, arg1)
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
-// Solidity: function allowance(address , address ) view returns(uint256)
+// Solidity: function allowance(address , address ) view returns(uint256).
 func (_LiquidStaking *LiquidStakingCallerSession) Allowance(arg0 common.Address, arg1 common.Address) (*big.Int, error) {
 	return _LiquidStaking.Contract.Allowance(&_LiquidStaking.CallOpts, arg0, arg1)
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(address ) view returns(uint256)
+// Solidity: function balanceOf(address ) view returns(uint256).
 func (_LiquidStaking *LiquidStakingCaller) BalanceOf(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
 	var out []interface{}
 	err := _LiquidStaking.contract.Call(opts, &out, "balanceOf", arg0)
@@ -278,26 +276,25 @@ func (_LiquidStaking *LiquidStakingCaller) BalanceOf(opts *bind.CallOpts, arg0 c
 	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
 	return out0, err
-
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(address ) view returns(uint256)
+// Solidity: function balanceOf(address ) view returns(uint256).
 func (_LiquidStaking *LiquidStakingSession) BalanceOf(arg0 common.Address) (*big.Int, error) {
 	return _LiquidStaking.Contract.BalanceOf(&_LiquidStaking.CallOpts, arg0)
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(address ) view returns(uint256)
+// Solidity: function balanceOf(address ) view returns(uint256).
 func (_LiquidStaking *LiquidStakingCallerSession) BalanceOf(arg0 common.Address) (*big.Int, error) {
 	return _LiquidStaking.Contract.BalanceOf(&_LiquidStaking.CallOpts, arg0)
 }
 
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
 //
-// Solidity: function decimals() view returns(uint8)
+// Solidity: function decimals() view returns(uint8).
 func (_LiquidStaking *LiquidStakingCaller) Decimals(opts *bind.CallOpts) (uint8, error) {
 	var out []interface{}
 	err := _LiquidStaking.contract.Call(opts, &out, "decimals")
@@ -309,26 +306,25 @@ func (_LiquidStaking *LiquidStakingCaller) Decimals(opts *bind.CallOpts) (uint8,
 	out0 := *abi.ConvertType(out[0], new(uint8)).(*uint8)
 
 	return out0, err
-
 }
 
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
 //
-// Solidity: function decimals() view returns(uint8)
+// Solidity: function decimals() view returns(uint8).
 func (_LiquidStaking *LiquidStakingSession) Decimals() (uint8, error) {
 	return _LiquidStaking.Contract.Decimals(&_LiquidStaking.CallOpts)
 }
 
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
 //
-// Solidity: function decimals() view returns(uint8)
+// Solidity: function decimals() view returns(uint8).
 func (_LiquidStaking *LiquidStakingCallerSession) Decimals() (uint8, error) {
 	return _LiquidStaking.Contract.Decimals(&_LiquidStaking.CallOpts)
 }
 
 // GetActiveValidators is a free data retrieval call binding the contract method 0x9de70258.
 //
-// Solidity: function getActiveValidators() view returns(address[])
+// Solidity: function getActiveValidators() view returns(address[]).
 func (_LiquidStaking *LiquidStakingCaller) GetActiveValidators(opts *bind.CallOpts) ([]common.Address, error) {
 	var out []interface{}
 	err := _LiquidStaking.contract.Call(opts, &out, "getActiveValidators")
@@ -340,26 +336,25 @@ func (_LiquidStaking *LiquidStakingCaller) GetActiveValidators(opts *bind.CallOp
 	out0 := *abi.ConvertType(out[0], new([]common.Address)).(*[]common.Address)
 
 	return out0, err
-
 }
 
 // GetActiveValidators is a free data retrieval call binding the contract method 0x9de70258.
 //
-// Solidity: function getActiveValidators() view returns(address[])
+// Solidity: function getActiveValidators() view returns(address[]).
 func (_LiquidStaking *LiquidStakingSession) GetActiveValidators() ([]common.Address, error) {
 	return _LiquidStaking.Contract.GetActiveValidators(&_LiquidStaking.CallOpts)
 }
 
 // GetActiveValidators is a free data retrieval call binding the contract method 0x9de70258.
 //
-// Solidity: function getActiveValidators() view returns(address[])
+// Solidity: function getActiveValidators() view returns(address[]).
 func (_LiquidStaking *LiquidStakingCallerSession) GetActiveValidators() ([]common.Address, error) {
 	return _LiquidStaking.Contract.GetActiveValidators(&_LiquidStaking.CallOpts)
 }
 
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
 //
-// Solidity: function name() view returns(string)
+// Solidity: function name() view returns(string).
 func (_LiquidStaking *LiquidStakingCaller) Name(opts *bind.CallOpts) (string, error) {
 	var out []interface{}
 	err := _LiquidStaking.contract.Call(opts, &out, "name")
@@ -371,26 +366,25 @@ func (_LiquidStaking *LiquidStakingCaller) Name(opts *bind.CallOpts) (string, er
 	out0 := *abi.ConvertType(out[0], new(string)).(*string)
 
 	return out0, err
-
 }
 
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
 //
-// Solidity: function name() view returns(string)
+// Solidity: function name() view returns(string).
 func (_LiquidStaking *LiquidStakingSession) Name() (string, error) {
 	return _LiquidStaking.Contract.Name(&_LiquidStaking.CallOpts)
 }
 
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
 //
-// Solidity: function name() view returns(string)
+// Solidity: function name() view returns(string).
 func (_LiquidStaking *LiquidStakingCallerSession) Name() (string, error) {
 	return _LiquidStaking.Contract.Name(&_LiquidStaking.CallOpts)
 }
 
 // Nonces is a free data retrieval call binding the contract method 0x7ecebe00.
 //
-// Solidity: function nonces(address ) view returns(uint256)
+// Solidity: function nonces(address ) view returns(uint256).
 func (_LiquidStaking *LiquidStakingCaller) Nonces(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
 	var out []interface{}
 	err := _LiquidStaking.contract.Call(opts, &out, "nonces", arg0)
@@ -402,26 +396,25 @@ func (_LiquidStaking *LiquidStakingCaller) Nonces(opts *bind.CallOpts, arg0 comm
 	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
 	return out0, err
-
 }
 
 // Nonces is a free data retrieval call binding the contract method 0x7ecebe00.
 //
-// Solidity: function nonces(address ) view returns(uint256)
+// Solidity: function nonces(address ) view returns(uint256).
 func (_LiquidStaking *LiquidStakingSession) Nonces(arg0 common.Address) (*big.Int, error) {
 	return _LiquidStaking.Contract.Nonces(&_LiquidStaking.CallOpts, arg0)
 }
 
 // Nonces is a free data retrieval call binding the contract method 0x7ecebe00.
 //
-// Solidity: function nonces(address ) view returns(uint256)
+// Solidity: function nonces(address ) view returns(uint256).
 func (_LiquidStaking *LiquidStakingCallerSession) Nonces(arg0 common.Address) (*big.Int, error) {
 	return _LiquidStaking.Contract.Nonces(&_LiquidStaking.CallOpts, arg0)
 }
 
 // Staking is a free data retrieval call binding the contract method 0x4cf088d9.
 //
-// Solidity: function staking() view returns(address)
+// Solidity: function staking() view returns(address).
 func (_LiquidStaking *LiquidStakingCaller) Staking(opts *bind.CallOpts) (common.Address, error) {
 	var out []interface{}
 	err := _LiquidStaking.contract.Call(opts, &out, "staking")
@@ -433,26 +426,25 @@ func (_LiquidStaking *LiquidStakingCaller) Staking(opts *bind.CallOpts) (common.
 	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
 
 	return out0, err
-
 }
 
 // Staking is a free data retrieval call binding the contract method 0x4cf088d9.
 //
-// Solidity: function staking() view returns(address)
+// Solidity: function staking() view returns(address).
 func (_LiquidStaking *LiquidStakingSession) Staking() (common.Address, error) {
 	return _LiquidStaking.Contract.Staking(&_LiquidStaking.CallOpts)
 }
 
 // Staking is a free data retrieval call binding the contract method 0x4cf088d9.
 //
-// Solidity: function staking() view returns(address)
+// Solidity: function staking() view returns(address).
 func (_LiquidStaking *LiquidStakingCallerSession) Staking() (common.Address, error) {
 	return _LiquidStaking.Contract.Staking(&_LiquidStaking.CallOpts)
 }
 
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
 //
-// Solidity: function symbol() view returns(string)
+// Solidity: function symbol() view returns(string).
 func (_LiquidStaking *LiquidStakingCaller) Symbol(opts *bind.CallOpts) (string, error) {
 	var out []interface{}
 	err := _LiquidStaking.contract.Call(opts, &out, "symbol")
@@ -464,26 +456,25 @@ func (_LiquidStaking *LiquidStakingCaller) Symbol(opts *bind.CallOpts) (string, 
 	out0 := *abi.ConvertType(out[0], new(string)).(*string)
 
 	return out0, err
-
 }
 
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
 //
-// Solidity: function symbol() view returns(string)
+// Solidity: function symbol() view returns(string).
 func (_LiquidStaking *LiquidStakingSession) Symbol() (string, error) {
 	return _LiquidStaking.Contract.Symbol(&_LiquidStaking.CallOpts)
 }
 
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
 //
-// Solidity: function symbol() view returns(string)
+// Solidity: function symbol() view returns(string).
 func (_LiquidStaking *LiquidStakingCallerSession) Symbol() (string, error) {
 	return _LiquidStaking.Contract.Symbol(&_LiquidStaking.CallOpts)
 }
 
 // TotalDelegated is a free data retrieval call binding the contract method 0xf639187e.
 //
-// Solidity: function totalDelegated(address validatorAddress) view returns(uint256 amount)
+// Solidity: function totalDelegated(address validatorAddress) view returns(uint256 amount).
 func (_LiquidStaking *LiquidStakingCaller) TotalDelegated(opts *bind.CallOpts, validatorAddress common.Address) (*big.Int, error) {
 	var out []interface{}
 	err := _LiquidStaking.contract.Call(opts, &out, "totalDelegated", validatorAddress)
@@ -495,26 +486,25 @@ func (_LiquidStaking *LiquidStakingCaller) TotalDelegated(opts *bind.CallOpts, v
 	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
 	return out0, err
-
 }
 
 // TotalDelegated is a free data retrieval call binding the contract method 0xf639187e.
 //
-// Solidity: function totalDelegated(address validatorAddress) view returns(uint256 amount)
+// Solidity: function totalDelegated(address validatorAddress) view returns(uint256 amount).
 func (_LiquidStaking *LiquidStakingSession) TotalDelegated(validatorAddress common.Address) (*big.Int, error) {
 	return _LiquidStaking.Contract.TotalDelegated(&_LiquidStaking.CallOpts, validatorAddress)
 }
 
 // TotalDelegated is a free data retrieval call binding the contract method 0xf639187e.
 //
-// Solidity: function totalDelegated(address validatorAddress) view returns(uint256 amount)
+// Solidity: function totalDelegated(address validatorAddress) view returns(uint256 amount).
 func (_LiquidStaking *LiquidStakingCallerSession) TotalDelegated(validatorAddress common.Address) (*big.Int, error) {
 	return _LiquidStaking.Contract.TotalDelegated(&_LiquidStaking.CallOpts, validatorAddress)
 }
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
-// Solidity: function totalSupply() view returns(uint256)
+// Solidity: function totalSupply() view returns(uint256).
 func (_LiquidStaking *LiquidStakingCaller) TotalSupply(opts *bind.CallOpts) (*big.Int, error) {
 	var out []interface{}
 	err := _LiquidStaking.contract.Call(opts, &out, "totalSupply")
@@ -526,166 +516,165 @@ func (_LiquidStaking *LiquidStakingCaller) TotalSupply(opts *bind.CallOpts) (*bi
 	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
 	return out0, err
-
 }
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
-// Solidity: function totalSupply() view returns(uint256)
+// Solidity: function totalSupply() view returns(uint256).
 func (_LiquidStaking *LiquidStakingSession) TotalSupply() (*big.Int, error) {
 	return _LiquidStaking.Contract.TotalSupply(&_LiquidStaking.CallOpts)
 }
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
-// Solidity: function totalSupply() view returns(uint256)
+// Solidity: function totalSupply() view returns(uint256).
 func (_LiquidStaking *LiquidStakingCallerSession) TotalSupply() (*big.Int, error) {
 	return _LiquidStaking.Contract.TotalSupply(&_LiquidStaking.CallOpts)
 }
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
-// Solidity: function approve(address spender, uint256 amount) returns(bool)
+// Solidity: function approve(address spender, uint256 amount) returns(bool).
 func (_LiquidStaking *LiquidStakingTransactor) Approve(opts *bind.TransactOpts, spender common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.contract.Transact(opts, "approve", spender, amount)
 }
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
-// Solidity: function approve(address spender, uint256 amount) returns(bool)
+// Solidity: function approve(address spender, uint256 amount) returns(bool).
 func (_LiquidStaking *LiquidStakingSession) Approve(spender common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.Contract.Approve(&_LiquidStaking.TransactOpts, spender, amount)
 }
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
-// Solidity: function approve(address spender, uint256 amount) returns(bool)
+// Solidity: function approve(address spender, uint256 amount) returns(bool).
 func (_LiquidStaking *LiquidStakingTransactorSession) Approve(spender common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.Contract.Approve(&_LiquidStaking.TransactOpts, spender, amount)
 }
 
 // Delegate is a paid mutator transaction binding the contract method 0x9fa6dd35.
 //
-// Solidity: function delegate(uint256 amount) payable returns()
+// Solidity: function delegate(uint256 amount) payable returns().
 func (_LiquidStaking *LiquidStakingTransactor) Delegate(opts *bind.TransactOpts, amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.contract.Transact(opts, "delegate", amount)
 }
 
 // Delegate is a paid mutator transaction binding the contract method 0x9fa6dd35.
 //
-// Solidity: function delegate(uint256 amount) payable returns()
+// Solidity: function delegate(uint256 amount) payable returns().
 func (_LiquidStaking *LiquidStakingSession) Delegate(amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.Contract.Delegate(&_LiquidStaking.TransactOpts, amount)
 }
 
 // Delegate is a paid mutator transaction binding the contract method 0x9fa6dd35.
 //
-// Solidity: function delegate(uint256 amount) payable returns()
+// Solidity: function delegate(uint256 amount) payable returns().
 func (_LiquidStaking *LiquidStakingTransactorSession) Delegate(amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.Contract.Delegate(&_LiquidStaking.TransactOpts, amount)
 }
 
 // Permit is a paid mutator transaction binding the contract method 0xd505accf.
 //
-// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns()
+// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns().
 func (_LiquidStaking *LiquidStakingTransactor) Permit(opts *bind.TransactOpts, owner common.Address, spender common.Address, value *big.Int, deadline *big.Int, v uint8, r [32]byte, s [32]byte) (*types.Transaction, error) {
 	return _LiquidStaking.contract.Transact(opts, "permit", owner, spender, value, deadline, v, r, s)
 }
 
 // Permit is a paid mutator transaction binding the contract method 0xd505accf.
 //
-// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns()
+// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns().
 func (_LiquidStaking *LiquidStakingSession) Permit(owner common.Address, spender common.Address, value *big.Int, deadline *big.Int, v uint8, r [32]byte, s [32]byte) (*types.Transaction, error) {
 	return _LiquidStaking.Contract.Permit(&_LiquidStaking.TransactOpts, owner, spender, value, deadline, v, r, s)
 }
 
 // Permit is a paid mutator transaction binding the contract method 0xd505accf.
 //
-// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns()
+// Solidity: function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) returns().
 func (_LiquidStaking *LiquidStakingTransactorSession) Permit(owner common.Address, spender common.Address, value *big.Int, deadline *big.Int, v uint8, r [32]byte, s [32]byte) (*types.Transaction, error) {
 	return _LiquidStaking.Contract.Permit(&_LiquidStaking.TransactOpts, owner, spender, value, deadline, v, r, s)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(address to, uint256 amount) returns(bool)
+// Solidity: function transfer(address to, uint256 amount) returns(bool).
 func (_LiquidStaking *LiquidStakingTransactor) Transfer(opts *bind.TransactOpts, to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.contract.Transact(opts, "transfer", to, amount)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(address to, uint256 amount) returns(bool)
+// Solidity: function transfer(address to, uint256 amount) returns(bool).
 func (_LiquidStaking *LiquidStakingSession) Transfer(to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.Contract.Transfer(&_LiquidStaking.TransactOpts, to, amount)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(address to, uint256 amount) returns(bool)
+// Solidity: function transfer(address to, uint256 amount) returns(bool).
 func (_LiquidStaking *LiquidStakingTransactorSession) Transfer(to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.Contract.Transfer(&_LiquidStaking.TransactOpts, to, amount)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(address from, address to, uint256 amount) returns(bool)
+// Solidity: function transferFrom(address from, address to, uint256 amount) returns(bool).
 func (_LiquidStaking *LiquidStakingTransactor) TransferFrom(opts *bind.TransactOpts, from common.Address, to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.contract.Transact(opts, "transferFrom", from, to, amount)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(address from, address to, uint256 amount) returns(bool)
+// Solidity: function transferFrom(address from, address to, uint256 amount) returns(bool).
 func (_LiquidStaking *LiquidStakingSession) TransferFrom(from common.Address, to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.Contract.TransferFrom(&_LiquidStaking.TransactOpts, from, to, amount)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(address from, address to, uint256 amount) returns(bool)
+// Solidity: function transferFrom(address from, address to, uint256 amount) returns(bool).
 func (_LiquidStaking *LiquidStakingTransactorSession) TransferFrom(from common.Address, to common.Address, amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.Contract.TransferFrom(&_LiquidStaking.TransactOpts, from, to, amount)
 }
 
 // Withdraw is a paid mutator transaction binding the contract method 0x2e1a7d4d.
 //
-// Solidity: function withdraw(uint256 amount) returns()
+// Solidity: function withdraw(uint256 amount) returns().
 func (_LiquidStaking *LiquidStakingTransactor) Withdraw(opts *bind.TransactOpts, amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.contract.Transact(opts, "withdraw", amount)
 }
 
 // Withdraw is a paid mutator transaction binding the contract method 0x2e1a7d4d.
 //
-// Solidity: function withdraw(uint256 amount) returns()
+// Solidity: function withdraw(uint256 amount) returns().
 func (_LiquidStaking *LiquidStakingSession) Withdraw(amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.Contract.Withdraw(&_LiquidStaking.TransactOpts, amount)
 }
 
 // Withdraw is a paid mutator transaction binding the contract method 0x2e1a7d4d.
 //
-// Solidity: function withdraw(uint256 amount) returns()
+// Solidity: function withdraw(uint256 amount) returns().
 func (_LiquidStaking *LiquidStakingTransactorSession) Withdraw(amount *big.Int) (*types.Transaction, error) {
 	return _LiquidStaking.Contract.Withdraw(&_LiquidStaking.TransactOpts, amount)
 }
 
 // Receive is a paid mutator transaction binding the contract receive function.
 //
-// Solidity: receive() payable returns()
+// Solidity: receive() payable returns().
 func (_LiquidStaking *LiquidStakingTransactor) Receive(opts *bind.TransactOpts) (*types.Transaction, error) {
 	return _LiquidStaking.contract.RawTransact(opts, nil) // calldata is disallowed for receive function
 }
 
 // Receive is a paid mutator transaction binding the contract receive function.
 //
-// Solidity: receive() payable returns()
+// Solidity: receive() payable returns().
 func (_LiquidStaking *LiquidStakingSession) Receive() (*types.Transaction, error) {
 	return _LiquidStaking.Contract.Receive(&_LiquidStaking.TransactOpts)
 }
 
 // Receive is a paid mutator transaction binding the contract receive function.
 //
-// Solidity: receive() payable returns()
+// Solidity: receive() payable returns().
 func (_LiquidStaking *LiquidStakingTransactorSession) Receive() (*types.Transaction, error) {
 	return _LiquidStaking.Contract.Receive(&_LiquidStaking.TransactOpts)
 }
@@ -767,9 +756,8 @@ type LiquidStakingApproval struct {
 
 // FilterApproval is a free log retrieval operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
-// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
+// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value).
 func (_LiquidStaking *LiquidStakingFilterer) FilterApproval(opts *bind.FilterOpts, owner []common.Address, spender []common.Address) (*LiquidStakingApprovalIterator, error) {
-
 	var ownerRule []interface{}
 	for _, ownerItem := range owner {
 		ownerRule = append(ownerRule, ownerItem)
@@ -788,9 +776,8 @@ func (_LiquidStaking *LiquidStakingFilterer) FilterApproval(opts *bind.FilterOpt
 
 // WatchApproval is a free log subscription operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
-// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
+// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value).
 func (_LiquidStaking *LiquidStakingFilterer) WatchApproval(opts *bind.WatchOpts, sink chan<- *LiquidStakingApproval, owner []common.Address, spender []common.Address) (event.Subscription, error) {
-
 	var ownerRule []interface{}
 	for _, ownerItem := range owner {
 		ownerRule = append(ownerRule, ownerItem)
@@ -834,7 +821,7 @@ func (_LiquidStaking *LiquidStakingFilterer) WatchApproval(opts *bind.WatchOpts,
 
 // ParseApproval is a log parse operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
-// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
+// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value).
 func (_LiquidStaking *LiquidStakingFilterer) ParseApproval(log types.Log) (*LiquidStakingApproval, error) {
 	event := new(LiquidStakingApproval)
 	if err := _LiquidStaking.contract.UnpackLog(event, "Approval", log); err != nil {
@@ -919,9 +906,8 @@ type LiquidStakingData struct {
 
 // FilterData is a free log retrieval operation binding the contract event 0x0b76c48be4e2908f4c9d4eabaf7538e91577fd9ae26db46693fa8d861c6a42fb.
 //
-// Solidity: event Data(bytes data)
+// Solidity: event Data(bytes data).
 func (_LiquidStaking *LiquidStakingFilterer) FilterData(opts *bind.FilterOpts) (*LiquidStakingDataIterator, error) {
-
 	logs, sub, err := _LiquidStaking.contract.FilterLogs(opts, "Data")
 	if err != nil {
 		return nil, err
@@ -931,9 +917,8 @@ func (_LiquidStaking *LiquidStakingFilterer) FilterData(opts *bind.FilterOpts) (
 
 // WatchData is a free log subscription operation binding the contract event 0x0b76c48be4e2908f4c9d4eabaf7538e91577fd9ae26db46693fa8d861c6a42fb.
 //
-// Solidity: event Data(bytes data)
+// Solidity: event Data(bytes data).
 func (_LiquidStaking *LiquidStakingFilterer) WatchData(opts *bind.WatchOpts, sink chan<- *LiquidStakingData) (event.Subscription, error) {
-
 	logs, sub, err := _LiquidStaking.contract.WatchLogs(opts, "Data")
 	if err != nil {
 		return nil, err
@@ -968,7 +953,7 @@ func (_LiquidStaking *LiquidStakingFilterer) WatchData(opts *bind.WatchOpts, sin
 
 // ParseData is a log parse operation binding the contract event 0x0b76c48be4e2908f4c9d4eabaf7538e91577fd9ae26db46693fa8d861c6a42fb.
 //
-// Solidity: event Data(bytes data)
+// Solidity: event Data(bytes data).
 func (_LiquidStaking *LiquidStakingFilterer) ParseData(log types.Log) (*LiquidStakingData, error) {
 	event := new(LiquidStakingData)
 	if err := _LiquidStaking.contract.UnpackLog(event, "Data", log); err != nil {
@@ -1053,9 +1038,8 @@ type LiquidStakingSuccess struct {
 
 // FilterSuccess is a free log retrieval operation binding the contract event 0x3b0a8ddef325df2bfdfa6b430ae4c8421841cd135bfa8fb5e432f200787520bb.
 //
-// Solidity: event Success(bool indexed success)
+// Solidity: event Success(bool indexed success).
 func (_LiquidStaking *LiquidStakingFilterer) FilterSuccess(opts *bind.FilterOpts, success []bool) (*LiquidStakingSuccessIterator, error) {
-
 	var successRule []interface{}
 	for _, successItem := range success {
 		successRule = append(successRule, successItem)
@@ -1070,9 +1054,8 @@ func (_LiquidStaking *LiquidStakingFilterer) FilterSuccess(opts *bind.FilterOpts
 
 // WatchSuccess is a free log subscription operation binding the contract event 0x3b0a8ddef325df2bfdfa6b430ae4c8421841cd135bfa8fb5e432f200787520bb.
 //
-// Solidity: event Success(bool indexed success)
+// Solidity: event Success(bool indexed success).
 func (_LiquidStaking *LiquidStakingFilterer) WatchSuccess(opts *bind.WatchOpts, sink chan<- *LiquidStakingSuccess, success []bool) (event.Subscription, error) {
-
 	var successRule []interface{}
 	for _, successItem := range success {
 		successRule = append(successRule, successItem)
@@ -1112,7 +1095,7 @@ func (_LiquidStaking *LiquidStakingFilterer) WatchSuccess(opts *bind.WatchOpts, 
 
 // ParseSuccess is a log parse operation binding the contract event 0x3b0a8ddef325df2bfdfa6b430ae4c8421841cd135bfa8fb5e432f200787520bb.
 //
-// Solidity: event Success(bool indexed success)
+// Solidity: event Success(bool indexed success).
 func (_LiquidStaking *LiquidStakingFilterer) ParseSuccess(log types.Log) (*LiquidStakingSuccess, error) {
 	event := new(LiquidStakingSuccess)
 	if err := _LiquidStaking.contract.UnpackLog(event, "Success", log); err != nil {
@@ -1199,9 +1182,8 @@ type LiquidStakingTransfer struct {
 
 // FilterTransfer is a free log retrieval operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
-// Solidity: event Transfer(address indexed from, address indexed to, uint256 value)
+// Solidity: event Transfer(address indexed from, address indexed to, uint256 value).
 func (_LiquidStaking *LiquidStakingFilterer) FilterTransfer(opts *bind.FilterOpts, from []common.Address, to []common.Address) (*LiquidStakingTransferIterator, error) {
-
 	var fromRule []interface{}
 	for _, fromItem := range from {
 		fromRule = append(fromRule, fromItem)
@@ -1220,9 +1202,8 @@ func (_LiquidStaking *LiquidStakingFilterer) FilterTransfer(opts *bind.FilterOpt
 
 // WatchTransfer is a free log subscription operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
-// Solidity: event Transfer(address indexed from, address indexed to, uint256 value)
+// Solidity: event Transfer(address indexed from, address indexed to, uint256 value).
 func (_LiquidStaking *LiquidStakingFilterer) WatchTransfer(opts *bind.WatchOpts, sink chan<- *LiquidStakingTransfer, from []common.Address, to []common.Address) (event.Subscription, error) {
-
 	var fromRule []interface{}
 	for _, fromItem := range from {
 		fromRule = append(fromRule, fromItem)
@@ -1266,7 +1247,7 @@ func (_LiquidStaking *LiquidStakingFilterer) WatchTransfer(opts *bind.WatchOpts,
 
 // ParseTransfer is a log parse operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
-// Solidity: event Transfer(address indexed from, address indexed to, uint256 value)
+// Solidity: event Transfer(address indexed from, address indexed to, uint256 value).
 func (_LiquidStaking *LiquidStakingFilterer) ParseTransfer(log types.Log) (*LiquidStakingTransfer, error) {
 	event := new(LiquidStakingTransfer)
 	if err := _LiquidStaking.contract.UnpackLog(event, "Transfer", log); err != nil {

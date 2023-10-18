@@ -25,13 +25,8 @@ import (
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
 
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	modulev1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/module/v1alpha1"
-	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 )
 
 //nolint:gochecknoinits // GRRRR fix later.
@@ -48,13 +43,6 @@ type DepInjectInput struct {
 	ModuleKey depinject.OwnModuleKey
 	Config    *modulev1alpha1.Module
 	Key       *store.KVStoreKey
-
-	AppOpts           servertypes.AppOptions
-	PolarisCfg        func() *config.Config
-	CustomPrecompiles func() *ethprecompile.Injector `optional:"true"`
-	QueryContextFn    func() func(height int64, prove bool) (sdk.Context, error)
-
-	AccountKeeper AccountKeeper
 }
 
 // DepInjectOutput is the output for the dep inject framework.
@@ -67,19 +55,10 @@ type DepInjectOutput struct {
 
 // ProvideModule is a function that provides the module to the application.
 func ProvideModule(in DepInjectInput) DepInjectOutput {
-	// Default to empty precompile injector if not provided.
-	if in.CustomPrecompiles == nil {
-		in.CustomPrecompiles = func() *ethprecompile.Injector { return &ethprecompile.Injector{} }
-	}
-
 	k := keeper.NewKeeper(
-		in.AccountKeeper,
 		in.Key,
-		in.CustomPrecompiles,
-		in.QueryContextFn,
-		in.PolarisCfg(),
 	)
-	m := NewAppModule(k, in.AccountKeeper)
+	m := NewAppModule(k)
 
 	return DepInjectOutput{
 		Keeper: k,

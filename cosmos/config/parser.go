@@ -91,11 +91,6 @@ func (c *AppOptionsParser) GetString(key string) (string, error) {
 	return handleError(c, cast.ToStringE, key)
 }
 
-// GetString retrieves a string value from a configuration key.
-func (c *AppOptionsParser) GetJson(key string) (string, error) {
-	return handleError(c, cast.ToStringE, key)
-}
-
 // GetInt retrieves an integer value from a configuration key.
 func (c *AppOptionsParser) GetInt(key string) (int, error) {
 	return handleError(c, cast.ToIntE, key)

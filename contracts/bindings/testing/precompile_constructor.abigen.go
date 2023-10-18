@@ -204,7 +204,7 @@ func (_PrecompileConstructor *PrecompileConstructorTransactorRaw) Transact(opts 
 
 // StakingModule is a free data retrieval call binding the contract method 0x504b82bf.
 //
-// Solidity: function stakingModule() view returns(address)
+// Solidity: function stakingModule() view returns(address).
 func (_PrecompileConstructor *PrecompileConstructorCaller) StakingModule(opts *bind.CallOpts) (common.Address, error) {
 	var out []interface{}
 	err := _PrecompileConstructor.contract.Call(opts, &out, "stakingModule")
@@ -216,19 +216,18 @@ func (_PrecompileConstructor *PrecompileConstructorCaller) StakingModule(opts *b
 	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
 
 	return out0, err
-
 }
 
 // StakingModule is a free data retrieval call binding the contract method 0x504b82bf.
 //
-// Solidity: function stakingModule() view returns(address)
+// Solidity: function stakingModule() view returns(address).
 func (_PrecompileConstructor *PrecompileConstructorSession) StakingModule() (common.Address, error) {
 	return _PrecompileConstructor.Contract.StakingModule(&_PrecompileConstructor.CallOpts)
 }
 
 // StakingModule is a free data retrieval call binding the contract method 0x504b82bf.
 //
-// Solidity: function stakingModule() view returns(address)
+// Solidity: function stakingModule() view returns(address).
 func (_PrecompileConstructor *PrecompileConstructorCallerSession) StakingModule() (common.Address, error) {
 	return _PrecompileConstructor.Contract.StakingModule(&_PrecompileConstructor.CallOpts)
 }

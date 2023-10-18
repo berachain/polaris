@@ -28,6 +28,7 @@ package evmv1alpha1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -81,7 +82,7 @@ func (c *msgServiceClient) ProcessPayloadEnvelope(ctx context.Context, in *Wrapp
 
 // MsgServiceServer is the server API for MsgService service.
 // All implementations must embed UnimplementedMsgServiceServer
-// for forward compatibility
+// for forward compatibility.
 type MsgServiceServer interface {
 	// EthTransaction defines a method submitting Ethereum transactions.
 	EthTransaction(context.Context, *WrappedEthereumTransaction) (*WrappedEthereumTransactionResult, error)
@@ -151,7 +152,7 @@ func _MsgService_ProcessPayloadEnvelope_Handler(srv interface{}, ctx context.Con
 
 // MsgService_ServiceDesc is the grpc.ServiceDesc for MsgService service.
 // It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
+// and not to be introspected or modified (even as a copy).
 var MsgService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "polaris.evm.v1alpha1.MsgService",
 	HandlerType: (*MsgServiceServer)(nil),
