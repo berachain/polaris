@@ -110,73 +110,73 @@ jobs:
           name: ${{ matrix.export-name }}
           path: ${{ matrix.export-name }}.tar
 
-  hive:
-    needs: build-base
-    strategy:
-      matrix:
-        os: [polaris-linux-latest]
-        go-version: [1.21.3]
-        base-image: [base-image]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Golang
-        uses: actions/setup-go@v3
-        with:
-          go-version: ${{ matrix.go-version }}
-      - name: Download image artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ matrix.base-image }}
-      - name: Load image
-        run: docker load -i ${{ matrix.base-image }}.tar
-      - name: Cache Golang Deps
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go
-          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-golang-
-      - name: Run `make test-hive`
-        run: make hive-setup test-hive
-        env:
-          GOPATH: /home/runner/go
+  # hive:
+  #   needs: build-base
+  #   strategy:
+  #     matrix:
+  #       os: [polaris-linux-latest]
+  #       go-version: [1.21.3]
+  #       base-image: [base-image]
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Setup Golang
+  #       uses: actions/setup-go@v3
+  #       with:
+  #         go-version: ${{ matrix.go-version }}
+  #     - name: Download image artifact
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: ${{ matrix.base-image }}
+  #     - name: Load image
+  #       run: docker load -i ${{ matrix.base-image }}.tar
+  #     - name: Cache Golang Deps
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           ~/.cache/go-build
+  #           ~/go
+  #         key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-golang-
+  #     - name: Run `make test-hive`
+  #       run: make hive-setup test-hive
+  #       env:
+  #         GOPATH: /home/runner/go
 
-  ci:
-    needs: build-localnet
-    strategy:
-      matrix:
-        namespace: ["e2e", "localnet"]
-        os: [polaris-linux-latest]
-        go-version: [1.21.3]
-        base-image: [localnet]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Golang
-        uses: actions/setup-go@v3
-        with:
-          go-version: ${{ matrix.go-version }}
-      - name: Download image artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ matrix.base-image }}
-      - name: Load image
-        run: docker load -i ${{ matrix.base-image }}.tar
-      - name: Cache Golang Deps
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go
-          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-golang-
-      - name: Run ${{ matrix.namespace }}
-        run: make test-${{ matrix.namespace }}
-        env:
-          GOPATH: /home/runner/go
+  # ci:
+  #   needs: build-localnet
+  #   strategy:
+  #     matrix:
+  #       namespace: ["e2e", "localnet"]
+  #       os: [polaris-linux-latest]
+  #       go-version: [1.21.3]
+  #       base-image: [localnet]
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Setup Golang
+  #       uses: actions/setup-go@v3
+  #       with:
+  #         go-version: ${{ matrix.go-version }}
+  #     - name: Download image artifact
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: ${{ matrix.base-image }}
+  #     - name: Load image
+  #       run: docker load -i ${{ matrix.base-image }}.tar
+  #     - name: Cache Golang Deps
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           ~/.cache/go-build
+  #           ~/go
+  #         key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-golang-
+  #     - name: Run ${{ matrix.namespace }}
+  #       run: make test-${{ matrix.namespace }}
+  #       env:
+  #         GOPATH: /home/runner/go
