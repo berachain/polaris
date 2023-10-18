@@ -33,8 +33,9 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope,
 ) (*evmtypes.WrappedPayloadEnvelopeResponse, error) {
 	var (
-		err      error
-		envelope engine.ExecutionPayloadEnvelope
+		payloadStatus engine.PayloadStatusV1
+		envelope      engine.ExecutionPayloadEnvelope
+		err           error
 	)
 
 	if err = envelope.UnmarshalJSON(msg.Data); err != nil {
@@ -42,8 +43,28 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	}
 
 	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
-	if _, err = k.executionClient.Consensus.NewPayloadV3(ctx,
-		*envelope.ExecutionPayload, nil, nil,
+	if payloadStatus, err = k.executionClient.Consensus.NewPayloadV2(ctx,
+		*envelope.ExecutionPayload,
+	); err != nil {
+		return nil, err
+	}
+
+	payloadAttributes := &engine.PayloadAttributes{
+		Timestamp:             envelope.ExecutionPayload.Timestamp + 2, //nolint:gomnd,lll // todo figure out how to set.
+		Random:                envelope.ExecutionPayload.Random,
+		SuggestedFeeRecipient: envelope.ExecutionPayload.FeeRecipient,
+		Withdrawals:           envelope.ExecutionPayload.Withdrawals,
+	}
+
+	update := engine.ForkchoiceStateV1{
+		SafeBlockHash:      *payloadStatus.LatestValidHash,
+		FinalizedBlockHash: *payloadStatus.LatestValidHash,
+		HeadBlockHash:      *payloadStatus.LatestValidHash,
+	}
+
+	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
+	if _, err = k.executionClient.Consensus.ForkchoiceUpdatedV2(
+		ctx, update, payloadAttributes,
 	); err != nil {
 		return nil, err
 	}

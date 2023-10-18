@@ -22,12 +22,16 @@ package eth
 
 import (
 	"context"
+	"fmt"
+	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/miner"
 
+	"pkg.berachain.dev/polaris/beacon/log"
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -37,8 +41,10 @@ type (
 	// BuilderAPI represents the `Miner` that exists on the backend of the execution layer.
 	BuilderAPI interface {
 		BuildBlock(context.Context, *miner.BuildPayloadArgs) (*engine.ExecutionPayloadEnvelope, error)
-		Etherbase() common.Address
+		Etherbase(context.Context) (common.Address, error)
 		BlockByNumber(uint64) *coretypes.Block
+		CurrentBlock(ctx context.Context) *coretypes.Block
+		ConsensusAPI
 	}
 
 	// TxPool represents the `TxPool` that exists on the backend of the execution layer.
@@ -49,9 +55,12 @@ type (
 	}
 
 	ConsensusAPI interface {
-		NewPayloadV3(ctx context.Context,
-			params engine.ExecutableData, versionedHashes []common.Hash, beaconRoot *common.Hash,
+		NewPayloadV2(ctx context.Context,
+			params engine.ExecutableData,
 		) (engine.PayloadStatusV1, error)
+		ForkchoiceUpdatedV2(ctx context.Context,
+			update engine.ForkchoiceStateV1,
+			payloadAttributes *engine.PayloadAttributes) (engine.ForkChoiceResponse, error)
 	}
 )
 
@@ -63,10 +72,29 @@ type ExecutionClient struct {
 }
 
 // NewRemoteExecutionClient creates a new remote execution client.
-func NewRemoteExecutionClient(dialURL string) (*ExecutionClient, error) {
-	client, err := ethclient.Dial(dialURL)
-	if err != nil {
-		return nil, err
+func NewRemoteExecutionClient(dialURL string, logger log.Logger) (*ExecutionClient, error) {
+	var (
+		client  *ethclient.Client
+		chainID *big.Int
+		err     error
+	)
+
+	ctx := context.Background()
+	for i := 0; i < 100; func() { i++; time.Sleep(time.Second) }() {
+		logger.Info("Attempting to connect to execution layer", "attempt", i+1, "dial-url", dialURL)
+		client, err = ethclient.DialContext(ctx, dialURL)
+		if err != nil {
+			continue
+		}
+		chainID, err = client.ChainID(ctx)
+		if err != nil {
+			continue
+		}
+		logger.Info("Successfully connected to execution layer", "ChainID", chainID)
+		break
+	}
+	if client == nil || err != nil {
+		return nil, fmt.Errorf("failed to establish connection to execution layer: %w", err)
 	}
 
 	return &ExecutionClient{

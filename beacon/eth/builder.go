@@ -27,6 +27,7 @@ import (
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/miner"
+	"github.com/ethereum/go-ethereum/rpc"
 
 	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -36,24 +37,57 @@ type builderAPI struct {
 	*ethclient.Client
 }
 
-func (api *builderAPI) BuildBlock(
-	ctx context.Context,
-	attrs *miner.BuildPayloadArgs,
-) (*engine.ExecutionPayloadEnvelope, error) {
-	return api.Client.BuildBlock(ctx, attrs)
+func NewBuilderAPI(c *ethclient.Client) BuilderAPI {
+	return &builderAPI{c}
 }
 
-func (api *builderAPI) NewPayloadV3(ctx context.Context, params engine.ExecutableData,
-	versionedHashes []common.Hash, beaconRoot *common.Hash) (engine.PayloadStatusV1, error) {
-	return api.Client.NewPayloadV3(ctx, params, versionedHashes, beaconRoot)
-}
-
-func (api *builderAPI) Etherbase() common.Address {
-	etherbase, _ := api.Client.Etherbase(context.Background())
-	return etherbase
+func (api *builderAPI) CurrentBlock(ctx context.Context) *coretypes.Block {
+	b, err := api.Client.BlockByNumber(ctx, big.NewInt(int64(rpc.FinalizedBlockNumber)))
+	if err != nil {
+		b, err = api.Client.BlockByNumber(ctx, nil)
+		if err != nil {
+			return nil
+		}
+	}
+	return b
 }
 
 func (api *builderAPI) BlockByNumber(num uint64) *coretypes.Block {
 	b, _ := api.Client.BlockByNumber(context.Background(), new(big.Int).SetUint64(num))
 	return b
+}
+
+func (api *builderAPI) Etherbase(ctx context.Context) (common.Address, error) {
+	var miner common.Address
+	if err := api.Client.Client().CallContext(ctx, &miner, "miner_etherbase"); err != nil {
+		return common.Address{}, err
+	}
+	return miner, nil
+}
+
+func (api *builderAPI) BuildBlock(
+	ctx context.Context, attrs *miner.BuildPayloadArgs,
+) (*engine.ExecutionPayloadEnvelope, error) {
+	var payload engine.ExecutionPayloadEnvelope
+	if err := api.Client.Client().CallContext(ctx, &payload, "miner_buildBlock", attrs); err != nil {
+		return nil, err
+	}
+	return &payload, nil
+}
+
+func (api *builderAPI) NewPayloadV2(
+	ctx context.Context, params engine.ExecutableData,
+) (engine.PayloadStatusV1, error) {
+	var payloadStatus engine.PayloadStatusV1
+	err := api.Client.Client().CallContext(ctx, &payloadStatus, "engine_newPayloadV2", params)
+	return payloadStatus, err
+}
+
+func (api *builderAPI) ForkchoiceUpdatedV2(
+	ctx context.Context, update engine.ForkchoiceStateV1, payloadAttributes *engine.PayloadAttributes,
+) (engine.ForkChoiceResponse, error) {
+	var response engine.ForkChoiceResponse
+	err := api.Client.Client().CallContext(
+		ctx, &response, "engine_forkchoiceUpdatedV2", update, payloadAttributes)
+	return response, err
 }

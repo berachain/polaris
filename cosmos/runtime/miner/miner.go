@@ -82,7 +82,8 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, error) {
 		sCtx     = sdk.UnwrapSDKContext(ctx)
 	)
 	// Build Payload
-	if envelope, err = m.BuildBlock(ctx, m.constructPayloadArgs(sCtx, common.Hash{})); err != nil {
+	parent := m.CurrentBlock(ctx)
+	if envelope, err = m.BuildBlock(ctx, m.constructPayloadArgs(sCtx, parent)); err != nil {
 		sCtx.Logger().Error("failed to build payload", "err", err)
 		return nil, err
 	}
@@ -96,13 +97,20 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, error) {
 }
 
 // constructPayloadArgs builds a payload to submit to the miner.
-func (m *Miner) constructPayloadArgs(ctx sdk.Context, _ common.Hash) *miner.BuildPayloadArgs {
+func (m *Miner) constructPayloadArgs(
+	ctx sdk.Context, parent *types.Block) *miner.BuildPayloadArgs {
+	etherbase, err := m.Etherbase(ctx)
+	if err != nil {
+		ctx.Logger().Error("failed to get etherbase", "err", err)
+		return nil
+	}
+
 	return &miner.BuildPayloadArgs{
-		Timestamp:    uint64(ctx.BlockTime().Unix()),
-		FeeRecipient: m.Etherbase(),
+		Timestamp:    parent.Header().Time + 2, //nolint:gomnd // todo fix this arbitrary number.
+		FeeRecipient: etherbase,
 		Random:       common.Hash{}, /* todo: generated random */
 		Withdrawals:  make(types.Withdrawals, 0),
 		BeaconRoot:   &emptyHash,
-		// Parent:      parent,
+		Parent:       parent.Hash(),
 	}
 }

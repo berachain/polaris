@@ -18,24 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package config
+package log
 
-const (
-	PolarisConfigTemplate = `
-###############################################################################
-###                                 Polaris                                 ###
-###############################################################################
-# General Polaris settings
-[polaris]
-
-[polaris.execution-client]
-# HTTP url of the execution client JSON-RPC endpoint.
-dial-url = "{{ .Polaris.ExecutionClient.RPCDialURL }}"
-
-# RPC timeout for execution client requests.
-rpc-timeout = "{{ .Polaris.ExecutionClient.RPCTimeout }}"
-
-# Number of retries before shutting down consensus client.
-rpc-retries = "{{.Polaris.ExecutionClient.RPCRetries}}"
-`
-)
+type Logger interface {
+	// Info takes a message and a set of key/value pairs and logs with level INFO.
+	// The key of the tuple must be a string.
+	Info(msg string, keyVals ...any)
+}

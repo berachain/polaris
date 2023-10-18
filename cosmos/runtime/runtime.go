@@ -76,7 +76,7 @@ func New(
 
 	logger.Info("Waiting for execution client connection...")
 	p.ExecutionClient, err = eth.NewRemoteExecutionClient(
-		dialURL,
+		dialURL, logger,
 	)
 	if err != nil {
 		panic(err)

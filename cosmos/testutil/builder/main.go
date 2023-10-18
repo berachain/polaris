@@ -30,19 +30,23 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/miner"
+
+	"pkg.berachain.dev/polaris/beacon/eth"
 )
 
 // Block Builder Test.
 func main() {
 	// Configure logger, client, etherbase.
 	logger := log.NewLogger(os.Stdout).With("module", "main")
-	client, _ := ethclient.Dial("http://localhost:8545")
+	ethClient, _ := ethclient.Dial("http://localhost:8545")
+	client := eth.NewBuilderAPI(ethClient)
 	etherbase, _ := client.Etherbase(context.Background())
 
 	// Get Parent Header
-	latestBlockNumber, _ := client.BlockNumber(context.Background())
-	parentHeader, _ := client.HeaderByNumber(context.Background(),
+	latestBlockNumber, _ := ethClient.BlockNumber(context.Background())
+	parentHeader, _ := ethClient.HeaderByNumber(context.Background(),
 		big.NewInt(int64(latestBlockNumber)))
+	// block36, _ := client.HeaderByNumber(context.Background(), big.NewInt(36))
 	logger.Info("parent located", "parent-header", parentHeader.Hash(),
 		"parent-header-time", parentHeader.Time, "parent-header-number", parentHeader.Number)
 
@@ -52,13 +56,13 @@ func main() {
 		FeeRecipient: etherbase,
 		Random:       common.Hash{},
 		Withdrawals:  nil,
-		Parent:       parentHeader.Hash(),
+		Parent:       parentHeader.ParentHash,
 		BeaconRoot:   nil,
 	})
 	logger.Info("block built", "builder-response", builderResponse, "err", err)
 
 	// SubmitNewPayload
-	payloadResponse, err := client.NewPayloadV3(context.Background(),
-		*builderResponse.ExecutionPayload, nil, nil)
+	payloadResponse, err := client.NewPayloadV2(context.Background(),
+		*builderResponse.ExecutionPayload)
 	logger.Info("block submitted to chain", "payload-response", payloadResponse, "err", err)
 }
