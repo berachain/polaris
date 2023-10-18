@@ -6,7 +6,7 @@ go 1.21
 replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231018211752-fe6dbacddc73
 
 require (
-	github.com/ethereum/go-ethereum v1.13.1
+	github.com/ethereum/go-ethereum v1.13.4
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10
 )

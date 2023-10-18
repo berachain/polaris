@@ -5,7 +5,7 @@ go 1.21
 // We replace `go-ethereum` with `polaris-geth` in order include our required changes.
 replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231018211752-fe6dbacddc73
 
-require github.com/ethereum/go-ethereum v1.13.1
+require github.com/ethereum/go-ethereum v1.13.4
 
 require (
 	github.com/DataDog/zstd v1.5.5 // indirect
