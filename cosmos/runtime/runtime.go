@@ -32,6 +32,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
+	antelib "pkg.berachain.dev/polaris/cosmos/lib/ante"
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
 	"pkg.berachain.dev/polaris/cosmos/runtime/comet"
@@ -107,7 +108,7 @@ func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
 	}
 
 	// Set the ante handler to nil, since it is not needed.
-	app.SetAnteHandler(nil)
+	app.SetAnteHandler(antelib.NewAnteHandler())
 
 	return nil
 }
