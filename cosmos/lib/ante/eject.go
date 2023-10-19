@@ -46,7 +46,7 @@ func (EjectOnRecheckTxDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
 	var newCtx sdk.Context
-	if ctx.ExecMode() == sdk.ExecModeCheck {
+	if ctx.ExecMode() == sdk.ExecModeReCheck {
 		return ctx, fmt.Errorf("recheck tx")
 	}
 
