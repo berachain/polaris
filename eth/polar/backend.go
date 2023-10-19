@@ -219,3 +219,12 @@ func (pl *Polaris) MinerChain() miner.BlockChain {
 func (pl *Polaris) Blockchain() core.Blockchain {
 	return pl.blockchain
 }
+
+// Included in block returns true, if the transaction has been included in a block.
+func (pl *Polaris) IncludedInBlock(hash common.Hash) bool {
+	tle := pl.blockchain.GetTransactionLookup(hash)
+	if tle == nil {
+		return false
+	}
+	return tle.BlockHash != (common.Hash{})
+}
