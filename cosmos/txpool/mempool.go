@@ -99,7 +99,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		[]*coretypes.Transaction{wet.Unwrap()}, false, false,
 	); len(errs) != 0 {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
-		if errors.Is(errs[0], legacypool.ErrAlreadyKnown) && sCtx.IsCheckTx() {
+		if errors.Is(errs[0], legacypool.ErrAlreadyKnown) && sCtx.ExecMode() == sdk.ExecModeCheck {
 			return nil
 		}
 		return errs[0]
