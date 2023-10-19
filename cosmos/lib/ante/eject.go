@@ -36,7 +36,9 @@ func NewAnteHandler() sdk.AnteHandler {
 
 type EjectOnRecheckTxDecorator struct{}
 
-func (EjectOnRecheckTxDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+func (EjectOnRecheckTxDecorator) AnteHandle(
+	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
+) (newCtx sdk.Context, err error) {
 	if ctx.IsReCheckTx() {
 		return ctx, fmt.Errorf("recheck tx")
 	}

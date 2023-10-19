@@ -52,10 +52,6 @@ type (
 		SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscription
 	}
 
-	Eth interface {
-		IncludedInBlock(common.Hash) bool
-	}
-
 	// ExecutionLayerNode is the entrypoint for the evm execution environment.
 	NetworkingStack interface {
 		// IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC API.
@@ -179,8 +175,4 @@ func (el *ExecutionLayer) TxPool() TxPool {
 // Blockchain returns the blockchain interface of the backend of the execution layer.
 func (el *ExecutionLayer) Blockchain() core.Blockchain {
 	return el.backend.Blockchain()
-}
-
-func (el *ExecutionLayer) Backend() *polar.Polaris {
-	return el.backend
 }
