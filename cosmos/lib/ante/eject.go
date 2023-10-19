@@ -26,19 +26,26 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// NewAnteHandler creates a new instance of AnteHandler with EjectOnRecheckTxDecorator.
 func NewAnteHandler() sdk.AnteHandler {
 	anteDecorators := []sdk.AnteDecorator{
-		&EjectOnRecheckTxDecorator{}, // outermost AnteDecorator. SetUpContext must be called first
+		&EjectOnRecheckTxDecorator{},
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...)
 }
 
+// EjectOnRecheckTxDecorator will return an error if the context is a recheck tx.
+// This is used to forcibly eject transactions from the CometBFT mempool after they
+// have been passed down to the application, as we want to prevent the comet mempool
+// from growing in size.
 type EjectOnRecheckTxDecorator struct{}
 
+// Antehandle implements sdk.AnteHandler.
 func (EjectOnRecheckTxDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
-) (newCtx sdk.Context, err error) {
+) (sdk.Context, error) {
+	var newCtx sdk.Context
 	if ctx.IsReCheckTx() {
 		return ctx, fmt.Errorf("recheck tx")
 	}
