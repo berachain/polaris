@@ -114,7 +114,7 @@ type plugin struct {
 
 	mu sync.Mutex
 
-	latestState *sdk.Context
+	latestState sdk.Context
 }
 
 // NewPlugin returns a plugin with the given context and keepers.
@@ -141,8 +141,7 @@ func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
 // Prepare sets up the context on the state plugin for use in JSON-RPC calls.
 // Prepare implements `core.StatePlugin`.
 func (p *plugin) Prepare(ctx context.Context) {
-	sCtx := sdk.UnwrapSDKContext(ctx)
-	p.latestState = &sCtx
+	p.latestState = sdk.UnwrapSDKContext(ctx)
 }
 
 // Reset sets up the state plugin for execution of a new transaction. It sets up the snapshottable
@@ -527,9 +526,6 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 // StateAtBlockNumber implements `core.StatePlugin`.
 func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	var ctx sdk.Context
-	if p.latestState == nil {
-		p.latestState = &ctx
-	}
 	// Ensure the query context function is set.
 	if p.qfn == nil {
 		return nil, errors.New("no query context function set in host chain")
