@@ -24,6 +24,7 @@ import (
 	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth/common"
@@ -33,6 +34,7 @@ import (
 // NewAnteHandler creates a new instance of AnteHandler with EjectOnRecheckTxDecorator.
 func NewAnteHandler() sdk.AnteHandler {
 	anteDecorators := []sdk.AnteDecorator{
+		ante.NewSetUpContextDecorator(),
 		&EjectOnRecheckTxDecorator{
 			seen: make(map[common.Hash]uint64),
 		},
@@ -57,7 +59,7 @@ func (e *EjectOnRecheckTxDecorator) AnteHandle(
 	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
 		hash := wet.Unwrap().Hash()
 		e.seen[hash]++
-		if e.seen[hash] > 50 { //nolint:gomnd // temp fix.
+		if e.seen[hash] > 25 { //nolint:gomnd // temp fix.
 			delete(e.seen, hash) // prevent leak
 			return ctx, errors.New("recheck tx")
 		}
