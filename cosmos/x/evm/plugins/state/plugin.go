@@ -527,7 +527,9 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 // StateAtBlockNumber implements `core.StatePlugin`.
 func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	var ctx sdk.Context
-
+	if p.latestState == nil {
+		p.latestState = &ctx
+	}
 	// Ensure the query context function is set.
 	if p.qfn == nil {
 		return nil, errors.New("no query context function set in host chain")
