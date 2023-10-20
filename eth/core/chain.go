@@ -150,7 +150,6 @@ func (bc *blockchain) LoadLastState(ctx context.Context, number uint64) error {
 }
 
 func (bc *blockchain) PreparePlugins(ctx context.Context) {
-	bc.sp.Prepare(ctx)
 	bc.sp.Reset(ctx)
 	bc.bp.Prepare(ctx)
 	if bc.hp != nil {
