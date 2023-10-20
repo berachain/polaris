@@ -114,7 +114,7 @@ type plugin struct {
 
 	mu sync.Mutex
 
-	latestState sdk.Context
+	latestState *sdk.Context
 }
 
 // NewPlugin returns a plugin with the given context and keepers.
@@ -141,7 +141,8 @@ func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
 // Prepare sets up the context on the state plugin for use in JSON-RPC calls.
 // Prepare implements `core.StatePlugin`.
 func (p *plugin) Prepare(ctx context.Context) {
-	p.latestState = sdk.UnwrapSDKContext(ctx)
+	sCtx := sdk.UnwrapSDKContext(ctx)
+	p.latestState = &sCtx
 }
 
 // Reset sets up the state plugin for execution of a new transaction. It sets up the snapshottable
@@ -150,7 +151,6 @@ func (p *plugin) Prepare(ctx context.Context) {
 // Reset implements `core.StatePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-
 	// We have to build a custom `SnapMulti` to use with the StateDB. This is because the
 	// ethereum utilizes the concept of snapshots, whereas the current implementation of the
 	// Cosmos-SDK `CacheKV` uses "wraps".
