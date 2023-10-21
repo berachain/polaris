@@ -145,12 +145,12 @@ func NewChain(
 func (bc *blockchain) LoadLastState(ctx context.Context, number uint64) error {
 	// ctx here is the one created from app.CommitMultistore().
 	bc.PreparePlugins(ctx)
+	bc.sp.Prepare(ctx)
 
 	return bc.loadLastState(number)
 }
 
 func (bc *blockchain) PreparePlugins(ctx context.Context) {
-	bc.sp.Prepare(ctx)
 	bc.sp.Reset(ctx)
 	bc.bp.Prepare(ctx)
 	if bc.hp != nil {

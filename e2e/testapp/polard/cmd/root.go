@@ -175,8 +175,6 @@ func initCometBFTConfig() *cmtcfg.Config {
 	consensus.TimeoutPrecommit = time.Second * 2
 	consensus.TimeoutCommit = time.Second * 2
 
-	// Disable the indexer
-	cfg.TxIndex.Indexer = "null"
 	return cfg
 }
 

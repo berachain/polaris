@@ -150,7 +150,6 @@ func (p *plugin) Prepare(ctx context.Context) {
 // Reset implements `core.StatePlugin`.
 func (p *plugin) Reset(ctx context.Context) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-
 	// We have to build a custom `SnapMulti` to use with the StateDB. This is because the
 	// ethereum utilizes the concept of snapshots, whereas the current implementation of the
 	// Cosmos-SDK `CacheKV` uses "wraps".
@@ -527,7 +526,6 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 // StateAtBlockNumber implements `core.StatePlugin`.
 func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	var ctx sdk.Context
-
 	// Ensure the query context function is set.
 	if p.qfn == nil {
 		return nil, errors.New("no query context function set in host chain")

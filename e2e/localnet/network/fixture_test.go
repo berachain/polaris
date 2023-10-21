@@ -190,18 +190,28 @@ var _ = Describe("JSON RPC tests", func() {
 			Expect(tf.WaitForNextBlock()).To(Succeed())
 
 			// send a transaction and make sure pending nonce is incremented
-			_, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
+			var tx *coretypes.Transaction
+			tx, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
 			Expect(err).NotTo(HaveOccurred())
+
+			// Pending nonce should be 1 more than the current nonce
 			alicePendingNonce, err := client.PendingNonceAt(context.Background(), tf.Address("alice"))
 			Expect(err).NotTo(HaveOccurred())
 			Expect(alicePendingNonce).To(Equal(aliceCurrNonce + 1))
+
+			// The nonce on disk should still be equal to the nonce prior to the consume gas txn
+			// being included in a block.
 			acn, err := client.NonceAt(context.Background(), tf.Address("alice"), nil)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(acn).To(Equal(aliceCurrNonce))
 
-			Expect(tf.WaitForNextBlock()).To(Succeed())
+			// Wait for block inclusion.
+			ExpectSuccessReceipt(client, tx)
 
+			// NonceAt and PendingNonce should be equal after inclusion
 			aliceCurrNonce, err = client.NonceAt(context.Background(), tf.Address("alice"), nil)
+			Expect(err).NotTo(HaveOccurred())
+			alicePendingNonce, err = client.PendingNonceAt(context.Background(), tf.Address("alice"))
 			Expect(err).NotTo(HaveOccurred())
 			Expect(aliceCurrNonce).To(Equal(alicePendingNonce))
 		})
