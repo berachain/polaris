@@ -160,11 +160,11 @@ func (h *handler) failedLoop() {
 		case <-h.stopCh:
 			return
 		case failed := <-h.failedTxs:
-			if failed.retries >= maxRetries {
-				h.logger.Error("failed to broadcast transaction after max retries", "tx", failed.tx)
+			if failed.retries == 0 {
+				h.logger.Error("failed to broadcast transaction after max retries", "tx", maxRetries)
 				continue
 			}
-			h.broadcastTransaction(failed.tx, failed.retries)
+			h.broadcastTransaction(failed.tx, failed.retries-1)
 		}
 
 		// We slightly space out the retries in order to prioritize new transactions.
@@ -200,7 +200,7 @@ func (h *handler) stop(err error) {
 func (h *handler) broadcastTransactions(txs coretypes.Transactions) {
 	h.logger.Debug("broadcasting transactions", "num_txs", len(txs))
 	for _, signedEthTx := range txs {
-		h.broadcastTransaction(signedEthTx, 0)
+		h.broadcastTransaction(signedEthTx, maxRetries)
 	}
 }
 
