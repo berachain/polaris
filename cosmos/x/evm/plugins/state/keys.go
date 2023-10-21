@@ -91,3 +91,10 @@ func AddressFromCodeHashKey(key []byte) common.Address {
 func AddressFromBalanceKey(key []byte) common.Address {
 	return common.BytesToAddress(key[1:])
 }
+
+func NonceKeyFor(address common.Address) []byte {
+	bz := make([]byte, 1+common.AddressLength)
+	copy(bz, []byte{types.NonceKeyPrefix})
+	copy(bz[1:], address[:])
+	return bz
+}

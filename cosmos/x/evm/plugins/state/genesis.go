@@ -21,7 +21,6 @@
 package state
 
 import (
-	"fmt"
 	"math/big"
 
 	"golang.org/x/exp/slices"
@@ -47,19 +46,7 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {
 	for _, address := range sortedAddresses {
 		account := ethGen.Alloc[address]
 
-		// Initialize the account on the auth keeper.
-		// NOTE: The auth module's init genesis runs before the evm module's init genesis.
-		if p.Exist(address) {
-			// If the account exists on the auth keeper, ensure the nonce is consistent.
-			if p.GetNonce(address) != account.Nonce {
-				return fmt.Errorf(
-					"account nonce mismatch for (%s) between auth (%d) and evm (%d) genesis state",
-					address.Hex(), p.GetNonce(address), account.Nonce,
-				)
-			}
-		} else {
-			p.SetNonce(address, account.Nonce)
-		}
+		p.SetNonce(address, account.Nonce)
 
 		// Initialize the account data on the state plugin.
 		if account.Balance != nil {

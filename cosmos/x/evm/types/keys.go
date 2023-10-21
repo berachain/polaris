@@ -27,6 +27,7 @@ const (
 
 const (
 	CodeKeyPrefix byte = iota
+	NonceKeyPrefix
 	BalanceKeyPrefix
 	StorageKeyPrefix
 	CodeHashKeyPrefix

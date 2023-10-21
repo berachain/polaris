@@ -35,7 +35,6 @@ import (
 	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	"pkg.berachain.dev/polaris/eth/params"
@@ -56,21 +55,19 @@ func TestGenesis(t *testing.T) {
 var _ = Describe("Genesis", func() {
 	var (
 		ctx sdk.Context
-		ak  state.AccountKeeper
 		k   *keeper.Keeper
 		am  evm.AppModule
 		err error
 	)
 
 	BeforeEach(func() {
-		ctx, ak, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
+		ctx, _, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
 		ctx = ctx.WithBlockHeight(0)
 		cfg := config.DefaultConfig()
 		ethGen.Config = params.DefaultChainConfig
 		cfg.Node.DataDir = GinkgoT().TempDir()
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()
 		k = keeper.NewKeeper(
-			ak,
 			testutil.EvmKey,
 			func() *ethprecompile.Injector {
 				return ethprecompile.NewPrecompiles([]ethprecompile.Registrable{}...)
@@ -89,7 +86,7 @@ var _ = Describe("Genesis", func() {
 
 		err = k.SetupPrecompiles()
 		Expect(err).ToNot(HaveOccurred())
-		am = evm.NewAppModule(k, ak)
+		am = evm.NewAppModule(k)
 	})
 
 	Describe("On InitGenesis", func() {

@@ -101,10 +101,6 @@ type plugin struct {
 
 	// Store the evm store key for quick lookups to the evm store
 	storeKey storetypes.StoreKey
-
-	// keepers used for balance and account information.
-	ak AccountKeeper
-
 	// qfn allows for querying state a historical height.
 	qfn func() func(height int64, prove bool) (sdk.Context, error)
 
@@ -119,14 +115,12 @@ type plugin struct {
 
 // NewPlugin returns a plugin with the given context and keepers.
 func NewPlugin(
-	ak AccountKeeper,
 	storeKey storetypes.StoreKey,
 	qfn func() func(height int64, prove bool) (sdk.Context, error),
 	plf events.PrecompileLogFactory,
 ) Plugin {
 	return &plugin{
 		storeKey: storeKey,
-		ak:       ak,
 		plf:      plf,
 		mu:       sync.Mutex{},
 		qfn:      qfn,
@@ -206,20 +200,17 @@ func (p *plugin) Finalize() {
 // CreateAccount implements the `StatePlugin` interface by creating a new account
 // in the account keeper. It will allow accounts to be overridden.
 func (p *plugin) CreateAccount(addr common.Address) {
-	acc := p.ak.NewAccountWithAddress(p.ctx, addr[:])
-
-	// save the new account in the account keeper
-	p.ak.SetAccount(p.ctx, acc)
-
+	store := p.cms.GetKVStore(p.storeKey)
+	store.Set(NonceKeyFor(addr), sdk.Uint64ToBigEndian(0))
 	// initialize the code hash to empty
-	p.cms.GetKVStore(p.storeKey).Set(CodeHashKeyFor(addr), emptyCodeHashBytes)
+	store.Set(CodeHashKeyFor(addr), emptyCodeHashBytes)
 }
 
 // Exist implements the `StatePlugin` interface by reporting whether the given account address
 // exists in the state. Notably this also returns true for suicided accounts, which is accounted
 // for since, `RemoveAccount()` is not called until Commit.
 func (p *plugin) Exist(addr common.Address) bool {
-	return p.ak.HasAccount(p.ctx, addr[:])
+	return p.cms.GetKVStore(p.storeKey).Has(NonceKeyFor(addr))
 }
 
 // Empty implements the `PolarStateDB` interface by returning whether the state object
@@ -236,12 +227,6 @@ func (p *plugin) Empty(addr common.Address) bool {
 // `DeleteAccounts` manually deletes the given accounts.
 func (p *plugin) DeleteAccounts(accounts []common.Address) {
 	for _, account := range accounts {
-		acct := p.ak.GetAccount(p.ctx, account[:])
-		if acct == nil {
-			// handles the double suicide case
-			continue
-		}
-
 		// clear storage
 		_ = p.ForEachStorage(account,
 			func(key, _ common.Hash) bool {
@@ -249,11 +234,11 @@ func (p *plugin) DeleteAccounts(accounts []common.Address) {
 				return true
 			})
 
-		// clear the codehash from this account
-		p.cms.GetKVStore(p.storeKey).Delete(CodeHashKeyFor(account))
-
-		// remove auth account
-		p.ak.RemoveAccount(p.ctx, acct)
+		// remove all other account data
+		store := p.ctx.KVStore(p.storeKey)
+		store.Delete(NonceKeyFor(account))
+		store.Delete(CodeHashKeyFor(account))
+		store.Delete(BalanceKeyFor(account))
 	}
 }
 
@@ -299,11 +284,7 @@ func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
 func (p *plugin) GetNonce(addr common.Address) uint64 {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	acc := p.ak.GetAccount(p.ctx, addr[:])
-	if acc == nil {
-		return 0
-	}
-	return acc.GetSequence()
+	return sdk.BigEndianToUint64(p.ctx.KVStore(p.storeKey).Get(NonceKeyFor(addr)))
 }
 
 // SetNonce implements the `StatePlugin` interface by setting the nonce
@@ -311,17 +292,7 @@ func (p *plugin) GetNonce(addr common.Address) uint64 {
 func (p *plugin) SetNonce(addr common.Address, nonce uint64) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	// get the account or create a new one if doesn't exist
-	acc := p.ak.GetAccount(p.ctx, addr[:])
-	if acc == nil {
-		acc = p.ak.NewAccountWithAddress(p.ctx, addr[:])
-	}
-
-	if err := acc.SetSequence(nonce); err != nil {
-		p.dbErr = err
-	}
-
-	p.ak.SetAccount(p.ctx, acc)
+	p.ctx.KVStore(p.storeKey).Set(NonceKeyFor(addr), sdk.Uint64ToBigEndian(nonce))
 }
 
 // =============================================================================
@@ -331,11 +302,6 @@ func (p *plugin) SetNonce(addr common.Address, nonce uint64) {
 // GetCodeHash implements the `StatePlugin` interface by returning
 // the code hash of account.
 func (p *plugin) GetCodeHash(addr common.Address) common.Hash {
-	if !p.ak.HasAccount(p.ctx, addr[:]) {
-		// if account at addr does not exist, return zeros
-		return common.Hash{}
-	}
-
 	ch := p.cms.GetKVStore(p.storeKey).Get(CodeHashKeyFor(addr))
 	if ch == nil {
 		// account exists but does not have a codehash, return empty
@@ -551,7 +517,7 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	}
 
 	// Create a State Plugin with the requested chain height.
-	sp := NewPlugin(p.ak, p.storeKey, p.qfn, p.plf)
+	sp := NewPlugin(p.storeKey, p.qfn, p.plf)
 	// TODO: Manager properly
 	if p.latestState.MultiStore() != nil {
 		sp.Reset(ctx)
@@ -565,7 +531,7 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 
 // Clone implements libtypes.Cloneable.
 func (p *plugin) Clone() ethstate.Plugin {
-	sp := NewPlugin(p.ak, p.storeKey, p.qfn, p.plf)
+	sp := NewPlugin(p.storeKey, p.qfn, p.plf)
 	// TODO: Manager properly
 	if p.ctx.MultiStore() != nil {
 		cacheCtx, _ := p.ctx.CacheContext()

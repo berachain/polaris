@@ -52,7 +52,6 @@ type Host struct {
 func NewHost(
 	cfg config.Config,
 	storeKey storetypes.StoreKey,
-	ak state.AccountKeeper,
 	precompiles func() *ethprecompile.Injector,
 	qc func() func(height int64, prove bool) (sdk.Context, error),
 ) *Host {
@@ -63,7 +62,7 @@ func NewHost(
 		),
 		pcs: precompiles,
 		pp:  precompile.NewPlugin(),
-		sp:  state.NewPlugin(ak, storeKey, qc, nil),
+		sp:  state.NewPlugin(storeKey, qc, nil),
 	}
 
 	// historical plugin requires block plugin.

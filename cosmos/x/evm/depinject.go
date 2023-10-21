@@ -53,8 +53,6 @@ type DepInjectInput struct {
 	PolarisCfg        func() *config.Config
 	CustomPrecompiles func() *ethprecompile.Injector `optional:"true"`
 	QueryContextFn    func() func(height int64, prove bool) (sdk.Context, error)
-
-	AccountKeeper AccountKeeper
 }
 
 // DepInjectOutput is the output for the dep inject framework.
@@ -73,13 +71,12 @@ func ProvideModule(in DepInjectInput) DepInjectOutput {
 	}
 
 	k := keeper.NewKeeper(
-		in.AccountKeeper,
 		in.Key,
 		in.CustomPrecompiles,
 		in.QueryContextFn,
 		in.PolarisCfg(),
 	)
-	m := NewAppModule(k, in.AccountKeeper)
+	m := NewAppModule(k)
 
 	return DepInjectOutput{
 		Keeper: k,

@@ -136,7 +136,7 @@ type mockSDB struct {
 
 func (ms *mockSDB) GetPlugin() ethstate.Plugin {
 	return state.NewPlugin(
-		nil, nil, nil, nil,
+		nil, nil, nil,
 	)
 }
 

@@ -44,13 +44,12 @@ var (
 )
 
 var _ = Describe("State Plugin", func() {
-	var ak state.AccountKeeper
 	var ctx sdk.Context
 	var sp state.Plugin
 
 	BeforeEach(func() {
-		ctx, ak, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
-		sp = state.NewPlugin(ak, testutil.EvmKey, nil, &mockPLF{})
+		ctx, _, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
+		sp = state.NewPlugin(testutil.EvmKey, nil, &mockPLF{})
 		sp.Reset(ctx)
 	})
 
@@ -64,7 +63,6 @@ var _ = Describe("State Plugin", func() {
 			sp.AddBalance(alice, big.NewInt(50))
 			sp.SetCode(alice, []byte{1, 2, 3})
 			sp.SetState(alice, common.BytesToHash([]byte{1}), common.BytesToHash([]byte{2}))
-
 			sp.Reset(testutil.NewContext(log.NewTestLogger(GinkgoT())))
 
 			Expect(sp.Exist(alice)).To(BeFalse())
@@ -150,49 +148,30 @@ var _ = Describe("State Plugin", func() {
 	})
 
 	Describe("TestCode & CodeHash", func() {
-		When("account does not exist", func() {
-			It("should have empty code hash", func() {
-				Expect(sp.GetCodeHash(alice)).To(Equal(common.Hash{}))
-			})
-			It("should not have code", func() { // ensure account exists
-				Expect(sp.GetCode(alice)).To(BeNil())
-				Expect(sp.GetCodeHash(alice)).To(Equal(common.Hash{}))
-			})
-			It("cannot set code", func() { // ensure account exists
-				sp.SetCode(alice, []byte("code"))
-				Expect(sp.GetCode(alice)).To(BeNil())
-				Expect(sp.GetCodeHash(alice)).To(Equal(common.Hash{}))
-			})
+		BeforeEach(func() {
+			sp.CreateAccount(alice)
 		})
-		When("account exists", func() {
+
+		It("should have empty code hash", func() {
+			Expect(sp.GetCodeHash(alice)).To(Equal(emptyCodeHash))
+		})
+
+		It("should return empty code hash when account exists but no codehash", func() {
+			Expect(sp.GetCodeHash(bob)).To(Equal(emptyCodeHash))
+		})
+
+		When("account has code", func() {
 			BeforeEach(func() {
-				sp.CreateAccount(alice)
+				sp.SetCode(alice, []byte("code"))
 			})
-
+			It("should have code", func() {
+				Expect(sp.GetCode(alice)).To(Equal([]byte("code")))
+				Expect(sp.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash([]byte("code"))))
+			})
 			It("should have empty code hash", func() {
+				sp.SetCode(alice, nil)
+				Expect(sp.GetCode(alice)).To(BeNil())
 				Expect(sp.GetCodeHash(alice)).To(Equal(emptyCodeHash))
-			})
-
-			It("should return empty code hash when account exists but no codehash", func() {
-				addr := ak.NewAccountWithAddress(ctx, bob[:])
-				ak.SetAccount(ctx, addr)
-
-				Expect(sp.GetCodeHash(bob)).To(Equal(emptyCodeHash))
-			})
-
-			When("account has code", func() {
-				BeforeEach(func() {
-					sp.SetCode(alice, []byte("code"))
-				})
-				It("should have code", func() {
-					Expect(sp.GetCode(alice)).To(Equal([]byte("code")))
-					Expect(sp.GetCodeHash(alice)).To(Equal(crypto.Keccak256Hash([]byte("code"))))
-				})
-				It("should have empty code hash", func() {
-					sp.SetCode(alice, nil)
-					Expect(sp.GetCode(alice)).To(BeNil())
-					Expect(sp.GetCodeHash(alice)).To(Equal(emptyCodeHash))
-				})
 			})
 		})
 	})
@@ -316,7 +295,7 @@ var _ = Describe("State Plugin", func() {
 
 			It("should remove storage/codehash/acct", func() {
 				sp.DeleteAccounts([]common.Address{alice, alice})
-				Expect(ak.HasAccount(ctx, alice[:])).To(BeFalse())
+				Expect(sp.Exist(alice)).To(BeFalse())
 				Expect(sp.GetCode(alice)).To(BeNil())
 				Expect(sp.GetState(alice, common.BytesToHash([]byte{1}))).To(Equal(common.Hash{}))
 			})
@@ -328,7 +307,7 @@ var _ = Describe("State Plugin", func() {
 				// Expect(sp.Empty(alice)).To(BeTrue())
 				Expect(sp.GetBalance(alice)).To(Equal(new(big.Int)))
 				Expect(sp.GetNonce(alice)).To(BeZero())
-				Expect(sp.GetCodeHash(alice)).To(Equal(common.Hash{}))
+				Expect(sp.GetCodeHash(alice)).To(Equal(emptyCodeHash))
 				Expect(sp.GetCode(alice)).To(BeNil())
 				Expect(sp.GetState(alice, common.Hash{})).To(Equal(common.Hash{}))
 				// Expect(sp.GetRefund()).To(BeZero())

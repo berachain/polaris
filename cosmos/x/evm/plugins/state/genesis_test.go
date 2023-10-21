@@ -45,14 +45,13 @@ var _ = Describe("Genesis", func() {
 	)
 
 	BeforeEach(func() {
-		var ak state.AccountKeeper
-		ctx, ak, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
-		sp = state.NewPlugin(ak, testutil.EvmKey, nil, &mockPLF{})
+		ctx, _, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
+		sp = state.NewPlugin(testutil.EvmKey, nil, &mockPLF{})
 
 		// Create account for alice, bob
-		acc := ak.NewAccountWithAddress(ctx, bob[:])
-		Expect(acc.SetSequence(2)).To(Succeed())
-		ak.SetAccount(ctx, acc)
+		sp.Reset(ctx)
+		sp.SetNonce(bob, 2)
+		sp.Finalize()
 		sp.Reset(ctx)
 	})
 
@@ -60,10 +59,6 @@ var _ = Describe("Genesis", func() {
 		genesis := new(core.Genesis)
 		genesis.Alloc = make(core.GenesisAlloc)
 		genesis.Alloc[bob] = core.GenesisAccount{Nonce: 1}
-		// Call Init Genesis and expect bob's case to error because of nonce mismatch.
-		Expect(sp.InitGenesis(ctx, genesis)).To(
-			MatchError("account nonce mismatch for (0x0000000000000000000000000000000000626f62) between auth (2) and evm (1) genesis state"), //nolint:lll // test.
-		)
 	})
 
 	It("should init and export genesis", func() {
