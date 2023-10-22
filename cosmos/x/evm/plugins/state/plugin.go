@@ -206,7 +206,10 @@ func (p *plugin) Finalize() {
 // CreateAccount implements the `StatePlugin` interface by creating a new account
 // in the account keeper. It will allow accounts to be overridden.
 func (p *plugin) CreateAccount(addr common.Address) {
-	acc := p.ak.NewAccountWithAddress(p.ctx, addr[:])
+	acc := p.ak.GetAccount(p.ctx, addr[:])
+	if acc == nil {
+		acc = p.ak.NewAccountWithAddress(p.ctx, addr[:])
+	}
 
 	// save the new account in the account keeper
 	p.ak.SetAccount(p.ctx, acc)
