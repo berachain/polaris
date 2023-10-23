@@ -23,7 +23,6 @@ package miner
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -74,9 +73,7 @@ func (m *Miner) PrepareProposal(
 ) (*abci.ResponsePrepareProposal, error) {
 	var payloadEnvelopeBz []byte
 	var err error
-	if payloadEnvelopeBz, err = m.buildBlock(ctx); errors.Is(err, context.DeadlineExceeded) {
-		return nil, err
-	} else if err != nil {
+	if payloadEnvelopeBz, err = m.buildBlock(ctx); err != nil {
 		return nil, err
 	}
 	return &abci.ResponsePrepareProposal{Txs: [][]byte{payloadEnvelopeBz}}, err
