@@ -59,9 +59,9 @@ func (e *EjectOnRecheckTxDecorator) AnteHandle(
 	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
 		hash := wet.Unwrap().Hash()
 		e.seen[hash]++
-		if e.seen[hash] > 25 { //nolint:gomnd // temp fix.
+		if e.seen[hash] > 15 { //nolint:gomnd // temp fix.
 			delete(e.seen, hash) // prevent leak
-			return ctx, errors.New("recheck tx")
+			return ctx, errors.New("erroring to eject transaction from the comet bft mempool")
 		}
 	}
 

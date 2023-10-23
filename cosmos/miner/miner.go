@@ -23,6 +23,8 @@ package miner
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
@@ -50,12 +52,14 @@ type Miner struct {
 	eth.Miner
 	serializer     EnvelopeSerializer
 	currentPayload *miner.Payload
+	payloadTimeout time.Duration
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm eth.Miner) *Miner {
+func New(gm eth.Miner, payloadTimeout time.Duration) *Miner {
 	return &Miner{
-		Miner: gm,
+		Miner:          gm,
+		payloadTimeout: payloadTimeout,
 	}
 }
 
@@ -70,7 +74,9 @@ func (m *Miner) PrepareProposal(
 ) (*abci.ResponsePrepareProposal, error) {
 	var payloadEnvelopeBz []byte
 	var err error
-	if payloadEnvelopeBz, err = m.buildBlock(ctx); err != nil {
+	if payloadEnvelopeBz, err = m.buildBlock(ctx); errors.Is(err, context.DeadlineExceeded) {
+		return nil, err
+	} else if err != nil {
 		return nil, err
 	}
 	return &abci.ResponsePrepareProposal{Txs: [][]byte{payloadEnvelopeBz}}, err
@@ -78,12 +84,12 @@ func (m *Miner) PrepareProposal(
 
 // buildBlock builds and submits a payload, it also waits for the txs
 // to resolve from the underying worker.
-func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, error) {
+func (m *Miner) buildBlock(ctx context.Context) ([]byte, error) {
 	defer m.clearPayload()
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
 		return nil, err
 	}
-	return m.resolveEnvelope(), nil
+	return m.resolveEnvelope(ctx, m.payloadTimeout)
 }
 
 // submitPayloadForBuilding submits a payload for building.
@@ -100,7 +106,6 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 		return err
 	}
 	m.currentPayload = payload
-	sCtx.Logger().Info("submitted payload for building")
 	return nil
 }
 
@@ -116,16 +121,45 @@ func (m *Miner) constructPayloadArgs(ctx sdk.Context) *miner.BuildPayloadArgs {
 }
 
 // resolveEnvelope resolves the payload.
-func (m *Miner) resolveEnvelope() []byte {
+func (m *Miner) resolveEnvelope(ctx context.Context, timeout time.Duration) ([]byte, error) {
+	sCtx := sdk.UnwrapSDKContext(ctx).Logger()
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	resultChan := make(chan []byte, 1)
+	errChan := make(chan error, 1)
+
+	go m.resolvePayload(resultChan, errChan)
+
+	select {
+	case <-ctx.Done():
+		// If we timed out, return an empty payload.
+		// TODO: penalize validators for not being able to deliver the payload?
+		sCtx.Error("failed to resolve envelope, proposing empty payload", "err", ctx.Err())
+		return m.resolveEmptyPayload()
+	case result := <-resultChan:
+		sdk.UnwrapSDKContext(ctx).Logger().Info("successfully resolved envelope")
+		return result, <-errChan
+	}
+}
+
+// resolvePayload is a helper function to resolve the payload in a separate goroutine.
+func (m *Miner) resolvePayload(resultChan chan []byte, errChan chan error) {
 	if m.currentPayload == nil {
-		return nil
+		resultChan <- nil
+		errChan <- nil
+		return
 	}
 	envelope := m.currentPayload.ResolveFull()
-	bz, err := m.serializer.ToSdkTxBytes(envelope, envelope.ExecutionPayload.GasLimit)
-	if err != nil {
-		panic(err)
-	}
-	return bz
+	result, err := m.serializer.ToSdkTxBytes(envelope, envelope.ExecutionPayload.GasLimit)
+	resultChan <- result
+	errChan <- err
+}
+
+// resolveEmptyPayload is a helper function to resolve the empty payload in a separate goroutine.
+func (m *Miner) resolveEmptyPayload() ([]byte, error) {
+	envelope := m.currentPayload.ResolveEmpty()
+	return m.serializer.ToSdkTxBytes(envelope, envelope.ExecutionPayload.GasLimit)
 }
 
 // clearPayload clears the payload.

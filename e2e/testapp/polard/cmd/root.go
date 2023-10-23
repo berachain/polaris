@@ -175,6 +175,8 @@ func initCometBFTConfig() *cmtcfg.Config {
 	consensus.TimeoutPrecommit = time.Second * 2
 	consensus.TimeoutCommit = time.Second * 2
 
+	// Increase Default Mempool size to 50000 (aggressive lol).
+	cfg.Mempool.Size = 50000
 	return cfg
 }
 
