@@ -22,6 +22,7 @@ package state
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/core/state"
 
@@ -155,6 +156,7 @@ func (sdb *stateDB) IntermediateRoot(bool) common.Hash {
 
 // Commit implements vm.PolarStateDB.
 func (sdb *stateDB) Commit(_ uint64, _ bool) (common.Hash, error) {
+	fmt.Println("Commit Called, SDB")
 	if err := sdb.Error(); err != nil {
 		return common.Hash{}, err
 	}

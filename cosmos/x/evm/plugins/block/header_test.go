@@ -141,8 +141,8 @@ func mockQueryContext(height int64, _ bool) (sdk.Context, error) {
 	if err != nil {
 		return sdk.Context{}, err
 	}
-	ctx.KVStore(testutil.EvmKey).Set([]byte{evmtypes.HeaderKey}, headerBz)
-	ctx.KVStore(testutil.EvmKey).Set(header.Hash().Bytes(), header.Number.Bytes())
+	p.ctx.MultiStore().GetKVStore(testutil.EvmKey).Set([]byte{evmtypes.HeaderKey}, headerBz)
+	p.ctx.MultiStore().GetKVStore(testutil.EvmKey).Set(header.Hash().Bytes(), header.Number.Bytes())
 	return ctx, nil
 }
 

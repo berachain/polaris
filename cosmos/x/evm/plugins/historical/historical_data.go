@@ -44,7 +44,7 @@ func (p *plugin) StoreBlock(block *coretypes.Block) error {
 
 	// store block hash to block number.
 	numBz := sdk.Uint64ToBigEndian(blockNum)
-	store := p.ctx.KVStore(p.storeKey)
+	store := p.ctx.MultiStore().GetKVStore(p.storeKey)
 
 	// store block num to block
 	blockBz, err := rlp.EncodeToBytes(block)
@@ -83,7 +83,7 @@ func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipt
 		)
 		return err
 	}
-	prefix.NewStore(p.ctx.KVStore(p.storeKey),
+	prefix.NewStore(p.ctx.MultiStore().GetKVStore(p.storeKey),
 		[]byte{types.BlockHashKeyToReceiptsPrefix}).Set(blockHash.Bytes(), receiptsBz)
 
 	return nil
@@ -94,7 +94,7 @@ func (p *plugin) StoreTransactions(
 	blockNum uint64, blockHash common.Hash, txs coretypes.Transactions,
 ) error {
 	// store all txns in the block.
-	txStore := prefix.NewStore(p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix})
+	txStore := prefix.NewStore(p.ctx.MultiStore().GetKVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix})
 	for txIndex, tx := range txs {
 		txLookupEntry := &coretypes.TxLookupEntry{
 			Tx:        tx,
@@ -119,7 +119,7 @@ func (p *plugin) StoreTransactions(
 
 // GetBlockByNumber returns the block at the given height.
 func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
-	store := p.ctx.KVStore(p.storeKey)
+	store := p.ctx.MultiStore().GetKVStore(p.storeKey)
 	numBz := sdk.Uint64ToBigEndian(number)
 	blockBz := prefix.NewStore(store, []byte{types.BlockNumKeyToBlockPrefix}).Get(numBz)
 	block := &coretypes.Block{}
@@ -132,7 +132,7 @@ func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
 
 // GetBlockByHash returns the block at the given hash.
 func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error) {
-	store := p.ctx.KVStore(p.storeKey)
+	store := p.ctx.MultiStore().GetKVStore(p.storeKey)
 	numBz := prefix.NewStore(
 		store, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
 	if numBz == nil {
@@ -153,7 +153,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEntry, error) {
 	// get tx from off chain.
 	tleBz := prefix.NewStore(
-		p.ctx.KVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
+		p.ctx.MultiStore().GetKVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix}).Get(txHash.Bytes())
 	if tleBz == nil {
 		return nil, core.ErrTxNotFound
 	}
@@ -168,7 +168,7 @@ func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEn
 // GetReceiptsByHash returns the receipts with the given block hash.
 func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, error) {
 	// get receipts from off chain.
-	receiptsBz := prefix.NewStore(p.ctx.KVStore(p.storeKey),
+	receiptsBz := prefix.NewStore(p.ctx.MultiStore().GetKVStore(p.storeKey),
 		[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())
 	if receiptsBz == nil {
 		return nil, fmt.Errorf("failed to find receipts for block hash %s", blockHash.Hex())

@@ -33,6 +33,7 @@ import (
 	"github.com/ethereum/go-ethereum/miner"
 
 	"pkg.berachain.dev/polaris/eth"
+	"pkg.berachain.dev/polaris/eth/core"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
@@ -48,14 +49,16 @@ type EnvelopeSerializer interface {
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
 	eth.Miner
+	chain          core.Blockchain
 	serializer     EnvelopeSerializer
 	currentPayload *miner.Payload
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm eth.Miner) *Miner {
+func New(gm eth.Miner, chain core.Blockchain) *Miner {
 	return &Miner{
 		Miner: gm,
+		chain: chain,
 	}
 }
 
@@ -108,7 +111,7 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 func (m *Miner) constructPayloadArgs(ctx sdk.Context) *miner.BuildPayloadArgs {
 	return &miner.BuildPayloadArgs{
 		Timestamp:    uint64(ctx.BlockTime().Unix()),
-		FeeRecipient: m.Etherbase(),
+		FeeRecipient: common.Address{0x01},
 		Random:       common.Hash{}, /* todo: generated random */
 		Withdrawals:  make(types.Withdrawals, 0),
 		BeaconRoot:   &emptyHash,

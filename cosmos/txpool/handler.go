@@ -224,6 +224,9 @@ func (h *handler) broadcastTransaction(tx *coretypes.Transaction, retries int) {
 		if sdkerrors.ErrMempoolIsFull.Codespace() == rsp.Codespace &&
 			rsp.Code == sdkerrors.ErrMempoolIsFull.ABCICode() {
 			h.logger.Error("failed to broadcast: comet-bft mempool is full", "tx_hash", tx.Hash())
+		} else if sdkerrors.ErrTxInMempoolCache.Codespace() == rsp.Codespace &&
+			rsp.Code == sdkerrors.ErrTxInMempoolCache.ABCICode() {
+			return
 		} else {
 			h.logger.Error("failed to broadcast transaction",
 				"codespace", rsp.Codespace, "code", rsp.Code, "info", rsp.Info, "tx_hash", tx.Hash())

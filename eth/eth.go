@@ -27,7 +27,6 @@ import (
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/miner"
 
-	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/consensus"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
@@ -42,7 +41,7 @@ type (
 	// Miner represents the `Miner` that exists on the backend of the execution layer.
 	Miner interface {
 		BuildPayload(*miner.BuildPayloadArgs) (*miner.Payload, error)
-		Etherbase() common.Address
+		// Etherbase() common.Address
 	}
 
 	// TxPool represents the `TxPool` that exists on the backend of the execution layer.
