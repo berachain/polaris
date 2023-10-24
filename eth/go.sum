@@ -12,8 +12,8 @@ github.com/apapsch/go-jsonmerge/v2 v2.0.0 h1:axGnT1gRIfimI7gJifB699GoE/oq+F2MU7D
 github.com/apapsch/go-jsonmerge/v2 v2.0.0/go.mod h1:lvDnEdqiQrp0O42VQGgmlKpxL1AP2+08jFMw88y4klk=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/berachain/polaris-geth v0.0.0-20231024051314-769b6bbd0c9e h1:RAk7TdPNyOcOy6aJNMmwFBGsg4S+ZTJfPs/YnhtMCf8=
-github.com/berachain/polaris-geth v0.0.0-20231024051314-769b6bbd0c9e/go.mod h1:gkQ5Ygi64ZBh9M/4iXY1R8WqoNCx1Ey0CkYn2BD4/fw=
+github.com/berachain/polaris-geth v0.0.0-20231024060913-70d774cdaecb h1:4oWKO5gaauAaOqAuVFz1J0/5+raBtr+SZuFNOU9HQn0=
+github.com/berachain/polaris-geth v0.0.0-20231024060913-70d774cdaecb/go.mod h1:gkQ5Ygi64ZBh9M/4iXY1R8WqoNCx1Ey0CkYn2BD4/fw=
 github.com/bits-and-blooms/bitset v1.8.0 h1:FD+XqgOZDUxxZ8hzoBFuV9+cGWY9CslN6d5MS5JVb4c=
 github.com/bits-and-blooms/bitset v1.8.0/go.mod h1:7hO7Gc7Pp1vODcmWvKMRA9BNmbv6a/7QIWpPxHddWR8=
 github.com/bmatcuk/doublestar v1.1.1/go.mod h1:UD6OnuiIn0yFxxA2le/rnRU1G4RaI4UvFv1sNto9p6w=
@@ -140,6 +140,7 @@ github.com/google/go-cmp v0.4.0/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.7/go.mod h1:n+brtR0CgQNWTVd5ZUFpTBC8YFBDLK/h/bpaJ8/DtOE=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
+github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
 github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38/go.mod h1:kpwsk12EmLew5upagYY7GY0pfYCcupk39gWOCRROcvE=
 github.com/google/pprof v0.0.0-20230901174712-0191c66da455 h1:YhRUmI1ttDC4sxKY2V62BTI8hCXnyZBV9h38eAanInE=

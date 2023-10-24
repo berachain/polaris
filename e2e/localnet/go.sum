@@ -103,6 +103,7 @@ github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb/go.mod h1:/XxbfmMg
 github.com/google/go-cmp v0.5.4/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
+github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/pprof v0.0.0-20230901174712-0191c66da455 h1:YhRUmI1ttDC4sxKY2V62BTI8hCXnyZBV9h38eAanInE=
 github.com/google/pprof v0.0.0-20230901174712-0191c66da455/go.mod h1:czg5+yv1E0ZGTi6S6vVK1mke0fV+FaUhNGcd6VRS9Ik=
 github.com/google/subcommands v1.2.0/go.mod h1:ZjhPrFU+Olkh9WazFPsl27BQ4UPiG37m3yTrtFlrHVk=
@@ -316,6 +317,7 @@ gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gotest.tools v2.2.0+incompatible h1:VsBPFP1AI068pPrMxtb/S8Zkgf9xEmTLJjfM+P5UIEo=
 gotest.tools v2.2.0+incompatible/go.mod h1:DsYFclhRJ6vuDpmuTbkuFWG+y2sxOXAzmJt81HFBacw=
 gotest.tools/v3 v3.5.1 h1:EENdUnS3pdur5nybKYIh2Vfgc8IUNBjxDPSjtiJcOzU=
+gotest.tools/v3 v3.5.1/go.mod h1:isy3WKz7GK6uNw/sbHzfKBLvlvXwUyV06n6brMxxopU=
 pkg.berachain.dev/polaris/contracts v0.0.0-20231023174626-bf146d519cd3 h1:HuPF3//LfKdnWf4kBKsEBTIvtyzD7ikz/KdoKGxYzDg=
 pkg.berachain.dev/polaris/contracts v0.0.0-20231023174626-bf146d519cd3/go.mod h1:YZZ0c17iFXlmnPyi59b/uaTD4IH71YrMQVn6W9PCVsY=
 pkg.berachain.dev/polaris/eth v0.0.0-20231023174626-bf146d519cd3 h1:HDy1RniHe/9mLhrQrTcjHvshmj64vO+QZvVbRiXnhjc=
