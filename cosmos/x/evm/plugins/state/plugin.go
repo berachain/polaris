@@ -106,15 +106,14 @@ type plugin struct {
 	ak AccountKeeper
 
 	// qfn allows for querying state a historical height.
-	qfn func() func(height int64, prove bool) (sdk.Context, error)
+	latestQueryContext sdk.Context
+	qfn                func() func(height int64, prove bool) (sdk.Context, error)
 
 	// dbErr stores any error that is returned from state modifications on the underlying
 	// keepers.
 	dbErr error
 
 	mu sync.Mutex
-
-	latestState sdk.Context
 }
 
 // NewPlugin returns a plugin with the given context and keepers.
@@ -141,7 +140,7 @@ func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
 // Prepare sets up the context on the state plugin for use in JSON-RPC calls.
 // Prepare implements `core.StatePlugin`.
 func (p *plugin) Prepare(ctx context.Context) {
-	p.latestState = sdk.UnwrapSDKContext(ctx)
+	p.latestQueryContext = sdk.UnwrapSDKContext(ctx)
 }
 
 // Reset sets up the state plugin for execution of a new transaction. It sets up the snapshottable
@@ -206,12 +205,45 @@ func (p *plugin) Finalize() {
 // CreateAccount implements the `StatePlugin` interface by creating a new account
 // in the account keeper. It will allow accounts to be overridden.
 func (p *plugin) CreateAccount(addr common.Address) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	if p.ak.GetAccount(p.ctx, addr[:]) == nil {
 		p.ak.SetAccount(p.ctx, p.ak.NewAccountWithAddress(p.ctx, addr[:]))
 	}
 
 	// initialize the code hash to empty
 	p.cms.GetKVStore(p.storeKey).Set(CodeHashKeyFor(addr), emptyCodeHashBytes)
+}
+
+// GetNonce implements the `StatePlugin` interface by returning the nonce
+// of an account.
+func (p *plugin) GetNonce(addr common.Address) uint64 {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	acc := p.ak.GetAccount(p.ctx, addr[:])
+	if acc == nil {
+		return 0
+	}
+	return acc.GetSequence()
+}
+
+// SetNonce implements the `StatePlugin` interface by setting the nonce
+// of an account.
+func (p *plugin) SetNonce(addr common.Address, nonce uint64) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	// get the account or create a new one if doesn't exist
+	acc := p.ak.GetAccount(p.ctx, addr[:])
+	if acc == nil {
+		acc = p.ak.NewAccountWithAddress(p.ctx, addr[:])
+	}
+
+	if err := acc.SetSequence(nonce); err != nil {
+		p.dbErr = err
+	}
+
+	p.ak.SetAccount(p.ctx, acc)
 }
 
 // Exist implements the `StatePlugin` interface by reporting whether the given account address
@@ -262,12 +294,12 @@ func (p *plugin) DeleteAccounts(accounts []common.Address) {
 
 // GetBalance implements `StatePlugin` interface.
 func (p *plugin) GetBalance(addr common.Address) *big.Int {
-	return new(big.Int).SetBytes(p.ctx.KVStore(p.storeKey).Get(BalanceKeyFor(addr)))
+	return new(big.Int).SetBytes(p.cms.GetKVStore(p.storeKey).Get(BalanceKeyFor(addr)))
 }
 
 // SetBalance implements `StatePlugin` interface.
 func (p *plugin) SetBalance(addr common.Address, amount *big.Int) {
-	p.ctx.KVStore(p.storeKey).Set(BalanceKeyFor(addr), amount.Bytes())
+	p.cms.GetKVStore(p.storeKey).Set(BalanceKeyFor(addr), amount.Bytes())
 }
 
 // AddBalance implements the `StatePlugin` interface by adding the given amount
@@ -287,40 +319,6 @@ func (p *plugin) SubBalance(addr common.Address, amount *big.Int) {
 		return
 	}
 	p.SetBalance(addr, new(big.Int).Sub(p.GetBalance(addr), amount))
-}
-
-// =============================================================================
-// Nonce
-// =============================================================================
-
-// GetNonce implements the `StatePlugin` interface by returning the nonce
-// of an account.
-func (p *plugin) GetNonce(addr common.Address) uint64 {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	acc := p.ak.GetAccount(p.ctx, addr[:])
-	if acc == nil {
-		return 0
-	}
-	return acc.GetSequence()
-}
-
-// SetNonce implements the `StatePlugin` interface by setting the nonce
-// of an account.
-func (p *plugin) SetNonce(addr common.Address, nonce uint64) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	// get the account or create a new one if doesn't exist
-	acc := p.ak.GetAccount(p.ctx, addr[:])
-	if acc == nil {
-		acc = p.ak.NewAccountWithAddress(p.ctx, addr[:])
-	}
-
-	if err := acc.SetSequence(nonce); err != nil {
-		p.dbErr = err
-	}
-
-	p.ak.SetAccount(p.ctx, acc)
 }
 
 // =============================================================================
@@ -533,12 +531,12 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	int64Number := int64(number)
 	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
 	// Investigate and hopefully remove this GTE.
-	if int64Number >= p.latestState.BlockHeight() {
+	if int64Number >= p.latestQueryContext.BlockHeight() {
 		// TODO: Manager properly
-		if p.latestState.MultiStore() == nil {
-			ctx = p.latestState.WithEventManager(sdk.NewEventManager())
+		if p.latestQueryContext.MultiStore() == nil {
+			ctx = p.latestQueryContext.WithEventManager(sdk.NewEventManager())
 		} else {
-			ctx, _ = p.latestState.CacheContext()
+			ctx, _ = p.latestQueryContext.CacheContext()
 		}
 	} else {
 		// Get the query context at the given height.
@@ -552,7 +550,7 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	// Create a State Plugin with the requested chain height.
 	sp := NewPlugin(p.ak, p.storeKey, p.qfn, p.plf)
 	// TODO: Manager properly
-	if p.latestState.MultiStore() != nil {
+	if p.latestQueryContext.MultiStore() != nil {
 		sp.Reset(ctx)
 	}
 	return sp, nil

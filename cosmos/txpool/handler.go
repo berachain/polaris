@@ -220,14 +220,23 @@ func (h *handler) broadcastTransaction(tx *coretypes.Transaction, retries int) {
 	if err != nil {
 		h.logger.Error("error on transactions broadcast", "err", err)
 		h.failedTxs <- &failedTx{tx: tx, retries: retries}
-	} else if rsp != nil && rsp.Code != 0 {
-		if sdkerrors.ErrMempoolIsFull.Codespace() == rsp.Codespace &&
-			rsp.Code == sdkerrors.ErrMempoolIsFull.ABCICode() {
-			h.logger.Error("failed to broadcast: comet-bft mempool is full", "tx_hash", tx.Hash())
-		} else {
-			h.logger.Error("failed to broadcast transaction",
-				"codespace", rsp.Codespace, "code", rsp.Code, "info", rsp.Info, "tx_hash", tx.Hash())
-		}
-		h.failedTxs <- &failedTx{tx: tx, retries: retries}
+		return
 	}
+
+	if rsp == nil || rsp.Code == 0 {
+		return
+	}
+
+	switch rsp.Code {
+	case sdkerrors.ErrMempoolIsFull.ABCICode():
+		h.logger.Error("failed to broadcast: comet-bft mempool is full", "tx_hash", tx.Hash())
+	case
+		sdkerrors.ErrTxInMempoolCache.ABCICode():
+		return
+	default:
+		h.logger.Error("failed to broadcast transaction",
+			"codespace", rsp.Codespace, "code", rsp.Code, "info", rsp.Info, "tx_hash", tx.Hash())
+	}
+
+	h.failedTxs <- &failedTx{tx: tx, retries: retries}
 }

@@ -31,6 +31,8 @@ import (
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
+const numBlocksWait = 10
+
 // NewAnteHandler creates a new instance of AnteHandler with EjectOnRecheckTxDecorator.
 func NewAnteHandler() sdk.AnteHandler {
 	anteDecorators := []sdk.AnteDecorator{
@@ -59,7 +61,7 @@ func (e *EjectOnRecheckTxDecorator) AnteHandle(
 	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
 		hash := wet.Unwrap().Hash()
 		e.seen[hash]++
-		if e.seen[hash] > 25 { //nolint:gomnd // temp fix.
+		if e.seen[hash] > numBlocksWait {
 			delete(e.seen, hash) // prevent leak
 			return ctx, errors.New("recheck tx")
 		}
