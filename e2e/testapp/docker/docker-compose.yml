@@ -94,6 +94,7 @@ services:
         ipv4_address: 192.168.10.13
 
   nginx:
+    depends_on: [ node0, node1, node2, node3 ]
     container_name: nginx
     image: nginx:latest
     ports:
