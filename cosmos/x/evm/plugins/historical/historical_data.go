@@ -94,7 +94,9 @@ func (p *plugin) StoreTransactions(
 	blockNum uint64, blockHash common.Hash, txs coretypes.Transactions,
 ) error {
 	// store all txns in the block.
-	txStore := prefix.NewStore(p.ctx.MultiStore().GetKVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix})
+	txStore := prefix.NewStore(
+		p.ctx.MultiStore().GetKVStore(p.storeKey), []byte{types.TxHashKeyToTxPrefix},
+	)
 	for txIndex, tx := range txs {
 		txLookupEntry := &coretypes.TxLookupEntry{
 			Tx:        tx,

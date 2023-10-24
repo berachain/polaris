@@ -85,13 +85,16 @@ func New(
 		logger: logger,
 	}
 
-	p.ExecutionLayer, err = eth.New("geth", cfg, host, engine, LoggerFuncHandler(logger))
+	p.ExecutionLayer, err = eth.New(
+		"geth", cfg, host, engine, LoggerFuncHandler(logger),
+	)
 	if err != nil {
 		panic(err)
 	}
 
+	// Wrap the geth miner and txpool with the cosmos miner and txpool.
 	p.WrappedTxPool = txpool.New(p.TxPool())
-	p.WrappedMiner = miner.New(p.Miner(), p.Blockchain())
+	p.WrappedMiner = miner.New(p.Miner())
 
 	return p
 }

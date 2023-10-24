@@ -41,14 +41,14 @@ func (k *Keeper) ProcessPayloadEnvelope(
 		envelope engine.ExecutionPayloadEnvelope
 	)
 	// TODO: maybe we just consume the block gas limit and call it a day?
-	sCtx := sdk.UnwrapSDKContext(ctx).WithGasMeter(storetypes.NewInfiniteGasMeter()).WithKVGasConfig(storetypes.GasConfig{})
+	sCtx := sdk.UnwrapSDKContext(ctx)
 	gasMeter := sCtx.GasMeter()
 	blockGasMeter := sCtx.BlockGasMeter()
 
 	// Reset GasMeter to 0.
 	gasMeter.RefundGas(gasMeter.GasConsumed(), "reset before evm block")
 	blockGasMeter.RefundGas(blockGasMeter.GasConsumed(), "reset before evm block")
-	defer gasMeter.RefundGas(gasMeter.GasConsumed(), "reset after evm")
+	defer gasMeter.ConsumeGas(gasMeter.GasConsumed(), "reset after evm")
 
 	if err = envelope.UnmarshalJSON(msg.Data); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal payload envelope: %w", err)
@@ -60,7 +60,7 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	}
 
 	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
-	k.chain.PreparePlugins(sCtx)
+	k.chain.PreparePlugins(ctx)
 	if err = k.chain.InsertBlockWithoutSetHead(block); err != nil {
 		return nil, err
 	}
