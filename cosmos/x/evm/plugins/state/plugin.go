@@ -233,7 +233,12 @@ func (p *plugin) SetNonce(addr common.Address, nonce uint64) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
+	// get the account or create a new one if doesn't exist
 	acc := p.ak.GetAccount(p.ctx, addr[:])
+	if acc == nil {
+		acc = p.ak.NewAccountWithAddress(p.ctx, addr[:])
+	}
+
 	if err := acc.SetSequence(nonce); err != nil {
 		p.dbErr = err
 	}
