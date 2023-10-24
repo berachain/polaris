@@ -12,8 +12,8 @@ require (
 	github.com/onsi/gomega v1.27.10
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/text v0.13.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231011003341-63d98bc34da2
-	pkg.berachain.dev/polaris/lib v0.0.0-20231011003341-63d98bc34da2
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231023174626-bf146d519cd3
+	pkg.berachain.dev/polaris/lib v0.0.0-20231023174626-bf146d519cd3
 )
 
 require (
@@ -62,7 +62,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
-	github.com/google/go-cmp v0.5.9 // indirect
+	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/pprof v0.0.0-20230901174712-0191c66da455 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
