@@ -527,18 +527,16 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	if p.qfn == nil {
 		return nil, errors.New("no query context function set in host chain")
 	}
-	var sp Plugin
+
 	int64Number := int64(number)
+	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
 	// Investigate and hopefully remove this GTE.
 	if int64Number >= p.latestQueryContext.BlockHeight() {
 		// TODO: Manager properly
 		if p.latestQueryContext.MultiStore() == nil {
-			sp = NewPlugin(p.ak, p.storeKey, p.qfn, p.plf)
+			ctx = p.latestQueryContext.WithEventManager(sdk.NewEventManager())
 		} else {
 			ctx, _ = p.latestQueryContext.CacheContext()
-			// Create a State Plugin with the requested chain height.
-			sp = NewPlugin(p.ak, p.storeKey, p.qfn, p.plf)
-			sp.Reset(ctx)
 		}
 	} else {
 		// Get the query context at the given height.
@@ -547,10 +545,14 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 		if err != nil {
 			return nil, err
 		}
-		sp = NewPlugin(p.ak, p.storeKey, p.qfn, p.plf)
-		sp.Reset(ctx)
 	}
 
+	// Create a State Plugin with the requested chain height.
+	sp := NewPlugin(p.ak, p.storeKey, p.qfn, p.plf)
+	// TODO: Manager properly
+	if p.latestQueryContext.MultiStore() != nil {
+		sp.Reset(ctx)
+	}
 	return sp, nil
 }
 
