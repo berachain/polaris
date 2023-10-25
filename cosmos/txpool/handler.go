@@ -136,7 +136,7 @@ func (h *handler) Stop() error {
 func (h *handler) queueLoop() {
 	// Connect to the subscription.
 	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
-	h.logger.With("module", "txpool-handler").Info("The txpool handler is starting")
+	h.logger.With("module", "txpool-handler").Info("txpool handler is starting")
 	h.running.Store(true)
 
 	// Handle events.
