@@ -211,7 +211,6 @@ func (h *handler) stop(err error) {
 	// Close channels.
 	close(h.txsCh)
 	close(h.stopCh)
-	close(h.stopCh)
 }
 
 // queueTransactions method will propagate a batch of transactions to the CometBFT mempool.

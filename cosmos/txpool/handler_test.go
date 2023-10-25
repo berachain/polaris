@@ -83,7 +83,6 @@ var _ = Describe("", func() {
 		It("should handle 1 tx", func() {
 			defer GinkgoRecover()
 			serializer.On("ToSdkTxBytes", mock.Anything, mock.Anything).Return([]byte{123}, nil).Once()
-			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Once()
 
 			h.txsCh <- core.NewTxsEvent{
 				Txs: []*coretypes.Transaction{coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5, Gas: 100})},
@@ -93,7 +92,6 @@ var _ = Describe("", func() {
 		It("should handle multiple tx", func() {
 			defer GinkgoRecover()
 			serializer.On("ToSdkTxBytes", mock.Anything, mock.Anything).Return([]byte{123}, nil).Twice()
-			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Twice()
 
 			h.txsCh <- core.NewTxsEvent{Txs: []*coretypes.Transaction{
 				coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5, Gas: 10}),
