@@ -23,6 +23,7 @@ package miner
 
 import (
 	"context"
+	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
@@ -38,6 +39,10 @@ import (
 
 // emptyHash is a common.Hash initialized to all zeros.
 var emptyHash = common.Hash{}
+
+// minPayloadTime is the minimum amount of time to give the
+// payload a chance to be built.
+const minPayloadtime = time.Millisecond * 200
 
 // EnvelopeSerializer is used to convert an envelope into a byte slice that represents
 // a cosmos sdk.Tx.
@@ -83,6 +88,10 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, error) {
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
 		return nil, err
 	}
+
+	// We wait minPayloadTime to allow the block to actually be built
+	// before resolving.
+	time.Sleep(minPayloadtime)
 	return m.resolveEnvelope(), nil
 }
 
