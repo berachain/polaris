@@ -1,6 +1,6 @@
 # RPC Hive
 
-The RPC Hive directory runs the tests specified by the `ethereum/rpc` simluation test spec.
+The RPC Hive directory runs the tests specified by the `ethereum/rpc` simulation test spec.
 
 These tests are run as go functions, and required a few changes to comply with Polaris logic.
 
