@@ -158,14 +158,14 @@ func (h *handler) queueLoop() {
 // queue. It runs in a loop and performs the following steps:
 // broadcastLoop method broadcasts transactions from the queue.
 func (h *handler) broadcastLoop() {
+	txCh := make(chan []byte)
 	for {
+		txCh <- h.dequeueTxBytes()
 		select {
 		case <-h.stopCh:
 			return
-		case <-time.After(emptyQueueBackoff):
-			if tx := h.dequeueTxBytes(); tx != nil {
-				h.broadcastTx(tx)
-			}
+		case tx := <-txCh:
+			h.broadcastTx(tx)
 		}
 	}
 }
