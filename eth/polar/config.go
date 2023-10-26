@@ -50,7 +50,6 @@ func DefaultConfig() *Config {
 	gpoConfig := ethconfig.FullNodeGPO
 	gpoConfig.Default = big.NewInt(gpoDefault)
 	minerCfg := miner.DefaultConfig
-	minerCfg.GasPrice = big.NewInt(1e7)
 	minerCfg.Etherbase = common.HexToAddress(developmentCoinbase)
 	// TODO: setup proper command line flags
 	return &Config{
