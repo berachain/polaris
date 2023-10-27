@@ -214,10 +214,7 @@ jobs:
           forge install
           nohup make start < /dev/null &
 
-          until $(curl --output /dev/null --silent --head --fail 127.0.0.1:8545); do
-            printf '.'
-            sleep 5
-          done
+          sleep 60
           
           cd ../txfuzz/cmd/livefuzzer
           go build
