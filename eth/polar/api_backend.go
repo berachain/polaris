@@ -313,7 +313,8 @@ func (b *backend) StateAndHeaderByNumber(
 	// Pending state is only known by the miner
 	if number == rpc.PendingBlockNumber {
 		header = b.polar.blockchain.CurrentBlock()
-		// The above code is returning a block from the blockchain based on the given header hash and block
+		// The above code is returning a block from the blockchain based on the given header
+		// hash and block
 		// number.
 		// return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
 		// block, state := b.polar.miner.Pending()
