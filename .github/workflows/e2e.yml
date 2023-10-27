@@ -214,7 +214,7 @@ jobs:
           forge install
           nohup make start < /dev/null &
 
-          sleep 60
+          sleep 121
           
           cd ../txfuzz/cmd/livefuzzer
           go build
