@@ -92,6 +92,11 @@ var _ = Describe("Governance Precompile", func() {
 			common.BytesToAddress(caller),
 			big.NewInt(0),
 		)
+		params, err := gk.Params.Get(ctx)
+		Expect(err).ToNot(HaveOccurred())
+		params.MinDeposit = sdk.NewCoins(sdk.NewInt64Coin("abera", 100))
+		err = gk.Params.Set(ctx, params)
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	AfterEach(func() {

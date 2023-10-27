@@ -29,18 +29,18 @@ import "../lib/forge-std/src/Script.sol";
 import "../src/testing/SolmateERC20.sol";
 
 contract DeployAndCallERC20 is Script {
-  function run() public {
-    address dropAddress = address(12);
-    uint256 quantity = 50000;
+    function run() public {
+        address dropAddress = address(12);
+        uint256 quantity = 50000;
 
-    vm.startBroadcast();
-    SolmateERC20 drop = new SolmateERC20();
+        vm.startBroadcast();
+        SolmateERC20 drop = new SolmateERC20();
 
-    for (uint256 i = 0; i < 66; i++) {
-      quantity += 50000;
-      drop.mint(dropAddress, quantity);
+        for (uint256 i = 0; i < 10066; i++) {
+            quantity += 50000;
+            drop.mint(dropAddress, quantity);
+        }
+
+        vm.stopBroadcast();
     }
-
-    vm.stopBroadcast();
-  }
 }

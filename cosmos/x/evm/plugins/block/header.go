@@ -67,7 +67,7 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 //
 // GetHeaderByHash implements core.BlockPlugin.
 func (p *plugin) GetHeaderByHash(hash common.Hash) (*coretypes.Header, error) {
-	numBz := p.ctx.KVStore(p.storekey).Get(hash.Bytes())
+	numBz := p.ctx.MultiStore().GetKVStore(p.storekey).Get(hash.Bytes())
 	if numBz == nil {
 		return nil, core.ErrHeaderNotFound
 	}
@@ -95,7 +95,7 @@ func (p *plugin) StoreHeader(header *coretypes.Header) error {
 		return p.writeGenesisHeaderBytes(headerHash, headerBz)
 	}
 
-	kvstore := p.ctx.KVStore(p.storekey)
+	kvstore := p.ctx.MultiStore().GetKVStore(p.storekey)
 	// set header key
 	kvstore.Set([]byte{types.HeaderKey}, headerBz)
 
@@ -139,7 +139,7 @@ func (p *plugin) readHeaderBytes(number uint64) ([]byte, error) {
 	}
 
 	// Unmarshal the header at IAVL height from its context kv store.
-	return ctx.KVStore(p.storekey).Get([]byte{types.HeaderKey}), nil
+	return ctx.MultiStore().GetKVStore(p.storekey).Get([]byte{types.HeaderKey}), nil
 }
 
 // writeGenesisHeaderBytes writes the genesis header to the kvstore.
@@ -147,12 +147,12 @@ func (p *plugin) readHeaderBytes(number uint64) ([]byte, error) {
 //	GenesisHeaderKey --> Header bytes
 //	Header Hash      --> 0
 func (p *plugin) writeGenesisHeaderBytes(headerHash common.Hash, headerBz []byte) error {
-	p.ctx.KVStore(p.storekey).Set([]byte{types.GenesisHeaderKey}, headerBz)
-	p.ctx.KVStore(p.storekey).Set(headerHash.Bytes(), new(big.Int).Bytes())
+	p.ctx.MultiStore().GetKVStore(p.storekey).Set([]byte{types.GenesisHeaderKey}, headerBz)
+	p.ctx.MultiStore().GetKVStore(p.storekey).Set(headerHash.Bytes(), new(big.Int).Bytes())
 	return nil
 }
 
 // readGenesisHeaderBytes returns the header bytes at the genesis key.
 func (p *plugin) readGenesisHeaderBytes() []byte {
-	return p.ctx.KVStore(p.storekey).Get([]byte{types.GenesisHeaderKey})
+	return p.ctx.MultiStore().GetKVStore(p.storekey).Get([]byte{types.GenesisHeaderKey})
 }

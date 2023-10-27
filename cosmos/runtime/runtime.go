@@ -85,10 +85,16 @@ func New(
 		logger: logger,
 	}
 
-	p.ExecutionLayer, err = eth.New("geth", cfg, host, engine, LoggerFuncHandler(logger))
+	p.ExecutionLayer, err = eth.New(
+		"geth", cfg, host, engine, LoggerFuncHandler(logger),
+	)
 	if err != nil {
 		panic(err)
 	}
+
+	// Wrap the geth miner and txpool with the cosmos miner and txpool.
+	p.WrappedTxPool = txpool.New(p.TxPool())
+	p.WrappedMiner = miner.New(p.Miner())
 
 	return p
 }
@@ -97,10 +103,7 @@ func New(
 // It takes a BaseApp and an EVMKeeper as arguments.
 // It returns an error if the setup fails.
 func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
-	p.WrappedTxPool = txpool.New(p.TxPool())
 	app.SetMempool(p.WrappedTxPool)
-
-	p.WrappedMiner = miner.New(p.Miner())
 	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
 
 	if err := ek.Setup(p.Blockchain()); err != nil {

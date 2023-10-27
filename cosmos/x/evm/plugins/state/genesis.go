@@ -58,6 +58,7 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {
 				)
 			}
 		} else {
+			p.CreateAccount(address)
 			p.SetNonce(address, account.Nonce)
 		}
 
@@ -65,12 +66,14 @@ func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {
 		if account.Balance != nil {
 			p.SetBalance(address, account.Balance)
 		}
+
 		if account.Code != nil {
 			p.SetCode(address, account.Code)
 		} else {
 			// Initialize the code hash to be empty by default.
 			p.cms.GetKVStore(p.storeKey).Set(CodeHashKeyFor(address), emptyCodeHashBytes)
 		}
+
 		if account.Storage != nil {
 			p.SetStorage(address, account.Storage)
 		}
