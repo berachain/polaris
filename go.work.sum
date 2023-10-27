@@ -492,11 +492,11 @@ github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd3
 github.com/aymerick/raymond v2.0.3-0.20180322193309-b565731e1464+incompatible h1:Ppm0npCCsmuR9oQaBtRuZcmILVE74aXE+AmrJj8L2ns=
 github.com/berachain/polaris-geth 88eca5365ecc96474ca94bd4f0d8d9d99bed2a09 h1:qqyoNcIlOSnIuCmofS6HRSrEXcAupPlqgEFtQij35E0=
 github.com/berachain/polaris-geth 88eca5365ecc96474ca94bd4f0d8d9d99bed2a09/go.mod h1:gkQ5Ygi64ZBh9M/4iXY1R8WqoNCx1Ey0CkYn2BD4/fw=
+github.com/berachain/polaris-geth v0.0.0-20231012174642-6e1d46cd32f5 h1:qqyoNcIlOSnIuCmofS6HRSrEXcAupPlqgEFtQij35E0=
+github.com/berachain/polaris-geth v0.0.0-20231012174642-6e1d46cd32f5/go.mod h1:gkQ5Ygi64ZBh9M/4iXY1R8WqoNCx1Ey0CkYn2BD4/fw=
 github.com/berachain/polaris-geth v0.0.0-20231024032003-b94ca5da2234/go.mod h1:gkQ5Ygi64ZBh9M/4iXY1R8WqoNCx1Ey0CkYn2BD4/fw=
 github.com/berachain/polaris-geth v0.0.0-20231024032731-4fdd2b9deba9/go.mod h1:gkQ5Ygi64ZBh9M/4iXY1R8WqoNCx1Ey0CkYn2BD4/fw=
 github.com/berachain/polaris-geth v0.0.0-20231024043959-88eca5365ecc/go.mod h1:I0U5VewuuTzvBtVzKo7b3hJzDhXOUtn9mJW7SsIPB0Q=
-github.com/berachain/polaris-geth v0.0.0-20231024060913-70d774cdaecb h1:4oWKO5gaauAaOqAuVFz1J0/5+raBtr+SZuFNOU9HQn0=
-github.com/berachain/polaris-geth v0.0.0-20231024060913-70d774cdaecb/go.mod h1:gkQ5Ygi64ZBh9M/4iXY1R8WqoNCx1Ey0CkYn2BD4/fw=
 github.com/bits-and-blooms/bitset v1.7.0/go.mod h1:gIdJ4wp64HaoK2YrL1Q5/N7Y16edYb8uY+O0FJTyyDA=
 github.com/blang/semver/v4 v4.0.0 h1:1PFHFE6yCCTv8C1TeyNNarDzntLi7wMI5i/pzqYIsAM=
 github.com/blang/semver/v4 v4.0.0/go.mod h1:IbckMUScFkM3pff0VJDNKRiT6TG/YpiHIM2yvyW5YoQ=

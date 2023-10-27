@@ -22,7 +22,6 @@ package state
 
 import (
 	"context"
-	"errors"
 	"math/big"
 	"sync"
 
@@ -63,6 +62,7 @@ type Plugin interface {
 	SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
 	// SetPrecompileLogFactory sets the precompile log factory for the plugin.
 	SetPrecompileLogFactory(events.PrecompileLogFactory)
+	SetCommitStore(storetypes.CommitMultiStore)
 }
 
 // The StatePlugin is a very fun and interesting part of the EVM implementation. But if you want to
@@ -114,6 +114,8 @@ type plugin struct {
 	dbErr error
 
 	mu sync.Mutex
+
+	rms NullCommiter
 }
 
 // NewPlugin returns a plugin with the given context and keepers.
@@ -516,6 +518,10 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 	}
 }
 
+func (p *plugin) SetCommitStore(s storetypes.CommitMultiStore) {
+	p.rms = NullCommiter{CommitMultiStore: s}
+}
+
 // =============================================================================
 // Historical State
 // =============================================================================
@@ -523,36 +529,18 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 // StateAtBlockNumber implements `core.StatePlugin`.
 func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	var ctx sdk.Context
-	// Ensure the query context function is set.
-	if p.qfn == nil {
-		return nil, errors.New("no query context function set in host chain")
+
+	ms, err := p.rms.CacheMultiStoreWithVersion(int64(number))
+	if err != nil {
+		ms = p.rms.CacheMultiStore()
 	}
 
-	int64Number := int64(number)
-	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
-	// Investigate and hopefully remove this GTE.
-	if int64Number >= p.latestQueryContext.BlockHeight() {
-		// TODO: Manager properly
-		if p.latestQueryContext.MultiStore() == nil {
-			ctx = p.latestQueryContext.WithEventManager(sdk.NewEventManager())
-		} else {
-			ctx, _ = p.latestQueryContext.CacheContext()
-		}
-	} else {
-		// Get the query context at the given height.
-		var err error
-		ctx, err = p.qfn()(int64Number, false)
-		if err != nil {
-			return nil, err
-		}
-	}
+	ctx = ctx.WithMultiStore(NullCacher{CacheMultiAlias: ms}).WithEventManager(sdk.NewEventManager()).
+		WithGasMeter(storetypes.NewInfiniteGasMeter()).WithKVGasConfig(storetypes.GasConfig{})
 
 	// Create a State Plugin with the requested chain height.
 	sp := NewPlugin(p.ak, p.storeKey, p.qfn, p.plf)
-	// TODO: Manager properly
-	if p.latestQueryContext.MultiStore() != nil {
-		sp.Reset(ctx)
-	}
+	sp.Reset(ctx)
 	return sp, nil
 }
 
@@ -574,4 +562,22 @@ func (p *plugin) Clone() ethstate.Plugin {
 // SetGasConfig implements Plugin.
 func (p *plugin) SetGasConfig(kvGasConfig, transientKVGasConfig storetypes.GasConfig) {
 	p.ctx = p.ctx.WithKVGasConfig(kvGasConfig).WithTransientKVGasConfig(transientKVGasConfig)
+}
+
+type NullCommiter struct {
+	storetypes.CommitMultiStore
+}
+
+func (NullCommiter) Commit() storetypes.CommitID {
+	return storetypes.CommitID{}
+}
+
+type CacheMultiAlias = storetypes.CacheMultiStore
+
+type NullCacher struct {
+	CacheMultiAlias
+}
+
+func (NullCacher) Write() {
+	// no-opf
 }

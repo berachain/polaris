@@ -71,6 +71,10 @@ func NewKeeper(
 	}
 }
 
+func (k *Keeper) SetCommitStore(s storetypes.CommitMultiStore) {
+	k.Host.sp.SetCommitStore(s)
+}
+
 func (k *Keeper) Setup(chain Blockchain) error {
 	k.chain = chain
 	return k.SetupPrecompiles()
