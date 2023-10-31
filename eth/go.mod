@@ -41,6 +41,7 @@ require (
 	github.com/deckarep/golang-set/v2 v2.3.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/deepmap/oapi-codegen v1.13.4 // indirect
+	github.com/docker/docker v24.0.7+incompatible // indirect
 	github.com/ethereum/c-kzg-4844 v0.3.1 // indirect
 	github.com/fjl/memsize v0.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
