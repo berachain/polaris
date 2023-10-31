@@ -24,7 +24,7 @@
 
 # How to run manually:
 # docker build --pull --rm -f "contrib/devtools/Dockerfile" -t cosmossdk-proto:latest "contrib/devtools"
-# docker run --rm -v $(pwd):/workspace --workdir /workspace cosmossdk-proto sh ./scripts/protocgen.sh
+# docker run --rm -v $(pwd):/workspace --workdir /workspace cosmossdk-proto sh ./build/scripts/protocgen.sh
 
 set -e
 
@@ -49,4 +49,4 @@ rm -rf pkg.berachain.dev
 
 cd ../
 
-./scripts/proto_generate_pulsar.sh
+./build/scripts/proto_generate_pulsar.sh

@@ -23,7 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-pragma solidity ^0.8.4;
+pragma solidity 0.8.22;
 
 /**
  * @dev This library contains types used by the Cosmos module.
@@ -64,7 +64,10 @@ library Cosmos {
  */
 contract CosmosTypes {
     function coin(Cosmos.Coin calldata) public pure {}
+
     function pageRequest(Cosmos.PageRequest calldata) public pure {}
+
     function pageResponse(Cosmos.PageResponse calldata) public pure {}
+
     function codecAny(Cosmos.CodecAny calldata) public pure {}
 }

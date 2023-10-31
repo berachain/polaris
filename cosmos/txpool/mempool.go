@@ -33,6 +33,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth"
+	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -49,19 +50,26 @@ type Lifecycle interface {
 	Stop() error
 }
 
+// GethTxPool is used for generating mocks.
+type GethTxPool interface {
+	eth.TxPool
+}
+
 // Mempool is a mempool that adheres to the cosmos mempool interface.
 // It purposefully does not implement `Select` or `Remove` as the purpose of this mempool
 // is to allow for transactions coming in from CometBFT's gossip to be added to the underlying
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
 	txpool  eth.TxPool
+	chain   core.ChainReader
 	handler Lifecycle
 }
 
 // NewMempool creates a new Mempool.
-func New(txpool eth.TxPool) *Mempool {
+func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
 	return &Mempool{
 		txpool: txpool,
+		chain:  chain,
 	}
 }
 
