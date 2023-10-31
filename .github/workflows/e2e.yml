@@ -42,9 +42,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Golang
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go-version }}
+          check-latest: true
+          cache-dependency-path: "**/*.sum"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -81,9 +83,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Golang
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go-version }}
+          check-latest: true
+          cache-dependency-path: "**/*.sum"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -122,24 +126,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Golang
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go-version }}
+          check-latest: true
+          cache-dependency-path: "**/*.sum"
+
       - name: Download image artifact
         uses: actions/download-artifact@v2
         with:
           name: ${{ matrix.base-image }}
       - name: Load image
         run: docker load -i ${{ matrix.base-image }}.tar
-      - name: Cache Golang Deps
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go
-          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-golang-
       - name: Run `make test-hive`
         run: make hive-setup test-hive
         env:
@@ -158,24 +156,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Golang
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go-version }}
+          check-latest: true
+          cache-dependency-path: "**/*.sum"
       - name: Download image artifact
         uses: actions/download-artifact@v2
         with:
           name: ${{ matrix.base-image }}
       - name: Load image
         run: docker load -i ${{ matrix.base-image }}.tar
-      - name: Cache Golang Deps
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go
-          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-golang-
       - name: Run ${{ matrix.namespace }}
         run: make test-${{ matrix.namespace }}
         env:
