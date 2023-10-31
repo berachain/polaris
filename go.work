@@ -1,6 +1,7 @@
 go 1.21
 
 use (
+	./build/tools
 	./contracts
 	./cosmos
 	./e2e/localnet
@@ -8,5 +9,4 @@ use (
 	./e2e/testapp
 	./eth
 	./lib
-	./tools
 )

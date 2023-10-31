@@ -194,11 +194,11 @@ func (b *backend) HeaderByNumber(
 	switch number {
 	case rpc.PendingBlockNumber:
 		// TODO: handle "miner" stuff, Pending block is only known by the miner
-		// block := b.eth.miner.PendingBlock()
-		// TODO: this may be hiding a larger issue with the timing of the NewHead channel stuff.
-		// Investigate and hopefully remove this GTE.
-		header := b.polar.blockchain.CurrentHeader()
-		return header, nil
+		block := b.polar.miner.PendingBlock()
+		if block == nil {
+			return nil, nil //nolint:nilnil // it's ok.
+		}
+		return block.Header(), nil
 	case rpc.LatestBlockNumber:
 		return b.polar.blockchain.CurrentHeader(), nil
 	case rpc.FinalizedBlockNumber:
@@ -310,6 +310,9 @@ func (b *backend) StateAndHeaderByNumber(
 	// Pending state is only known by the miner
 	if number == rpc.PendingBlockNumber {
 		block, state := b.polar.miner.Pending()
+		if block == nil {
+			return nil, nil, nil
+		}
 		return state, block.Header(), nil
 	}
 	// Otherwise resolve the block number and return its state

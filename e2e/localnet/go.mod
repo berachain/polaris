@@ -3,7 +3,7 @@ module pkg.berachain.dev/polaris/e2e/localnet
 go 1.21
 
 require (
-	github.com/docker/docker v24.0.5+incompatible
+	github.com/docker/docker v24.0.7+incompatible
 	github.com/ethereum/go-ethereum v1.13.1
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10

@@ -32,9 +32,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
-	antelib "pkg.berachain.dev/polaris/cosmos/lib/ante"
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
+	antelib "pkg.berachain.dev/polaris/cosmos/runtime/ante"
 	"pkg.berachain.dev/polaris/cosmos/runtime/comet"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -93,7 +93,7 @@ func New(
 	}
 
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
-	p.WrappedTxPool = txpool.New(p.TxPool())
+	p.WrappedTxPool = txpool.New(p.Blockchain(), p.TxPool())
 	p.WrappedMiner = miner.New(p.Miner())
 
 	return p
@@ -110,8 +110,7 @@ func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
 		return err
 	}
 
-	// Set the ante handler to nil, since it is not needed.
-	app.SetAnteHandler(antelib.NewAnteHandler())
+	app.SetAnteHandler(antelib.NewAnteHandler(p.WrappedTxPool))
 
 	return nil
 }
