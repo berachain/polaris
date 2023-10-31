@@ -243,10 +243,8 @@ func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*typ
 	// Pending block is only known by the miner
 	switch number {
 	case rpc.PendingBlockNumber:
-		header := b.polar.blockchain.CurrentBlock()
-		return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
-		// block := b.polar.miner.PendingBlock()
-		// return block, nil
+		block := b.polar.miner.PendingBlock()
+		return block, nil
 	// Otherwise resolve and return the block
 	case rpc.LatestBlockNumber:
 		header := b.polar.blockchain.CurrentBlock()
@@ -309,25 +307,16 @@ func (b *backend) StateAndHeaderByNumber(
 	ctx context.Context,
 	number rpc.BlockNumber,
 ) (state.StateDB, *types.Header, error) {
-	var header *types.Header
 	// Pending state is only known by the miner
 	if number == rpc.PendingBlockNumber {
-		header = b.polar.blockchain.CurrentBlock()
-		// The above code is returning a block from the blockchain based on the given header
-		// hash and block
-		// number.
-		// return b.polar.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
-		// block, state := b.polar.miner.Pending()
-		// return state, block.Header(), nil
-	} else {
-		// Otherwise resolve the block number and return its state
-		var err error
-		header, err = b.HeaderByNumber(ctx, number)
-		if err != nil {
-			return nil, nil, err
-		}
+		block, state := b.polar.miner.Pending()
+		return state, block.Header(), nil
 	}
-
+	// Otherwise resolve the block number and return its state
+	header, err := b.HeaderByNumber(ctx, number)
+	if err != nil {
+		return nil, nil, err
+	}
 	if header == nil {
 		// to match Geth
 		return nil, nil, core.ErrBlockNotFound
