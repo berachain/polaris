@@ -28,6 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/txpool"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/common"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -53,9 +54,28 @@ func (m *Mempool) AnteHandle(
 
 // shouldEject returns true if the transaction should be ejected from the CometBFT mempool.
 func (m *Mempool) shouldEject(tx *coretypes.Transaction) bool {
-	txHash := tx.Hash()
+	if tx == nil {
+		return false
+	}
+	txStatus := m.txStatus(tx.Hash())
+
 	// Ejection conditions
 	// 1. If the transaction has been included in a block.
-	// TODO: we should add somemore conditons later.
-	return m.txpool.Status(txHash) == txpool.TxStatusIncluded
+	// 2. If the transaction is unknown to the node.
+	return txStatus == txpool.TxStatusIncluded || txStatus == txpool.TxStatusUnknown
+}
+
+// txStatus returns the status of the transaction.
+func (m *Mempool) txStatus(hash common.Hash) txpool.TxStatus {
+	// Looking for the transaction in txpool first.
+	status := m.txpool.Status(hash)
+
+	// If the transaction is unknown to the pool, try looking it up locally.
+	if status == txpool.TxStatusUnknown {
+		lookup := m.chain.GetTransactionLookup(hash)
+		if lookup != nil {
+			status = txpool.TxStatusIncluded
+		}
+	}
+	return status
 }

@@ -33,6 +33,7 @@ import (
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth"
+	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
@@ -60,13 +61,15 @@ type GethTxPool interface {
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
 	txpool  eth.TxPool
+	chain   core.ChainReader
 	handler Lifecycle
 }
 
 // NewMempool creates a new Mempool.
-func New(txpool eth.TxPool) *Mempool {
+func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
 	return &Mempool{
 		txpool: txpool,
+		chain:  chain,
 	}
 }
 

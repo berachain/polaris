@@ -93,7 +93,7 @@ func New(
 	}
 
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
-	p.WrappedTxPool = txpool.New(p.TxPool())
+	p.WrappedTxPool = txpool.New(p.Blockchain(), p.TxPool())
 	p.WrappedMiner = miner.New(p.Miner())
 
 	return p
