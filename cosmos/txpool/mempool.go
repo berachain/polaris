@@ -49,6 +49,11 @@ type Lifecycle interface {
 	Stop() error
 }
 
+// GethTxPool is used for generating mocks.
+type GethTxPool interface {
+	eth.TxPool
+}
+
 // Mempool is a mempool that adheres to the cosmos mempool interface.
 // It purposefully does not implement `Select` or `Remove` as the purpose of this mempool
 // is to allow for transactions coming in from CometBFT's gossip to be added to the underlying

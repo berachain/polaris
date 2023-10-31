@@ -18,54 +18,44 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package ante
+package txpool
 
 import (
 	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+
+	"github.com/ethereum/go-ethereum/core/txpool"
 
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/lib/utils"
 )
 
-const numBlocksWait = 10
-
-// NewAnteHandler creates a new instance of AnteHandler with EjectOnRecheckTxDecorator.
-func NewAnteHandler() sdk.AnteHandler {
-	anteDecorators := []sdk.AnteDecorator{
-		ante.NewSetUpContextDecorator(),
-		&EjectOnRecheckTxDecorator{
-			seen: make(map[common.Hash]uint64),
-		},
-	}
-
-	return sdk.ChainAnteDecorators(anteDecorators...)
-}
-
-// EjectOnRecheckTxDecorator will return an error if the context is a recheck tx.
-// This is used to forcibly eject transactions from the CometBFT mempool after they
-// have been passed down to the application, as we want to prevent the comet mempool
-// from growing in size.
-type EjectOnRecheckTxDecorator struct {
-	seen map[common.Hash]uint64
-}
-
-// Antehandle implements sdk.AnteHandler.
-func (e *EjectOnRecheckTxDecorator) AnteHandle(
+// AnteHandle implements sdk.AnteHandler.
+// It is used to determine whether transactions should be ejected
+// from the comet mempool.
+func (m *Mempool) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
 	msgs := tx.GetMsgs()
-	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
-		hash := wet.Unwrap().Hash()
-		e.seen[hash]++
-		if e.seen[hash] > numBlocksWait {
-			delete(e.seen, hash) // prevent leak
-			return ctx, errors.New("recheck tx")
+
+	// We only want to eject transactions from comet on recheck.
+	if ctx.ExecMode() == sdk.ExecModeReCheck {
+		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
+			if m.shouldEject(wet.Unwrap()) {
+				return ctx, errors.New("eject from comet mempool")
+			}
 		}
 	}
-
 	return next(ctx, tx, simulate)
+}
+
+// shouldEject returns true if the transaction should be ejected from the CometBFT mempool.
+func (m *Mempool) shouldEject(tx *coretypes.Transaction) bool {
+	txHash := tx.Hash()
+	// Ejection conditions
+	// 1. If the transaction has been included in a block.
+	// TODO: we should add somemore conditons later.
+	return m.txpool.Status(txHash) == txpool.TxStatusIncluded
 }

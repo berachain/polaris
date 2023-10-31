@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/miner"
 
@@ -50,6 +51,8 @@ type (
 		Add([]*coretypes.Transaction, bool, bool) []error
 		Stats() (int, int)
 		SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscription
+		Status(hash common.Hash) txpool.TxStatus
+		Has(hash common.Hash) bool
 	}
 
 	// ExecutionLayerNode is the entrypoint for the evm execution environment.

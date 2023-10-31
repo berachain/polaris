@@ -125,7 +125,7 @@ generate:
 	@$(MAKE) abigen-install moq-install mockery
 	@for module in $(MODULES); do \
 		echo "Running go generate in $$module"; \
-		(cd $$module && go g`enerate ./...) || exit 1; \
+		(cd $$module && go generate ./...) || exit 1; \
 	done
 
 abigen-install:
