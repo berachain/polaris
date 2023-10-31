@@ -8,8 +8,8 @@ require (
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10
 	github.com/ory/dockertest v3.3.5+incompatible
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231023174626-bf146d519cd3
-	pkg.berachain.dev/polaris/eth v0.0.0-20231023174626-bf146d519cd3
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f
+	pkg.berachain.dev/polaris/eth v0.0.0-20231031220135-f3bf0d0ee45f
 )
 
 require (

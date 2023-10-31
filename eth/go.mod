@@ -12,8 +12,8 @@ require (
 	github.com/onsi/gomega v1.27.10
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/text v0.13.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231023174626-bf146d519cd3
-	pkg.berachain.dev/polaris/lib v0.0.0-20231023174626-bf146d519cd3
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f
+	pkg.berachain.dev/polaris/lib v0.0.0-20231031220135-f3bf0d0ee45f
 )
 
 require (

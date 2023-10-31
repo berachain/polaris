@@ -33,9 +33,9 @@ require (
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	google.golang.org/grpc v1.58.3
 	google.golang.org/protobuf v1.31.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231011003341-63d98bc34da2
-	pkg.berachain.dev/polaris/eth v0.0.0-20231023174626-bf146d519cd3
-	pkg.berachain.dev/polaris/lib v0.0.0-20231023174626-bf146d519cd3
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231023174626-bf146d519cd3
+	pkg.berachain.dev/polaris/eth v0.0.0-20231031220135-f3bf0d0ee45f
+	pkg.berachain.dev/polaris/lib v0.0.0-20231031220135-f3bf0d0ee45f
 )
 
 require (
@@ -83,7 +83,6 @@ require (
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
-	github.com/docker/docker v24.0.7+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
 	github.com/emicklei/dot v1.6.0 // indirect
