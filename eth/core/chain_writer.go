@@ -109,10 +109,21 @@ func (bc *blockchain) WriteBlockAndSetHead(
 	// to finalize the block.
 	bc.finalizedBlock.Store(block)
 
-	// Write the receipts cache.
-	// TODO deprecate this cache?
-	if receipts != nil {
-		bc.receiptsCache.Add(block.Hash(), receipts)
+	// Store txLookup entries for all transactions in the block.
+	blockNum := block.NumberU64()
+	blockHash := block.Hash()
+	bc.blockNumCache.Add(blockNum, block)
+	bc.blockHashCache.Add(blockHash, block)
+	for txIndex, tx := range block.Transactions() {
+		bc.txLookupCache.Add(
+			tx.Hash(),
+			&types.TxLookupEntry{
+				Tx:        tx,
+				TxIndex:   uint64(txIndex),
+				BlockNum:  blockNum,
+				BlockHash: blockHash,
+			},
+		)
 	}
 
 	// Fire off the feeds.
