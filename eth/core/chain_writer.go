@@ -126,6 +126,12 @@ func (bc *blockchain) WriteBlockAndSetHead(
 		)
 	}
 
+	// Write the receipts cache.
+	// TODO deprecate this cache?
+	if receipts != nil {
+		bc.receiptsCache.Add(block.Hash(), receipts)
+	}
+
 	// Fire off the feeds.
 	bc.chainFeed.Send(ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
 	if len(logs) > 0 {
