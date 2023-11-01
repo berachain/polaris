@@ -51,7 +51,7 @@ import (
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
 	Setup(evmkeeper.Blockchain) error
-	PrepareCheckState(context.Context) error
+	SetLatestQueryContext(context.Context) error
 }
 
 // CosmosApp is an interface that defines the methods needed for the Cosmos setup.

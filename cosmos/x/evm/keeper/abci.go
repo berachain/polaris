@@ -49,8 +49,8 @@ func (k *Keeper) Precommit(ctx context.Context) error {
 	return nil
 }
 
-// PrepareCheckState runs on the Cosmos-SDK lifecycle PrepareCheckState().
-func (k *Keeper) PrepareCheckState(ctx context.Context) error {
+// SetLatestQueryContext runs on the Cosmos-SDK lifecycle SetLatestQueryContext().
+func (k *Keeper) SetLatestQueryContext(ctx context.Context) error {
 	k.sp.Prepare(ctx)
 	return nil
 }

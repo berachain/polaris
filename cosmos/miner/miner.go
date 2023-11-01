@@ -54,7 +54,7 @@ type App interface {
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
 	Setup(evmkeeper.Blockchain) error
-	PrepareCheckState(context.Context) error
+	SetLatestQueryContext(context.Context) error
 }
 
 // Miner implements the baseapp.TxSelector interface.
@@ -89,18 +89,23 @@ func (m *Miner) PrepareProposal(
 		err               error
 	)
 
-	if err = m.keeper.PrepareCheckState(ctx); err != nil {
+	// We have to prime the state plugin.
+	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
 		return nil, err
 	}
+
 	// We have to run the BeginBlocker to get the chain into the state it'll
 	// be in when the EVM transaction actually runs.
 	if _, err = m.app.BeginBlocker(ctx); err != nil {
 		return nil, err
 	}
 
+	// Trigger the geth miner to build a block.
 	if payloadEnvelopeBz, err = m.buildBlock(ctx); err != nil {
 		return nil, err
 	}
+
+	// Return the payload as a transaction in the proposal.
 	return &abci.ResponsePrepareProposal{Txs: [][]byte{payloadEnvelopeBz}}, err
 }
 
