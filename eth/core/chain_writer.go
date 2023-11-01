@@ -50,8 +50,7 @@ func (bc *blockchain) WriteGenesisBlock(block *types.Block) error {
 	return err
 }
 
-// InsertBlockAndSetHead inserts a block into the blockchain without setting the head.
-// For now, it is a huge lie. It does infact set the head.
+// InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
 func (bc *blockchain) InsertBlockAndSetHead(block *types.Block) error {
 	// Validate that we are about to insert a valid block.
 	if block.NumberU64() > 1 { // TODO DIAGNOSE
