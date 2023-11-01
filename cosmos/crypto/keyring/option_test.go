@@ -74,7 +74,9 @@ var _ = Describe("Keyring", func() {
 		cryptocodec.RegisterInterfaces(interfaceRegistry)
 		cdc = codec.NewProtoCodec(interfaceRegistry)
 
-		kr, err = keyring.New("accounts", keyring.BackendTest, dir, mockIn, cdc, OnlyEthSecp256k1Option())
+		kr, err = keyring.New(
+			"accounts", keyring.BackendTest, dir, mockIn, cdc, OnlyEthSecp256k1Option(),
+		)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
