@@ -35,7 +35,9 @@ func (k *Keeper) Precommit(ctx context.Context) error {
 	block := k.chain.GetBlockByNumber(blockNum)
 	if block == nil {
 		panic(
-			fmt.Sprintf("EVM BLOCK FAILURE AT BLOCK %d", blockNum),
+			fmt.Sprintf(
+				"EVM BLOCK %d FAILED TO PROCESS", blockNum,
+			),
 		)
 	} else if block.NumberU64() != blockNum {
 		panic(
@@ -47,8 +49,8 @@ func (k *Keeper) Precommit(ctx context.Context) error {
 	return nil
 }
 
-// PrepareCheckState runs on the Cosmos-SDK lifecycle PrepareCheckState().
-func (k *Keeper) PrepareCheckState(ctx context.Context) error {
+// SetLatestQueryContext runs on the Cosmos-SDK lifecycle SetLatestQueryContext().
+func (k *Keeper) SetLatestQueryContext(ctx context.Context) error {
 	k.sp.Prepare(ctx)
 	return nil
 }

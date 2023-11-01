@@ -21,6 +21,7 @@
 package runtime
 
 import (
+	"context"
 	"time"
 
 	"cosmossdk.io/log"
@@ -50,6 +51,7 @@ import (
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
 	Setup(evmkeeper.Blockchain) error
+	SetLatestQueryContext(context.Context) error
 }
 
 // CosmosApp is an interface that defines the methods needed for the Cosmos setup.
@@ -57,6 +59,7 @@ type CosmosApp interface {
 	SetPrepareProposal(sdk.PrepareProposalHandler)
 	SetMempool(mempool.Mempool)
 	SetAnteHandler(sdk.AnteHandler)
+	miner.App
 }
 
 // Polaris is a struct that wraps the Polaris struct from the polar package.
@@ -92,10 +95,6 @@ func New(
 		panic(err)
 	}
 
-	// Wrap the geth miner and txpool with the cosmos miner and txpool.
-	p.WrappedTxPool = txpool.New(p.Blockchain(), p.TxPool())
-	p.WrappedMiner = miner.New(p.Miner())
-
 	return p
 }
 
@@ -103,6 +102,10 @@ func New(
 // It takes a BaseApp and an EVMKeeper as arguments.
 // It returns an error if the setup fails.
 func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
+	// Wrap the geth miner and txpool with the cosmos miner and txpool.
+	p.WrappedTxPool = txpool.New(p.Blockchain(), p.TxPool())
+	p.WrappedMiner = miner.New(p.Miner(), app, ek)
+
 	app.SetMempool(p.WrappedTxPool)
 	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
 

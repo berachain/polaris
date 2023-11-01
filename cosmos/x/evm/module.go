@@ -126,9 +126,9 @@ func (am AppModule) RegisterServices(registrar grpc.ServiceRegistrar) error {
 // ConsensusVersion implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
-// PrepareCheckState prepares the application state for a check.
+// SetLatestQueryContext prepares the application state for a check.
 func (am AppModule) PrepareCheckState(ctx context.Context) error {
-	return am.keeper.PrepareCheckState(ctx)
+	return am.keeper.SetLatestQueryContext(ctx)
 }
 
 // Precommit performs precommit operations.

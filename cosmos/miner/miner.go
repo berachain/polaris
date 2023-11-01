@@ -32,6 +32,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
 
+	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -45,17 +46,33 @@ type EnvelopeSerializer interface {
 	ToSdkTxBytes(*engine.ExecutionPayloadEnvelope, uint64) ([]byte, error)
 }
 
+type App interface {
+	BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
+	PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
+}
+
+// EVMKeeper is an interface that defines the methods needed for the EVM setup.
+type EVMKeeper interface {
+	// Setup initializes the EVM keeper.
+	Setup(evmkeeper.Blockchain) error
+	SetLatestQueryContext(context.Context) error
+}
+
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
 	eth.Miner
+	app            App
+	keeper         EVMKeeper
 	serializer     EnvelopeSerializer
 	currentPayload *miner.Payload
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm eth.Miner) *Miner {
+func New(gm eth.Miner, app App, keeper EVMKeeper) *Miner {
 	return &Miner{
-		Miner: gm,
+		Miner:  gm,
+		keeper: keeper,
+		app:    app,
 	}
 }
 
@@ -68,11 +85,30 @@ func (m *Miner) Init(serializer EnvelopeSerializer) {
 func (m *Miner) PrepareProposal(
 	ctx sdk.Context, _ *abci.RequestPrepareProposal,
 ) (*abci.ResponsePrepareProposal, error) {
-	var payloadEnvelopeBz []byte
-	var err error
+	var (
+		payloadEnvelopeBz []byte
+		err               error
+	)
+
+	// We have to prime the state plugin.
+	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
+		return nil, err
+	}
+
+	// We have to run the PreBlocker && BeginBlocker to get the chain into the state
+	// it'll be in when the EVM transaction actually runs.
+	if _, err = m.app.PreBlocker(ctx, nil); err != nil {
+		return nil, err
+	} else if _, err = m.app.BeginBlocker(ctx); err != nil {
+		return nil, err
+	}
+
+	// Trigger the geth miner to build a block.
 	if payloadEnvelopeBz, err = m.buildBlock(ctx); err != nil {
 		return nil, err
 	}
+
+	// Return the payload as a transaction in the proposal.
 	return &abci.ResponsePrepareProposal{Txs: [][]byte{payloadEnvelopeBz}}, err
 }
 

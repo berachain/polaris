@@ -54,6 +54,27 @@ func (bc *blockchain) StateAtBlockNumber(number uint64) (state.StateDB, error) {
 	return state.NewStateDB(sp, bc.pp), nil
 }
 
+// HasBlockAndState checks if the blockchain has a block and its state at
+// a given hash and number.
+func (bc *blockchain) HasBlockAndState(hash common.Hash, number uint64) bool {
+	// Check for State.
+	if sdb, err := bc.StateAt(hash); sdb == nil || err == nil {
+		sdb, err = bc.StateAtBlockNumber(number)
+		if sdb == nil || err != nil {
+			return false
+		}
+	}
+
+	// Check for Block.
+	if block := bc.GetBlockByNumber(number); block == nil {
+		block = bc.GetBlockByHash(hash)
+		if block == nil {
+			return false
+		}
+	}
+	return true
+}
+
 // GetVMConfig returns the vm.Config for the current chain.
 func (bc *blockchain) GetVMConfig() *vm.Config {
 	return bc.vmConfig
