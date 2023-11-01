@@ -35,7 +35,7 @@ import (
 type ChainWriter interface {
 	LoadLastState(context.Context, uint64) error
 	InsertGenesisBlock(block *types.Block) error
-	InsertBlockWithoutSetHead(block *types.Block) error
+	InsertBlockAndSetHead(block *types.Block) error
 	WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
@@ -50,9 +50,9 @@ func (bc *blockchain) InsertGenesisBlock(block *types.Block) error {
 	return err
 }
 
-// InsertBlockWithoutSetHead inserts a block into the blockchain without setting the head.
+// InsertBlockAndSetHead inserts a block into the blockchain without setting the head.
 // For now, it is a huge lie. It does infact set the head.
-func (bc *blockchain) InsertBlockWithoutSetHead(block *types.Block) error {
+func (bc *blockchain) InsertBlockAndSetHead(block *types.Block) error {
 	// Validate that we are about to insert a valid block.
 	if err := bc.validator.ValidateBody(block); err != nil {
 		log.Error("invalid block body", "err", err)
