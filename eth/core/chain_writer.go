@@ -82,7 +82,7 @@ func (bc *blockchain) InsertBlockAndSetHead(block *types.Block) error {
 	return err
 }
 
-// SetHeadAndFinalize sets the head of the blockchain to the given block and finalizes the block.
+// WriteBlockAndSetHead sets the head of the blockchain to the given block and finalizes the block.
 func (bc *blockchain) WriteBlockAndSetHead(
 	block *types.Block, receipts []*types.Receipt, logs []*types.Log,
 	_ state.StateDB, emitHeadEvent bool,
