@@ -62,20 +62,20 @@ func (bc *blockchain) InsertBlockAndSetHead(block *types.Block) error {
 	// Process the incoming EVM block.
 	receipts, logs, usedGas, err := bc.processor.Process(block, bc.statedb, *bc.vmConfig)
 	if err != nil {
-		log.Error("failed to process block", "num", block.NumberU64())
+		log.Error("failed to process block", "num", block.NumberU64(), "err", err)
 		return err
 	}
 
 	// ValidateState validates the statedb post block processing.
 	if err = bc.validator.ValidateState(block, bc.statedb, receipts, usedGas); err != nil {
-		log.Error("invalid state after processing block", "num", block.NumberU64())
+		log.Error("invalid state after processing block", "num", block.NumberU64(), "err", err)
 		return err
 	}
 
 	// We can just immediately finalize the block. It's okay in this context.
 	if _, err = bc.WriteBlockAndSetHead(
 		block, receipts, logs, nil, true); err != nil {
-		log.Error("failed to write block", "num", block.NumberU64())
+		log.Error("failed to write block", "num", block.NumberU64(), "err", err)
 		return err
 	}
 
