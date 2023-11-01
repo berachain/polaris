@@ -47,7 +47,8 @@ type EnvelopeSerializer interface {
 }
 
 type App interface {
-	BeginBlocker(ctx sdk.Context) (sdk.BeginBlock, error)
+	BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
+	PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
 }
 
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
@@ -91,6 +92,12 @@ func (m *Miner) PrepareProposal(
 
 	// We have to prime the state plugin.
 	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
+		return nil, err
+	}
+
+	// We have to run the PreBlocker to get the chain into the state it'll
+	// be in when the EVM transaction actually runs.
+	if _, err = m.app.PreBlocker(ctx, nil); err != nil {
 		return nil, err
 	}
 
