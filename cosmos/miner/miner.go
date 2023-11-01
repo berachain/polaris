@@ -95,15 +95,11 @@ func (m *Miner) PrepareProposal(
 		return nil, err
 	}
 
-	// We have to run the PreBlocker to get the chain into the state it'll
-	// be in when the EVM transaction actually runs.
+	// We have to run the PreBlocker && BeginBlocker to get the chain into the state
+	// it'll be in when the EVM transaction actually runs.
 	if _, err = m.app.PreBlocker(ctx, nil); err != nil {
 		return nil, err
-	}
-
-	// We have to run the BeginBlocker to get the chain into the state it'll
-	// be in when the EVM transaction actually runs.
-	if _, err = m.app.BeginBlocker(ctx); err != nil {
+	} else if _, err = m.app.BeginBlocker(ctx); err != nil {
 		return nil, err
 	}
 
