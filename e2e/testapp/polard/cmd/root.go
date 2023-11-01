@@ -63,6 +63,8 @@ import (
 
 	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
+	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
+	"pkg.berachain.dev/polaris/cosmos/crypto/keyring"
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
 	testapp "pkg.berachain.dev/polaris/e2e/testapp"
 )
@@ -110,7 +112,10 @@ func NewRootCmd() *cobra.Command {
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithHomeDir(testapp.DefaultNodeHome).
+		WithKeyringOptions(keyring.EthSecp256k1Option()).
 		WithViper("") // In simapp, we don't use any prefix for env variables.
+
+	ethcryptocodec.RegisterInterfaces(interfaceRegistry)
 
 	rootCmd := &cobra.Command{
 		Use:   "polard",

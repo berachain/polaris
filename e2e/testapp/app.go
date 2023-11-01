@@ -55,6 +55,7 @@ import (
 
 	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
+	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
 	polarruntime "pkg.berachain.dev/polaris/cosmos/runtime"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -204,6 +205,9 @@ func NewPolarisApp(
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	app.RegisterUpgradeHandlers()
+
+	// Register eth_secp256k1 keys
+	ethcryptocodec.RegisterInterfaces(app.interfaceRegistry)
 
 	// Load the app.
 	if err := app.Load(loadLatest); err != nil {
