@@ -34,14 +34,14 @@ import (
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
 	LoadLastState(context.Context, uint64) error
-	InsertGenesisBlock(block *types.Block) error
+	WriteGenesisBlock(block *types.Block) error
 	InsertBlockAndSetHead(block *types.Block) error
 	WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
 
-// InsertGenesisBlock inserts the genesis block into the blockchain.
-func (bc *blockchain) InsertGenesisBlock(block *types.Block) error {
+// WriteGenesisBlock inserts the genesis block into the blockchain.
+func (bc *blockchain) WriteGenesisBlock(block *types.Block) error {
 	// TODO: add more validation here.
 	if block.NumberU64() != 0 {
 		return errors.New("not the genesis block")

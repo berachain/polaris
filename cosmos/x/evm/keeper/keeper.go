@@ -39,7 +39,7 @@ import (
 type Blockchain interface {
 	PreparePlugins(context.Context)
 	Config() *params.ChainConfig
-	InsertGenesisBlock(*coretypes.Block) error
+	WriteGenesisBlock(*coretypes.Block) error
 	InsertBlockAndSetHead(*coretypes.Block) error
 	GetBlockByNumber(uint64) *coretypes.Block
 }
