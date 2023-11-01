@@ -112,7 +112,7 @@ func NewRootCmd() *cobra.Command {
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithHomeDir(testapp.DefaultNodeHome).
-		WithKeyringOptions(keyring.EthSecp256k1Option()).
+		WithKeyringOptions(keyring.OnlyEthSecp256k1Option()).
 		WithViper("") // In simapp, we don't use any prefix for env variables.
 
 	ethcryptocodec.RegisterInterfaces(interfaceRegistry)
