@@ -46,35 +46,38 @@ func (bc *blockchain) InsertGenesisBlock(block *types.Block) error {
 	if block.NumberU64() != 0 {
 		return errors.New("not the genesis block")
 	}
-	return bc.InsertBlockWithoutSetHead(block)
+	_, err := bc.WriteBlockAndSetHead(block, nil, nil, nil, true)
+	return err
 }
 
 // InsertBlockWithoutSetHead inserts a block into the blockchain without setting the head.
 // For now, it is a huge lie. It does infact set the head.
 func (bc *blockchain) InsertBlockWithoutSetHead(block *types.Block) error {
 	// Validate that we are about to insert a valid block.
-	if block.NumberU64() > 0 {
-		if err := bc.validator.ValidateBody(block); err != nil {
-			log.Error("invalid block body", "err", err)
-			return err
-		}
+	if err := bc.validator.ValidateBody(block); err != nil {
+		log.Error("invalid block body", "err", err)
+		return err
 	}
 
 	// Process the incoming EVM block.
-	receipts, logs, _, err := bc.processor.Process(block, bc.statedb, *bc.vmConfig)
+	receipts, logs, usedGas, err := bc.processor.Process(block, bc.statedb, *bc.vmConfig)
 	if err != nil {
+		log.Error("failed to process block", "num", block.NumberU64())
+		return err
+	}
+
+	// ValidateState validates the statedb post block processing.
+	if err = bc.validator.ValidateState(block, bc.statedb, receipts, usedGas); err != nil {
+		log.Error("invalid state after processing block", "num", block.NumberU64())
 		return err
 	}
 
 	// We can just immediately finalize the block. It's okay in this context.
-	var status core.WriteStatus
-	if status, err = bc.WriteBlockAndSetHead(
+	if _, err = bc.WriteBlockAndSetHead(
 		block, receipts, logs, nil, true); err != nil {
+		log.Error("failed to write block", "num", block.NumberU64())
 		return err
 	}
-
-	// todo use status for something
-	_ = status
 
 	return err
 }
