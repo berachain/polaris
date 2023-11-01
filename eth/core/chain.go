@@ -80,8 +80,6 @@ type blockchain struct {
 	currentBlock atomic.Pointer[types.Block]
 	// finalizedBlock is the finalized/latest block.
 	finalizedBlock atomic.Pointer[types.Block]
-	// currentReceipts is the current/pending receipts.
-	currentReceipts atomic.Value
 
 	// receiptsCache is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of
 	// blocks. blockHash -> receipts

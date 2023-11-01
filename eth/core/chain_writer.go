@@ -112,7 +112,6 @@ func (bc *blockchain) WriteBlockAndSetHead(
 	// Write the receipts cache.
 	// TODO deprecate this cache?
 	if receipts != nil {
-		bc.currentReceipts.Store(receipts)
 		bc.receiptsCache.Add(block.Hash(), receipts)
 	}
 
