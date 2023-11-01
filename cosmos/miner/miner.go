@@ -61,15 +61,17 @@ type EVMKeeper interface {
 type Miner struct {
 	eth.Miner
 	app            App
+	keeper         EVMKeeper
 	serializer     EnvelopeSerializer
 	currentPayload *miner.Payload
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm eth.Miner, app App) *Miner {
+func New(gm eth.Miner, app App, keeper EVMKeeper) *Miner {
 	return &Miner{
-		Miner: gm,
-		app:   app,
+		Miner:  gm,
+		keeper: keeper,
+		app:    app,
 	}
 }
 
@@ -82,9 +84,14 @@ func (m *Miner) Init(serializer EnvelopeSerializer) {
 func (m *Miner) PrepareProposal(
 	ctx sdk.Context, _ *abci.RequestPrepareProposal,
 ) (*abci.ResponsePrepareProposal, error) {
-	var payloadEnvelopeBz []byte
-	var err error
+	var (
+		payloadEnvelopeBz []byte
+		err               error
+	)
 
+	if err = m.keeper.PrepareCheckState(ctx); err != nil {
+		return nil, err
+	}
 	// We have to run the BeginBlocker to get the chain into the state it'll
 	// be in when the EVM transaction actually runs.
 	if _, err = m.app.BeginBlocker(ctx); err != nil {
