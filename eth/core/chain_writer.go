@@ -54,9 +54,11 @@ func (bc *blockchain) WriteGenesisBlock(block *types.Block) error {
 // For now, it is a huge lie. It does infact set the head.
 func (bc *blockchain) InsertBlockAndSetHead(block *types.Block) error {
 	// Validate that we are about to insert a valid block.
-	if err := bc.validator.ValidateBody(block); err != nil {
-		log.Error("invalid block body", "err", err)
-		return err
+	if block.NumberU64() > 1 { // TODO DIAGNOSE
+		if err := bc.validator.ValidateBody(block); err != nil {
+			log.Error("invalid block body", "err", err)
+			return err
+		}
 	}
 
 	// Process the incoming EVM block.

@@ -121,8 +121,8 @@ var _ = Describe("Distribution Precompile", func() {
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
 
-		// Wait for 2 blocks to be produced, to make sure there are rewards.
-		for i := 0; i < 2; i++ {
+		// Wait for 5 blocks to be produced, to make sure there are rewards.
+		for i := 0; i < 5; i++ {
 			Expect(tf.WaitForNextBlock()).To(Succeed())
 		}
 

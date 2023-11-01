@@ -191,7 +191,7 @@ func NewPolarisApp(
 	)
 
 	// Setup Polaris Runtime.
-	if err := app.Polaris.Build(app.BaseApp, app.EVMKeeper); err != nil {
+	if err := app.Polaris.Build(app, app.EVMKeeper); err != nil {
 		panic(err)
 	}
 

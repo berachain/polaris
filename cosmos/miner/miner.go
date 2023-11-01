@@ -32,6 +32,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
 
+	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
@@ -45,17 +46,30 @@ type EnvelopeSerializer interface {
 	ToSdkTxBytes(*engine.ExecutionPayloadEnvelope, uint64) ([]byte, error)
 }
 
+type App interface {
+	BeginBlocker(ctx sdk.Context) (sdk.BeginBlock, error)
+}
+
+// EVMKeeper is an interface that defines the methods needed for the EVM setup.
+type EVMKeeper interface {
+	// Setup initializes the EVM keeper.
+	Setup(evmkeeper.Blockchain) error
+	PrepareCheckState(context.Context) error
+}
+
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
 	eth.Miner
+	app            App
 	serializer     EnvelopeSerializer
 	currentPayload *miner.Payload
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm eth.Miner) *Miner {
+func New(gm eth.Miner, app App) *Miner {
 	return &Miner{
 		Miner: gm,
+		app:   app,
 	}
 }
 
@@ -70,6 +84,13 @@ func (m *Miner) PrepareProposal(
 ) (*abci.ResponsePrepareProposal, error) {
 	var payloadEnvelopeBz []byte
 	var err error
+
+	// We have to run the BeginBlocker to get the chain into the state it'll
+	// be in when the EVM transaction actually runs.
+	if _, err = m.app.BeginBlocker(ctx); err != nil {
+		return nil, err
+	}
+
 	if payloadEnvelopeBz, err = m.buildBlock(ctx); err != nil {
 		return nil, err
 	}
