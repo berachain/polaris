@@ -556,7 +556,6 @@ func (b *backend) SubscribeRemovedLogsEvent(ch chan<- core.RemovedLogsEvent) eve
 }
 
 func (b *backend) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription {
-	b.logger.Debug("called eth.rpc.backend.SubscribeLogsEvent", "ch", ch)
 	return b.polar.blockchain.SubscribeLogsEvent(ch)
 }
 

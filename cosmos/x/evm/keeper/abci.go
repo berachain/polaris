@@ -35,7 +35,9 @@ func (k *Keeper) Precommit(ctx context.Context) error {
 	block := k.chain.GetBlockByNumber(blockNum)
 	if block == nil {
 		panic(
-			fmt.Sprintf("EVM BLOCK FAILURE AT BLOCK %d", blockNum),
+			fmt.Sprintf(
+				"EVM BLOCK %d FAILED TO PROCESS - hash: %s", blockNum, block.Hash(),
+			),
 		)
 	} else if block.NumberU64() != blockNum {
 		panic(
