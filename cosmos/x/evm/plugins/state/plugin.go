@@ -538,7 +538,7 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 		if p.latestQueryContext.MultiStore() == nil {
 			ctx = p.latestQueryContext.WithEventManager(sdk.NewEventManager())
 		} else {
-			ctx, _ = p.latestQueryContext.CacheContext()
+			ctx, _ = p.latestQueryContext.WithEventManager(sdk.NewEventManager()).CacheContext()
 		}
 	} else {
 		// Get the query context at the given height.
