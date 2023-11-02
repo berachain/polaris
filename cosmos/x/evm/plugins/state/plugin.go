@@ -140,9 +140,7 @@ func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
 // Prepare sets up the context on the state plugin for use in JSON-RPC calls.
 // Prepare implements `core.StatePlugin`.
 func (p *plugin) Prepare(ctx context.Context) {
-	p.latestQueryContext, _ = sdk.UnwrapSDKContext(ctx).
-		WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{}).CacheContext()
+	p.latestQueryContext = sdk.UnwrapSDKContext(ctx)
 }
 
 // Reset sets up the state plugin for execution of a new transaction. It sets up the snapshottable
@@ -538,7 +536,7 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 		if p.latestQueryContext.MultiStore() == nil {
 			ctx = p.latestQueryContext.WithEventManager(sdk.NewEventManager())
 		} else {
-			ctx, _ = p.latestQueryContext.WithEventManager(sdk.NewEventManager()).CacheContext()
+			ctx, _ = p.latestQueryContext.CacheContext()
 		}
 	} else {
 		// Get the query context at the given height.
