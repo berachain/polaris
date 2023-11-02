@@ -85,7 +85,7 @@ func (m *Miner) Init(serializer EnvelopeSerializer) {
 
 // PrepareProposal implements baseapp.PrepareProposal.
 func (m *Miner) PrepareProposal(
-	ctx sdk.Context, _ *abci.RequestPrepareProposal,
+	ctx sdk.Context, req *abci.RequestPrepareProposal,
 ) (*abci.ResponsePrepareProposal, error) {
 	var (
 		payloadEnvelopeBz []byte
@@ -94,7 +94,13 @@ func (m *Miner) PrepareProposal(
 
 	// We have to run the PreBlocker && BeginBlocker to get the chain into the state
 	// it'll be in when the EVM transaction actually runs.
-	if _, err = m.app.PreBlocker(ctx, nil); err != nil {
+	if _, err = m.app.PreBlocker(ctx, &abci.RequestFinalizeBlock{
+		Txs:                req.Txs,
+		Time:               req.Time,
+		Misbehavior:        req.Misbehavior,
+		Height:             req.Height,
+		NextValidatorsHash: req.NextValidatorsHash,
+	}); err != nil {
 		return nil, err
 	} else if _, err = m.app.BeginBlocker(ctx); err != nil {
 		return nil, err

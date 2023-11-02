@@ -33,6 +33,7 @@ import (
 
 	"pkg.berachain.dev/polaris/eth/common"
 	"pkg.berachain.dev/polaris/eth/consensus"
+	"pkg.berachain.dev/polaris/eth/core/state"
 	"pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/core/vm"
 	"pkg.berachain.dev/polaris/eth/log"
@@ -67,6 +68,8 @@ type blockchain struct {
 	processor core.Processor
 	validator core.Validator
 
+	// statedb is the state database that is used to mange state during transactions.
+	statedb state.StateDB
 	// vmConfig is the configuration used to create the EVM.
 	vmConfig *vm.Config
 
@@ -125,6 +128,7 @@ func NewChain(
 		logger:         log.Root(),
 		engine:         engine,
 	}
+	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
 	bc.processor = core.NewStateProcessor(bc.config, bc, bc.engine)
 	bc.validator = core.NewBlockValidator(bc.config, bc, bc.engine)
 	// TODO: hmm...
