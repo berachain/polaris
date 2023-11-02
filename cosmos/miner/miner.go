@@ -208,7 +208,7 @@ func (m *Miner) processValidatorMsgs(
 
 		includeTx := true
 		for _, msg := range tx.GetMsgs() {
-			if _, ok := DefaultAllowedMsgs[proto.MessageName(msg)]; !ok {
+			if _, ok := m.allowedValMsgs[proto.MessageName(msg)]; !ok {
 				includeTx = false
 				break
 			}
