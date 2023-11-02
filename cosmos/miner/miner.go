@@ -24,6 +24,8 @@ package miner
 import (
 	"context"
 
+	storetypes "cosmossdk.io/store/types"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -90,16 +92,22 @@ func (m *Miner) PrepareProposal(
 		err               error
 	)
 
-	// We have to prime the state plugin.
-	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
-		return nil, err
-	}
-
 	// We have to run the PreBlocker && BeginBlocker to get the chain into the state
 	// it'll be in when the EVM transaction actually runs.
 	if _, err = m.app.PreBlocker(ctx, nil); err != nil {
 		return nil, err
 	} else if _, err = m.app.BeginBlocker(ctx); err != nil {
+		return nil, err
+	}
+
+	ctx.GasMeter().RefundGas(ctx.GasMeter().GasConsumed(), "prepare proposal")
+	ctx.BlockGasMeter().RefundGas(ctx.BlockGasMeter().GasConsumed(), "prepare proposal")
+	ctx = ctx.WithKVGasConfig(storetypes.GasConfig{}).
+		WithTransientKVGasConfig(storetypes.GasConfig{}).
+		WithGasMeter(storetypes.NewInfiniteGasMeter())
+
+	// We have to prime the state plugin.
+	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
 		return nil, err
 	}
 
