@@ -45,7 +45,7 @@ const ConsensusVersion = 1
 var (
 	_ appmodule.HasServices          = AppModule{}
 	_ appmodule.HasPrepareCheckState = AppModule{}
-	_ appmodule.HasPrecommit         = AppModule{}
+	_ appmodule.HasEndBlocker        = AppModule{}
 	_ module.AppModule               = AppModule{}
 	_ module.AppModuleBasic          = AppModuleBasic{}
 )
@@ -132,6 +132,6 @@ func (am AppModule) PrepareCheckState(ctx context.Context) error {
 }
 
 // Precommit performs precommit operations.
-func (am AppModule) Precommit(ctx context.Context) error {
-	return am.keeper.Precommit(ctx)
+func (am AppModule) EndBlock(ctx context.Context) error {
+	return am.keeper.EndBlock(ctx)
 }
