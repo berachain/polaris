@@ -24,6 +24,8 @@ import (
 	"context"
 	"fmt"
 
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
@@ -61,6 +63,8 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	}
 
 	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
+	ctx = sCtx.WithKVGasConfig(storetypes.GasConfig{}).
+		WithTransientKVGasConfig(storetypes.GasConfig{})
 	k.chain.PreparePlugins(ctx)
 	if err = k.chain.InsertBlockAndSetHead(block); err != nil {
 		return nil, err

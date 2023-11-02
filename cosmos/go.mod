@@ -16,6 +16,7 @@ require (
 	cosmossdk.io/log v1.2.1
 	cosmossdk.io/math v1.1.3-rc.1
 	cosmossdk.io/store v1.0.0-rc.0
+	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/tx v0.11.0
 	github.com/btcsuite/btcd v0.23.2
 	github.com/btcsuite/btcd/btcutil v1.1.3
