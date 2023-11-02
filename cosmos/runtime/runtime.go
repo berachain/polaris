@@ -104,7 +104,7 @@ func New(
 func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
 	p.WrappedTxPool = txpool.New(p.Blockchain(), p.TxPool())
-	p.WrappedMiner = miner.New(p.Miner(), app, ek)
+	p.WrappedMiner = miner.New(p.Miner(), app, ek, miner.DefaultAllowedMsgs)
 
 	app.SetMempool(p.WrappedTxPool)
 	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)

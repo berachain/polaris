@@ -69,16 +69,18 @@ type Miner struct {
 	keeper         EVMKeeper
 	valTxSelector  baseapp.TxSelector
 	serializer     EnvelopeSerializer
+	allowedValMsgs map[string]sdk.Msg
 	currentPayload *miner.Payload
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm eth.Miner, app App, keeper EVMKeeper) *Miner {
+func New(gm eth.Miner, app App, keeper EVMKeeper, allowedValMsgs map[string]sdk.Msg) *Miner {
 	return &Miner{
-		Miner:         gm,
-		keeper:        keeper,
-		app:           app,
-		valTxSelector: baseapp.NewDefaultTxSelector(),
+		Miner:          gm,
+		keeper:         keeper,
+		app:            app,
+		allowedValMsgs: allowedValMsgs,
+		valTxSelector:  baseapp.NewDefaultTxSelector(),
 	}
 }
 
