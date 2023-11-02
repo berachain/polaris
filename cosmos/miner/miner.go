@@ -100,6 +100,7 @@ func (m *Miner) PrepareProposal(
 		Misbehavior:        req.Misbehavior,
 		Height:             req.Height,
 		NextValidatorsHash: req.NextValidatorsHash,
+		ProposerAddress:    req.ProposerAddress,
 	}); err != nil {
 		return nil, err
 	} else if _, err = m.app.BeginBlocker(ctx); err != nil {
