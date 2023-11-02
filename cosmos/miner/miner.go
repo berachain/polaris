@@ -24,8 +24,11 @@ package miner
 import (
 	"context"
 
+	"github.com/cosmos/gogoproto/proto"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
@@ -49,6 +52,7 @@ type EnvelopeSerializer interface {
 type App interface {
 	BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
 	PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
+	baseapp.ProposalTxVerifier
 }
 
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
@@ -63,6 +67,7 @@ type Miner struct {
 	eth.Miner
 	app            App
 	keeper         EVMKeeper
+	valTxSelector  baseapp.TxSelector
 	serializer     EnvelopeSerializer
 	currentPayload *miner.Payload
 }
@@ -70,9 +75,10 @@ type Miner struct {
 // New produces a cosmos miner from a geth miner.
 func New(gm eth.Miner, app App, keeper EVMKeeper) *Miner {
 	return &Miner{
-		Miner:  gm,
-		keeper: keeper,
-		app:    app,
+		Miner:         gm,
+		keeper:        keeper,
+		app:           app,
+		valTxSelector: baseapp.NewDefaultTxSelector(),
 	}
 }
 
@@ -83,12 +89,18 @@ func (m *Miner) Init(serializer EnvelopeSerializer) {
 
 // PrepareProposal implements baseapp.PrepareProposal.
 func (m *Miner) PrepareProposal(
-	ctx sdk.Context, _ *abci.RequestPrepareProposal,
+	ctx sdk.Context, req *abci.RequestPrepareProposal,
 ) (*abci.ResponsePrepareProposal, error) {
 	var (
 		payloadEnvelopeBz []byte
 		err               error
+		valTxs            [][]byte
 	)
+
+	// Process the validator messages.
+	if valTxs, err = m.processValidatorMsgs(ctx, req.MaxTxBytes, req.Txs); err != nil {
+		return nil, err
+	}
 
 	// We have to prime the state plugin.
 	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
@@ -108,8 +120,16 @@ func (m *Miner) PrepareProposal(
 		return nil, err
 	}
 
-	// Return the payload as a transaction in the proposal.
-	return &abci.ResponsePrepareProposal{Txs: [][]byte{payloadEnvelopeBz}}, err
+	// Combine the payload envelope with the validator transactions.
+	allTxs := [][]byte{payloadEnvelopeBz}
+
+	// If there are validator transactions, append them to the allTxs slice.
+	if len(valTxs) > 0 {
+		allTxs = append(allTxs, valTxs...)
+	}
+
+	// Return the payload and validator transactions as a transaction in the proposal.
+	return &abci.ResponsePrepareProposal{Txs: allTxs}, err
 }
 
 // buildBlock builds and submits a payload, it also waits for the txs
@@ -167,4 +187,37 @@ func (m *Miner) resolveEnvelope() []byte {
 // clearPayload clears the payload.
 func (m *Miner) clearPayload() {
 	m.currentPayload = nil
+}
+
+// processValidatorMsgs processes the validator messages.
+func (m *Miner) processValidatorMsgs(
+	ctx sdk.Context, maxTxBytes int64, txs [][]byte,
+) ([][]byte, error) {
+	var maxBlockGas uint64
+	if b := ctx.ConsensusParams().Block; b != nil {
+		maxBlockGas = uint64(b.MaxGas)
+	}
+
+	for _, txBz := range txs {
+		tx, err := m.app.TxDecode(txBz)
+		if err != nil {
+			return nil, err
+		}
+
+		includeTx := true
+		for _, msg := range tx.GetMsgs() {
+			if _, ok := DefaultAllowedMsgs[proto.MessageName(msg)]; !ok {
+				includeTx = false
+				break
+			}
+		}
+
+		if includeTx {
+			stop := m.valTxSelector.SelectTxForProposal(ctx, uint64(maxTxBytes), maxBlockGas, tx, txBz)
+			if stop {
+				break
+			}
+		}
+	}
+	return m.valTxSelector.SelectedTxs(ctx), nil
 }
