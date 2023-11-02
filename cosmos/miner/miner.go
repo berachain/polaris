@@ -97,12 +97,8 @@ func (m *Miner) PrepareProposal(
 		payloadEnvelopeBz []byte
 		err               error
 		valTxs            [][]byte
+		ethGasUsed        uint64
 	)
-
-	// Process the validator messages.
-	if valTxs, err = m.processValidatorMsgs(ctx, req.MaxTxBytes, req.Txs); err != nil {
-		return nil, err
-	}
 
 	// We have to prime the state plugin.
 	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
@@ -118,7 +114,12 @@ func (m *Miner) PrepareProposal(
 	}
 
 	// Trigger the geth miner to build a block.
-	if payloadEnvelopeBz, err = m.buildBlock(ctx); err != nil {
+	if payloadEnvelopeBz, ethGasUsed, err = m.buildBlock(ctx); err != nil {
+		return nil, err
+	}
+
+	// Process the validator messages.
+	if valTxs, err = m.processValidatorMsgs(ctx, req.MaxTxBytes, ethGasUsed, req.Txs); err != nil {
 		return nil, err
 	}
 
@@ -136,12 +137,13 @@ func (m *Miner) PrepareProposal(
 
 // buildBlock builds and submits a payload, it also waits for the txs
 // to resolve from the underying worker.
-func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, error) {
+func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 	defer m.clearPayload()
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return m.resolveEnvelope(), nil
+	env, gasUsed := m.resolveEnvelope()
+	return env, gasUsed, nil
 }
 
 // submitPayloadForBuilding submits a payload for building.
@@ -174,16 +176,16 @@ func (m *Miner) constructPayloadArgs(ctx sdk.Context) *miner.BuildPayloadArgs {
 }
 
 // resolveEnvelope resolves the payload.
-func (m *Miner) resolveEnvelope() []byte {
+func (m *Miner) resolveEnvelope() ([]byte, uint64) {
 	if m.currentPayload == nil {
-		return nil
+		return nil, 0
 	}
 	envelope := m.currentPayload.ResolveFull()
 	bz, err := m.serializer.ToSdkTxBytes(envelope, envelope.ExecutionPayload.GasLimit)
 	if err != nil {
 		panic(err)
 	}
-	return bz
+	return bz, envelope.ExecutionPayload.GasUsed
 }
 
 // clearPayload clears the payload.
@@ -193,12 +195,14 @@ func (m *Miner) clearPayload() {
 
 // processValidatorMsgs processes the validator messages.
 func (m *Miner) processValidatorMsgs(
-	ctx sdk.Context, maxTxBytes int64, txs [][]byte,
+	ctx sdk.Context, maxTxBytes int64, ethGasUsed uint64, txs [][]byte,
 ) ([][]byte, error) {
 	var maxBlockGas uint64
 	if b := ctx.ConsensusParams().Block; b != nil {
 		maxBlockGas = uint64(b.MaxGas)
 	}
+
+	blockGasRemaining := maxBlockGas - ethGasUsed
 
 	for _, txBz := range txs {
 		tx, err := m.app.TxDecode(txBz)
@@ -215,7 +219,9 @@ func (m *Miner) processValidatorMsgs(
 		}
 
 		if includeTx {
-			stop := m.valTxSelector.SelectTxForProposal(ctx, uint64(maxTxBytes), maxBlockGas, tx, txBz)
+			stop := m.valTxSelector.SelectTxForProposal(
+				ctx, uint64(maxTxBytes), blockGasRemaining, tx, txBz,
+			)
 			if stop {
 				break
 			}
