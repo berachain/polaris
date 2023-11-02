@@ -57,6 +57,7 @@ import (
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
+	"pkg.berachain.dev/polaris/cosmos/miner"
 	polarruntime "pkg.berachain.dev/polaris/cosmos/runtime"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 )
@@ -191,7 +192,7 @@ func NewPolarisApp(
 	)
 
 	// Setup Polaris Runtime.
-	if err := app.Polaris.Build(app, app.EVMKeeper); err != nil {
+	if err := app.Polaris.Build(app, app.EVMKeeper, miner.DefaultAllowedMsgs); err != nil {
 		panic(err)
 	}
 
