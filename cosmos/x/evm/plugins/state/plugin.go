@@ -140,7 +140,9 @@ func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
 // Prepare sets up the context on the state plugin for use in JSON-RPC calls.
 // Prepare implements `core.StatePlugin`.
 func (p *plugin) Prepare(ctx context.Context) {
-	p.latestQueryContext = sdk.UnwrapSDKContext(ctx)
+	p.latestQueryContext = sdk.UnwrapSDKContext(ctx).
+		WithKVGasConfig(storetypes.GasConfig{}).
+		WithTransientKVGasConfig(storetypes.GasConfig{})
 }
 
 // Reset sets up the state plugin for execution of a new transaction. It sets up the snapshottable
