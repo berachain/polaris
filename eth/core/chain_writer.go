@@ -46,7 +46,7 @@ func (bc *blockchain) WriteGenesisBlock(block *types.Block) error {
 	if block.NumberU64() != 0 {
 		return errors.New("not the genesis block")
 	}
-	_, err := bc.WriteBlockAndSetHead(block, nil, nil, nil, true)
+	_, err := bc.WriteBlockAndSetHead(block, nil, nil, state.NewStateDB(bc.sp, bc.pp), true)
 	return err
 }
 
@@ -60,22 +60,25 @@ func (bc *blockchain) InsertBlockAndSetHead(block *types.Block) error {
 		}
 	}
 
+	// Create a new statedb to use for this block insertion.
+	state := state.NewStateDB(bc.sp, bc.pp)
+
 	// Process the incoming EVM block.
-	receipts, logs, usedGas, err := bc.processor.Process(block, bc.statedb, *bc.vmConfig)
+	receipts, logs, usedGas, err := bc.processor.Process(block, state, *bc.vmConfig)
 	if err != nil {
 		log.Error("failed to process block", "num", block.NumberU64(), "err", err)
 		return err
 	}
 
 	// ValidateState validates the statedb post block processing.
-	if err = bc.validator.ValidateState(block, bc.statedb, receipts, usedGas); err != nil {
+	if err = bc.validator.ValidateState(block, state, receipts, usedGas); err != nil {
 		log.Error("invalid state after processing block", "num", block.NumberU64(), "err", err)
 		return err
 	}
 
 	// We can just immediately finalize the block. It's okay in this context.
 	if _, err = bc.WriteBlockAndSetHead(
-		block, receipts, logs, nil, true); err != nil {
+		block, receipts, logs, state, true); err != nil {
 		log.Error("failed to write block", "num", block.NumberU64(), "err", err)
 		return err
 	}
@@ -86,10 +89,10 @@ func (bc *blockchain) InsertBlockAndSetHead(block *types.Block) error {
 // WriteBlockAndSetHead sets the head of the blockchain to the given block and finalizes the block.
 func (bc *blockchain) WriteBlockAndSetHead(
 	block *types.Block, receipts []*types.Receipt, logs []*types.Log,
-	_ state.StateDB, emitHeadEvent bool,
+	state state.StateDB, emitHeadEvent bool,
 ) (core.WriteStatus, error) {
 	// Write the block to the store.
-	if err := bc.writeBlockWithState(block, receipts); err != nil {
+	if err := bc.writeBlockWithState(block, receipts, state); err != nil {
 		return core.NonStatTy, err
 	}
 	currentBlock := bc.currentBlock.Load()
@@ -154,7 +157,7 @@ func (bc *blockchain) WriteBlockAndSetHead(
 // writeBlockWithState writes the block along with its state (receipts and logs)
 // into the blockchain.
 func (bc *blockchain) writeBlockWithState(
-	block *types.Block, receipts []*types.Receipt,
+	block *types.Block, receipts []*types.Receipt, state state.StateDB,
 ) error {
 	// In Polaris since we are using single block finality.
 	// Finalized == Current == Safe. All are the same.
@@ -173,7 +176,7 @@ func (bc *blockchain) writeBlockWithState(
 
 	// Commit all cached state changes into underlying memory database.
 	// In Polaris this is a no-op.
-	_, err = bc.statedb.Commit(block.NumberU64(), bc.config.IsEIP158(block.Number()))
+	_, err = state.Commit(block.NumberU64(), bc.config.IsEIP158(block.Number()))
 	if err != nil {
 		return err
 	}
