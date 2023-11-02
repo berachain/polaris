@@ -23,7 +23,6 @@ package miner
 
 import (
 	"context"
-	"fmt"
 
 	storetypes "cosmossdk.io/store/types"
 
@@ -100,8 +99,6 @@ func (m *Miner) PrepareProposal(
 	} else if _, err = m.app.BeginBlocker(ctx); err != nil {
 		return nil, err
 	}
-
-	fmt.Println(ctx.GasMeter().GasConsumed(), "REEE")
 
 	ctx.GasMeter().RefundGas(ctx.GasMeter().GasConsumed(), "prepare proposal")
 	ctx.BlockGasMeter().RefundGas(ctx.BlockGasMeter().GasConsumed(), "prepare proposal")
