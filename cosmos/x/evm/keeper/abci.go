@@ -28,7 +28,7 @@ import (
 )
 
 // Precommit runs on the Cosmo-SDK lifecycle Precommit().
-func (k *Keeper) Precommit(ctx context.Context) error {
+func (k *Keeper) EndBlock(ctx context.Context) error {
 	// Verify that the EVM block was written.
 	// TODO: Set/GetHead to set and get the canonical head.
 	blockNum := uint64(sdk.UnwrapSDKContext(ctx).BlockHeight())
