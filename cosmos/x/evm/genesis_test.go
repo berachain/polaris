@@ -32,6 +32,7 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/beacon"
 
 	"pkg.berachain.dev/polaris/cosmos/config"
+	"pkg.berachain.dev/polaris/cosmos/runtime/chain"
 	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
 	"pkg.berachain.dev/polaris/cosmos/x/evm"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -83,7 +84,7 @@ var _ = Describe("Genesis", func() {
 			cfg,
 		)
 		err = k.Setup(
-			core.NewChain(k.Host, params.DefaultChainConfig, beacon.NewFaker(), true),
+			chain.New(core.NewChain(k.Host, params.DefaultChainConfig, beacon.NewFaker()), nil),
 		)
 		Expect(err).ToNot(HaveOccurred())
 

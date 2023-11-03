@@ -102,7 +102,6 @@ type blockchain struct {
 	rmLogsFeed    event.Feed // currently never used
 	chainSideFeed event.Feed // currently never used
 	logger        log.Logger
-	isMainnet     bool
 }
 
 // =========================================================================
@@ -111,7 +110,7 @@ type blockchain struct {
 
 // NewChain creates and returns a `api.Chain` with the given EVM chain configuration and host.
 func NewChain(
-	host PolarisHostChain, config *params.ChainConfig, engine consensus.Engine, isMainnet bool,
+	host PolarisHostChain, config *params.ChainConfig, engine consensus.Engine,
 ) *blockchain { //nolint:revive // only used as `api.Chain`.
 	bc := &blockchain{
 		bp:             host.GetBlockPlugin(),
@@ -128,7 +127,6 @@ func NewChain(
 		scope:          event.SubscriptionScope{},
 		logger:         log.Root(),
 		engine:         engine,
-		isMainnet:      isMainnet,
 	}
 	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
 	bc.processor = core.NewStateProcessor(bc.config, bc, bc.engine)

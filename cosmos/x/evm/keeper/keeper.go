@@ -31,16 +31,17 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
-type Blockchain interface {
+type WrappedBlockchain interface {
 	PreparePlugins(context.Context)
 	Config() *params.ChainConfig
-	WriteGenesisBlock(*coretypes.Block) error
-	InsertBlockAndSetHead(*coretypes.Block) error
+	WriteGenesisState(context.Context, *core.Genesis) error
+	InsertBlockAndSetHead(context.Context, *coretypes.Block) error
 	GetBlockByNumber(uint64) *coretypes.Block
 }
 
@@ -49,7 +50,7 @@ type Keeper struct {
 	*Host
 
 	// provider is the struct that houses the Polaris EVM.
-	chain Blockchain
+	wrappedChain WrappedBlockchain
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -72,8 +73,8 @@ func NewKeeper(
 	}
 }
 
-func (k *Keeper) Setup(chain Blockchain) error {
-	k.chain = chain
+func (k *Keeper) Setup(wrappedChain WrappedBlockchain) error {
+	k.wrappedChain = wrappedChain
 	return k.SetupPrecompiles()
 }
 
