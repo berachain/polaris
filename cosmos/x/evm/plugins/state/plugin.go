@@ -528,6 +528,13 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 		return nil, errors.New("no query context function set in host chain")
 	}
 
+	// NOTE: the PreBlock and BeginBlock state changes will not have been applied to the state
+	// at this point.
+	// This is kind of bad since queries from JSON-RPC (i.e eth_call estimateGas etc.)
+	// won't be able to do this
+	// ontop of a state that has these updates for the block.
+	// TODO: Fix this.
+
 	int64Number := int64(number)
 	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
 	// Investigate and hopefully remove this GTE.

@@ -65,6 +65,9 @@ func (m *Miner) PrepareProposal(
 		WithGasMeter(storetypes.NewInfiniteGasMeter())
 
 	// We have to prime the state plugin.
+	// NOTE: if buildBlock below fails, we will have a bad context set on the state plugin.
+	// In practice this is not a big deal, but this is something we need to address as part
+	// of better context management practices across Polaris.
 	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
 		return nil, err
 	}

@@ -61,8 +61,8 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 		}, err
 	}
 
-	ctx.GasMeter().RefundGas(ctx.GasMeter().GasConsumed(), "prepare proposal")
-	ctx.BlockGasMeter().RefundGas(ctx.BlockGasMeter().GasConsumed(), "prepare proposal")
+	ctx.GasMeter().RefundGas(ctx.GasMeter().GasConsumed(), "process proposal")
+	ctx.BlockGasMeter().RefundGas(ctx.BlockGasMeter().GasConsumed(), "process proposal")
 	ctx = ctx.WithKVGasConfig(storetypes.GasConfig{}).
 		WithTransientKVGasConfig(storetypes.GasConfig{}).
 		WithGasMeter(storetypes.NewInfiniteGasMeter())
