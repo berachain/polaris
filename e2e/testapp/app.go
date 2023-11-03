@@ -57,8 +57,8 @@ import (
 	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
 	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
 	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
-	"pkg.berachain.dev/polaris/cosmos/miner"
 	polarruntime "pkg.berachain.dev/polaris/cosmos/runtime"
+	"pkg.berachain.dev/polaris/cosmos/runtime/miner"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 )
 

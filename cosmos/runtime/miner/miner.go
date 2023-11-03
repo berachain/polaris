@@ -26,43 +26,15 @@ import (
 
 	"github.com/cosmos/gogoproto/proto"
 
-	storetypes "cosmossdk.io/store/types"
-
-	abci "github.com/cometbft/cometbft/abci/types"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
 
-	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
-
-// emptyHash is a common.Hash initialized to all zeros.
-var emptyHash = common.Hash{}
-
-// EnvelopeSerializer is used to convert an envelope into a byte slice that represents
-// a cosmos sdk.Tx.
-type EnvelopeSerializer interface {
-	ToSdkTxBytes(*engine.ExecutionPayloadEnvelope, uint64) ([]byte, error)
-}
-
-type App interface {
-	BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
-	PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
-	baseapp.ProposalTxVerifier
-}
-
-// EVMKeeper is an interface that defines the methods needed for the EVM setup.
-type EVMKeeper interface {
-	// Setup initializes the EVM keeper.
-	Setup(evmkeeper.Blockchain) error
-	SetLatestQueryContext(context.Context) error
-}
 
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
@@ -89,58 +61,6 @@ func New(gm eth.Miner, app App, keeper EVMKeeper, allowedValMsgs map[string]sdk.
 // Init sets the transaction serializer.
 func (m *Miner) Init(serializer EnvelopeSerializer) {
 	m.serializer = serializer
-}
-
-// PrepareProposal implements baseapp.PrepareProposal.
-func (m *Miner) PrepareProposal(
-	ctx sdk.Context, req *abci.RequestPrepareProposal,
-) (*abci.ResponsePrepareProposal, error) {
-	var (
-		payloadEnvelopeBz []byte
-		err               error
-		valTxs            [][]byte
-		ethGasUsed        uint64
-	)
-
-	// We have to run the PreBlocker && BeginBlocker to get the chain into the state
-	// it'll be in when the EVM transaction actually runs.
-	if _, err = m.app.PreBlocker(ctx, nil); err != nil {
-		return nil, err
-	} else if _, err = m.app.BeginBlocker(ctx); err != nil {
-		return nil, err
-	}
-
-	ctx.GasMeter().RefundGas(ctx.GasMeter().GasConsumed(), "prepare proposal")
-	ctx.BlockGasMeter().RefundGas(ctx.BlockGasMeter().GasConsumed(), "prepare proposal")
-	ctx = ctx.WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{}).
-		WithGasMeter(storetypes.NewInfiniteGasMeter())
-
-	// We have to prime the state plugin.
-	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
-		return nil, err
-	}
-
-	// Trigger the geth miner to build a block.
-	if payloadEnvelopeBz, ethGasUsed, err = m.buildBlock(ctx); err != nil {
-		return nil, err
-	}
-
-	// Process the validator messages.
-	if valTxs, err = m.processValidatorMsgs(ctx, req.MaxTxBytes, ethGasUsed, req.Txs); err != nil {
-		return nil, err
-	}
-
-	// Combine the payload envelope with the validator transactions.
-	allTxs := [][]byte{payloadEnvelopeBz}
-
-	// If there are validator transactions, append them to the allTxs slice.
-	if len(valTxs) > 0 {
-		allTxs = append(allTxs, valTxs...)
-	}
-
-	// Return the payload and validator transactions as a transaction in the proposal.
-	return &abci.ResponsePrepareProposal{Txs: allTxs}, err
 }
 
 // buildBlock builds and submits a payload, it also waits for the txs

@@ -18,35 +18,37 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package keeper
+package miner
 
 import (
 	"context"
-	"fmt"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ethereum/go-ethereum/beacon/engine"
+
+	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 )
 
-// Precommit runs on the Cosmo-SDK lifecycle Precommit().
-func (k *Keeper) EndBlock(ctx context.Context) error {
-	// Verify that the EVM block was written.
-	// TODO: Set/GetHead to set and get the canonical head.
-	blockNum := uint64(sdk.UnwrapSDKContext(ctx).BlockHeight())
-	block := k.wrappedChain.GetBlockByNumber(blockNum)
-	if block == nil {
-		return fmt.Errorf(
-			"evm block %d failed to process", blockNum,
-		)
-	} else if block.NumberU64() != blockNum {
-		return fmt.Errorf(
-			"evm block [%d] does not match comet block [%d]", block.NumberU64(), blockNum,
-		)
+// EnvelopeSerializer is used to convert an envelope into a byte slice that represents
+// a cosmos sdk.Tx.
+type (
+	EnvelopeSerializer interface {
+		ToSdkTxBytes(*engine.ExecutionPayloadEnvelope, uint64) ([]byte, error)
 	}
-	return nil
-}
 
-// SetLatestQueryContext runs on the Cosmos-SDK lifecycle SetLatestQueryContext().
-func (k *Keeper) SetLatestQueryContext(ctx context.Context) error {
-	k.sp.Prepare(ctx)
-	return nil
-}
+	App interface {
+		BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
+		PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
+		TxDecode(txBytes []byte) (sdk.Tx, error)
+	}
+
+	// EVMKeeper is an interface that defines the methods needed for the EVM setup.
+	EVMKeeper interface {
+		// Setup initializes the EVM keeper.
+		Setup(evmkeeper.WrappedBlockchain) error
+		SetLatestQueryContext(context.Context) error
+	}
+)

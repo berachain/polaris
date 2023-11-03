@@ -27,7 +27,7 @@ require (
 	github.com/onsi/gomega v1.27.10
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20231101202254-949a826ae454
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20231103184645-cd12ec4473c0
 	pkg.berachain.dev/polaris/eth v0.0.0-20231031220135-f3bf0d0ee45f
 )
 

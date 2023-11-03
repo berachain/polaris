@@ -24,7 +24,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
-	"pkg.berachain.dev/polaris/cosmos/txpool"
+	"pkg.berachain.dev/polaris/cosmos/runtime/txpool"
 )
 
 // NewAnteHandler creates a new instance of AnteHandler with EjectOnRecheckTxDecorator.
