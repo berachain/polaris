@@ -27,6 +27,8 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
@@ -34,10 +36,11 @@ import (
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
-	"pkg.berachain.dev/polaris/cosmos/miner"
 	antelib "pkg.berachain.dev/polaris/cosmos/runtime/ante"
+	"pkg.berachain.dev/polaris/cosmos/runtime/chain"
 	"pkg.berachain.dev/polaris/cosmos/runtime/comet"
-	"pkg.berachain.dev/polaris/cosmos/txpool"
+	"pkg.berachain.dev/polaris/cosmos/runtime/miner"
+	"pkg.berachain.dev/polaris/cosmos/runtime/txpool"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
 	"pkg.berachain.dev/polaris/eth"
@@ -50,16 +53,19 @@ import (
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
-	Setup(evmkeeper.Blockchain) error
+	Setup(evmkeeper.WrappedBlockchain) error
 	SetLatestQueryContext(context.Context) error
 }
 
 // CosmosApp is an interface that defines the methods needed for the Cosmos setup.
 type CosmosApp interface {
 	SetPrepareProposal(sdk.PrepareProposalHandler)
+	SetProcessProposal(sdk.ProcessProposalHandler)
 	SetMempool(mempool.Mempool)
 	SetAnteHandler(sdk.AnteHandler)
-	miner.App
+	TxDecode(txBz []byte) (sdk.Tx, error)
+	BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
+	PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
 }
 
 // Polaris is a struct that wraps the Polaris struct from the polar package.
@@ -71,6 +77,9 @@ type Polaris struct {
 	WrappedMiner *miner.Miner
 	// WrappedTxPool is a wrapped version of the Mempool component.
 	WrappedTxPool *txpool.Mempool
+	// WrappedBlockchain is a wrapped version of the Blockchain component.
+	WrappedBlockchain *chain.WrappedBlockchain
+
 	// logger is the underlying logger supplied by the sdk.
 	logger log.Logger
 }
@@ -104,12 +113,14 @@ func New(
 func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
 	p.WrappedTxPool = txpool.New(p.Blockchain(), p.TxPool())
-	p.WrappedMiner = miner.New(p.Miner(), app, ek)
+	p.WrappedMiner = miner.New(p.Miner(), app, ek, p.Blockchain())
+	p.WrappedBlockchain = chain.New(p.Blockchain(), app)
 
 	app.SetMempool(p.WrappedTxPool)
 	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
+	app.SetProcessProposal(p.WrappedBlockchain.ProcessProposal)
 
-	if err := ek.Setup(p.Blockchain()); err != nil {
+	if err := ek.Setup(p.WrappedBlockchain); err != nil {
 		return err
 	}
 

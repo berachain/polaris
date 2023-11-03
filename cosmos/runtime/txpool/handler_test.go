@@ -28,7 +28,7 @@ import (
 
 	"cosmossdk.io/log"
 
-	"pkg.berachain.dev/polaris/cosmos/txpool/mocks"
+	"pkg.berachain.dev/polaris/cosmos/runtime/txpool/mocks"
 	"pkg.berachain.dev/polaris/eth/core"
 	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
@@ -38,7 +38,7 @@ import (
 
 func TestTxpool(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "cosmos/txpool")
+	RunSpecs(t, "cosmos/runtime/txpool")
 }
 
 var _ = Describe("", func() {
