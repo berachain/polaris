@@ -83,6 +83,11 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 	conf := &Config{}
 
 	// Polar settings
+	if conf.Polar.IsMainnet, err =
+		parser.GetBool(flags.IsMainnet); err != nil {
+		return nil, err
+	}
+
 	if conf.Polar.RPCGasCap, err =
 		parser.GetUint64(flags.RPCGasCap); err != nil {
 		return nil, err

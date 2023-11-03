@@ -114,7 +114,7 @@ func New(
 		config:     config,
 		host:       host,
 		engine:     engine,
-		blockchain: core.NewChain(host, &config.Chain, engine),
+		blockchain: core.NewChain(host, &config.Chain, engine, config.IsMainnet),
 	}
 
 	// Build the backend api object.

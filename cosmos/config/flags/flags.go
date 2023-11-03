@@ -22,6 +22,7 @@ package flags
 
 const (
 	// Polar Root.
+	IsMainnet     = "polaris.polar.is-mainnet"
 	RPCEvmTimeout = "polaris.polar.rpc-evm-timeout"
 	RPCTxFeeCap   = "polaris.polar.rpc-tx-fee-cap"
 	RPCGasCap     = "polaris.polar.rpc-gas-cap"

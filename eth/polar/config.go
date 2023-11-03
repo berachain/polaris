@@ -96,4 +96,7 @@ type Config struct {
 	// RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for
 	// send-transaction variants. The unit is ether.
 	RPCTxFeeCap float64
+
+	// IsMainnet is used to enable extra safety checks for a live mainnet.
+	IsMainnet bool
 }
