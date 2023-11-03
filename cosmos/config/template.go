@@ -29,7 +29,7 @@ const (
 # General Polaris settings
 [polaris]
 
-is-mainnet "{{Polaris.Polar.IsMainnet}}
+is-mainnet = "{{Polaris.Polar.IsMainnet}}
 
 [polaris.polar]
 # Gas cap for RPC requests
