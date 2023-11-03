@@ -73,9 +73,9 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 		var sdkTx sdk.Tx
 		sdkTx, err = wbc.app.TxDecode(tx)
 		if err != nil {
-			return &abci.ResponseProcessProposal{
-				Status: abci.ResponseProcessProposal_REJECT,
-			}, fmt.Errorf("failed to decode tx: %w", err)
+			// should have been verified in prepare proposal, we
+			// ignore it for now (i.e VE extensions will fail decode).
+			continue
 		}
 
 		protoEnvelope := sdkTx.GetMsgs()[0]
