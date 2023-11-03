@@ -82,6 +82,7 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 	var val int64
 	conf := &Config{}
 
+	// Polar settings
 	if conf.Polar.RPCGasCap, err =
 		parser.GetUint64(flags.RPCGasCap); err != nil {
 		return nil, err
