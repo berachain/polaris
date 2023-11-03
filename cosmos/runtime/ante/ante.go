@@ -21,51 +21,18 @@
 package ante
 
 import (
-	"errors"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"pkg.berachain.dev/polaris/cosmos/txpool"
 )
 
-const numBlocksWait = 10
-
 // NewAnteHandler creates a new instance of AnteHandler with EjectOnRecheckTxDecorator.
-func NewAnteHandler() sdk.AnteHandler {
+func NewAnteHandler(mempool *txpool.Mempool) sdk.AnteHandler {
 	anteDecorators := []sdk.AnteDecorator{
 		ante.NewSetUpContextDecorator(),
-		&EjectOnRecheckTxDecorator{
-			seen: make(map[common.Hash]uint64),
-		},
+		mempool,
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...)
-}
-
-// EjectOnRecheckTxDecorator will return an error if the context is a recheck tx.
-// This is used to forcibly eject transactions from the CometBFT mempool after they
-// have been passed down to the application, as we want to prevent the comet mempool
-// from growing in size.
-type EjectOnRecheckTxDecorator struct {
-	seen map[common.Hash]uint64
-}
-
-// Antehandle implements sdk.AnteHandler.
-func (e *EjectOnRecheckTxDecorator) AnteHandle(
-	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
-) (sdk.Context, error) {
-	msgs := tx.GetMsgs()
-	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
-		hash := wet.Unwrap().Hash()
-		e.seen[hash]++
-		if e.seen[hash] > numBlocksWait {
-			delete(e.seen, hash) // prevent leak
-			return ctx, errors.New("recheck tx")
-		}
-	}
-
-	return next(ctx, tx, simulate)
 }

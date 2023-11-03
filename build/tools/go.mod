@@ -1,4 +1,4 @@
-module pkg.berachain.dev/polaris/tools
+module pkg.berachain.dev/polaris/build/tools
 
 go 1.21
 
@@ -77,7 +77,7 @@ require (
 	github.com/denis-tingaikin/go-header v0.4.3 // indirect
 	github.com/docker/cli v24.0.4+incompatible // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
-	github.com/docker/docker v24.0.5+incompatible // indirect
+	github.com/docker/docker v24.0.7+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.0 // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect

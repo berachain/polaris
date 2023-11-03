@@ -10,9 +10,9 @@ require (
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231023174626-bf146d519cd3
-	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20231023174626-bf146d519cd3
-	pkg.berachain.dev/polaris/eth v0.0.0-20231023174626-bf146d519cd3
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f
+	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20231031220135-f3bf0d0ee45f
+	pkg.berachain.dev/polaris/eth v0.0.0-20231031220135-f3bf0d0ee45f
 )
 
 require (
@@ -67,7 +67,7 @@ require (
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
-	github.com/docker/docker v24.0.5+incompatible // indirect
+	github.com/docker/docker v24.0.7+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect

@@ -26,8 +26,8 @@ require (
 	github.com/onsi/gomega v1.27.10
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20231012162131-c1edabdcf30e
-	pkg.berachain.dev/polaris/eth v0.0.0-20231010191645-a5ed99983be4
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20231101202254-949a826ae454
+	pkg.berachain.dev/polaris/eth v0.0.0-20231031220135-f3bf0d0ee45f
 )
 
 require (
@@ -52,7 +52,10 @@ require (
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816 // indirect
 	github.com/bits-and-blooms/bitset v1.8.0 // indirect
+	github.com/btcsuite/btcd v0.23.2 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
+	github.com/btcsuite/btcd/btcutil v1.1.3 // indirect
+	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1 // indirect
 	github.com/bytedance/sonic v1.10.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
@@ -265,8 +268,8 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231010191645-a5ed99983be4 // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20231010191645-a5ed99983be4 // indirect
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231023174626-bf146d519cd3 // indirect
+	pkg.berachain.dev/polaris/lib v0.0.0-20231031220135-f3bf0d0ee45f // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )

@@ -31,16 +31,17 @@ import (
 	"pkg.berachain.dev/polaris/cosmos/config"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
 	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/core"
 	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 	"pkg.berachain.dev/polaris/eth/params"
 )
 
 type Blockchain interface {
 	PreparePlugins(context.Context)
 	Config() *params.ChainConfig
-	core.ChainWriter
-	core.ChainReader
+	WriteGenesisBlock(*coretypes.Block) error
+	InsertBlockAndSetHead(*coretypes.Block) error
+	GetBlockByNumber(uint64) *coretypes.Block
 }
 
 type Keeper struct {

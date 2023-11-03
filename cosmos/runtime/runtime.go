@@ -21,6 +21,7 @@
 package runtime
 
 import (
+	"context"
 	"time"
 
 	"cosmossdk.io/log"
@@ -32,9 +33,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
-	antelib "pkg.berachain.dev/polaris/cosmos/lib/ante"
 	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
 	"pkg.berachain.dev/polaris/cosmos/miner"
+	antelib "pkg.berachain.dev/polaris/cosmos/runtime/ante"
 	"pkg.berachain.dev/polaris/cosmos/runtime/comet"
 	"pkg.berachain.dev/polaris/cosmos/txpool"
 	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
@@ -50,6 +51,7 @@ import (
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
 	Setup(evmkeeper.Blockchain) error
+	SetLatestQueryContext(context.Context) error
 }
 
 // CosmosApp is an interface that defines the methods needed for the Cosmos setup.
@@ -57,6 +59,7 @@ type CosmosApp interface {
 	SetPrepareProposal(sdk.PrepareProposalHandler)
 	SetMempool(mempool.Mempool)
 	SetAnteHandler(sdk.AnteHandler)
+	miner.App
 }
 
 // Polaris is a struct that wraps the Polaris struct from the polar package.
@@ -92,10 +95,6 @@ func New(
 		panic(err)
 	}
 
-	// Wrap the geth miner and txpool with the cosmos miner and txpool.
-	p.WrappedTxPool = txpool.New(p.TxPool())
-	p.WrappedMiner = miner.New(p.Miner())
-
 	return p
 }
 
@@ -103,6 +102,10 @@ func New(
 // It takes a BaseApp and an EVMKeeper as arguments.
 // It returns an error if the setup fails.
 func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
+	// Wrap the geth miner and txpool with the cosmos miner and txpool.
+	p.WrappedTxPool = txpool.New(p.Blockchain(), p.TxPool())
+	p.WrappedMiner = miner.New(p.Miner(), app, ek)
+
 	app.SetMempool(p.WrappedTxPool)
 	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
 
@@ -110,8 +113,7 @@ func (p *Polaris) Build(app CosmosApp, ek EVMKeeper) error {
 		return err
 	}
 
-	// Set the ante handler to nil, since it is not needed.
-	app.SetAnteHandler(antelib.NewAnteHandler())
+	app.SetAnteHandler(antelib.NewAnteHandler(p.WrappedTxPool))
 
 	return nil
 }

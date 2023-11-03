@@ -22,18 +22,28 @@ package crypto
 
 import (
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 )
 
 var (
-	// GenerateEthKey is a function that generates a new Ethereum key.
-	GenerateEthKey = crypto.GenerateKey
-	// Keccak256 is a function that computes and returns the Keccak256 hash of the input data.
-	Keccak256 = crypto.Keccak256
-	// Keccak256Hash is a function that computes and returns the Keccak256 hash of the input data,
-	// but the return type is Hash.
-	Keccak256Hash = crypto.Keccak256Hash
-	// PubkeyToAddress is a function that derives the Ethereum address from the given public key.
-	PubkeyToAddress = crypto.PubkeyToAddress
-	// LoadECDSA is a function that loads a private key from a given file.
-	LoadECDSA = crypto.LoadECDSA
+	SigToPub                = crypto.SigToPub
+	Ecrecover               = crypto.Ecrecover
+	CreateAddress           = crypto.CreateAddress
+	UnmarshalPubkey         = crypto.UnmarshalPubkey
+	CompressPubkey          = crypto.CompressPubkey
+	DecompressPubkey        = crypto.DecompressPubkey
+	DigestLength            = crypto.DigestLength
+	EthSign                 = crypto.Sign
+	EthSecp256k1Sign        = secp256k1.Sign
+	LoadECDSA               = crypto.LoadECDSA
+	FromECDSA               = crypto.FromECDSA
+	GenerateEthKey          = crypto.GenerateKey
+	ValidateSignatureValues = crypto.ValidateSignatureValues
+	Keccak256               = crypto.Keccak256
+	Keccak256Hash           = crypto.Keccak256Hash
+	PubkeyToAddress         = crypto.PubkeyToAddress
+	SignatureLength         = crypto.SignatureLength
+	ToECDSA                 = crypto.ToECDSA
+	VerifySignature         = crypto.VerifySignature
+	FromECDSAPub            = crypto.FromECDSAPub
 )

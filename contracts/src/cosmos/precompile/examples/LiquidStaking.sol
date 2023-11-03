@@ -23,7 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-pragma solidity ^0.8.17;
+pragma solidity 0.8.22;
 
 import {IStakingModule} from "../Staking.sol";
 import {ERC20} from "../../../../lib/ERC20.sol";

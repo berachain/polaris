@@ -66,6 +66,7 @@ type blockchain struct {
 
 	engine    consensus.Engine
 	processor core.Processor
+	validator core.Validator
 
 	// statedb is the state database that is used to mange state during transactions.
 	statedb state.StateDB
@@ -79,10 +80,6 @@ type blockchain struct {
 	currentBlock atomic.Pointer[types.Block]
 	// finalizedBlock is the finalized/latest block.
 	finalizedBlock atomic.Pointer[types.Block]
-	// currentReceipts is the current/pending receipts.
-	currentReceipts atomic.Value
-	// currentLogs is the current/pending logs.
-	currentLogs atomic.Value
 
 	// receiptsCache is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of
 	// blocks. blockHash -> receipts
@@ -98,14 +95,13 @@ type blockchain struct {
 	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
 
 	// subscription event feeds
-	scope           event.SubscriptionScope
-	chainFeed       event.Feed
-	chainHeadFeed   event.Feed
-	logsFeed        event.Feed
-	pendingLogsFeed event.Feed
-	rmLogsFeed      event.Feed // currently never used
-	chainSideFeed   event.Feed // currently never used
-	logger          log.Logger
+	scope         event.SubscriptionScope
+	chainFeed     event.Feed
+	chainHeadFeed event.Feed
+	logsFeed      event.Feed
+	rmLogsFeed    event.Feed // currently never used
+	chainSideFeed event.Feed // currently never used
+	logger        log.Logger
 }
 
 // =========================================================================
@@ -134,6 +130,7 @@ func NewChain(
 	}
 	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
 	bc.processor = core.NewStateProcessor(bc.config, bc, bc.engine)
+	bc.validator = core.NewBlockValidator(bc.config, bc, bc.engine)
 	// TODO: hmm...
 	bc.currentBlock.Store(
 		types.NewBlock(&types.Header{Time: 0, Number: big.NewInt(0),

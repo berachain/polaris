@@ -24,6 +24,8 @@ import (
 	"context"
 	"fmt"
 
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
@@ -48,7 +50,8 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	// Reset GasMeter to 0.
 	gasMeter.RefundGas(gasMeter.GasConsumed(), "reset before evm block")
 	blockGasMeter.RefundGas(blockGasMeter.GasConsumed(), "reset before evm block")
-	defer gasMeter.ConsumeGas(gasMeter.GasConsumed(), "reset after evm")
+	defer gasMeter.RefundGas(gasMeter.GasConsumed(), "reset after evm")
+	defer blockGasMeter.RefundGas(blockGasMeter.GasConsumed(), "reset after evm")
 
 	if err = envelope.UnmarshalJSON(msg.Data); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal payload envelope: %w", err)
@@ -60,8 +63,10 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	}
 
 	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
+	ctx = sCtx.WithKVGasConfig(storetypes.GasConfig{}).
+		WithTransientKVGasConfig(storetypes.GasConfig{})
 	k.chain.PreparePlugins(ctx)
-	if err = k.chain.InsertBlockWithoutSetHead(block); err != nil {
+	if err = k.chain.InsertBlockAndSetHead(block); err != nil {
 		return nil, err
 	}
 

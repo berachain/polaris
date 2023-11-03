@@ -28,27 +28,25 @@ import (
 )
 
 // Precommit runs on the Cosmo-SDK lifecycle Precommit().
-func (k *Keeper) Precommit(ctx context.Context) error {
+func (k *Keeper) EndBlock(ctx context.Context) error {
 	// Verify that the EVM block was written.
 	// TODO: Set/GetHead to set and get the canonical head.
 	blockNum := uint64(sdk.UnwrapSDKContext(ctx).BlockHeight())
 	block := k.chain.GetBlockByNumber(blockNum)
 	if block == nil {
-		panic(
-			fmt.Sprintf("EVM BLOCK FAILURE AT BLOCK %d", blockNum),
+		return fmt.Errorf(
+			"evm block %d failed to process", blockNum,
 		)
 	} else if block.NumberU64() != blockNum {
-		panic(
-			fmt.Sprintf(
-				"EVM BLOCK [%d] DOES NOT MATCH COMET BLOCK [%d]", block.NumberU64(), blockNum,
-			),
+		return fmt.Errorf(
+			"evm block [%d] does not match comet block [%d]", block.NumberU64(), blockNum,
 		)
 	}
 	return nil
 }
 
-// PrepareCheckState runs on the Cosmos-SDK lifecycle PrepareCheckState().
-func (k *Keeper) PrepareCheckState(ctx context.Context) error {
+// SetLatestQueryContext runs on the Cosmos-SDK lifecycle SetLatestQueryContext().
+func (k *Keeper) SetLatestQueryContext(ctx context.Context) error {
 	k.sp.Prepare(ctx)
 	return nil
 }

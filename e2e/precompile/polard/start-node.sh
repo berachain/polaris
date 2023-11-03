@@ -28,9 +28,9 @@ MONIKER="localtestnet"
 # otherwise your balance will be wiped quickly
 # The keyring test does not require private key to steal tokens from you
 KEYRING="test"
-KEYALGO="secp256k1"
+KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
-# Set dedicated home directory for the ./bin/polard instance
+# Set dedicated home directory for the ./build/bin/polard instance
 HOMEDIR="/"
 # to trace evm
 #TRACE="--trace"
@@ -99,11 +99,11 @@ jq '.app_state["evm"]["alloc"]["acc1319Fe722A198F395F0164066ED4E309439Bf"]["bala
 # Sign genesis transaction
 polard genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
 ## In case you want to create multiple validators at genesis
-## 1. Back to `./bin/polard keys add` step, init more keys
-## 2. Back to `./bin/polard add-genesis-account` step, add balance for those
-## 3. Clone this ~/../bin/polard home directory into some others, let's say `~/.cloned./bin/polard`
+## 1. Back to `./build/bin/polard keys add` step, init more keys
+## 2. Back to `./build/bin/polard add-genesis-account` step, add balance for those
+## 3. Clone this ~/../build/bin/polard home directory into some others, let's say `~/.cloned./build/bin/polard`
 ## 4. Run `gentx` in each of those folders
-## 5. Copy the `gentx-*` folders under `~/.cloned./bin/polard/config/gentx/` folders into the original `~/../bin/polard/config/gentx`
+## 5. Copy the `gentx-*` folders under `~/.cloned./build/bin/polard/config/gentx/` folders into the original `~/../build/bin/polard/config/gentx`
 
 # Collect genesis tx
 polard genesis collect-gentxs --home "$HOMEDIR"

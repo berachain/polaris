@@ -97,7 +97,6 @@ func (bc *blockchain) CurrentFinalBlock() *types.Header {
 // CurrentSafeBlock retrieves the current safe block of the canonical
 // chain. The block is retrieved from the blockchain's internal cache.
 func (bc *blockchain) CurrentSafeBlock() *types.Header {
-	// TODO: determine the difference between safe and final in polaris.
 	return bc.CurrentFinalBlock()
 }
 

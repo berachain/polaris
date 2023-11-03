@@ -23,7 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-pragma solidity ^0.8.4;
+pragma solidity 0.8.22;
 
 import "../../../../lib/forge-std/src/Script.sol";
 import "../../../../lib/forge-std/src/console2.sol";

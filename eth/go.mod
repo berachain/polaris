@@ -12,8 +12,8 @@ require (
 	github.com/onsi/gomega v1.27.10
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/text v0.13.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231023174626-bf146d519cd3
-	pkg.berachain.dev/polaris/lib v0.0.0-20231023174626-bf146d519cd3
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f
+	pkg.berachain.dev/polaris/lib v0.0.0-20231031220135-f3bf0d0ee45f
 )
 
 require (
@@ -41,6 +41,7 @@ require (
 	github.com/deckarep/golang-set/v2 v2.3.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/deepmap/oapi-codegen v1.13.4 // indirect
+	github.com/docker/docker v24.0.7+incompatible // indirect
 	github.com/ethereum/c-kzg-4844 v0.3.1 // indirect
 	github.com/fjl/memsize v0.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect

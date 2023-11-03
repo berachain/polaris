@@ -28,9 +28,9 @@ MONIKER="localtestnet"
 # otherwise your balance will be wiped quickly
 # The keyring test does not require private key to steal tokens from you
 KEYRING="test"
-KEYALGO="secp256k1"
+KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
-# Set dedicated home directory for the ./bin/polard instance
+# Set dedicated home directory for the ./build/bin/polard instance
 HOMEDIR="./.tmp/polard"
 # to trace evm
 #TRACE="--trace"
@@ -64,15 +64,15 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	rm -rf "$HOMEDIR"
 
 	# # Set moniker and chain-id (Moniker can be anything, chain-id must be an integer)
-	./bin/polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
+	./build/bin/polard init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
 
 	# Set client config
-	./bin/polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
-	./bin/polard config set client chain-id "$CHAINID" --home "$HOMEDIR"
+	./build/bin/polard config set client keyring-backend $KEYRING --home "$HOMEDIR"
+	./build/bin/polard config set client chain-id "$CHAINID" --home "$HOMEDIR"
 
 	# If keys exist they should be deleted
 	for KEY in "${KEYS[@]}"; do
-		./bin/polard keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
+		./build/bin/polard keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
 	done
 
 	# Change parameter token denominations to abera
@@ -84,28 +84,28 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 
 	# Allocate genesis accounts (cosmos formatted addresses)
 	for KEY in "${KEYS[@]}"; do
-		./bin/polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+		./build/bin/polard genesis add-genesis-account $KEY 100000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 	done
 
 	# Test Account
 	# absurd surge gather author blanket acquire proof struggle runway attract cereal quiz tattoo shed almost sudden survey boring film memory picnic favorite verb tank
 	# 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
-	./bin/polard genesis add-genesis-account cosmos1yrene6g2zwjttemf0c65fscg8w8c55w58yh8rl 69000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
+	./build/bin/polard genesis add-genesis-account cosmos1yrene6g2zwjttemf0c65fscg8w8c55w58yh8rl 69000000000000000000000000abera --keyring-backend $KEYRING --home "$HOMEDIR"
 
 	# Sign genesis transaction
-	./bin/polard genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
+	./build/bin/polard genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
 	## In case you want to create multiple validators at genesis
-	## 1. Back to `./bin/polard keys add` step, init more keys
-	## 2. Back to `./bin/polard add-genesis-account` step, add balance for those
-	## 3. Clone this ~/../bin/polard home directory into some others, let's say `~/.cloned./bin/polard`
+	## 1. Back to `./build/bin/polard keys add` step, init more keys
+	## 2. Back to `./build/bin/polard add-genesis-account` step, add balance for those
+	## 3. Clone this ~/../build/bin/polard home directory into some others, let's say `~/.cloned./build/bin/polard`
 	## 4. Run `gentx` in each of those folders
-	## 5. Copy the `gentx-*` folders under `~/.cloned./bin/polard/config/gentx/` folders into the original `~/../bin/polard/config/gentx`
+	## 5. Copy the `gentx-*` folders under `~/.cloned./build/bin/polard/config/gentx/` folders into the original `~/../build/bin/polard/config/gentx`
 
 	# Collect genesis tx
-	./bin/polard genesis collect-gentxs --home "$HOMEDIR"
+	./build/bin/polard genesis collect-gentxs --home "$HOMEDIR"
 
 	# Run this to ensure everything worked and that the genesis file is setup correctly
-	./bin/polard genesis validate-genesis --home "$HOMEDIR"
+	./build/bin/polard genesis validate-genesis --home "$HOMEDIR"
 
 	if [[ $1 == "pending" ]]; then
 		echo "pending mode is on, please wait for the first block committed."
@@ -123,4 +123,4 @@ AUTH_TOKEN="$(docker exec $(docker ps -q) celestia bridge --node.store /bridge  
 #$(echo $RANDOM | md5sum | head -c 16; echo;)
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)m
-./bin/polard start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --api.swagger --minimum-gas-prices=0.0001abera --home "$HOMEDIR" --rollkit.aggregator true --rollkit.da_layer celestia --rollkit.da_config='{"base_url":"http://localhost:26658","timeout":60000000000,"gas_limit":6000000,"fee":600000,"auth_token":"'$AUTH_TOKEN'"}' --rollkit.namespace_id $NAMESPACE_ID --rollkit.da_start_height $DA_BLOCK_HEIGHT
+./build/bin/polard start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --api.swagger --minimum-gas-prices=0.0001abera --home "$HOMEDIR" --rollkit.aggregator true --rollkit.da_layer celestia --rollkit.da_config='{"base_url":"http://localhost:26658","timeout":60000000000,"gas_limit":6000000,"fee":600000,"auth_token":"'$AUTH_TOKEN'"}' --rollkit.namespace_id $NAMESPACE_ID --rollkit.da_start_height $DA_BLOCK_HEIGHT
