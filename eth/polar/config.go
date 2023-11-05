@@ -51,12 +51,14 @@ func DefaultConfig() *Config {
 	gpoConfig.Default = big.NewInt(gpoDefault)
 	minerCfg := miner.DefaultConfig
 	minerCfg.Etherbase = common.HexToAddress(developmentCoinbase)
-	// TODO: setup proper command line flags
+	legacyPool := legacypool.DefaultConfig
+	legacyPool.Journal = ""
+
 	return &Config{
 		Chain:         *params.DefaultChainConfig,
 		Miner:         minerCfg,
 		GPO:           gpoConfig,
-		LegacyTxPool:  legacypool.DefaultConfig,
+		LegacyTxPool:  legacyPool,
 		RPCGasCap:     ethconfig.Defaults.RPCGasCap,
 		RPCTxFeeCap:   ethconfig.Defaults.RPCTxFeeCap,
 		RPCEVMTimeout: ethconfig.Defaults.RPCEVMTimeout,
