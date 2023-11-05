@@ -12,8 +12,8 @@ github.com/apapsch/go-jsonmerge/v2 v2.0.0 h1:axGnT1gRIfimI7gJifB699GoE/oq+F2MU7D
 github.com/apapsch/go-jsonmerge/v2 v2.0.0/go.mod h1:lvDnEdqiQrp0O42VQGgmlKpxL1AP2+08jFMw88y4klk=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/berachain/polaris-geth v0.0.0-20231024060913-70d774cdaecb h1:4oWKO5gaauAaOqAuVFz1J0/5+raBtr+SZuFNOU9HQn0=
-github.com/berachain/polaris-geth v0.0.0-20231024060913-70d774cdaecb/go.mod h1:gkQ5Ygi64ZBh9M/4iXY1R8WqoNCx1Ey0CkYn2BD4/fw=
+github.com/berachain/polaris-geth v0.0.0-20231105185655-b78967bb230f h1:9wGV+05KiA6D9mcRxsBm/4hrKUI/LORwvsYlAvMl1Sc=
+github.com/berachain/polaris-geth v0.0.0-20231105185655-b78967bb230f/go.mod h1:I0U5VewuuTzvBtVzKo7b3hJzDhXOUtn9mJW7SsIPB0Q=
 github.com/bits-and-blooms/bitset v1.8.0 h1:FD+XqgOZDUxxZ8hzoBFuV9+cGWY9CslN6d5MS5JVb4c=
 github.com/bits-and-blooms/bitset v1.8.0/go.mod h1:7hO7Gc7Pp1vODcmWvKMRA9BNmbv6a/7QIWpPxHddWR8=
 github.com/bmatcuk/doublestar v1.1.1/go.mod h1:UD6OnuiIn0yFxxA2le/rnRU1G4RaI4UvFv1sNto9p6w=
@@ -52,8 +52,8 @@ github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 h1:zuQyyAK
 github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06/go.mod h1:7nc4anLGjupUW/PeY5qiNYsdNXj7zopG+eqsS7To5IQ=
 github.com/consensys/bavard v0.1.13 h1:oLhMLOFGTLdlda/kma4VOJazblc7IM5y5QPd2A/YjhQ=
 github.com/consensys/bavard v0.1.13/go.mod h1:9ItSMtA/dXMAiL7BG6bqW2m3NdSEObYWoH223nGHukI=
-github.com/consensys/gnark-crypto v0.12.0 h1:1OnSpOykNkUIBIBJKdhwy2p0JlW5o+Az02ICzZmvvdg=
-github.com/consensys/gnark-crypto v0.12.0/go.mod h1:v2Gy7L/4ZRosZ7Ivs+9SfUDr0f5UlG+EM5t7MPHiLuY=
+github.com/consensys/gnark-crypto v0.12.1 h1:lHH39WuuFgVHONRl3J0LRBtuYdQTumFSDtJF7HpyG8M=
+github.com/consensys/gnark-crypto v0.12.1/go.mod h1:v2Gy7L/4ZRosZ7Ivs+9SfUDr0f5UlG+EM5t7MPHiLuY=
 github.com/cpuguy83/go-md2man/v2 v2.0.2 h1:p1EgwI/C7NhT0JmVkwCD2ZBK8j4aeHQX2pMHHBfMQ6w=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/crate-crypto/go-kzg-4844 v0.3.0 h1:UBlWE0CgyFqqzTI+IFyCzA7A3Zw4iip6uzRv5NIXG0A=
@@ -437,10 +437,10 @@ gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 nullprogram.com/x/optparse v1.0.0/go.mod h1:KdyPE+Igbe0jQUrVfMqDMeJQIJZEuyV7pjYmp6pbG50=
-pkg.berachain.dev/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f h1:TUIqQfHmD7lsVnf24kxwxlBTxSKOPt5W39t/0Mnk+cU=
-pkg.berachain.dev/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f/go.mod h1:5Nz9qfw/JZGle4OtEsJBkgWDn9MNWCEZlCW/6pE5yZg=
-pkg.berachain.dev/polaris/lib v0.0.0-20231031220135-f3bf0d0ee45f h1:mho28mqM87UH9A3fBeC3qugV2u9QgOpYJnc1zZkfZQs=
-pkg.berachain.dev/polaris/lib v0.0.0-20231031220135-f3bf0d0ee45f/go.mod h1:6w+5Axb6GV66PLllrYf7h1G3x8Pwu5nvd7ZiibiI3HM=
+pkg.berachain.dev/polaris/contracts v0.0.0-20231104204753-faadca38b64d h1:nhHvQsD6mODe2D/mcQB/l0QRfRc91VmfDSMpdn0dPAI=
+pkg.berachain.dev/polaris/contracts v0.0.0-20231104204753-faadca38b64d/go.mod h1:5Nz9qfw/JZGle4OtEsJBkgWDn9MNWCEZlCW/6pE5yZg=
+pkg.berachain.dev/polaris/lib v0.0.0-20231104204753-faadca38b64d h1:LMuJ+fYqzSbzUHdBY1ZtFr1CK1yaiMxBCdnhx9654i0=
+pkg.berachain.dev/polaris/lib v0.0.0-20231104204753-faadca38b64d/go.mod h1:6w+5Axb6GV66PLllrYf7h1G3x8Pwu5nvd7ZiibiI3HM=
 rsc.io/pdf v0.1.1/go.mod h1:n8OzWcQ6Sp37PL01nO98y4iUCRdTGarVfzxY20ICaU4=
 rsc.io/tmplfunc v0.0.3 h1:53XFQh69AfOa8Tw0Jm7t+GV7KZhOi6jzsCzTtKbMvzU=
 rsc.io/tmplfunc v0.0.3/go.mod h1:AG3sTPzElb1Io3Yg4voV9AGZJuleGAwaVRxL9M49PhA=

@@ -3,17 +3,17 @@ module pkg.berachain.dev/polaris/eth
 go 1.21
 
 // We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231024060913-70d774cdaecb
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231105185655-b78967bb230f
 
 require (
-	github.com/ethereum/go-ethereum v1.13.1
+	github.com/ethereum/go-ethereum v1.13.4
 	github.com/holiman/uint256 v1.2.3
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/text v0.13.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f
-	pkg.berachain.dev/polaris/lib v0.0.0-20231031220135-f3bf0d0ee45f
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231104204753-faadca38b64d
+	pkg.berachain.dev/polaris/lib v0.0.0-20231104204753-faadca38b64d
 )
 
 require (
@@ -36,7 +36,7 @@ require (
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
 	github.com/consensys/bavard v0.1.13 // indirect
-	github.com/consensys/gnark-crypto v0.12.0 // indirect
+	github.com/consensys/gnark-crypto v0.12.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/crate-crypto/go-kzg-4844 v0.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

@@ -6,13 +6,13 @@ go 1.21
 replace github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 
 require (
-	github.com/cosmos/cosmos-sdk v0.50.0-rc.1.0.20231102154100-d2987a5b776b
+	github.com/cosmos/cosmos-sdk v0.50.0-rc.1.0.20231103111158-e83a20081ced
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f
-	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20231031220135-f3bf0d0ee45f
-	pkg.berachain.dev/polaris/eth v0.0.0-20231031220135-f3bf0d0ee45f
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231104204753-faadca38b64d
+	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20231104204753-faadca38b64d
+	pkg.berachain.dev/polaris/eth v0.0.0-20231104204753-faadca38b64d
 )
 
 require (
@@ -24,7 +24,7 @@ require (
 	cosmossdk.io/log v1.2.1 // indirect
 	cosmossdk.io/math v1.1.3-rc.1 // indirect
 	cosmossdk.io/store v1.0.0 // indirect
-	cosmossdk.io/x/tx v0.11.0 // indirect
+	cosmossdk.io/x/tx v0.12.0 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
@@ -49,7 +49,7 @@ require (
 	github.com/cometbft/cometbft v0.38.0 // indirect
 	github.com/cometbft/cometbft-db v0.8.0 // indirect
 	github.com/consensys/bavard v0.1.13 // indirect
-	github.com/consensys/gnark-crypto v0.12.0 // indirect
+	github.com/consensys/gnark-crypto v0.12.1 // indirect
 	github.com/containerd/continuity v0.3.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-db v1.0.0 // indirect
@@ -76,7 +76,7 @@ require (
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
 	github.com/emicklei/dot v1.6.0 // indirect
 	github.com/ethereum/c-kzg-4844 v0.3.1 // indirect
-	github.com/ethereum/go-ethereum v1.13.1 // indirect
+	github.com/ethereum/go-ethereum v1.13.4 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect

@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/bufbuild/buf v1.26.1
 	github.com/cosmos/gosec/v2 v2.0.0-20230124142343-bf28a33fadf2
-	github.com/ethereum/go-ethereum v1.13.1
+	github.com/ethereum/go-ethereum v1.13.4
 	github.com/golangci/golangci-lint v1.54.2
 	github.com/google/addlicense v1.1.1
 	github.com/matryer/moq v0.3.2
@@ -66,7 +66,7 @@ require (
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
 	github.com/consensys/bavard v0.1.13 // indirect
-	github.com/consensys/gnark-crypto v0.12.0 // indirect
+	github.com/consensys/gnark-crypto v0.12.1 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.14.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/crate-crypto/go-kzg-4844 v0.3.0 // indirect
@@ -313,7 +313,6 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gotest.tools/v3 v3.5.1 // indirect
 	honnef.co/go/tools v0.4.5 // indirect
 	mvdan.cc/gofumpt v0.5.0 // indirect
 	mvdan.cc/interfacer v0.0.0-20180901003855-c20040233aed // indirect

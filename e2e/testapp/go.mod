@@ -5,7 +5,7 @@ go 1.21
 replace (
 	github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20230906160148-46873a6a7a06
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231024060913-70d774cdaecb
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231105185655-b78967bb230f
 	// Required at the moment until a bug in the comsos-sdk is fixed.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
@@ -22,13 +22,13 @@ require (
 	cosmossdk.io/x/upgrade v0.0.0-20230915171831-2196edacb99d
 	github.com/cometbft/cometbft v0.38.0
 	github.com/cosmos/cosmos-db v1.0.0
-	github.com/cosmos/cosmos-sdk v0.50.0-rc.1.0.20231102154100-d2987a5b776b
+	github.com/cosmos/cosmos-sdk v0.50.0-rc.1.0.20231103111158-e83a20081ced
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20231103184645-cd12ec4473c0
-	pkg.berachain.dev/polaris/eth v0.0.0-20231031220135-f3bf0d0ee45f
+	pkg.berachain.dev/polaris/cosmos v0.0.0-20231104204753-faadca38b64d
+	pkg.berachain.dev/polaris/eth v0.0.0-20231104204753-faadca38b64d
 )
 
 require (
@@ -40,7 +40,7 @@ require (
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/errors v1.0.0 // indirect
 	cosmossdk.io/math v1.1.3-rc.1 // indirect
-	cosmossdk.io/x/tx v0.11.0 // indirect
+	cosmossdk.io/x/tx v0.12.0 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
@@ -65,13 +65,15 @@ require (
 	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
+	github.com/cockroachdb/datadriven v1.0.3-0.20230801171734-e384cf455877 // indirect
 	github.com/cockroachdb/errors v1.11.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/pebble v0.0.0-20231101195458-481da04154d6 // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
+	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
 	github.com/cometbft/cometbft-db v0.8.0 // indirect
 	github.com/consensys/bavard v0.1.13 // indirect
-	github.com/consensys/gnark-crypto v0.12.0 // indirect
+	github.com/consensys/gnark-crypto v0.12.1 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
@@ -97,7 +99,7 @@ require (
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
 	github.com/emicklei/dot v1.6.0 // indirect
 	github.com/ethereum/c-kzg-4844 v0.3.1 // indirect
-	github.com/ethereum/go-ethereum v1.13.1 // indirect
+	github.com/ethereum/go-ethereum v1.13.4 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/fjl/memsize v0.0.1 // indirect
@@ -269,7 +271,7 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231023174626-bf146d519cd3 // indirect
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f // indirect
 	pkg.berachain.dev/polaris/lib v0.0.0-20231031220135-f3bf0d0ee45f // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
