@@ -51,7 +51,7 @@ type SdkTx interface {
 
 // TxSubProvider.
 type TxSubProvider interface {
-	SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription
+	SubscribeTransactions(ch chan<- core.NewTxsEvent, reorgs bool) event.Subscription
 }
 
 // TxSerializer provides an interface to Serialize Geth Transactions to Bytes (via sdk.Tx).
@@ -136,7 +136,7 @@ func (h *handler) Stop() error {
 // start handles the subscription to the txpool and broadcasts transactions.
 func (h *handler) mainLoop() {
 	// Connect to the subscription.
-	h.txsSub = h.txPool.SubscribeNewTxsEvent(h.txsCh)
+	h.txsSub = h.txPool.SubscribeTransactions(h.txsCh, true)
 	h.logger.With("module", "txpool-handler").Info("starting txpool handler")
 	h.running.Store(true)
 	// Handle events.

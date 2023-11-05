@@ -523,7 +523,7 @@ func (b *backend) TxPoolContentFrom(addr common.Address) (
 }
 
 func (b *backend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {
-	return b.polar.txPool.SubscribeNewTxsEvent(ch)
+	return b.polar.txPool.SubscribeTransactions(ch, true)
 }
 
 func (b *backend) Engine() consensus.Engine {
