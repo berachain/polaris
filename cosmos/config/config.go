@@ -279,6 +279,15 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 		return nil, err
 	}
 
+	if conf.Polar.LegacyTxPool.Journal == "" {
+		conf.Polar.LegacyTxPool.Journal, err =
+			parser.GetString(sdkflags.FlagHome)
+		if err != nil {
+			return nil, err
+		}
+		conf.Polar.LegacyTxPool.Journal += "/data/transactions.rlp"
+	}
+
 	if conf.Polar.LegacyTxPool.Rejournal, err =
 		parser.GetTimeDuration(flags.ReJournal); err != nil {
 		return nil, err
