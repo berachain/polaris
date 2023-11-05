@@ -57,7 +57,7 @@ var _ = Describe("", func() {
 		subscription.On("Unsubscribe").Return()
 		broadcaster = mocks.NewTxBroadcaster(t)
 		subprovider = mocks.NewTxSubProvider(t)
-		subprovider.On("SubscribeNewTxsEvent", mock.Anything).Return(subscription)
+		subprovider.On("SubscribeTransactions", mock.Anything, mock.Anything).Return(subscription)
 		serializer = mocks.NewTxSerializer(t)
 		h = newHandler(broadcaster, subprovider, serializer, log.NewTestLogger(t))
 		err := h.Start()
