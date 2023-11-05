@@ -124,7 +124,7 @@ func (m *Miner) clearPayload() {
 // processValidatorMsgs processes the validator messages.
 func (m *Miner) processValidatorMsgs(
 	ctx sdk.Context, maxTxBytes int64, ethGasUsed uint64, txs [][]byte,
-) ([][]byte, error) {
+) ([][]byte, error) { //nolint:unparam // should be handled better.
 	var maxBlockGas uint64
 	if b := ctx.ConsensusParams().Block; b != nil {
 		maxBlockGas = uint64(b.MaxGas)
@@ -135,7 +135,7 @@ func (m *Miner) processValidatorMsgs(
 	for _, txBz := range txs {
 		tx, err := m.app.TxDecode(txBz)
 		if err != nil {
-			return nil, err
+			continue
 		}
 
 		includeTx := true
