@@ -22,6 +22,7 @@ package utils
 
 import (
 	"context"
+	"math/big"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -100,10 +101,13 @@ func DeployERC20(
 	ctx, cancel := context.WithTimeout(context.Background(), TxTimeout)
 	defer cancel()
 
-	var addr common.Address
-	addr, err = bind.WaitDeployed(ctx, client, tx)
+	_, err = bind.WaitMined(ctx, client, tx)
 	Expect(err).ToNot(HaveOccurred())
-	Expect(addr).To(Equal(expectedAddr))
+
+	time.Sleep(500 * time.Millisecond) //nolint:gomnd // temporary.
+	code, err := client.CodeAt(ctx, expectedAddr, big.NewInt(-1))
+	Expect(err).ToNot(HaveOccurred())
+	Expect(code).ToNot(BeEmpty())
 
 	return contract, expectedAddr
 }
