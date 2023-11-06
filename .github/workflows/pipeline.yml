@@ -27,7 +27,7 @@ on:
       - main
 
 concurrency:
-  group: ci-${{ github.ref }}-tests
+  group: ci-${{ github.ref }}-pipeline
   cancel-in-progress: true
 
 jobs:
