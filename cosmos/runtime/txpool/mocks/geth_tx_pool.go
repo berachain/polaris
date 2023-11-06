@@ -209,13 +209,13 @@ func (_c *GethTxPool_Status_Call) RunAndReturn(run func(common.Hash) coretxpool.
 	return _c
 }
 
-// SubscribeNewTxsEvent provides a mock function with given fields: _a0
-func (_m *GethTxPool) SubscribeNewTxsEvent(_a0 chan<- core.NewTxsEvent) event.Subscription {
-	ret := _m.Called(_a0)
+// SubscribeTransactions provides a mock function with given fields: ch, reorgs
+func (_m *GethTxPool) SubscribeTransactions(ch chan<- core.NewTxsEvent, reorgs bool) event.Subscription {
+	ret := _m.Called(ch, reorgs)
 
 	var r0 event.Subscription
-	if rf, ok := ret.Get(0).(func(chan<- core.NewTxsEvent) event.Subscription); ok {
-		r0 = rf(_a0)
+	if rf, ok := ret.Get(0).(func(chan<- core.NewTxsEvent, bool) event.Subscription); ok {
+		r0 = rf(ch, reorgs)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(event.Subscription)
@@ -225,30 +225,31 @@ func (_m *GethTxPool) SubscribeNewTxsEvent(_a0 chan<- core.NewTxsEvent) event.Su
 	return r0
 }
 
-// GethTxPool_SubscribeNewTxsEvent_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SubscribeNewTxsEvent'
-type GethTxPool_SubscribeNewTxsEvent_Call struct {
+// GethTxPool_SubscribeTransactions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SubscribeTransactions'
+type GethTxPool_SubscribeTransactions_Call struct {
 	*mock.Call
 }
 
-// SubscribeNewTxsEvent is a helper method to define mock.On call
-//   - _a0 chan<- core.NewTxsEvent
-func (_e *GethTxPool_Expecter) SubscribeNewTxsEvent(_a0 interface{}) *GethTxPool_SubscribeNewTxsEvent_Call {
-	return &GethTxPool_SubscribeNewTxsEvent_Call{Call: _e.mock.On("SubscribeNewTxsEvent", _a0)}
+// SubscribeTransactions is a helper method to define mock.On call
+//   - ch chan<- core.NewTxsEvent
+//   - reorgs bool
+func (_e *GethTxPool_Expecter) SubscribeTransactions(ch interface{}, reorgs interface{}) *GethTxPool_SubscribeTransactions_Call {
+	return &GethTxPool_SubscribeTransactions_Call{Call: _e.mock.On("SubscribeTransactions", ch, reorgs)}
 }
 
-func (_c *GethTxPool_SubscribeNewTxsEvent_Call) Run(run func(_a0 chan<- core.NewTxsEvent)) *GethTxPool_SubscribeNewTxsEvent_Call {
+func (_c *GethTxPool_SubscribeTransactions_Call) Run(run func(ch chan<- core.NewTxsEvent, reorgs bool)) *GethTxPool_SubscribeTransactions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(chan<- core.NewTxsEvent))
+		run(args[0].(chan<- core.NewTxsEvent), args[1].(bool))
 	})
 	return _c
 }
 
-func (_c *GethTxPool_SubscribeNewTxsEvent_Call) Return(_a0 event.Subscription) *GethTxPool_SubscribeNewTxsEvent_Call {
+func (_c *GethTxPool_SubscribeTransactions_Call) Return(_a0 event.Subscription) *GethTxPool_SubscribeTransactions_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *GethTxPool_SubscribeNewTxsEvent_Call) RunAndReturn(run func(chan<- core.NewTxsEvent) event.Subscription) *GethTxPool_SubscribeNewTxsEvent_Call {
+func (_c *GethTxPool_SubscribeTransactions_Call) RunAndReturn(run func(chan<- core.NewTxsEvent, bool) event.Subscription) *GethTxPool_SubscribeTransactions_Call {
 	_c.Call.Return(run)
 	return _c
 }
