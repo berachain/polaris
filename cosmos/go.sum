@@ -52,6 +52,7 @@ cosmossdk.io/math v1.1.3-rc.1/go.mod h1:l2Gnda87F0su8a/7FEKJfFdJrM0JZRXQaohlgJey
 cosmossdk.io/store v1.0.0 h1:6tnPgTpTSIskaTmw/4s5C9FARdgFflycIc9OX8i1tOI=
 cosmossdk.io/store v1.0.0/go.mod h1:ABMprwjvx6IpMp8l06TwuMrj6694/QP5NIW+X6jaTYc=
 cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508 h1:R9H1lDpcPSkrLOnt6IDE38o0Wp8xE/+BAxocb0oyX4I=
+cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508/go.mod h1:yjIo3J0QKDo9CJawK1QoTA1hBx0llafVJdPqI0+ry74=
 cosmossdk.io/x/tx v0.12.0 h1:Ry2btjQdrfrje9qZ3iZeZSmDArjgxUJMMcLMrX4wj5U=
 cosmossdk.io/x/tx v0.12.0/go.mod h1:qTth2coAGkwCwOCjqQ8EAQg+9udXNRzcnSbMgGKGEI0=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
