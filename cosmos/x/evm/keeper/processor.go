@@ -65,8 +65,8 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
 	ctx = sCtx.WithKVGasConfig(storetypes.GasConfig{}).
 		WithTransientKVGasConfig(storetypes.GasConfig{})
-	k.chain.PreparePlugins(ctx)
-	if err = k.chain.InsertBlockAndSetHead(block); err != nil {
+
+	if err = k.wrappedChain.InsertBlockAndSetHead(ctx, block); err != nil {
 		return nil, err
 	}
 

@@ -50,7 +50,7 @@ type (
 	TxPool interface {
 		Add([]*coretypes.Transaction, bool, bool) []error
 		Stats() (int, int)
-		SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscription
+		SubscribeTransactions(ch chan<- core.NewTxsEvent, reorgs bool) event.Subscription
 		Status(hash common.Hash) txpool.TxStatus
 		Has(hash common.Hash) bool
 	}

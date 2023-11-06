@@ -18,35 +18,16 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package keeper
+package chain
 
 import (
-	"context"
-	"fmt"
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Precommit runs on the Cosmo-SDK lifecycle Precommit().
-func (k *Keeper) EndBlock(ctx context.Context) error {
-	// Verify that the EVM block was written.
-	// TODO: Set/GetHead to set and get the canonical head.
-	blockNum := uint64(sdk.UnwrapSDKContext(ctx).BlockHeight())
-	block := k.wrappedChain.GetBlockByNumber(blockNum)
-	if block == nil {
-		return fmt.Errorf(
-			"evm block %d failed to process", blockNum,
-		)
-	} else if block.NumberU64() != blockNum {
-		return fmt.Errorf(
-			"evm block [%d] does not match comet block [%d]", block.NumberU64(), blockNum,
-		)
-	}
-	return nil
-}
-
-// SetLatestQueryContext runs on the Cosmos-SDK lifecycle SetLatestQueryContext().
-func (k *Keeper) SetLatestQueryContext(ctx context.Context) error {
-	k.sp.Prepare(ctx)
-	return nil
+type App interface {
+	BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
+	PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
+	TxDecode(txBz []byte) (sdk.Tx, error)
 }

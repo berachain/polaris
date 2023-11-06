@@ -8,7 +8,7 @@ packages:
       recursive: True
       with-expecter: true
       all: True
-  pkg.berachain.dev/polaris/cosmos/txpool:
+  pkg.berachain.dev/polaris/cosmos/runtime/txpool:
     config:
       recursive: True
       with-expecter: true

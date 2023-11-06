@@ -24,57 +24,37 @@ package miner
 import (
 	"context"
 
-	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/gogoproto/proto"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
 
-	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
 	"pkg.berachain.dev/polaris/eth"
 	"pkg.berachain.dev/polaris/eth/core/types"
 )
-
-// emptyHash is a common.Hash initialized to all zeros.
-var emptyHash = common.Hash{}
-
-// EnvelopeSerializer is used to convert an envelope into a byte slice that represents
-// a cosmos sdk.Tx.
-type EnvelopeSerializer interface {
-	ToSdkTxBytes(*engine.ExecutionPayloadEnvelope, uint64) ([]byte, error)
-}
-
-type App interface {
-	BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
-	PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
-}
-
-// EVMKeeper is an interface that defines the methods needed for the EVM setup.
-type EVMKeeper interface {
-	// Setup initializes the EVM keeper.
-	Setup(evmkeeper.Blockchain) error
-	SetLatestQueryContext(context.Context) error
-}
 
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
 	eth.Miner
 	app            App
 	keeper         EVMKeeper
+	valTxSelector  baseapp.TxSelector
 	serializer     EnvelopeSerializer
+	allowedValMsgs map[string]sdk.Msg
 	currentPayload *miner.Payload
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm eth.Miner, app App, keeper EVMKeeper) *Miner {
+func New(gm eth.Miner, app App, keeper EVMKeeper, allowedValMsgs map[string]sdk.Msg) *Miner {
 	return &Miner{
-		Miner:  gm,
-		keeper: keeper,
-		app:    app,
+		Miner:          gm,
+		keeper:         keeper,
+		app:            app,
+		allowedValMsgs: allowedValMsgs,
+		valTxSelector:  baseapp.NewDefaultTxSelector(),
 	}
 }
 
@@ -83,58 +63,15 @@ func (m *Miner) Init(serializer EnvelopeSerializer) {
 	m.serializer = serializer
 }
 
-// PrepareProposal implements baseapp.PrepareProposal.
-func (m *Miner) PrepareProposal(
-	ctx sdk.Context, req *abci.RequestPrepareProposal,
-) (*abci.ResponsePrepareProposal, error) {
-	var (
-		payloadEnvelopeBz []byte
-		err               error
-	)
-
-	// We have to run the PreBlocker && BeginBlocker to get the chain into the state
-	// it'll be in when the EVM transaction actually runs.
-	if _, err = m.app.PreBlocker(ctx, &abci.RequestFinalizeBlock{
-		Txs:                req.Txs,
-		Time:               req.Time,
-		Misbehavior:        req.Misbehavior,
-		Height:             req.Height,
-		NextValidatorsHash: req.NextValidatorsHash,
-		ProposerAddress:    req.ProposerAddress,
-	}); err != nil {
-		return nil, err
-	} else if _, err = m.app.BeginBlocker(ctx); err != nil {
-		return nil, err
-	}
-
-	ctx.GasMeter().RefundGas(ctx.GasMeter().GasConsumed(), "prepare proposal")
-	ctx.BlockGasMeter().RefundGas(ctx.BlockGasMeter().GasConsumed(), "prepare proposal")
-	ctx = ctx.WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{}).
-		WithGasMeter(storetypes.NewInfiniteGasMeter())
-
-	// We have to prime the state plugin.
-	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
-		return nil, err
-	}
-
-	// Trigger the geth miner to build a block.
-	if payloadEnvelopeBz, err = m.buildBlock(ctx); err != nil {
-		return nil, err
-	}
-
-	// Return the payload as a transaction in the proposal.
-	return &abci.ResponsePrepareProposal{Txs: [][]byte{payloadEnvelopeBz}}, err
-}
-
 // buildBlock builds and submits a payload, it also waits for the txs
 // to resolve from the underying worker.
-func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, error) {
+func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 	defer m.clearPayload()
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return m.resolveEnvelope(), nil
+	env, gasUsed := m.resolveEnvelope()
+	return env, gasUsed, nil
 }
 
 // submitPayloadForBuilding submits a payload for building.
@@ -167,19 +104,56 @@ func (m *Miner) constructPayloadArgs(ctx sdk.Context) *miner.BuildPayloadArgs {
 }
 
 // resolveEnvelope resolves the payload.
-func (m *Miner) resolveEnvelope() []byte {
+func (m *Miner) resolveEnvelope() ([]byte, uint64) {
 	if m.currentPayload == nil {
-		return nil
+		return nil, 0
 	}
 	envelope := m.currentPayload.ResolveFull()
 	bz, err := m.serializer.ToSdkTxBytes(envelope, envelope.ExecutionPayload.GasLimit)
 	if err != nil {
 		panic(err)
 	}
-	return bz
+	return bz, envelope.ExecutionPayload.GasUsed
 }
 
 // clearPayload clears the payload.
 func (m *Miner) clearPayload() {
 	m.currentPayload = nil
+}
+
+// processValidatorMsgs processes the validator messages.
+func (m *Miner) processValidatorMsgs(
+	ctx sdk.Context, maxTxBytes int64, ethGasUsed uint64, txs [][]byte,
+) ([][]byte, error) { //nolint:unparam // should be handled better.
+	var maxBlockGas uint64
+	if b := ctx.ConsensusParams().Block; b != nil {
+		maxBlockGas = uint64(b.MaxGas)
+	}
+
+	blockGasRemaining := maxBlockGas - ethGasUsed
+
+	for _, txBz := range txs {
+		tx, err := m.app.TxDecode(txBz)
+		if err != nil {
+			continue
+		}
+
+		includeTx := true
+		for _, msg := range tx.GetMsgs() {
+			if _, ok := m.allowedValMsgs[proto.MessageName(msg)]; !ok {
+				includeTx = false
+				break
+			}
+		}
+
+		if includeTx {
+			stop := m.valTxSelector.SelectTxForProposal(
+				ctx, uint64(maxTxBytes), blockGasRemaining, tx, txBz,
+			)
+			if stop {
+				break
+			}
+		}
+	}
+	return m.valTxSelector.SelectedTxs(ctx), nil
 }

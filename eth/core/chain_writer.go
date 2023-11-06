@@ -36,6 +36,7 @@ type ChainWriter interface {
 	LoadLastState(context.Context, uint64) error
 	WriteGenesisBlock(block *types.Block) error
 	InsertBlockAndSetHead(block *types.Block) error
+	InsertBlockWithoutSetHead(block *types.Block) error
 	WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
@@ -50,13 +51,25 @@ func (bc *blockchain) WriteGenesisBlock(block *types.Block) error {
 	return err
 }
 
-// InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
-func (bc *blockchain) InsertBlockAndSetHead(block *types.Block) error {
+// InsertBlockWithoutSetHead inserts a block into the blockchain without setting it as the head.
+func (bc *blockchain) InsertBlockWithoutSetHead(block *types.Block) error {
+	// Call the private method to insert the block without setting it as the head.
+	_, _, err := bc.insertBlockWithoutSetHead(block)
+	// Return any error that might have occurred.
+	return err
+}
+
+// insertBlockWithoutSetHead inserts a block into the blockchain without setting it as the head.
+func (bc *blockchain) insertBlockWithoutSetHead(
+	block *types.Block,
+) ([]*types.Receipt, []*types.Log, error) {
 	// Validate that we are about to insert a valid block.
+	// If the block number is greater than 1,
+	// it means it's not the genesis block and needs to be validated. TODO kinda hood.
 	if block.NumberU64() > 1 { // TODO DIAGNOSE
 		if err := bc.validator.ValidateBody(block); err != nil {
 			log.Error("invalid block body", "err", err)
-			return err
+			return nil, nil, err
 		}
 	}
 
@@ -64,22 +77,30 @@ func (bc *blockchain) InsertBlockAndSetHead(block *types.Block) error {
 	receipts, logs, usedGas, err := bc.processor.Process(block, bc.statedb, *bc.vmConfig)
 	if err != nil {
 		log.Error("failed to process block", "num", block.NumberU64(), "err", err)
-		return err
+		return nil, nil, err
 	}
 
 	// ValidateState validates the statedb post block processing.
 	if err = bc.validator.ValidateState(block, bc.statedb, receipts, usedGas); err != nil {
 		log.Error("invalid state after processing block", "num", block.NumberU64(), "err", err)
-		return err
+		return nil, nil, err
 	}
 
+	return receipts, logs, nil
+}
+
+// InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
+func (bc *blockchain) InsertBlockAndSetHead(block *types.Block) error {
+	receipts, logs, err := bc.insertBlockWithoutSetHead(block)
+	if err != nil {
+		return err
+	}
 	// We can just immediately finalize the block. It's okay in this context.
 	if _, err = bc.WriteBlockAndSetHead(
 		block, receipts, logs, nil, true); err != nil {
 		log.Error("failed to write block", "num", block.NumberU64(), "err", err)
 		return err
 	}
-
 	return err
 }
 
