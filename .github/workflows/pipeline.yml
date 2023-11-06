@@ -26,6 +26,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ci-${{ github.ref }}-tests
+  cancel-in-progress: true
+
 jobs:
   ci:
     strategy:
