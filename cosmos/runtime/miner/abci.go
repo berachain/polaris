@@ -41,6 +41,8 @@ func (m *Miner) PrepareProposal(
 	var (
 		payloadEnvelopeBz []byte
 		err               error
+		valTxs            [][]byte
+		ethGasUsed        uint64
 	)
 
 	// We have to run the PreBlocker && BeginBlocker to get the chain into the state
@@ -65,18 +67,28 @@ func (m *Miner) PrepareProposal(
 		WithGasMeter(storetypes.NewInfiniteGasMeter())
 
 	// We have to prime the state plugin.
-	// NOTE: if buildBlock below fails, we will have a bad context set on the state plugin.
-	// In practice this is not a big deal, but this is something we need to address as part
-	// of better context management practices across Polaris.
 	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
 		return nil, err
 	}
 
 	// Trigger the geth miner to build a block.
-	if payloadEnvelopeBz, err = m.buildBlock(ctx); err != nil {
+	if payloadEnvelopeBz, ethGasUsed, err = m.buildBlock(ctx); err != nil {
 		return nil, err
 	}
 
-	// Return the payload as a transaction in the proposal.
-	return &abci.ResponsePrepareProposal{Txs: [][]byte{payloadEnvelopeBz}}, err
+	// Process the validator messages.
+	if valTxs, err = m.processValidatorMsgs(ctx, req.MaxTxBytes, ethGasUsed, req.Txs); err != nil {
+		return nil, err
+	}
+
+	// Combine the payload envelope with the validator transactions.
+	allTxs := [][]byte{payloadEnvelopeBz}
+
+	// If there are validator transactions, append them to the allTxs slice.
+	if len(valTxs) > 0 {
+		allTxs = append(allTxs, valTxs...)
+	}
+
+	// Return the payload and validator transactions as a transaction in the proposal.
+	return &abci.ResponsePrepareProposal{Txs: allTxs}, err
 }

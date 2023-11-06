@@ -42,6 +42,7 @@ type (
 	App interface {
 		BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
 		PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
+		TxDecode(txBytes []byte) (sdk.Tx, error)
 	}
 
 	// EVMKeeper is an interface that defines the methods needed for the EVM setup.
