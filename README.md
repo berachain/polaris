@@ -42,7 +42,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 
 <pre>
 🔭 Polaris 🔭
-├── <a href="./build">docs</a>: Build scripts and developer tooling.
+├── <a href="./build">build</a>: Build scripts and developer tooling.
 ├── <a href="./contracts">contracts</a>: Contracts and bindings for Polaris (and hosts).
 ├── <a href="./cosmos">cosmos</a>: Polaris integrated into a Cosmos-SDK based chain.
 ├── <a href="./e2e">e2e</a>: End-to-end testing utilities.
