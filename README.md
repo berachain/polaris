@@ -1,7 +1,5 @@
 <h1 align="center"> Polaris Monorepo ❄️🔭 </h1>
 
-![](./docs/web/public/bear_banner.png)
-
 *The project is still work in progress, see the [disclaimer below](#-warning-under-construction-).*
 
 <div>
