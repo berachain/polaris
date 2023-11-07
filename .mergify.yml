@@ -17,10 +17,10 @@ pull_request_rules:
           {{ title }} (#{{ number }})
           {{ body }}
   - name: backport patches to v0.0.1-alpha branch
-      conditions:
-        - base=main
-        - label=backport/v0.0.1-alpha
-      actions:
-        backport:
-          branches:
-            - release/v0.0.1-alpha
+    conditions:
+      - base=main
+      - label=backport/v0.0.1-alpha
+    actions:
+      backport:
+        branches:
+          - release/v0.0.1-alpha
