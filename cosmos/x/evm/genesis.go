@@ -29,7 +29,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core"
 )
 
 // DefaultGenesis returns default genesis state as raw bytes for the evm

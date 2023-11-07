@@ -24,8 +24,8 @@ import (
 	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/eth/common"
+	cosmlib "github.com/berachain/polaris/cosmos/lib"
+	"github.com/berachain/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -27,9 +27,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/runtime/txpool/mocks"
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/berachain/polaris/cosmos/runtime/txpool/mocks"
+	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+	coretypes "github.com/berachain/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

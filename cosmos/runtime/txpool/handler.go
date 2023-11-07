@@ -32,8 +32,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/event"
 
-	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/core"
+	coretypes "github.com/berachain/polaris/eth/core/types"
 )
 
 // txChanSize is the size of channel listening to NewTxsEvent. The number is referenced from the

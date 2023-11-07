@@ -25,14 +25,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/config"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/block"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/historical"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
-	pclog "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/eth/core"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
+	"github.com/berachain/polaris/cosmos/config"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/block"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/historical"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/precompile"
+	pclog "github.com/berachain/polaris/cosmos/x/evm/plugins/precompile/log"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
+	"github.com/berachain/polaris/eth/core"
+	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 )
 
 // Compile-time interface assertion.

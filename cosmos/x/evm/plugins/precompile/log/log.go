@@ -21,9 +21,9 @@
 package log
 
 import (
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/berachain/polaris/eth/accounts/abi"
+	"github.com/berachain/polaris/eth/common"
+	libtypes "github.com/berachain/polaris/lib/types"
 )
 
 // Compile-time assertion.

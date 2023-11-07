@@ -25,7 +25,7 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
-	ethcrypto "pkg.berachain.dev/polaris/eth/crypto"
+	ethcrypto "github.com/berachain/polaris/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

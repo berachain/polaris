@@ -45,11 +45,11 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
-	pclog "pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile/log"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/utils"
+	testutil "github.com/berachain/polaris/cosmos/testutil"
+	pclog "github.com/berachain/polaris/cosmos/x/evm/plugins/precompile/log"
+	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
+	"github.com/berachain/polaris/eth/core/vm"
+	"github.com/berachain/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

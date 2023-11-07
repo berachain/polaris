@@ -44,8 +44,8 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	testutils "pkg.berachain.dev/polaris/cosmos/testutil"
-	"pkg.berachain.dev/polaris/eth/common"
+	testutils "github.com/berachain/polaris/cosmos/testutil"
+	"github.com/berachain/polaris/eth/common"
 
 	//nolint:stylecheck,revive // Ginkgo is the testing framework.
 	. "github.com/onsi/ginkgo/v2"

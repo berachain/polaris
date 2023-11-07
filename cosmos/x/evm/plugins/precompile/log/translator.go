@@ -23,10 +23,10 @@ package log
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/lib/errors"
+	"github.com/berachain/polaris/eth/accounts/abi"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/precompile"
+	"github.com/berachain/polaris/lib/errors"
 )
 
 // makeTopics generates the Ethereum log `Topics` field for a valid cosmos event. `Topics` is a

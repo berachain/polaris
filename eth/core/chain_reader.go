@@ -23,9 +23,9 @@ package core
 import (
 	"math/big"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/lib/utils"
 )
 
 // ChainReader defines methods that are used to read the state and blocks of the chain.

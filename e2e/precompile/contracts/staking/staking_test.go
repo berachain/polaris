@@ -33,16 +33,16 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	utils "pkg.berachain.dev/polaris/e2e/precompile"
-	"pkg.berachain.dev/polaris/eth/common"
+	bbindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/bank"
+	bindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
+	tbindings "github.com/berachain/polaris/contracts/bindings/testing"
+	network "github.com/berachain/polaris/e2e/localnet/network"
+	utils "github.com/berachain/polaris/e2e/precompile"
+	"github.com/berachain/polaris/eth/common"
 
+	. "github.com/berachain/polaris/e2e/localnet/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 func TestStakingPrecompile(t *testing.T) {

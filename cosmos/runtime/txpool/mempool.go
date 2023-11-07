@@ -31,11 +31,11 @@ import (
 
 	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth"
-	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth"
+	"github.com/berachain/polaris/eth/core"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/lib/utils"
 )
 
 // Mempool implements the mempool.Mempool & Lifecycle interfaces.

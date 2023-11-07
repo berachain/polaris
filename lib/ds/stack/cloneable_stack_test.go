@@ -26,9 +26,9 @@
 package stack_test
 
 import (
-	"pkg.berachain.dev/polaris/lib/ds"
-	"pkg.berachain.dev/polaris/lib/ds/stack"
-	typesmock "pkg.berachain.dev/polaris/lib/types/mock"
+	"github.com/berachain/polaris/lib/ds"
+	"github.com/berachain/polaris/lib/ds/stack"
+	typesmock "github.com/berachain/polaris/lib/types/mock"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

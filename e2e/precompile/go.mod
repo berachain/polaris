@@ -10,9 +10,9 @@ require (
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10
-	github.com/berachain/polaris/contracts v0.0.0-20231104204753-faadca38b64d
-	github.com/berachain/polaris/e2e/localnet v0.0.0-20231104204753-faadca38b64d
-	github.com/berachain/polaris/eth v0.0.0-20231104204753-faadca38b64d
+	github.com/berachain/polaris/contracts 0f5ea6720c02455a614ef432b6343dbef7593fa7
+	github.com/berachain/polaris/e2e/localnet 0f5ea6720c02455a614ef432b6343dbef7593fa7
+	github.com/berachain/polaris/eth 0f5ea6720c02455a614ef432b6343dbef7593fa7
 )
 
 require (

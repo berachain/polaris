@@ -32,8 +32,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
 
-	"pkg.berachain.dev/polaris/eth"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth"
+	"github.com/berachain/polaris/eth/core/types"
 )
 
 // Miner implements the baseapp.TxSelector interface.

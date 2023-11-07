@@ -26,9 +26,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/core"
 
-	"pkg.berachain.dev/polaris/eth/core/state"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/log"
+	"github.com/berachain/polaris/eth/core/state"
+	"github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/log"
 )
 
 // ChainWriter defines methods that are used to perform state and block transitions.

@@ -28,8 +28,8 @@ import (
 
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/common/hexutil"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/common/hexutil"
 )
 
 // baseTen is for the big.Int string conversation.

@@ -23,8 +23,8 @@ package core
 import (
 	"github.com/ethereum/go-ethereum/consensus"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/types"
 )
 
 // GetHeader returns the header for the given hash or number. This is used by the `GetHashFn`.

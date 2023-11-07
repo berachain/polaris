@@ -23,7 +23,7 @@ package block
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/cosmos/x/evm/types"
 )
 
 // headerHashKeySize is the number of bytes in the header hash key: 1 (prefix) + 8 (block height).

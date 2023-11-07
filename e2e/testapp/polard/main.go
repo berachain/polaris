@@ -27,9 +27,9 @@ import (
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	"pkg.berachain.dev/polaris/cosmos/config"
-	testapp "pkg.berachain.dev/polaris/e2e/testapp"
-	"pkg.berachain.dev/polaris/e2e/testapp/polard/cmd"
+	"github.com/berachain/polaris/cosmos/config"
+	testapp "github.com/berachain/polaris/e2e/testapp"
+	"github.com/berachain/polaris/e2e/testapp/polard/cmd"
 )
 
 func main() {

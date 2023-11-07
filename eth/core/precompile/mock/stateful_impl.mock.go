@@ -6,7 +6,7 @@ package mock
 import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"github.com/berachain/polaris/eth/core/precompile"
 	"sync"
 )
 

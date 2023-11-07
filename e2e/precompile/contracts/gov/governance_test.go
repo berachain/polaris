@@ -34,17 +34,17 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing/governance"
-	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	utils "pkg.berachain.dev/polaris/e2e/precompile"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	bbindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/bank"
+	bindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/governance"
+	tbindings "github.com/berachain/polaris/contracts/bindings/testing/governance"
+	network "github.com/berachain/polaris/e2e/localnet/network"
+	utils "github.com/berachain/polaris/e2e/precompile"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/types"
 
+	. "github.com/berachain/polaris/e2e/localnet/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 func TestGovernancePrecompile(t *testing.T) {

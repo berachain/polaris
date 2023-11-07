@@ -27,7 +27,7 @@ import (
 
 	"cosmossdk.io/store/dbadapter"
 
-	"pkg.berachain.dev/polaris/cosmos/store/cachekv"
+	"github.com/berachain/polaris/cosmos/store/cachekv"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

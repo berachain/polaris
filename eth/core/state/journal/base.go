@@ -21,8 +21,8 @@
 package journal
 
 import (
-	"pkg.berachain.dev/polaris/lib/ds"
-	"pkg.berachain.dev/polaris/lib/ds/stack"
+	"github.com/berachain/polaris/lib/ds"
+	"github.com/berachain/polaris/lib/ds/stack"
 )
 
 // baseJournal is a struct that holds a stack of items.

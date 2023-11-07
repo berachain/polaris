@@ -25,9 +25,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/eth/core/vm"
-	errlib "pkg.berachain.dev/polaris/lib/errors"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/berachain/polaris/eth/core/vm"
+	errlib "github.com/berachain/polaris/lib/errors"
+	"github.com/berachain/polaris/lib/utils"
 )
 
 const (

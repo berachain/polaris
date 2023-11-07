@@ -7,7 +7,7 @@ import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
-	"pkg.berachain.dev/polaris/eth/core/state"
+	"github.com/berachain/polaris/eth/core/state"
 	"sync"
 )
 

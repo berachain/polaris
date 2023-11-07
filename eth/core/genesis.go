@@ -25,9 +25,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/core"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/common/hexutil"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/common/hexutil"
+	"github.com/berachain/polaris/eth/core/types"
 )
 
 type (

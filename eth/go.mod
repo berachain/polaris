@@ -1,4 +1,4 @@
-module github.com/berachain/polaris/eth
+module pkg.berachain.dev/polaris/eth
 
 go 1.21
 
@@ -15,8 +15,8 @@ require (
 	github.com/onsi/gomega v1.27.10
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/text v0.13.0
-	github.com/berachain/polaris/contracts v0.0.0-20231104204753-faadca38b64d
-	github.com/berachain/polaris/lib v0.0.0-20231104204753-faadca38b64d
+	pkg.berachain.dev/polaris/contracts v0.0.0-20231104204753-faadca38b64d
+	pkg.berachain.dev/polaris/lib v0.0.0-20231104204753-faadca38b64d
 )
 
 require (

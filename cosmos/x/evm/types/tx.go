@@ -25,7 +25,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	coretypes "github.com/berachain/polaris/eth/core/types"
 )
 
 // WrapTx sets the transaction data from an `coretypes.Transaction`.

@@ -31,10 +31,10 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/std"
 
-	cryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
-	"pkg.berachain.dev/polaris/cosmos/crypto/hd"
-	accounts "pkg.berachain.dev/polaris/eth/accounts"
-	"pkg.berachain.dev/polaris/eth/common"
+	cryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
+	"github.com/berachain/polaris/cosmos/crypto/hd"
+	accounts "github.com/berachain/polaris/eth/accounts"
+	"github.com/berachain/polaris/eth/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

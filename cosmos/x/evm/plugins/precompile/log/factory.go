@@ -23,12 +23,12 @@ package log
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/lib/registry"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
+	"github.com/berachain/polaris/eth/core/precompile"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/lib/registry"
+	libtypes "github.com/berachain/polaris/lib/types"
+	"github.com/berachain/polaris/lib/utils"
 )
 
 // Factory is a `PrecompileLogFactory` that builds Ethereum logs from Cosmos events. All Ethereum

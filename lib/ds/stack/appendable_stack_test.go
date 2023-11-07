@@ -26,8 +26,8 @@
 package stack_test
 
 import (
-	"pkg.berachain.dev/polaris/lib/ds"
-	"pkg.berachain.dev/polaris/lib/ds/stack"
+	"github.com/berachain/polaris/lib/ds"
+	"github.com/berachain/polaris/lib/ds/stack"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

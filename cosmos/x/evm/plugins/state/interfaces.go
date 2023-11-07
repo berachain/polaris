@@ -28,8 +28,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
+	libtypes "github.com/berachain/polaris/lib/types"
 )
 
 // ControllableEventManager defines a cache EventManager that is controllable (snapshottable

@@ -29,7 +29,7 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
-	"pkg.berachain.dev/polaris/eth/crypto"
+	"github.com/berachain/polaris/eth/crypto"
 )
 
 const (

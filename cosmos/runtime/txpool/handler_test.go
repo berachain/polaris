@@ -28,9 +28,9 @@ import (
 
 	"cosmossdk.io/log"
 
-	"pkg.berachain.dev/polaris/cosmos/runtime/txpool/mocks"
-	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/berachain/polaris/cosmos/runtime/txpool/mocks"
+	"github.com/berachain/polaris/eth/core"
+	coretypes "github.com/berachain/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -24,7 +24,7 @@ import (
 	"reflect"
 	"unicode"
 
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"github.com/berachain/polaris/eth/accounts/abi"
 )
 
 // this function finds the ABI method that matches the given impl method. It returns the key in the

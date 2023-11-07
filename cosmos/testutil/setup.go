@@ -54,8 +54,8 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
+	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth/common"
 )
 
 var (

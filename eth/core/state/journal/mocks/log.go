@@ -4,7 +4,7 @@ package mocks
 
 import (
 	common "github.com/ethereum/go-ethereum/common"
-	journal "pkg.berachain.dev/polaris/eth/core/state/journal"
+	journal "github.com/berachain/polaris/eth/core/state/journal"
 
 	mock "github.com/stretchr/testify/mock"
 

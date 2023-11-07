@@ -27,11 +27,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/crypto"
+	testutil "github.com/berachain/polaris/cosmos/testutil"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
+	"github.com/berachain/polaris/eth/common"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

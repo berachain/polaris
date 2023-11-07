@@ -7,8 +7,8 @@ import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
 	ethereumcoretypes "github.com/ethereum/go-ethereum/core/types"
-	"pkg.berachain.dev/polaris/eth/core"
-	ethcoretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/core"
+	ethcoretypes "github.com/berachain/polaris/eth/core/types"
 	"sync"
 )
 

@@ -23,7 +23,7 @@ package historical
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core"
 )
 
 func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {

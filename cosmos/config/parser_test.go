@@ -24,9 +24,9 @@ import (
 	"testing"
 	"time"
 
-	"pkg.berachain.dev/polaris/cosmos/config/mocks"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/common/hexutil"
+	"github.com/berachain/polaris/cosmos/config/mocks"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/common/hexutil"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

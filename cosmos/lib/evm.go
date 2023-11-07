@@ -25,12 +25,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/precompile"
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/precompile"
+	"github.com/berachain/polaris/eth/accounts/abi"
+	"github.com/berachain/polaris/eth/common"
+	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
+	"github.com/berachain/polaris/eth/core/vm"
+	"github.com/berachain/polaris/lib/utils"
 )
 
 // TODO: Add these functions to the EVM object itself to allow enforcing calls into

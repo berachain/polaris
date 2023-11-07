@@ -29,9 +29,9 @@ import (
 	"github.com/ethereum/go-ethereum/eth/gasprice"
 	"github.com/ethereum/go-ethereum/miner"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/log"
-	"pkg.berachain.dev/polaris/eth/params"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/log"
+	"github.com/berachain/polaris/eth/params"
 )
 
 const (

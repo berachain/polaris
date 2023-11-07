@@ -53,13 +53,13 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	evmv1alpha1 "pkg.berachain.dev/polaris/cosmos/api/polaris/evm/v1alpha1"
-	evmconfig "pkg.berachain.dev/polaris/cosmos/config"
-	ethcryptocodec "pkg.berachain.dev/polaris/cosmos/crypto/codec"
-	signinglib "pkg.berachain.dev/polaris/cosmos/lib/signing"
-	polarruntime "pkg.berachain.dev/polaris/cosmos/runtime"
-	"pkg.berachain.dev/polaris/cosmos/runtime/miner"
-	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
+	evmv1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/v1alpha1"
+	evmconfig "github.com/berachain/polaris/cosmos/config"
+	ethcryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
+	signinglib "github.com/berachain/polaris/cosmos/lib/signing"
+	polarruntime "github.com/berachain/polaris/cosmos/runtime"
+	"github.com/berachain/polaris/cosmos/runtime/miner"
+	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
 )
 
 //nolint:gochecknoinits // from sdk.

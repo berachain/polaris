@@ -31,8 +31,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth/core/types"
 )
 
 func (wbc *WrappedBlockchain) ProcessProposal(

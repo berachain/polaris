@@ -28,13 +28,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/config"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/core"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/params"
+	"github.com/berachain/polaris/cosmos/config"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
+	"github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth/core"
+	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/params"
 )
 
 type WrappedBlockchain interface {

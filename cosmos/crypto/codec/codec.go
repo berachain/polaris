@@ -24,7 +24,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
-	"pkg.berachain.dev/polaris/cosmos/crypto/keys/ethsecp256k1"
+	"github.com/berachain/polaris/cosmos/crypto/keys/ethsecp256k1"
 )
 
 // RegisterInterfaces registers the ethsecp256k1 key types.

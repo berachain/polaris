@@ -23,9 +23,9 @@ package log
 import (
 	"testing"
 
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/crypto"
+	"github.com/berachain/polaris/eth/accounts/abi"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

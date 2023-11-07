@@ -28,8 +28,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core"
 )
 
 // InitGenesis takes in a pointer to a genesis state object and populates the KV store.

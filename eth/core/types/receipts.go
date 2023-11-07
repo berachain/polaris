@@ -28,7 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 
-	"pkg.berachain.dev/polaris/eth/params"
+	"github.com/berachain/polaris/eth/params"
 )
 
 // DeriveReceiptsFromBlock is a helper function for deriving receipts from a block.

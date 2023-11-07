@@ -29,7 +29,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 
-	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
+	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
 )
 
 // EnvelopeSerializer is used to convert an envelope into a byte slice that represents

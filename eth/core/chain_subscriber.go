@@ -23,7 +23,7 @@ package core
 import (
 	"github.com/ethereum/go-ethereum/event"
 
-	"pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/core/types"
 )
 
 type ChainSubscriber interface {

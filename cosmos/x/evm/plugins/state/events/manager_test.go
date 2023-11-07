@@ -22,10 +22,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
+	testutil "github.com/berachain/polaris/cosmos/testutil"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events/mock"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

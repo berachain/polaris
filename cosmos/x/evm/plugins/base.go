@@ -23,7 +23,7 @@ package plugins
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core"
 )
 
 // HasGenesis represents the base class that all x/evm Polaris plugins which have

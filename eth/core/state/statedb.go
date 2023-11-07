@@ -25,13 +25,13 @@ import (
 
 	"github.com/ethereum/go-ethereum/core/state"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/core/state/journal"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/lib/snapshot"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/precompile"
+	"github.com/berachain/polaris/eth/core/state/journal"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/params"
+	"github.com/berachain/polaris/lib/snapshot"
+	libtypes "github.com/berachain/polaris/lib/types"
 )
 
 // For mocks.

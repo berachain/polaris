@@ -27,9 +27,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/params"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/params"
 )
 
 // Plugin is the interface that must be implemented by the plugin.

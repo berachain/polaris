@@ -29,11 +29,11 @@ import (
 
 	"github.com/ethereum/go-ethereum/rlp"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	errorslib "pkg.berachain.dev/polaris/lib/errors"
+	"github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+	errorslib "github.com/berachain/polaris/lib/errors"
 )
 
 // TODO: WHO WROTE THIS CODE THE FIRST TIME BLS FIX IT IS HORRIBLE.

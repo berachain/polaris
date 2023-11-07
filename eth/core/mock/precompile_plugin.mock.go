@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 	"math/big"
-	"pkg.berachain.dev/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core"
 	"sync"
 )
 

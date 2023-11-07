@@ -33,13 +33,13 @@ import (
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/consensus"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/log"
-	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
-	"pkg.berachain.dev/polaris/eth/rpc"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/consensus"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/log"
+	polarapi "github.com/berachain/polaris/eth/polar/api"
+	"github.com/berachain/polaris/eth/rpc"
 )
 
 // TODO: break out the node into a separate package and then fully use the

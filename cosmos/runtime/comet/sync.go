@@ -29,7 +29,7 @@ import (
 
 	"github.com/ethereum/go-ethereum"
 
-	"pkg.berachain.dev/polaris/eth/polar"
+	"github.com/berachain/polaris/eth/polar"
 )
 
 var _ polar.SyncStatusProvider = (*cometSyncStatus)(nil)
