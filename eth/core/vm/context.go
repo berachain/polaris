@@ -25,8 +25,8 @@ import (
 	"math/big"
 	"time"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/lib/utils"
 )
 
 // ContextKey defines a type alias for a stdlib Context key.

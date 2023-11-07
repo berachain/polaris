@@ -25,11 +25,11 @@ import (
 	"errors"
 	"math/big"
 
-	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	solidity "github.com/berachain/polaris/contracts/bindings/testing"
+	"github.com/berachain/polaris/eth/accounts/abi"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/core/vm"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

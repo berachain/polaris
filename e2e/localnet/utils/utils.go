@@ -25,12 +25,12 @@ import (
 	"math/big"
 	"time"
 
+	bindings "github.com/berachain/polaris/contracts/bindings/testing"
+	"github.com/berachain/polaris/eth/common"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
-
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 
 	. "github.com/onsi/gomega" //nolint:stylecheck,revive,gostaticcheck  // Gomega makes sense in tests.
 )

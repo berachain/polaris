@@ -23,8 +23,8 @@ package chain
 import (
 	"context"
 
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core/types"
 )
 
 // WrappedBlockchain is a struct that wraps the core blockchain with additional

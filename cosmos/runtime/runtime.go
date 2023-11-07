@@ -27,6 +27,20 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
+	libtx "github.com/berachain/polaris/cosmos/lib/tx"
+	antelib "github.com/berachain/polaris/cosmos/runtime/ante"
+	"github.com/berachain/polaris/cosmos/runtime/chain"
+	"github.com/berachain/polaris/cosmos/runtime/comet"
+	"github.com/berachain/polaris/cosmos/runtime/miner"
+	"github.com/berachain/polaris/cosmos/runtime/txpool"
+	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
+	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth"
+	"github.com/berachain/polaris/eth/consensus"
+	"github.com/berachain/polaris/eth/core"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/node"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -34,20 +48,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
-
-	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
-	antelib "pkg.berachain.dev/polaris/cosmos/runtime/ante"
-	"pkg.berachain.dev/polaris/cosmos/runtime/chain"
-	"pkg.berachain.dev/polaris/cosmos/runtime/comet"
-	"pkg.berachain.dev/polaris/cosmos/runtime/miner"
-	"pkg.berachain.dev/polaris/cosmos/runtime/txpool"
-	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth"
-	"pkg.berachain.dev/polaris/eth/consensus"
-	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/node"
 )
 
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.

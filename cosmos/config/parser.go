@@ -26,10 +26,10 @@ import (
 
 	"github.com/spf13/cast"
 
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/common/hexutil"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/common/hexutil"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 )
 
 // baseTen is for the big.Int string conversation.

@@ -25,8 +25,8 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
-	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/berachain/polaris/eth/core/vm"
+	"github.com/berachain/polaris/lib/utils"
 )
 
 // RecoveryHandler is used to recover from any WriteProtection and gas consumption panics that

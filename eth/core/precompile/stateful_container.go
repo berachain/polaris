@@ -24,8 +24,8 @@ import (
 	"context"
 	"math/big"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/vm"
 )
 
 // NumBytesMethodID is the number of bytes used to represent a ABI method's ID.

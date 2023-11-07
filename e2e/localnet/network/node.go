@@ -30,10 +30,10 @@ import (
 	"errors"
 	"time"
 
+	"github.com/berachain/polaris/e2e/localnet/container"
+
 	"github.com/ethereum/go-ethereum/ethclient"
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
-
-	"pkg.berachain.dev/polaris/e2e/localnet/container"
 )
 
 const (

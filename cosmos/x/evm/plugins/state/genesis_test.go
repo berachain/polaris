@@ -25,13 +25,13 @@ import (
 
 	"cosmossdk.io/log"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	testutil "github.com/berachain/polaris/cosmos/testutil"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/crypto"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/crypto"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

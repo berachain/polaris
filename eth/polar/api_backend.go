@@ -26,6 +26,17 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/common/hexutil"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core/state"
+	"github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/core/vm"
+	"github.com/berachain/polaris/eth/log"
+	"github.com/berachain/polaris/eth/params"
+	polarapi "github.com/berachain/polaris/eth/polar/api"
+	"github.com/berachain/polaris/eth/version"
+
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/consensus"
@@ -34,17 +45,6 @@ import (
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/rpc"
-
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/common/hexutil"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/state"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/eth/log"
-	"pkg.berachain.dev/polaris/eth/params"
-	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
-	"pkg.berachain.dev/polaris/eth/version"
 )
 
 // Backend represents the backend object for a Polaris chain. It extends the standard

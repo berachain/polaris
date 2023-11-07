@@ -21,8 +21,8 @@
 package polarapi
 
 import (
-	"pkg.berachain.dev/polaris/eth/common/hexutil"
-	"pkg.berachain.dev/polaris/eth/crypto"
+	"github.com/berachain/polaris/eth/common/hexutil"
+	"github.com/berachain/polaris/eth/crypto"
 )
 
 // Web3Backend is the collection of methods required to satisfy the net

@@ -24,13 +24,13 @@ package consensus
 import (
 	"math/big"
 
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/state"
+	"github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/rpc"
+
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/trie"
-
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/state"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
 type Engine consensus.Engine

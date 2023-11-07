@@ -21,11 +21,11 @@
 package core
 
 import (
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/core/state"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/precompile"
+	"github.com/berachain/polaris/eth/core/state"
+	"github.com/berachain/polaris/eth/core/types"
+	libtypes "github.com/berachain/polaris/lib/types"
 )
 
 // PolarisHostChain defines the plugins that the chain running the Polaris EVM should implement.

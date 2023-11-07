@@ -25,10 +25,10 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins"
+	"github.com/berachain/polaris/eth/core"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/eth/core"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type Plugin interface {

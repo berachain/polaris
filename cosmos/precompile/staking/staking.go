@@ -30,17 +30,17 @@ import (
 	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
 
+	cbindings "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
+	generated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
+	cosmlib "github.com/berachain/polaris/cosmos/lib"
+	"github.com/berachain/polaris/eth/common"
+	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
+	"github.com/berachain/polaris/eth/core/vm"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/eth/common"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/core/vm"
 )
 
 type ValidatorStore interface {

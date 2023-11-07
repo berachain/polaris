@@ -23,7 +23,7 @@ package mock
 import (
 	"math/big"
 
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	"github.com/berachain/polaris/eth/core/vm"
 )
 
 //go:generate moq -out ./evm.mock.go -skip-ensure -pkg mock ../ PrecompileEVM

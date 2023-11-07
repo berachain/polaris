@@ -21,7 +21,7 @@
 package journal
 
 import (
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	libtypes "github.com/berachain/polaris/lib/types"
 )
 
 // Refund is a `Store` that tracks the refund counter.

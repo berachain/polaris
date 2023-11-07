@@ -29,20 +29,20 @@ import (
 	"context"
 	"math/big"
 
+	tbindings "github.com/berachain/polaris/contracts/bindings/testing"
+	localnet "github.com/berachain/polaris/e2e/localnet/network"
+	"github.com/berachain/polaris/eth/common"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+
 	geth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
-	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-
+	. "github.com/berachain/polaris/e2e/localnet/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 var _ = Describe("JSON RPC tests", func() {

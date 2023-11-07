@@ -26,17 +26,17 @@ import (
 
 	"cosmossdk.io/log"
 
+	testutil "github.com/berachain/polaris/cosmos/testutil"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core/mock"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/params"
+	"github.com/berachain/polaris/lib/utils"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/trie"
-
-	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/mock"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

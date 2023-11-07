@@ -21,7 +21,7 @@
 package mock
 
 import (
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	"github.com/berachain/polaris/eth/core/vm"
 )
 
 //go:generate moq -out ./precompile_plugin.mock.go -pkg mock ../ PrecompilePlugin
