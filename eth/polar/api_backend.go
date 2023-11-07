@@ -26,15 +26,6 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/core/bloombits"
-	"github.com/ethereum/go-ethereum/eth/gasprice"
-	"github.com/ethereum/go-ethereum/ethdb"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/rpc"
-
 	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/common/hexutil"
 	"github.com/berachain/polaris/eth/core"
@@ -45,6 +36,15 @@ import (
 	"github.com/berachain/polaris/eth/params"
 	polarapi "github.com/berachain/polaris/eth/polar/api"
 	"github.com/berachain/polaris/eth/version"
+
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/consensus"
+	"github.com/ethereum/go-ethereum/core/bloombits"
+	"github.com/ethereum/go-ethereum/eth/gasprice"
+	"github.com/ethereum/go-ethereum/ethdb"
+	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/rpc"
 )
 
 // Backend represents the backend object for a Polaris chain. It extends the standard

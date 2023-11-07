@@ -23,8 +23,6 @@ package keeper
 import (
 	storetypes "cosmossdk.io/store/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/polaris/cosmos/config"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/block"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/historical"
@@ -33,6 +31,8 @@ import (
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
 	"github.com/berachain/polaris/eth/core"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Compile-time interface assertion.

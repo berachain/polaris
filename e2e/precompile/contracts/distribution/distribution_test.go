@@ -29,10 +29,6 @@ import (
 	"math/big"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
 	bbindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/distribution"
 	sbindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
@@ -40,6 +36,10 @@ import (
 	network "github.com/berachain/polaris/e2e/localnet/network"
 	utils "github.com/berachain/polaris/e2e/precompile"
 	"github.com/berachain/polaris/eth/common"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	. "github.com/berachain/polaris/e2e/localnet/utils"
 	. "github.com/onsi/ginkgo/v2"

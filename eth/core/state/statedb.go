@@ -23,8 +23,6 @@ package state
 import (
 	"context"
 
-	"github.com/ethereum/go-ethereum/core/state"
-
 	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/state/journal"
@@ -32,6 +30,8 @@ import (
 	"github.com/berachain/polaris/eth/params"
 	"github.com/berachain/polaris/lib/snapshot"
 	libtypes "github.com/berachain/polaris/lib/types"
+
+	"github.com/ethereum/go-ethereum/core/state"
 )
 
 // For mocks.

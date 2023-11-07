@@ -29,14 +29,14 @@ import (
 
 	"cosmossdk.io/core/appmodule"
 
+	"github.com/berachain/polaris/cosmos/x/evm/keeper"
+	"github.com/berachain/polaris/cosmos/x/evm/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-
-	"github.com/berachain/polaris/cosmos/x/evm/keeper"
-	"github.com/berachain/polaris/cosmos/x/evm/types"
 )
 
 // ConsensusVersion defines the current x/evm module consensus version.

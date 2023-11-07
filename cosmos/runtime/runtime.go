@@ -27,14 +27,6 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-
-	"github.com/cosmos/cosmos-sdk/client"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
-
-	"github.com/ethereum/go-ethereum/beacon/engine"
-
 	libtx "github.com/berachain/polaris/cosmos/lib/tx"
 	antelib "github.com/berachain/polaris/cosmos/runtime/ante"
 	"github.com/berachain/polaris/cosmos/runtime/chain"
@@ -48,6 +40,14 @@ import (
 	"github.com/berachain/polaris/eth/core"
 	coretypes "github.com/berachain/polaris/eth/core/types"
 	"github.com/berachain/polaris/eth/node"
+
+	abci "github.com/cometbft/cometbft/abci/types"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/mempool"
+
+	"github.com/ethereum/go-ethereum/beacon/engine"
 )
 
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.

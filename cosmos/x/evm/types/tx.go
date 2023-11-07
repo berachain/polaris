@@ -23,9 +23,9 @@ package types
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/beacon/engine"
-
 	coretypes "github.com/berachain/polaris/eth/core/types"
+
+	"github.com/ethereum/go-ethereum/beacon/engine"
 )
 
 // WrapTx sets the transaction data from an `coretypes.Transaction`.

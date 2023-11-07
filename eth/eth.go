@@ -24,10 +24,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ethereum/go-ethereum/core/txpool"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/miner"
-
 	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/consensus"
 	"github.com/berachain/polaris/eth/core"
@@ -36,6 +32,10 @@ import (
 	"github.com/berachain/polaris/eth/node"
 	"github.com/berachain/polaris/eth/polar"
 	"github.com/berachain/polaris/eth/rpc"
+
+	"github.com/ethereum/go-ethereum/core/txpool"
+	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/miner"
 )
 
 type (

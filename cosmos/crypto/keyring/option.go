@@ -21,9 +21,9 @@
 package keyring
 
 import (
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-
 	"github.com/berachain/polaris/cosmos/crypto/hd"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
 
 // OnlyEthSecp256k1Option defines a function keys options for the ethereum Secp256k1 curve.

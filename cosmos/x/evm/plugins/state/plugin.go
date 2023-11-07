@@ -28,8 +28,6 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/polaris/cosmos/store/snapmulti"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
@@ -40,6 +38,8 @@ import (
 	"github.com/berachain/polaris/eth/crypto"
 	"github.com/berachain/polaris/lib/snapshot"
 	libtypes "github.com/berachain/polaris/lib/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const pluginRegistryKey = `statePlugin`

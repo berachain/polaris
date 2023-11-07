@@ -33,6 +33,14 @@ import (
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 
+	evmv1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/v1alpha1"
+	evmconfig "github.com/berachain/polaris/cosmos/config"
+	ethcryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
+	signinglib "github.com/berachain/polaris/cosmos/lib/signing"
+	polarruntime "github.com/berachain/polaris/cosmos/runtime"
+	"github.com/berachain/polaris/cosmos/runtime/miner"
+	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -52,14 +60,6 @@ import (
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-
-	evmv1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/v1alpha1"
-	evmconfig "github.com/berachain/polaris/cosmos/config"
-	ethcryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
-	signinglib "github.com/berachain/polaris/cosmos/lib/signing"
-	polarruntime "github.com/berachain/polaris/cosmos/runtime"
-	"github.com/berachain/polaris/cosmos/runtime/miner"
-	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
 )
 
 //nolint:gochecknoinits // from sdk.

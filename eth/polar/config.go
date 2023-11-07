@@ -24,14 +24,14 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/log"
+	"github.com/berachain/polaris/eth/params"
+
 	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
 	"github.com/ethereum/go-ethereum/miner"
-
-	"github.com/berachain/polaris/eth/common"
-	"github.com/berachain/polaris/eth/log"
-	"github.com/berachain/polaris/eth/params"
 )
 
 const (

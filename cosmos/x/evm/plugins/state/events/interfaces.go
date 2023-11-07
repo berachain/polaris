@@ -21,9 +21,9 @@
 package events
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	coretypes "github.com/berachain/polaris/eth/core/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type (

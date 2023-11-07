@@ -31,9 +31,6 @@ import (
 
 	"github.com/cosmos/gogoproto/proto"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
 	bbindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/governance"
 	tbindings "github.com/berachain/polaris/contracts/bindings/testing/governance"
@@ -41,6 +38,9 @@ import (
 	utils "github.com/berachain/polaris/e2e/precompile"
 	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/core/types"
+
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	. "github.com/berachain/polaris/e2e/localnet/utils"
 	. "github.com/onsi/ginkgo/v2"

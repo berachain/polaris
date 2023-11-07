@@ -25,11 +25,11 @@ import (
 
 	"cosmossdk.io/log"
 
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-
 	"github.com/berachain/polaris/cosmos/config"
 	testapp "github.com/berachain/polaris/e2e/testapp"
 	"github.com/berachain/polaris/e2e/testapp/polard/cmd"
+
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
 
 func main() {

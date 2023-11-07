@@ -26,14 +26,14 @@ import (
 
 	"github.com/cosmos/gogoproto/proto"
 
+	"github.com/berachain/polaris/eth"
+	"github.com/berachain/polaris/eth/core/types"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/miner"
-
-	"github.com/berachain/polaris/eth"
-	"github.com/berachain/polaris/eth/core/types"
 )
 
 // Miner implements the baseapp.TxSelector interface.

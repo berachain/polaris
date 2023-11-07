@@ -31,10 +31,10 @@ import (
 
 	ginkgo "github.com/onsi/ginkgo/v2"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-
 	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/crypto"
+
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
 
 const (

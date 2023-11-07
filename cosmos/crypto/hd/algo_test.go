@@ -23,13 +23,13 @@ package hd
 import (
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-
 	ethsecp256k1 "github.com/berachain/polaris/cosmos/crypto/keys/ethsecp256k1"
 	"github.com/berachain/polaris/eth/accounts"
 	"github.com/berachain/polaris/eth/common"
 	crypto "github.com/berachain/polaris/eth/crypto"
 	"github.com/berachain/polaris/lib/utils"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

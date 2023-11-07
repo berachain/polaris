@@ -23,13 +23,13 @@ package miner
 import (
 	"context"
 
+	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
-
-	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
 )
 
 // EnvelopeSerializer is used to convert an envelope into a byte slice that represents

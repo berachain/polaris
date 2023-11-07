@@ -28,14 +28,6 @@ import (
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
 	cbindings "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
 	generated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
@@ -46,6 +38,14 @@ import (
 	"github.com/berachain/polaris/eth/core/vm"
 	"github.com/berachain/polaris/eth/core/vm/mock"
 	libutils "github.com/berachain/polaris/lib/utils"
+
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

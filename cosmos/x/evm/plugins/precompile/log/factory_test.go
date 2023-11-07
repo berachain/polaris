@@ -27,9 +27,6 @@ import (
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
 	testutil "github.com/berachain/polaris/cosmos/testutil"
 	"github.com/berachain/polaris/eth/accounts/abi"
@@ -37,6 +34,9 @@ import (
 	"github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/precompile/mock"
 	"github.com/berachain/polaris/eth/crypto"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

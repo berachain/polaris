@@ -26,12 +26,12 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 
+	libgenerated "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
+	libutils "github.com/berachain/polaris/lib/utils"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	libgenerated "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
-	libutils "github.com/berachain/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

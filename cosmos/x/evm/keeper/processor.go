@@ -26,12 +26,12 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
+	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth/core/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
-
-	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
-	"github.com/berachain/polaris/eth/core/types"
 )
 
 func (k *Keeper) ProcessPayloadEnvelope(

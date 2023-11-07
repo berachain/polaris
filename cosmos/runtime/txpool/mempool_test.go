@@ -25,11 +25,11 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/polaris/cosmos/runtime/txpool/mocks"
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 	coretypes "github.com/berachain/polaris/eth/core/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -27,12 +27,6 @@ import (
 
 	"cosmossdk.io/core/address"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-
 	cbindings "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
 	generated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
@@ -40,6 +34,12 @@ import (
 	"github.com/berachain/polaris/eth/common"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/vm"
+
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
 const (

@@ -29,6 +29,12 @@ import (
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 
+	testutil "github.com/berachain/polaris/cosmos/testutil"
+	pclog "github.com/berachain/polaris/cosmos/x/evm/plugins/precompile/log"
+	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
+	"github.com/berachain/polaris/eth/core/vm"
+	"github.com/berachain/polaris/lib/utils"
+
 	"github.com/cosmos/cosmos-sdk/runtime"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -44,12 +50,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/ethereum/go-ethereum/common"
-
-	testutil "github.com/berachain/polaris/cosmos/testutil"
-	pclog "github.com/berachain/polaris/cosmos/x/evm/plugins/precompile/log"
-	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
-	"github.com/berachain/polaris/eth/core/vm"
-	"github.com/berachain/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -24,11 +24,11 @@ import (
 	"math/big"
 	"unsafe"
 
+	"github.com/berachain/polaris/eth/params"
+
 	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
-
-	"github.com/berachain/polaris/eth/params"
 )
 
 // DeriveReceiptsFromBlock is a helper function for deriving receipts from a block.

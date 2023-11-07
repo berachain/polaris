@@ -26,8 +26,6 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/polaris/cosmos/config"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
 	"github.com/berachain/polaris/cosmos/x/evm/types"
@@ -35,6 +33,8 @@ import (
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 	coretypes "github.com/berachain/polaris/eth/core/types"
 	"github.com/berachain/polaris/eth/params"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type WrappedBlockchain interface {

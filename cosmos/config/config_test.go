@@ -21,11 +21,11 @@
 package config_test
 
 import (
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	sgconfig "github.com/berachain/polaris/cosmos/config"
 	"github.com/berachain/polaris/eth/accounts"
+
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -25,11 +25,11 @@ import (
 	"crypto/ecdsa"
 	"crypto/subtle"
 
+	"github.com/berachain/polaris/eth/crypto"
+
 	cmcrypto "github.com/cometbft/cometbft/crypto"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-
-	"github.com/berachain/polaris/eth/crypto"
 )
 
 const (

@@ -23,15 +23,15 @@ package config
 import (
 	"math/big"
 
-	sdkflags "github.com/cosmos/cosmos-sdk/client/flags"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/polaris/cosmos/config/flags"
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/accounts"
 	"github.com/berachain/polaris/eth/node"
 	"github.com/berachain/polaris/eth/polar"
+
+	sdkflags "github.com/cosmos/cosmos-sdk/client/flags"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type Config = eth.Config

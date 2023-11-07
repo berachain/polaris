@@ -27,14 +27,14 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	testutil "github.com/berachain/polaris/cosmos/testutil"
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/core"
 	"github.com/berachain/polaris/eth/core/types"
 	"github.com/berachain/polaris/lib/utils"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

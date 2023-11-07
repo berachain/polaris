@@ -21,11 +21,11 @@
 package lib_test
 
 import (
-	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
 	"github.com/berachain/polaris/eth/common"
+
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

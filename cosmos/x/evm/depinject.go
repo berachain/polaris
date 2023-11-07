@@ -25,13 +25,13 @@ import (
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
 
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	modulev1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/module/v1alpha1"
 	"github.com/berachain/polaris/cosmos/config"
 	"github.com/berachain/polaris/cosmos/x/evm/keeper"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
+
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 //nolint:gochecknoinits // GRRRR fix later.

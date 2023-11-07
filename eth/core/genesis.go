@@ -23,11 +23,11 @@ package core
 import (
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/core"
-
 	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/common/hexutil"
 	"github.com/berachain/polaris/eth/core/types"
+
+	"github.com/ethereum/go-ethereum/core"
 )
 
 type (

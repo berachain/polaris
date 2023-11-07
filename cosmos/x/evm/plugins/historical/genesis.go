@@ -21,9 +21,9 @@
 package historical
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/polaris/eth/core"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (p *plugin) InitGenesis(ctx sdk.Context, ethGen *core.Genesis) error {

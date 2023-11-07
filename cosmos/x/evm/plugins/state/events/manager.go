@@ -23,11 +23,11 @@ package events
 import (
 	"errors"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/polaris/eth/core/vm"
 	errlib "github.com/berachain/polaris/lib/errors"
 	"github.com/berachain/polaris/lib/utils"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (

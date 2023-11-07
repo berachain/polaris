@@ -42,6 +42,9 @@ import (
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
+	evmmodulev1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/module/v1alpha1"
+	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -56,9 +59,6 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	evmmodulev1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/module/v1alpha1"
-	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 
 	_ "cosmossdk.io/x/evidence"                       // import for side-effects
 	_ "cosmossdk.io/x/upgrade"                        // import for side-effects

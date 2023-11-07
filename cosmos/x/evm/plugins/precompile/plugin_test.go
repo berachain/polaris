@@ -29,8 +29,6 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/berachain/polaris/cosmos/store/snapmulti"
 	testutil "github.com/berachain/polaris/cosmos/testutil"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
@@ -41,6 +39,8 @@ import (
 	coretypes "github.com/berachain/polaris/eth/core/types"
 	"github.com/berachain/polaris/eth/core/vm"
 	"github.com/berachain/polaris/lib/utils"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
