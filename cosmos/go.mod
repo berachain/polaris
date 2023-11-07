@@ -3,10 +3,15 @@ module github.com/berachain/polaris/cosmos
 go 1.21
 
 replace (
+	// use cosmos fork of keyring
+	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20230928194634-aa077af62593
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231105185655-b78967bb230f
-	// Required at the moment until a bug in the comsos-sdk is fixed.
+	// Fix upstream GHSA-h395-qcrw-5vmq and GHSA-3vp4-m3rf-835h vulnerabilities.
+	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
+	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
+	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
 

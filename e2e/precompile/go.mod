@@ -2,9 +2,6 @@ module github.com/berachain/polaris/e2e/precompile
 
 go 1.21
 
-// Required at the moment until a bug in the comsos-sdk is fixed.
-replace github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-
 require (
 	github.com/berachain/polaris/contracts v0.0.0-20231107182447-2b91ecc782a6
 	github.com/berachain/polaris/e2e/localnet v0.0.0-20231107182447-2b91ecc782a6
@@ -133,7 +130,6 @@ require (
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/oasisprotocol/curve25519-voi v0.0.0-20230904125328-1f23a7beb09a // indirect
 	github.com/oklog/run v1.1.0 // indirect
-	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc4 // indirect
 	github.com/opencontainers/runc v1.1.5 // indirect
