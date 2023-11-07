@@ -27,7 +27,7 @@ require (
 	github.com/berachain/polaris/eth v0.0.0-20231107182447-2b91ecc782a6
 	github.com/cometbft/cometbft v0.38.0
 	github.com/cosmos/cosmos-db v1.0.0
-	github.com/cosmos/cosmos-sdk v0.50.2-0.20231107193838-e266a8884c0a
+	github.com/cosmos/cosmos-sdk v0.50.1
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10
 	github.com/spf13/cobra v1.7.0
