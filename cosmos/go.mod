@@ -38,9 +38,9 @@ require (
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	google.golang.org/grpc v1.59.0
 	google.golang.org/protobuf v1.31.0
-	github.com/berachain/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f
-	github.com/berachain/polaris/eth 0f5ea6720c02455a614ef432b6343dbef7593fa7
-	github.com/berachain/polaris/lib 0f5ea6720c02455a614ef432b6343dbef7593fa7
+	github.com/berachain/polaris/contracts v0.0.0-20231107181543-f61d0442550f
+	github.com/berachain/polaris/eth v0.0.0-20231107181543-f61d0442550f
+	github.com/berachain/polaris/lib v0.0.0-20231107181543-f61d0442550f
 )
 
 require (
