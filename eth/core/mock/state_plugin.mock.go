@@ -5,10 +5,10 @@ package mock
 
 import (
 	"context"
-	"github.com/ethereum/go-ethereum/common"
-	"math/big"
 	"github.com/berachain/polaris/eth/core"
 	"github.com/berachain/polaris/eth/core/state"
+	"github.com/ethereum/go-ethereum/common"
+	"math/big"
 	"sync"
 )
 

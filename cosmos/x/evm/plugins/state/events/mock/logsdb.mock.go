@@ -4,8 +4,8 @@
 package mock
 
 import (
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
+	"github.com/ethereum/go-ethereum/core/types"
 	"sync"
 )
 

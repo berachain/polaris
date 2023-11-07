@@ -4,9 +4,9 @@
 package mock
 
 import (
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
 	"sync"
 )
 
