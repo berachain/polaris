@@ -28,9 +28,9 @@ package snapshot
 import (
 	"testing"
 
-	libtypes "pkg.berachain.dev/polaris/lib/types"
-	typesmock "pkg.berachain.dev/polaris/lib/types/mock"
-	"pkg.berachain.dev/polaris/lib/utils"
+	libtypes "github.com/berachain/polaris/lib/types"
+	typesmock "github.com/berachain/polaris/lib/types/mock"
+	"github.com/berachain/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

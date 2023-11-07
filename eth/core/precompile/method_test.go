@@ -25,10 +25,10 @@ import (
 	"math/big"
 	"reflect"
 
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/vm"
-	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
+	"github.com/berachain/polaris/eth/accounts/abi"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/vm"
+	vmmock "github.com/berachain/polaris/eth/core/vm/mock"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

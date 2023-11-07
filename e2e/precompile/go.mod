@@ -1,4 +1,4 @@
-module pkg.berachain.dev/polaris/e2e/precompile
+module github.com/berachain/polaris/e2e/precompile
 
 go 1.21
 
@@ -6,13 +6,13 @@ go 1.21
 replace github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 
 require (
+	github.com/berachain/polaris/contracts v0.0.0-20231107182447-2b91ecc782a6
+	github.com/berachain/polaris/e2e/localnet v0.0.0-20231107182447-2b91ecc782a6
+	github.com/berachain/polaris/eth v0.0.0-20231107182447-2b91ecc782a6
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.1.0.20231103111158-e83a20081ced
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231104204753-faadca38b64d
-	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20231104204753-faadca38b64d
-	pkg.berachain.dev/polaris/eth v0.0.0-20231104204753-faadca38b64d
 )
 
 require (
@@ -40,7 +40,6 @@ require (
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
-	github.com/cockroachdb/datadriven v1.0.3-0.20230801171734-e384cf455877 // indirect
 	github.com/cockroachdb/errors v1.11.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/pebble v0.0.0-20231101195458-481da04154d6 // indirect

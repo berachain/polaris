@@ -21,10 +21,10 @@
 package mock
 
 import (
-	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/precompile"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/precompile"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
 //go:generate moq -out ./stateful_impl.mock.go -skip-ensure -pkg mock ../ StatefulImpl

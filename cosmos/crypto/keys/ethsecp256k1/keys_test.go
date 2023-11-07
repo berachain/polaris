@@ -23,9 +23,9 @@ package ethsecp256k1
 import (
 	"testing"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	ethcrypto "github.com/berachain/polaris/eth/crypto"
 
-	ethcrypto "pkg.berachain.dev/polaris/eth/crypto"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

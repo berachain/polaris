@@ -23,10 +23,10 @@ package mock
 import (
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/types"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 //go:generate moq -out ./statedb.mock.go -pkg mock ../ PolarStateDB

@@ -21,8 +21,8 @@
 package state
 
 import (
-	types "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
+	types "github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth/common"
 )
 
 // NOTE: we use copy to build keys for max performance: https://github.com/golang/go/issues/55905

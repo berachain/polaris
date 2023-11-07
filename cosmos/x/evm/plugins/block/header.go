@@ -25,11 +25,11 @@ import (
 	"fmt"
 	"math/big"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	errorslib "pkg.berachain.dev/polaris/lib/errors"
+	"github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+	errorslib "github.com/berachain/polaris/lib/errors"
 )
 
 // prevHeaderHashes is the number of previous header hashes being stored on chain.

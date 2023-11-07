@@ -21,10 +21,10 @@
 package block
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core/types"
 
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // InitGenesis stores the genesis block header in the KVStore under its own genesis key.

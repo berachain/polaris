@@ -24,8 +24,8 @@ import (
 	"context"
 	"math/big"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/berachain/polaris/eth/common"
+	libtypes "github.com/berachain/polaris/lib/types"
 )
 
 // Plugin is a plugin which tracks the accounts (balances, nonces, codes, states) in the native

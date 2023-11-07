@@ -26,8 +26,8 @@
 package stack
 
 import (
-	"pkg.berachain.dev/polaris/lib/ds"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/berachain/polaris/lib/ds"
+	libtypes "github.com/berachain/polaris/lib/types"
 )
 
 // cloneableStack is a struct that holds a slice of CacheEntry instances.

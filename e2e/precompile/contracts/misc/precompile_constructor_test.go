@@ -28,13 +28,13 @@ package misc_test
 import (
 	"testing"
 
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	utils "pkg.berachain.dev/polaris/e2e/precompile"
+	tbindings "github.com/berachain/polaris/contracts/bindings/testing"
+	network "github.com/berachain/polaris/e2e/localnet/network"
+	utils "github.com/berachain/polaris/e2e/precompile"
 
+	. "github.com/berachain/polaris/e2e/localnet/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 func TestMiscellaneousPrecompile(t *testing.T) {

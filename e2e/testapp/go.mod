@@ -1,4 +1,4 @@
-module pkg.berachain.dev/polaris/e2e/testapp
+module github.com/berachain/polaris/e2e/testapp
 
 go 1.21
 
@@ -20,6 +20,8 @@ require (
 	cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/upgrade v0.0.0-20230915171831-2196edacb99d
+	github.com/berachain/polaris/cosmos v0.0.0-20231107182447-2b91ecc782a6
+	github.com/berachain/polaris/eth v0.0.0-20231107182447-2b91ecc782a6
 	github.com/cometbft/cometbft v0.38.0
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.1.0.20231103111158-e83a20081ced
@@ -27,8 +29,6 @@ require (
 	github.com/onsi/gomega v1.27.10
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20231104204753-faadca38b64d
-	pkg.berachain.dev/polaris/eth v0.0.0-20231104204753-faadca38b64d
 )
 
 require (
@@ -50,6 +50,8 @@ require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.44.224 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/berachain/polaris/contracts v0.0.0-20231107182032-06b7434b1567 // indirect
+	github.com/berachain/polaris/lib v0.0.0-20231107182032-06b7434b1567 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816 // indirect
 	github.com/bits-and-blooms/bitset v1.11.0 // indirect
@@ -65,7 +67,6 @@ require (
 	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
-	github.com/cockroachdb/datadriven v1.0.3-0.20230801171734-e384cf455877 // indirect
 	github.com/cockroachdb/errors v1.11.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/pebble v0.0.0-20231101195458-481da04154d6 // indirect
@@ -271,8 +272,6 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20231031220135-f3bf0d0ee45f // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )

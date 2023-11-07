@@ -21,9 +21,9 @@
 package journal
 
 import (
-	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/berachain/polaris/eth/common"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

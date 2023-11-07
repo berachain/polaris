@@ -1,4 +1,4 @@
-module pkg.berachain.dev/polaris/eth
+module github.com/berachain/polaris/eth
 
 go 1.21
 
@@ -9,14 +9,14 @@ replace (
 )
 
 require (
+	github.com/berachain/polaris/contracts v0.0.0-20231107182447-2b91ecc782a6
+	github.com/berachain/polaris/lib v0.0.0-20231107182447-2b91ecc782a6
 	github.com/ethereum/go-ethereum v1.13.4
 	github.com/holiman/uint256 v1.2.3
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/text v0.13.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231104204753-faadca38b64d
-	pkg.berachain.dev/polaris/lib v0.0.0-20231104204753-faadca38b64d
 )
 
 require (

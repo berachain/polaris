@@ -1,4 +1,4 @@
-module pkg.berachain.dev/polaris/cosmos
+module github.com/berachain/polaris/cosmos
 
 go 1.21
 
@@ -19,6 +19,9 @@ require (
 	cosmossdk.io/store v1.0.0
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/tx v0.12.0
+	github.com/berachain/polaris/contracts v0.0.0-20231107182447-2b91ecc782a6
+	github.com/berachain/polaris/eth v0.0.0-20231107182447-2b91ecc782a6
+	github.com/berachain/polaris/lib v0.0.0-20231107182447-2b91ecc782a6
 	github.com/btcsuite/btcd v0.23.2
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/cometbft/cometbft v0.38.0
@@ -38,9 +41,6 @@ require (
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	google.golang.org/grpc v1.59.0
 	google.golang.org/protobuf v1.31.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f
-	pkg.berachain.dev/polaris/eth v0.0.0-20231104204753-faadca38b64d
-	pkg.berachain.dev/polaris/lib v0.0.0-20231104204753-faadca38b64d
 )
 
 require (
@@ -65,7 +65,6 @@ require (
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
-	github.com/cockroachdb/datadriven v1.0.3-0.20230801171734-e384cf455877 // indirect
 	github.com/cockroachdb/errors v1.11.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/pebble v0.0.0-20231101195458-481da04154d6 // indirect

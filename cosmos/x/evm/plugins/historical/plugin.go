@@ -25,11 +25,11 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/params"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/params"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Plugin is the interface that must be implemented by the plugin.

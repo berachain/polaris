@@ -23,7 +23,7 @@ package cachekv
 import (
 	storetypes "cosmossdk.io/store/types"
 
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	"github.com/berachain/polaris/eth/core/vm"
 )
 
 var _ storetypes.KVStore = (*ReadOnlyStore)(nil)

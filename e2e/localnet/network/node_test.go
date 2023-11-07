@@ -30,8 +30,8 @@ import (
 	"fmt"
 	"math/big"
 
-	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	localnet "github.com/berachain/polaris/e2e/localnet/network"
+	coretypes "github.com/berachain/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

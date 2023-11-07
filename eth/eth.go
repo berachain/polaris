@@ -24,18 +24,18 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/consensus"
+	"github.com/berachain/polaris/eth/core"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/log"
+	"github.com/berachain/polaris/eth/node"
+	"github.com/berachain/polaris/eth/polar"
+	"github.com/berachain/polaris/eth/rpc"
+
 	"github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/miner"
-
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/consensus"
-	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/log"
-	"pkg.berachain.dev/polaris/eth/node"
-	"pkg.berachain.dev/polaris/eth/polar"
-	"pkg.berachain.dev/polaris/eth/rpc"
 )
 
 type (

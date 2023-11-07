@@ -21,9 +21,9 @@
 package journal
 
 import (
-	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/berachain/polaris/eth/common"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+	libtypes "github.com/berachain/polaris/lib/types"
 )
 
 // Log defines the interface for tracking logs created during a state transition.

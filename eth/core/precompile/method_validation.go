@@ -30,7 +30,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
+	"github.com/berachain/polaris/eth/accounts/abi"
 )
 
 // validateArg uses reflection to verify the implementation arg matches the ABI arg.

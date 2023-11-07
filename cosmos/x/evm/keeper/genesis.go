@@ -21,11 +21,11 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/lib/utils"
 
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/lib/utils"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // InitGenesis is called during the InitGenesis.

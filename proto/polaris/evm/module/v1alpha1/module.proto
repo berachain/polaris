@@ -26,5 +26,5 @@ import "cosmos/app/v1alpha1/module.proto";
 
 // Module is the config object of the evm module.
 message Module {
-  option (cosmos.app.v1alpha1.module) = {go_import: "pkg.berachain.dev/polaris/cosmos/x/evm"};
+  option (cosmos.app.v1alpha1.module) = {go_import: "github.com/berachain/polaris/cosmos/x/evm"};
 }

@@ -21,9 +21,9 @@
 package journal
 
 import (
-	"pkg.berachain.dev/polaris/eth/common"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/berachain/polaris/eth/common"
+	libtypes "github.com/berachain/polaris/lib/types"
+	"github.com/berachain/polaris/lib/utils"
 )
 
 type Accesslist interface {

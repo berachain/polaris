@@ -27,13 +27,13 @@ import (
 
 	"cosmossdk.io/log"
 
+	"github.com/berachain/polaris/eth/core"
+	coretypes "github.com/berachain/polaris/eth/core/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/ethereum/go-ethereum/event"
-
-	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // txChanSize is the size of channel listening to NewTxsEvent. The number is referenced from the

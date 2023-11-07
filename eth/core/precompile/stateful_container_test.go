@@ -25,10 +25,10 @@ import (
 	"math/big"
 	"reflect"
 
-	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/vm"
-	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
+	solidity "github.com/berachain/polaris/contracts/bindings/testing"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/core/vm"
+	vmmock "github.com/berachain/polaris/eth/core/vm/mock"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

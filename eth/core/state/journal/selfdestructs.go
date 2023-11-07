@@ -23,10 +23,10 @@ package journal
 import (
 	"math/big"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/crypto"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/berachain/polaris/eth/common"
+	"github.com/berachain/polaris/eth/crypto"
+	libtypes "github.com/berachain/polaris/lib/types"
+	"github.com/berachain/polaris/lib/utils"
 )
 
 // emptyCodeHash is the Keccak256 Hash of empty code

@@ -20,12 +20,12 @@ package events_test
 import (
 	"cosmossdk.io/log"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	testutil "github.com/berachain/polaris/cosmos/testutil"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events/mock"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

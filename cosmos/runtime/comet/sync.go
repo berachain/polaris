@@ -23,13 +23,13 @@ package comet
 import (
 	"context"
 
+	"github.com/berachain/polaris/eth/polar"
+
 	cmtclient "github.com/cometbft/cometbft/rpc/client"
 
 	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/ethereum/go-ethereum"
-
-	"pkg.berachain.dev/polaris/eth/polar"
 )
 
 var _ polar.SyncStatusProvider = (*cometSyncStatus)(nil)
