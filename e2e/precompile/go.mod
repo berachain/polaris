@@ -6,9 +6,9 @@ go 1.21
 replace github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 
 require (
-	github.com/berachain/polaris/contracts v0.0.0-20231107182032-06b7434b1567
-	github.com/berachain/polaris/e2e/localnet v0.0.0-20231107182032-06b7434b1567
-	github.com/berachain/polaris/eth v0.0.0-20231107182032-06b7434b1567
+	github.com/berachain/polaris/contracts v0.0.0-20231107182447-2b91ecc782a6
+	github.com/berachain/polaris/e2e/localnet v0.0.0-20231107182447-2b91ecc782a6
+	github.com/berachain/polaris/eth v0.0.0-20231107182447-2b91ecc782a6
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.1.0.20231103111158-e83a20081ced
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/onsi/ginkgo/v2 v2.13.0

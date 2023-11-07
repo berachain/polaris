@@ -20,8 +20,8 @@ require (
 	cosmossdk.io/tools/confix v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/upgrade v0.0.0-20230915171831-2196edacb99d
-	github.com/berachain/polaris/cosmos v0.0.0-20231107182032-06b7434b1567
-	github.com/berachain/polaris/eth v0.0.0-20231107182032-06b7434b1567
+	github.com/berachain/polaris/cosmos v0.0.0-20231107182447-2b91ecc782a6
+	github.com/berachain/polaris/eth v0.0.0-20231107182447-2b91ecc782a6
 	github.com/cometbft/cometbft v0.38.0
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.1.0.20231103111158-e83a20081ced
@@ -50,8 +50,8 @@ require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.44.224 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/berachain/polaris/contracts v0.0.0-20231107181922-ee680ef1d975 // indirect
-	github.com/berachain/polaris/lib v0.0.0-20231107181922-ee680ef1d975 // indirect
+	github.com/berachain/polaris/contracts v0.0.0-20231107182032-06b7434b1567 // indirect
+	github.com/berachain/polaris/lib v0.0.0-20231107182032-06b7434b1567 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816 // indirect
 	github.com/bits-and-blooms/bitset v1.11.0 // indirect

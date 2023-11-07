@@ -3,8 +3,8 @@ module github.com/berachain/polaris/e2e/localnet
 go 1.21
 
 require (
-	github.com/berachain/polaris/contracts v0.0.0-20231107182032-06b7434b1567
-	github.com/berachain/polaris/eth v0.0.0-20231107182032-06b7434b1567
+	github.com/berachain/polaris/contracts v0.0.0-20231107182447-2b91ecc782a6
+	github.com/berachain/polaris/eth v0.0.0-20231107182447-2b91ecc782a6
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/ethereum/go-ethereum v1.13.4
 	github.com/onsi/ginkgo/v2 v2.13.0
