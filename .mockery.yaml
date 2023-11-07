@@ -3,17 +3,17 @@ mockname: "{{.InterfaceNameCamel}}"
 filename: "{{.InterfaceNameSnake}}.go"
 outpkg: "mocks"
 packages:
-  pkg.berachain.dev/polaris/cosmos/config:
+  github.com/berachain/polaris/cosmos/config:
     config:
       recursive: True
       with-expecter: true
       all: True
-  pkg.berachain.dev/polaris/cosmos/runtime/txpool:
+  github.com/berachain/polaris/cosmos/runtime/txpool:
     config:
       recursive: True
       with-expecter: true
       all: True
-  pkg.berachain.dev/polaris/eth/core/state:
+  github.com/berachain/polaris/eth/core/state:
     config:
       recursive: True
       with-expecter: true

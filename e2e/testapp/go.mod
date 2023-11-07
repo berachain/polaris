@@ -1,4 +1,4 @@
-module pkg.berachain.dev/polaris/e2e/testapp
+module github.com/berachain/polaris/e2e/testapp
 
 go 1.21
 
@@ -27,8 +27,8 @@ require (
 	github.com/onsi/gomega v1.27.10
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
-	pkg.berachain.dev/polaris/cosmos v0.0.0-20231104204753-faadca38b64d
-	pkg.berachain.dev/polaris/eth v0.0.0-20231104204753-faadca38b64d
+	github.com/berachain/polaris/cosmos v0.0.0-20231104204753-faadca38b64d
+	github.com/berachain/polaris/eth v0.0.0-20231104204753-faadca38b64d
 )
 
 require (
@@ -271,8 +271,8 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f // indirect
-	pkg.berachain.dev/polaris/lib v0.0.0-20231031220135-f3bf0d0ee45f // indirect
+	github.com/berachain/polaris/contracts v0.0.0-20231031220135-f3bf0d0ee45f // indirect
+	github.com/berachain/polaris/lib v0.0.0-20231031220135-f3bf0d0ee45f // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )

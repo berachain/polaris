@@ -105,8 +105,8 @@ linters-settings:
       - Prefix(cosmossdk.io)
       - Prefix(github.com/cosmos/cosmos-sdk
       - Prefix(github.com/ethereum/go-ethereum
-      - Prefix(pkg.berachain.dev
-      - Prefix(pkg.berachain.dev/polaris
+      - Prefix(github.com/berachain
+      - Prefix(github.com/berachain/polaris
       - blank
       - dot
     skip-generated: true

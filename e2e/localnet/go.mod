@@ -1,4 +1,4 @@
-module pkg.berachain.dev/polaris/e2e/localnet
+module github.com/berachain/polaris/e2e/localnet
 
 go 1.21
 
@@ -8,8 +8,8 @@ require (
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10
 	github.com/ory/dockertest v3.3.5+incompatible
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231104204753-faadca38b64d
-	pkg.berachain.dev/polaris/eth v0.0.0-20231104204753-faadca38b64d
+	github.com/berachain/polaris/contracts v0.0.0-20231104204753-faadca38b64d
+	github.com/berachain/polaris/eth v0.0.0-20231104204753-faadca38b64d
 )
 
 require (
