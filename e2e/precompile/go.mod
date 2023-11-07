@@ -6,9 +6,9 @@ go 1.21
 replace github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 
 require (
-	github.com/berachain/polaris/contracts v0.0.0-20231107181323-0f5ea6720c02
-	github.com/berachain/polaris/e2e/localnet v0.0.0-20231107181323-0f5ea6720c02
-	github.com/berachain/polaris/eth v0.0.0-20231107181323-0f5ea6720c02
+	github.com/berachain/polaris/contracts v0.0.0-20231107182032-06b7434b1567
+	github.com/berachain/polaris/e2e/localnet v0.0.0-20231107182032-06b7434b1567
+	github.com/berachain/polaris/eth v0.0.0-20231107182032-06b7434b1567
 	github.com/cosmos/cosmos-sdk v0.50.0-rc.1.0.20231103111158-e83a20081ced
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/onsi/ginkgo/v2 v2.13.0
@@ -191,9 +191,6 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231107172923-0d4f66308fc6 // indirect
-	pkg.berachain.dev/polaris/e2e/localnet v0.0.0-20231107172923-0d4f66308fc6 // indirect
-	pkg.berachain.dev/polaris/eth v0.0.0-20231107172923-0d4f66308fc6 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )

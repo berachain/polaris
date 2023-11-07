@@ -19,9 +19,9 @@ require (
 	cosmossdk.io/store v1.0.0
 	cosmossdk.io/x/evidence v0.0.0-20230818115413-c402c51a1508
 	cosmossdk.io/x/tx v0.12.0
-	github.com/berachain/polaris/contracts v0.0.0-20231107181922-ee680ef1d975
-	github.com/berachain/polaris/eth v0.0.0-20231107181922-ee680ef1d975
-	github.com/berachain/polaris/lib v0.0.0-20231107181922-ee680ef1d975
+	github.com/berachain/polaris/contracts v0.0.0-20231107182032-06b7434b1567
+	github.com/berachain/polaris/eth v0.0.0-20231107182032-06b7434b1567
+	github.com/berachain/polaris/lib v0.0.0-20231107182032-06b7434b1567
 	github.com/btcsuite/btcd v0.23.2
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/cometbft/cometbft v0.38.0
