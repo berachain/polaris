@@ -89,17 +89,20 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 
 	sdkCoins := sdk.Coins{}
 	for _, evmCoin := range amounts {
-		sdkCoins = append(sdkCoins, sdk.Coin{
+		sdkCoin := sdk.Coin{
 			Denom: evmCoin.Denom, Amount: sdkmath.NewIntFromBigInt(evmCoin.Amount),
-		})
+		}
+		if !sdkCoin.IsZero() {
+			// remove any 0 amounts
+			sdkCoins = append(sdkCoins, sdkCoin)
+		}
 	}
-	// sort the coins by denom, as Cosmos expects and remove any 0 amounts.
-	sdkCoins = sdk.NewCoins(sdkCoins...)
 	if len(sdkCoins) == 0 {
 		return nil, precompile.ErrInvalidCoin
 	}
 
-	return sdkCoins, nil
+	// sort the coins by denom, as Cosmos expects
+	return sdkCoins.Sort(), nil
 }
 
 func ExtractPageRequestFromInput(pageRequest any) *query.PageRequest {
@@ -137,7 +140,13 @@ func ExtractCoinFromInputToCoin(coin any) (sdk.Coin, error) {
 		return sdk.Coin{}, precompile.ErrInvalidCoin
 	}
 
-	sdkCoin := sdk.NewCoin(amounts.Denom, sdkmath.NewIntFromBigInt(amounts.Amount))
+	sdkCoin := sdk.Coin{
+		Denom:  amounts.Denom,
+		Amount: sdkmath.NewIntFromBigInt(amounts.Amount),
+	}
+	if err := sdkCoin.Validate(); err != nil {
+		return sdk.Coin{}, err
+	}
 	return sdkCoin, nil
 }
 
