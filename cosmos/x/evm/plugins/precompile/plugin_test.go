@@ -104,12 +104,10 @@ var _ = Describe("plugin", func() {
 	})
 
 	It("should catch panics and propagate", func() {
-		Expect(func() {
-			_, _, _ = p.Run(e, &mockPanicking{
-				err: errors.New("error"),
-			}, []byte{}, addr, new(big.Int), 30, false)
-		},
-		).To(Panic())
+		_, _, vmErr := p.Run(e, &mockPanicking{
+			err: errors.New("error"),
+		}, []byte{}, addr, new(big.Int), 30, false)
+		Expect(errors.Is(vmErr, vm.ErrExecutionReverted)).To(BeTrue())
 	})
 })
 

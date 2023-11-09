@@ -157,7 +157,7 @@ func (p *plugin) Run(
 	defer p.enableReentrancy(sdb)
 
 	// recover from any WriteProtection or OutOfGas panic for the EVM to handle as a vm error
-	defer RecoveryHandler(&err)
+	defer RecoveryHandler(ctx, &err)
 
 	// use a precompile-specific gas meter for dynamic consumption
 	gm := storetypes.NewGasMeter(suppliedGas)
