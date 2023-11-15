@@ -55,10 +55,10 @@ type method struct {
 	// that implements the respective precompile method.
 	rcvr StatefulImpl
 
-	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
+	// abiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
 	abiMethod abi.Method
 
-	// Execute is the precompile's executable which will execute the logic of the implemented
+	// execute is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
 	execute reflect.Method
 }

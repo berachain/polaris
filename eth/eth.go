@@ -55,9 +55,9 @@ type (
 		Has(hash common.Hash) bool
 	}
 
-	// ExecutionLayerNode is the entrypoint for the evm execution environment.
+	// NetworkingStack is the entrypoint for the evm execution environment.
 	NetworkingStack interface {
-		// IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC API.
+		// ExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC API.
 		ExtRPCEnabled() bool
 
 		// RegisterHandler manually registers a new handler into the networking stack.
@@ -72,7 +72,7 @@ type (
 		// Start starts the networking stack.
 		Start() error
 
-		// Close stops the networking stack
+		// Close stops the networking stack.
 		Close() error
 	}
 
