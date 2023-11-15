@@ -92,9 +92,6 @@ func New(
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
 	// we use the default geth log handler.
-	// When creating a Polaris EVM, we allow the implementing chain
-	// to specify their own log handler. If logHandler is nil then we
-	// we use the default geth log handler.
 	if logHandler != nil {
 		// Root is a global in geth that is used by the evm to emit logs.
 		log.Root().SetHandler(logHandler)

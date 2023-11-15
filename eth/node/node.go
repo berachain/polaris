@@ -55,12 +55,13 @@ func (n *GethExecutionNode) ExtRPCEnabled() bool {
 	return n.Node.Config().ExtRPCEnabled()
 }
 
-// ExtRPCEnabled returns whether or not the external RPC service is enabled.
+// EventMux retrieves the event multiplexer used by all the network services in
+// the current protocol stack.
 func (n *GethExecutionNode) EventMux() *event.TypeMux { //nolint:staticcheck // still in geth.
 	return n.Node.EventMux()
 }
 
-// DefaultConfig returns the default configuration for the provider.
+// DefaultGethNodeConfig returns the default configuration for the provider.
 func DefaultGethNodeConfig() *node.Config {
 	nodeCfg := node.DefaultConfig
 	nodeCfg.P2P.NoDiscovery = true

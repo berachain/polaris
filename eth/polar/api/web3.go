@@ -37,7 +37,7 @@ type Web3API interface {
 	Sha3(input hexutil.Bytes) hexutil.Bytes
 }
 
-// web3Api offers network related RPC methods.
+// web3API offers network related RPC methods.
 type web3API struct {
 	b Web3Backend
 }
