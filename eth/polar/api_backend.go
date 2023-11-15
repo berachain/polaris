@@ -405,7 +405,7 @@ func (b *backend) GetLogs(
 	for i, receipt := range receipts {
 		logs[i] = receipt.Logs
 	}
-	b.logger.Debug("called eth.rpc.backend.GetBody", "block_hash", blockHash, "number", number)
+	b.logger.Debug("called eth.rpc.backend.GetLogs", "block_hash", blockHash, "number", number)
 	return logs, nil
 }
 
