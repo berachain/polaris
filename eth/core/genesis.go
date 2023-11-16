@@ -26,6 +26,7 @@ import (
 	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/common/hexutil"
 	"github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/params"
 
 	"github.com/ethereum/go-ethereum/core"
 )
@@ -38,6 +39,9 @@ type (
 
 // DefaultGenesis is the default genesis block used by Polaris.
 var DefaultGenesis = &core.Genesis{
+	// Chain Config
+	Config: params.DefaultChainConfig,
+
 	// Genesis Block
 	Nonce:     0,
 	Timestamp: 0,
@@ -50,9 +54,30 @@ var DefaultGenesis = &core.Genesis{
 
 	// Genesis Accounts
 	Alloc: core.GenesisAlloc{
-		// 0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306
-		common.HexToAddress("0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4"): {
-			Balance: big.NewInt(0).Mul(big.NewInt(5e18), big.NewInt(100)), //nolint:gomnd // its okay.
+		// 0xbac
+		common.HexToAddress("0xFE94Cc9f0dfbb657a6C6850701aBF6356227F8c3"): {
+			Balance: big.NewInt(0).Mul(big.NewInt(1e18), big.NewInt(1e7)), //nolint:gomnd // its okay.
+		},
+		common.HexToAddress("0x11e2E77c864BAcCF47E8D70dA82f15426BEc7816"): {
+			Balance: big.NewInt(0).Mul(big.NewInt(1e18), big.NewInt(1e7)), //nolint:gomnd // its okay.
+		},
+		common.HexToAddress("0x318D5326BBbabaBb208531cAC6B29aB116497179"): {
+			Balance: big.NewInt(0).Mul(big.NewInt(1e18), big.NewInt(1e7)), //nolint:gomnd // its okay.
+		},
+		common.HexToAddress("0x7B856C6D250eED55D2D7543ae2169a1cd7f034Ad"): {
+			Balance: big.NewInt(0).Mul(big.NewInt(1e18), big.NewInt(1e7)), //nolint:gomnd // its okay.
+		},
+		common.HexToAddress("0x08D9255C2922528da6e8853319bcc85A1f6e283c"): {
+			Balance: big.NewInt(0).Mul(big.NewInt(1e18), big.NewInt(1e7)), //nolint:gomnd // its okay.
+		},
+		common.HexToAddress("0xF6581Da6b4e27A6eA0aD60C2b31FDD0B34b04FF7"): {
+			Balance: big.NewInt(0).Mul(big.NewInt(1e18), big.NewInt(1e7)), //nolint:gomnd // its okay.
+		},
+		common.HexToAddress("0xD8F62DB27ae97a22914b01BAA229502124A4597b"): {
+			Balance: big.NewInt(0).Mul(big.NewInt(1e18), big.NewInt(1e7)), //nolint:gomnd // its okay.
+		},
+		common.HexToAddress("0xfeC42ac9FB61185f43697194fBcA8ff726cCaE7B"): {
+			Balance: big.NewInt(0).Mul(big.NewInt(1e18), big.NewInt(1e7)), //nolint:gomnd // its okay.
 		},
 	},
 
