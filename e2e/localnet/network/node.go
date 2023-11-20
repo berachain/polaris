@@ -66,6 +66,46 @@ type containerizedNode struct {
 	ethWsClient     *ethclient.Client
 }
 
+// NewRemoteNode creates an implementation of Localnet using a remote node.
+// This node is not managed by the test fixture and thus will not be stopped
+// started etc.
+//
+//nolint:nonamedreturns // deferred error handling.
+func NewRemoteNode(
+	ethHTTPURL string,
+	ethWSURL string,
+) (c ContainerizedNode, err error) {
+	// Create the containerized node object.
+	node := &containerizedNode{
+		httpEndpoint:    ethHTTPURL,
+		wsEndpoint:      ethWSURL,
+		containerClient: container.NewNoopClient(ethHTTPURL),
+	}
+
+	// Set up the http eth client.
+	node.ethClient, err = ethclient.Dial(node.httpEndpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	// Wait for the chain to start.
+	time.Sleep(nodeStartTime)
+	if err = node.WaitForNextBlock(); err != nil {
+		return nil, err
+	}
+
+	// Set up the websocket eth client.
+	ws, err := gethrpc.DialWebsocket(
+		context.Background(), node.wsEndpoint, "*",
+	)
+	if err != nil {
+		return nil, err
+	}
+	node.ethWsClient = ethclient.NewClient(ws)
+
+	return node, nil
+}
+
 // NewContainerizedNode creates an implementation of Localnet using Docker.
 //
 //nolint:nonamedreturns // deferred error handling.

@@ -38,3 +38,4 @@ package contracts
 //go:generate abigen --pkg testing_governance --abi ./out/GovernanceWrapper.sol/GovernanceWrapper.abi.json --bin ./out/GovernanceWrapper.sol/GovernanceWrapper.bin --out ./bindings/testing/governance/governance_wrapper.abigen.go --type GovernanceWrapper
 //go:generate abigen --pkg testing --abi ./out/DistributionWrapper.sol/DistributionWrapper.abi.json --bin ./out/DistributionWrapper.sol/DistributionWrapper.bin --out ./bindings/testing/distribution_testing_helper.abigen.go --type DistributionWrapper
 //go:generate abigen --pkg testing --abi ./out/MockMethods.sol/MockMethods.abi.json --out ./bindings/testing/mock_methods.abigen.go --type MockMethods
+//go:generate abigen --pkg testing --abi ./out/LoadTestOps.sol/LoadTestOps.abi.json --bin ./out/LoadTestOps.sol/LoadTestOps.bin --out ./bindings/testing/load_test_ops.abigen.go --type LoadTestOps

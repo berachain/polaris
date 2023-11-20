@@ -52,6 +52,36 @@ type Client interface {
 	GetContainerLogs() ([]byte, error)
 }
 
+func NewNoopClient(endpoint string) Client {
+	return &noopClient{
+		endpoint: endpoint,
+	}
+}
+
+type noopClient struct {
+	endpoint string
+}
+
+func (c *noopClient) Start() error {
+	return nil
+}
+
+func (c *noopClient) Stop() error {
+	return nil
+}
+
+func (c *noopClient) Remove() error {
+	return nil
+}
+
+func (c *noopClient) GetEndpoint(string) string {
+	return c.endpoint
+}
+
+func (c *noopClient) GetContainerLogs() ([]byte, error) {
+	return nil, nil
+}
+
 // client implements the Client interface using the dockertest library.
 type client struct {
 	pool     *dt.Pool     // pool is a docker resource pool

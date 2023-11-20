@@ -127,6 +127,25 @@ func NewTestFixture(t ginkgo.FullGinkgoTInterface, config *FixtureConfig) *TestF
 	return tf
 }
 
+func NewRemoteTestFixture(t ginkgo.FullGinkgoTInterface, ethHTTPURL string) *TestFixture {
+	tf := &TestFixture{
+		t:       t,
+		keysMap: make(map[string]*ecdsa.PrivateKey),
+	}
+
+	err := tf.setupTestAccounts(&FixtureConfig{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tf.ContainerizedNode, err = NewRemoteNode(ethHTTPURL, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return tf
+}
+
 func (tf *TestFixture) Teardown() error {
 	if err := tf.Stop(); err != nil {
 		return err

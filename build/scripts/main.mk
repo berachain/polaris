@@ -122,7 +122,7 @@ endef
 ###############################################################################
 
 generate:
-	@$(MAKE) abigen-install moq-install mockery
+	@$(MAKE) rlpgen-install abigen-install moq-install mockery
 	@for module in $(MODULES); do \
 		echo "Running go generate in $$module"; \
 		(cd $$module && go generate ./...) || exit 1; \
@@ -131,6 +131,10 @@ generate:
 abigen-install:
 	@echo "--> Installing abigen"
 	@go install github.com/ethereum/go-ethereum/cmd/abigen@latest
+
+rlpgen-install:
+	@echo "--> Installing rlpgen"
+	@go install github.com/ethereum/go-ethereum/rlp/rlpgen@latest
 
 moq-install:
 	@echo "--> Installing moq"
