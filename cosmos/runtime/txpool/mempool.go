@@ -102,7 +102,8 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	}
 
 	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); !ok {
-		return errors.New("only WrappedEthereumTransactions are supported")
+		// We have to return nil for non-ethereum transactions as to not fail check-tx.
+		return nil
 	} else if errs := m.txpool.Add(
 		[]*coretypes.Transaction{wet.Unwrap()}, false, false,
 	); len(errs) != 0 {
