@@ -59,7 +59,8 @@ var _ = Describe("evm load testing", func() {
 			))
 			Expect(tf).ToNot(BeNil())
 		}
-		tf.WaitForNextBlock()
+		// Wait for the next block.
+		Expect(tf.WaitForNextBlock()).ToNot(HaveOccurred())
 		// Check to make sure "alice" has balance to complete the test.
 		balance, err := tf.EthClient().BalanceAt(context.Background(), tf.Address("alice"), nil)
 		Expect(err).ToNot(HaveOccurred())
