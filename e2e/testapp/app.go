@@ -252,6 +252,14 @@ func (app *SimApp) SimulationManager() *module.SimulationManager {
 	return nil
 }
 
+// RegisterTxService implements the Application.RegisterTxService method.
+func (app *SimApp) RegisterTxService(clientCtx client.Context) {
+	if err := app.Polaris.SetupServices(clientCtx); err != nil {
+		panic(err)
+	}
+	app.App.RegisterTxService(clientCtx)
+}
+
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
 func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
@@ -260,10 +268,6 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 	if err := server.RegisterSwaggerAPI(
 		apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger,
 	); err != nil {
-		panic(err)
-	}
-
-	if err := app.Polaris.SetupServices(apiSvr.ClientCtx); err != nil {
 		panic(err)
 	}
 }
