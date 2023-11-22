@@ -11,10 +11,10 @@ github.com/VictoriaMetrics/fastcache v1.12.1 h1:i0mICQuojGDL3KblA7wUNlY5lOK6a4bw
 github.com/VictoriaMetrics/fastcache v1.12.1/go.mod h1:tX04vaqcNoQeGLD+ra5pU5sWkuxnzWhEzLwhP9w653o=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/berachain/polaris/contracts v0.0.0-20231107182447-2b91ecc782a6 h1:mL5OXGE9+QjxDclhqtzgXHTIdxDFxRAj3zxHjbkKyr4=
-github.com/berachain/polaris/contracts v0.0.0-20231107182447-2b91ecc782a6/go.mod h1:cZ1kKh7+zVnvn/cKMHdjNoxoaVJt8L71W7GXHw94Hm4=
-github.com/berachain/polaris/eth v0.0.0-20231107182447-2b91ecc782a6 h1:nrPpnRGfCFCZ9kmC8jJYAOajNmpWXudvW0aO64HgIlI=
-github.com/berachain/polaris/eth v0.0.0-20231107182447-2b91ecc782a6/go.mod h1:qM5tm1wLoaRA2+CyDD2DXHMSxdw9dluJDvdPOoUmsjU=
+github.com/berachain/polaris/contracts v0.0.1-alpha h1:nhmAB8Zz2wUkei2WHisbOwFXu8xokmDy3is/VuZ+dSw=
+github.com/berachain/polaris/contracts v0.0.1-alpha/go.mod h1:cZ1kKh7+zVnvn/cKMHdjNoxoaVJt8L71W7GXHw94Hm4=
+github.com/berachain/polaris/eth v0.0.1-alpha h1:+uA1EGaSNGB5C2qQn6Dqzp3uCgI1EE2O5B/IdKr3BNU=
+github.com/berachain/polaris/eth v0.0.1-alpha/go.mod h1:od/ALWEMzfR+Wj0fI2DE4de4f/Ee4CFXWu/ZkMxKy6A=
 github.com/bits-and-blooms/bitset v1.11.0 h1:RMyy2mBBShArUAhfVRZJ2xyBO58KCBCtZFShw3umo6k=
 github.com/bits-and-blooms/bitset v1.11.0/go.mod h1:7hO7Gc7Pp1vODcmWvKMRA9BNmbv6a/7QIWpPxHddWR8=
 github.com/btcsuite/btcd/btcec/v2 v2.3.2 h1:5n0X6hX0Zk+6omWcihdYvdAlGf2DfasC0GMf7DClJ3U=
