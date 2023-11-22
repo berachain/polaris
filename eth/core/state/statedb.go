@@ -150,7 +150,7 @@ func (sdb *stateDB) Finalise(bool) {
 // equivalent at the moment in Polaris as we do not leverage the state root.
 func (sdb *stateDB) IntermediateRoot(bool) common.Hash {
 	sdb.Finalise(true)
-	return common.Hash{}
+	return sdb.Plugin.StateRoot()
 }
 
 // Commit implements vm.PolarStateDB.
@@ -158,7 +158,7 @@ func (sdb *stateDB) Commit(_ uint64, _ bool) (common.Hash, error) {
 	if err := sdb.Error(); err != nil {
 		return common.Hash{}, err
 	}
-	return common.Hash{}, nil
+	return sdb.Plugin.StateRoot(), nil
 }
 
 // =============================================================================

@@ -27,12 +27,7 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/ethereum/go-ethereum/common"
 )
-
-// emptyHash is a common.Hash initialized to all zeros.
-var emptyHash = common.Hash{}
 
 // PrepareProposal implements baseapp.PrepareProposal.
 func (m *Miner) PrepareProposal(

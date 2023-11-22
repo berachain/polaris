@@ -103,6 +103,9 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			StateAtBlockNumberFunc: func(v uint64) (core.StatePlugin, error) {
 //				panic("mock out the StateAtBlockNumber method")
 //			},
+//			StateRootFunc: func() common.Hash {
+//				panic("mock out the StateRoot method")
+//			},
 //			SubBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
 //				panic("mock out the SubBalance method")
 //			},
@@ -193,6 +196,9 @@ type StatePluginMock struct {
 
 	// StateAtBlockNumberFunc mocks the StateAtBlockNumber method.
 	StateAtBlockNumberFunc func(v uint64) (core.StatePlugin, error)
+
+	// StateRootFunc mocks the StateRoot method.
+	StateRootFunc func() common.Hash
 
 	// SubBalanceFunc mocks the SubBalance method.
 	SubBalanceFunc func(address common.Address, intMoqParam *big.Int)
@@ -342,6 +348,9 @@ type StatePluginMock struct {
 			// V is the v argument value.
 			V uint64
 		}
+		// StateRoot holds details about calls to the StateRoot method.
+		StateRoot []struct {
+		}
 		// SubBalance holds details about calls to the SubBalance method.
 		SubBalance []struct {
 			// Address is the address argument value.
@@ -377,6 +386,7 @@ type StatePluginMock struct {
 	lockSetStorage         sync.RWMutex
 	lockSnapshot           sync.RWMutex
 	lockStateAtBlockNumber sync.RWMutex
+	lockStateRoot          sync.RWMutex
 	lockSubBalance         sync.RWMutex
 }
 
@@ -1251,6 +1261,33 @@ func (mock *StatePluginMock) StateAtBlockNumberCalls() []struct {
 	mock.lockStateAtBlockNumber.RLock()
 	calls = mock.calls.StateAtBlockNumber
 	mock.lockStateAtBlockNumber.RUnlock()
+	return calls
+}
+
+// StateRoot calls StateRootFunc.
+func (mock *StatePluginMock) StateRoot() common.Hash {
+	if mock.StateRootFunc == nil {
+		panic("StatePluginMock.StateRootFunc: method is nil but StatePlugin.StateRoot was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockStateRoot.Lock()
+	mock.calls.StateRoot = append(mock.calls.StateRoot, callInfo)
+	mock.lockStateRoot.Unlock()
+	return mock.StateRootFunc()
+}
+
+// StateRootCalls gets all the calls that were made to StateRoot.
+// Check the length with:
+//
+//	len(mockedStatePlugin.StateRootCalls())
+func (mock *StatePluginMock) StateRootCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockStateRoot.RLock()
+	calls = mock.calls.StateRoot
+	mock.lockStateRoot.RUnlock()
 	return calls
 }
 

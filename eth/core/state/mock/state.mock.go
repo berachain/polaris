@@ -95,6 +95,9 @@ import (
 //			SnapshotFunc: func() int {
 //				panic("mock out the Snapshot method")
 //			},
+//			StateRootFunc: func() common.Hash {
+//				panic("mock out the StateRoot method")
+//			},
 //			SubBalanceFunc: func(address common.Address, intMoqParam *big.Int)  {
 //				panic("mock out the SubBalance method")
 //			},
@@ -182,6 +185,9 @@ type PluginMock struct {
 
 	// SnapshotFunc mocks the Snapshot method.
 	SnapshotFunc func() int
+
+	// StateRootFunc mocks the StateRoot method.
+	StateRootFunc func() common.Hash
 
 	// SubBalanceFunc mocks the SubBalance method.
 	SubBalanceFunc func(address common.Address, intMoqParam *big.Int)
@@ -326,6 +332,9 @@ type PluginMock struct {
 		// Snapshot holds details about calls to the Snapshot method.
 		Snapshot []struct {
 		}
+		// StateRoot holds details about calls to the StateRoot method.
+		StateRoot []struct {
+		}
 		// SubBalance holds details about calls to the SubBalance method.
 		SubBalance []struct {
 			// Address is the address argument value.
@@ -360,6 +369,7 @@ type PluginMock struct {
 	lockSetState          sync.RWMutex
 	lockSetStorage        sync.RWMutex
 	lockSnapshot          sync.RWMutex
+	lockStateRoot         sync.RWMutex
 	lockSubBalance        sync.RWMutex
 }
 
@@ -1202,6 +1212,33 @@ func (mock *PluginMock) SnapshotCalls() []struct {
 	mock.lockSnapshot.RLock()
 	calls = mock.calls.Snapshot
 	mock.lockSnapshot.RUnlock()
+	return calls
+}
+
+// StateRoot calls StateRootFunc.
+func (mock *PluginMock) StateRoot() common.Hash {
+	if mock.StateRootFunc == nil {
+		panic("PluginMock.StateRootFunc: method is nil but Plugin.StateRoot was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockStateRoot.Lock()
+	mock.calls.StateRoot = append(mock.calls.StateRoot, callInfo)
+	mock.lockStateRoot.Unlock()
+	return mock.StateRootFunc()
+}
+
+// StateRootCalls gets all the calls that were made to StateRoot.
+// Check the length with:
+//
+//	len(mockedPlugin.StateRootCalls())
+func (mock *PluginMock) StateRootCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockStateRoot.RLock()
+	calls = mock.calls.StateRoot
+	mock.lockStateRoot.RUnlock()
 	return calls
 }
 

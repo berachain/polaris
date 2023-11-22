@@ -198,6 +198,10 @@ func (p *plugin) Finalize() {
 	p.Controller.Finalize()
 }
 
+func (p *plugin) StateRoot() common.Hash {
+	return common.BytesToHash(p.ctx.BlockHeader().AppHash)
+}
+
 // ===========================================================================
 // Accounts
 // ===========================================================================

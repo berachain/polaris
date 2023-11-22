@@ -94,12 +94,13 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 
 // constructPayloadArgs builds a payload to submit to the miner.
 func (m *Miner) constructPayloadArgs(ctx sdk.Context) *miner.BuildPayloadArgs {
+	parentBeaconHash := (common.BytesToHash(ctx.BlockHeader().LastBlockId.Hash))
 	return &miner.BuildPayloadArgs{
 		Timestamp:    uint64(ctx.BlockTime().Unix()),
 		FeeRecipient: m.Etherbase(),
 		Random:       common.Hash{}, /* todo: generated random */
 		Withdrawals:  make(types.Withdrawals, 0),
-		BeaconRoot:   &emptyHash,
+		BeaconRoot:   &parentBeaconHash,
 	}
 }
 
