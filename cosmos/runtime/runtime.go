@@ -152,7 +152,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 	return p.StartServices()
 }
 
-// RegisterServices is a function that allows for the application to register lifecycles with
+// RegisterLifecycles is a function that allows for the application to register lifecycles with
 // the evm networking stack. It takes a client context and a slice of node.Lifecycle
 // as arguments.
 func (p *Polaris) RegisterLifecycles(lcs []node.Lifecycle) {
