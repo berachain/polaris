@@ -50,7 +50,7 @@ func (wbc *WrappedBlockchain) WriteGenesisState(
 	return wbc.WriteGenesisBlock(genState.ToBlock())
 }
 
-// InsertBlockWithoutSetHead inserts a block into the blockchain and sets
+// InsertBlockAndSetHead inserts a block into the blockchain and sets
 // it as the head. It uses the provided context as the application context.
 func (wbc *WrappedBlockchain) InsertBlockAndSetHead(
 	ctx context.Context, block *types.Block,
