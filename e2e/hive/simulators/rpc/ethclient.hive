@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -67,7 +66,7 @@ contract Test {
 	// contractSrc is pre-deployed with the following address in the genesis block.
 	predeployedContractWithAddress = common.HexToAddress("391694e7e0b0cce554cb130d723a9d27458f9298")
 	// holds the pre-deployed contract ABI
-	predeployedContractABI = `[{"constant":true,"inputs":[],"name":"ui","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"addr","type":"address"}],"name":"getFromMap","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"addr","type":"address"},{"name":"value","type":"uint256"}],"name":"addToMap","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"ui_","type":"uint256"},{"name":"addr_","type":"address"}],"name":"events","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"},{"name":"c","type":"uint256"}],"name":"constFunc","outputs":[{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"inputs":[{"name":"ui_","type":"uint256"}],"payable":false,"type":"constructor"},{"anonymous":false,"inputs":[],"name":"E0","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"","type":"uint256"}],"name":"E1","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"","type":"uint256"}],"name":"E2","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"","type":"address"}],"name":"E3","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"","type":"address"}],"name":"E4","type":"event"},{"anonymous":true,"inputs":[{"indexed":false,"name":"","type":"uint256"},{"indexed":false,"name":"","type":"address"}],"name":"E5","type":"event"}]`
+	predeployedContractABI = `[{"constant":true,"inputs":[],"name":"ui","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"addr","type":"address"}],"name":"getFromMap","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"addr","type":"address"},{"name":"value","type":"uint256"}],"name":"addToMap","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"ui_","type":"uint256"},{"name":"addr_","type":"address"}],"name":"events","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"},{"name":"c","type":"uint256"}],"name":"constFunc","outputs":[{"name":"a","type":"uint256"},{"name":"b","type":"uint256"},{"name":"c","type":"uint256"}],"payable":false,"type":"function"},{"inputs":[{"name":"ui_","type":"uint256"}],"payable":false,"type":"constructor"},{"anonymous":false,"inputs":[],"name":"E0","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"","type":"uint256"}],"name":"E1","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"","type":"uint256"}],"name":"E2","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"","type":"address"}],"name":"E3","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"","type":"address"}],"name":"E4","type":"event"},{"anonymous":true,"inputs":[{"indexed":false,"name":"","type":"uint256"},{"indexed":false,"name":"","type":"address"}],"name":"E5","type":"event"}]`
 )
 
 var (
@@ -420,6 +419,40 @@ func deployContractTest(t *TestEnv) {
 		}
 	} else {
 		t.Fatalf("Unable to retrieve value in map: %v", err)
+	}
+
+	// test contract read-only method
+	var (
+		a              = big.NewInt(1)
+		b              = big.NewInt(2)
+		c              = big.NewInt(3)
+		contractABI, _ = abi.JSON(strings.NewReader(predeployedContractABI))
+	)
+
+	payload, err := contractABI.Pack("constFunc", a, b, c)
+	if err != nil {
+		t.Fatalf("Failed to pack data for constFunc: %v", err)
+	}
+
+	msg := ethereum.CallMsg{
+		To:   &receipt.ContractAddress,
+		Data: payload,
+	}
+
+	result, err := t.Eth.CallContract(t.Ctx(), msg, nil)
+	if err != nil {
+		t.Fatalf("Unable to call contract: %v", err)
+	}
+
+	var outputs struct {
+		A, B, C *big.Int
+	}
+	err = contractABI.UnpackIntoInterface(&outputs, "constFunc", result)
+	if err != nil {
+		t.Fatalf("Failed to unpack return values: %v", err)
+	}
+	if outputs.A.Cmp(a) != 0 || outputs.B.Cmp(b) != 0 || outputs.C.Cmp(c) != 0 {
+		t.Fatalf("Unexpected return values, got: %v, %v, %v, want: %v, %v, %v", outputs.A, outputs.B, outputs.C, a, b, c)
 	}
 }
 
