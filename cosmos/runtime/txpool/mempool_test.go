@@ -81,9 +81,9 @@ var _ = Describe("", func() {
 			})
 		})
 		When("we use an that is not an ethereum msg", func() {
-			It("errors", func() {
+			It("does not error", func() {
 				sdkTx.On("GetMsgs").Return([]sdk.Msg{nil}).Once()
-				Expect(mempool.Insert(ctx, sdkTx)).To(HaveOccurred())
+				Expect(mempool.Insert(ctx, sdkTx)).ToNot(HaveOccurred())
 			})
 		})
 	})

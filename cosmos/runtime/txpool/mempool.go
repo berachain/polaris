@@ -65,7 +65,7 @@ type Mempool struct {
 	handler Lifecycle
 }
 
-// NewMempool creates a new Mempool.
+// New creates a new Mempool.
 func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
 	return &Mempool{
 		txpool: txpool,
@@ -73,7 +73,7 @@ func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
 	}
 }
 
-// Init intializes the Mempool (notably the TxHandler).
+// Init initializes the Mempool (notably the TxHandler).
 func (m *Mempool) Init(
 	logger log.Logger,
 	txBroadcaster TxBroadcaster,
@@ -102,7 +102,8 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	}
 
 	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); !ok {
-		return errors.New("only WrappedEthereumTransactions are supported")
+		// We have to return nil for non-ethereum transactions as to not fail check-tx.
+		return nil
 	} else if errs := m.txpool.Add(
 		[]*coretypes.Transaction{wet.Unwrap()}, false, false,
 	); len(errs) != 0 {
