@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -230,7 +229,6 @@ func balanceAndNonceAtTest(t *TestEnv) {
 // it against the genesis file to determine if block fields are
 // returned correct.
 func genesisHeaderByHashTest(t *TestEnv) {
-	t.Info("---------------- I am here --------------------")
 	gblock := loadGenesis()
 
 	headerByHash, err := t.Eth.HeaderByHash(t.Ctx(), gblock.Hash())
