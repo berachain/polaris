@@ -65,7 +65,7 @@ type Mempool struct {
 	handler Lifecycle
 }
 
-// NewMempool creates a new Mempool.
+// New creates a new Mempool.
 func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
 	return &Mempool{
 		txpool: txpool,
