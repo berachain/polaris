@@ -84,8 +84,7 @@ type Polaris struct {
 	logger log.Logger
 }
 
-// ProvidePolarisRuntime creates a new Polaris runtime from the provided
-// dependencies.
+// New creates a new Polaris runtime from the provided dependencies.
 func New(
 	cfg *eth.Config,
 	logger log.Logger,

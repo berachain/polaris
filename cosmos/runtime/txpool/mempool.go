@@ -73,7 +73,7 @@ func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
 	}
 }
 
-// Init intializes the Mempool (notably the TxHandler).
+// Init initializes the Mempool (notably the TxHandler).
 func (m *Mempool) Init(
 	logger log.Logger,
 	txBroadcaster TxBroadcaster,
