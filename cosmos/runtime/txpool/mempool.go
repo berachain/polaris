@@ -65,7 +65,7 @@ type Mempool struct {
 	handler Lifecycle
 }
 
-// NewMempool creates a new Mempool.
+// New creates a new Mempool.
 func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
 	return &Mempool{
 		txpool: txpool,
@@ -73,7 +73,7 @@ func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
 	}
 }
 
-// Init intializes the Mempool (notably the TxHandler).
+// Init initializes the Mempool (notably the TxHandler).
 func (m *Mempool) Init(
 	logger log.Logger,
 	txBroadcaster TxBroadcaster,
