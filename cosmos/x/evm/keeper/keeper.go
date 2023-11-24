@@ -25,24 +25,23 @@ import (
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
 
 	"github.com/berachain/polaris/cosmos/config"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
 	"github.com/berachain/polaris/cosmos/x/evm/types"
 	"github.com/berachain/polaris/eth/core"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
-	coretypes "github.com/berachain/polaris/eth/core/types"
-	"github.com/berachain/polaris/eth/params"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type WrappedBlockchain interface {
 	PreparePlugins(context.Context)
 	Config() *params.ChainConfig
 	WriteGenesisState(context.Context, *core.Genesis) error
-	InsertBlockAndSetHead(context.Context, *coretypes.Block) error
-	GetBlockByNumber(uint64) *coretypes.Block
+	InsertBlockAndSetHead(context.Context, *ethtypes.Block) error
+	GetBlockByNumber(uint64) *ethtypes.Block
 }
 
 type Keeper struct {

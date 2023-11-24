@@ -25,8 +25,9 @@ import (
 	"errors"
 	"reflect"
 
+	"github.com/ethereum/go-ethereum/core/vm"
+
 	"github.com/berachain/polaris/eth/accounts/abi"
-	"github.com/berachain/polaris/eth/core/vm"
 	errorslib "github.com/berachain/polaris/lib/errors"
 	"github.com/berachain/polaris/lib/utils"
 )

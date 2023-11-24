@@ -23,7 +23,7 @@ package cachekv
 import (
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/berachain/polaris/eth/core/vm"
+	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 var _ storetypes.KVStore = (*ReadOnlyStore)(nil)

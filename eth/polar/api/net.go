@@ -21,7 +21,7 @@
 package polarapi
 
 import (
-	"github.com/berachain/polaris/eth/common/hexutil"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 // NetBackend is the collection of methods required to satisfy the net

@@ -24,22 +24,21 @@ import (
 	"fmt"
 
 	"cosmossdk.io/store/prefix"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rlp"
 
 	"github.com/berachain/polaris/cosmos/x/evm/types"
-	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/core"
 	coretypes "github.com/berachain/polaris/eth/core/types"
 	errorslib "github.com/berachain/polaris/lib/errors"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/ethereum/go-ethereum/rlp"
 )
 
 // TODO: WHO WROTE THIS CODE THE FIRST TIME BLS FIX IT IS HORRIBLE.
 
 // StoreBlock implements `core.HistoricalPlugin`.
-func (p *plugin) StoreBlock(block *coretypes.Block) error {
+func (p *plugin) StoreBlock(block *ethtypes.Block) error {
 	blockNum := block.NumberU64()
 
 	// store block hash to block number.
@@ -74,7 +73,7 @@ func (p *plugin) StoreBlock(block *coretypes.Block) error {
 }
 
 // StoreReceipts implements `core.HistoricalPlugin`.
-func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipts) error {
+func (p *plugin) StoreReceipts(blockHash common.Hash, receipts ethtypes.Receipts) error {
 	// store block hash to receipts.
 	receiptsBz, err := coretypes.MarshalReceipts(receipts)
 	if err != nil {
@@ -91,7 +90,7 @@ func (p *plugin) StoreReceipts(blockHash common.Hash, receipts coretypes.Receipt
 
 // StoreTransactions implements `core.HistoricalPlugin`.
 func (p *plugin) StoreTransactions(
-	blockNum uint64, blockHash common.Hash, txs coretypes.Transactions,
+	blockNum uint64, blockHash common.Hash, txs ethtypes.Transactions,
 ) error {
 	// store all txns in the block.
 	txStore := prefix.NewStore(
@@ -120,11 +119,11 @@ func (p *plugin) StoreTransactions(
 }
 
 // GetBlockByNumber returns the block at the given height.
-func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
+func (p *plugin) GetBlockByNumber(number uint64) (*ethtypes.Block, error) {
 	store := p.ctx.MultiStore().GetKVStore(p.storeKey)
 	numBz := sdk.Uint64ToBigEndian(number)
 	blockBz := prefix.NewStore(store, []byte{types.BlockNumKeyToBlockPrefix}).Get(numBz)
-	block := &coretypes.Block{}
+	block := &ethtypes.Block{}
 	err := rlp.DecodeBytes(blockBz, block)
 	if err != nil {
 		return nil, err
@@ -133,7 +132,7 @@ func (p *plugin) GetBlockByNumber(number uint64) (*coretypes.Block, error) {
 }
 
 // GetBlockByHash returns the block at the given hash.
-func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error) {
+func (p *plugin) GetBlockByHash(blockHash common.Hash) (*ethtypes.Block, error) {
 	store := p.ctx.MultiStore().GetKVStore(p.storeKey)
 	numBz := prefix.NewStore(
 		store, []byte{types.BlockHashKeyToNumPrefix}).Get(blockHash.Bytes())
@@ -142,7 +141,7 @@ func (p *plugin) GetBlockByHash(blockHash common.Hash) (*coretypes.Block, error)
 	}
 
 	blockBz := prefix.NewStore(store, []byte{types.BlockNumKeyToBlockPrefix}).Get(numBz)
-	block := &coretypes.Block{}
+	block := &ethtypes.Block{}
 
 	err := rlp.DecodeBytes(blockBz, block)
 	if err != nil {
@@ -168,7 +167,7 @@ func (p *plugin) GetTransactionByHash(txHash common.Hash) (*coretypes.TxLookupEn
 }
 
 // GetReceiptsByHash returns the receipts with the given block hash.
-func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (coretypes.Receipts, error) {
+func (p *plugin) GetReceiptsByHash(blockHash common.Hash) (ethtypes.Receipts, error) {
 	// get receipts from off chain.
 	receiptsBz := prefix.NewStore(p.ctx.MultiStore().GetKVStore(p.storeKey),
 		[]byte{types.BlockHashKeyToReceiptsPrefix}).Get(blockHash.Bytes())

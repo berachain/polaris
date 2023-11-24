@@ -24,14 +24,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/golang/mock/gomock"
-
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-
-	testutils "github.com/berachain/polaris/cosmos/testutil"
-	"github.com/berachain/polaris/eth/common"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -46,6 +40,10 @@ import (
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/golang/mock/gomock"
+
+	testutils "github.com/berachain/polaris/cosmos/testutil"
 
 	//nolint:stylecheck,revive // Ginkgo is the testing framework.
 	. "github.com/onsi/ginkgo/v2"

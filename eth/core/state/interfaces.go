@@ -24,7 +24,8 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/berachain/polaris/eth/common"
+	"github.com/ethereum/go-ethereum/common"
+
 	libtypes "github.com/berachain/polaris/lib/types"
 )
 

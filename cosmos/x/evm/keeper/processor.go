@@ -25,13 +25,11 @@ import (
 	"fmt"
 
 	storetypes "cosmossdk.io/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/beacon/engine"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
-	"github.com/berachain/polaris/eth/core/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/ethereum/go-ethereum/beacon/engine"
 )
 
 func (k *Keeper) ProcessPayloadEnvelope(
@@ -39,7 +37,7 @@ func (k *Keeper) ProcessPayloadEnvelope(
 ) (*evmtypes.WrappedPayloadEnvelopeResponse, error) {
 	var (
 		err      error
-		block    *types.Block
+		block    *ethtypes.Block
 		envelope engine.ExecutionPayloadEnvelope
 	)
 	// TODO: maybe we just consume the block gas limit and call it a day?

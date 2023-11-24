@@ -25,19 +25,19 @@ import (
 	"math/big"
 
 	storetypes "cosmossdk.io/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/params"
 
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
-	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/core"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 	ethstate "github.com/berachain/polaris/eth/core/state"
-	"github.com/berachain/polaris/eth/core/vm"
-	"github.com/berachain/polaris/eth/params"
+	pvm "github.com/berachain/polaris/eth/core/vm"
 	"github.com/berachain/polaris/lib/registry"
 	libtypes "github.com/berachain/polaris/lib/types"
 	"github.com/berachain/polaris/lib/utils"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Plugin is the interface that must be implemented by the plugin.
@@ -126,11 +126,11 @@ func (p *plugin) GetActive(_ params.Rules) []common.Address {
 //
 //nolint:nonamedreturns // panic recovery.
 func (p *plugin) Run(
-	evm vm.PrecompileEVM, pc vm.PrecompileContainer, input []byte,
+	evm vm.PrecompileEVM, pc vm.PrecompiledContract, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readOnly bool,
 ) (ret []byte, gasRemaining uint64, err error) {
 	// get native Cosmos SDK context, MultiStore, and EventManager from the Polaris StateDB
-	sdb := utils.MustGetAs[vm.PolarStateDB](evm.GetStateDB())
+	sdb := utils.MustGetAs[pvm.PolarStateDB](evm.GetStateDB())
 	ctx := sdk.UnwrapSDKContext(sdb.GetContext())
 	ms := utils.MustGetAs[MultiStore](ctx.MultiStore())
 	cem := utils.MustGetAs[state.ControllableEventManager](ctx.EventManager())
@@ -182,10 +182,10 @@ func (p *plugin) Run(
 //
 // EnableReentrancy implements core.PrecompilePlugin.
 func (p *plugin) EnableReentrancy(evm vm.PrecompileEVM) {
-	p.enableReentrancy(utils.MustGetAs[vm.PolarStateDB](evm.GetStateDB()))
+	p.enableReentrancy(utils.MustGetAs[pvm.PolarStateDB](evm.GetStateDB()))
 }
 
-func (p *plugin) enableReentrancy(sdb vm.PolarStateDB) {
+func (p *plugin) enableReentrancy(sdb pvm.PolarStateDB) {
 	sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
 
 	// end precompile execution => stop emitting Cosmos event as Eth logs for now
@@ -202,10 +202,10 @@ func (p *plugin) enableReentrancy(sdb vm.PolarStateDB) {
 //
 // DisableReentrancy implements core.PrecompilePlugin.
 func (p *plugin) DisableReentrancy(evm vm.PrecompileEVM) {
-	p.disableReentrancy(utils.MustGetAs[vm.PolarStateDB](evm.GetStateDB()))
+	p.disableReentrancy(utils.MustGetAs[pvm.PolarStateDB](evm.GetStateDB()))
 }
 
-func (p *plugin) disableReentrancy(sdb vm.PolarStateDB) {
+func (p *plugin) disableReentrancy(sdb pvm.PolarStateDB) {
 	sdkCtx := sdk.UnwrapSDKContext(sdb.GetContext())
 
 	// resume precompile execution => begin emitting Cosmos event as Eth logs again

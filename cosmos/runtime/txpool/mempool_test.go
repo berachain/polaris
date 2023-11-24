@@ -23,13 +23,12 @@ package txpool
 import (
 	"errors"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/berachain/polaris/cosmos/runtime/txpool/mocks"
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
-	coretypes "github.com/berachain/polaris/eth/core/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -50,7 +49,7 @@ var _ = Describe("", func() {
 		txPool = mocks.NewGethTxPool(t)
 		sdkTx = mocks.NewSdkTx(t)
 		mempool = &Mempool{txpool: txPool}
-		wet, _ = evmtypes.WrapTx(coretypes.NewTx(&coretypes.LegacyTx{}))
+		wet, _ = evmtypes.WrapTx(ethtypes.NewTx(&ethtypes.LegacyTx{}))
 	})
 
 	When("we call insert", func() {

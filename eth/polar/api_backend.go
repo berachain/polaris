@@ -26,32 +26,34 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/berachain/polaris/eth/common"
-	"github.com/berachain/polaris/eth/common/hexutil"
-	"github.com/berachain/polaris/eth/core"
-	"github.com/berachain/polaris/eth/core/state"
-	"github.com/berachain/polaris/eth/core/types"
-	"github.com/berachain/polaris/eth/core/vm"
-	"github.com/berachain/polaris/eth/log"
-	"github.com/berachain/polaris/eth/params"
-	polarapi "github.com/berachain/polaris/eth/polar/api"
-	"github.com/berachain/polaris/eth/version"
-
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/consensus"
+	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/bloombits"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
+	"github.com/ethereum/go-ethereum/ethapi"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
+
+	pcore "github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core/state"
+	polarapi "github.com/berachain/polaris/eth/polar/api"
+	"github.com/berachain/polaris/eth/version"
 )
 
 // Backend represents the backend object for a Polaris chain. It extends the standard
 // go-ethereum backend object.
 type (
 	APIBackend interface {
-		polarapi.EthBackend
+		ethapi.Backend
 		polarapi.NetBackend
 		polarapi.Web3Backend
 	}
@@ -113,12 +115,12 @@ func (b *backend) ChainConfig() *params.ChainConfig {
 }
 
 // CurrentHeader returns the current header from the local chains.
-func (b *backend) CurrentHeader() *types.Header {
+func (b *backend) CurrentHeader() *ethtypes.Header {
 	return b.polar.blockchain.CurrentHeader()
 }
 
 // CurrentBlock returns the current block from the local chain.
-func (b *backend) CurrentBlock() *types.Header {
+func (b *backend) CurrentBlock() *ethtypes.Header {
 	return b.polar.blockchain.CurrentHeader()
 }
 
@@ -190,7 +192,7 @@ func (b *backend) SetHead(_ uint64) {
 func (b *backend) HeaderByNumber(
 	_ context.Context,
 	number rpc.BlockNumber,
-) (*types.Header, error) {
+) (*ethtypes.Header, error) {
 	switch number {
 	case rpc.PendingBlockNumber:
 		// TODO: handle "miner" stuff, Pending block is only known by the miner
@@ -223,7 +225,7 @@ func (b *backend) HeaderByNumber(
 // HeaderByNumberOrHash returns the header identified by `number` or `hash`.
 func (b *backend) HeaderByNumberOrHash(ctx context.Context,
 	blockNrOrHash rpc.BlockNumberOrHash,
-) (*types.Header, error) {
+) (*ethtypes.Header, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.HeaderByNumber(ctx, blockNr)
 	}
@@ -234,12 +236,12 @@ func (b *backend) HeaderByNumberOrHash(ctx context.Context,
 }
 
 // HeaderByHash returns the block header with the given hash.
-func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*types.Header, error) {
+func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*ethtypes.Header, error) {
 	return b.polar.blockchain.GetHeaderByHash(hash), nil
 }
 
 // BlockByNumber returns the block with the given `number`.
-func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*types.Block, error) {
+func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*ethtypes.Block, error) {
 	// Pending block is only known by the miner
 	switch number {
 	case rpc.PendingBlockNumber:
@@ -266,7 +268,7 @@ func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*typ
 }
 
 // BlockByHash returns the block with the given `hash`.
-func (b *backend) BlockByHash(_ context.Context, hash common.Hash) (*types.Block, error) {
+func (b *backend) BlockByHash(_ context.Context, hash common.Hash) (*ethtypes.Block, error) {
 	block := b.polar.blockchain.GetBlockByHash(hash)
 	b.logger.Debug("BlockByHash", "hash", hash, "block", block)
 	if block == nil {
@@ -281,14 +283,14 @@ func (b *backend) BlockByHash(_ context.Context, hash common.Hash) (*types.Block
 func (b *backend) BlockByNumberOrHash(
 	ctx context.Context,
 	blockNrOrHash rpc.BlockNumberOrHash,
-) (*types.Block, error) {
+) (*ethtypes.Block, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.BlockByNumber(ctx, blockNr)
 	}
 	if hash, ok := blockNrOrHash.Hash(); ok {
 		block := b.polar.blockchain.GetBlockByHash(hash)
 		if block == nil {
-			return nil, core.ErrBlockNotFound
+			return nil, pcore.ErrBlockNotFound
 		}
 		// if blockNrOrHash.RequireCanonical &&
 		// b.polar.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
@@ -306,7 +308,7 @@ func (b *backend) BlockByNumberOrHash(
 func (b *backend) StateAndHeaderByNumber(
 	ctx context.Context,
 	number rpc.BlockNumber,
-) (state.StateDB, *types.Header, error) {
+) (state.StateDB, *ethtypes.Header, error) {
 	// Pending state is only known by the miner
 	if number == rpc.PendingBlockNumber {
 		block, state := b.polar.miner.Pending()
@@ -322,7 +324,7 @@ func (b *backend) StateAndHeaderByNumber(
 	}
 	if header == nil {
 		// to match Geth
-		return nil, nil, core.ErrBlockNotFound
+		return nil, nil, pcore.ErrBlockNotFound
 	}
 	b.logger.Debug("called eth.rpc.backend.StateAndHeaderByNumber", "header", header)
 
@@ -339,7 +341,7 @@ func (b *backend) StateAndHeaderByNumber(
 func (b *backend) StateAndHeaderByNumberOrHash(
 	ctx context.Context,
 	blockNrOrHash rpc.BlockNumberOrHash,
-) (state.StateDB, *types.Header, error) {
+) (state.StateDB, *ethtypes.Header, error) {
 	if blockNr, ok := blockNrOrHash.Number(); ok {
 		return b.StateAndHeaderByNumber(ctx, blockNr)
 	}
@@ -351,7 +353,7 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 		}
 		if header == nil {
 			// to match Geth
-			return nil, nil, core.ErrBlockNotFound
+			return nil, nil, pcore.ErrBlockNotFound
 		}
 		// if blockNrOrHash.RequireCanonical &&
 		// b.eth.blockchain.GetCanonicalHash(header.Number.Uint64()) != hash {
@@ -367,7 +369,7 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 func (b *backend) GetTransaction(
 	_ context.Context,
 	txHash common.Hash,
-) (*types.Transaction, common.Hash, uint64, uint64, error) {
+) (*ethtypes.Transaction, common.Hash, uint64, uint64, error) {
 	b.logger.Debug("called eth.rpc.backend.GetTransaction", "tx_hash", txHash)
 	txLookup := b.polar.blockchain.GetTransactionLookup(txHash)
 	if txLookup == nil {
@@ -378,7 +380,7 @@ func (b *backend) GetTransaction(
 
 // PendingBlockAndReceipts returns the pending block (equivalent to current block in Polaris)
 // and associated receipts.
-func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
+func (b *backend) PendingBlockAndReceipts() (*ethtypes.Block, ethtypes.Receipts) {
 	block, receipts := b.polar.miner.PendingBlockAndReceipts()
 	// If the block is non-existent, return nil.
 	// This is to maintain parity with the behavior of the geth backend.
@@ -392,16 +394,16 @@ func (b *backend) PendingBlockAndReceipts() (*types.Block, types.Receipts) {
 }
 
 // GetReceipts returns the receipts for the given block hash.
-func (b *backend) GetReceipts(_ context.Context, hash common.Hash) (types.Receipts, error) {
+func (b *backend) GetReceipts(_ context.Context, hash common.Hash) (ethtypes.Receipts, error) {
 	return b.polar.blockchain.GetReceiptsByHash(hash), nil
 }
 
 // GetLogs returns the logs for the given block hash or number.
 func (b *backend) GetLogs(
 	_ context.Context, blockHash common.Hash, number uint64,
-) ([][]*types.Log, error) {
+) ([][]*ethtypes.Log, error) {
 	receipts := b.polar.blockchain.GetReceiptsByHash(blockHash)
-	logs := make([][]*types.Log, len(receipts))
+	logs := make([][]*ethtypes.Log, len(receipts))
 	for i, receipt := range receipts {
 		logs[i] = receipt.Logs
 	}
@@ -420,7 +422,7 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 
 // GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.
 func (b *backend) GetEVM(_ context.Context, msg *core.Message, state state.StateDB,
-	header *types.Header, vmConfig *vm.Config, blockCtx *vm.BlockContext,
+	header *ethtypes.Header, vmConfig *vm.Config, blockCtx *vm.BlockContext,
 ) (*vm.EVM, func() error) {
 	if vmConfig == nil {
 		vmConfig = b.polar.blockchain.GetVMConfig()
@@ -440,7 +442,7 @@ func (b *backend) GetEVM(_ context.Context, msg *core.Message, state state.State
 
 // GetBlockContext returns a new block context to be used by a EVM.
 func (b *backend) GetBlockContext(
-	_ context.Context, header *types.Header,
+	_ context.Context, header *ethtypes.Header,
 ) *vm.BlockContext {
 	// TODO: we are hardcoding author to coinbase, this may be incorrect.
 	// TODO: Suggestion -> implement Engine.Author() and allow host chain to decide.
@@ -467,14 +469,14 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // Transaction Pool API
 // ==============================================================================
 
-func (b *backend) SendTx(_ context.Context, signedTx *types.Transaction) error {
-	return b.polar.txPool.Add([]*types.Transaction{signedTx}, true, false)[0]
+func (b *backend) SendTx(_ context.Context, signedTx *ethtypes.Transaction) error {
+	return b.polar.txPool.Add([]*ethtypes.Transaction{signedTx}, true, false)[0]
 }
 
-func (b *backend) GetPoolTransactions() (types.Transactions, error) {
+func (b *backend) GetPoolTransactions() (ethtypes.Transactions, error) {
 	b.logger.Debug("called eth.rpc.backend.GetPoolTransactions")
 	pending := b.polar.txPool.Pending(false)
-	var txs types.Transactions
+	var txs ethtypes.Transactions
 	for _, batch := range pending {
 		for _, lazy := range batch {
 			if tx := lazy.Resolve(); tx != nil {
@@ -485,7 +487,7 @@ func (b *backend) GetPoolTransactions() (types.Transactions, error) {
 	return txs, nil
 }
 
-func (b *backend) GetPoolTransaction(hash common.Hash) *types.Transaction {
+func (b *backend) GetPoolTransaction(hash common.Hash) *ethtypes.Transaction {
 	b.logger.Debug("called eth.rpc.backend.GetPoolTransaction", "tx_hash", hash)
 	return b.polar.txPool.Get(hash)
 }
@@ -503,8 +505,8 @@ func (b *backend) Stats() (int, int) {
 }
 
 func (b *backend) TxPoolContent() (
-	map[common.Address][]*types.Transaction,
-	map[common.Address][]*types.Transaction,
+	map[common.Address][]*ethtypes.Transaction,
+	map[common.Address][]*ethtypes.Transaction,
 ) {
 	pending, queued := b.polar.txPool.Content()
 	b.logger.Debug(
@@ -513,8 +515,8 @@ func (b *backend) TxPoolContent() (
 }
 
 func (b *backend) TxPoolContentFrom(addr common.Address) (
-	[]*types.Transaction,
-	[]*types.Transaction,
+	[]*ethtypes.Transaction,
+	[]*ethtypes.Transaction,
 ) {
 	pending, queued := b.polar.txPool.ContentFrom(addr)
 	b.logger.Debug("called eth.rpc.backend.TxPoolContentFrom",
@@ -535,7 +537,7 @@ func (b *backend) GetBody(
 	ctx context.Context,
 	hash common.Hash,
 	number rpc.BlockNumber,
-) (*types.Body, error) {
+) (*ethtypes.Body, error) {
 	if number < 0 || hash == (common.Hash{}) {
 		b.logger.Error("eth.rpc.backend.GetBody", "number", number, "hash", hash)
 		return nil, errors.New("invalid arguments; expect hash and no special block numbers")
@@ -555,11 +557,11 @@ func (b *backend) SubscribeRemovedLogsEvent(ch chan<- core.RemovedLogsEvent) eve
 	return b.polar.blockchain.SubscribeRemovedLogsEvent(ch)
 }
 
-func (b *backend) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription {
+func (b *backend) SubscribeLogsEvent(ch chan<- []*ethtypes.Log) event.Subscription {
 	return b.polar.blockchain.SubscribeLogsEvent(ch)
 }
 
-func (b *backend) SubscribePendingLogsEvent(ch chan<- []*types.Log) event.Subscription {
+func (b *backend) SubscribePendingLogsEvent(ch chan<- []*ethtypes.Log) event.Subscription {
 	return b.polar.miner.SubscribePendingLogs(ch)
 }
 

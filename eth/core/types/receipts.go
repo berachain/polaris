@@ -24,10 +24,11 @@ import (
 	"math/big"
 	"unsafe"
 
-	"github.com/berachain/polaris/eth/params"
+	"github.com/ethereum/go-ethereum/params"
 
 	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
 	"github.com/ethereum/go-ethereum/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
@@ -53,9 +54,9 @@ func DeriveReceiptsFromBlock(
 
 // MarshalReceipts marshals `Receipts`, as type `[]*ReceiptForStorage`, to bytes using rlp
 // encoding.
-func MarshalReceipts(receipts Receipts) ([]byte, error) {
+func MarshalReceipts(receipts ethtypes.Receipts) ([]byte, error) {
 	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
-	receiptsForStorage := *(*[]*ReceiptForStorage)(unsafe.Pointer(&receipts))
+	receiptsForStorage := *(*[]*ethtypes.ReceiptForStorage)(unsafe.Pointer(&receipts))
 
 	bz, err := rlp.EncodeToBytes(receiptsForStorage)
 	if err != nil {
@@ -66,11 +67,11 @@ func MarshalReceipts(receipts Receipts) ([]byte, error) {
 
 // UnmarshalReceipts unmarshals receipts from bytes to `[]*ReceiptForStorage` to `Receipts` using
 // rlp decoding.
-func UnmarshalReceipts(bz []byte) (Receipts, error) {
-	var receiptsForStorage []*ReceiptForStorage
+func UnmarshalReceipts(bz []byte) (ethtypes.Receipts, error) {
+	var receiptsForStorage []*ethtypes.ReceiptForStorage
 	if err := rlp.DecodeBytes(bz, &receiptsForStorage); err != nil {
 		return nil, err
 	}
 	//#nosec:G103 unsafe pointer is safe here since `ReceiptForStorage` is an alias of `Receipt`.
-	return *(*Receipts)(unsafe.Pointer(&receiptsForStorage)), nil
+	return *(*ethtypes.Receipts)(unsafe.Pointer(&receiptsForStorage)), nil
 }

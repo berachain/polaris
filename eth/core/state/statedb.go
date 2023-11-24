@@ -23,15 +23,16 @@ package state
 import (
 	"context"
 
-	"github.com/berachain/polaris/eth/common"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/state"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
+
 	"github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/state/journal"
-	coretypes "github.com/berachain/polaris/eth/core/types"
-	"github.com/berachain/polaris/eth/params"
+
 	"github.com/berachain/polaris/lib/snapshot"
 	libtypes "github.com/berachain/polaris/lib/types"
-
-	"github.com/ethereum/go-ethereum/core/state"
 )
 
 // For mocks.
@@ -169,7 +170,7 @@ func (sdb *stateDB) Commit(_ uint64, _ bool) (common.Hash, error) {
 //
 // Prepare implements vm.PolarStateDB.
 func (sdb *stateDB) Prepare(rules params.Rules, sender, coinbase common.Address,
-	dest *common.Address, precompiles []common.Address, txAccesses coretypes.AccessList,
+	dest *common.Address, precompiles []common.Address, txAccesses ethtypes.AccessList,
 ) {
 	copyRules := rules
 	sdb.rules = &copyRules

@@ -25,11 +25,9 @@ import (
 	"crypto/ecdsa"
 	"crypto/subtle"
 
-	"github.com/berachain/polaris/eth/crypto"
-
 	cmcrypto "github.com/cometbft/cometbft/crypto"
-
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 const (
@@ -66,7 +64,7 @@ func (privKey PrivKey) PubKey() cryptotypes.PubKey {
 	}
 
 	return &PubKey{
-		Key: crypto.CompressPubkey(&ecdsaPrivKey.PublicKey),
+		Key: ethcrypto.CompressPubkey(&ecdsaPrivKey.PublicKey),
 	}
 }
 
@@ -84,19 +82,19 @@ func (privKey PrivKey) Type() string {
 // GenPrivKey generates a new random private key. It returns an error upon
 // failure.
 func GenPrivKey() (*PrivKey, error) {
-	priv, err := crypto.GenerateEthKey()
+	priv, err := ethcrypto.GenerateKey()
 	if err != nil {
 		return nil, err
 	}
 
 	return &PrivKey{
-		Key: crypto.FromECDSA(priv),
+		Key: ethcrypto.FromECDSA(priv),
 	}, nil
 }
 
 // ToECDSA returns the ECDSA private key as a reference to ecdsa.PrivateKey type.
 func (privKey PrivKey) ToECDSA() (*ecdsa.PrivateKey, error) {
-	return crypto.ToECDSA(privKey.Bytes())
+	return ethcrypto.ToECDSA(privKey.Bytes())
 }
 
 // ===============================================================================================
@@ -113,12 +111,12 @@ var _ cryptotypes.PubKey = &PubKey{}
 // Address returns the address of the ECDSA public key.
 // The function will return an empty address if the public key is invalid.
 func (pubKey PubKey) Address() cmcrypto.Address {
-	key, err := crypto.DecompressPubkey(pubKey.Key)
+	key, err := ethcrypto.DecompressPubkey(pubKey.Key)
 	if err != nil {
 		return nil
 	}
 
-	return cmcrypto.Address(crypto.PubkeyToAddress(*key).Bytes())
+	return cmcrypto.Address(ethcrypto.PubkeyToAddress(*key).Bytes())
 }
 
 // Bytes returns the pubkey byte format.

@@ -27,13 +27,13 @@ import (
 
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
+	"github.com/ethereum/go-ethereum/common"
 
 	cbindings "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
 	generated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
 	testutil "github.com/berachain/polaris/cosmos/testutil"
 	"github.com/berachain/polaris/eth/accounts/abi"
-	"github.com/berachain/polaris/eth/common"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/vm"
 	"github.com/berachain/polaris/eth/core/vm/mock"

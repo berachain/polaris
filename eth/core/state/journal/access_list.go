@@ -21,7 +21,9 @@
 package journal
 
 import (
-	"github.com/berachain/polaris/eth/common"
+	"github.com/ethereum/go-ethereum/common"
+	ethstate "github.com/ethereum/go-ethereum/core/state"
+
 	libtypes "github.com/berachain/polaris/lib/types"
 	"github.com/berachain/polaris/lib/utils"
 )
@@ -43,13 +45,13 @@ type Accesslist interface {
 
 // accessList is a `baseJournal` that tracks the access list.
 type accessList struct {
-	baseJournal[*AccessList] // journal of access lists.
+	baseJournal[*ethstate.AccessList] // journal of access lists.
 }
 
 // NewAccesslist returns a new `accessList` journal.
 func NewAccesslist() Accesslist {
-	journal := newBaseJournal[*AccessList](initCapacity)
-	journal.Push(NewAccessList())
+	journal := newBaseJournal[*ethstate.AccessList](initCapacity)
+	journal.Push(ethstate.NewAccessList())
 	return &accessList{
 		baseJournal: journal,
 	}
@@ -97,7 +99,7 @@ func (al *accessList) Finalize() {
 // Clone implements `libtypes.Cloneable`.
 func (al *accessList) Clone() Accesslist {
 	cpy := &accessList{
-		baseJournal: newBaseJournal[*AccessList](al.Capacity()),
+		baseJournal: newBaseJournal[*ethstate.AccessList](al.Capacity()),
 	}
 
 	for i := 0; i < al.Size(); i++ { // skip the root, already pushed above

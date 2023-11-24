@@ -25,14 +25,15 @@ import (
 	"math/big"
 	"time"
 
-	bindings "github.com/berachain/polaris/contracts/bindings/testing"
-	"github.com/berachain/polaris/eth/common"
-	coretypes "github.com/berachain/polaris/eth/core/types"
-
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	. "github.com/onsi/gomega" //nolint:stylecheck,revive,gostaticcheck  // Gomega makes sense in tests.
+	bindings "github.com/berachain/polaris/contracts/bindings/testing"
+
+	//lint:ignore ST1001 Gomega makes sense in tests
+	. "github.com/onsi/gomega" //nolint:stylecheck,revive,gostaticcheck
 )
 
 const (
@@ -41,7 +42,7 @@ const (
 )
 
 // ExpectedMined waits for a transaction to be mined.
-func ExpectMined(client *ethclient.Client, tx *coretypes.Transaction) {
+func ExpectMined(client *ethclient.Client, tx *ethtypes.Transaction) {
 	// Wait for the transaction to be mined.
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancel()
@@ -53,8 +54,8 @@ func ExpectMined(client *ethclient.Client, tx *coretypes.Transaction) {
 // It also checks that the transaction was successful.
 func ExpectSuccessReceipt(
 	client *ethclient.Client,
-	tx *coretypes.Transaction,
-) *coretypes.Receipt {
+	tx *ethtypes.Transaction,
+) *ethtypes.Receipt {
 	// Wait for the transaction to be mined.
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancel()
@@ -72,8 +73,8 @@ func ExpectSuccessReceipt(
 // It also checks that the transaction was failed.
 func ExpectFailedReceipt(
 	client *ethclient.Client,
-	tx *coretypes.Transaction,
-) *coretypes.Receipt {
+	tx *ethtypes.Transaction,
+) *ethtypes.Receipt {
 	// Wait for the transaction to be mined.
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancel()

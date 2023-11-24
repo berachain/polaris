@@ -21,11 +21,11 @@
 package journal
 
 import (
-	"github.com/berachain/polaris/eth/common"
-	"github.com/berachain/polaris/lib/utils"
-
+	"github.com/ethereum/go-ethereum/common"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/berachain/polaris/lib/utils"
 )
 
 var _ = Describe("AccessList", func() {

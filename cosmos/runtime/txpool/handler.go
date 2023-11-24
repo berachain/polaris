@@ -26,13 +26,10 @@ import (
 	"time"
 
 	"cosmossdk.io/log"
-
-	"github.com/berachain/polaris/eth/core"
-	coretypes "github.com/berachain/polaris/eth/core/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
+	"github.com/ethereum/go-ethereum/core"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/event"
 )
 
@@ -56,8 +53,8 @@ type TxSubProvider interface {
 
 // TxSerializer provides an interface to Serialize Geth Transactions to Bytes (via sdk.Tx).
 type TxSerializer interface {
-	ToSdkTx(signedTx *coretypes.Transaction, gasLimit uint64) (sdk.Tx, error)
-	ToSdkTxBytes(signedTx *coretypes.Transaction, gasLimit uint64) ([]byte, error)
+	ToSdkTx(signedTx *ethtypes.Transaction, gasLimit uint64) (sdk.Tx, error)
+	ToSdkTxBytes(signedTx *ethtypes.Transaction, gasLimit uint64) ([]byte, error)
 }
 
 // TxBroadcaster provides an interface to broadcast TxBytes to the comet p2p layer.
@@ -72,7 +69,7 @@ type Subscription interface {
 
 // failedTx represents a transaction that failed to broadcast.
 type failedTx struct {
-	tx      *coretypes.Transaction
+	tx      *ethtypes.Transaction
 	retries int
 }
 
@@ -198,7 +195,7 @@ func (h *handler) stop(err error) {
 }
 
 // broadcastTransactions will propagate a batch of transactions to the CometBFT mempool.
-func (h *handler) broadcastTransactions(txs coretypes.Transactions) {
+func (h *handler) broadcastTransactions(txs ethtypes.Transactions) {
 	h.logger.Debug("broadcasting transactions", "num_txs", len(txs))
 	for _, signedEthTx := range txs {
 		h.broadcastTransaction(signedEthTx, maxRetries)
@@ -206,7 +203,7 @@ func (h *handler) broadcastTransactions(txs coretypes.Transactions) {
 }
 
 // broadcastTransaction will propagate a transaction to the CometBFT mempool.
-func (h *handler) broadcastTransaction(tx *coretypes.Transaction, retries int) {
+func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
 	txBytes, err := h.serializer.ToSdkTxBytes(tx, tx.Gas())
 	if err != nil {
 		h.logger.Error("failed to serialize transaction", "err", err)

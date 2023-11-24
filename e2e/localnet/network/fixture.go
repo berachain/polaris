@@ -29,12 +29,10 @@ import (
 	"runtime"
 	"strings"
 
-	ginkgo "github.com/onsi/ginkgo/v2"
-
-	"github.com/berachain/polaris/eth/common"
-	"github.com/berachain/polaris/eth/crypto"
-
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+	ginkgo "github.com/onsi/ginkgo/v2"
 )
 
 const (

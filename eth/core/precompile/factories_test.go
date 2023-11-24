@@ -25,11 +25,13 @@ import (
 	"errors"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/core/vm"
+
 	solidity "github.com/berachain/polaris/contracts/bindings/testing"
 	"github.com/berachain/polaris/eth/accounts/abi"
-	"github.com/berachain/polaris/eth/common"
-	"github.com/berachain/polaris/eth/core/types"
-	"github.com/berachain/polaris/eth/core/vm"
+	pvm "github.com/berachain/polaris/eth/core/vm"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -164,7 +166,7 @@ func (ms *mockStateful) GetOutput(
 	ctx context.Context,
 	str string,
 ) ([]mockObject, error) {
-	vm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
+	pvm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&ethtypes.Log{Address: common.Address{0x1}})
 	return []mockObject{
 		{
 			CreationHeight: big.NewInt(1),

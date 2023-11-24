@@ -25,16 +25,16 @@ import (
 	"strings"
 	"testing"
 
-	cryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
-	"github.com/berachain/polaris/cosmos/crypto/hd"
-	accounts "github.com/berachain/polaris/eth/accounts"
-	"github.com/berachain/polaris/eth/common"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/std"
+	"github.com/ethereum/go-ethereum/common"
+
+	cryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
+	"github.com/berachain/polaris/cosmos/crypto/hd"
+	accounts "github.com/berachain/polaris/eth/accounts"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

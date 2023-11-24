@@ -21,12 +21,12 @@
 package journal
 
 import (
-	"github.com/berachain/polaris/eth/common"
-	coretypes "github.com/berachain/polaris/eth/core/types"
-	"github.com/berachain/polaris/lib/utils"
-
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/berachain/polaris/lib/utils"
 )
 
 var _ = Describe("Logs", func() {
@@ -51,7 +51,7 @@ var _ = Describe("Logs", func() {
 
 	When("adding logs", func() {
 		BeforeEach(func() {
-			l.AddLog(&coretypes.Log{Address: a1})
+			l.AddLog(&ethtypes.Log{Address: a1})
 			Expect(l.Size()).To(Equal(1))
 			Expect(l.PeekAt(0).Address).To(Equal(a1))
 			Expect(l.PeekAt(0).TxHash).To(Equal(thash))
@@ -61,7 +61,7 @@ var _ = Describe("Logs", func() {
 		It("should correctly snapshot and revert", func() {
 			id := l.Snapshot()
 
-			l.AddLog(&coretypes.Log{Address: a2})
+			l.AddLog(&ethtypes.Log{Address: a2})
 			Expect(l.Size()).To(Equal(2))
 			Expect(l.PeekAt(1).Address).To(Equal(a2))
 
@@ -87,7 +87,7 @@ var _ = Describe("Logs", func() {
 		})
 
 		It("should correctly clone", func() {
-			l.AddLog(&coretypes.Log{Address: a2})
+			l.AddLog(&ethtypes.Log{Address: a2})
 			Expect(l.Size()).To(Equal(2))
 			Expect(l.PeekAt(1).Address).To(Equal(a2))
 
@@ -96,7 +96,7 @@ var _ = Describe("Logs", func() {
 			Expect(l2.PeekAt(0).Address).To(Equal(a1))
 			Expect(l2.PeekAt(1).Address).To(Equal(a2))
 
-			l2.AddLog(&coretypes.Log{Address: a3})
+			l2.AddLog(&ethtypes.Log{Address: a3})
 			Expect(l2.Size()).To(Equal(3))
 			Expect(l2.PeekAt(2).Address).To(Equal(a3))
 			Expect(l.Size()).To(Equal(2))

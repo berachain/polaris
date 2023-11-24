@@ -26,19 +26,18 @@ import (
 
 	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
-
-	libgenerated "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
-	"github.com/berachain/polaris/contracts/bindings/cosmos/precompile/governance"
-	"github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
-	"github.com/berachain/polaris/cosmos/precompile"
-	"github.com/berachain/polaris/eth/common"
-	"github.com/berachain/polaris/lib/utils"
-
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/common"
+
+	libgenerated "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
+	"github.com/berachain/polaris/contracts/bindings/cosmos/precompile/governance"
+	"github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
+	"github.com/berachain/polaris/cosmos/precompile"
+	"github.com/berachain/polaris/lib/utils"
 )
 
 /**

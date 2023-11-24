@@ -30,8 +30,9 @@ import (
 	"fmt"
 	"math/big"
 
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
 	localnet "github.com/berachain/polaris/e2e/localnet/network"
-	coretypes "github.com/berachain/polaris/eth/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -75,7 +76,7 @@ var _ = Describe("ContainerizedNode", func() {
 
 	It("should get recent blocks with websockets", func() {
 		wsclient := c.EthWsClient()
-		headers := make(chan *coretypes.Header)
+		headers := make(chan *ethtypes.Header)
 		sub, err := wsclient.SubscribeNewHead(context.Background(), headers)
 		Expect(err).ToNot(HaveOccurred())
 		GinkgoWriter.Println("Listening for blocks...")

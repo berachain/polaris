@@ -26,18 +26,19 @@ import (
 	"math/big"
 	"sync/atomic"
 
-	"github.com/berachain/polaris/eth/common"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/lru"
+	"github.com/ethereum/go-ethereum/core"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/trie"
+	"github.com/ethereum/go-ethereum/log"
+
 	"github.com/berachain/polaris/eth/consensus"
 	"github.com/berachain/polaris/eth/core/state"
 	"github.com/berachain/polaris/eth/core/types"
-	"github.com/berachain/polaris/eth/core/vm"
-	"github.com/berachain/polaris/eth/log"
-	"github.com/berachain/polaris/eth/params"
-
-	lru "github.com/ethereum/go-ethereum/common/lru"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/trie"
 )
 
 // By default we are storing up to 1024 items in each cache.
@@ -53,7 +54,7 @@ type Blockchain interface {
 	ChainWriter
 	ChainSubscriber
 	ChainResources
-	ChainContext
+	core.ChainContext
 }
 
 // blockchain is the canonical, persistent object that operates the Polaris EVM.
@@ -77,19 +78,19 @@ type blockchain struct {
 	config *params.ChainConfig
 
 	// currentBlock is the current/pending block.
-	currentBlock atomic.Pointer[types.Block]
+	currentBlock atomic.Pointer[ethtypes.Block]
 	// finalizedBlock is the finalized/latest block.
-	finalizedBlock atomic.Pointer[types.Block]
+	finalizedBlock atomic.Pointer[ethtypes.Block]
 
 	// receiptsCache is a cache of the receipts for the last `defaultCacheSizeBytes` bytes of
 	// blocks. blockHash -> receipts
-	receiptsCache *lru.Cache[common.Hash, types.Receipts]
+	receiptsCache *lru.Cache[common.Hash, ethtypes.Receipts]
 	// blockNumCache is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
 	// blockNum -> block
-	blockNumCache *lru.Cache[uint64, *types.Block]
+	blockNumCache *lru.Cache[uint64, *ethtypes.Block]
 	// blockHashCache is a cache of the blocks for the last `defaultCacheSizeBytes` bytes of blocks.
 	// blockHash -> block
-	blockHashCache *lru.Cache[common.Hash, *types.Block]
+	blockHashCache *lru.Cache[common.Hash, *ethtypes.Block]
 	// txLookupCache is a cache of the transactions for the last `defaultCacheSizeBytes` bytes of
 	// blocks. txHash -> txLookupEntry
 	txLookupCache *lru.Cache[common.Hash, *types.TxLookupEntry]
@@ -119,9 +120,9 @@ func NewChain(
 		sp:             host.GetStatePlugin(),
 		config:         config,
 		vmConfig:       &vm.Config{},
-		receiptsCache:  lru.NewCache[common.Hash, types.Receipts](defaultCacheSize),
-		blockNumCache:  lru.NewCache[uint64, *types.Block](defaultCacheSize),
-		blockHashCache: lru.NewCache[common.Hash, *types.Block](defaultCacheSize),
+		receiptsCache:  lru.NewCache[common.Hash, ethtypes.Receipts](defaultCacheSize),
+		blockNumCache:  lru.NewCache[uint64, *ethtypes.Block](defaultCacheSize),
+		blockHashCache: lru.NewCache[common.Hash, *ethtypes.Block](defaultCacheSize),
 		txLookupCache:  lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSize),
 		chainHeadFeed:  event.Feed{},
 		scope:          event.SubscriptionScope{},
@@ -133,7 +134,7 @@ func NewChain(
 	bc.validator = core.NewBlockValidator(bc.config, bc, bc.engine)
 	// TODO: hmm...
 	bc.currentBlock.Store(
-		types.NewBlock(&types.Header{Time: 0, Number: big.NewInt(0),
+		ethtypes.NewBlock(&ethtypes.Header{Time: 0, Number: big.NewInt(0),
 			BaseFee: big.NewInt(0)}, nil, nil, nil, trie.NewStackTrie(nil)))
 	bc.finalizedBlock.Store(nil)
 	return bc

@@ -24,12 +24,11 @@ import (
 	"context"
 
 	storetypes "cosmossdk.io/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/params"
 
 	"github.com/berachain/polaris/cosmos/x/evm/plugins"
 	"github.com/berachain/polaris/eth/core"
-	"github.com/berachain/polaris/eth/params"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Plugin is the interface that must be implemented by the plugin.
