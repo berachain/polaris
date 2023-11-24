@@ -21,9 +21,9 @@
 package precompile
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-
 	"github.com/berachain/polaris/eth/accounts/abi"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // ==============================================================================

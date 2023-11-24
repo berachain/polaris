@@ -25,11 +25,13 @@ import (
 	"fmt"
 
 	storetypes "cosmossdk.io/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/beacon/engine"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ethereum/go-ethereum/beacon/engine"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 func (k *Keeper) ProcessPayloadEnvelope(

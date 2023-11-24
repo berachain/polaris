@@ -23,13 +23,14 @@ package txpool
 import (
 	"errors"
 
+	"github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/lib/utils"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/txpool"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-
-	"github.com/berachain/polaris/cosmos/x/evm/types"
-	"github.com/berachain/polaris/lib/utils"
 )
 
 // AnteHandle implements sdk.AnteHandler.

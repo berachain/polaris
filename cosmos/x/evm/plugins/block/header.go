@@ -25,13 +25,13 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-
 	"github.com/berachain/polaris/cosmos/x/evm/types"
 	"github.com/berachain/polaris/eth/core"
 	coretypes "github.com/berachain/polaris/eth/core/types"
 	errorslib "github.com/berachain/polaris/lib/errors"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // prevHeaderHashes is the number of previous header hashes being stored on chain.

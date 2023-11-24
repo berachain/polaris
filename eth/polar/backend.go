@@ -23,6 +23,10 @@ package polar
 import (
 	"math/big"
 
+	"github.com/berachain/polaris/eth/consensus"
+	"github.com/berachain/polaris/eth/core"
+	polarapi "github.com/berachain/polaris/eth/polar/api"
+
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/beacon"
@@ -37,10 +41,6 @@ import (
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/rpc"
-
-	"github.com/berachain/polaris/eth/consensus"
-	"github.com/berachain/polaris/eth/core"
-	polarapi "github.com/berachain/polaris/eth/polar/api"
 )
 
 // TODO: break out the node into a separate package and then fully use the

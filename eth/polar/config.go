@@ -24,6 +24,8 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/berachain/polaris/eth/params"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
@@ -31,8 +33,6 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/miner"
 	ethparams "github.com/ethereum/go-ethereum/params"
-
-	"github.com/berachain/polaris/eth/params"
 )
 
 const (

@@ -24,6 +24,7 @@ import (
 	"github.com/berachain/polaris/eth/core"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 

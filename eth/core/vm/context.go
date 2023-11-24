@@ -25,10 +25,10 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/berachain/polaris/lib/utils"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-
-	"github.com/berachain/polaris/lib/utils"
 )
 
 // ContextKey defines a type alias for a stdlib Context key.

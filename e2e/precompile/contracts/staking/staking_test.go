@@ -30,15 +30,16 @@ import (
 	"testing"
 	"time"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/ethereum/go-ethereum/common"
-
 	bbindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/bank"
 	bindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
 	tbindings "github.com/berachain/polaris/contracts/bindings/testing"
 	network "github.com/berachain/polaris/e2e/localnet/network"
 	utils "github.com/berachain/polaris/e2e/precompile"
+
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"github.com/ethereum/go-ethereum/common"
 
 	. "github.com/berachain/polaris/e2e/localnet/utils"
 	. "github.com/onsi/ginkgo/v2"

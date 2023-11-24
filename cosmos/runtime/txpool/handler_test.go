@@ -24,12 +24,14 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/log"
-	"github.com/ethereum/go-ethereum/core"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/stretchr/testify/mock"
 
+	"cosmossdk.io/log"
+
 	"github.com/berachain/polaris/cosmos/runtime/txpool/mocks"
+
+	"github.com/ethereum/go-ethereum/core"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

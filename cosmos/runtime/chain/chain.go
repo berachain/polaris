@@ -23,9 +23,9 @@ package chain
 import (
 	"context"
 
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-
 	"github.com/berachain/polaris/eth/core"
+
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // WrappedBlockchain is a struct that wraps the core blockchain with additional

@@ -26,7 +26,9 @@ import (
 	"crypto/subtle"
 
 	cmcrypto "github.com/cometbft/cometbft/crypto"
+
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 

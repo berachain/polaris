@@ -23,15 +23,17 @@ package log
 import (
 	"strconv"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
-
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
 	"github.com/berachain/polaris/eth/accounts/abi"
 	"github.com/berachain/polaris/eth/core/precompile"
+
+	abci "github.com/cometbft/cometbft/abci/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 const (

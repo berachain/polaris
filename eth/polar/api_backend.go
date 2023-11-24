@@ -26,6 +26,11 @@ import (
 	"math/big"
 	"time"
 
+	pcore "github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core/state"
+	polarapi "github.com/berachain/polaris/eth/polar/api"
+	"github.com/berachain/polaris/eth/version"
+
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
@@ -42,11 +47,6 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
-
-	pcore "github.com/berachain/polaris/eth/core"
-	"github.com/berachain/polaris/eth/core/state"
-	polarapi "github.com/berachain/polaris/eth/polar/api"
-	"github.com/berachain/polaris/eth/version"
 )
 
 // Backend represents the backend object for a Polaris chain. It extends the standard
@@ -241,7 +241,10 @@ func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*ethtypes.H
 }
 
 // BlockByNumber returns the block with the given `number`.
-func (b *backend) BlockByNumber(_ context.Context, number rpc.BlockNumber) (*ethtypes.Block, error) {
+func (b *backend) BlockByNumber(
+	_ context.Context,
+	number rpc.BlockNumber,
+) (*ethtypes.Block, error) {
 	// Pending block is only known by the miner
 	switch number {
 	case rpc.PendingBlockNumber:

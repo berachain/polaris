@@ -22,6 +22,7 @@ package events
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 

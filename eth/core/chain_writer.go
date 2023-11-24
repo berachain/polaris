@@ -24,12 +24,12 @@ import (
 	"context"
 	"errors"
 
+	"github.com/berachain/polaris/eth/core/state"
+	"github.com/berachain/polaris/eth/core/types"
+
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/log"
-
-	"github.com/berachain/polaris/eth/core/state"
-	"github.com/berachain/polaris/eth/core/types"
 )
 
 // ChainWriter defines methods that are used to perform state and block transitions.

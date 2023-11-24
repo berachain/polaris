@@ -25,15 +25,17 @@ import (
 	"errors"
 
 	"cosmossdk.io/log"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
-	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/berachain/polaris/cosmos/x/evm/types"
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/core"
 	"github.com/berachain/polaris/lib/utils"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/mempool"
+
+	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // Mempool implements the mempool.Mempool & Lifecycle interfaces.

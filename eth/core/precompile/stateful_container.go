@@ -24,10 +24,10 @@ import (
 	"context"
 	"math/big"
 
+	pvm "github.com/berachain/polaris/eth/core/vm"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-
-	pvm "github.com/berachain/polaris/eth/core/vm"
 )
 
 // NumBytesMethodID is the number of bytes used to represent a ABI method's ID.

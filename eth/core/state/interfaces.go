@@ -24,9 +24,9 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
-
 	libtypes "github.com/berachain/polaris/lib/types"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // Plugin is a plugin which tracks the accounts (balances, nonces, codes, states) in the native

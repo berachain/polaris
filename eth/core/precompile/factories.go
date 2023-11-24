@@ -23,10 +23,10 @@ package precompile
 import (
 	"reflect"
 
-	"github.com/ethereum/go-ethereum/core/vm"
-
 	errorslib "github.com/berachain/polaris/lib/errors"
 	"github.com/berachain/polaris/lib/utils"
+
+	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 const (

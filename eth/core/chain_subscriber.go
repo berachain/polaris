@@ -21,9 +21,9 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/core"
 )
 
 type ChainSubscriber interface {
@@ -35,7 +35,9 @@ type ChainSubscriber interface {
 }
 
 // SubscribeRemovedLogsEvent registers a subscription of RemovedLogsEvent.
-func (bc *blockchain) SubscribeRemovedLogsEvent(ch chan<- core.RemovedLogsEvent) event.Subscription {
+func (bc *blockchain) SubscribeRemovedLogsEvent(
+	ch chan<- core.RemovedLogsEvent,
+) event.Subscription {
 	return bc.scope.Track(bc.rmLogsFeed.Subscribe(ch))
 }
 

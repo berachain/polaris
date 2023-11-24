@@ -29,15 +29,15 @@ import (
 	"context"
 	"math/big"
 
+	tbindings "github.com/berachain/polaris/contracts/bindings/testing"
+	localnet "github.com/berachain/polaris/e2e/localnet/network"
+
 	geth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
-
-	tbindings "github.com/berachain/polaris/contracts/bindings/testing"
-	localnet "github.com/berachain/polaris/e2e/localnet/network"
 
 	. "github.com/berachain/polaris/e2e/localnet/utils"
 	. "github.com/onsi/ginkgo/v2"

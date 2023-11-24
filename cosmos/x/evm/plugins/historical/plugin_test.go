@@ -25,16 +25,18 @@ import (
 	"testing"
 
 	"cosmossdk.io/log"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/trie"
 
 	testutil "github.com/berachain/polaris/cosmos/testutil"
 	"github.com/berachain/polaris/eth/core"
 	"github.com/berachain/polaris/eth/core/mock"
 	"github.com/berachain/polaris/eth/params"
 	"github.com/berachain/polaris/lib/utils"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/trie"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

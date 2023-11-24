@@ -24,9 +24,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum/params"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/ethereum/go-ethereum/params"
 )
 
 const (

@@ -26,19 +26,19 @@ import (
 	"math/big"
 	"sync/atomic"
 
+	"github.com/berachain/polaris/eth/consensus"
+	"github.com/berachain/polaris/eth/core/state"
+	"github.com/berachain/polaris/eth/core/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/lru"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/trie"
-	"github.com/ethereum/go-ethereum/log"
-
-	"github.com/berachain/polaris/eth/consensus"
-	"github.com/berachain/polaris/eth/core/state"
-	"github.com/berachain/polaris/eth/core/types"
 )
 
 // By default we are storing up to 1024 items in each cache.

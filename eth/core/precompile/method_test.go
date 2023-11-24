@@ -25,13 +25,14 @@ import (
 	"math/big"
 	"reflect"
 
-	"github.com/ethereum/go-ethereum/common"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"github.com/berachain/polaris/eth/accounts/abi"
 	"github.com/berachain/polaris/eth/core/vm"
 	vmmock "github.com/berachain/polaris/eth/core/vm/mock"
+
+	"github.com/ethereum/go-ethereum/common"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Method", func() {

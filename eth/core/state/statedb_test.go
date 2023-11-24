@@ -25,16 +25,18 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/params"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	tmock "github.com/stretchr/testify/mock"
 
 	"github.com/berachain/polaris/eth/core/state"
 	"github.com/berachain/polaris/eth/core/state/mock"
 	"github.com/berachain/polaris/eth/core/state/mocks"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var (

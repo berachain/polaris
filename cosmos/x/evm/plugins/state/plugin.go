@@ -27,9 +27,6 @@ import (
 	"sync"
 
 	storetypes "cosmossdk.io/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/berachain/polaris/cosmos/store/snapmulti"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins"
@@ -39,6 +36,11 @@ import (
 	ethstate "github.com/berachain/polaris/eth/core/state"
 	"github.com/berachain/polaris/lib/snapshot"
 	libtypes "github.com/berachain/polaris/lib/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 const pluginRegistryKey = `statePlugin`

@@ -25,15 +25,15 @@ import (
 	"math/big"
 	"time"
 
+	bindings "github.com/berachain/polaris/contracts/bindings/testing"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	bindings "github.com/berachain/polaris/contracts/bindings/testing"
-
 	//lint:ignore ST1001 Gomega makes sense in tests
-	. "github.com/onsi/gomega" //nolint:stylecheck,revive,gostaticcheck
+	. "github.com/onsi/gomega" //nolint:stylecheck,revive,gostaticcheck // Gomega makes sense in tests
 )
 
 const (

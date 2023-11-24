@@ -24,12 +24,12 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/berachain/polaris/lib/registry"
+	libtypes "github.com/berachain/polaris/lib/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
-
-	"github.com/berachain/polaris/lib/registry"
-	libtypes "github.com/berachain/polaris/lib/types"
 )
 
 // defaultPlugin is the default precompile plugin, should any chain running Polaris EVM not

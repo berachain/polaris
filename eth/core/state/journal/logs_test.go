@@ -21,12 +21,13 @@
 package journal
 
 import (
+	"github.com/berachain/polaris/lib/utils"
+
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"github.com/berachain/polaris/lib/utils"
 )
 
 var _ = Describe("Logs", func() {

@@ -23,10 +23,10 @@ package log
 import (
 	"testing"
 
+	"github.com/berachain/polaris/eth/accounts/abi"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-
-	"github.com/berachain/polaris/eth/accounts/abi"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

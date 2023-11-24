@@ -23,12 +23,14 @@ package txpool
 import (
 	"errors"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/berachain/polaris/cosmos/runtime/txpool/mocks"
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

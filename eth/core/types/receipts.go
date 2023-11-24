@@ -24,18 +24,16 @@ import (
 	"math/big"
 	"unsafe"
 
-	"github.com/ethereum/go-ethereum/params"
-
 	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
-	"github.com/ethereum/go-ethereum/core/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
 // DeriveReceiptsFromBlock is a helper function for deriving receipts from a block.
 func DeriveReceiptsFromBlock(
-	chainConfig *params.ChainConfig, receipts types.Receipts, block *types.Block,
-) (types.Receipts, error) {
+	chainConfig *params.ChainConfig, receipts ethtypes.Receipts, block *ethtypes.Block,
+) (ethtypes.Receipts, error) {
 	// calculate the blobGasPrice according to the excess blob gas.
 	var blobGasPrice = new(big.Int)
 	if chainConfig.IsCancun(block.Number(), block.Time()) {

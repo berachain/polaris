@@ -21,10 +21,10 @@
 package journal
 
 import (
+	libtypes "github.com/berachain/polaris/lib/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-
-	libtypes "github.com/berachain/polaris/lib/types"
 )
 
 // Log defines the interface for tracking logs created during a state transition.

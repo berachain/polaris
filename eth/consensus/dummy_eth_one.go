@@ -24,13 +24,13 @@ package consensus
 import (
 	"math/big"
 
+	"github.com/berachain/polaris/eth/core/state"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/trie"
-
-	"github.com/berachain/polaris/eth/core/state"
 )
 
 type Engine consensus.Engine
@@ -47,7 +47,10 @@ func (m *DummyEthOne) Author(header *ethtypes.Header) (common.Address, error) {
 }
 
 // VerifyHeader is a mock implementation.
-func (m *DummyEthOne) VerifyHeader(chain consensus.ChainHeaderReader, header *ethtypes.Header) error {
+func (m *DummyEthOne) VerifyHeader(
+	chain consensus.ChainHeaderReader,
+	header *ethtypes.Header,
+) error {
 	// Set the correct difficulty
 	header.Difficulty = new(big.Int).SetUint64(1)
 	return nil

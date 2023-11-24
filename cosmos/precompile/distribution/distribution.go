@@ -24,9 +24,6 @@ import (
 	"context"
 
 	"cosmossdk.io/core/address"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/berachain/polaris/contracts/bindings/cosmos/lib"
 	generated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/distribution"
@@ -34,6 +31,11 @@ import (
 	"github.com/berachain/polaris/cosmos/precompile/staking"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 	pvm "github.com/berachain/polaris/eth/core/vm"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // Contract is the precompile contract for the distribution module.
