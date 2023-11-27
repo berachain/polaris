@@ -131,6 +131,9 @@ func (c *Contract) GetWithdrawEnabled(
 	ctx context.Context,
 ) (bool, error) {
 	res, err := c.querier.Params(ctx, &distributiontypes.QueryParamsRequest{})
+	if err != nil {
+		return false, err
+	}
 	return res.Params.WithdrawAddrEnabled, err
 }
 

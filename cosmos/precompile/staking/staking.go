@@ -22,6 +22,7 @@ package staking
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	"google.golang.org/grpc/codes"
@@ -116,6 +117,9 @@ func (c *Contract) GetBondedValidators(
 	)
 	if err != nil {
 		return nil, cbindings.CosmosPageResponse{}, err
+	}
+	if res.Pagination == nil {
+		return vals, cbindings.CosmosPageResponse{}, errors.New("pagination is nil")
 	}
 	pageResponse := cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination)
 	return vals, pageResponse, nil
@@ -225,6 +229,10 @@ func (c *Contract) GetDelegatorValidators(
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
+	if res == nil || res.Pagination == nil {
+		return nil, cbindings.CosmosPageResponse{}, errors.New("pagination is nil")
+	}
+
 	return vals, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
@@ -260,6 +268,10 @@ func (c *Contract) GetValidatorDelegations(
 			Balance:   d.Balance.Amount.BigInt(),
 			Shares:    d.Delegation.Shares.BigInt(),
 		})
+	}
+
+	if res.Pagination == nil {
+		return nil, cbindings.CosmosPageResponse{}, errors.New("pagination is nil")
 	}
 
 	return delegations, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
@@ -377,6 +389,10 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 		)
 	}
 
+	if res.Pagination == nil {
+		return unbondingDelegations, cbindings.CosmosPageResponse{}, errors.New("pagination is nil")
+	}
+
 	return unbondingDelegations, cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
@@ -410,10 +426,15 @@ func (c *Contract) GetRedelegations(
 			Pagination:       cosmlib.ExtractPageRequestFromInput(pagination),
 		},
 	)
-	if status.Code(err) == codes.NotFound {
+	switch {
+	case status.Code(err) == codes.NotFound:
 		return []generated.IStakingModuleRedelegationEntry{}, cbindings.CosmosPageResponse{}, nil
-	} else if err != nil {
+	case err != nil:
 		return nil, cbindings.CosmosPageResponse{}, err
+	case rsp == nil:
+		return nil, cbindings.CosmosPageResponse{}, errors.New("response is nil")
+	case rsp.RedelegationResponses == nil:
+		return nil, cbindings.CosmosPageResponse{}, errors.New("delegation responses are nil")
 	}
 
 	var redelegationEntryResponses []stakingtypes.RedelegationEntryResponse
@@ -426,6 +447,7 @@ func (c *Contract) GetRedelegations(
 			break
 		}
 	}
+
 	redelegationEntries := make(
 		[]stakingtypes.RedelegationEntry, 0, len(redelegationEntryResponses),
 	)

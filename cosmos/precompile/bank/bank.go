@@ -93,8 +93,12 @@ func (c *Contract) GetBalance(
 		return nil, err
 	}
 
-	balance := res.GetBalance().Amount
-	return balance.BigInt(), nil
+	balance := res.GetBalance()
+	if balance == nil {
+		return nil, errors.New("balance is nil")
+	}
+
+	return balance.Amount.BigInt(), nil
 }
 
 // GetAllBalances implements `getAllBalances(address)` method.
@@ -114,7 +118,7 @@ func (c *Contract) GetAllBalances(
 		return nil, err
 	}
 
-	if res.Balances == nil {
+	if res == nil || res.Balances == nil {
 		return nil, errors.New("balances are nil")
 	}
 
@@ -165,7 +169,7 @@ func (c *Contract) GetAllSpendableBalances(
 		return nil, err
 	}
 
-	if res.Balances == nil {
+	if res == nil || res.Balances == nil {
 		return nil, errors.New("balances are nil")
 	}
 
@@ -196,6 +200,10 @@ func (c *Contract) GetAllSupply(
 	res, err := c.querier.TotalSupply(ctx, &banktypes.QueryTotalSupplyRequest{})
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil || res.Supply == nil {
+		return nil, errors.New("balances are nil")
 	}
 
 	return cosmlib.SdkCoinsToEvmCoins(res.Supply), nil
