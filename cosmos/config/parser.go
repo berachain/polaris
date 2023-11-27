@@ -183,7 +183,7 @@ func handleErrorPtr[T any](
 // If parsing fails, it returns an error.
 func handleBigInt(numStr interface{}) (big.Int, error) {
 	num, ok := new(big.Int).SetString(numStr.(string), baseTen)
-	if !ok {
+	if !ok || num == nil {
 		return big.Int{}, fmt.Errorf("invalid big.Int string: %s", numStr.(string))
 	}
 	return *num, nil
