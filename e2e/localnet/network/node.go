@@ -187,8 +187,12 @@ func (c *containerizedNode) WaitForBlock(number uint64) error {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 	for {
+		ch := ctx.Done()
+		if ch == nil {
+			return nil
+		}
 		select {
-		case <-ctx.Done():
+		case <-ch:
 			return ctx.Err()
 		default:
 			currHeight, err := c.ethClient.BlockNumber(ctx)
@@ -215,8 +219,12 @@ func (c *containerizedNode) WaitForNextBlock() error {
 	var currHeight uint64
 	var currDone bool
 	for {
+		ch := ctx.Done()
+		if ch == nil {
+			return nil
+		}
 		select {
-		case <-ctx.Done():
+		case <-ch:
 			return ctx.Err()
 		default:
 			if !currDone {

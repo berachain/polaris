@@ -65,6 +65,10 @@ func ExpectSuccessReceipt(
 	// Verify the receipt is good.
 	receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
 	Expect(err).ToNot(HaveOccurred())
+	Expect(receipt).ToNot(BeNil())
+	if receipt == nil {
+		return nil // Should never reach. Suppressing nilaway.
+	}
 	Expect(receipt.Status).To(Equal(uint64(0x1))) //nolint:gomnd // success.
 	return receipt
 }
@@ -84,6 +88,10 @@ func ExpectFailedReceipt(
 	// Verify the receipt is good but status failed.
 	receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
 	Expect(err).ToNot(HaveOccurred())
+	Expect(receipt).ToNot(BeNil())
+	if receipt == nil {
+		return nil // Should never reach. Suppressing nilaway.
+	}
 	Expect(receipt.Status).To(Equal(uint64(0x0))) //nolint:gomnd // fail.
 	return receipt
 }
