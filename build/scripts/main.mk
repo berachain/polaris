@@ -133,7 +133,7 @@ abigen-install:
 	@go install github.com/ethereum/go-ethereum/cmd/abigen@latest
 
 moq-install:
-	@echo "--> Installing moq"
+	@echo "--> Installing moq"x
 	@go install github.com/matryer/moq@latest
 
 mockery-install:
@@ -289,7 +289,7 @@ format:
 	@$(MAKE) license-fix buf-lint-fix forge-lint-fix golangci-fix
 
 lint:
-	@$(MAKE) license buf-lint forge-lint golangci gosec
+	@$(MAKE) license buf-lint forge-lint golangci nilaway
 
 
 #################
@@ -347,6 +347,18 @@ license-fix:
 		(cd $$module && addlicense -v -f ./LICENSE.header ./.) || exit 1; \
 	done
 
+#################
+#    nilaway    #
+#################
+
+nilaway-install:
+	@echo "--> Installing nilaway"
+	@go install github.com/nilaway/nilaway/cmd/nilaway
+
+nilaway:
+	@for module in $(MODULES); do \
+		(cd $$module && find . -type f -name '*.go' ! -name '*.abigen.go' -exec nilaway {} \;) || exit 1; \
+	done
 
 #################
 #     gosec     #

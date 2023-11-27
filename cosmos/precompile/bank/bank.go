@@ -22,6 +22,7 @@ package bank
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	"cosmossdk.io/core/address"
@@ -113,6 +114,10 @@ func (c *Contract) GetAllBalances(
 		return nil, err
 	}
 
+	if res.Balances == nil {
+		return nil, errors.New("balances are nil")
+	}
+
 	return cosmlib.SdkCoinsToEvmCoins(res.Balances), nil
 }
 
@@ -135,8 +140,12 @@ func (c *Contract) GetSpendableBalance(
 		return nil, err
 	}
 
-	balance := res.GetBalance().Amount
-	return balance.BigInt(), nil
+	balance := res.GetBalance()
+	if balance == nil {
+		return nil, errors.New("balance is nil")
+	}
+
+	return balance.Amount.BigInt(), nil
 }
 
 // GetSpendableBalances implements `getAllSpendableBalances(address)` method.
@@ -154,6 +163,10 @@ func (c *Contract) GetAllSpendableBalances(
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	if res.Balances == nil {
+		return nil, errors.New("balances are nil")
 	}
 
 	return cosmlib.SdkCoinsToEvmCoins(res.Balances), nil

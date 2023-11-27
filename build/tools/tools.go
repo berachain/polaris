@@ -45,4 +45,5 @@ import (
 	_ "github.com/onsi/ginkgo/v2/ginkgo"
 	_ "github.com/securego/gosec/v2/cmd/gosec"
 	_ "github.com/vektra/mockery/v2"
+	_ "go.uber.org/nilaway/cmd/nilaway"
 )

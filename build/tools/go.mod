@@ -12,6 +12,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/securego/gosec/v2 v2.17.0
 	github.com/vektra/mockery/v2 v2.34.1
+	go.uber.org/nilaway v0.0.0-20231117175943-a267567c6fff
 )
 
 require (
