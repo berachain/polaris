@@ -26,9 +26,10 @@ import (
 	"reflect"
 
 	"github.com/berachain/polaris/eth/accounts/abi"
-	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/core/vm"
 	vmmock "github.com/berachain/polaris/eth/core/vm/mock"
+
+	"github.com/ethereum/go-ethereum/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -24,14 +24,16 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/berachain/polaris/eth/common"
-	"github.com/berachain/polaris/eth/core/vm"
+	pvm "github.com/berachain/polaris/eth/core/vm"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 // NumBytesMethodID is the number of bytes used to represent a ABI method's ID.
 const NumBytesMethodID = 4
 
-var _ vm.PrecompileContainer = (*statefulContainer)(nil)
+var _ vm.PrecompiledContract = (*statefulContainer)(nil)
 
 // statefulContainer is a container for running statefulContainer and precompiled contracts.
 type statefulContainer struct {
@@ -51,7 +53,7 @@ type statefulContainer struct {
 // precompile functions map.
 func NewStatefulContainer(
 	si StatefulImpl, idsToMethods map[methodID]*method,
-) (vm.PrecompileContainer, error) {
+) (vm.PrecompiledContract, error) {
 	if idsToMethods == nil {
 		return nil, ErrContainerHasNoMethods
 	}
@@ -84,7 +86,7 @@ func (sc *statefulContainer) Run(
 
 	// Execute the method with the reflected ctx and raw input
 	return method.Call(
-		vm.NewPolarContext(ctx, evm, caller, value),
+		pvm.NewPolarContext(ctx, evm, caller, value),
 		input,
 	)
 }

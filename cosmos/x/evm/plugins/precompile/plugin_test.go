@@ -34,13 +34,15 @@ import (
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events/mock"
-	"github.com/berachain/polaris/eth/common"
 	ethstate "github.com/berachain/polaris/eth/core/state"
-	coretypes "github.com/berachain/polaris/eth/core/types"
-	"github.com/berachain/polaris/eth/core/vm"
+	pvm "github.com/berachain/polaris/eth/core/vm"
 	"github.com/berachain/polaris/lib/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -127,7 +129,7 @@ func (me *mockEVM) GetStateDB() vm.StateDB {
 }
 
 type mockSDB struct {
-	vm.PolarStateDB
+	pvm.PolarStateDB
 	ctx  sdk.Context
 	logs int
 }
@@ -142,7 +144,7 @@ func (ms *mockSDB) GetContext() context.Context {
 	return ms.ctx
 }
 
-func (ms *mockSDB) AddLog(*coretypes.Log) {
+func (ms *mockSDB) AddLog(*ethtypes.Log) {
 	ms.logs++
 }
 

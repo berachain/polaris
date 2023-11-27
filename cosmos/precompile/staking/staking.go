@@ -33,14 +33,15 @@ import (
 	cbindings "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
 	generated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
-	"github.com/berachain/polaris/eth/common"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
-	"github.com/berachain/polaris/eth/core/vm"
+	pvm "github.com/berachain/polaris/eth/core/vm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type ValidatorStore interface {
@@ -452,7 +453,7 @@ func (c *Contract) Delegate(
 		return false, err
 	}
 	caller, err := cosmlib.StringFromEthAddress(
-		c.accAddrCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.accAddrCodec, pvm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err
@@ -481,7 +482,7 @@ func (c *Contract) Undelegate(
 		return false, err
 	}
 	caller, err := cosmlib.StringFromEthAddress(
-		c.accAddrCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.accAddrCodec, pvm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err
@@ -515,7 +516,7 @@ func (c *Contract) BeginRedelegate(
 		return false, err
 	}
 	caller, err := cosmlib.StringFromEthAddress(
-		c.accAddrCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.accAddrCodec, pvm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err
@@ -549,7 +550,7 @@ func (c *Contract) CancelUnbondingDelegation(
 		return false, err
 	}
 	caller, err := cosmlib.StringFromEthAddress(
-		c.accAddrCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.accAddrCodec, pvm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err

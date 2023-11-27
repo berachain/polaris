@@ -29,12 +29,13 @@ import (
 	"github.com/berachain/polaris/contracts/bindings/cosmos/lib"
 	bankgenerated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/bank"
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
-	"github.com/berachain/polaris/eth/common"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/vm"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // Contract is the precompile contract for the bank module.

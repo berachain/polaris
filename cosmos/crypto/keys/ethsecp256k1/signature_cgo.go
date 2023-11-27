@@ -21,7 +21,7 @@
 package ethsecp256k1
 
 import (
-	"github.com/berachain/polaris/eth/crypto"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 // Sign signs the provided message using the ECDSA private key. It returns an error if the
@@ -30,8 +30,8 @@ import (
 // where the last byte contains the recovery ID.
 func (privKey PrivKey) Sign(digestBz []byte) ([]byte, error) {
 	// We hash the provided input since EthSign expects a 32byte hash.
-	if len(digestBz) != crypto.DigestLength {
-		digestBz = crypto.Keccak256(digestBz)
+	if len(digestBz) != ethcrypto.DigestLength {
+		digestBz = ethcrypto.Keccak256(digestBz)
 	}
 
 	key, err := privKey.ToECDSA()
@@ -39,7 +39,7 @@ func (privKey PrivKey) Sign(digestBz []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	return crypto.EthSign(digestBz, key)
+	return ethcrypto.Sign(digestBz, key)
 }
 
 // VerifySignature verifies that the ECDSA public key created a given signature over
@@ -49,16 +49,16 @@ func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
 	// does not hash messages, we have to accept an unhashed message and hash it.
 	// NOTE: this function will not work correctly if a msg of length 32 is provided, that is actually
 	// the hash of the message that was signed.
-	if len(msg) != crypto.DigestLength {
-		msg = crypto.Keccak256(msg)
+	if len(msg) != ethcrypto.DigestLength {
+		msg = ethcrypto.Keccak256(msg)
 	}
 
 	// The signature length must be correct.
-	if len(sig) == crypto.SignatureLength {
+	if len(sig) == ethcrypto.SignatureLength {
 		// remove recovery ID (V) if contained in the signature
 		sig = sig[:len(sig)-1]
 	}
 
 	// The signature needs to be in [R || S] format when provided to `VerifySignature`.
-	return crypto.VerifySignature(pubKey.Key, msg, sig)
+	return ethcrypto.VerifySignature(pubKey.Key, msg, sig)
 }

@@ -21,16 +21,16 @@
 package events
 
 import (
-	coretypes "github.com/berachain/polaris/eth/core/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 type (
 	// PrecompileLogFactory is used to build an Ethereum log from a Cosmos event.
 	PrecompileLogFactory interface {
 		// Build builds an Ethereum log from a Cosmos event.
-		Build(*sdk.Event) (*coretypes.Log, error)
+		Build(*sdk.Event) (*ethtypes.Log, error)
 	}
 
 	// LogsDB defines the required function to add a log to the StateDB. This ensures a
@@ -38,6 +38,6 @@ type (
 	// StateDB.
 	LogsDB interface {
 		// AddLog adds a log to the database.
-		AddLog(*coretypes.Log)
+		AddLog(*ethtypes.Log)
 	}
 )

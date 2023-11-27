@@ -35,10 +35,11 @@ import (
 	tbindings "github.com/berachain/polaris/contracts/bindings/testing"
 	network "github.com/berachain/polaris/e2e/localnet/network"
 	utils "github.com/berachain/polaris/e2e/precompile"
-	"github.com/berachain/polaris/eth/common"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"github.com/ethereum/go-ethereum/common"
 
 	. "github.com/berachain/polaris/e2e/localnet/utils"
 	. "github.com/onsi/ginkgo/v2"

@@ -32,14 +32,15 @@ import (
 	"github.com/berachain/polaris/cosmos/x/evm/plugins"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
 	"github.com/berachain/polaris/cosmos/x/evm/types"
-	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/core"
 	ethstate "github.com/berachain/polaris/eth/core/state"
-	"github.com/berachain/polaris/eth/crypto"
 	"github.com/berachain/polaris/lib/snapshot"
 	libtypes "github.com/berachain/polaris/lib/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 const pluginRegistryKey = `statePlugin`

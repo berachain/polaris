@@ -21,40 +21,42 @@
 package core
 
 import (
-	"github.com/berachain/polaris/eth/core/types"
-
+	"github.com/ethereum/go-ethereum/core"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/event"
 )
 
 type ChainSubscriber interface {
-	SubscribeRemovedLogsEvent(chan<- RemovedLogsEvent) event.Subscription // currently not used
-	SubscribeChainEvent(chan<- ChainEvent) event.Subscription
-	SubscribeChainHeadEvent(chan<- ChainHeadEvent) event.Subscription
-	SubscribeChainSideEvent(ch chan<- ChainSideEvent) event.Subscription // currently not used
-	SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription
+	SubscribeRemovedLogsEvent(chan<- core.RemovedLogsEvent) event.Subscription // currently not used
+	SubscribeChainEvent(chan<- core.ChainEvent) event.Subscription
+	SubscribeChainHeadEvent(chan<- core.ChainHeadEvent) event.Subscription
+	SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.Subscription // currently not used
+	SubscribeLogsEvent(ch chan<- []*ethtypes.Log) event.Subscription
 }
 
 // SubscribeRemovedLogsEvent registers a subscription of RemovedLogsEvent.
-func (bc *blockchain) SubscribeRemovedLogsEvent(ch chan<- RemovedLogsEvent) event.Subscription {
+func (bc *blockchain) SubscribeRemovedLogsEvent(
+	ch chan<- core.RemovedLogsEvent,
+) event.Subscription {
 	return bc.scope.Track(bc.rmLogsFeed.Subscribe(ch))
 }
 
 // SubscribeChainEvent registers a subscription of ChainEvent.
-func (bc *blockchain) SubscribeChainEvent(ch chan<- ChainEvent) event.Subscription {
+func (bc *blockchain) SubscribeChainEvent(ch chan<- core.ChainEvent) event.Subscription {
 	return bc.scope.Track(bc.chainFeed.Subscribe(ch))
 }
 
 // SubscribeChainHeadEvent registers a subscription of ChainHeadEvent.
-func (bc *blockchain) SubscribeChainHeadEvent(ch chan<- ChainHeadEvent) event.Subscription {
+func (bc *blockchain) SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription {
 	return bc.scope.Track(bc.chainHeadFeed.Subscribe(ch))
 }
 
 // SubscribeChainSideEvent registers a subscription of ChainSideEvent.
-func (bc *blockchain) SubscribeChainSideEvent(ch chan<- ChainSideEvent) event.Subscription {
+func (bc *blockchain) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.Subscription {
 	return bc.scope.Track(bc.chainSideFeed.Subscribe(ch))
 }
 
 // SubscribeLogsEvent registers a subscription of []*types.Log.
-func (bc *blockchain) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription {
+func (bc *blockchain) SubscribeLogsEvent(ch chan<- []*ethtypes.Log) event.Subscription {
 	return bc.scope.Track(bc.logsFeed.Subscribe(ch))
 }

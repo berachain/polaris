@@ -23,7 +23,7 @@ package runtime
 import (
 	"cosmossdk.io/log"
 
-	ethlog "github.com/berachain/polaris/eth/log"
+	ethlog "github.com/ethereum/go-ethereum/log"
 )
 
 // LoggerFuncHandler injects the cosmos-sdk logger into geth.
