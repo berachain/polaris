@@ -21,10 +21,10 @@
 package journal
 
 import (
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/berachain/polaris/lib/ds/stack"
+	libtypes "github.com/berachain/polaris/lib/types"
 
-	"pkg.berachain.dev/polaris/lib/ds/stack"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // transientState is a representation of EIP-1153 "Transient Storage".

@@ -24,25 +24,26 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ethereum/go-ethereum/core"
+	"github.com/berachain/polaris/eth/core/state"
+	"github.com/berachain/polaris/eth/core/types"
 
-	"pkg.berachain.dev/polaris/eth/core/state"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/log"
+	"github.com/ethereum/go-ethereum/core"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
 	LoadLastState(context.Context, uint64) error
-	WriteGenesisBlock(block *types.Block) error
-	InsertBlockAndSetHead(block *types.Block) error
-	InsertBlockWithoutSetHead(block *types.Block) error
-	WriteBlockAndSetHead(block *types.Block, receipts []*types.Receipt, logs []*types.Log,
+	WriteGenesisBlock(block *ethtypes.Block) error
+	InsertBlockAndSetHead(block *ethtypes.Block) error
+	InsertBlockWithoutSetHead(block *ethtypes.Block) error
+	WriteBlockAndSetHead(block *ethtypes.Block, receipts []*ethtypes.Receipt, logs []*ethtypes.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
 
 // WriteGenesisBlock inserts the genesis block into the blockchain.
-func (bc *blockchain) WriteGenesisBlock(block *types.Block) error {
+func (bc *blockchain) WriteGenesisBlock(block *ethtypes.Block) error {
 	// TODO: add more validation here.
 	if block.NumberU64() != 0 {
 		return errors.New("not the genesis block")
@@ -52,7 +53,7 @@ func (bc *blockchain) WriteGenesisBlock(block *types.Block) error {
 }
 
 // InsertBlockWithoutSetHead inserts a block into the blockchain without setting it as the head.
-func (bc *blockchain) InsertBlockWithoutSetHead(block *types.Block) error {
+func (bc *blockchain) InsertBlockWithoutSetHead(block *ethtypes.Block) error {
 	// Call the private method to insert the block without setting it as the head.
 	_, _, err := bc.insertBlockWithoutSetHead(block)
 	// Return any error that might have occurred.
@@ -61,8 +62,8 @@ func (bc *blockchain) InsertBlockWithoutSetHead(block *types.Block) error {
 
 // insertBlockWithoutSetHead inserts a block into the blockchain without setting it as the head.
 func (bc *blockchain) insertBlockWithoutSetHead(
-	block *types.Block,
-) ([]*types.Receipt, []*types.Log, error) {
+	block *ethtypes.Block,
+) ([]*ethtypes.Receipt, []*ethtypes.Log, error) {
 	// Validate that we are about to insert a valid block.
 	// If the block number is greater than 1,
 	// it means it's not the genesis block and needs to be validated. TODO kinda hood.
@@ -90,7 +91,7 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 }
 
 // InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
-func (bc *blockchain) InsertBlockAndSetHead(block *types.Block) error {
+func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
 	receipts, logs, err := bc.insertBlockWithoutSetHead(block)
 	if err != nil {
 		return err
@@ -106,7 +107,7 @@ func (bc *blockchain) InsertBlockAndSetHead(block *types.Block) error {
 
 // WriteBlockAndSetHead sets the head of the blockchain to the given block and finalizes the block.
 func (bc *blockchain) WriteBlockAndSetHead(
-	block *types.Block, receipts []*types.Receipt, logs []*types.Log,
+	block *ethtypes.Block, receipts []*ethtypes.Receipt, logs []*ethtypes.Log,
 	_ state.StateDB, emitHeadEvent bool,
 ) (core.WriteStatus, error) {
 	// Write the block to the store.
@@ -155,7 +156,7 @@ func (bc *blockchain) WriteBlockAndSetHead(
 	}
 
 	// Fire off the feeds.
-	bc.chainFeed.Send(ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
+	bc.chainFeed.Send(core.ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
 	if len(logs) > 0 {
 		bc.logsFeed.Send(logs)
 	}
@@ -166,7 +167,7 @@ func (bc *blockchain) WriteBlockAndSetHead(
 	// we will fire an accumulated ChainHeadEvent and disable fire
 	// event here.
 	if emitHeadEvent {
-		bc.chainHeadFeed.Send(ChainHeadEvent{Block: block})
+		bc.chainHeadFeed.Send(core.ChainHeadEvent{Block: block})
 	}
 
 	return core.CanonStatTy, nil
@@ -175,7 +176,7 @@ func (bc *blockchain) WriteBlockAndSetHead(
 // writeBlockWithState writes the block along with its state (receipts and logs)
 // into the blockchain.
 func (bc *blockchain) writeBlockWithState(
-	block *types.Block, receipts []*types.Receipt,
+	block *ethtypes.Block, receipts []*ethtypes.Receipt,
 ) error {
 	// In Polaris since we are using single block finality.
 	// Finalized == Current == Safe. All are the same.
@@ -208,8 +209,8 @@ func (bc *blockchain) writeBlockWithState(
 // InsertBlock inserts a block into the canonical chain and updates the state of the blockchain.
 // TODO: WRITE TO EXTERNAL STORE
 func (bc *blockchain) writeHistoricalData(
-	block *types.Block,
-	receipts types.Receipts,
+	block *ethtypes.Block,
+	receipts ethtypes.Receipts,
 ) error {
 	var err error
 	blockHash, blockNum := block.Hash(), block.Number().Uint64()

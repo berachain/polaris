@@ -29,20 +29,19 @@ import (
 	"context"
 	"math/big"
 
+	tbindings "github.com/berachain/polaris/contracts/bindings/testing"
+	localnet "github.com/berachain/polaris/e2e/localnet/network"
+
 	geth "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
 
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	localnet "pkg.berachain.dev/polaris/e2e/localnet/network"
-	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-
+	. "github.com/berachain/polaris/e2e/localnet/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 var _ = Describe("JSON RPC tests", func() {
@@ -170,7 +169,7 @@ var _ = Describe("JSON RPC tests", func() {
 
 		BeforeEach(func() {
 			var err error
-			var tx *coretypes.Transaction
+			var tx *gethtypes.Transaction
 			// Run some transactions for alice
 			_, tx, contract, err = tbindings.DeployConsumeGas(
 				tf.GenerateTransactOpts("alice"), client,
@@ -190,7 +189,7 @@ var _ = Describe("JSON RPC tests", func() {
 			Expect(tf.WaitForNextBlock()).To(Succeed())
 
 			// send a transaction and make sure pending nonce is incremented
-			var tx *coretypes.Transaction
+			var tx *gethtypes.Transaction
 			tx, err = contract.ConsumeGas(tf.GenerateTransactOpts("alice"), big.NewInt(10000))
 			Expect(err).NotTo(HaveOccurred())
 
@@ -222,11 +221,11 @@ var _ = Describe("JSON RPC tests", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			// send 10 transactions, each one with updated nonce
-			var txs []*coretypes.Transaction
+			var txs []*gethtypes.Transaction
 			for i := beforeNonce; i < beforeNonce+10; i++ {
 				txr := tf.GenerateTransactOpts("charlie")
 				txr.Nonce = big.NewInt(int64(i))
-				var tx *coretypes.Transaction
+				var tx *gethtypes.Transaction
 				tx, err = contract.ConsumeGas(txr, big.NewInt(50))
 				txs = append(txs, tx)
 				Expect(err).ToNot(HaveOccurred())

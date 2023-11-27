@@ -25,14 +25,14 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
+	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
-
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 func (wbc *WrappedBlockchain) ProcessProposal(
@@ -93,7 +93,7 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 	}
 
 	// Convert it to a block.
-	var block *types.Block
+	var block *ethtypes.Block
 	if block, err = engine.ExecutableDataToBlock(*envelope.ExecutionPayload, nil, nil); err != nil {
 		ctx.Logger().Error("failed to build evm block", "err", err)
 		return &abci.ResponseProcessProposal{

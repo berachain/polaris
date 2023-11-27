@@ -27,13 +27,13 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"pkg.berachain.dev/polaris/eth/params"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 const (
 	govcsTimeLayout = "2006-01-02T15:04:05Z"
 	ourTimeLayout   = "20060102"
-	ourPath         = "pkg.berachain.dev/polaris/eth" // Path to our module
+	ourPath         = "github.com/berachain/polaris/eth" // Path to our module
 )
 
 // These variables are set at build-time by the linker when the build is
@@ -73,7 +73,7 @@ func ClientName(clientIdentifier string) string {
 	)
 }
 
-// runtimeInfo returns build and platform information about the current binary.
+// Info returns build and platform information about the current binary.
 //
 // If the package that is currently executing is a prefixed by our go-ethereum
 // module path, it will print out commit and date VCS information. Otherwise,

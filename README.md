@@ -1,15 +1,13 @@
 <h1 align="center"> Polaris Monorepo ❄️🔭 </h1>
 
-![](./docs/web/public/bear_banner.png)
-
 *The project is still work in progress, see the [disclaimer below](#-warning-under-construction-).*
 
 <div>
   <a href="https://codecov.io/gh/berachain/polaris" target="_blank">
-    <img src="https://codecov.io/gh/berachain/polaris/branch/main/graph/badge.svg?token=5SYYGUS8GW"/> 
+    <img src="https://codecov.io/gh/berachain/polaris/branch/main/graph/badge.svg?token=5SYYGUS8GW"/>
   </a>
-  <a href="https://pkg.go.dev/pkg.berachain.dev/polaris" target="_blank">
-    <img src="https://pkg.go.dev/badge/pkg.berachain.dev/polaris.svg" alt="Go Reference">
+  <a href="https://pkg.go.dev/github.com/berachain/polaris" target="_blank">
+    <img src="https://pkg.go.dev/badge/github.com/berachain/polaris.svg" alt="Go Reference">
   </a>
   <a href="https://t.me/polaris_devs" target="_blank">
     <img alt="Telegram Chat" src="https://img.shields.io/endpoint?color=neon&logo=telegram&label=chat&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fpolaris_devs">
@@ -20,8 +18,6 @@
    <img src="https://img.shields.io/discord/984015101017346058?color=%235865F2&label=Discord&logo=discord&logoColor=%23fff" alt="Discord">
   </a>
 </div>
-
-
 
 ## What is Polaris?
 
@@ -46,15 +42,14 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 
 <pre>
 🔭 Polaris 🔭
+├── <a href="./build">build</a>: Build scripts and developer tooling.
 ├── <a href="./contracts">contracts</a>: Contracts and bindings for Polaris (and hosts).
-├── <a href="./docs">docs</a>: Documentation for Polaris.
 ├── <a href="./cosmos">cosmos</a>: Polaris integrated into a Cosmos-SDK based chain.
 ├── <a href="./e2e">e2e</a>: End-to-end testing utilities.
 ├── <a href="./eth">eth</a>: The Core of the Polaris Ethereum Framework.
 ├── <a href="./lib">lib</a>: A collection of libraries used throughout the repo.
-├── <a href="./tools">tools</a>: Package for holding tooling deps.
+├── <a href="./proto">proto</a>: Protobuf definitions.
 </pre>
-
 
 ## Build & Test
 

@@ -28,9 +28,10 @@ import (
 
 	"cosmossdk.io/log"
 
-	"pkg.berachain.dev/polaris/cosmos/runtime/txpool/mocks"
-	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/berachain/polaris/cosmos/runtime/txpool/mocks"
+
+	"github.com/ethereum/go-ethereum/core"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -86,7 +87,7 @@ var _ = Describe("", func() {
 			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Once()
 
 			h.txsCh <- core.NewTxsEvent{
-				Txs: []*coretypes.Transaction{coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5, Gas: 100})},
+				Txs: []*ethtypes.Transaction{ethtypes.NewTx(&ethtypes.LegacyTx{Nonce: 5, Gas: 100})},
 			}
 		})
 
@@ -95,9 +96,9 @@ var _ = Describe("", func() {
 			serializer.On("ToSdkTxBytes", mock.Anything, mock.Anything).Return([]byte{123}, nil).Twice()
 			broadcaster.On("BroadcastTxSync", []byte{123}).Return(nil, nil).Twice()
 
-			h.txsCh <- core.NewTxsEvent{Txs: []*coretypes.Transaction{
-				coretypes.NewTx(&coretypes.LegacyTx{Nonce: 5, Gas: 10}),
-				coretypes.NewTx(&coretypes.LegacyTx{Nonce: 6, Gas: 10}),
+			h.txsCh <- core.NewTxsEvent{Txs: []*ethtypes.Transaction{
+				ethtypes.NewTx(&ethtypes.LegacyTx{Nonce: 5, Gas: 10}),
+				ethtypes.NewTx(&ethtypes.LegacyTx{Nonce: 6, Gas: 10}),
 			}}
 		})
 	})

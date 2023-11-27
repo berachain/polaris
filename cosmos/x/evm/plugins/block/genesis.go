@@ -21,10 +21,11 @@
 package block
 
 import (
+	"github.com/berachain/polaris/eth/core"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // InitGenesis stores the genesis block header in the KVStore under its own genesis key.
@@ -48,7 +49,7 @@ func (p *plugin) ExportGenesis(ctx sdk.Context, ethGen *core.Genesis) {
 }
 
 // getGenesisHeader returns the block header at height 0 and does a sanity check.
-func (p *plugin) getGenesisHeader() (*types.Header, error) {
+func (p *plugin) getGenesisHeader() (*ethtypes.Header, error) {
 	header, err := p.GetHeaderByNumber(0)
 	if err != nil {
 		return nil, err

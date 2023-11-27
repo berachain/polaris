@@ -27,19 +27,20 @@ import (
 
 	"cosmossdk.io/log"
 
+	"github.com/berachain/polaris/cosmos/config"
+	"github.com/berachain/polaris/cosmos/runtime/chain"
+	testutil "github.com/berachain/polaris/cosmos/testutil"
+	"github.com/berachain/polaris/cosmos/x/evm"
+	"github.com/berachain/polaris/cosmos/x/evm/keeper"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
+	"github.com/berachain/polaris/eth/core"
+	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
+	"github.com/berachain/polaris/eth/params"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/consensus/beacon"
-
-	"pkg.berachain.dev/polaris/cosmos/config"
-	"pkg.berachain.dev/polaris/cosmos/runtime/chain"
-	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
-	"pkg.berachain.dev/polaris/cosmos/x/evm"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/eth/core"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/params"
+	ethparams "github.com/ethereum/go-ethereum/params"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -158,7 +159,7 @@ var _ = Describe("Genesis", func() {
 		Context("when the genesis is valid", func() {
 			It("should export without fail", func() {
 				ethGen.Config = nil
-				ethGen.BaseFee = big.NewInt(int64(params.InitialBaseFee))
+				ethGen.BaseFee = big.NewInt(int64(ethparams.InitialBaseFee))
 				Expect(actualGenesis).To(Equal(*ethGen))
 			})
 		})

@@ -1,22 +1,22 @@
-module pkg.berachain.dev/polaris/eth
+module github.com/berachain/polaris/eth
 
 go 1.21
 
-// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
 replace (
 	github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20230928194634-aa077af62593
+	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231105185655-b78967bb230f
 )
 
 require (
+	github.com/berachain/polaris/contracts v0.0.1-alpha
+	github.com/berachain/polaris/lib v0.0.1-alpha
 	github.com/ethereum/go-ethereum v1.13.4
 	github.com/holiman/uint256 v1.2.3
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.27.10
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/text v0.13.0
-	pkg.berachain.dev/polaris/contracts v0.0.0-20231104204753-faadca38b64d
-	pkg.berachain.dev/polaris/lib v0.0.0-20231104204753-faadca38b64d
 )
 
 require (
@@ -98,7 +98,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
+	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/peterh/liner v1.2.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

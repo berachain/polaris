@@ -25,11 +25,12 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/berachain/polaris/cosmos/runtime/txpool/mocks"
+	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/runtime/txpool/mocks"
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -50,7 +51,7 @@ var _ = Describe("", func() {
 		txPool = mocks.NewGethTxPool(t)
 		sdkTx = mocks.NewSdkTx(t)
 		mempool = &Mempool{txpool: txPool}
-		wet, _ = evmtypes.WrapTx(coretypes.NewTx(&coretypes.LegacyTx{}))
+		wet, _ = evmtypes.WrapTx(ethtypes.NewTx(&ethtypes.LegacyTx{}))
 	})
 
 	When("we call insert", func() {
@@ -81,9 +82,9 @@ var _ = Describe("", func() {
 			})
 		})
 		When("we use an that is not an ethereum msg", func() {
-			It("errors", func() {
+			It("does not error", func() {
 				sdkTx.On("GetMsgs").Return([]sdk.Msg{nil}).Once()
-				Expect(mempool.Insert(ctx, sdkTx)).To(HaveOccurred())
+				Expect(mempool.Insert(ctx, sdkTx)).ToNot(HaveOccurred())
 			})
 		})
 	})

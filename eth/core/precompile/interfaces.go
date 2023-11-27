@@ -21,10 +21,11 @@
 package precompile
 
 import (
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/vm"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/berachain/polaris/eth/accounts/abi"
+	libtypes "github.com/berachain/polaris/lib/types"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 type (
@@ -35,7 +36,7 @@ type (
 		// PrecompileManager is the manager for the native precompiles.
 		vm.PrecompileManager
 		// Register registers a new precompiled contract at the given address.
-		Register(vm.PrecompileContainer) error
+		Register(vm.PrecompiledContract) error
 
 		// EnableReentrancy enables the execution of a precompile contract to call back into the
 		// EVM.
@@ -59,7 +60,7 @@ type (
 	StatelessImpl interface {
 		Registrable
 
-		vm.PrecompileContainer
+		vm.PrecompiledContract
 	}
 
 	// StatefulImpl is the interface for all stateful precompiled contracts, which must

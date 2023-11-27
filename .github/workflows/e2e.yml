@@ -20,6 +20,10 @@
 
 name: e2e
 
+concurrency:
+  group: ci-${{ github.ref }}-e2e
+  cancel-in-progress: true
+
 on:
   pull_request:
   push:

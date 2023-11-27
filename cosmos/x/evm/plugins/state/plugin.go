@@ -28,18 +28,19 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
+	"github.com/berachain/polaris/cosmos/store/snapmulti"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
+	"github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth/core"
+	ethstate "github.com/berachain/polaris/eth/core/state"
+	"github.com/berachain/polaris/lib/snapshot"
+	libtypes "github.com/berachain/polaris/lib/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/store/snapmulti"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core"
-	ethstate "pkg.berachain.dev/polaris/eth/core/state"
-	"pkg.berachain.dev/polaris/eth/crypto"
-	"pkg.berachain.dev/polaris/lib/snapshot"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 const pluginRegistryKey = `statePlugin`

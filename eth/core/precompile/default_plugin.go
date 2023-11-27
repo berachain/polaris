@@ -24,29 +24,30 @@ import (
 	"context"
 	"math/big"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/lib/registry"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/berachain/polaris/lib/registry"
+	libtypes "github.com/berachain/polaris/lib/types"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 // defaultPlugin is the default precompile plugin, should any chain running Polaris EVM not
 // implement their own precompile plugin. Notably, this plugin can only run the default stateless
 // precompiles provided by Go-Ethereum.
 type defaultPlugin struct {
-	libtypes.Registry[common.Address, vm.PrecompileContainer]
+	libtypes.Registry[common.Address, vm.PrecompiledContract]
 }
 
 // NewDefaultPlugin returns a new instance of the default precompile plugin.
 func NewDefaultPlugin() Plugin {
 	return &defaultPlugin{
-		Registry: registry.NewMap[common.Address, vm.PrecompileContainer](),
+		Registry: registry.NewMap[common.Address, vm.PrecompiledContract](),
 	}
 }
 
 // Register is a no-op for the default plugin.
-func (dp *defaultPlugin) Register(vm.PrecompileContainer) error {
+func (dp *defaultPlugin) Register(vm.PrecompiledContract) error {
 	// no-op
 	return nil
 }
@@ -64,7 +65,7 @@ func (dp *defaultPlugin) GetActive(_ params.Rules) []common.Address {
 //
 // Run implements core.PrecompilePlugin.
 func (dp *defaultPlugin) Run(
-	evm vm.PrecompileEVM, pc vm.PrecompileContainer, input []byte,
+	evm vm.PrecompileEVM, pc vm.PrecompiledContract, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, _ bool,
 ) ([]byte, uint64, error) {
 	gasCost := pc.RequiredGas(input)

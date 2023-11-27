@@ -21,8 +21,8 @@
 package polarapi
 
 import (
-	"pkg.berachain.dev/polaris/eth/common/hexutil"
-	"pkg.berachain.dev/polaris/eth/crypto"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 // Web3Backend is the collection of methods required to satisfy the net
@@ -37,7 +37,7 @@ type Web3API interface {
 	Sha3(input hexutil.Bytes) hexutil.Bytes
 }
 
-// web3Api offers network related RPC methods.
+// web3API offers network related RPC methods.
 type web3API struct {
 	b Web3Backend
 }

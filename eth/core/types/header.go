@@ -20,16 +20,19 @@
 
 package types
 
-import "github.com/ethereum/go-ethereum/rlp"
+import (
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rlp"
+)
 
 // MarshalHeader marshals a header, as type `Header`, to bytes using rlp encoding.
-func MarshalHeader(header *Header) ([]byte, error) {
+func MarshalHeader(header *ethtypes.Header) ([]byte, error) {
 	return rlp.EncodeToBytes(header)
 }
 
 // UnmarshalHeader unmarshals a header from bytes to `Header` using rlp decoding.
-func UnmarshalHeader(data []byte) (*Header, error) {
-	header := &Header{}
+func UnmarshalHeader(data []byte) (*ethtypes.Header, error) {
+	header := &ethtypes.Header{}
 	err := rlp.DecodeBytes(data, header)
 	return header, err
 }

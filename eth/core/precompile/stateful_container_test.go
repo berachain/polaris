@@ -25,18 +25,20 @@ import (
 	"math/big"
 	"reflect"
 
-	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/vm"
-	vmmock "pkg.berachain.dev/polaris/eth/core/vm/mock"
+	solidity "github.com/berachain/polaris/contracts/bindings/testing"
+	pvm "github.com/berachain/polaris/eth/core/vm"
+	vmmock "github.com/berachain/polaris/eth/core/vm/mock"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Stateful Container", func() {
-	var sc vm.PrecompileContainer
-	var empty vm.PrecompileContainer
+	var sc vm.PrecompiledContract
+	var empty vm.PrecompiledContract
 	var blank []byte
 	var badInput = []byte{1, 2, 3, 4}
 	var err error
@@ -48,7 +50,7 @@ var _ = Describe("Stateful Container", func() {
 		empty, err = NewStatefulContainer(nil, nil)
 		Expect(empty).To(BeNil())
 		Expect(err).To(MatchError("the stateful precompile has no methods to run"))
-		ctx = vm.NewPolarContext(
+		ctx = pvm.NewPolarContext(
 			context.Background(),
 			vmmock.NewEVM(),
 			common.Address{},
@@ -72,38 +74,38 @@ var _ = Describe("Stateful Container", func() {
 			// invalid input
 			_, err = sc.Run(
 				ctx,
-				vm.UnwrapPolarContext(ctx).Evm(),
+				pvm.UnwrapPolarContext(ctx).Evm(),
 				blank,
-				vm.UnwrapPolarContext(ctx).MsgSender(),
-				vm.UnwrapPolarContext(ctx).MsgValue(),
+				pvm.UnwrapPolarContext(ctx).MsgSender(),
+				pvm.UnwrapPolarContext(ctx).MsgValue(),
 			)
 			Expect(err).To(MatchError("input bytes to precompile container are invalid"))
 
 			// method not found
 			_, err = sc.Run(
 				ctx,
-				vm.UnwrapPolarContext(ctx).Evm(),
-				badInput, vm.UnwrapPolarContext(ctx).MsgSender(),
-				vm.UnwrapPolarContext(ctx).MsgValue(),
+				pvm.UnwrapPolarContext(ctx).Evm(),
+				badInput, pvm.UnwrapPolarContext(ctx).MsgSender(),
+				pvm.UnwrapPolarContext(ctx).MsgValue(),
 			)
 			Expect(err).To(MatchError("precompile method not found in contract ABI"))
 
 			// geth unpacking error
 			_, err = sc.Run(ctx,
-				vm.UnwrapPolarContext(ctx).Evm(),
+				pvm.UnwrapPolarContext(ctx).Evm(),
 				append(getOutputABI.ID, byte(1), byte(2)),
-				vm.UnwrapPolarContext(ctx).MsgSender(),
-				vm.UnwrapPolarContext(ctx).MsgValue(),
+				pvm.UnwrapPolarContext(ctx).MsgSender(),
+				pvm.UnwrapPolarContext(ctx).MsgValue(),
 			)
 			Expect(err).To(HaveOccurred())
 
 			// precompile exec error
 			_, err = sc.Run(
 				ctx,
-				vm.UnwrapPolarContext(ctx).Evm(),
+				pvm.UnwrapPolarContext(ctx).Evm(),
 				getOutputPartialABI.ID,
-				vm.UnwrapPolarContext(ctx).MsgSender(),
-				vm.UnwrapPolarContext(ctx).MsgValue(),
+				pvm.UnwrapPolarContext(ctx).MsgSender(),
+				pvm.UnwrapPolarContext(ctx).MsgValue(),
 			)
 			//nolint:lll // error message.
 			Expect(err.Error()).To(Equal(
@@ -118,10 +120,10 @@ var _ = Describe("Stateful Container", func() {
 			var ret []byte
 			ret, err = sc.Run(
 				ctx,
-				vm.UnwrapPolarContext(ctx).Evm(),
+				pvm.UnwrapPolarContext(ctx).Evm(),
 				append(getOutputABI.ID, inputs...),
-				vm.UnwrapPolarContext(ctx).MsgSender(),
-				vm.UnwrapPolarContext(ctx).MsgValue(),
+				pvm.UnwrapPolarContext(ctx).MsgSender(),
+				pvm.UnwrapPolarContext(ctx).MsgValue(),
 			)
 			Expect(err).ToNot(HaveOccurred())
 			var outputs []interface{}

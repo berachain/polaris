@@ -26,17 +26,17 @@ import (
 
 	"cosmossdk.io/log"
 
+	testutil "github.com/berachain/polaris/cosmos/testutil"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core/mock"
+	"github.com/berachain/polaris/eth/params"
+	"github.com/berachain/polaris/lib/utils"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/trie"
-
-	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/mock"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/params"
-	"pkg.berachain.dev/polaris/lib/utils"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -77,15 +77,15 @@ var _ = Describe("Historical Data", func() {
 	When("Other blocks", func() {
 		It("should correctly store and return blocks", func() {
 			ctx = ctx.WithBlockHeight(1)
-			header := &coretypes.Header{
+			header := &ethtypes.Header{
 				Number:   big.NewInt(1),
 				GasLimit: 1000,
 			}
-			tx := coretypes.NewTransaction(
+			tx := ethtypes.NewTransaction(
 				0, common.Address{0x1}, big.NewInt(1), 1000, big.NewInt(1), []byte{0x12},
 			)
 			txHash := tx.Hash()
-			receipts := coretypes.Receipts{
+			receipts := ethtypes.Receipts{
 				{
 					Type:              2,
 					Status:            1,
@@ -96,8 +96,8 @@ var _ = Describe("Historical Data", func() {
 					BlockNumber:       big.NewInt(1),
 				},
 			}
-			txs := coretypes.Transactions{tx}
-			block := coretypes.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil))
+			txs := ethtypes.Transactions{tx}
+			block := ethtypes.NewBlock(header, txs, nil, receipts, trie.NewStackTrie(nil))
 			blockHash := block.Hash()
 			receipts[0].BlockHash = blockHash
 

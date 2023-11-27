@@ -16,3 +16,11 @@ pull_request_rules:
         commit_message_template: |
           {{ title }} (#{{ number }})
           {{ body }}
+  - name: backport patches to v0.0.2-alpha branch
+    conditions:
+      - base=main
+      - label=backport/v0.0.2-alpha
+    actions:
+      backport:
+        branches:
+          - release/v0.0.2-alpha

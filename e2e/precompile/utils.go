@@ -25,7 +25,7 @@
 
 package utils
 
-import network "pkg.berachain.dev/polaris/e2e/localnet/network"
+import network "github.com/berachain/polaris/e2e/localnet/network"
 
 const (
 	polardConfigPath    = "polard/config/"

@@ -26,16 +26,16 @@ import (
 
 	"cosmossdk.io/log"
 
+	"github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/lib/utils"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
-
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth"
-	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/lib/utils"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // Mempool implements the mempool.Mempool & Lifecycle interfaces.
@@ -65,7 +65,7 @@ type Mempool struct {
 	handler Lifecycle
 }
 
-// NewMempool creates a new Mempool.
+// New creates a new Mempool.
 func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
 	return &Mempool{
 		txpool: txpool,
@@ -73,7 +73,7 @@ func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
 	}
 }
 
-// Init intializes the Mempool (notably the TxHandler).
+// Init initializes the Mempool (notably the TxHandler).
 func (m *Mempool) Init(
 	logger log.Logger,
 	txBroadcaster TxBroadcaster,
@@ -102,9 +102,10 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	}
 
 	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); !ok {
-		return errors.New("only WrappedEthereumTransactions are supported")
+		// We have to return nil for non-ethereum transactions as to not fail check-tx.
+		return nil
 	} else if errs := m.txpool.Add(
-		[]*coretypes.Transaction{wet.Unwrap()}, false, false,
+		[]*ethtypes.Transaction{wet.Unwrap()}, false, false,
 	); len(errs) != 0 {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
 		if errors.Is(errs[0], legacypool.ErrAlreadyKnown) && sCtx.ExecMode() == sdk.ExecModeCheck {

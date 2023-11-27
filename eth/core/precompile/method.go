@@ -25,10 +25,11 @@ import (
 	"errors"
 	"reflect"
 
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/core/vm"
-	errorslib "pkg.berachain.dev/polaris/lib/errors"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/berachain/polaris/eth/accounts/abi"
+	errorslib "github.com/berachain/polaris/lib/errors"
+	"github.com/berachain/polaris/lib/utils"
+
+	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 // methodID is a fixed length byte array that represents the method ID of a precompile method.
@@ -55,10 +56,10 @@ type method struct {
 	// that implements the respective precompile method.
 	rcvr StatefulImpl
 
-	// AbiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
+	// abiMethod is the ABI `Methods` struct corresponding to this precompile's executable.
 	abiMethod abi.Method
 
-	// Execute is the precompile's executable which will execute the logic of the implemented
+	// execute is the precompile's executable which will execute the logic of the implemented
 	// ABI method.
 	execute reflect.Method
 }

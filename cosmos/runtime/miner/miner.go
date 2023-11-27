@@ -26,14 +26,14 @@ import (
 
 	"github.com/cosmos/gogoproto/proto"
 
+	"github.com/berachain/polaris/eth"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/miner"
-
-	"pkg.berachain.dev/polaris/eth"
-	"pkg.berachain.dev/polaris/eth/core/types"
 )
 
 // Miner implements the baseapp.TxSelector interface.
@@ -98,7 +98,7 @@ func (m *Miner) constructPayloadArgs(ctx sdk.Context) *miner.BuildPayloadArgs {
 		Timestamp:    uint64(ctx.BlockTime().Unix()),
 		FeeRecipient: m.Etherbase(),
 		Random:       common.Hash{}, /* todo: generated random */
-		Withdrawals:  make(types.Withdrawals, 0),
+		Withdrawals:  make(ethtypes.Withdrawals, 0),
 		BeaconRoot:   &emptyHash,
 	}
 }

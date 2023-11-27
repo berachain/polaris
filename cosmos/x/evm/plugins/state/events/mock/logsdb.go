@@ -21,13 +21,13 @@
 package mock
 
 import (
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 //go:generate moq -out ./logsdb.mock.go -pkg mock ../ LogsDB
 
 func NewEmptyLogsDB() *LogsDBMock {
 	return &LogsDBMock{
-		AddLogFunc: func(log *coretypes.Log) {},
+		AddLogFunc: func(log *ethtypes.Log) {},
 	}
 }

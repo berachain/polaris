@@ -26,9 +26,9 @@
 package registry_test
 
 import (
-	"pkg.berachain.dev/polaris/lib/registry"
-	"pkg.berachain.dev/polaris/lib/registry/mock"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/berachain/polaris/lib/registry"
+	"github.com/berachain/polaris/lib/registry/mock"
+	libtypes "github.com/berachain/polaris/lib/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

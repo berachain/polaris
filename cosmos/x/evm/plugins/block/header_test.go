@@ -27,14 +27,16 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
+	testutil "github.com/berachain/polaris/cosmos/testutil"
+	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/lib/utils"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -54,7 +56,7 @@ var _ = Describe("Header", func() {
 	})
 
 	It("should handle genesis header", func() {
-		header := &types.Header{
+		header := &ethtypes.Header{
 			Number: big.NewInt(0),
 		}
 		genHash := header.Hash()
@@ -74,7 +76,7 @@ var _ = Describe("Header", func() {
 		p.Prepare(ctx.WithBlockHeight(10))
 
 		// just finished processing block 10
-		header := &types.Header{
+		header := &ethtypes.Header{
 			ParentHash:  common.Hash{0x01},
 			UncleHash:   common.Hash{0x02},
 			Coinbase:    common.Address{0x03},
@@ -122,7 +124,7 @@ var _ = Describe("Header", func() {
 		// check to see that the hashes are actually pruned
 		// these 5 hashes will not be found because we only store last prevHeaderHashes (256)
 		for _, deletedHash := range deletedHashes {
-			var deletedHeader *types.Header
+			var deletedHeader *ethtypes.Header
 			deletedHeader, err = p.GetHeaderByHash(deletedHash)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError(core.ErrHeaderNotFound))
@@ -146,8 +148,8 @@ func mockQueryContext(height int64, _ bool) (sdk.Context, error) {
 	return ctx, nil
 }
 
-func generateHeaderAtHeight(height int64) *types.Header {
-	return &types.Header{
+func generateHeaderAtHeight(height int64) *ethtypes.Header {
+	return &ethtypes.Header{
 		ParentHash:  common.Hash{0x01},
 		UncleHash:   common.Hash{0x02},
 		Coinbase:    common.Address{0x03},
