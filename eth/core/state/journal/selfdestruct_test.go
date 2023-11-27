@@ -21,9 +21,10 @@
 package journal
 
 import (
-	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/core/state/journal/mock"
 	"github.com/berachain/polaris/lib/utils"
+
+	"github.com/ethereum/go-ethereum/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

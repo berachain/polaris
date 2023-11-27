@@ -27,11 +27,12 @@ import (
 
 	testutil "github.com/berachain/polaris/cosmos/testutil"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
-	"github.com/berachain/polaris/eth/common"
-	coretypes "github.com/berachain/polaris/eth/core/types"
-	"github.com/berachain/polaris/eth/crypto"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -470,8 +471,8 @@ var _ = Describe("State Plugin", func() {
 
 type mockPLF struct{}
 
-func (mplf *mockPLF) Build(event *sdk.Event) (*coretypes.Log, error) {
-	return &coretypes.Log{
+func (mplf *mockPLF) Build(event *sdk.Event) (*ethtypes.Log, error) {
+	return &ethtypes.Log{
 		Address: common.BytesToAddress([]byte(event.Type)),
 	}, nil
 }

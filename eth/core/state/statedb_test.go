@@ -27,12 +27,13 @@ import (
 
 	tmock "github.com/stretchr/testify/mock"
 
-	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/core/state"
 	"github.com/berachain/polaris/eth/core/state/mock"
 	"github.com/berachain/polaris/eth/core/state/mocks"
-	coretypes "github.com/berachain/polaris/eth/core/types"
-	"github.com/berachain/polaris/eth/params"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -87,8 +88,8 @@ var _ = Describe("StateDB", func() {
 			params.Rules{IsBerlin: true, IsShanghai: true},
 			alice, bob, &common.Address{3},
 			[]common.Address{{4}},
-			coretypes.AccessList{
-				coretypes.AccessTuple{
+			ethtypes.AccessList{
+				ethtypes.AccessTuple{
 					Address:     common.Address{5},
 					StorageKeys: []common.Hash{{2}, {3}},
 				},

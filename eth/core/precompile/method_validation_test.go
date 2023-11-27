@@ -27,7 +27,8 @@ import (
 
 	"github.com/berachain/polaris/contracts/bindings/testing"
 	"github.com/berachain/polaris/eth/accounts/abi"
-	"github.com/berachain/polaris/eth/common"
+
+	"github.com/ethereum/go-ethereum/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

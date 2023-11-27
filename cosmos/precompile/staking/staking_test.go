@@ -33,7 +33,6 @@ import (
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
 	testutil "github.com/berachain/polaris/cosmos/testutil"
 	"github.com/berachain/polaris/eth/accounts/abi"
-	"github.com/berachain/polaris/eth/common"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/vm"
 	"github.com/berachain/polaris/eth/core/vm/mock"
@@ -46,6 +45,8 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/ethereum/go-ethereum/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

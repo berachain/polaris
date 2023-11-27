@@ -26,10 +26,12 @@ import (
 	"math/big"
 
 	"github.com/berachain/polaris/cosmos/x/evm/types"
-	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/core"
 	coretypes "github.com/berachain/polaris/eth/core/types"
 	errorslib "github.com/berachain/polaris/lib/errors"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // prevHeaderHashes is the number of previous header hashes being stored on chain.
@@ -38,7 +40,7 @@ const prevHeaderHashes = 256
 // GetHeaderByNumber returns the header at the given height, using the plugin's query context.
 //
 // GetHeaderByNumber implements core.BlockPlugin.
-func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
+func (p *plugin) GetHeaderByNumber(number uint64) (*ethtypes.Header, error) {
 	bz, err := p.readHeaderBytes(number)
 	if err != nil {
 		return nil, errorslib.Wrap(err, "GetHeaderByNumber: failed to readHeaderBytes")
@@ -66,7 +68,7 @@ func (p *plugin) GetHeaderByNumber(number uint64) (*coretypes.Header, error) {
 // GetHeaderByHash returns the header specified by the given block hash
 //
 // GetHeaderByHash implements core.BlockPlugin.
-func (p *plugin) GetHeaderByHash(hash common.Hash) (*coretypes.Header, error) {
+func (p *plugin) GetHeaderByHash(hash common.Hash) (*ethtypes.Header, error) {
 	numBz := p.ctx.MultiStore().GetKVStore(p.storekey).Get(hash.Bytes())
 	if numBz == nil {
 		return nil, core.ErrHeaderNotFound
@@ -75,7 +77,7 @@ func (p *plugin) GetHeaderByHash(hash common.Hash) (*coretypes.Header, error) {
 }
 
 // StoreHeader implements core.BlockPlugin.
-func (p *plugin) StoreHeader(header *coretypes.Header) error {
+func (p *plugin) StoreHeader(header *ethtypes.Header) error {
 	headerHash := header.Hash()
 	headerBz, err := coretypes.MarshalHeader(header)
 	if err != nil {

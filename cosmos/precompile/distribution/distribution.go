@@ -29,12 +29,13 @@ import (
 	generated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/distribution"
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
 	"github.com/berachain/polaris/cosmos/precompile/staking"
-	"github.com/berachain/polaris/eth/common"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
-	"github.com/berachain/polaris/eth/core/vm"
+	pvm "github.com/berachain/polaris/eth/core/vm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // Contract is the precompile contract for the distribution module.
@@ -80,7 +81,7 @@ func (c *Contract) SetWithdrawAddress(
 	withdrawAddress common.Address,
 ) (bool, error) {
 	delAddr, err := cosmlib.StringFromEthAddress(
-		c.addressCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.addressCodec, pvm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err

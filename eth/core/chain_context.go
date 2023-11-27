@@ -21,14 +21,13 @@
 package core
 
 import (
-	"github.com/berachain/polaris/eth/common"
-	"github.com/berachain/polaris/eth/core/types"
-
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // GetHeader returns the header for the given hash or number. This is used by the `GetHashFn`.
-func (bc *blockchain) GetHeader(hash common.Hash, number uint64) *types.Header {
+func (bc *blockchain) GetHeader(hash common.Hash, number uint64) *ethtypes.Header {
 	header := bc.GetHeaderByNumber(number)
 	if header == nil {
 		header = bc.GetHeaderByHash(hash)

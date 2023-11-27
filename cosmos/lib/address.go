@@ -23,7 +23,7 @@ package lib
 import (
 	"cosmossdk.io/core/address"
 
-	"github.com/berachain/polaris/eth/common"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 /* -------------------------------------------------------------------------- */

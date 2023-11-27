@@ -27,7 +27,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/berachain/polaris/eth/params"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 const (

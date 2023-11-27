@@ -27,11 +27,12 @@ import (
 
 	testutil "github.com/berachain/polaris/cosmos/testutil"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
-	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/core"
-	"github.com/berachain/polaris/eth/crypto"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
