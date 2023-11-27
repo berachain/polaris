@@ -21,8 +21,8 @@
 package types
 
 import (
-	"github.com/berachain/polaris/eth/common"
-
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
@@ -30,7 +30,7 @@ import (
 //
 //go:generate rlpgen -type TxLookupEntry -out transaction.rlpgen.go -decoder
 type TxLookupEntry struct {
-	Tx        *Transaction
+	Tx        *ethtypes.Transaction
 	TxIndex   uint64
 	BlockNum  uint64
 	BlockHash common.Hash

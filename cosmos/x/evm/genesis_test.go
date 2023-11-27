@@ -40,6 +40,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/consensus/beacon"
+	ethparams "github.com/ethereum/go-ethereum/params"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -158,7 +159,7 @@ var _ = Describe("Genesis", func() {
 		Context("when the genesis is valid", func() {
 			It("should export without fail", func() {
 				ethGen.Config = nil
-				ethGen.BaseFee = big.NewInt(int64(params.InitialBaseFee))
+				ethGen.BaseFee = big.NewInt(int64(ethparams.InitialBaseFee))
 				Expect(actualGenesis).To(Equal(*ethGen))
 			})
 		})

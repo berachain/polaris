@@ -36,11 +36,12 @@ import (
 	tbindings "github.com/berachain/polaris/contracts/bindings/testing/governance"
 	network "github.com/berachain/polaris/e2e/localnet/network"
 	utils "github.com/berachain/polaris/e2e/precompile"
-	"github.com/berachain/polaris/eth/common"
-	"github.com/berachain/polaris/eth/core/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	. "github.com/berachain/polaris/e2e/localnet/utils"
 	. "github.com/onsi/ginkgo/v2"
@@ -77,7 +78,7 @@ var _ = Describe("Call the Precompile Directly", func() {
 			common.HexToAddress("0x4381dC2aB14285160c808659aEe005D51255adD7"), tf.EthClient())
 
 		// Deploy the contract.
-		var tx *types.Transaction
+		var tx *ethtypes.Transaction
 		wrapperAddr, tx, wrapper, err = tbindings.DeployGovernanceWrapper(
 			tf.GenerateTransactOpts("alice"),
 			tf.EthClient(),

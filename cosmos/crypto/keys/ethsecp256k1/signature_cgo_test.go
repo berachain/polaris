@@ -23,7 +23,7 @@ package ethsecp256k1
 import (
 	"crypto/ecdsa"
 
-	"github.com/berachain/polaris/eth/crypto"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -44,9 +44,9 @@ var _ = Describe("PrivKey_PubKey", func() {
 	It("validates signing bytes", func() {
 		msg := []byte("hello world")
 		// for the eth case, we have to manually hash in the test.
-		sigHash := crypto.Keccak256(msg)
+		sigHash := ethcrypto.Keccak256(msg)
 
-		expectedSig, err := crypto.EthSign(sigHash, ecdsaPrivKey)
+		expectedSig, err := ethcrypto.Sign(sigHash, ecdsaPrivKey)
 		Expect(err).ToNot(HaveOccurred())
 
 		sig, err := privKey.Sign(msg)
@@ -56,7 +56,7 @@ var _ = Describe("PrivKey_PubKey", func() {
 
 	It("validates signature", func() {
 		msg := []byte("hello world")
-		sigHash := crypto.Keccak256(msg)
+		sigHash := ethcrypto.Keccak256(msg)
 		sig, err := privKey.Sign(sigHash)
 		Expect(err).ToNot(HaveOccurred())
 

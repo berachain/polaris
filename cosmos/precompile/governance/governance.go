@@ -31,7 +31,6 @@ import (
 	generated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/precompile/log"
-	"github.com/berachain/polaris/eth/common"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/vm"
 
@@ -40,6 +39,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 const (

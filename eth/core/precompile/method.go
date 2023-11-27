@@ -26,9 +26,10 @@ import (
 	"reflect"
 
 	"github.com/berachain/polaris/eth/accounts/abi"
-	"github.com/berachain/polaris/eth/core/vm"
 	errorslib "github.com/berachain/polaris/lib/errors"
 	"github.com/berachain/polaris/lib/utils"
+
+	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 // methodID is a fixed length byte array that represents the method ID of a precompile method.

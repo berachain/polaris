@@ -22,6 +22,8 @@ package vm
 
 import (
 	"context"
+
+	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 type (
@@ -29,7 +31,7 @@ type (
 	// additional state transition functionalities.
 	PolarStateDB interface {
 		// StateDB represents vm.StateDB
-		StateDB
+		vm.StateDB
 		// GetContext returns the current context of the state plugin.
 		GetContext() context.Context
 	}

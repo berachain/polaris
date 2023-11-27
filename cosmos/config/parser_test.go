@@ -25,8 +25,9 @@ import (
 	"time"
 
 	"github.com/berachain/polaris/cosmos/config/mocks"
-	"github.com/berachain/polaris/eth/common"
-	"github.com/berachain/polaris/eth/common/hexutil"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

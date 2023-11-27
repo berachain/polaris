@@ -23,12 +23,13 @@ package log
 import (
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
 	"github.com/berachain/polaris/eth/core/precompile"
-	coretypes "github.com/berachain/polaris/eth/core/types"
 	"github.com/berachain/polaris/lib/registry"
 	libtypes "github.com/berachain/polaris/lib/types"
 	"github.com/berachain/polaris/lib/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // Factory is a `PrecompileLogFactory` that builds Ethereum logs from Cosmos events. All Ethereum
@@ -55,7 +56,7 @@ func NewFactory(precompiles []precompile.Registrable) *Factory {
 // Build builds an Ethereum log from a Cosmos event.
 //
 // Build implements `events.PrecompileLogFactory`.
-func (f *Factory) Build(event *sdk.Event) (*coretypes.Log, error) {
+func (f *Factory) Build(event *sdk.Event) (*ethtypes.Log, error) {
 	// get the precompile log for the Cosmos event type
 	pl := f.events.Get(event.Type)
 	if pl == nil {
@@ -70,7 +71,7 @@ func (f *Factory) Build(event *sdk.Event) (*coretypes.Log, error) {
 	}
 
 	// build the Ethereum log
-	log := &coretypes.Log{
+	log := &ethtypes.Log{
 		Address: pl.precompileAddr,
 	}
 	if log.Topics, err = f.makeTopics(pl, event); err != nil {
