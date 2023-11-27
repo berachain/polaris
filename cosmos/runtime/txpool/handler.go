@@ -133,7 +133,7 @@ func (h *handler) Stop() error {
 	return nil
 }
 
-// start handles the subscription to the txpool and broadcasts transactions.
+// mainLoop start handles the subscription to the txpool and broadcasts transactions.
 func (h *handler) mainLoop() {
 	// Connect to the subscription.
 	h.txsSub = h.txPool.SubscribeTransactions(h.txsCh, true)
