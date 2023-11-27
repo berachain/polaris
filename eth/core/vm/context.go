@@ -120,7 +120,7 @@ func (c *PolarContext) WithValue(key, value any) *PolarContext {
 // UnwrapPolarContext retrieves a Context from a context.Context instance attached with a
 // PolarContext. It panics if a Context was not properly attached.
 func UnwrapPolarContext(ctx context.Context) *PolarContext {
-	if polarCtx, ok := utils.GetAs[*PolarContext](ctx); ok {
+	if polarCtx, ok := utils.GetAs[*PolarContext](ctx); ok && polarCtx != nil {
 		return polarCtx
 	}
 	return utils.MustGetAs[*PolarContext](ctx.Value(PolarContextKey))

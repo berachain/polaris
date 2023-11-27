@@ -108,7 +108,7 @@ func (c *Contract) GetBondedValidators(
 		Status:     stakingtypes.BondStatusBonded,
 		Pagination: cosmlib.ExtractPageRequestFromInput(pagination),
 	})
-	if err != nil {
+	if err != nil || res == nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
@@ -163,7 +163,7 @@ func (c *Contract) GetValidators(
 	res, err := c.querier.Validators(ctx, &stakingtypes.QueryValidatorsRequest{
 		Pagination: cosmlib.ExtractPageRequestFromInput(pagination),
 	})
-	if err != nil {
+	if err != nil || res == nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
@@ -252,7 +252,7 @@ func (c *Contract) GetValidatorDelegations(
 	})
 	if status.Code(err) == codes.NotFound {
 		return []generated.IStakingModuleDelegation{}, cbindings.CosmosPageResponse{}, nil
-	} else if err != nil {
+	} else if err != nil || res == nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
@@ -359,7 +359,7 @@ func (c *Contract) GetDelegatorUnbondingDelegations(
 	if status.Code(err) == codes.NotFound {
 		return []generated.IStakingModuleUnbondingDelegation{},
 			cbindings.CosmosPageResponse{}, nil
-	} else if err != nil {
+	} else if err != nil || res == nil {
 		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
