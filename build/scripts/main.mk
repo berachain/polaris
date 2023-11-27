@@ -133,7 +133,7 @@ abigen-install:
 	@go install github.com/ethereum/go-ethereum/cmd/abigen@latest
 
 moq-install:
-	@echo "--> Installing moq"x
+	@echo "--> Installing moq"
 	@go install github.com/matryer/moq@latest
 
 mockery-install:
@@ -289,7 +289,7 @@ format:
 	@$(MAKE) license-fix buf-lint-fix forge-lint-fix golangci-fix
 
 lint:
-	@$(MAKE) license buf-lint forge-lint golangci nilaway
+	@$(MAKE) license buf-lint forge-lint golangci gosec nilaway
 
 
 #################
