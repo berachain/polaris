@@ -27,18 +27,19 @@ import (
 	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
 
+	libgenerated "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
+	"github.com/berachain/polaris/contracts/bindings/cosmos/precompile/governance"
+	"github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
+	"github.com/berachain/polaris/cosmos/precompile"
+	"github.com/berachain/polaris/lib/utils"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	libgenerated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
-	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/governance"
-	"pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
-	"pkg.berachain.dev/polaris/cosmos/precompile"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 /**
@@ -89,17 +90,20 @@ func ExtractCoinsFromInput(coins any) (sdk.Coins, error) {
 
 	sdkCoins := sdk.Coins{}
 	for _, evmCoin := range amounts {
-		sdkCoins = append(sdkCoins, sdk.Coin{
+		sdkCoin := sdk.Coin{
 			Denom: evmCoin.Denom, Amount: sdkmath.NewIntFromBigInt(evmCoin.Amount),
-		})
+		}
+		if !sdkCoin.IsZero() {
+			// remove any 0 amounts
+			sdkCoins = append(sdkCoins, sdkCoin)
+		}
 	}
-	// sort the coins by denom, as Cosmos expects and remove any 0 amounts.
-	sdkCoins = sdk.NewCoins(sdkCoins...)
 	if len(sdkCoins) == 0 {
 		return nil, precompile.ErrInvalidCoin
 	}
 
-	return sdkCoins, nil
+	// sort the coins by denom, as Cosmos expects
+	return sdkCoins.Sort(), nil
 }
 
 func ExtractPageRequestFromInput(pageRequest any) *query.PageRequest {
@@ -137,7 +141,13 @@ func ExtractCoinFromInputToCoin(coin any) (sdk.Coin, error) {
 		return sdk.Coin{}, precompile.ErrInvalidCoin
 	}
 
-	sdkCoin := sdk.NewCoin(amounts.Denom, sdkmath.NewIntFromBigInt(amounts.Amount))
+	sdkCoin := sdk.Coin{
+		Denom:  amounts.Denom,
+		Amount: sdkmath.NewIntFromBigInt(amounts.Amount),
+	}
+	if err := sdkCoin.Validate(); err != nil {
+		return sdk.Coin{}, err
+	}
 	return sdkCoin, nil
 }
 

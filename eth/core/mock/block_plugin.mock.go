@@ -5,9 +5,9 @@ package mock
 
 import (
 	"context"
+	"github.com/berachain/polaris/eth/core"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"pkg.berachain.dev/polaris/eth/core"
 	"sync"
 )
 

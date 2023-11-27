@@ -23,9 +23,11 @@ package core
 import (
 	"math/big"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/lib/utils"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // ChainReader defines methods that are used to read the state and blocks of the chain.
@@ -36,16 +38,16 @@ type ChainReader interface {
 
 // ChainBlockReader defines methods that are used to read information about blocks in the chain.
 type ChainBlockReader interface {
-	CurrentHeader() *types.Header
-	CurrentBlock() *types.Header
-	CurrentFinalBlock() *types.Header
-	CurrentSafeBlock() *types.Header
-	GetBlock(common.Hash, uint64) *types.Block
-	GetReceiptsByHash(common.Hash) types.Receipts
-	GetBlockByHash(common.Hash) *types.Block
-	GetHeaderByNumber(uint64) *types.Header
-	GetHeaderByHash(common.Hash) *types.Header
-	GetBlockByNumber(uint64) *types.Block
+	CurrentHeader() *ethtypes.Header
+	CurrentBlock() *ethtypes.Header
+	CurrentFinalBlock() *ethtypes.Header
+	CurrentSafeBlock() *ethtypes.Header
+	GetBlock(common.Hash, uint64) *ethtypes.Block
+	GetReceiptsByHash(common.Hash) ethtypes.Receipts
+	GetBlockByHash(common.Hash) *ethtypes.Block
+	GetHeaderByNumber(uint64) *ethtypes.Header
+	GetHeaderByHash(common.Hash) *ethtypes.Header
+	GetBlockByNumber(uint64) *ethtypes.Block
 	GetTransactionLookup(common.Hash) *types.TxLookupEntry
 	GetTd(common.Hash, uint64) *big.Int
 	HasBlock(common.Hash, uint64) bool
@@ -56,8 +58,8 @@ type ChainBlockReader interface {
 // =========================================================================
 
 // CurrentHeader returns the current header of the blockchain.
-func (bc *blockchain) CurrentHeader() *types.Header {
-	block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
+func (bc *blockchain) CurrentHeader() *ethtypes.Header {
+	block, ok := utils.GetAs[*ethtypes.Block](bc.currentBlock.Load())
 	if block == nil || !ok {
 		return nil
 	}
@@ -67,8 +69,8 @@ func (bc *blockchain) CurrentHeader() *types.Header {
 }
 
 // CurrentBlock returns the current header of the blockchain.
-func (bc *blockchain) CurrentBlock() *types.Header {
-	block, ok := utils.GetAs[*types.Block](bc.currentBlock.Load())
+func (bc *blockchain) CurrentBlock() *ethtypes.Header {
+	block, ok := utils.GetAs[*ethtypes.Block](bc.currentBlock.Load())
 	if block == nil || !ok {
 		return nil
 	}
@@ -78,14 +80,14 @@ func (bc *blockchain) CurrentBlock() *types.Header {
 }
 
 // CurrentSnapBlock is UNUSED in Polaris.
-func (bc *blockchain) CurrentSnapBlock() *types.Header {
+func (bc *blockchain) CurrentSnapBlock() *ethtypes.Header {
 	return nil
 }
 
 // GetHeadersFrom returns a contiguous segment of headers, in rlp-form, going
 // backwards from the given number.
-func (bc *blockchain) CurrentFinalBlock() *types.Header {
-	fb, ok := utils.GetAs[*types.Block](bc.finalizedBlock.Load())
+func (bc *blockchain) CurrentFinalBlock() *ethtypes.Header {
+	fb, ok := utils.GetAs[*ethtypes.Block](bc.finalizedBlock.Load())
 	if fb == nil || !ok {
 		return nil
 	}
@@ -96,12 +98,12 @@ func (bc *blockchain) CurrentFinalBlock() *types.Header {
 
 // CurrentSafeBlock retrieves the current safe block of the canonical
 // chain. The block is retrieved from the blockchain's internal cache.
-func (bc *blockchain) CurrentSafeBlock() *types.Header {
+func (bc *blockchain) CurrentSafeBlock() *ethtypes.Header {
 	return bc.CurrentFinalBlock()
 }
 
 // GetBlock returns a block by its hash or number.
-func (bc *blockchain) GetBlock(hash common.Hash, number uint64) *types.Block {
+func (bc *blockchain) GetBlock(hash common.Hash, number uint64) *ethtypes.Block {
 	if block := bc.GetBlockByHash(hash); block != nil {
 		return block
 	}
@@ -110,7 +112,7 @@ func (bc *blockchain) GetBlock(hash common.Hash, number uint64) *types.Block {
 }
 
 // GetBlockByHash retrieves a block from the database by hash, caching it if found.
-func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
+func (bc *blockchain) GetBlockByHash(hash common.Hash) *ethtypes.Block {
 	// check the block hash cache
 	if block, ok := bc.blockHashCache.Get(hash); ok {
 		bc.blockNumCache.Add(block.Number().Uint64(), block)
@@ -137,21 +139,21 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *types.Block {
 }
 
 // GetBlock retrieves a block from the database by hash and number, caching it if found.
-func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
+func (bc *blockchain) GetBlockByNumber(number uint64) *ethtypes.Block {
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
 		bc.blockHashCache.Add(block.Hash(), block)
 		return block
 	}
 
-	var block *types.Block
+	var block *ethtypes.Block
 	if number == 0 {
 		// get the genesis block header
 		header, err := bc.bp.GetHeaderByNumber(number)
 		if header == nil || err != nil {
 			return nil
 		}
-		block = types.NewBlockWithHeader(header)
+		block = ethtypes.NewBlockWithHeader(header)
 	} else {
 		var err error
 		// check if historical plugin is supported by host chain
@@ -175,7 +177,7 @@ func (bc *blockchain) GetBlockByNumber(number uint64) *types.Block {
 
 // GetReceipts gathers the receipts that were created in the block defined by
 // the given hash.
-func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) types.Receipts {
+func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) ethtypes.Receipts {
 	// check the cache
 	if receipts, ok := bc.receiptsCache.Get(blockHash); ok {
 		derived, err := bc.deriveReceipts(receipts, blockHash)
@@ -242,18 +244,18 @@ func (bc *blockchain) GetTransactionLookup(
 }
 
 // GetHeaderByNumber retrieves a header from the blockchain.
-func (bc *blockchain) GetHeaderByNumber(number uint64) *types.Header {
+func (bc *blockchain) GetHeaderByNumber(number uint64) *ethtypes.Header {
 	header, _ := bc.bp.GetHeaderByNumber(number)
 	return header
 }
 
 // GetHeaderByHash retrieves a block header from the database by hash, caching it if
 // found.
-func (bc *blockchain) GetHeaderByHash(hash common.Hash) *types.Header {
+func (bc *blockchain) GetHeaderByHash(hash common.Hash) *ethtypes.Header {
 	header, err := bc.bp.GetHeaderByHash(hash)
 	if err != nil && bc.hp != nil {
 		// try searching the historical plugin if the block plugin does not have the header
-		var block *types.Block
+		var block *ethtypes.Block
 		block, err = bc.hp.GetBlockByHash(hash)
 		if err != nil {
 			return nil

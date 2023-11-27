@@ -23,13 +23,13 @@ package evm
 import (
 	"encoding/json"
 
+	"github.com/berachain/polaris/eth/core"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"pkg.berachain.dev/polaris/eth/core"
 )
 
 // DefaultGenesis returns default genesis state as raw bytes for the evm

@@ -26,10 +26,10 @@
 package snapshot
 
 import (
-	"pkg.berachain.dev/polaris/lib/ds"
-	"pkg.berachain.dev/polaris/lib/ds/stack"
-	"pkg.berachain.dev/polaris/lib/registry"
-	libtypes "pkg.berachain.dev/polaris/lib/types"
+	"github.com/berachain/polaris/lib/ds"
+	"github.com/berachain/polaris/lib/ds/stack"
+	"github.com/berachain/polaris/lib/registry"
+	libtypes "github.com/berachain/polaris/lib/types"
 )
 
 // initJournalCapacity is the initial capacity of the `journal` stack.

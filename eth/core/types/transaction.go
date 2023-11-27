@@ -21,16 +21,16 @@
 package types
 
 import (
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
-
-	"pkg.berachain.dev/polaris/eth/common"
 )
 
 // TxLookupEntry is a positional metadata to help looking up a transaction by hash.
 //
 //go:generate rlpgen -type TxLookupEntry -out transaction.rlpgen.go -decoder
 type TxLookupEntry struct {
-	Tx        *Transaction
+	Tx        *ethtypes.Transaction
 	TxIndex   uint64
 	BlockNum  uint64
 	BlockHash common.Hash

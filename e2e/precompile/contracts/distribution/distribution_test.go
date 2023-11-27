@@ -29,21 +29,22 @@ import (
 	"math/big"
 	"testing"
 
+	bbindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/bank"
+	bindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/distribution"
+	sbindings "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
+	tbindings "github.com/berachain/polaris/contracts/bindings/testing"
+	network "github.com/berachain/polaris/e2e/localnet/network"
+	utils "github.com/berachain/polaris/e2e/precompile"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	bbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/bank"
-	bindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/distribution"
-	sbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
-	tbindings "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	network "pkg.berachain.dev/polaris/e2e/localnet/network"
-	utils "pkg.berachain.dev/polaris/e2e/precompile"
-	"pkg.berachain.dev/polaris/eth/common"
+	"github.com/ethereum/go-ethereum/common"
 
+	. "github.com/berachain/polaris/e2e/localnet/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	. "pkg.berachain.dev/polaris/e2e/localnet/utils"
 )
 
 func TestDistributionPrecompile(t *testing.T) {

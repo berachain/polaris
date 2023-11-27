@@ -23,7 +23,7 @@ package mock
 import (
 	"math/big"
 
-	"pkg.berachain.dev/polaris/eth/common"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 //go:generate moq -out ./state_plugin.mock.go -skip-ensure -pkg mock ../ selfDestructStatePlugin

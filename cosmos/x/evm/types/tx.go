@@ -24,12 +24,11 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
-
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // WrapTx sets the transaction data from an `coretypes.Transaction`.
-func WrapTx(tx *coretypes.Transaction) (*WrappedEthereumTransaction, error) {
+func WrapTx(tx *ethtypes.Transaction) (*WrappedEthereumTransaction, error) {
 	bz, err := tx.MarshalBinary()
 	if err != nil {
 		return nil, fmt.Errorf("failed to wrap transaction: %w", err)
@@ -41,8 +40,8 @@ func WrapTx(tx *coretypes.Transaction) (*WrappedEthereumTransaction, error) {
 }
 
 // Unwrap extracts the transaction as an `coretypes.Transaction`.
-func (etr *WrappedEthereumTransaction) Unwrap() *coretypes.Transaction {
-	tx := new(coretypes.Transaction)
+func (etr *WrappedEthereumTransaction) Unwrap() *ethtypes.Transaction {
+	tx := new(ethtypes.Transaction)
 	if err := tx.UnmarshalBinary(etr.Data); err != nil {
 		return nil
 	}

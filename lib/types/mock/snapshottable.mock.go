@@ -4,7 +4,7 @@
 package mock
 
 import (
-	"pkg.berachain.dev/polaris/lib/types"
+	"github.com/berachain/polaris/lib/types"
 	"sync"
 )
 

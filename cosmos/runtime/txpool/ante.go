@@ -23,14 +23,14 @@ package txpool
 import (
 	"errors"
 
+	"github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/lib/utils"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/txpool"
-
-	"pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth/common"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/lib/utils"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // AnteHandle implements sdk.AnteHandler.
@@ -53,7 +53,7 @@ func (m *Mempool) AnteHandle(
 }
 
 // shouldEject returns true if the transaction should be ejected from the CometBFT mempool.
-func (m *Mempool) shouldEject(tx *coretypes.Transaction) bool {
+func (m *Mempool) shouldEject(tx *ethtypes.Transaction) bool {
 	if tx == nil {
 		return false
 	}

@@ -30,17 +30,18 @@ import (
 	"cosmossdk.io/core/address"
 	sdkmath "cosmossdk.io/math"
 
+	cbindings "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
+	generated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
+	cosmlib "github.com/berachain/polaris/cosmos/lib"
+	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
+	pvm "github.com/berachain/polaris/eth/core/vm"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	cbindings "pkg.berachain.dev/polaris/contracts/bindings/cosmos/lib"
-	generated "pkg.berachain.dev/polaris/contracts/bindings/cosmos/precompile/staking"
-	cosmlib "pkg.berachain.dev/polaris/cosmos/lib"
-	"pkg.berachain.dev/polaris/eth/common"
-	ethprecompile "pkg.berachain.dev/polaris/eth/core/precompile"
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type ValidatorStore interface {
@@ -452,7 +453,7 @@ func (c *Contract) Delegate(
 		return false, err
 	}
 	caller, err := cosmlib.StringFromEthAddress(
-		c.accAddrCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.accAddrCodec, pvm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err
@@ -481,7 +482,7 @@ func (c *Contract) Undelegate(
 		return false, err
 	}
 	caller, err := cosmlib.StringFromEthAddress(
-		c.accAddrCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.accAddrCodec, pvm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err
@@ -515,7 +516,7 @@ func (c *Contract) BeginRedelegate(
 		return false, err
 	}
 	caller, err := cosmlib.StringFromEthAddress(
-		c.accAddrCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.accAddrCodec, pvm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err
@@ -549,7 +550,7 @@ func (c *Contract) CancelUnbondingDelegation(
 		return false, err
 	}
 	caller, err := cosmlib.StringFromEthAddress(
-		c.accAddrCodec, vm.UnwrapPolarContext(ctx).MsgSender(),
+		c.accAddrCodec, pvm.UnwrapPolarContext(ctx).MsgSender(),
 	)
 	if err != nil {
 		return false, err

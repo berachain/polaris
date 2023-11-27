@@ -23,23 +23,24 @@ package polar
 import (
 	"math/big"
 
+	"github.com/berachain/polaris/eth/consensus"
+	"github.com/berachain/polaris/eth/core"
+	polarapi "github.com/berachain/polaris/eth/polar/api"
+
 	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/beacon"
 	"github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/filters"
+	"github.com/ethereum/go-ethereum/ethapi"
 	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
-
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/consensus"
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/log"
-	polarapi "pkg.berachain.dev/polaris/eth/polar/api"
-	"pkg.berachain.dev/polaris/eth/rpc"
+	"github.com/ethereum/go-ethereum/rpc"
 )
 
 // TODO: break out the node into a separate package and then fully use the
@@ -92,9 +93,6 @@ func New(
 	// When creating a Polaris EVM, we allow the implementing chain
 	// to specify their own log handler. If logHandler is nil then we
 	// we use the default geth log handler.
-	// When creating a Polaris EVM, we allow the implementing chain
-	// to specify their own log handler. If logHandler is nil then we
-	// we use the default geth log handler.
 	if logHandler != nil {
 		// Root is a global in geth that is used by the evm to emit logs.
 		log.Root().SetHandler(logHandler)
@@ -142,7 +140,7 @@ func New(
 	// Setup the miner, we use a dummy isLocal function, since it is not used.
 	pl.miner = miner.New(pl, &pl.config.Miner,
 		&pl.config.Chain, stack.EventMux(), pl.engine,
-		func(header *types.Header) bool { return true },
+		func(header *ethtypes.Header) bool { return true },
 	)
 
 	// Register the backend on the node
@@ -170,7 +168,7 @@ func (pl *Polaris) Stop() error {
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (pl *Polaris) APIs() []rpc.API {
 	// Grab a bunch of the apis from go-Polaris (thx bae)
-	apis := polarapi.GethAPIs(pl.apiBackend, pl.blockchain)
+	apis := ethapi.GetAPIs(pl.apiBackend, pl.blockchain)
 
 	// Append all the local APIs and return
 	return append(apis, []rpc.API{

@@ -23,8 +23,9 @@ package chain
 import (
 	"context"
 
-	"pkg.berachain.dev/polaris/eth/core"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/core"
+
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // WrappedBlockchain is a struct that wraps the core blockchain with additional
@@ -50,10 +51,10 @@ func (wbc *WrappedBlockchain) WriteGenesisState(
 	return wbc.WriteGenesisBlock(genState.ToBlock())
 }
 
-// InsertBlockWithoutSetHead inserts a block into the blockchain and sets
+// InsertBlockAndSetHead inserts a block into the blockchain and sets
 // it as the head. It uses the provided context as the application context.
 func (wbc *WrappedBlockchain) InsertBlockAndSetHead(
-	ctx context.Context, block *types.Block,
+	ctx context.Context, block *ethtypes.Block,
 ) error {
 	wbc.PreparePlugins(ctx)
 	return wbc.Blockchain.InsertBlockAndSetHead(block)
@@ -62,7 +63,7 @@ func (wbc *WrappedBlockchain) InsertBlockAndSetHead(
 // InsertBlockWithoutSetHead inserts a block into the blockchain without setting it
 // as the head. It uses the provided context as the application context.
 func (wbc *WrappedBlockchain) InsertBlockWithoutSetHead(
-	ctx context.Context, block *types.Block,
+	ctx context.Context, block *ethtypes.Block,
 ) error {
 	wbc.PreparePlugins(ctx)
 	return wbc.Blockchain.InsertBlockWithoutSetHead(block)

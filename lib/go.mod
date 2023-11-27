@@ -1,4 +1,4 @@
-module pkg.berachain.dev/polaris/lib
+module github.com/berachain/polaris/lib
 
 go 1.21
 

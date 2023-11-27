@@ -23,11 +23,10 @@ package core
 import (
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core"
-
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/common/hexutil"
-	"pkg.berachain.dev/polaris/eth/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 type (
@@ -70,7 +69,7 @@ var DefaultGenesis = &core.Genesis{
 }
 
 // UnmarshalGenesisHeader sets the fields of the given header into the Genesis struct.
-func UnmarshalGenesisHeader(header *types.Header, gen *Genesis) {
+func UnmarshalGenesisHeader(header *ethtypes.Header, gen *Genesis) {
 	// Note: cannot set the state root on the genesis.
 	gen.Nonce = header.Nonce.Uint64()
 	gen.Timestamp = header.Time

@@ -25,7 +25,7 @@
 
 package mock
 
-import libtypes "pkg.berachain.dev/polaris/lib/types"
+import libtypes "github.com/berachain/polaris/lib/types"
 
 //go:generate moq -out ./cloneable.mock.go -pkg mock ../ Cloneable
 

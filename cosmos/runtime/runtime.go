@@ -27,6 +27,19 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
+	libtx "github.com/berachain/polaris/cosmos/lib/tx"
+	antelib "github.com/berachain/polaris/cosmos/runtime/ante"
+	"github.com/berachain/polaris/cosmos/runtime/chain"
+	"github.com/berachain/polaris/cosmos/runtime/comet"
+	"github.com/berachain/polaris/cosmos/runtime/miner"
+	"github.com/berachain/polaris/cosmos/runtime/txpool"
+	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
+	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+	"github.com/berachain/polaris/eth"
+	"github.com/berachain/polaris/eth/consensus"
+	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/node"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -34,20 +47,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
-
-	libtx "pkg.berachain.dev/polaris/cosmos/lib/tx"
-	antelib "pkg.berachain.dev/polaris/cosmos/runtime/ante"
-	"pkg.berachain.dev/polaris/cosmos/runtime/chain"
-	"pkg.berachain.dev/polaris/cosmos/runtime/comet"
-	"pkg.berachain.dev/polaris/cosmos/runtime/miner"
-	"pkg.berachain.dev/polaris/cosmos/runtime/txpool"
-	evmkeeper "pkg.berachain.dev/polaris/cosmos/x/evm/keeper"
-	evmtypes "pkg.berachain.dev/polaris/cosmos/x/evm/types"
-	"pkg.berachain.dev/polaris/eth"
-	"pkg.berachain.dev/polaris/eth/consensus"
-	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/node"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
@@ -84,8 +84,7 @@ type Polaris struct {
 	logger log.Logger
 }
 
-// ProvidePolarisRuntime creates a new Polaris runtime from the provided
-// dependencies.
+// New creates a new Polaris runtime from the provided dependencies.
 func New(
 	cfg *eth.Config,
 	logger log.Logger,
@@ -137,7 +136,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 		clientCtx.TxConfig, evmtypes.WrapPayload))
 
 	// Initialize the txpool with a new transaction serializer.
-	p.WrappedTxPool.Init(p.logger, clientCtx, libtx.NewSerializer[*coretypes.Transaction](
+	p.WrappedTxPool.Init(p.logger, clientCtx, libtx.NewSerializer[*ethtypes.Transaction](
 		clientCtx.TxConfig, evmtypes.WrapTx))
 
 	// Register services with Polaris.
@@ -152,7 +151,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 	return p.StartServices()
 }
 
-// RegisterServices is a function that allows for the application to register lifecycles with
+// RegisterLifecycles is a function that allows for the application to register lifecycles with
 // the evm networking stack. It takes a client context and a slice of node.Lifecycle
 // as arguments.
 func (p *Polaris) RegisterLifecycles(lcs []node.Lifecycle) {

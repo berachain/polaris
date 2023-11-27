@@ -26,10 +26,11 @@ import (
 
 	"golang.org/x/exp/slices"
 
+	"github.com/berachain/polaris/eth/core"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // InitGenesis takes in a pointer to a genesis state object and populates the KV store.

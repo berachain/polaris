@@ -32,9 +32,8 @@ import (
 	ginkgo "github.com/onsi/ginkgo/v2"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/crypto"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 const (

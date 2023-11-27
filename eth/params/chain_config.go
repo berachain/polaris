@@ -22,13 +22,15 @@ package params
 
 import (
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/params"
 )
 
 const DefaultEIP155ChainID = 2061
 
 var zero = uint64(0)
 
-var DefaultChainConfig = &ChainConfig{
+var DefaultChainConfig = &params.ChainConfig{
 	ChainID:                       big.NewInt(DefaultEIP155ChainID),
 	HomesteadBlock:                big.NewInt(0),
 	DAOForkBlock:                  big.NewInt(0),

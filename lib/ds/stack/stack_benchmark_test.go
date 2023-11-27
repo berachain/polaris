@@ -17,7 +17,7 @@ package stack_test
 import (
 	"testing"
 
-	"pkg.berachain.dev/polaris/lib/ds/stack"
+	"github.com/berachain/polaris/lib/ds/stack"
 )
 
 const (

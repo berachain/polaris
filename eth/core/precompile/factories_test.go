@@ -25,11 +25,13 @@ import (
 	"errors"
 	"math/big"
 
-	solidity "pkg.berachain.dev/polaris/contracts/bindings/testing"
-	"pkg.berachain.dev/polaris/eth/accounts/abi"
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/core/vm"
+	solidity "github.com/berachain/polaris/contracts/bindings/testing"
+	"github.com/berachain/polaris/eth/accounts/abi"
+	pvm "github.com/berachain/polaris/eth/core/vm"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -164,7 +166,7 @@ func (ms *mockStateful) GetOutput(
 	ctx context.Context,
 	str string,
 ) ([]mockObject, error) {
-	vm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&types.Log{Address: common.Address{0x1}})
+	pvm.UnwrapPolarContext(ctx).Evm().GetStateDB().AddLog(&ethtypes.Log{Address: common.Address{0x1}})
 	return []mockObject{
 		{
 			CreationHeight: big.NewInt(1),

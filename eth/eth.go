@@ -24,18 +24,19 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ethereum/go-ethereum/core/txpool"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/miner"
+	"github.com/berachain/polaris/eth/consensus"
+	pcore "github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/node"
+	"github.com/berachain/polaris/eth/polar"
 
-	"pkg.berachain.dev/polaris/eth/common"
-	"pkg.berachain.dev/polaris/eth/consensus"
-	"pkg.berachain.dev/polaris/eth/core"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/log"
-	"pkg.berachain.dev/polaris/eth/node"
-	"pkg.berachain.dev/polaris/eth/polar"
-	"pkg.berachain.dev/polaris/eth/rpc"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core"
+	"github.com/ethereum/go-ethereum/core/txpool"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/miner"
+	"github.com/ethereum/go-ethereum/rpc"
 )
 
 type (
@@ -48,16 +49,16 @@ type (
 
 	// TxPool represents the `TxPool` that exists on the backend of the execution layer.
 	TxPool interface {
-		Add([]*coretypes.Transaction, bool, bool) []error
+		Add([]*ethtypes.Transaction, bool, bool) []error
 		Stats() (int, int)
 		SubscribeTransactions(ch chan<- core.NewTxsEvent, reorgs bool) event.Subscription
 		Status(hash common.Hash) txpool.TxStatus
 		Has(hash common.Hash) bool
 	}
 
-	// ExecutionLayerNode is the entrypoint for the evm execution environment.
+	// NetworkingStack is the entrypoint for the evm execution environment.
 	NetworkingStack interface {
-		// IsExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC API.
+		// ExtRPCEnabled returns true if the networking stack is configured to expose JSON-RPC API.
 		ExtRPCEnabled() bool
 
 		// RegisterHandler manually registers a new handler into the networking stack.
@@ -72,7 +73,7 @@ type (
 		// Start starts the networking stack.
 		Start() error
 
-		// Close stops the networking stack
+		// Close stops the networking stack.
 		Close() error
 	}
 
@@ -95,11 +96,11 @@ type (
 // It takes a client type, configuration, host chain, consensus engine, and log handler
 // as parameters. It returns a pointer to the ExecutionLayer and an error if any.
 func New(
-	client string, cfg any, host core.PolarisHostChain,
+	client string, cfg any, host pcore.PolarisHostChain,
 	engine consensus.Engine, logHandler log.Handler,
 ) (*ExecutionLayer, error) {
 	clientFactories := map[string]func(
-		any, core.PolarisHostChain, consensus.Engine, log.Handler,
+		any, pcore.PolarisHostChain, consensus.Engine, log.Handler,
 	) (*ExecutionLayer, error){
 		"geth": newGethExecutionLayer,
 	}
@@ -115,7 +116,7 @@ func New(
 // newGethExecutionLayer creates a new geth execution layer.
 // It returns a pointer to the ExecutionLayer and an error if any.
 func newGethExecutionLayer(
-	anyCfg any, host core.PolarisHostChain,
+	anyCfg any, host pcore.PolarisHostChain,
 	engine consensus.Engine, logHandler log.Handler,
 ) (*ExecutionLayer, error) {
 	cfg, ok := anyCfg.(*Config)
@@ -176,6 +177,6 @@ func (el *ExecutionLayer) TxPool() TxPool {
 }
 
 // Blockchain returns the blockchain interface of the backend of the execution layer.
-func (el *ExecutionLayer) Blockchain() core.Blockchain {
+func (el *ExecutionLayer) Blockchain() pcore.Blockchain {
 	return el.backend.Blockchain()
 }

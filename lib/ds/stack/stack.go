@@ -16,7 +16,7 @@
 package stack
 
 import (
-	"pkg.berachain.dev/polaris/lib/ds"
+	"github.com/berachain/polaris/lib/ds"
 )
 
 const (

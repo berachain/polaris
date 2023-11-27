@@ -29,18 +29,20 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
+	"github.com/berachain/polaris/cosmos/store/snapmulti"
+	testutil "github.com/berachain/polaris/cosmos/testutil"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events/mock"
+	ethstate "github.com/berachain/polaris/eth/core/state"
+	pvm "github.com/berachain/polaris/eth/core/vm"
+	"github.com/berachain/polaris/lib/utils"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"pkg.berachain.dev/polaris/cosmos/store/snapmulti"
-	testutil "pkg.berachain.dev/polaris/cosmos/testutil"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events"
-	"pkg.berachain.dev/polaris/cosmos/x/evm/plugins/state/events/mock"
-	"pkg.berachain.dev/polaris/eth/common"
-	ethstate "pkg.berachain.dev/polaris/eth/core/state"
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
-	"pkg.berachain.dev/polaris/eth/core/vm"
-	"pkg.berachain.dev/polaris/lib/utils"
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -104,12 +106,10 @@ var _ = Describe("plugin", func() {
 	})
 
 	It("should catch panics and propagate", func() {
-		Expect(func() {
-			_, _, _ = p.Run(e, &mockPanicking{
-				err: errors.New("error"),
-			}, []byte{}, addr, new(big.Int), 30, false)
-		},
-		).To(Panic())
+		_, _, vmErr := p.Run(e, &mockPanicking{
+			err: errors.New("error"),
+		}, []byte{}, addr, new(big.Int), 30, false)
+		Expect(errors.Is(vmErr, vm.ErrExecutionReverted)).To(BeTrue())
 	})
 })
 
@@ -129,7 +129,7 @@ func (me *mockEVM) GetStateDB() vm.StateDB {
 }
 
 type mockSDB struct {
-	vm.PolarStateDB
+	pvm.PolarStateDB
 	ctx  sdk.Context
 	logs int
 }
@@ -144,7 +144,7 @@ func (ms *mockSDB) GetContext() context.Context {
 	return ms.ctx
 }
 
-func (ms *mockSDB) AddLog(*coretypes.Log) {
+func (ms *mockSDB) AddLog(*ethtypes.Log) {
 	ms.logs++
 }
 

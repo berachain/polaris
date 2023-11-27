@@ -25,18 +25,18 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	coretypes "pkg.berachain.dev/polaris/eth/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 //go:generate moq -out ./log_factory.mock.go -pkg mock ../ PrecompileLogFactory
 
 func NewPrecompileLogFactory() *PrecompileLogFactoryMock {
 	return &PrecompileLogFactoryMock{
-		BuildFunc: func(event *sdk.Event) (*coretypes.Log, error) {
+		BuildFunc: func(event *sdk.Event) (*ethtypes.Log, error) {
 			if event.Type == "non-eth-event" {
 				return nil, errors.New("event is not eth")
 			}
-			return &coretypes.Log{}, nil
+			return &ethtypes.Log{}, nil
 		},
 	}
 }
