@@ -54,8 +54,10 @@ func VCS() (VCSInfo, bool) {
 		return VCSInfo{Commit: gitCommit, Date: gitDate}, true
 	}
 	if buildInfo, ok := debug.ReadBuildInfo(); ok {
-		if buildInfo.Main.Path == ourPath {
-			return buildInfoVCS(buildInfo)
+		if buildInfo != nil {
+			if buildInfo.Main.Path == ourPath {
+				return buildInfoVCS(buildInfo)
+			}
 		}
 	}
 	return VCSInfo{}, false
@@ -110,6 +112,10 @@ func Info() (string, string) {
 // information. If it is unable to determine which module is related to our
 // package it falls back to the hardcoded values in the params package.
 func versionInfo(info *debug.BuildInfo) string {
+	if info == nil {
+		return fmt.Sprintf("Error: Build info nil")
+	}
+
 	// If the main package is from our repo, prefix version with "geth".
 	if strings.HasPrefix(info.Path, ourPath) {
 		return fmt.Sprintf("geth %s", info.Main.Version)
@@ -153,8 +159,13 @@ func findModule(info *debug.BuildInfo, path string) *debug.Module {
 
 // buildInfoVCS returns VCS information of the build.
 func buildInfoVCS(info *debug.BuildInfo) (VCSInfo, bool) {
+	if info == nil {
+		return VCSInfo{}, false
+	}
+
 	var s VCSInfo
 	var ok bool
+
 	for _, v := range info.Settings {
 		switch v.Key {
 		case "vcs.revision":

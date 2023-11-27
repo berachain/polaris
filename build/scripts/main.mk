@@ -337,7 +337,7 @@ license:
 	@$(MAKE) license-install
 	@echo "--> Running addlicense with -check"
 	@for module in $(MODULES); do \
-		(cd $$module && addlicense -check -v -f ./LICENSE.header ./.) || exit 1; \
+		(cd $$module && addlicense -check -v -f ./LICENSE.header -ignore "lib/forge-std/**/*" -ignore "lib/solmate/**/*" ./.) || exit 1; \
 	done
 
 license-fix:
@@ -353,7 +353,7 @@ license-fix:
 
 nilaway-install:
 	@echo "--> Installing nilaway"
-	@go install github.com/nilaway/nilaway/cmd/nilaway
+	@go install go.uber.org/nilaway/cmd/nilaway@latest
 
 nilaway:
 	@for module in $(MODULES); do \
