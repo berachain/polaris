@@ -289,7 +289,7 @@ format:
 	@$(MAKE) license-fix buf-lint-fix forge-lint-fix golangci-fix
 
 lint:
-	@$(MAKE) license buf-lint forge-lint golangci gosec nilaway
+	@$(MAKE) license buf-lint forge-lint golangci gosec nilaway-install nilaway
 
 
 #################
