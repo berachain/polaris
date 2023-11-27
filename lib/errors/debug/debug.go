@@ -42,6 +42,9 @@ const (
 func GetFnName(fn any) string {
 	fullName := runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name()
 	brokenUpNames := strings.Split(fullName, dot) // guarantees len(brokenUpName) >= 1
+	if len(brokenUpNames) == 0 {
+		return "ErrorNoNames"
+	}
 	brokenUpName := brokenUpNames[len(brokenUpNames)-1]
 
 	dehyphenatedName := strings.Split(brokenUpName, hyphen)
