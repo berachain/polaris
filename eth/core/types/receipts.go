@@ -21,6 +21,7 @@
 package types
 
 import (
+	"errors"
 	"math/big"
 	"unsafe"
 
@@ -37,7 +38,11 @@ func DeriveReceiptsFromBlock(
 	// calculate the blobGasPrice according to the excess blob gas.
 	var blobGasPrice = new(big.Int)
 	if chainConfig.IsCancun(block.Number(), block.Time()) {
-		blobGasPrice = eip4844.CalcBlobFee(*block.ExcessBlobGas())
+		excessBlogGas := block.ExcessBlobGas()
+		if excessBlogGas == nil {
+			return nil, errors.New("Excess blob gas is nil")
+		}
+		blobGasPrice = eip4844.CalcBlobFee(*excessBlogGas)
 	}
 
 	// Derive receipts from block.
