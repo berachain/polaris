@@ -104,6 +104,10 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Collect genesis tx
 	./build/bin/polard genesis collect-gentxs --home "$HOMEDIR"
 
+	ADDRESS=$(jq -r '.address' $HOMEDIR/config/priv_validator_key.json)
+	PUB_KEY=$(jq -r '.pub_key' $HOMEDIR/config/priv_validator_key.json)
+	jq --argjson pubKey "$PUB_KEY" '. + {"validators": [{"address": "'$ADDRESS'", "pub_key": $pubKey, "power": "1000", "name": "Rollkit Sequencer"}]}' "$GENESIS" > temp.json && mv temp.json "$GENESIS"
+
 	# Run this to ensure everything worked and that the genesis file is setup correctly
 	./build/bin/polard genesis validate-genesis --home "$HOMEDIR"
 
