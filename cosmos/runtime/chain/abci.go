@@ -72,13 +72,17 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 	for _, tx := range req.Txs {
 		var sdkTx sdk.Tx
 		sdkTx, err = wbc.app.TxDecode(tx)
-		if err != nil {
+		if err != nil || sdkTx == nil {
 			// should have been verified in prepare proposal, we
 			// ignore it for now (i.e VE extensions will fail decode).
 			continue
 		}
 
-		protoEnvelope := sdkTx.GetMsgs()[0]
+		msgs := sdkTx.GetMsgs()
+		if msgs == nil {
+			continue
+		}
+		protoEnvelope := msgs[0]
 		if env, ok := protoEnvelope.(*evmtypes.WrappedPayloadEnvelope); ok {
 			envelope = env.UnwrapPayload()
 			break
