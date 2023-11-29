@@ -116,6 +116,12 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	fi
 fi
 
+# copy centralized sequencer address into genesis.json
+# Note: validator and sequencer are used interchangeably here
+ADDRESS=$(jq -r '.address' .tmp/polard/config/priv_validator_key.json)
+PUB_KEY=$(jq -r '.pub_key' .tmp/polard/config/priv_validator_key.json)
+jq --argjson pubKey "$PUB_KEY" '. + {"validators": [{"address": "'$ADDRESS'", "pub_key": $pubKey, "power": "1000", "name": "Rollkit Sequencer"}]}' .tmp/polard/config/genesis.json > temp.json && mv temp.json .tmp/polard/config/genesis.json
+
 # set the auth token for DA bridge node
 AUTH_TOKEN=$(docker exec $(docker ps -q)  celestia bridge --node.store /home/celestia/bridge/ auth admin)
 
