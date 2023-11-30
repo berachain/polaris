@@ -88,8 +88,8 @@ func NewRootCmd() *cobra.Command {
 	ethcryptocodec.RegisterInterfaces(clientCtx.InterfaceRegistry)
 
 	rootCmd := &cobra.Command{
-		Use:           "simd",
-		Short:         "simulation app",
+		Use:           "polard",
+		Short:         "node daemon and CLI for interacting with a polaris node",
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			var err error
