@@ -188,7 +188,7 @@ func (pl *Polaris) APIs() []rpc.API {
 			Service:   polarapi.NewWeb3API(pl.apiBackend),
 		},
 		{
-			Namespace: "eth",
+			Namespace: "debug",
 			Service:   tracers.NewAPI(pl.apiBackend),
 		},
 	}...)
