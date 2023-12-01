@@ -64,7 +64,7 @@ type executionLayerNode interface {
 	ExtRPCEnabled() bool
 	RegisterAPIs([]rpc.API)
 	RegisterLifecycle(node.Lifecycle)
-	EventMux() *event.TypeMux //nolint:staticcheck // deprecated but still in gpl.
+	EventMux() *event.TypeMux //nolint:staticcheck // deprecated but still in geth.
 }
 
 // Polaris is the only object that an implementing chain should use.
