@@ -180,9 +180,9 @@ func (c *Contract) GetAllDelegatorRewards(
 		return nil, err
 	}
 
-	// NOTE: CacheContext is necessary here because this is a view method (EVM static call), but
-	// the Cosmos SDK distribution module's querier performs writes to the context kv stores. The
-	// cache context is never committed and discarded after this function call.
+	// NOTE: CacheContext is necessary here because this is a view method, but the Cosmos SDK
+	// distribution module's querier performs writes to the context kv stores. The cache context is
+	// never committed and discarded after this function call.
 	cacheCtx, _ := sdk.UnwrapSDKContext(ctx).CacheContext()
 	res, err := c.querier.DelegationTotalRewards( // performs writes to the context kv stores
 		cacheCtx,
@@ -231,9 +231,9 @@ func (c *Contract) GetTotalDelegatorReward(
 		return nil, err
 	}
 
-	// NOTE: CacheContext is necessary here because this is a view method (EVM static call), but
-	// the Cosmos SDK distribution module's querier performs writes to the context kv stores. The
-	// cache context is never committed and discarded after this function call.
+	// NOTE: CacheContext is necessary here because this is a view method, but the Cosmos SDK
+	// distribution module's querier performs writes to the context kv stores. The cache context is
+	// never committed and discarded after this function call.
 	cacheCtx, _ := sdk.UnwrapSDKContext(ctx).CacheContext()
 	res, err := c.querier.DelegationTotalRewards( // performs writes to the context kv stores
 		cacheCtx,
