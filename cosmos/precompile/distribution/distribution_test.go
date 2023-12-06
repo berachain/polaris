@@ -248,19 +248,27 @@ var _ = Describe("Distribution Precompile Test", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res1[0].Denom).To(Equal(sdk.DefaultBondDenom))
 				rewards, _ := tokens.TruncateDecimal()
-				Expect(res1[0].Amount.Cmp(rewards[0].Amount.BigInt())).To(Equal(0))
+				expectedReward := rewards[0].Amount.BigInt()
+				Expect(res1[0].Amount.Cmp(expectedReward)).To(Equal(0))
 
 				res3, err := contract.GetAllDelegatorRewards(pCtx, common.BytesToAddress(addr))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res3[0].Validator).To(Equal(common.BytesToAddress(valAddr)))
-				Expect(res3[0].Rewards[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
+				Expect(res3[0].Rewards[0].Amount.Cmp(expectedReward)).To(Equal(0))
+
+				res4, err := contract.GetDelegatorValidatorReward(
+					pCtx, common.BytesToAddress(addr), common.BytesToAddress(valAddr),
+				)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(res4[0].Denom).To(Equal(sdk.DefaultBondDenom))
+				Expect(res4[0].Amount.Cmp(expectedReward)).To(Equal(0))
 
 				res2, err := contract.WithdrawDelegatorReward(
 					pCtx, common.BytesToAddress(addr), common.BytesToAddress(valAddr),
 				)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(res2[0].Denom).To(Equal(sdk.DefaultBondDenom))
-				Expect(res2[0].Amount).To(Equal(rewards[0].Amount.BigInt()))
+				Expect(res2[0].Amount).To(Equal(expectedReward))
 			})
 		})
 
