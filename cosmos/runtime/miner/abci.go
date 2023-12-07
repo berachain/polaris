@@ -38,6 +38,7 @@ var emptyHash = common.Hash{}
 func (m *Miner) PrepareProposal(
 	ctx sdk.Context, req *abci.RequestPrepareProposal,
 ) (*abci.ResponsePrepareProposal, error) {
+
 	var (
 		payloadEnvelopeBz []byte
 		err               error

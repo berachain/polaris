@@ -27,12 +27,18 @@ import (
 
 	"cosmossdk.io/log"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/event"
+)
+
+const (
+	MetricKeyMempoolFull      = "polaris_cometbft_mempool_full"
+	MetricKeyBroadcastFailure = "polaris_cometbft_broadcast_failure"
 )
 
 // txChanSize is the size of channel listening to NewTxsEvent. The number is referenced from the
@@ -229,12 +235,14 @@ func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
 	switch rsp.Code {
 	case sdkerrors.ErrMempoolIsFull.ABCICode():
 		h.logger.Error("failed to broadcast: comet-bft mempool is full", "tx_hash", tx.Hash())
+		telemetry.IncrCounter(float32(1), MetricKeyMempoolFull)
 	case
 		sdkerrors.ErrTxInMempoolCache.ABCICode():
 		return
 	default:
 		h.logger.Error("failed to broadcast transaction",
 			"codespace", rsp.Codespace, "code", rsp.Code, "info", rsp.Info, "tx_hash", tx.Hash())
+		telemetry.IncrCounter(float32(1), MetricKeyBroadcastFailure)
 	}
 
 	h.failedTxs <- &failedTx{tx: tx, retries: retries}
