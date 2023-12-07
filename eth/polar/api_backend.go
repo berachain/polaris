@@ -41,7 +41,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
-	"github.com/ethereum/go-ethereum/eth/tracers"
 	"github.com/ethereum/go-ethereum/ethapi"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
@@ -57,7 +56,6 @@ type (
 		ethapi.Backend
 		polarapi.NetBackend
 		polarapi.Web3Backend
-		tracers.Backend
 	}
 
 	// SyncStatusProvider defines methods that allow the chain to have insight into the underlying
@@ -367,22 +365,6 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 		return b.StateAndHeaderByNumber(ctx, rpc.BlockNumber(header.Number.Int64()))
 	}
 	return nil, nil, errors.New("invalid arguments; neither block nor hash specified")
-}
-
-// StateAtBlock returns the state at a specific block.
-func (b *backend) StateAtBlock(ctx context.Context, block *ethtypes.Block, reexec uint64,
-	base state.StateDB, readOnly bool, preferDisk bool,
-) (state.StateDB, tracers.StateReleaseFunc, error) {
-	return b.polar.stateAtBlock(ctx, block, reexec, base, readOnly, preferDisk)
-}
-
-// StateAtTransaction returns the state at a specific transaction.
-func (b *backend) StateAtTransaction(
-	ctx context.Context, block *ethtypes.Block,
-	txIndex int, reexec uint64,
-) (*core.Message, vm.BlockContext, state.StateDB, tracers.StateReleaseFunc, error,
-) {
-	return b.polar.stateAtTransaction(ctx, block, txIndex, reexec)
 }
 
 // GetTransaction returns the transaction identified by `txHash`, along with
