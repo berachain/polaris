@@ -71,7 +71,8 @@ func (k *Keeper) ProcessPayloadEnvelope(
 		WithTransientKVGasConfig(storetypes.GasConfig{})
 
 	// Record how long it takes to insert the new block into the chain.
-	defer telemetry.ModuleMeasureSince(evmtypes.ModuleName, time.Now(), evmtypes.MetricKeyInsertBlockAndSetHead)
+	defer telemetry.ModuleMeasureSince(evmtypes.ModuleName,
+		time.Now(), evmtypes.MetricKeyInsertBlockAndSetHead)
 	if err = k.wrappedChain.InsertBlockAndSetHead(ctx, block); err != nil {
 		return nil, err
 	}

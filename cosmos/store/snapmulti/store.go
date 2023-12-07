@@ -30,6 +30,7 @@ import (
 	"github.com/berachain/polaris/lib/ds"
 	"github.com/berachain/polaris/lib/ds/stack"
 	"github.com/berachain/polaris/lib/utils"
+
 	"github.com/cosmos/cosmos-sdk/telemetry"
 )
 

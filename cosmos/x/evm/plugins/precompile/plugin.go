@@ -138,7 +138,6 @@ func (p *plugin) Run(
 	evm vm.PrecompileEVM, pc vm.PrecompiledContract, input []byte,
 	caller common.Address, value *big.Int, suppliedGas uint64, readOnly bool,
 ) (ret []byte, gasRemaining uint64, err error) {
-
 	// get native Cosmos SDK context, MultiStore, and EventManager from the Polaris StateDB
 	sdb := utils.MustGetAs[pvm.PolarStateDB](evm.GetStateDB())
 	ctx := sdk.UnwrapSDKContext(sdb.GetContext())
