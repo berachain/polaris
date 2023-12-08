@@ -44,11 +44,6 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 )
 
-const (
-	MetricKeyBase = "polaris_precompile"
-	MetricKeyTime = "polaris_precompile_time"
-)
-
 // Plugin is the interface that must be implemented by the plugin.
 type Plugin interface {
 	core.PrecompilePlugin

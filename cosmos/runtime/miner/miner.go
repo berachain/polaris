@@ -38,12 +38,6 @@ import (
 	"github.com/ethereum/go-ethereum/miner"
 )
 
-const (
-	MetricKeyBuildBlock   = "polaris_miner_build_block"
-	MetricKeyBlockGasUsed = "polaris_miner_block_gas_used"
-	MetricKeyTransactions = "polaris_miner_transactions"
-)
-
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
 	eth.Miner

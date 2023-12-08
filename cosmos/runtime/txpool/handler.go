@@ -36,11 +36,6 @@ import (
 	"github.com/ethereum/go-ethereum/event"
 )
 
-const (
-	MetricKeyMempoolFull      = "polaris_cometbft_mempool_full"
-	MetricKeyBroadcastFailure = "polaris_cometbft_broadcast_failure"
-)
-
 // txChanSize is the size of channel listening to NewTxsEvent. The number is referenced from the
 // size of tx pool.
 const (

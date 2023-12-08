@@ -39,16 +39,6 @@ const (
 	initJournalCapacity = 16
 )
 
-const (
-	MetricKeyBase                 = "polaris_snapmulti_"
-	MetricKeyFinalize             = MetricKeyBase + "finalize"
-	MetricKeyFinalizeSize         = MetricKeyFinalize + "_size"
-	MetricKeySnapshot             = MetricKeyBase + "snapshot"
-	MetricKeySnapshotSize         = MetricKeySnapshot + "_size"
-	MetricKeyRevertToSnapshot     = MetricKeyBase + "revert_to_snapshot"
-	MetricKeyRevertToSnapshotSize = MetricKeyRevertToSnapshot + "_size"
-)
-
 // mapMultiStore represents a cached multistore, which is just a map of store keys to its
 // corresponding cache kv store currently being used.
 type mapMultiStore map[storetypes.StoreKey]storetypes.CacheKVStore
