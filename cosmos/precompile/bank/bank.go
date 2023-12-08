@@ -27,6 +27,7 @@ import (
 	"cosmossdk.io/core/address"
 
 	"github.com/berachain/polaris/contracts/bindings/cosmos/lib"
+	cbindings "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
 	bankgenerated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/bank"
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
@@ -175,17 +176,19 @@ func (c *Contract) GetSupply(
 	return supply.BigInt(), nil
 }
 
-// GetTotalSupply implements `getAllSupply()` method.
+// GetAllSupply implements `getAllSupply()` method.
 func (c *Contract) GetAllSupply(
 	ctx context.Context,
-) ([]lib.CosmosCoin, error) {
-	// todo: add pagination here
-	res, err := c.querier.TotalSupply(ctx, &banktypes.QueryTotalSupplyRequest{})
+	pagination any,
+) ([]lib.CosmosCoin, cbindings.CosmosPageResponse, error) {
+	res, err := c.querier.TotalSupply(ctx, &banktypes.QueryTotalSupplyRequest{
+		Pagination: cosmlib.ExtractPageRequestFromInput(pagination),
+	})
 	if err != nil {
-		return nil, err
+		return nil, cbindings.CosmosPageResponse{}, err
 	}
 
-	return cosmlib.SdkCoinsToEvmCoins(res.Supply), nil
+	return cosmlib.SdkCoinsToEvmCoins(res.Supply), cosmlib.SdkPageResponseToEvmPageResponse(res.Pagination), nil
 }
 
 // Send implements `send(address,(uint256,string)[])` method.

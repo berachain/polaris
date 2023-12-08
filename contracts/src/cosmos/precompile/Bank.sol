@@ -111,7 +111,10 @@ interface IBankModule {
     /**
      * @dev Returns the total supply of a all coins
      */
-    function getAllSupply() external view returns (Cosmos.Coin[] memory);
+    function getAllSupply() 
+        external 
+        view 
+        returns (Cosmos.Coin[] memory, Cosmos.PageResponse memory);
 
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 

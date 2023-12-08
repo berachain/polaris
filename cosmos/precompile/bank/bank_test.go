@@ -29,6 +29,7 @@ import (
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
 
+	cbindings "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
 	"github.com/berachain/polaris/cosmos/precompile"
 	"github.com/berachain/polaris/cosmos/precompile/bank"
 	testutils "github.com/berachain/polaris/cosmos/testutil"
@@ -359,9 +360,10 @@ var _ = Describe("Bank Precompile Test", func() {
 				balanceAmount3, ok := new(big.Int).SetString("66000000000000000000", 10)
 				Expect(ok).To(BeTrue())
 
-				accs := simtestutil.CreateRandomAccounts(3)
-				for i := 0; i < 3; i++ {
-					for j := 0; j < 3; j++ {
+				numAccs := 3
+				accs := simtestutil.CreateRandomAccounts(numAccs)
+				for i := 0; i < numAccs; i++ {
+					for j := 0; j < numAccs; j++ {
 						err := FundAccount(
 							sdk.UnwrapSDKContext(vm.UnwrapPolarContext(ctx).Context()),
 							bk,
@@ -377,12 +379,21 @@ var _ = Describe("Bank Precompile Test", func() {
 					}
 				}
 
-				coins, err := contract.GetAllSupply(
+				coins, pageRes, err := contract.GetAllSupply(
 					ctx,
+					cbindings.CosmosPageRequest{
+						Key:        "test",
+						Offset:     0,
+						Limit:      uint64(numAccs),
+						CountTotal: true,
+						Reverse:    false,
+					},
 				)
 				Expect(err).ToNot(HaveOccurred())
+				Expect(pageRes).ToNot(BeNil())
+				Expect(pageRes.NextKey).ToNot(BeNil())
 
-				for i := 0; i < 3; i++ {
+				for i := 0; i < numAccs; i++ {
 					Expect(coins[i].Denom).To(Equal(fmt.Sprintf("%s%d", denom, i)))
 					Expect(coins[i].Amount).To(Equal(balanceAmount3))
 				}
