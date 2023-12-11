@@ -72,14 +72,12 @@ type CosmosApp interface {
 // It also includes wrapped versions of the Geth Miner and TxPool.
 type Polaris struct {
 	*eth.ExecutionLayer
-
 	// WrappedMiner is a wrapped version of the Miner component.
 	WrappedMiner *miner.Miner
 	// WrappedTxPool is a wrapped version of the Mempool component.
 	WrappedTxPool *txpool.Mempool
 	// WrappedBlockchain is a wrapped version of the Blockchain component.
 	WrappedBlockchain *chain.WrappedBlockchain
-
 	// logger is the underlying logger supplied by the sdk.
 	logger log.Logger
 }
@@ -97,7 +95,8 @@ func New(
 	}
 
 	p.ExecutionLayer, err = eth.New(
-		"geth", cfg, host, engine, LoggerFuncHandler(logger),
+		"geth", cfg, host, engine, cfg.Node.AllowUnprotectedTxs,
+		LoggerFuncHandler(logger),
 	)
 	if err != nil {
 		panic(err)
