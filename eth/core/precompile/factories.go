@@ -59,7 +59,7 @@ func NewStatelessFactory() *StatelessFactory {
 	return &StatelessFactory{}
 }
 
-// Build returns a stateless precompile container for the given base contract implememntation.
+// Build returns a stateless precompile container for the given base contract implementation.
 // This function will return an error if the given contract is not a stateless implementation.
 //
 // Build implements `AbstractFactory`.

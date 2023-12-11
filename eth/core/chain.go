@@ -69,7 +69,7 @@ type blockchain struct {
 	processor core.Processor
 	validator core.Validator
 
-	// statedb is the state database that is used to mange state during transactions.
+	// statedb is the state database that is used to manage state during transactions.
 	statedb state.StateDB
 	// vmConfig is the configuration used to create the EVM.
 	vmConfig *vm.Config
