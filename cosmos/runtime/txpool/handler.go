@@ -27,6 +27,7 @@ import (
 
 	"cosmossdk.io/log"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -229,12 +230,14 @@ func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
 	switch rsp.Code {
 	case sdkerrors.ErrMempoolIsFull.ABCICode():
 		h.logger.Error("failed to broadcast: comet-bft mempool is full", "tx_hash", tx.Hash())
+		telemetry.IncrCounter(float32(1), MetricKeyMempoolFull)
 	case
 		sdkerrors.ErrTxInMempoolCache.ABCICode():
 		return
 	default:
 		h.logger.Error("failed to broadcast transaction",
 			"codespace", rsp.Codespace, "code", rsp.Code, "info", rsp.Info, "tx_hash", tx.Hash())
+		telemetry.IncrCounter(float32(1), MetricKeyBroadcastFailure)
 	}
 
 	h.failedTxs <- &failedTx{tx: tx, retries: retries}
