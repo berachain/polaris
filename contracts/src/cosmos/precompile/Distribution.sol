@@ -50,7 +50,7 @@ interface IDistributionModule {
     function getWithdrawEnabled() external view returns (bool);
 
     /**
-     * @dev Returns the address that will receive the deligation rewards.
+     * @dev Returns the address that will receive the delegation rewards.
      * @param delegator the delegator for which the withdraw address is returned.
      */
     function getWithdrawAddress(address delegator) external view returns (address);
@@ -80,7 +80,7 @@ interface IDistributionModule {
     ////////////////////////////////////// WRITE METHODS //////////////////////////////////////////
 
     /**
-     * @dev The caller (msg.sender) can set the address that will receive the deligation rewards.
+     * @dev The caller (msg.sender) can set the address that will receive the delegation rewards.
      * @param withdrawAddress The address to set as the withdraw address.
      */
     function setWithdrawAddress(address withdrawAddress) external returns (bool);
