@@ -67,7 +67,7 @@ type (
 		// RegisterAPIs registers JSON-RPC handlers for the networking stack.
 		RegisterAPIs([]rpc.API)
 
-		// RegisterLifecycles registers objects to have their lifecycle manged by the stack.
+		// RegisterLifecycles registers objects to have their lifecycle managed by the stack.
 		RegisterLifecycle(node.Lifecycle)
 
 		// Start starts the networking stack.
