@@ -60,7 +60,7 @@ contract DistributionWrapper {
     }
 
     /**
-     * @dev The caller (msg.sender) can set the address that will receive the deligation rewards.
+     * @dev The caller (msg.sender) can set the address that will receive the delegation rewards.
      * @param _withdrawAddress The address to set as the withdraw address.
      */
     function setWithdrawAddress(address _withdrawAddress) external returns (bool) {
