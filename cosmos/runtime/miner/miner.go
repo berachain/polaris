@@ -23,12 +23,14 @@ package miner
 
 import (
 	"context"
+	"time"
 
 	"github.com/cosmos/gogoproto/proto"
 
 	"github.com/berachain/polaris/eth"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -67,10 +69,15 @@ func (m *Miner) Init(serializer EnvelopeSerializer) {
 // to resolve from the underying worker.
 func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 	defer m.clearPayload()
+
+	// Record the time it takes to build a payload.
+	defer telemetry.MeasureSince(time.Now(), MetricKeyBuildBlock)
+
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
 		return nil, 0, err
 	}
 	env, gasUsed := m.resolveEnvelope()
+
 	return env, gasUsed, nil
 }
 
@@ -109,11 +116,17 @@ func (m *Miner) resolveEnvelope() ([]byte, uint64) {
 		return nil, 0
 	}
 	envelope := m.currentPayload.ResolveFull()
-	bz, err := m.serializer.ToSdkTxBytes(envelope, envelope.ExecutionPayload.GasLimit)
+	payload := envelope.ExecutionPayload
+
+	// Record metadata about the payload
+	defer telemetry.SetGauge(float32(payload.GasUsed), MetricKeyBlockGasUsed)
+	defer telemetry.SetGauge(float32(len(payload.Transactions)), MetricKeyTransactions)
+
+	bz, err := m.serializer.ToSdkTxBytes(envelope, payload.GasLimit)
 	if err != nil {
 		panic(err)
 	}
-	return bz, envelope.ExecutionPayload.GasUsed
+	return bz, payload.GasUsed
 }
 
 // clearPayload clears the payload.
