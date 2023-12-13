@@ -23,6 +23,7 @@ package txpool
 import (
 	"context"
 	"errors"
+	"time"
 
 	"cosmossdk.io/log"
 
@@ -60,16 +61,18 @@ type GethTxPool interface {
 // is to allow for transactions coming in from CometBFT's gossip to be added to the underlying
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
-	txpool  eth.TxPool
-	chain   core.ChainReader
-	handler Lifecycle
+	txpool   eth.TxPool
+	lifetime time.Duration
+	chain    core.ChainReader
+	handler  Lifecycle
 }
 
 // New creates a new Mempool.
-func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
+func New(chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration) *Mempool {
 	return &Mempool{
-		txpool: txpool,
-		chain:  chain,
+		txpool:   txpool,
+		chain:    chain,
+		lifetime: lifetime,
 	}
 }
 
