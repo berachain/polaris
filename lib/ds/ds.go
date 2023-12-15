@@ -26,7 +26,7 @@
 package ds
 
 import (
-	libtypes "github.com/berachain/polaris/lib/types"
+	libtypes "github.com/berachain/polaris/tree/main/lib/types"
 )
 
 type StackFactory[T any] interface {
