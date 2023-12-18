@@ -103,8 +103,8 @@ github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/berachain/polaris/contracts v0.0.1-alpha h1:nhmAB8Zz2wUkei2WHisbOwFXu8xokmDy3is/VuZ+dSw=
-github.com/berachain/polaris/contracts v0.0.1-alpha/go.mod h1:cZ1kKh7+zVnvn/cKMHdjNoxoaVJt8L71W7GXHw94Hm4=
+github.com/berachain/polaris/contracts v0.0.2-alpha h1:/9i7N5mv7q3UEJymbvGryZMpPx/VBPkrKYU4S8hST/E=
+github.com/berachain/polaris/contracts v0.0.2-alpha/go.mod h1:RybCtTNIGbofGITH72v1CgIYFtlmT/j49cshOzy2CjE=
 github.com/berachain/polaris/e2e/localnet v0.0.0-20231123163754-5a2548de4f12 h1:tOpTxidtmMeU97j6IMff8FPat2oWrJNJ8ALTjhp2obE=
 github.com/berachain/polaris/e2e/localnet v0.0.0-20231123163754-5a2548de4f12/go.mod h1:DG1PQvQf3Sci9PR7mqxipbNyUZ6nFNWxbYqiJ9dIlUE=
 github.com/berachain/polaris/eth v0.0.1-alpha h1:+uA1EGaSNGB5C2qQn6Dqzp3uCgI1EE2O5B/IdKr3BNU=
@@ -719,6 +719,7 @@ github.com/onsi/gomega v1.10.1/go.mod h1:iN09h71vgCQne3DLsj+A5owkum+a2tYe+TOCB1y
 github.com/onsi/gomega v1.17.0/go.mod h1:HnhC7FXeEQY45zxNK3PPoIUhzk/80Xly9PcubAlGdZY=
 github.com/onsi/gomega v1.19.0/go.mod h1:LY+I3pBVzYsTBU1AnDwOSxaYi9WoWiqgwooUqq9yPro=
 github.com/onsi/gomega v1.28.1 h1:MijcGUbfYuznzK/5R4CPNoUP/9Xvuo20sXfEm6XxoTA=
+github.com/onsi/gomega v1.28.1/go.mod h1:9sxs+SwGrKI0+PWe4Fxa9tFQQBG5xSsSbMXOI8PPpoQ=
 github.com/op/go-logging v0.0.0-20160315200505-970db520ece7/go.mod h1:HzydrMdWErDVzsI23lYNej1Htcns9BCg93Dk0bBINWk=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
 github.com/opencontainers/go-digest v1.0.0/go.mod h1:0JzlMkj0TRzQZfJkVvzbP0HBR3IKzErnv2BNG4W4MAM=
