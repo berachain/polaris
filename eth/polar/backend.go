@@ -187,6 +187,8 @@ func (pl *Polaris) APIs() []rpc.API {
 			Service:   polarapi.NewWeb3API(pl.apiBackend),
 		},
 		{
+			// NOTE: endpoints that require tracing "bad blocks" are currently not supported
+			// (debug_traceBadBlock, debug_intermediateRoots, debug_standardTraceBadBlockToFile)
 			Namespace: "debug",
 			Service:   tracers.NewAPI(pl.apiBackend),
 		},
