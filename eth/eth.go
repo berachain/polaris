@@ -67,7 +67,7 @@ type (
 		// RegisterAPIs registers JSON-RPC handlers for the networking stack.
 		RegisterAPIs([]rpc.API)
 
-		// RegisterLifecycles registers objects to have their lifecycle manged by the stack.
+		// RegisterLifecycles registers objects to have their lifecycle managed by the stack.
 		RegisterLifecycle(node.Lifecycle)
 
 		// Start starts the networking stack.
@@ -97,10 +97,10 @@ type (
 // as parameters. It returns a pointer to the ExecutionLayer and an error if any.
 func New(
 	client string, cfg any, host pcore.PolarisHostChain,
-	engine consensus.Engine, logHandler log.Handler,
+	engine consensus.Engine, allowUnprotectedTxs bool, logHandler log.Handler,
 ) (*ExecutionLayer, error) {
 	clientFactories := map[string]func(
-		any, pcore.PolarisHostChain, consensus.Engine, log.Handler,
+		any, pcore.PolarisHostChain, consensus.Engine, bool, log.Handler,
 	) (*ExecutionLayer, error){
 		"geth": newGethExecutionLayer,
 	}
@@ -110,14 +110,14 @@ func New(
 		return nil, fmt.Errorf("unknown execution layer: %s", client)
 	}
 
-	return factory(cfg, host, engine, logHandler)
+	return factory(cfg, host, engine, allowUnprotectedTxs, logHandler)
 }
 
 // newGethExecutionLayer creates a new geth execution layer.
 // It returns a pointer to the ExecutionLayer and an error if any.
 func newGethExecutionLayer(
 	anyCfg any, host pcore.PolarisHostChain,
-	engine consensus.Engine, logHandler log.Handler,
+	engine consensus.Engine, allowUnprotectedTxs bool, logHandler log.Handler,
 ) (*ExecutionLayer, error) {
 	cfg, ok := anyCfg.(*Config)
 	if !ok {
@@ -134,7 +134,7 @@ func newGethExecutionLayer(
 	gethNode.SetP2PDisabled(true)
 
 	// Create a new Polaris backend
-	backend := polar.New(&cfg.Polar, host, engine, gethNode, logHandler)
+	backend := polar.New(&cfg.Polar, host, engine, gethNode, allowUnprotectedTxs, logHandler)
 
 	// Return a new ExecutionLayer with the created gethNode and backend
 	return &ExecutionLayer{

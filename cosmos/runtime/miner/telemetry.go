@@ -18,27 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package types
+package miner
 
 const (
-	StoreKey                       = "evm"
-	ModuleName                     = "evm"
-	MetricKeyInsertBlockAndSetHead = "polaris_evm_insert_block_and_set_head"
-)
-
-const (
-	CodeKeyPrefix byte = iota
-	BalanceKeyPrefix
-	StorageKeyPrefix
-	CodeHashKeyPrefix
-	BlockHashKeyToNumPrefix
-	BlockNumKeyToBlockPrefix
-	BlockHashKeyToReceiptsPrefix
-	TxHashKeyToTxPrefix
-	VersionKey
-	HeaderKey
-	HeaderHashKeyPrefix
-	GenesisHeaderKey
-	ParamsKey
-	ChainConfigPrefix
+	MetricKeyBuildBlock   = "polaris_miner_build_block"
+	MetricKeyBlockGasUsed = "polaris_miner_block_gas_used"
+	MetricKeyTransactions = "polaris_miner_transactions"
 )

@@ -95,6 +95,7 @@ func New(
 	host core.PolarisHostChain,
 	engine consensus.Engine,
 	stack executionLayerNode,
+	allowUnprotectedTxs bool,
 	logHandler log.Handler,
 ) *Polaris {
 	// When creating a Polaris EVM, we allow the implementing chain
@@ -123,7 +124,7 @@ func New(
 	}
 
 	// Build the backend api object.
-	pl.apiBackend = NewAPIBackend(pl, stack.ExtRPCEnabled(), pl.config)
+	pl.apiBackend = NewAPIBackend(pl, stack.ExtRPCEnabled(), allowUnprotectedTxs, pl.config)
 
 	// Run safety message for feedback to the user if they are running
 	// with development configs.
@@ -311,7 +312,7 @@ func (pl *Polaris) stateAtTransaction(
 func (pl *Polaris) pathState(block *ethtypes.Block) (state.StateDB, func(), error) {
 	// Check if the requested state is available in the live chain.
 	// StateAt returns the state by root hash.
-	statedb, err := pl.blockchain.StateAt(block.Root())
+	statedb, err := pl.blockchain.StateAtBlockNumber(block.Number().Uint64() + 1)
 	if err == nil {
 		// If there is no error, return the state, a no-op function, and no error.
 		return statedb, func() {}, nil

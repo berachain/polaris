@@ -74,11 +74,12 @@ type (
 
 // backend represents the backend for the JSON-RPC service.
 type backend struct {
-	polar         *Polaris
-	cfg           *Config
-	extRPCEnabled bool
-	gpo           *gasprice.Oracle
-	logger        log.Logger
+	polar               *Polaris
+	cfg                 *Config
+	extRPCEnabled       bool
+	allowUnprotectedTxs bool
+	gpo                 *gasprice.Oracle
+	logger              log.Logger
 }
 
 // ==============================================================================
@@ -89,14 +90,16 @@ type backend struct {
 func NewAPIBackend(
 	polar *Polaris,
 	extRPCEnabled bool,
+	allowUnprotectedTxs bool,
 	cfg *Config,
 ) APIBackend {
 	b := &backend{
 
-		polar:         polar,
-		cfg:           cfg,
-		extRPCEnabled: extRPCEnabled,
-		logger:        log.Root(),
+		polar:               polar,
+		cfg:                 cfg,
+		extRPCEnabled:       extRPCEnabled,
+		allowUnprotectedTxs: allowUnprotectedTxs,
+		logger:              log.Root(),
 	}
 
 	if cfg.GPO.Default == nil {
@@ -175,10 +178,8 @@ func (b *backend) RPCTxFeeCap() float64 {
 }
 
 // UnprotectedAllowed returns whether unprotected transactions are alloweds.
-// We will consider implementing these later, But our opinion is that
-// there is no reason in 2023 not to use these.
 func (b *backend) UnprotectedAllowed() bool {
-	return false
+	return b.allowUnprotectedTxs
 }
 
 // ==============================================================================
