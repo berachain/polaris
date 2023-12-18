@@ -370,6 +370,7 @@ github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuP
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
 github.com/aymerick/raymond v2.0.3-0.20180322193309-b565731e1464+incompatible/go.mod h1:osfaiScAUVup+UC9Nfq76eWqDhXlp+4UYaA8uhTBO6g=
 github.com/berachain/polaris/contracts v0.0.1-alpha/go.mod h1:cZ1kKh7+zVnvn/cKMHdjNoxoaVJt8L71W7GXHw94Hm4=
+github.com/berachain/polaris/eth v0.0.2-alpha/go.mod h1:74rlj2OX2VZrMRQoFQKAV+lJ3VnqQIVnCMmjHAFF83E=
 github.com/berachain/polaris/lib v0.0.1-alpha/go.mod h1:H2fG0HisSeVc8nvFEq/IWRn+pPCHW/Nr8mbPmKy/Xqk=
 github.com/bits-and-blooms/bitset v1.7.0/go.mod h1:gIdJ4wp64HaoK2YrL1Q5/N7Y16edYb8uY+O0FJTyyDA=
 github.com/bits-and-blooms/bitset v1.8.0/go.mod h1:7hO7Gc7Pp1vODcmWvKMRA9BNmbv6a/7QIWpPxHddWR8=
