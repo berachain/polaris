@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/berachain/polaris/contracts v0.0.1-alpha
 	github.com/berachain/polaris/e2e/localnet v0.0.0-20231123163754-5a2548de4f12
-	github.com/cosmos/cosmos-sdk v0.50.2
+	github.com/cosmos/cosmos-sdk v0.50.3-0.20231218145840-3ea39a32bb46
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/ethereum/go-ethereum v1.13.5
 	github.com/onsi/ginkgo/v2 v2.13.0
