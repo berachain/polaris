@@ -48,6 +48,10 @@ import (
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/rpc"
+
+	// To ensure that tracer engines get loaded in.
+	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
+	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
 )
 
 // TODO: break out the node into a separate package and then fully use the
