@@ -5,18 +5,18 @@ go 1.21
 replace (
 	github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20230928194634-aa077af62593
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231105185655-b78967bb230f
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231213153408-4e2380aff474
 )
 
 require (
 	github.com/berachain/polaris/contracts v0.0.1-alpha
 	github.com/berachain/polaris/lib v0.0.1-alpha
-	github.com/ethereum/go-ethereum v1.13.4
+	github.com/ethereum/go-ethereum v1.13.5
 	github.com/holiman/uint256 v1.2.3
 	github.com/onsi/ginkgo/v2 v2.13.0
-	github.com/onsi/gomega v1.27.10
+	github.com/onsi/gomega v1.28.1
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/text v0.13.0
+	golang.org/x/text v0.14.0
 )
 
 require (
@@ -46,7 +46,6 @@ require (
 	github.com/deckarep/golang-set/v2 v2.3.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/deepmap/oapi-codegen v1.13.4 // indirect
-	github.com/docker/docker v24.0.7+incompatible // indirect
 	github.com/ethereum/c-kzg-4844 v0.4.0 // indirect
 	github.com/fjl/memsize v0.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -81,7 +80,7 @@ require (
 	github.com/influxdata/line-protocol v0.0.0-20210311194329-9aa0e372d097 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.17.2 // indirect
+	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
@@ -126,12 +125,12 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
 	golang.org/x/arch v0.4.0 // indirect
-	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
