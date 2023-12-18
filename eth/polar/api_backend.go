@@ -374,7 +374,7 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 func (b *backend) StateAtBlock(ctx context.Context, block *ethtypes.Block, reexec uint64,
 	base state.StateDB, readOnly bool, preferDisk bool,
 ) (state.StateDB, tracers.StateReleaseFunc, error) {
-	return b.polar.stateAtBlock(ctx, block, reexec, base, readOnly, preferDisk)
+	return b.polar.blockchain.StateAtBlock(ctx, block, reexec, base, readOnly, preferDisk)
 }
 
 // StateAtTransaction returns the state at a specific transaction.
@@ -383,7 +383,7 @@ func (b *backend) StateAtTransaction(
 	txIndex int, reexec uint64,
 ) (*core.Message, vm.BlockContext, state.StateDB, tracers.StateReleaseFunc, error,
 ) {
-	return b.polar.stateAtTransaction(ctx, block, txIndex, reexec)
+	return b.polar.blockchain.StateAtTransaction(ctx, block, txIndex, reexec)
 }
 
 // GetTransaction returns the transaction identified by `txHash`, along with
