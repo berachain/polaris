@@ -156,11 +156,6 @@ func (bc *blockchain) PreparePlugins(ctx context.Context) {
 	}
 }
 
-// ChainConfig returns the Ethereum chain config of the  chain.
-func (bc *blockchain) Config() *params.ChainConfig {
-	return bc.config
-}
-
 // loadLastState loads the last known chain state from the database. This method
 // assumes that the chain manager mutex is held.
 func (bc *blockchain) loadLastState(number uint64) error {

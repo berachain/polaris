@@ -35,12 +35,17 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/filters"
+	"github.com/ethereum/go-ethereum/eth/tracers"
 	"github.com/ethereum/go-ethereum/ethapi"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/rpc"
+
+	// To ensure that tracer engines get loaded in.
+	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
+	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
 )
 
 // TODO: break out the node into a separate package and then fully use the
@@ -180,6 +185,12 @@ func (pl *Polaris) APIs() []rpc.API {
 		{
 			Namespace: "web3",
 			Service:   polarapi.NewWeb3API(pl.apiBackend),
+		},
+		{
+			// NOTE: endpoints that require tracing "bad blocks" are currently not supported
+			// (debug_traceBadBlock, debug_intermediateRoots, debug_standardTraceBadBlockToFile)
+			Namespace: "debug",
+			Service:   tracers.NewAPI(pl.apiBackend),
 		},
 	}...)
 }
