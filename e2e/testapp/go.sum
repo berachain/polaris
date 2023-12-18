@@ -281,8 +281,8 @@ github.com/berachain/polaris/cosmos v0.0.1-alpha h1:1jN3K6bJHVbBvIZlXRW7h48ZBkat
 github.com/berachain/polaris/cosmos v0.0.1-alpha/go.mod h1:FVuqTI+v+av77phVhEoPJ8pZi5Dyq7bSBmQZwKQnbGU=
 github.com/berachain/polaris/eth v0.0.1-alpha h1:+uA1EGaSNGB5C2qQn6Dqzp3uCgI1EE2O5B/IdKr3BNU=
 github.com/berachain/polaris/eth v0.0.1-alpha/go.mod h1:od/ALWEMzfR+Wj0fI2DE4de4f/Ee4CFXWu/ZkMxKy6A=
-github.com/berachain/polaris/lib v0.0.1-alpha h1:d6Dl7yN/5I4j06SdY4bXHvTNzkmktc3tgtIDkZP9ORw=
-github.com/berachain/polaris/lib v0.0.1-alpha/go.mod h1:H2fG0HisSeVc8nvFEq/IWRn+pPCHW/Nr8mbPmKy/Xqk=
+github.com/berachain/polaris/lib v0.0.2-alpha h1:v2zM0Zp2IWq+dUX0xSlLU8iiDlwohxhzPPzjd2vM39c=
+github.com/berachain/polaris/lib v0.0.2-alpha/go.mod h1:WvfV0xls8SlftJqcVXoLHL0kG4TZZY+yrp9J5lz2Vrw=
 github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d h1:xDfNPAt8lFiC1UJrqV3uuy861HCTo708pDMbjHHdCas=
 github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d/go.mod h1:6QX/PXZ00z/TKoufEY6K/a0k6AhaJrQKdFe6OfVXsa4=
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
