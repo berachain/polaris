@@ -9,8 +9,8 @@ replace (
 )
 
 require (
-	github.com/berachain/polaris/contracts v0.0.1-alpha
-	github.com/berachain/polaris/lib v0.0.1-alpha
+	github.com/berachain/polaris/contracts v0.0.2-alpha
+	github.com/berachain/polaris/lib v0.0.2-alpha
 	github.com/ethereum/go-ethereum v1.13.5
 	github.com/holiman/uint256 v1.2.3
 	github.com/onsi/ginkgo/v2 v2.13.0

@@ -3,7 +3,7 @@ module github.com/berachain/polaris/e2e/localnet
 go 1.21
 
 require (
-	github.com/berachain/polaris/contracts v0.0.1-alpha
+	github.com/berachain/polaris/contracts v0.0.2-alpha
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/ethereum/go-ethereum v1.13.5
 	github.com/onsi/ginkgo/v2 v2.13.0
@@ -44,7 +44,6 @@ require (
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/hashicorp/go-bexpr v0.1.12 // indirect
 	github.com/holiman/uint256 v1.2.3 // indirect
-	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
