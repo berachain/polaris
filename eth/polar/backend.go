@@ -312,7 +312,7 @@ func (pl *Polaris) stateAtTransaction(
 func (pl *Polaris) pathState(block *ethtypes.Block) (state.StateDB, func(), error) {
 	// Check if the requested state is available in the live chain.
 	// StateAt returns the state by root hash.
-	statedb, err := pl.blockchain.StateAtBlockNumber(block.Number().Uint64() + 1)
+	statedb, err := pl.blockchain.StateAtBlockNumber(block.Number().Uint64())
 	if err == nil {
 		// If there is no error, return the state, a no-op function, and no error.
 		return statedb, func() {}, nil
