@@ -116,8 +116,8 @@ github.com/berachain/polaris-geth v0.0.0-20231219175213-697db469215b h1:wrzTIsCe
 github.com/berachain/polaris-geth v0.0.0-20231219175213-697db469215b/go.mod h1:sc48XYQxCzH3fG9BcrXCOOgQk2JfZzNAmIKnceogzsA=
 github.com/berachain/polaris/contracts v0.0.4-alpha h1:CyiElDqABwa4tIrC8j/D7dd21dRqGEV6yZjZsVD13nE=
 github.com/berachain/polaris/contracts v0.0.4-alpha/go.mod h1:Sm1T+tIQGuP0wEJnF/TlgZiJ+NPHgOZWO7vAz7FkwVs=
-github.com/berachain/polaris/eth v0.0.3-alpha h1:Dkj9E+xOJtHNtPwiia/SwMHWp2fs/h9JOTV/8uTryBY=
-github.com/berachain/polaris/eth v0.0.3-alpha/go.mod h1:JHwinLy+p9QxmZ5CtpgCcXg3kGNK27HP3P3yq65nEMw=
+github.com/berachain/polaris/eth v0.0.4-alpha h1:N0xvT/1Cu6LB5/ZMdttfjiH8CF2bWUgHfp71FIiFdpY=
+github.com/berachain/polaris/eth v0.0.4-alpha/go.mod h1:i2ORG5xO2uktxaQcyRAM/40gin/pGS/3MzujhwfGXI4=
 github.com/berachain/polaris/lib v0.0.4-alpha h1:5ob1YtUD6qx35yfwcOKyOOuU6/OgtXMRk0eQrsjCSsw=
 github.com/berachain/polaris/lib v0.0.4-alpha/go.mod h1:08kBE9vqIO1PREtvM99uI2Sq/bjxjSQ5rYXM9k8wAYs=
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
