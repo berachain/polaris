@@ -443,9 +443,10 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 }
 
 // GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.
-func (b *backend) GetEVM(_ context.Context, msg *core.Message, state state.StateDB,
-	header *ethtypes.Header, vmConfig *vm.Config, blockCtx *vm.BlockContext,
-) (*vm.EVM, func() error) {
+func (b *backend) GetEVM(_ context.Context, msg *core.Message,
+	state state.StateDB, header *ethtypes.Header, vmConfig *vm.Config,
+	blockCtx *vm.BlockContext,
+) *vm.EVM {
 	if vmConfig == nil {
 		vmConfig = b.polar.blockchain.GetVMConfig()
 	}
@@ -459,7 +460,7 @@ func (b *backend) GetEVM(_ context.Context, msg *core.Message, state state.State
 		context = core.NewEVMBlockContext(header, b.polar.Blockchain(), &header.Coinbase)
 	}
 	return vm.NewEVM(context, txContext, state, b.polar.blockchain.Config(),
-		*vmConfig), state.Error
+		*vmConfig)
 }
 
 // GetBlockContext returns a new block context to be used by a EVM.

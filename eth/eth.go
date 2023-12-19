@@ -97,10 +97,10 @@ type (
 // as parameters. It returns a pointer to the ExecutionLayer and an error if any.
 func New(
 	client string, cfg any, host pcore.PolarisHostChain,
-	engine consensus.Engine, allowUnprotectedTxs bool, logHandler log.Handler,
+	engine consensus.Engine, allowUnprotectedTxs bool, logger log.Logger,
 ) (*ExecutionLayer, error) {
 	clientFactories := map[string]func(
-		any, pcore.PolarisHostChain, consensus.Engine, bool, log.Handler,
+		any, pcore.PolarisHostChain, consensus.Engine, bool, log.Logger,
 	) (*ExecutionLayer, error){
 		"geth": newGethExecutionLayer,
 	}
@@ -110,14 +110,14 @@ func New(
 		return nil, fmt.Errorf("unknown execution layer: %s", client)
 	}
 
-	return factory(cfg, host, engine, allowUnprotectedTxs, logHandler)
+	return factory(cfg, host, engine, allowUnprotectedTxs, logger)
 }
 
 // newGethExecutionLayer creates a new geth execution layer.
 // It returns a pointer to the ExecutionLayer and an error if any.
 func newGethExecutionLayer(
 	anyCfg any, host pcore.PolarisHostChain,
-	engine consensus.Engine, allowUnprotectedTxs bool, logHandler log.Handler,
+	engine consensus.Engine, allowUnprotectedTxs bool, logger log.Logger,
 ) (*ExecutionLayer, error) {
 	cfg, ok := anyCfg.(*Config)
 	if !ok {
@@ -133,8 +133,10 @@ func newGethExecutionLayer(
 	// In Polaris we don't use P2P at the geth level.
 	gethNode.SetP2PDisabled(true)
 
+	log.SetDefault(logger)
+
 	// Create a new Polaris backend
-	backend := polar.New(&cfg.Polar, host, engine, gethNode, allowUnprotectedTxs, logHandler)
+	backend := polar.New(&cfg.Polar, host, engine, gethNode, allowUnprotectedTxs)
 
 	// Return a new ExecutionLayer with the created gethNode and backend
 	return &ExecutionLayer{

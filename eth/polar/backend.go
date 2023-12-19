@@ -94,16 +94,7 @@ func New(
 	engine consensus.Engine,
 	stack executionLayerNode,
 	allowUnprotectedTxs bool,
-	logHandler log.Handler,
 ) *Polaris {
-	// When creating a Polaris EVM, we allow the implementing chain
-	// to specify their own log handler. If logHandler is nil then we
-	// we use the default geth log handler.
-	if logHandler != nil {
-		// Root is a global in geth that is used by the evm to emit logs.
-		log.Root().SetHandler(logHandler)
-	}
-
 	if config.Miner.GasPrice == nil || config.Miner.GasPrice.Cmp(common.Big0) <= 0 {
 		log.Warn("Sanitizing invalid miner gas price",
 			"provided", config.Miner.GasPrice, "updated", ethconfig.Defaults.Miner.GasPrice)
