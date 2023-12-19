@@ -260,10 +260,6 @@ func (sdb *stateDB) RawDump(_ *state.DumpConfig) state.Dump {
 	return state.Dump{}
 }
 
-func (sdb *stateDB) IteratorDump(_ *state.DumpConfig) state.IteratorDump {
-	return state.IteratorDump{}
-}
-
 func (sdb *stateDB) Database() state.Database {
 	return nil
 }

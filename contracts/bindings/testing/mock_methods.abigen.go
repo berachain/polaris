@@ -36,7 +36,7 @@ type MockMethodsmockStruct struct {
 
 // MockMethodsMetaData contains all meta data concerning the MockMethods contract.
 var MockMethodsMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"b\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"c\",\"type\":\"uint256\"}],\"internalType\":\"structMockMethods.mockStruct[]\",\"name\":\"c\",\"type\":\"tuple[]\"}],\"name\":\"exampleFunc\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"zeroReturn\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"type\":\"function\",\"name\":\"exampleFunc\",\"inputs\":[{\"name\":\"a\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"b\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"c\",\"type\":\"tuple[]\",\"internalType\":\"structMockMethods.mockStruct[]\",\"components\":[{\"name\":\"c\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"zeroReturn\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"}]",
 }
 
 // MockMethodsABI is the input ABI used to generate the binding from.

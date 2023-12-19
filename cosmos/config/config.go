@@ -224,10 +224,6 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 			flags.TerminalTotalDifficultyPassed); err != nil {
 		return nil, err
 	}
-	if conf.Polar.Chain.IsDevMode, err =
-		parser.GetBool(flags.IsDevMode); err != nil {
-		return nil, err
-	}
 
 	// Polar.GPO settings
 	if conf.Polar.GPO.Blocks, err =

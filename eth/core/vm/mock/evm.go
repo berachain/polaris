@@ -28,6 +28,7 @@ import (
 
 //go:generate moq -out ./evm.mock.go -skip-ensure -pkg mock ../ PrecompileEVM
 
+// NewEVM returns a new instance of the PrecompileEVM mock.
 func NewEVM() *PrecompileEVMMock {
 	mockSDB := NewEmptyStateDB()
 	return &PrecompileEVMMock{

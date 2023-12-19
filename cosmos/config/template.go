@@ -110,9 +110,6 @@ terminal-total-difficulty = "{{ .Polaris.Polar.Chain.TerminalTotalDifficulty }}"
 # Whether terminal total difficulty has passed
 terminal-total-difficulty-passed = "{{ .Polaris.Polar.Chain.TerminalTotalDifficultyPassed }}"
 
-# DevMode enabled
-is-dev-mode = {{ .Polaris.Polar.Chain.IsDevMode }}
-
 
 # Miner config
 [polaris.polar.miner]

@@ -24,7 +24,7 @@ import (
 	"context"
 	"time"
 
-	"cosmossdk.io/log"
+	cosmoslog "cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	libtx "github.com/berachain/polaris/cosmos/lib/tx"
@@ -48,6 +48,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	ethlog "github.com/ethereum/go-ethereum/log"
 )
 
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
@@ -79,13 +80,13 @@ type Polaris struct {
 	// WrappedBlockchain is a wrapped version of the Blockchain component.
 	WrappedBlockchain *chain.WrappedBlockchain
 	// logger is the underlying logger supplied by the sdk.
-	logger log.Logger
+	logger cosmoslog.Logger
 }
 
 // New creates a new Polaris runtime from the provided dependencies.
 func New(
 	cfg *eth.Config,
-	logger log.Logger,
+	logger cosmoslog.Logger,
 	host core.PolarisHostChain,
 	engine consensus.Engine,
 ) *Polaris {
@@ -96,7 +97,7 @@ func New(
 
 	p.ExecutionLayer, err = eth.New(
 		"geth", cfg, host, engine, cfg.Node.AllowUnprotectedTxs,
-		LoggerFuncHandler(logger),
+		ethlog.NewLogger(newEthHandler(logger)),
 	)
 	if err != nil {
 		panic(err)

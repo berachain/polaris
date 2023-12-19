@@ -6,9 +6,9 @@ package mock
 import (
 	"context"
 	"github.com/berachain/polaris/eth/core"
-	ethcoretypes "github.com/berachain/polaris/eth/core/types"
+	"github.com/berachain/polaris/eth/core/types"
 	"github.com/ethereum/go-ethereum/common"
-	ethereumcoretypes "github.com/ethereum/go-ethereum/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"sync"
 )
 
@@ -22,28 +22,28 @@ var _ core.HistoricalPlugin = &HistoricalPluginMock{}
 //
 //		// make and configure a mocked core.HistoricalPlugin
 //		mockedHistoricalPlugin := &HistoricalPluginMock{
-//			GetBlockByHashFunc: func(hash common.Hash) (*ethereumcoretypes.Block, error) {
+//			GetBlockByHashFunc: func(hash common.Hash) (*ethtypes.Block, error) {
 //				panic("mock out the GetBlockByHash method")
 //			},
-//			GetBlockByNumberFunc: func(v uint64) (*ethereumcoretypes.Block, error) {
+//			GetBlockByNumberFunc: func(v uint64) (*ethtypes.Block, error) {
 //				panic("mock out the GetBlockByNumber method")
 //			},
-//			GetReceiptsByHashFunc: func(hash common.Hash) (ethereumcoretypes.Receipts, error) {
+//			GetReceiptsByHashFunc: func(hash common.Hash) (ethtypes.Receipts, error) {
 //				panic("mock out the GetReceiptsByHash method")
 //			},
-//			GetTransactionByHashFunc: func(hash common.Hash) (*ethcoretypes.TxLookupEntry, error) {
+//			GetTransactionByHashFunc: func(hash common.Hash) (*types.TxLookupEntry, error) {
 //				panic("mock out the GetTransactionByHash method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
 //			},
-//			StoreBlockFunc: func(block *ethereumcoretypes.Block) error {
+//			StoreBlockFunc: func(block *ethtypes.Block) error {
 //				panic("mock out the StoreBlock method")
 //			},
-//			StoreReceiptsFunc: func(hash common.Hash, receipts ethereumcoretypes.Receipts) error {
+//			StoreReceiptsFunc: func(hash common.Hash, receipts ethtypes.Receipts) error {
 //				panic("mock out the StoreReceipts method")
 //			},
-//			StoreTransactionsFunc: func(v uint64, hash common.Hash, transactions ethereumcoretypes.Transactions) error {
+//			StoreTransactionsFunc: func(v uint64, hash common.Hash, transactions ethtypes.Transactions) error {
 //				panic("mock out the StoreTransactions method")
 //			},
 //		}
@@ -54,28 +54,28 @@ var _ core.HistoricalPlugin = &HistoricalPluginMock{}
 //	}
 type HistoricalPluginMock struct {
 	// GetBlockByHashFunc mocks the GetBlockByHash method.
-	GetBlockByHashFunc func(hash common.Hash) (*ethereumcoretypes.Block, error)
+	GetBlockByHashFunc func(hash common.Hash) (*ethtypes.Block, error)
 
 	// GetBlockByNumberFunc mocks the GetBlockByNumber method.
-	GetBlockByNumberFunc func(v uint64) (*ethereumcoretypes.Block, error)
+	GetBlockByNumberFunc func(v uint64) (*ethtypes.Block, error)
 
 	// GetReceiptsByHashFunc mocks the GetReceiptsByHash method.
-	GetReceiptsByHashFunc func(hash common.Hash) (ethereumcoretypes.Receipts, error)
+	GetReceiptsByHashFunc func(hash common.Hash) (ethtypes.Receipts, error)
 
 	// GetTransactionByHashFunc mocks the GetTransactionByHash method.
-	GetTransactionByHashFunc func(hash common.Hash) (*ethcoretypes.TxLookupEntry, error)
+	GetTransactionByHashFunc func(hash common.Hash) (*types.TxLookupEntry, error)
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
 
 	// StoreBlockFunc mocks the StoreBlock method.
-	StoreBlockFunc func(block *ethereumcoretypes.Block) error
+	StoreBlockFunc func(block *ethtypes.Block) error
 
 	// StoreReceiptsFunc mocks the StoreReceipts method.
-	StoreReceiptsFunc func(hash common.Hash, receipts ethereumcoretypes.Receipts) error
+	StoreReceiptsFunc func(hash common.Hash, receipts ethtypes.Receipts) error
 
 	// StoreTransactionsFunc mocks the StoreTransactions method.
-	StoreTransactionsFunc func(v uint64, hash common.Hash, transactions ethereumcoretypes.Transactions) error
+	StoreTransactionsFunc func(v uint64, hash common.Hash, transactions ethtypes.Transactions) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -107,14 +107,14 @@ type HistoricalPluginMock struct {
 		// StoreBlock holds details about calls to the StoreBlock method.
 		StoreBlock []struct {
 			// Block is the block argument value.
-			Block *ethereumcoretypes.Block
+			Block *ethtypes.Block
 		}
 		// StoreReceipts holds details about calls to the StoreReceipts method.
 		StoreReceipts []struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 			// Receipts is the receipts argument value.
-			Receipts ethereumcoretypes.Receipts
+			Receipts ethtypes.Receipts
 		}
 		// StoreTransactions holds details about calls to the StoreTransactions method.
 		StoreTransactions []struct {
@@ -123,7 +123,7 @@ type HistoricalPluginMock struct {
 			// Hash is the hash argument value.
 			Hash common.Hash
 			// Transactions is the transactions argument value.
-			Transactions ethereumcoretypes.Transactions
+			Transactions ethtypes.Transactions
 		}
 	}
 	lockGetBlockByHash       sync.RWMutex
@@ -137,7 +137,7 @@ type HistoricalPluginMock struct {
 }
 
 // GetBlockByHash calls GetBlockByHashFunc.
-func (mock *HistoricalPluginMock) GetBlockByHash(hash common.Hash) (*ethereumcoretypes.Block, error) {
+func (mock *HistoricalPluginMock) GetBlockByHash(hash common.Hash) (*ethtypes.Block, error) {
 	if mock.GetBlockByHashFunc == nil {
 		panic("HistoricalPluginMock.GetBlockByHashFunc: method is nil but HistoricalPlugin.GetBlockByHash was just called")
 	}
@@ -169,7 +169,7 @@ func (mock *HistoricalPluginMock) GetBlockByHashCalls() []struct {
 }
 
 // GetBlockByNumber calls GetBlockByNumberFunc.
-func (mock *HistoricalPluginMock) GetBlockByNumber(v uint64) (*ethereumcoretypes.Block, error) {
+func (mock *HistoricalPluginMock) GetBlockByNumber(v uint64) (*ethtypes.Block, error) {
 	if mock.GetBlockByNumberFunc == nil {
 		panic("HistoricalPluginMock.GetBlockByNumberFunc: method is nil but HistoricalPlugin.GetBlockByNumber was just called")
 	}
@@ -201,7 +201,7 @@ func (mock *HistoricalPluginMock) GetBlockByNumberCalls() []struct {
 }
 
 // GetReceiptsByHash calls GetReceiptsByHashFunc.
-func (mock *HistoricalPluginMock) GetReceiptsByHash(hash common.Hash) (ethereumcoretypes.Receipts, error) {
+func (mock *HistoricalPluginMock) GetReceiptsByHash(hash common.Hash) (ethtypes.Receipts, error) {
 	if mock.GetReceiptsByHashFunc == nil {
 		panic("HistoricalPluginMock.GetReceiptsByHashFunc: method is nil but HistoricalPlugin.GetReceiptsByHash was just called")
 	}
@@ -233,7 +233,7 @@ func (mock *HistoricalPluginMock) GetReceiptsByHashCalls() []struct {
 }
 
 // GetTransactionByHash calls GetTransactionByHashFunc.
-func (mock *HistoricalPluginMock) GetTransactionByHash(hash common.Hash) (*ethcoretypes.TxLookupEntry, error) {
+func (mock *HistoricalPluginMock) GetTransactionByHash(hash common.Hash) (*types.TxLookupEntry, error) {
 	if mock.GetTransactionByHashFunc == nil {
 		panic("HistoricalPluginMock.GetTransactionByHashFunc: method is nil but HistoricalPlugin.GetTransactionByHash was just called")
 	}
@@ -297,12 +297,12 @@ func (mock *HistoricalPluginMock) PrepareCalls() []struct {
 }
 
 // StoreBlock calls StoreBlockFunc.
-func (mock *HistoricalPluginMock) StoreBlock(block *ethereumcoretypes.Block) error {
+func (mock *HistoricalPluginMock) StoreBlock(block *ethtypes.Block) error {
 	if mock.StoreBlockFunc == nil {
 		panic("HistoricalPluginMock.StoreBlockFunc: method is nil but HistoricalPlugin.StoreBlock was just called")
 	}
 	callInfo := struct {
-		Block *ethereumcoretypes.Block
+		Block *ethtypes.Block
 	}{
 		Block: block,
 	}
@@ -317,10 +317,10 @@ func (mock *HistoricalPluginMock) StoreBlock(block *ethereumcoretypes.Block) err
 //
 //	len(mockedHistoricalPlugin.StoreBlockCalls())
 func (mock *HistoricalPluginMock) StoreBlockCalls() []struct {
-	Block *ethereumcoretypes.Block
+	Block *ethtypes.Block
 } {
 	var calls []struct {
-		Block *ethereumcoretypes.Block
+		Block *ethtypes.Block
 	}
 	mock.lockStoreBlock.RLock()
 	calls = mock.calls.StoreBlock
@@ -329,13 +329,13 @@ func (mock *HistoricalPluginMock) StoreBlockCalls() []struct {
 }
 
 // StoreReceipts calls StoreReceiptsFunc.
-func (mock *HistoricalPluginMock) StoreReceipts(hash common.Hash, receipts ethereumcoretypes.Receipts) error {
+func (mock *HistoricalPluginMock) StoreReceipts(hash common.Hash, receipts ethtypes.Receipts) error {
 	if mock.StoreReceiptsFunc == nil {
 		panic("HistoricalPluginMock.StoreReceiptsFunc: method is nil but HistoricalPlugin.StoreReceipts was just called")
 	}
 	callInfo := struct {
 		Hash     common.Hash
-		Receipts ethereumcoretypes.Receipts
+		Receipts ethtypes.Receipts
 	}{
 		Hash:     hash,
 		Receipts: receipts,
@@ -352,11 +352,11 @@ func (mock *HistoricalPluginMock) StoreReceipts(hash common.Hash, receipts ether
 //	len(mockedHistoricalPlugin.StoreReceiptsCalls())
 func (mock *HistoricalPluginMock) StoreReceiptsCalls() []struct {
 	Hash     common.Hash
-	Receipts ethereumcoretypes.Receipts
+	Receipts ethtypes.Receipts
 } {
 	var calls []struct {
 		Hash     common.Hash
-		Receipts ethereumcoretypes.Receipts
+		Receipts ethtypes.Receipts
 	}
 	mock.lockStoreReceipts.RLock()
 	calls = mock.calls.StoreReceipts
@@ -365,14 +365,14 @@ func (mock *HistoricalPluginMock) StoreReceiptsCalls() []struct {
 }
 
 // StoreTransactions calls StoreTransactionsFunc.
-func (mock *HistoricalPluginMock) StoreTransactions(v uint64, hash common.Hash, transactions ethereumcoretypes.Transactions) error {
+func (mock *HistoricalPluginMock) StoreTransactions(v uint64, hash common.Hash, transactions ethtypes.Transactions) error {
 	if mock.StoreTransactionsFunc == nil {
 		panic("HistoricalPluginMock.StoreTransactionsFunc: method is nil but HistoricalPlugin.StoreTransactions was just called")
 	}
 	callInfo := struct {
 		V            uint64
 		Hash         common.Hash
-		Transactions ethereumcoretypes.Transactions
+		Transactions ethtypes.Transactions
 	}{
 		V:            v,
 		Hash:         hash,
@@ -391,12 +391,12 @@ func (mock *HistoricalPluginMock) StoreTransactions(v uint64, hash common.Hash, 
 func (mock *HistoricalPluginMock) StoreTransactionsCalls() []struct {
 	V            uint64
 	Hash         common.Hash
-	Transactions ethereumcoretypes.Transactions
+	Transactions ethtypes.Transactions
 } {
 	var calls []struct {
 		V            uint64
 		Hash         common.Hash
-		Transactions ethereumcoretypes.Transactions
+		Transactions ethtypes.Transactions
 	}
 	mock.lockStoreTransactions.RLock()
 	calls = mock.calls.StoreTransactions
