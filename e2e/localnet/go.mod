@@ -3,7 +3,7 @@ module github.com/berachain/polaris/e2e/localnet
 go 1.21
 
 require (
-	github.com/berachain/polaris/contracts v0.0.2-alpha
+	github.com/berachain/polaris/contracts v0.0.4-alpha
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/ethereum/go-ethereum v1.13.7
 	github.com/onsi/ginkgo/v2 v2.13.0
@@ -18,7 +18,7 @@ require (
 	github.com/bits-and-blooms/bitset v1.11.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
-	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
+	github.com/cockroachdb/errors v1.11.1 // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/consensys/bavard v0.1.13 // indirect
 	github.com/consensys/gnark-crypto v0.12.1 // indirect

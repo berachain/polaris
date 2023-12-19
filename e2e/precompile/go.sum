@@ -103,8 +103,8 @@ github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/berachain/polaris/contracts v0.0.2-alpha h1:/9i7N5mv7q3UEJymbvGryZMpPx/VBPkrKYU4S8hST/E=
-github.com/berachain/polaris/contracts v0.0.2-alpha/go.mod h1:RybCtTNIGbofGITH72v1CgIYFtlmT/j49cshOzy2CjE=
+github.com/berachain/polaris/contracts v0.0.4-alpha h1:CyiElDqABwa4tIrC8j/D7dd21dRqGEV6yZjZsVD13nE=
+github.com/berachain/polaris/contracts v0.0.4-alpha/go.mod h1:Sm1T+tIQGuP0wEJnF/TlgZiJ+NPHgOZWO7vAz7FkwVs=
 github.com/berachain/polaris/e2e/localnet v0.0.0-20231218154435-a4bbdde34b8e h1:cZNrNsYmqVR4GQvGkBlRDPfQ6sCwm/mz8ahBkcP7or0=
 github.com/berachain/polaris/e2e/localnet v0.0.0-20231218154435-a4bbdde34b8e/go.mod h1:dQBSF4kAXpbAJip5Bfp+U1iEUaBTgPPTN6sOI0kEDgY=
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
