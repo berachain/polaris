@@ -24,9 +24,9 @@ require (
 	cosmossdk.io/store v1.0.1
 	cosmossdk.io/x/evidence v0.0.0-20231103111158-e83a20081ced
 	cosmossdk.io/x/tx v0.12.0
-	github.com/berachain/polaris/contracts v0.0.2-alpha
-	github.com/berachain/polaris/eth v0.0.2-alpha
-	github.com/berachain/polaris/lib v0.0.2-alpha
+	github.com/berachain/polaris/contracts v0.0.3-alpha
+	github.com/berachain/polaris/eth v0.0.3-alpha
+	github.com/berachain/polaris/lib v0.0.3-alpha
 	github.com/btcsuite/btcd v0.23.2
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/cometbft/cometbft v0.38.2
@@ -95,6 +95,8 @@ require (
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
+	github.com/dlclark/regexp2 v1.7.0 // indirect
+	github.com/dop251/goja v0.0.0-20230806174421-c933cf95e127 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
 	github.com/emicklei/dot v1.6.0 // indirect
@@ -116,6 +118,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.15.1 // indirect
+	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
