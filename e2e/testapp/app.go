@@ -38,6 +38,7 @@ import (
 	ethcryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
 	signinglib "github.com/berachain/polaris/cosmos/lib/signing"
 	polarruntime "github.com/berachain/polaris/cosmos/runtime"
+	"github.com/berachain/polaris/cosmos/runtime/ante"
 	"github.com/berachain/polaris/cosmos/runtime/miner"
 	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
 
@@ -50,7 +51,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
@@ -191,13 +194,32 @@ func NewPolarisApp(
 		evmconfig.MustReadConfigFromAppOpts(appOpts), app.Logger(), app.EVMKeeper.Host, nil,
 	)
 
+	// Build cosmos ante handler for non-evm transactions.
+	cosmHandler, err := authante.NewAnteHandler(
+		authante.HandlerOptions{
+			AccountKeeper:   app.AccountKeeper,
+			BankKeeper:      app.BankKeeper,
+			FeegrantKeeper:  nil,
+			SigGasConsumer:  ante.EthSecp256k1SigVerificationGasConsumer,
+			SignModeHandler: app.txConfig.SignModeHandler(),
+			TxFeeChecker: func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
+				return nil, 0, nil
+			},
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+
 	// Setup Polaris Runtime.
-	if err := app.Polaris.Build(app, app.EVMKeeper, miner.DefaultAllowedMsgs); err != nil {
+	if err = app.Polaris.Build(
+		app, cosmHandler, app.EVMKeeper, miner.DefaultAllowedMsgs,
+	); err != nil {
 		panic(err)
 	}
 
 	// register streaming services
-	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
+	if err = app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		panic(err)
 	}
 
@@ -211,12 +233,12 @@ func NewPolarisApp(
 	ethcryptocodec.RegisterInterfaces(app.interfaceRegistry)
 
 	// Load the app.
-	if err := app.Load(loadLatest); err != nil {
+	if err = app.Load(loadLatest); err != nil {
 		panic(err)
 	}
 
 	// Load the last state of the polaris evm.
-	if err := app.Polaris.LoadLastState(
+	if err = app.Polaris.LoadLastState(
 		app.CommitMultiStore(), uint64(app.LastBlockHeight()),
 	); err != nil {
 		panic(err)
