@@ -3,7 +3,7 @@ module github.com/berachain/polaris/e2e/precompile
 go 1.21
 
 require (
-	github.com/berachain/polaris/contracts v0.0.4-alpha
+	github.com/berachain/polaris/contracts v0.1.0-alpha
 	github.com/berachain/polaris/e2e/localnet v0.0.0-20231218154435-a4bbdde34b8e
 	github.com/cosmos/cosmos-sdk v0.50.3-0.20231218145840-3ea39a32bb46
 	github.com/cosmos/gogoproto v1.4.11
