@@ -55,7 +55,7 @@ func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []libgenerated.CosmosCoin {
 	return evmCoins
 }
 
-// SdkCoinsToEvmCoin converts sdk.Coin into libgenerated.CosmosCoin.
+// SdkCoinToEvmCoin converts sdk.Coin into libgenerated.CosmosCoin.
 func SdkCoinToEvmCoin(coin sdk.Coin) libgenerated.CosmosCoin {
 	evmCoin := libgenerated.CosmosCoin{
 		Amount: coin.Amount.BigInt(),
