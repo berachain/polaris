@@ -21,11 +21,18 @@
 package ante
 
 import (
+	"errors"
+
+	storetypes "cosmossdk.io/store/types"
+
+	"github.com/berachain/polaris/cosmos/crypto/keys/ethsecp256k1"
 	"github.com/berachain/polaris/cosmos/runtime/txpool"
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
 // Provider is a struct that holds the ante handlers for EVM and Cosmos.
@@ -61,9 +68,28 @@ func (ah *Provider) AnteHandler() func(
 		if len(tx.GetMsgs()) == 1 {
 			if _, ok := tx.GetMsgs()[0].(*evmtypes.WrappedEthereumTransaction); ok {
 				return ah.evmAnteHandler(ctx, tx, simulate)
+			} else if _, ok = tx.GetMsgs()[0].(*evmtypes.WrappedPayloadEnvelope); ok {
+				if ctx.ExecMode() != sdk.ExecModeCheck {
+					return ctx, nil
+				}
+				return ctx, errors.New("payload envelope is not supported in CheckTx")
 			}
 		}
 		// Otherwise, use the Cosmos ante handler
 		return ah.cosmosAnteHandler(ctx, tx, simulate)
+	}
+}
+
+// EthSecp256k1SigVerificationGasConsumer is a function that consumes gas for the verification
+// of an Ethereum Secp256k1 signature.
+func EthSecp256k1SigVerificationGasConsumer(
+	meter storetypes.GasMeter, sig signing.SignatureV2, params authtypes.Params,
+) error {
+	switch sig.PubKey.(type) {
+	case *ethsecp256k1.PubKey:
+		meter.ConsumeGas(params.SigVerifyCostSecp256k1, "ante verify: ethsecp256k1")
+		return nil
+	default:
+		return ante.DefaultSigVerificationGasConsumer(meter, sig, params)
 	}
 }

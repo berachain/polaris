@@ -38,6 +38,7 @@ import (
 	ethcryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
 	signinglib "github.com/berachain/polaris/cosmos/lib/signing"
 	polarruntime "github.com/berachain/polaris/cosmos/runtime"
+	"github.com/berachain/polaris/cosmos/runtime/ante"
 	"github.com/berachain/polaris/cosmos/runtime/miner"
 	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
 
@@ -199,7 +200,7 @@ func NewPolarisApp(
 			AccountKeeper:   app.AccountKeeper,
 			BankKeeper:      app.BankKeeper,
 			FeegrantKeeper:  nil,
-			SigGasConsumer:  nil,
+			SigGasConsumer:  ante.EthSecp256k1SigVerificationGasConsumer,
 			SignModeHandler: app.txConfig.SignModeHandler(),
 			TxFeeChecker: func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
 				return nil, 0, nil
