@@ -57,8 +57,10 @@ var _ = Describe("Historical Data", func() {
 		ctx = testutil.NewContext(log.NewTestLogger(GinkgoT())).WithBlockHeight(0)
 		bp := mock.NewBlockPluginMock()
 
+		genesis := core.DefaultGenesis
+		genesis.Config = params.DefaultChainConfig
 		p = utils.MustGetAs[*plugin](NewPlugin(params.DefaultChainConfig, bp, nil, testutil.EvmKey))
-		Expect(p.InitGenesis(ctx, core.DefaultGenesis)).To(Succeed())
+		Expect(p.InitGenesis(ctx, genesis)).To(Succeed())
 	})
 
 	When("Genesis block", func() {
