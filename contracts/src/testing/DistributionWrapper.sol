@@ -32,7 +32,6 @@ import {ERC20} from "../../lib/ERC20.sol";
 /**
  * @dev This contract is an example helper for calling the distribution precompile from another contract.
  */
-
 contract DistributionWrapper {
     // State
     IDistributionModule public distribution;
