@@ -22,30 +22,30 @@ package ante
 
 import (
 	"github.com/berachain/polaris/cosmos/runtime/txpool"
-
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 )
 
-// AnteHandlerProvider is a struct that holds the ante handlers for EVM and Cosmos.
-type AnteHandlerProvider struct {
+// Provider is a struct that holds the ante handlers for EVM and Cosmos.
+type Provider struct {
 	evmAnteHandler    sdk.AnteHandler // Ante handler for EVM transactions
 	cosmosAnteHandler sdk.AnteHandler // Ante handler for Cosmos transactions
 }
 
-// NewAnteHandler creates a new AnteHandlerProvider with the provided mempool and Cosmos ante handler.
+// NewAnteHandler creates a new Provider with a mempool and Cosmos ante handler.
 // It sets up the EVM ante handler with the necessary decorators.
 func NewAnteHandler(
 	mempool *txpool.Mempool, cosmosAnteHandler sdk.AnteHandler,
-) *AnteHandlerProvider {
+) *Provider {
 	evmAnteDecorators := []sdk.AnteDecorator{
 		ante.NewSetUpContextDecorator(), // Set up the context decorator for the EVM ante handler
 		mempool,                         // Add the mempool as a decorator for the EVM ante handler
 	}
 
-	// Return a new AnteHandlerProvider with the set up EVM and provided Cosmos ante handlers
-	return &AnteHandlerProvider{
+	// Return a new Provider with the set up EVM and provided Cosmos ante handlers
+	return &Provider{
 		evmAnteHandler:    sdk.ChainAnteDecorators(evmAnteDecorators...),
 		cosmosAnteHandler: cosmosAnteHandler,
 	}
@@ -53,8 +53,10 @@ func NewAnteHandler(
 
 // AnteHandler returns a function that handles ante for both EVM and Cosmos transactions.
 // It checks the type of the transaction and calls the appropriate ante handler.
-func (ah *AnteHandlerProvider) AnteHandler() func(ctx sdk.Context, tx sdk.Tx, simulate bool) (newCtx sdk.Context, err error) {
-	return func(ctx sdk.Context, tx sdk.Tx, simulate bool) (newCtx sdk.Context, err error) {
+func (ah *Provider) AnteHandler() func(
+	ctx sdk.Context, tx sdk.Tx, simulate bool,
+) (sdk.Context, error) {
+	return func(ctx sdk.Context, tx sdk.Tx, simulate bool) (sdk.Context, error) {
 		// If the transaction contains a single EVM transaction, use the EVM ante handler
 		if len(tx.GetMsgs()) == 1 {
 			if _, ok := tx.GetMsgs()[0].(*evmtypes.WrappedEthereumTransaction); ok {

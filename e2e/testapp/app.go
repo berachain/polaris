@@ -32,6 +32,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+
 	evmv1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/v1alpha1"
 	evmconfig "github.com/berachain/polaris/cosmos/config"
 	ethcryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
@@ -39,7 +40,6 @@ import (
 	polarruntime "github.com/berachain/polaris/cosmos/runtime"
 	"github.com/berachain/polaris/cosmos/runtime/miner"
 	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -50,6 +50,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -210,12 +211,14 @@ func NewPolarisApp(
 	}
 
 	// Setup Polaris Runtime.
-	if err := app.Polaris.Build(app, cosmHandler, app.EVMKeeper, miner.DefaultAllowedMsgs); err != nil {
+	if err = app.Polaris.Build(
+		app, cosmHandler, app.EVMKeeper, miner.DefaultAllowedMsgs,
+	); err != nil {
 		panic(err)
 	}
 
 	// register streaming services
-	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
+	if err = app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		panic(err)
 	}
 
@@ -229,12 +232,12 @@ func NewPolarisApp(
 	ethcryptocodec.RegisterInterfaces(app.interfaceRegistry)
 
 	// Load the app.
-	if err := app.Load(loadLatest); err != nil {
+	if err = app.Load(loadLatest); err != nil {
 		panic(err)
 	}
 
 	// Load the last state of the polaris evm.
-	if err := app.Polaris.LoadLastState(
+	if err = app.Polaris.LoadLastState(
 		app.CommitMultiStore(), uint64(app.LastBlockHeight()),
 	); err != nil {
 		panic(err)
