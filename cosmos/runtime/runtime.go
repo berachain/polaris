@@ -111,7 +111,9 @@ func New(
 // Build is a function that sets up the Polaris struct.
 // It takes a BaseApp and an EVMKeeper as arguments.
 // It returns an error if the setup fails.
-func (p *Polaris) Build(app CosmosApp, ek EVMKeeper, allowedValMsgs map[string]sdk.Msg) error {
+func (p *Polaris) Build(
+	app CosmosApp, cosmHandler sdk.AnteHandler, ek EVMKeeper, allowedValMsgs map[string]sdk.Msg,
+) error {
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
 	p.WrappedMiner = miner.New(p.Miner(), app, ek, allowedValMsgs)
 	p.WrappedBlockchain = chain.New(p.Blockchain(), app)
@@ -124,7 +126,9 @@ func (p *Polaris) Build(app CosmosApp, ek EVMKeeper, allowedValMsgs map[string]s
 		return err
 	}
 
-	app.SetAnteHandler(antelib.NewAnteHandler(p.WrappedTxPool))
+	app.SetAnteHandler(
+		antelib.NewAnteHandler(p.WrappedTxPool, cosmHandler).AnteHandler(),
+	)
 
 	return nil
 }

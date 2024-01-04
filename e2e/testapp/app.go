@@ -32,7 +32,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
-
 	evmv1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/v1alpha1"
 	evmconfig "github.com/berachain/polaris/cosmos/config"
 	ethcryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
@@ -40,6 +39,7 @@ import (
 	polarruntime "github.com/berachain/polaris/cosmos/runtime"
 	"github.com/berachain/polaris/cosmos/runtime/miner"
 	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -51,6 +51,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
@@ -191,8 +192,25 @@ func NewPolarisApp(
 		evmconfig.MustReadConfigFromAppOpts(appOpts), app.Logger(), app.EVMKeeper.Host, nil,
 	)
 
+	// Build cosmos ante handler for non-evm transactions.
+	cosmHandler, err := authante.NewAnteHandler(
+		authante.HandlerOptions{
+			AccountKeeper:   app.AccountKeeper,
+			BankKeeper:      app.BankKeeper,
+			FeegrantKeeper:  nil,
+			SigGasConsumer:  nil,
+			SignModeHandler: app.txConfig.SignModeHandler(),
+			TxFeeChecker: func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
+				return nil, 0, nil
+			},
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+
 	// Setup Polaris Runtime.
-	if err := app.Polaris.Build(app, app.EVMKeeper, miner.DefaultAllowedMsgs); err != nil {
+	if err := app.Polaris.Build(app, cosmHandler, app.EVMKeeper, miner.DefaultAllowedMsgs); err != nil {
 		panic(err)
 	}
 
