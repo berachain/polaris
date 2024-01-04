@@ -26,7 +26,7 @@ require (
 	cosmossdk.io/x/tx v0.12.0
 	github.com/berachain/polaris/contracts v0.0.4-alpha
 	github.com/berachain/polaris/eth v0.0.4-alpha
-	github.com/berachain/polaris/lib v0.0.4-alpha
+	github.com/berachain/polaris/lib v0.1.0-alpha
 	github.com/btcsuite/btcd v0.23.2
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/cometbft/cometbft v0.38.2

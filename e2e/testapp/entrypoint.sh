@@ -95,12 +95,11 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Sign genesis transaction
 	./build/bin/polard genesis gentx ${KEYS[0]} 1000000000000000000000abera --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
 	## In case you want to create multiple validators at genesis
-	## 1. Back to `./build/bin/polard keys add` step, init more keys
+	## 1. Back to `./build/bin/polard keys add` step, init more key
 	## 2. Back to `./build/bin/polard add-genesis-account` step, add balance for those
 	## 3. Clone this ~/../build/bin/polard home directory into some others, let's say `~/.cloned./build/bin/polard`
 	## 4. Run `gentx` in each of those folders
 	## 5. Copy the `gentx-*` folders under `~/.cloned./build/bin/polard/config/gentx/` folders into the original `~/../build/bin/polard/config/gentx`
-
 	# Collect genesis tx
 	./build/bin/polard genesis collect-gentxs --home "$HOMEDIR"
 

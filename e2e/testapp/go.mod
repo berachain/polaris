@@ -57,7 +57,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.224 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/berachain/polaris/contracts v0.0.4-alpha // indirect
-	github.com/berachain/polaris/lib v0.0.4-alpha // indirect
+	github.com/berachain/polaris/lib v0.1.0-alpha // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816 // indirect
 	github.com/bits-and-blooms/bitset v1.11.0 // indirect
