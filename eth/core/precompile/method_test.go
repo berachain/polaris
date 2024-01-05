@@ -49,6 +49,7 @@ var _ = Describe("Method", func() {
 			ctx := vm.NewPolarContext(
 				context.Background(),
 				vmmock.NewEVM(),
+				common.Address{},
 				common.Address{1},
 				big.NewInt(0),
 			)

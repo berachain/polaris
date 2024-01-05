@@ -140,7 +140,7 @@ var _ = Describe("Bank Precompile Test", func() {
 		)
 
 		BeforeEach(func() {
-			ctx = vm.NewPolarContext(ctx, nil, common.BytesToAddress(acc), big.NewInt(0))
+			ctx = vm.NewPolarContext(ctx, nil, common.Address{}, common.BytesToAddress(acc), big.NewInt(0))
 		})
 
 		When("GetBalance", func() {
@@ -399,7 +399,7 @@ var _ = Describe("Bank Precompile Test", func() {
 				accs := simtestutil.CreateRandomAccounts(2)
 				fromAcc, toAcc := accs[0], accs[1]
 
-				pCtx := vm.NewPolarContext(ctx, nil, common.BytesToAddress(fromAcc), new(big.Int))
+				pCtx := vm.NewPolarContext(ctx, nil, common.Address{}, common.BytesToAddress(fromAcc), new(big.Int))
 
 				sortedSdkCoins := sdk.NewCoins(
 					sdk.NewCoin(

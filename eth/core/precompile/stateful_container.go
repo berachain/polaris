@@ -86,7 +86,7 @@ func (sc *statefulContainer) Run(
 
 	// Execute the method with the reflected ctx and raw input
 	return method.Call(
-		pvm.NewPolarContext(ctx, evm, caller, value),
+		pvm.NewPolarContext(ctx, evm, sc.RegistryKey(), caller, value),
 		input,
 	)
 }
