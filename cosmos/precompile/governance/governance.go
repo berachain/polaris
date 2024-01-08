@@ -80,8 +80,9 @@ func NewPrecompileContract(
 // CustomValueDecoders implements the `ethprecompile.StatefulImpl` interface.
 func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
-		AttributeProposalSender: log.ConvertCommonHexAddress,
-		AttributeProposalVote:   ConvertStringToVote,
+		AttributeProposalSender:         log.ConvertCommonHexAddress,
+		AttributeProposalVote:           ConvertStringToVote,
+		govtypes.AttributeKeyProposalID: log.ConvertUint64,
 	}
 }
 
