@@ -61,8 +61,6 @@ import (
 // the application.
 func initCometBFTConfig() *cmtcfg.Config {
 	cfg := cmtcfg.DefaultConfig()
-
-	cfg.Instrumentation.Prometheus = true
 	return cfg
 }
 
@@ -80,7 +78,7 @@ func initAppConfig() (string, interface{}) {
 	// server config.
 	srvCfg := serverconfig.DefaultConfig()
 	// The SDK's default minimum gas price is set to "" (empty value) inside
-	// app.toml. If left empty by validators, the node will halt on startup
+	// app.toml. If left empty by validators, the node will halt on startup.
 	// However, the chain developer can set a default app.toml value for their
 	// validators here.
 	//
@@ -99,9 +97,6 @@ func initAppConfig() (string, interface{}) {
 		Config:  *srvCfg,
 		Polaris: *evmconfig.DefaultConfig(),
 	}
-
-	customAppConfig.Config.Telemetry.Enabled = true
-	customAppConfig.Config.Telemetry.MetricsSink = "mem"
 
 	customAppConfig.Telemetry.Enabled = true
 
