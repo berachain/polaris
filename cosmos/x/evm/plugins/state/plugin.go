@@ -64,6 +64,10 @@ type Plugin interface {
 	SetGasConfig(storetypes.GasConfig, storetypes.GasConfig)
 	// SetPrecompileLogFactory sets the precompile log factory for the plugin.
 	SetPrecompileLogFactory(events.PrecompileLogFactory)
+
+	SetStateOverride(ctx context.Context)
+	GetStateOverride() context.Context
+	ClearStateOverride()
 }
 
 // The StatePlugin is a very fun and interesting part of the EVM implementation. But if you want to
@@ -115,6 +119,9 @@ type plugin struct {
 	dbErr error
 
 	mu sync.Mutex
+
+	stateOverrideMu sync.Mutex
+	stateCtx        context.Context
 }
 
 // NewPlugin returns a plugin with the given context and keepers.
@@ -521,6 +528,24 @@ func (p *plugin) IterateBalances(fn func(common.Address, *big.Int) bool) {
 // Historical State
 // =============================================================================
 
+func (p *plugin) SetStateOverride(ctx context.Context) {
+	p.stateOverrideMu.Lock()
+	defer p.stateOverrideMu.Unlock()
+	p.stateCtx = ctx
+}
+
+func (p *plugin) GetStateOverride() context.Context {
+	p.stateOverrideMu.Lock()
+	defer p.stateOverrideMu.Unlock()
+	return p.stateCtx
+}
+
+func (p *plugin) ClearStateOverride() {
+	p.stateOverrideMu.Lock()
+	defer p.stateOverrideMu.Unlock()
+	p.stateCtx = nil
+}
+
 // StateAtBlockNumber implements `core.StatePlugin`.
 func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	var ctx sdk.Context
@@ -536,23 +561,28 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	// ontop of a state that has these updates for the block.
 	// TODO: Fix this.
 
-	int64Number := int64(number)
-	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
-	// Investigate and hopefully remove this GTE.
-	if int64Number >= p.latestQueryContext.BlockHeight() {
-		// TODO: Manager properly
-		if p.latestQueryContext.MultiStore() == nil {
-			ctx = p.latestQueryContext.WithEventManager(sdk.NewEventManager())
+	if stateCtx := p.GetStateOverride(); stateCtx == nil {
+
+		int64Number := int64(number)
+		// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
+		// Investigate and hopefully remove this GTE.
+		if int64Number >= p.latestQueryContext.BlockHeight() {
+			// TODO: Manager properly
+			if p.latestQueryContext.MultiStore() == nil {
+				ctx = p.latestQueryContext.WithEventManager(sdk.NewEventManager())
+			} else {
+				ctx, _ = p.latestQueryContext.CacheContext()
+			}
 		} else {
-			ctx, _ = p.latestQueryContext.CacheContext()
+			// Get the query context at the given height.
+			var err error
+			ctx, err = p.qfn()(int64Number, false)
+			if err != nil {
+				return nil, err
+			}
 		}
 	} else {
-		// Get the query context at the given height.
-		var err error
-		ctx, err = p.qfn()(int64Number, false)
-		if err != nil {
-			return nil, err
-		}
+		ctx = sdk.UnwrapSDKContext(stateCtx)
 	}
 
 	// Create a State Plugin with the requested chain height.

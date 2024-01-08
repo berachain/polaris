@@ -54,6 +54,7 @@ type Blockchain interface {
 	ChainWriter
 	ChainSubscriber
 	ChainResources
+	StatePlugin() StatePlugin
 	core.ChainContext
 }
 
@@ -169,4 +170,8 @@ func (bc *blockchain) loadLastState(number uint64) error {
 	}
 	bc.currentBlock.Store(b)
 	return nil
+}
+
+func (bc *blockchain) StatePlugin() StatePlugin {
+	return bc.sp
 }

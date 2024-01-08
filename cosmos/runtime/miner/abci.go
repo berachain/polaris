@@ -45,6 +45,9 @@ func (m *Miner) PrepareProposal(
 		ethGasUsed        uint64
 	)
 
+	// m.keeper.GetStatePlugin().SetStateOverride(ctx)
+	// defer m.keeper.GetStatePlugin().ClearStateOverride()
+
 	// We have to run the PreBlocker && BeginBlocker to get the chain into the state
 	// it'll be in when the EVM transaction actually runs.
 	if _, err = m.app.PreBlocker(ctx, &abci.RequestFinalizeBlock{

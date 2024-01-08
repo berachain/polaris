@@ -25,6 +25,7 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -41,6 +42,9 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 	var (
 		err error
 	)
+
+	wbc.Blockchain.StatePlugin().(state.Plugin).SetStateOverride(ctx)
+	defer wbc.Blockchain.StatePlugin().(state.Plugin).ClearStateOverride()
 
 	// We have to run the PreBlocker && BeginBlocker to get the chain into the state
 	// it'll be in when the EVM transaction actually runs.
