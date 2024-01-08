@@ -182,3 +182,7 @@ func (el *ExecutionLayer) TxPool() TxPool {
 func (el *ExecutionLayer) Blockchain() pcore.Blockchain {
 	return el.backend.Blockchain()
 }
+
+func (el *ExecutionLayer) Backend() *polar.Polaris {
+	return el.backend
+}
