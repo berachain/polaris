@@ -82,7 +82,6 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
 		AttributeProposalSender: log.ConvertCommonHexAddress,
 		AttributeProposalVote:   ConvertStringToVote,
-		sdk.AttributeKeySender:  c.ConvertAccAddressFromString,
 	}
 }
 
@@ -564,11 +563,4 @@ func ConvertStringToVote(attributeValue string) (any, error) {
 		return nil, err
 	}
 	return vote, nil
-}
-
-// ConvertAccAddressFromString converts a Cosmos string representing a account address to a
-// common.Address.
-func (c *Contract) ConvertAccAddressFromString(attributeValue string) (any, error) {
-	// extract the sdk.AccAddress from string value as common.Address
-	return cosmlib.EthAddressFromString(c.addressCodec, attributeValue)
 }
