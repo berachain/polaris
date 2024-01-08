@@ -25,7 +25,6 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -101,15 +100,6 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 			Status: abci.ResponseProcessProposal_REJECT,
 		}, err
 	}
-	sp, ok := wbc.Blockchain.StatePlugin().(state.Plugin)
-	if !ok {
-		return &abci.ResponseProcessProposal{
-			Status: abci.ResponseProcessProposal_REJECT,
-		}, fmt.Errorf("failed to cast state plugin")
-	}
-
-	sp.SetStateOverride(ctx)
-	defer sp.ClearStateOverride()
 
 	// Insert the block into the chain.
 	if err = wbc.InsertBlockWithoutSetHead(ctx, block); err != nil {
