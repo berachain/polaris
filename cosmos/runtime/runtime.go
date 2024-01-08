@@ -56,6 +56,7 @@ type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
 	Setup(evmkeeper.WrappedBlockchain) error
 	SetLatestQueryContext(context.Context) error
+	GetHost() core.PolarisHostChain
 }
 
 // CosmosApp is an interface that defines the methods needed for the Cosmos setup.

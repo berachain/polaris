@@ -24,6 +24,7 @@ package miner
 import (
 	storetypes "cosmossdk.io/store/types"
 
+	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -70,6 +71,14 @@ func (m *Miner) PrepareProposal(
 	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
 		return nil, err
 	}
+
+	sp, ok := m.keeper.GetHost().GetStatePlugin().(state.Plugin)
+	if !ok {
+		return nil, err
+	}
+
+	sp.SetStateOverride(ctx)
+	defer sp.ClearStateOverride()
 
 	// Trigger the geth miner to build a block.
 	if payloadEnvelopeBz, ethGasUsed, err = m.buildBlock(ctx); err != nil {

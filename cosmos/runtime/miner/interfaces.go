@@ -24,6 +24,7 @@ import (
 	"context"
 
 	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
+	"github.com/berachain/polaris/eth/core"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
@@ -50,5 +51,6 @@ type (
 		// Setup initializes the EVM keeper.
 		Setup(evmkeeper.WrappedBlockchain) error
 		SetLatestQueryContext(context.Context) error
+		GetHost() core.PolarisHostChain
 	}
 )

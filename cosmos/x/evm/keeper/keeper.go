@@ -79,6 +79,10 @@ func (k *Keeper) Setup(wrappedChain WrappedBlockchain) error {
 	return k.SetupPrecompiles()
 }
 
+func (k *Keeper) GetHost() core.PolarisHostChain {
+	return k.Host
+}
+
 // Logger returns a module-specific logger.
 func (k *Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With(types.ModuleName)
