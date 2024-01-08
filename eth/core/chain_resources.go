@@ -41,6 +41,7 @@ type ChainResources interface {
 	// state snapshots
 	StateAtBlockNumber(uint64) (state.StateDB, error)
 	StateAt(root common.Hash) (state.StateDB, error)
+	GetOverridenState() (state.StateDB, error)
 
 	// state for tracing
 	StateAtBlock(
@@ -60,6 +61,10 @@ type ChainResources interface {
 // StateAt returns a statedb configured to read what the state of the blockchain is/was at a given.
 func (bc *blockchain) StateAt(common.Hash) (state.StateDB, error) {
 	return nil, errors.New("StateAt is not implemented in polaris due state root")
+}
+
+func (bc *blockchain) GetOverridenState() (state.StateDB, error) {
+	return state.NewStateDB(bc.sp.GetOverridenState(), bc.pp), nil
 }
 
 // StateAtBlockNumber returns a statedb configured to read what the state of the blockchain is/was

@@ -107,6 +107,7 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 			Status: abci.ResponseProcessProposal_REJECT,
 		}, fmt.Errorf("failed to cast state plugin")
 	}
+
 	sp.SetStateOverride(ctx)
 	defer sp.ClearStateOverride()
 

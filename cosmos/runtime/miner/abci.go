@@ -78,7 +78,6 @@ func (m *Miner) PrepareProposal(
 	}
 
 	sp.SetStateOverride(ctx)
-	defer sp.ClearStateOverride()
 
 	// Trigger the geth miner to build a block.
 	if payloadEnvelopeBz, ethGasUsed, err = m.buildBlock(ctx); err != nil {

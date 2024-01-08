@@ -21,6 +21,8 @@
 package core
 
 import (
+	"context"
+
 	"github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/state"
 	"github.com/berachain/polaris/eth/core/types"
@@ -68,6 +70,8 @@ type (
 		state.Plugin
 		// StateAtBlockNumber returns the state at the given block height.
 		StateAtBlockNumber(uint64) (StatePlugin, error)
+		SetStateOverride(ctx context.Context)
+		GetOverridenState() StatePlugin
 	}
 )
 
