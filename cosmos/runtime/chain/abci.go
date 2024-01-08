@@ -43,9 +43,6 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 		err error
 	)
 
-	wbc.Blockchain.StatePlugin().(state.Plugin).SetStateOverride(ctx)
-	defer wbc.Blockchain.StatePlugin().(state.Plugin).ClearStateOverride()
-
 	// We have to run the PreBlocker && BeginBlocker to get the chain into the state
 	// it'll be in when the EVM transaction actually runs.
 	if _, err = wbc.app.PreBlocker(ctx, &abci.RequestFinalizeBlock{
