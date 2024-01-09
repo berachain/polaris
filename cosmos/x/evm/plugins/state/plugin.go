@@ -106,10 +106,6 @@ type plugin struct {
 	// keepers used for balance and account information.
 	ak AccountKeeper
 
-	// qfn allows for querying state a historical height.
-	latestQueryContext sdk.Context
-	qfn                func() func(height int64, prove bool) (sdk.Context, error)
-
 	// dbErr stores any error that is returned from state modifications on the underlying
 	// keepers.
 	dbErr error
@@ -117,6 +113,10 @@ type plugin struct {
 	mu sync.Mutex
 
 	stateCtx context.Context
+
+	// lqc is used for fullfilling
+	lqc sdk.Context
+	qfn func() func(height int64, prove bool) (sdk.Context, error)
 }
 
 // NewPlugin returns a plugin with the given context and keepers.
@@ -143,7 +143,7 @@ func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
 // Prepare sets up the context on the state plugin for use in JSON-RPC calls.
 // Prepare implements `core.StatePlugin`.
 func (p *plugin) Prepare(ctx context.Context) {
-	p.latestQueryContext = sdk.UnwrapSDKContext(ctx)
+	p.lqc = sdk.UnwrapSDKContext(ctx)
 }
 
 // Reset sets up the state plugin for execution of a new transaction. It sets up the snapshottable
@@ -550,12 +550,12 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	int64Number := int64(number)
 	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
 	// Investigate and hopefully remove this GTE.
-	if int64Number >= p.latestQueryContext.BlockHeight() {
+	if int64Number >= p.lqc.BlockHeight() {
 		// TODO: Manager properly
-		if p.latestQueryContext.MultiStore() == nil {
-			ctx = p.latestQueryContext.WithEventManager(sdk.NewEventManager())
+		if p.lqc.MultiStore() == nil {
+			ctx = p.lqc.WithEventManager(sdk.NewEventManager())
 		} else {
-			ctx, _ = p.latestQueryContext.CacheContext()
+			ctx, _ = p.lqc.CacheContext()
 		}
 	} else {
 		// Get the query context at the given height.
@@ -570,7 +570,7 @@ func (p *plugin) StateAtBlockNumber(number uint64) (core.StatePlugin, error) {
 	sp := NewPlugin(p.ak, p.storeKey, p.qfn, p.plf)
 
 	// TODO: Manager properly
-	if p.latestQueryContext.MultiStore() != nil {
+	if p.lqc.MultiStore() != nil {
 		sp.Reset(ctx)
 	}
 	return sp, nil

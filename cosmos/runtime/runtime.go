@@ -120,8 +120,13 @@ func (p *Polaris) Build(
 	app CosmosApp, cosmHandler sdk.AnteHandler, ek EVMKeeper, allowedValMsgs map[string]sdk.Msg,
 ) error {
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
-	p.WrappedMiner = miner.New(p.ExecutionLayer.Backend().Miner(), app, ek, allowedValMsgs)
-	p.WrappedBlockchain = chain.New(p.ExecutionLayer.Backend().Blockchain(), app)
+	p.WrappedMiner = miner.New(
+		p.ExecutionLayer.Backend().Miner(),
+		p.ExecutionLayer.Backend().Blockchain(),
+		app, allowedValMsgs)
+	p.WrappedBlockchain = chain.New(
+		p.ExecutionLayer.Backend().Blockchain(), app,
+	)
 
 	app.SetMempool(p.WrappedTxPool)
 	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
