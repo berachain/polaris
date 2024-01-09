@@ -36,6 +36,9 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
+// ProcessPayloadEnvelope uses Geth's beacon engine API to build a block from a execution payload
+// request. It is called by Cosmos-SDK during ABCI DeliverTx phase (1 cosmos tx to build the entire
+// eth block).
 func (k *Keeper) ProcessPayloadEnvelope(
 	ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope,
 ) (*evmtypes.WrappedPayloadEnvelopeResponse, error) {

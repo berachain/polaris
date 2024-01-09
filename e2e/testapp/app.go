@@ -21,7 +21,6 @@
 package testapp
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -238,8 +237,6 @@ func NewPolarisApp(
 		panic(err)
 	}
 
-	fmt.Println("SETUP GETH SERVICES")
-
 	// Load the last state of the polaris evm.
 	if err = app.Polaris.LoadLastState(
 		app.CommitMultiStore(), uint64(app.LastBlockHeight()),
@@ -288,7 +285,6 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
-	fmt.Println("SETUP SETUP SERVICES SERVICES")
 	if err := app.Polaris.SetupServices(apiSvr.ClientCtx); err != nil {
 		panic(err)
 	}

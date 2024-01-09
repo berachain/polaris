@@ -88,10 +88,7 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 	// ValidateState validates the statedb post block processing.
 	if err = bc.validator.ValidateState(block, state, receipts, usedGas); err != nil {
 		log.Error("invalid state after processing block", "num", block.NumberU64(), "err", err)
-		if block.Number().Uint64() == 9617 {
-		} else {
-			return nil, nil, err
-		}
+		return nil, nil, err
 	}
 
 	return receipts, logs, nil
