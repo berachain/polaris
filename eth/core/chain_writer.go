@@ -54,8 +54,12 @@ func (bc *blockchain) WriteGenesisBlock(block *ethtypes.Block) error {
 
 // InsertBlockWithoutSetHead inserts a block into the blockchain without setting it as the head.
 func (bc *blockchain) InsertBlockWithoutSetHead(block *ethtypes.Block) error {
+	// Get the state with the latest insert chain context.
+	sp := bc.spf.NewPluginWithMode("insert")
+	state := state.NewStateDB(sp, bc.pp)
+
 	// Call the private method to insert the block without setting it as the head.
-	_, _, err := bc.insertBlockWithoutSetHead(block, bc.statedb)
+	_, _, err := bc.insertBlockWithoutSetHead(block, state)
 	// Return any error that might have occurred.
 	return err
 }
@@ -75,7 +79,7 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 	}
 
 	// Process the incoming EVM block.
-	receipts, logs, usedGas, err := bc.processor.Process(block, bc.statedb, *bc.vmConfig)
+	receipts, logs, usedGas, err := bc.processor.Process(block, state, *bc.vmConfig)
 	if err != nil {
 		log.Error("failed to process block", "num", block.NumberU64(), "err", err)
 		return nil, nil, err
@@ -95,7 +99,11 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 
 // InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
 func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
-	receipts, logs, err := bc.insertBlockWithoutSetHead(block, bc.statedb)
+	// Get the state with the latest insert chain context.
+	sp := bc.spf.NewPluginWithMode("finalize")
+	state := state.NewStateDB(sp, bc.pp)
+
+	receipts, logs, err := bc.insertBlockWithoutSetHead(block, state)
 	if err != nil {
 		return err
 	}

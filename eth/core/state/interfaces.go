@@ -34,8 +34,6 @@ import (
 type Plugin interface {
 	// Plugin implements `libtypes.Controllable`.
 	libtypes.Controllable[string]
-	// Prepare prepares the state with the given `context`.
-	libtypes.Preparable
 	// Reset resets the state with the given `context`.
 	libtypes.Resettable
 	// Plugin implements `libtypes.Cloneable`.

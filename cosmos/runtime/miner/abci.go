@@ -66,11 +66,7 @@ func (m *Miner) PrepareProposal(
 		WithTransientKVGasConfig(storetypes.GasConfig{}).
 		WithGasMeter(storetypes.NewInfiniteGasMeter())
 
-	// We have to prime the state plugin.
-	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
-		return nil, err
-	}
-
+	// Set the mining context for the state plugin factory.
 	spf := m.keeper.GetHost().GetStatePluginFactory()
 	spf.SetLatestMiningContext(ctx)
 

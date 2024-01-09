@@ -63,6 +63,7 @@ func (bc *blockchain) StateAt(common.Hash) (state.StateDB, error) {
 	return nil, errors.New("StateAt is not implemented in polaris due state root")
 }
 
+// Used by geth miner to build the block (can rename to GetMinerState)
 func (bc *blockchain) GetOverridenState() (state.StateDB, error) {
 	return state.NewStateDB(bc.spf.NewPluginWithMode("miner"), bc.pp), nil
 }

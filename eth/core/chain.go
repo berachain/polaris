@@ -27,7 +27,6 @@ import (
 	"sync/atomic"
 
 	"github.com/berachain/polaris/eth/consensus"
-	"github.com/berachain/polaris/eth/core/state"
 	"github.com/berachain/polaris/eth/core/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -70,8 +69,6 @@ type blockchain struct {
 	processor core.Processor
 	validator core.Validator
 
-	// statedb is the state database that is used to manage state during transactions.
-	statedb state.StateDB
 	// vmConfig is the configuration used to create the EVM.
 	vmConfig *vm.Config
 
@@ -143,8 +140,8 @@ func NewChain(
 func (bc *blockchain) LoadLastState(ctx context.Context, number uint64) error {
 	// ctx here is the one created from app.CommitMultistore().
 	bc.PreparePlugins(ctx)
-	sp := bc.spf.NewPluginFromContext(ctx)
-	bc.statedb = state.NewStateDB(sp, bc.pp)
+	// sp := bc.spf.NewPluginFromContext(ctx)
+	// bc.statedb = state.NewStateDB(sp, bc.pp)
 
 	return bc.loadLastState(number)
 }

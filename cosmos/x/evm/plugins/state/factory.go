@@ -40,11 +40,14 @@ type SPFactory struct {
 	storeKey storetypes.StoreKey
 	plf      events.PrecompileLogFactory
 
-	// Contexts for queries
-	latestQueryContext sdk.Context // "latest"
-	minerBuildContext  sdk.Context // "miner"
-	insertChainContext sdk.Context
-	qfn                func() func(height int64, prove bool) (sdk.Context, error) // "historical"
+	// Contexts for state plugins
+	minerBuildContext    sdk.Context // "miner" -----> set in PrepareProposal
+	insertChainContext   sdk.Context // "insert" ----> set in ProcessProposal
+	finalizeBlockContext sdk.Context // "finalize" --> set in Finalize
+	latestQueryContext   sdk.Context // "latest" ----> set in PrepareCheckState
+
+	// Query function for getting the context at a given height.
+	qfn func() func(height int64, prove bool) (sdk.Context, error) // "historical"
 }
 
 // NewSPFactory creates a new SPFactory instance with the provided AccountKeeper,
@@ -68,8 +71,12 @@ func (spf *SPFactory) NewPluginWithMode(mode string) core.StatePlugin {
 	switch mode {
 	case "miner":
 		p.Reset(spf.minerBuildContext)
-	case "chain":
+	case "insert":
 		p.Reset(spf.insertChainContext)
+	case "finalize":
+		p.Reset(spf.finalizeBlockContext)
+	case "latest":
+		fallthrough
 	default:
 		p.Reset(spf.latestQueryContext)
 	}
@@ -139,9 +146,14 @@ func (spf *SPFactory) SetLatestMiningContext(ctx context.Context) {
 	spf.minerBuildContext = sdk.UnwrapSDKContext(ctx)
 }
 
-// SetInsertChainContext updates the SPFactory's minerBuildContext to the provided context.
+// SetInsertChainContext updates the SPFactory's insertChainContext to the provided context.
 func (spf *SPFactory) SetInsertChainContext(ctx context.Context) {
-	spf.minerBuildContext = sdk.UnwrapSDKContext(ctx)
+	spf.insertChainContext = sdk.UnwrapSDKContext(ctx)
+}
+
+// SetFinalizeBlockContext updates the SPFactory's finalizeBlockContext to the provided context.
+func (spf *SPFactory) SetFinalizeBlockContext(ctx context.Context) {
+	spf.finalizeBlockContext = sdk.UnwrapSDKContext(ctx)
 }
 
 // SetLatestQueryContext updates the SPFactory's latestQueryContext to the provided context.
