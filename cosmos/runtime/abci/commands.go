@@ -30,12 +30,14 @@ import (
 // ValidatorCommands is a struct that provides the abci functions required
 // for validators to submit cosmos-sdk transactions to the chain.
 type ValidatorCommands struct {
-	txDecoder      baseapp.ProposalTxVerifier
-	valTxSelector  baseapp.TxSelector
-	allowedValMsgs map[string]sdk.Msg
+	txDecoder      baseapp.ProposalTxVerifier //nolint:unused // wip.
+	valTxSelector  baseapp.TxSelector         //nolint:unused // wip.
+	allowedValMsgs map[string]sdk.Msg         //nolint:unused // wip.
 }
 
 // processValidatorMsgs processes the validator messages.
+//
+//nolint:unused // wip.
 func (m *ValidatorCommands) processValidatorMsgs(
 	ctx sdk.Context, maxTxBytes int64, ethGasUsed uint64, txs [][]byte,
 ) ([][]byte, error) { //nolint:unparam // should be handled better.

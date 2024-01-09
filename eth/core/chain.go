@@ -140,9 +140,6 @@ func NewChain(
 func (bc *blockchain) LoadLastState(ctx context.Context, number uint64) error {
 	// ctx here is the one created from app.CommitMultistore().
 	bc.PreparePlugins(ctx)
-	// sp := bc.spf.NewPluginFromContext(ctx)
-	// bc.statedb = state.NewStateDB(sp, bc.pp)
-
 	return bc.loadLastState(number)
 }
 
