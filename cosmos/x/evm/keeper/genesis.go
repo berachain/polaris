@@ -44,6 +44,7 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	}
 
 	// Insert to chain.
+	k.spf.SetGenesisContext(ctx)
 	return k.wrappedChain.WriteGenesisState(ctx, genState)
 }
 

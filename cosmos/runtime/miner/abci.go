@@ -67,8 +67,7 @@ func (m *Miner) PrepareProposal(
 		WithGasMeter(storetypes.NewInfiniteGasMeter())
 
 	// Set the mining context for the state plugin factory.
-	spf := m.keeper.GetHost().GetStatePluginFactory()
-	spf.SetLatestMiningContext(ctx)
+	m.spf.SetLatestMiningContext(ctx)
 
 	// Trigger the geth miner to build a block.
 	if payloadEnvelopeBz, ethGasUsed, err = m.buildBlock(ctx); err != nil {

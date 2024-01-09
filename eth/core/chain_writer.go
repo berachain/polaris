@@ -44,11 +44,15 @@ type ChainWriter interface {
 
 // WriteGenesisBlock inserts the genesis block into the blockchain.
 func (bc *blockchain) WriteGenesisBlock(block *ethtypes.Block) error {
+	// Get the state with the latest finalize block context.
+	sp := bc.spf.NewPluginWithMode("genesis")
+	state := state.NewStateDB(sp, bc.pp)
+
 	// TODO: add more validation here.
 	if block.NumberU64() != 0 {
 		return errors.New("not the genesis block")
 	}
-	_, err := bc.WriteBlockAndSetHead(block, nil, nil, nil, true)
+	_, err := bc.WriteBlockAndSetHead(block, nil, nil, state, true)
 	return err
 }
 
@@ -96,7 +100,7 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 
 // InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
 func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
-	// Get the state with the latest insert chain context.
+	// Get the state with the latest finalize block context.
 	sp := bc.spf.NewPluginWithMode("finalize")
 	state := state.NewStateDB(sp, bc.pp)
 
@@ -106,7 +110,7 @@ func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
 	}
 	// We can just immediately finalize the block. It's okay in this context.
 	if _, err = bc.WriteBlockAndSetHead(
-		block, receipts, logs, nil, true); err != nil {
+		block, receipts, logs, state, true); err != nil {
 		log.Error("failed to write block", "num", block.NumberU64(), "err", err)
 		return err
 	}

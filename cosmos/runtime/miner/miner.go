@@ -28,6 +28,7 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 
 	"github.com/berachain/polaris/eth"
+	"github.com/berachain/polaris/eth/core"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -40,9 +41,9 @@ import (
 
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
-	eth.Miner
+	miner          eth.Miner
 	app            App
-	keeper         EVMKeeper
+	spf            core.StatePluginFactory
 	valTxSelector  baseapp.TxSelector
 	serializer     EnvelopeSerializer
 	allowedValMsgs map[string]sdk.Msg
@@ -50,18 +51,20 @@ type Miner struct {
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm eth.Miner, app App, keeper EVMKeeper, allowedValMsgs map[string]sdk.Msg) *Miner {
+func New(
+	miner eth.Miner, app App, spf core.StatePluginFactory, allowedValMsgs map[string]sdk.Msg,
+) *Miner {
 	return &Miner{
-		Miner:          gm,
-		keeper:         keeper,
+		miner:          miner,
 		app:            app,
+		spf:            spf,
 		allowedValMsgs: allowedValMsgs,
 		valTxSelector:  baseapp.NewDefaultTxSelector(),
 	}
 }
 
 func (m *Miner) SetGethMiner(gm eth.Miner) {
-	m.Miner = gm
+	m.miner = gm
 }
 
 // Init sets the transaction serializer.
@@ -94,7 +97,7 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 	)
 
 	// Build Payload
-	if payload, err = m.BuildPayload(m.constructPayloadArgs(sCtx)); err != nil {
+	if payload, err = m.miner.BuildPayload(m.constructPayloadArgs(sCtx)); err != nil {
 		sCtx.Logger().Error("failed to build payload", "err", err)
 		return err
 	}
@@ -107,7 +110,7 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 func (m *Miner) constructPayloadArgs(ctx sdk.Context) *miner.BuildPayloadArgs {
 	return &miner.BuildPayloadArgs{
 		Timestamp:    uint64(ctx.BlockTime().Unix()),
-		FeeRecipient: m.Etherbase(),
+		FeeRecipient: m.miner.Etherbase(),
 		Random:       common.Hash{}, /* todo: generated random */
 		Withdrawals:  make(ethtypes.Withdrawals, 0),
 		BeaconRoot:   &emptyHash,

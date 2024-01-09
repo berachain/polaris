@@ -41,6 +41,7 @@ type SPFactory struct {
 	plf      events.PrecompileLogFactory
 
 	// Contexts for state plugins
+	genesisContext       sdk.Context // "genesis" ---> set in InitGenesis
 	minerBuildContext    sdk.Context // "miner" -----> set in PrepareProposal
 	insertChainContext   sdk.Context // "insert" ----> set in ProcessProposal
 	finalizeBlockContext sdk.Context // "finalize" --> set in Finalize
@@ -75,6 +76,8 @@ func (spf *SPFactory) NewPluginWithMode(mode string) core.StatePlugin {
 		p.Reset(spf.insertChainContext)
 	case "finalize":
 		p.Reset(spf.finalizeBlockContext)
+	case "genesis":
+		p.Reset(spf.genesisContext)
 	case "latest":
 		fallthrough
 	default:
@@ -139,6 +142,11 @@ func (spf *SPFactory) NewPluginAtBlockNumber(blockNumber uint64) (core.StatePlug
 	// if err != nil {
 	// 	return nil, err
 	// }
+}
+
+// SetGenesisContext updates the SPFactory's genesis context to the provided context.
+func (spf *SPFactory) SetGenesisContext(ctx context.Context) {
+	spf.genesisContext = sdk.UnwrapSDKContext(ctx)
 }
 
 // SetMiningContext updates the SPFactory's minerBuildContext to the provided context.
