@@ -60,6 +60,10 @@ func New(gm eth.Miner, app App, keeper EVMKeeper, allowedValMsgs map[string]sdk.
 	}
 }
 
+func (m *Miner) SetGethMiner(gm eth.Miner) {
+	m.Miner = gm
+}
+
 // Init sets the transaction serializer.
 func (m *Miner) Init(serializer EnvelopeSerializer) {
 	m.serializer = serializer

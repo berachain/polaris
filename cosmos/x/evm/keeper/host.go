@@ -40,10 +40,11 @@ var _ core.PolarisHostChain = (*Host)(nil)
 
 type Host struct {
 	// The various plugins that are are used to implement core.PolarisHostChain.
-	bp block.Plugin
-	hp historical.Plugin
-	pp precompile.Plugin
-	sp state.Plugin
+	bp  block.Plugin
+	hp  historical.Plugin
+	pp  precompile.Plugin
+	sp  state.Plugin
+	spf *state.SPFactory
 
 	pcs func() *ethprecompile.Injector
 }
@@ -68,6 +69,7 @@ func NewHost(
 
 	// historical plugin requires block plugin.
 	h.hp = historical.NewPlugin(&cfg.Polar.Chain, h.bp, nil, storeKey)
+	h.spf = state.NewSPFactory(ak, storeKey, qc)
 	return h
 }
 
@@ -81,6 +83,7 @@ func (h *Host) SetupPrecompiles() error {
 	}
 
 	h.sp.SetPrecompileLogFactory(pclog.NewFactory(pcs))
+	h.spf.SetPrecompileLogFactory(pclog.NewFactory(pcs))
 	return nil
 }
 
@@ -99,9 +102,8 @@ func (h *Host) GetPrecompilePlugin() core.PrecompilePlugin {
 	return h.pp
 }
 
-// GetStatePlugin returns the state plugin.
-func (h *Host) GetStatePlugin() core.StatePlugin {
-	return h.sp
+func (h *Host) GetStatePluginFactory() core.StatePluginFactory {
+	return h.spf
 }
 
 // GetAllPlugins returns all the plugins.

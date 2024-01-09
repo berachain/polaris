@@ -64,13 +64,13 @@ func (bc *blockchain) StateAt(common.Hash) (state.StateDB, error) {
 }
 
 func (bc *blockchain) GetOverridenState() (state.StateDB, error) {
-	return state.NewStateDB(bc.sp.GetOverridenState(), bc.pp), nil
+	return state.NewStateDB(bc.spf.NewPluginWithMode("miner"), bc.pp), nil
 }
 
 // StateAtBlockNumber returns a statedb configured to read what the state of the blockchain is/was
 // at a given block number.
 func (bc *blockchain) StateAtBlockNumber(number uint64) (state.StateDB, error) {
-	sp, err := bc.sp.StateAtBlockNumber(number)
+	sp, err := bc.spf.NewPluginAtBlockNumber(number)
 	if err != nil {
 		return nil, err
 	}

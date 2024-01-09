@@ -21,6 +21,7 @@
 package testapp
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -190,7 +191,7 @@ func NewPolarisApp(
 
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
-	app.Polaris = polarruntime.New(
+	app.Polaris = polarruntime.New(app,
 		evmconfig.MustReadConfigFromAppOpts(appOpts), app.Logger(), app.EVMKeeper.Host, nil,
 	)
 
@@ -236,6 +237,8 @@ func NewPolarisApp(
 	if err = app.Load(loadLatest); err != nil {
 		panic(err)
 	}
+
+	fmt.Println("SETUP GETH SERVICES")
 
 	// Load the last state of the polaris evm.
 	if err = app.Polaris.LoadLastState(
@@ -285,6 +288,7 @@ func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICon
 		panic(err)
 	}
 
+	fmt.Println("SETUP SETUP SERVICES SERVICES")
 	if err := app.Polaris.SetupServices(apiSvr.ClientCtx); err != nil {
 		panic(err)
 	}

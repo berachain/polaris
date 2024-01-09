@@ -114,21 +114,24 @@ var _ = Describe("Genesis", func() {
 				Expect(bp.GetHeaderByNumber(0)).To(Equal(expectedHeader))
 			})
 			It("should have the correct balances", func() {
-				sp := k.Host.GetStatePlugin()
+				spf := k.Host.GetStatePluginFactory()
+				sp := spf.NewPluginFromContext(ctx)
 				for addr, acc := range ethGen.Alloc {
 					balance := sp.GetBalance(addr)
 					Expect(balance).To(Equal(acc.Balance))
 				}
 			})
 			It("should have the correct code", func() {
-				sp := k.Host.GetStatePlugin()
+				spf := k.Host.GetStatePluginFactory()
+				sp := spf.NewPluginFromContext(ctx)
 				for addr, acc := range ethGen.Alloc {
 					code := sp.GetCode(addr)
 					Expect(code).To(Equal(acc.Code))
 				}
 			})
 			It("should have the correct hash", func() {
-				sp := k.Host.GetStatePlugin()
+				spf := k.Host.GetStatePluginFactory()
+				sp := spf.NewPluginFromContext(ctx)
 				for addr, acc := range ethGen.Alloc {
 					for key, expectedHash := range acc.Storage {
 						actualHash := sp.GetState(addr, key)

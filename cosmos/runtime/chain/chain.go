@@ -42,6 +42,10 @@ func New(chain core.Blockchain, app App) *WrappedBlockchain {
 	return &WrappedBlockchain{Blockchain: chain, app: app}
 }
 
+func (wbc *WrappedBlockchain) SetBlockchain(chain core.Blockchain) {
+	wbc.Blockchain = chain
+}
+
 // WriteGenesisState writes the genesis state to the blockchain.
 // It uses the provided context as the application context.
 func (wbc *WrappedBlockchain) WriteGenesisState(

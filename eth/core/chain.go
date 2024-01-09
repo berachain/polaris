@@ -54,17 +54,17 @@ type Blockchain interface {
 	ChainWriter
 	ChainSubscriber
 	ChainResources
-	StatePlugin() StatePlugin
+	StatePluginFactory() StatePluginFactory
 	core.ChainContext
 }
 
 // blockchain is the canonical, persistent object that operates the Polaris EVM.
 type blockchain struct {
 	// the host chain plugins that the Polaris EVM is running on.
-	bp BlockPlugin
-	hp HistoricalPlugin
-	pp PrecompilePlugin
-	sp StatePlugin
+	bp  BlockPlugin
+	hp  HistoricalPlugin
+	pp  PrecompilePlugin
+	spf StatePluginFactory
 
 	engine    consensus.Engine
 	processor core.Processor
@@ -118,7 +118,7 @@ func NewChain(
 		bp:             host.GetBlockPlugin(),
 		hp:             host.GetHistoricalPlugin(),
 		pp:             host.GetPrecompilePlugin(),
-		sp:             host.GetStatePlugin(),
+		spf:            host.GetStatePluginFactory(),
 		config:         config,
 		vmConfig:       &vm.Config{},
 		receiptsCache:  lru.NewCache[common.Hash, ethtypes.Receipts](defaultCacheSize),
@@ -130,7 +130,6 @@ func NewChain(
 		logger:         log.Root(),
 		engine:         engine,
 	}
-	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
 	bc.processor = core.NewStateProcessor(bc.config, bc, bc.engine)
 	bc.validator = core.NewBlockValidator(bc.config, bc, bc.engine)
 	// TODO: hmm...
@@ -144,13 +143,13 @@ func NewChain(
 func (bc *blockchain) LoadLastState(ctx context.Context, number uint64) error {
 	// ctx here is the one created from app.CommitMultistore().
 	bc.PreparePlugins(ctx)
-	bc.sp.Prepare(ctx)
+	sp := bc.spf.NewPluginFromContext(ctx)
+	bc.statedb = state.NewStateDB(sp, bc.pp)
 
 	return bc.loadLastState(number)
 }
 
 func (bc *blockchain) PreparePlugins(ctx context.Context) {
-	bc.sp.Reset(ctx)
 	bc.bp.Prepare(ctx)
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
@@ -172,6 +171,6 @@ func (bc *blockchain) loadLastState(number uint64) error {
 	return nil
 }
 
-func (bc *blockchain) StatePlugin() StatePlugin {
-	return bc.sp
+func (bc *blockchain) StatePluginFactory() StatePluginFactory {
+	return bc.spf
 }
