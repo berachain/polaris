@@ -46,6 +46,7 @@ type ChainWriter interface {
 func (bc *blockchain) WriteGenesisBlock(block *ethtypes.Block) error {
 	// Get the state with the latest finalize block context.
 	sp := bc.spf.NewPluginWithMode(state.Genesis)
+	bc.preparePlugins(sp.GetContext())
 	state := state.NewStateDB(sp, bc.pp)
 
 	// TODO: add more validation here.
@@ -102,6 +103,7 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
 	// Get the state with the latest finalize block context.
 	sp := bc.spf.NewPluginWithMode(state.Finalize)
+	bc.preparePlugins(sp.GetContext())
 	state := state.NewStateDB(sp, bc.pp)
 
 	receipts, logs, err := bc.insertBlockWithoutSetHead(block, state)

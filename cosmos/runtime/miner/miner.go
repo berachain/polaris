@@ -42,7 +42,7 @@ import (
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
 	miner          eth.Miner
-	app            App
+	app            TxDecoder
 	spf            core.StatePluginFactory
 	valTxSelector  baseapp.TxSelector
 	serializer     EnvelopeSerializer
@@ -52,7 +52,7 @@ type Miner struct {
 
 // New produces a cosmos miner from a geth miner.
 func New(
-	miner eth.Miner, app App, spf core.StatePluginFactory, allowedValMsgs map[string]sdk.Msg,
+	miner eth.Miner, app TxDecoder, spf core.StatePluginFactory, allowedValMsgs map[string]sdk.Msg,
 ) *Miner {
 	return &Miner{
 		miner:          miner,
@@ -61,10 +61,6 @@ func New(
 		allowedValMsgs: allowedValMsgs,
 		valTxSelector:  baseapp.NewDefaultTxSelector(),
 	}
-}
-
-func (m *Miner) SetGethMiner(gm eth.Miner) {
-	m.miner = gm
 }
 
 // Init sets the transaction serializer.

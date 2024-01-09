@@ -34,14 +34,11 @@ import (
 	"github.com/berachain/polaris/cosmos/runtime/comet"
 	"github.com/berachain/polaris/cosmos/runtime/miner"
 	"github.com/berachain/polaris/cosmos/runtime/txpool"
-	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/consensus"
 	"github.com/berachain/polaris/eth/core"
 	"github.com/berachain/polaris/eth/node"
-
-	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -55,7 +52,7 @@ import (
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
-	Setup(evmkeeper.WrappedBlockchain) error
+	Setup(core.Blockchain) error
 	GetStatePluginFactory() core.StatePluginFactory
 	SetLatestQueryContext(context.Context) error
 	GetHost() core.PolarisHostChain
@@ -68,8 +65,6 @@ type CosmosApp interface {
 	SetMempool(mempool.Mempool)
 	SetAnteHandler(sdk.AnteHandler)
 	TxDecode(txBz []byte) (sdk.Tx, error)
-	BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
-	PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
 	CommitMultiStore() storetypes.CommitMultiStore
 }
 
@@ -139,7 +134,9 @@ func (p *Polaris) Build(
 		ek.GetHost().GetStatePluginFactory(),
 		allowedValMsgs,
 	)
-	p.WrappedBlockchain = chain.New(p.ExecutionLayer.Backend().Blockchain(), app)
+	p.WrappedBlockchain = chain.New(
+		p.ExecutionLayer.Backend().Blockchain(), app,
+	)
 
 	pr := polarabci.NewProposalProvider(p.WrappedMiner, p.WrappedBlockchain)
 	app.SetMempool(p.WrappedTxPool)

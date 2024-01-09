@@ -21,13 +21,9 @@
 package chain
 
 import (
-	abci "github.com/cometbft/cometbft/abci/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type App interface {
-	BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
-	PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
+type txDecoder interface {
 	TxDecode(txBz []byte) (sdk.Tx, error)
 }

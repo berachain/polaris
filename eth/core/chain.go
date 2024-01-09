@@ -48,7 +48,7 @@ var _ Blockchain = (*blockchain)(nil)
 
 // Blockchain interface defines the methods that a blockchain must have.
 type Blockchain interface {
-	PreparePlugins(ctx context.Context)
+	preparePlugins(ctx context.Context)
 	ChainReader
 	ChainWriter
 	ChainSubscriber
@@ -139,11 +139,11 @@ func NewChain(
 
 func (bc *blockchain) LoadLastState(ctx context.Context, number uint64) error {
 	// ctx here is the one created from app.CommitMultistore().
-	bc.PreparePlugins(ctx)
+	bc.preparePlugins(ctx)
 	return bc.loadLastState(number)
 }
 
-func (bc *blockchain) PreparePlugins(ctx context.Context) {
+func (bc *blockchain) preparePlugins(ctx context.Context) {
 	bc.bp.Prepare(ctx)
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
