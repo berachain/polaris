@@ -97,21 +97,21 @@ func (pp *ProposalProvider) PrepareProposal(
 func (pp *ProposalProvider) ProcessProposal(
 	ctx sdk.Context, req *cometabci.RequestProcessProposal,
 ) (*cometabci.ResponseProcessProposal, error) {
-	// var (
-	// 	start  = time.Now()
-	// 	height = ctx.BlockHeight()
-	// )
+	var (
+		start  = time.Now()
+		height = ctx.BlockHeight()
+	)
 
-	// ctx.Logger().Info(
-	// 	"entering process proposal",
-	// 	"timestamp", start, "height", height)
-	// defer func() {
-	// 	ctx.Logger().Info(
-	// 		"exiting process proposal",
-	// 		"timestamp", time.Now(),
-	// 		"duration", time.Since(start),
-	// 		"height", height)
-	// }()
+	ctx.Logger().Info(
+		"entering process proposal",
+		"timestamp", start, "height", height)
+	defer func() {
+		ctx.Logger().Info(
+			"exiting process proposal",
+			"timestamp", time.Now(),
+			"duration", time.Since(start),
+			"height", height)
+	}()
 
 	if err := pp.simulateFinalizeBlock(ctx, req); err != nil {
 		return nil, err
