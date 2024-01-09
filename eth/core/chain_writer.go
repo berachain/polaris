@@ -35,18 +35,30 @@ import (
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
 	LoadLastState(context.Context, uint64) error
+	WriteGenesisBlockWithContext(ctx context.Context, block *ethtypes.Block) error
 	WriteGenesisBlock(block *ethtypes.Block) error
+	InsertBlockAndSetHeadWithContext(
+		ctx context.Context, block *ethtypes.Block,
+	) error
 	InsertBlockAndSetHead(block *ethtypes.Block) error
 	InsertBlockWithoutSetHead(block *ethtypes.Block) error
 	WriteBlockAndSetHead(block *ethtypes.Block, receipts []*ethtypes.Receipt, logs []*ethtypes.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
 
+// WriteGenesisBlockWithContext inserts the genesis block
+// into the blockchain using the given context for receipts and logs.
+func (bc *blockchain) WriteGenesisBlockWithContext(
+	ctx context.Context, block *ethtypes.Block) error {
+	// Get the state with the latest finalize block context
+	bc.preparePlugins(ctx)
+	return bc.WriteGenesisBlock(block)
+}
+
 // WriteGenesisBlock inserts the genesis block into the blockchain.
 func (bc *blockchain) WriteGenesisBlock(block *ethtypes.Block) error {
 	// Get the state with the latest finalize block context.
 	sp := bc.spf.NewPluginWithMode(state.Genesis)
-	bc.preparePlugins(sp.GetContext())
 	state := state.NewStateDB(sp, bc.pp)
 
 	// TODO: add more validation here.
@@ -99,11 +111,21 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 	return receipts, logs, nil
 }
 
+// InsertBlockAndSetHeadWithContext inserts the genesis block
+// into the blockchain using the given context for receipts and logs.
+// It also sets the head of the blockchain to the given block.
+func (bc *blockchain) InsertBlockAndSetHeadWithContext(
+	ctx context.Context, block *ethtypes.Block,
+) error {
+	// Get the state with the latest finalize block context
+	bc.preparePlugins(ctx)
+	return bc.InsertBlockAndSetHead(block)
+}
+
 // InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
 func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
 	// Get the state with the latest finalize block context.
 	sp := bc.spf.NewPluginWithMode(state.Finalize)
-	bc.preparePlugins(sp.GetContext())
 	state := state.NewStateDB(sp, bc.pp)
 
 	receipts, logs, err := bc.insertBlockWithoutSetHead(block, state)

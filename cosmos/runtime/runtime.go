@@ -210,6 +210,7 @@ func (p *Polaris) StartServices() error {
 func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint64) error {
 	cmsCtx := sdk.Context{}.
 		WithMultiStore(cms).
+		WithBlockHeight(int64(appHeight)).
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
 	return p.Backend().Blockchain().LoadLastState(cmsCtx, appHeight)

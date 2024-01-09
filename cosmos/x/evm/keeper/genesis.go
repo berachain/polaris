@@ -45,7 +45,7 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 
 	// Insert to chain.
 	k.spf.SetGenesisContext(ctx)
-	return k.chain.WriteGenesisBlock(genState.ToBlock())
+	return k.chain.WriteGenesisBlockWithContext(ctx, genState.ToBlock())
 }
 
 // ExportGenesis returns the exported genesis state.

@@ -72,7 +72,7 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	// Set the finalize block context on the state plugin factory.
 	k.spf.SetFinalizeBlockContext(ctx)
 	// Insert the finalized block and set the chain head.
-	if err = k.chain.InsertBlockAndSetHead(block); err != nil {
+	if err = k.chain.InsertBlockAndSetHeadWithContext(ctx, block); err != nil {
 		return nil, err
 	}
 
