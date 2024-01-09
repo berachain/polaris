@@ -27,6 +27,7 @@ import (
 )
 
 type abciRequest interface {
+	// add your methods here
 	GetTxs() [][]byte
 	GetTime() time.Time
 	GetMisbehavior() []cometabci.Misbehavior

@@ -21,9 +21,10 @@
 package abci
 
 import (
+	"time"
+
 	"github.com/berachain/polaris/cosmos/runtime/chain"
 	"github.com/berachain/polaris/cosmos/runtime/miner"
-	"github.com/berachain/polaris/eth"
 
 	cometabci "github.com/cometbft/cometbft/abci/types"
 
@@ -34,21 +35,26 @@ import (
 // for validators to propose blocks and validators/full nodes to process
 // said proposals.
 type ProposalProvider struct {
-	*eth.ExecutionLayer
-	preBlocker   sdk.PreBlocker
-	beginBlocker sdk.BeginBlocker
-	// valCmdProcessor   *ValidatorCommands
+	preBlocker        sdk.PreBlocker
+	beginBlocker      sdk.BeginBlocker
 	wrappedMiner      *miner.Miner
 	wrappedBlockchain *chain.WrappedBlockchain
+
+	// TODO: refactor validator commands out of the wbc and miner.
+	// valCmdProcessor   *ValidatorCommands
+	// *eth.ExecutionLayer
 }
 
 // NewProposalProvider creates a new ProposalProvider instance.
 // It takes a miner.Miner and a chain.WrappedBlockchain as
 // arguments and returns a pointer to the initialized ProposalProvider.
 func NewProposalProvider(
+	preBlocker sdk.PreBlocker, beginBlocker sdk.BeginBlocker,
 	wrappedMiner *miner.Miner, wrappedBlockchain *chain.WrappedBlockchain,
 ) *ProposalProvider {
 	return &ProposalProvider{
+		preBlocker:        preBlocker,
+		beginBlocker:      beginBlocker,
 		wrappedMiner:      wrappedMiner,
 		wrappedBlockchain: wrappedBlockchain,
 	}
@@ -61,6 +67,22 @@ func NewProposalProvider(
 func (pp *ProposalProvider) PrepareProposal(
 	ctx sdk.Context, req *cometabci.RequestPrepareProposal,
 ) (*cometabci.ResponsePrepareProposal, error) {
+	var (
+		start  = time.Now()
+		height = ctx.BlockHeight()
+	)
+
+	ctx.Logger().Info(
+		"entering prepare proposal",
+		"timestamp", start, "height", height)
+	defer func() {
+		ctx.Logger().Info(
+			"exiting prepare proposal",
+			"timestamp", time.Now(),
+			"duration", time.Since(start),
+			"height", height)
+	}()
+
 	if err := pp.simulateFinalizeBlock(ctx, req); err != nil {
 		return nil, err
 	}
@@ -75,15 +97,27 @@ func (pp *ProposalProvider) PrepareProposal(
 func (pp *ProposalProvider) ProcessProposal(
 	ctx sdk.Context, req *cometabci.RequestProcessProposal,
 ) (*cometabci.ResponseProcessProposal, error) {
+	// var (
+	// 	start  = time.Now()
+	// 	height = ctx.BlockHeight()
+	// )
+
+	// ctx.Logger().Info(
+	// 	"entering process proposal",
+	// 	"timestamp", start, "height", height)
+	// defer func() {
+	// 	ctx.Logger().Info(
+	// 		"exiting process proposal",
+	// 		"timestamp", time.Now(),
+	// 		"duration", time.Since(start),
+	// 		"height", height)
+	// }()
+
 	if err := pp.simulateFinalizeBlock(ctx, req); err != nil {
 		return nil, err
 	}
-	resp, err := pp.wrappedBlockchain.ProcessProposal(ctx, req)
-	if err != nil {
-		return nil, err
-	}
 
-	return resp, err
+	return pp.wrappedBlockchain.ProcessProposal(ctx, req)
 }
 
 // simulateFinalizeBlock simulates the execution of a block.
