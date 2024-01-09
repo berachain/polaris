@@ -28,6 +28,7 @@ import (
 
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
 	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core/state"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -67,18 +68,18 @@ func NewSPFactory(
 
 // NewPluginFromContext creates a new Plugin instance using the current SPFactory's
 // configuration and the provided context.
-func (spf *SPFactory) NewPluginWithMode(mode string) core.StatePlugin {
+func (spf *SPFactory) NewPluginWithMode(mode state.Mode) core.StatePlugin {
 	p := NewPlugin(spf.ak, spf.storeKey, spf.qfn, spf.plf)
 	switch mode {
-	case "miner":
-		p.Reset(spf.minerBuildContext)
-	case "insert":
-		p.Reset(spf.insertChainContext)
-	case "finalize":
-		p.Reset(spf.finalizeBlockContext)
-	case "genesis":
+	case state.Genesis:
 		p.Reset(spf.genesisContext)
-	case "latest":
+	case state.Miner:
+		p.Reset(spf.minerBuildContext)
+	case state.Insert:
+		p.Reset(spf.insertChainContext)
+	case state.Finalize:
+		p.Reset(spf.finalizeBlockContext)
+	case state.Latest:
 		fallthrough
 	default:
 		p.Reset(spf.latestQueryContext)

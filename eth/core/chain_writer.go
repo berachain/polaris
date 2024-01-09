@@ -45,7 +45,7 @@ type ChainWriter interface {
 // WriteGenesisBlock inserts the genesis block into the blockchain.
 func (bc *blockchain) WriteGenesisBlock(block *ethtypes.Block) error {
 	// Get the state with the latest finalize block context.
-	sp := bc.spf.NewPluginWithMode("genesis")
+	sp := bc.spf.NewPluginWithMode(state.Genesis)
 	state := state.NewStateDB(sp, bc.pp)
 
 	// TODO: add more validation here.
@@ -59,7 +59,7 @@ func (bc *blockchain) WriteGenesisBlock(block *ethtypes.Block) error {
 // InsertBlockWithoutSetHead inserts a block into the blockchain without setting it as the head.
 func (bc *blockchain) InsertBlockWithoutSetHead(block *ethtypes.Block) error {
 	// Get the state with the latest insert chain context.
-	sp := bc.spf.NewPluginWithMode("insert")
+	sp := bc.spf.NewPluginWithMode(state.Insert)
 	state := state.NewStateDB(sp, bc.pp)
 
 	// Call the private method to insert the block without setting it as the head.
@@ -101,7 +101,7 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 // InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
 func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
 	// Get the state with the latest finalize block context.
-	sp := bc.spf.NewPluginWithMode("finalize")
+	sp := bc.spf.NewPluginWithMode(state.Finalize)
 	state := state.NewStateDB(sp, bc.pp)
 
 	receipts, logs, err := bc.insertBlockWithoutSetHead(block, state)
