@@ -34,6 +34,8 @@ import (
 )
 
 // validateArg uses reflection to verify the implementation arg matches the ABI arg.
+//
+//nolint:gocognit // todo refactor.
 func validateArg(implMethodVar reflect.Value, abiMethodVar reflect.Value) error {
 	implMethodVarType := implMethodVar.Type()
 	abiMethodVarType := abiMethodVar.Type()
