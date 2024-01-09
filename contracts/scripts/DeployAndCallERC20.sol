@@ -28,17 +28,19 @@ pragma solidity ^0.8.17;
 import "../lib/forge-std/src/Script.sol";
 import "../src/testing/SolmateERC20.sol";
 
+
+// cast send 0x6581e59A1C8dA66eD0D313a0d4029DcE2F746Cc5 "transfer(address,uint256)" 0x6581e59A1C8dA66eD0D313a0d4029DcE2F746Cc5 10ether --private-key=0x289336037db3d5344a90d8fa0fdbfa088303d6374904293d16e83f921a5ba2ce --rpc-url http://localhost:9545
 contract DeployAndCallERC20 is Script {
     function run() public {
         address dropAddress = address(12);
         uint256 quantity = 50000;
 
         vm.startBroadcast();
-        SolmateERC20 drop = new SolmateERC20();
+        SolmateERC20 drop = SolmateERC20(0x6581e59A1C8dA66eD0D313a0d4029DcE2F746Cc5);
 
         for (uint256 i = 0; i < 10066; i++) {
             quantity += 50000;
-            drop.mint(dropAddress, quantity);
+            drop.transfer(dropAddress, 50000);
         }
 
         vm.stopBroadcast();
