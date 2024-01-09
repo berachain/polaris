@@ -220,7 +220,3 @@ func (pl *Polaris) MinerChain() miner.BlockChain {
 func (pl *Polaris) Blockchain() core.Blockchain {
 	return pl.blockchain
 }
-
-func (pl *Polaris) APIBackend() APIBackend {
-	return pl.apiBackend
-}
