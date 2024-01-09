@@ -41,7 +41,7 @@ type PolarisHostChain interface {
 	// GetPrecompilePlugin returns the OPTIONAL `PrecompilePlugin` of the Polaris host chain.
 	GetPrecompilePlugin() PrecompilePlugin
 	// GetStatePlugin returns the `StatePlugin` of the Polaris host chain.
-	GetStatePlugin() StatePlugin
+	GetStatePluginFactory() StatePluginFactory
 }
 
 // =============================================================================
@@ -72,6 +72,15 @@ type (
 		StateAtBlockNumber(uint64) (StatePlugin, error)
 		SetStateOverride(ctx context.Context)
 		GetOverridenState() StatePlugin
+	}
+
+	StatePluginFactory interface {
+		NewPluginAtBlockNumber(uint64) (StatePlugin, error)
+		NewPluginWithMode(state.Mode) StatePlugin
+		NewPluginFromContext(context.Context) StatePlugin
+		SetLatestQueryContext(ctx context.Context)
+		SetLatestMiningContext(ctx context.Context)
+		SetInsertChainContext(ctx context.Context)
 	}
 )
 

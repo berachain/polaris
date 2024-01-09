@@ -42,8 +42,8 @@ import (
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
 	miner          eth.Miner
-	wbc            core.Blockchain
-	app            App
+	app            TxDecoder
+	spf            core.StatePluginFactory
 	valTxSelector  baseapp.TxSelector
 	serializer     EnvelopeSerializer
 	allowedValMsgs map[string]sdk.Msg
@@ -52,14 +52,12 @@ type Miner struct {
 
 // New produces a cosmos miner from a geth miner.
 func New(
-	miner eth.Miner,
-	wbc core.Blockchain,
-	app App, allowedValMsgs map[string]sdk.Msg,
+	miner eth.Miner, app TxDecoder, spf core.StatePluginFactory, allowedValMsgs map[string]sdk.Msg,
 ) *Miner {
 	return &Miner{
 		miner:          miner,
-		wbc:            wbc,
 		app:            app,
+		spf:            spf,
 		allowedValMsgs: allowedValMsgs,
 		valTxSelector:  baseapp.NewDefaultTxSelector(),
 	}

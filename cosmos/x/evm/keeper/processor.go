@@ -34,6 +34,9 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
+// ProcessPayloadEnvelope uses Geth's beacon engine API to build a block from a execution payload
+// request. It is called by Cosmos-SDK during ABCI DeliverTx phase (1 cosmos tx to build the entire
+// eth block).
 func (k *Keeper) ProcessPayloadEnvelope(
 	ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope,
 ) (*evmtypes.WrappedPayloadEnvelopeResponse, error) {
@@ -65,7 +68,11 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	// Record how long it takes to insert the new block into the chain.
 	defer telemetry.ModuleMeasureSince(evmtypes.ModuleName,
 		time.Now(), evmtypes.MetricKeyInsertBlockAndSetHead)
-	if err = k.wrappedChain.InsertBlockAndSetHead(ctx, block); err != nil {
+
+	// Set the finalize block context on the state plugin factory.
+	k.spf.SetFinalizeBlockContext(ctx)
+	// Insert the finalized block and set the chain head.
+	if err = k.chain.InsertBlockAndSetHeadWithContext(ctx, block); err != nil {
 		return nil, err
 	}
 

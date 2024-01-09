@@ -31,7 +31,7 @@ import (
 // InitGenesis is called during the InitGenesis.
 func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	// TODO: Feels jank as fuck lol, but it works.
-	genState.Config = k.wrappedChain.Config()
+	genState.Config = k.chain.Config()
 
 	// Initialize all the plugins.
 	for _, plugin := range k.Host.GetAllPlugins() {
@@ -44,7 +44,8 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	}
 
 	// Insert to chain.
-	return k.wrappedChain.WriteGenesisState(ctx, genState)
+	k.spf.SetGenesisContext(ctx)
+	return k.chain.WriteGenesisBlockWithContext(ctx, genState.ToBlock())
 }
 
 // ExportGenesis returns the exported genesis state.

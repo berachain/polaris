@@ -28,11 +28,12 @@ import (
 
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
 	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core/state"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// var _ core.State = (*SPFactory)(nil)
+var _ core.StatePluginFactory = (*SPFactory)(nil)
 
 type SPFactory struct {
 	// keepers used for balance and account information.
@@ -40,11 +41,15 @@ type SPFactory struct {
 	storeKey storetypes.StoreKey
 	plf      events.PrecompileLogFactory
 
-	// Contexts for queries
-	latestQueryContext sdk.Context // "latest"
-	minerBuildContext  sdk.Context // "miner"
-	insertChainContext sdk.Context
-	qfn                func() func(height int64, prove bool) (sdk.Context, error) // "historical"
+	// Contexts for state plugins
+	genesisContext       sdk.Context // "genesis" ---> set in InitGenesis
+	minerBuildContext    sdk.Context // "miner" -----> set in PrepareProposal
+	insertChainContext   sdk.Context // "insert" ----> set in ProcessProposal
+	finalizeBlockContext sdk.Context // "finalize" --> set in Finalize
+	latestQueryContext   sdk.Context // "latest" ----> set in PrepareCheckState
+
+	// Query function for getting the context at a given height.
+	qfn func() func(height int64, prove bool) (sdk.Context, error) // "historical"
 }
 
 // NewSPFactory creates a new SPFactory instance with the provided AccountKeeper,
@@ -63,13 +68,19 @@ func NewSPFactory(
 
 // NewPluginFromContext creates a new Plugin instance using the current SPFactory's
 // configuration and the provided context.
-func (spf *SPFactory) NewPluginWithMode(mode string) core.StatePlugin {
+func (spf *SPFactory) NewPluginWithMode(mode state.Mode) core.StatePlugin {
 	p := NewPlugin(spf.ak, spf.storeKey, spf.qfn, spf.plf)
 	switch mode {
-	case "miner":
+	case state.Genesis:
+		p.Reset(spf.genesisContext)
+	case state.Miner:
 		p.Reset(spf.minerBuildContext)
-	case "chain":
+	case state.Insert:
 		p.Reset(spf.insertChainContext)
+	case state.Finalize:
+		p.Reset(spf.finalizeBlockContext)
+	case state.Latest:
+		fallthrough
 	default:
 		p.Reset(spf.latestQueryContext)
 	}
@@ -134,14 +145,24 @@ func (spf *SPFactory) NewPluginAtBlockNumber(blockNumber uint64) (core.StatePlug
 	// }
 }
 
+// SetGenesisContext updates the SPFactory's genesis context to the provided context.
+func (spf *SPFactory) SetGenesisContext(ctx context.Context) {
+	spf.genesisContext = sdk.UnwrapSDKContext(ctx)
+}
+
 // SetMiningContext updates the SPFactory's minerBuildContext to the provided context.
 func (spf *SPFactory) SetLatestMiningContext(ctx context.Context) {
 	spf.minerBuildContext = sdk.UnwrapSDKContext(ctx)
 }
 
-// SetInsertChainContext updates the SPFactory's minerBuildContext to the provided context.
+// SetInsertChainContext updates the SPFactory's insertChainContext to the provided context.
 func (spf *SPFactory) SetInsertChainContext(ctx context.Context) {
-	spf.minerBuildContext = sdk.UnwrapSDKContext(ctx)
+	spf.insertChainContext = sdk.UnwrapSDKContext(ctx)
+}
+
+// SetFinalizeBlockContext updates the SPFactory's finalizeBlockContext to the provided context.
+func (spf *SPFactory) SetFinalizeBlockContext(ctx context.Context) {
+	spf.finalizeBlockContext = sdk.UnwrapSDKContext(ctx)
 }
 
 // SetLatestQueryContext updates the SPFactory's latestQueryContext to the provided context.

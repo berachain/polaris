@@ -27,12 +27,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Precommit runs on the Cosmo-SDK lifecycle Precommit().
+// EndBlock runs on the Cosmos-SDK lifecycle EndBlock() during ABCI Finalize.
 func (k *Keeper) EndBlock(ctx context.Context) error {
 	// Verify that the EVM block was written.
 	// TODO: Set/GetHead to set and get the canonical head.
 	blockNum := uint64(sdk.UnwrapSDKContext(ctx).BlockHeight())
-	block := k.wrappedChain.GetBlockByNumber(blockNum)
+	block := k.chain.GetBlockByNumber(blockNum)
 	if block == nil {
 		return fmt.Errorf(
 			"evm block %d failed to process", blockNum,
@@ -45,8 +45,8 @@ func (k *Keeper) EndBlock(ctx context.Context) error {
 	return nil
 }
 
-// SetLatestQueryContext runs on the Cosmos-SDK lifecycle SetLatestQueryContext().
+// SetLatestQueryContext runs on the Cosmos-SDK lifecycle PrepareCheckState() during ABCI Commit.
 func (k *Keeper) SetLatestQueryContext(ctx context.Context) error {
-	k.sp.Prepare(ctx)
+	k.spf.SetLatestQueryContext(ctx)
 	return nil
 }

@@ -140,12 +140,6 @@ func (p *plugin) SetPrecompileLogFactory(plf events.PrecompileLogFactory) {
 	p.plf = plf
 }
 
-// Prepare sets up the context on the state plugin for use in JSON-RPC calls.
-// Prepare implements `core.StatePlugin`.
-func (p *plugin) Prepare(ctx context.Context) {
-	p.lqc = sdk.UnwrapSDKContext(ctx)
-}
-
 // Reset sets up the state plugin for execution of a new transaction. It sets up the snapshottable
 // multi store so that Cosmos KV store changes can revert according to the EVM.
 //

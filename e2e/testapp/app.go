@@ -190,7 +190,7 @@ func NewPolarisApp(
 
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
-	app.Polaris = polarruntime.New(
+	app.Polaris = polarruntime.New(app,
 		evmconfig.MustReadConfigFromAppOpts(appOpts), app.Logger(), app.EVMKeeper.Host, nil,
 	)
 
