@@ -76,7 +76,7 @@ type (
 
 	StatePluginFactory interface {
 		NewPluginAtBlockNumber(uint64) (StatePlugin, error)
-		NewPluginWithMode(string) StatePlugin
+		NewPluginWithMode(state.Mode) StatePlugin
 		NewPluginFromContext(context.Context) StatePlugin
 		SetLatestQueryContext(ctx context.Context)
 		SetLatestMiningContext(ctx context.Context)

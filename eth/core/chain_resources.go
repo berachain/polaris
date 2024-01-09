@@ -65,7 +65,7 @@ func (bc *blockchain) StateAt(common.Hash) (state.StateDB, error) {
 
 // Used by geth miner to build the block (can rename to GetMinerState).
 func (bc *blockchain) GetOverridenState() (state.StateDB, error) {
-	return state.NewStateDB(bc.spf.NewPluginWithMode("miner"), bc.pp), nil
+	return state.NewStateDB(bc.spf.NewPluginWithMode(state.Miner), bc.pp), nil
 }
 
 // StateAtBlockNumber returns a statedb configured to read what the state of the blockchain is/was
