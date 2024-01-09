@@ -35,9 +35,9 @@ import (
 // said proposals.
 type ProposalProvider struct {
 	*eth.ExecutionLayer
-	preBlocker        sdk.PreBlocker
-	beginBlocker      sdk.BeginBlocker
-	valCmdProcessor   *ValidatorCommands
+	preBlocker   sdk.PreBlocker
+	beginBlocker sdk.BeginBlocker
+	// valCmdProcessor   *ValidatorCommands
 	wrappedMiner      *miner.Miner
 	wrappedBlockchain *chain.WrappedBlockchain
 }
@@ -84,7 +84,6 @@ func (pp *ProposalProvider) ProcessProposal(
 	}
 
 	return resp, err
-
 }
 
 // simulateFinalizeBlock simulates the execution of a block.
