@@ -50,7 +50,9 @@ type Miner struct {
 }
 
 // New produces a cosmos miner from a geth miner.
-func New(gm eth.Miner, app App, keeper EVMKeeper, allowedValMsgs map[string]sdk.Msg) *Miner {
+func New(
+	gm eth.Miner, app App, keeper EVMKeeper, allowedValMsgs map[string]sdk.Msg,
+) *Miner {
 	return &Miner{
 		Miner:          gm,
 		keeper:         keeper,
