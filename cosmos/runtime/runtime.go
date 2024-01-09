@@ -28,6 +28,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	libtx "github.com/berachain/polaris/cosmos/lib/tx"
+	polarabci "github.com/berachain/polaris/cosmos/runtime/abci"
 	antelib "github.com/berachain/polaris/cosmos/runtime/ante"
 	"github.com/berachain/polaris/cosmos/runtime/chain"
 	"github.com/berachain/polaris/cosmos/runtime/comet"
@@ -128,9 +129,10 @@ func (p *Polaris) Build(
 		p.ExecutionLayer.Backend().Blockchain(), app,
 	)
 
+	pr := polarabci.NewProposalProvider(p.WrappedMiner, p.WrappedBlockchain)
 	app.SetMempool(p.WrappedTxPool)
-	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
-	app.SetProcessProposal(p.WrappedBlockchain.ProcessProposal)
+	app.SetPrepareProposal(pr.PrepareProposal)
+	app.SetProcessProposal(pr.ProcessProposal)
 
 	if err := ek.Setup(p.WrappedBlockchain); err != nil {
 		return err

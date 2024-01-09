@@ -25,8 +25,6 @@ import (
 	"fmt"
 	"time"
 
-	storetypes "cosmossdk.io/store/types"
-
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -35,8 +33,6 @@ import (
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
-
-const ()
 
 func (k *Keeper) ProcessPayloadEnvelope(
 	ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope,
@@ -52,8 +48,8 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	blockGasMeter := sCtx.BlockGasMeter()
 
 	// Reset GasMeter to 0.
-	gasMeter.RefundGas(gasMeter.GasConsumed(), "reset before evm block")
-	blockGasMeter.RefundGas(blockGasMeter.GasConsumed(), "reset before evm block")
+	//
+	// TODO: we need to remove this next re-genesis.
 	defer gasMeter.RefundGas(gasMeter.GasConsumed(), "reset after evm")
 	defer blockGasMeter.RefundGas(blockGasMeter.GasConsumed(), "reset after evm")
 
@@ -65,10 +61,6 @@ func (k *Keeper) ProcessPayloadEnvelope(
 		k.Logger(sCtx).Error("failed to build evm block", "err", err)
 		return nil, err
 	}
-
-	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
-	ctx = sCtx.WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{})
 
 	// Record how long it takes to insert the new block into the chain.
 	defer telemetry.ModuleMeasureSince(evmtypes.ModuleName,
