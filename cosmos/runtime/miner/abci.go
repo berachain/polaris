@@ -25,6 +25,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"

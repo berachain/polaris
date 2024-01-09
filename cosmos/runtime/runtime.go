@@ -104,7 +104,11 @@ func New(
 		panic(err)
 	}
 
-	p.WrappedTxPool = txpool.New(p.Blockchain(), p.TxPool(), cfg.Polar.LegacyTxPool.Lifetime)
+	p.WrappedTxPool = txpool.New(
+		p.ExecutionLayer.Backend().Blockchain(),
+		p.ExecutionLayer.Backend().TxPool(),
+		cfg.Polar.LegacyTxPool.Lifetime,
+	)
 
 	return p
 }
@@ -116,8 +120,8 @@ func (p *Polaris) Build(
 	app CosmosApp, cosmHandler sdk.AnteHandler, ek EVMKeeper, allowedValMsgs map[string]sdk.Msg,
 ) error {
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
-	p.WrappedMiner = miner.New(p.Miner(), app, ek, allowedValMsgs)
-	p.WrappedBlockchain = chain.New(p.Blockchain(), app)
+	p.WrappedMiner = miner.New(p.ExecutionLayer.Backend().Miner(), app, ek, allowedValMsgs)
+	p.WrappedBlockchain = chain.New(p.ExecutionLayer.Backend().Blockchain(), app)
 
 	app.SetMempool(p.WrappedTxPool)
 	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
@@ -151,7 +155,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 	})
 
 	// Register the sync status provider with Polaris.
-	p.RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
+	p.Backend().RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
 
 	// Start the services. TODO: move to place race condition is solved.
 	return p.StartServices()
@@ -163,7 +167,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 func (p *Polaris) RegisterLifecycles(lcs []node.Lifecycle) {
 	// Register the services with polaris.
 	for _, lc := range lcs {
-		p.ExecutionLayer.RegisterLifecycle(lc)
+		p.ExecutionLayer.Stack().RegisterLifecycle(lc)
 	}
 }
 
@@ -192,5 +196,5 @@ func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint6
 		WithMultiStore(cms).
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
-	return p.Blockchain().LoadLastState(cmsCtx, appHeight)
+	return p.Backend().Blockchain().LoadLastState(cmsCtx, appHeight)
 }

@@ -145,17 +145,6 @@ func newGethExecutionLayer(
 	}, nil
 }
 
-// RegisterSyncStatusProvider registers a sync status provider to the backend of the
-// execution layer.
-func (el *ExecutionLayer) RegisterSyncStatusProvider(provider polar.SyncStatusProvider) {
-	el.backend.RegisterSyncStatusProvider(provider)
-}
-
-// RegisterLifecycle registers a lifecycle to the networking stack of the execution layer.
-func (el *ExecutionLayer) RegisterLifecycle(lifecycle node.Lifecycle) {
-	el.stack.RegisterLifecycle(lifecycle)
-}
-
 // Start starts the networking stack of the execution layer.
 // It returns an error if the start operation fails.
 func (el *ExecutionLayer) Start() error {
@@ -168,25 +157,12 @@ func (el *ExecutionLayer) Close() error {
 	return el.stack.Close()
 }
 
-// Miner returns the miner interface of the backend of the execution layer.
-func (el *ExecutionLayer) Miner() Miner {
-	return el.backend.Miner()
-}
-
-// TxPool returns the transaction pool interface of the backend of the execution layer.
-func (el *ExecutionLayer) TxPool() TxPool {
-	return el.backend.TxPool()
-}
-
-// Blockchain returns the blockchain interface of the backend of the execution layer.
-func (el *ExecutionLayer) Blockchain() pcore.Blockchain {
-	return el.backend.Blockchain()
-}
-
+// Backend returns the Polaris backend associated with the execution layer.
 func (el *ExecutionLayer) Backend() *polar.Polaris {
 	return el.backend
 }
 
+// Stack returns the NetworkingStack associated with the execution layer.
 func (el *ExecutionLayer) Stack() NetworkingStack {
 	return el.stack
 }
