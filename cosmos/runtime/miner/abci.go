@@ -44,7 +44,6 @@ func (m *Miner) PrepareProposal(
 		valTxs            [][]byte
 		ethGasUsed        uint64
 	)
-
 	sp, ok := m.wbc.StatePlugin().(state.Plugin)
 	if !ok {
 		return nil, err

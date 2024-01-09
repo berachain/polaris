@@ -37,6 +37,7 @@ type ProposalProvider struct {
 	*eth.ExecutionLayer
 	preBlocker        sdk.PreBlocker
 	beginBlocker      sdk.BeginBlocker
+	valCmdProcessor   *ValidatorCommands
 	wrappedMiner      *miner.Miner
 	wrappedBlockchain *chain.WrappedBlockchain
 }
@@ -63,6 +64,7 @@ func (pp *ProposalProvider) PrepareProposal(
 	if err := pp.simulateFinalizeBlock(ctx, req); err != nil {
 		return nil, err
 	}
+
 	return pp.wrappedMiner.PrepareProposal(ctx, req)
 }
 
@@ -76,7 +78,13 @@ func (pp *ProposalProvider) ProcessProposal(
 	if err := pp.simulateFinalizeBlock(ctx, req); err != nil {
 		return nil, err
 	}
-	return pp.wrappedBlockchain.ProcessProposal(ctx, req)
+	resp, err := pp.wrappedBlockchain.ProcessProposal(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, err
+
 }
 
 // simulateFinalizeBlock simulates the execution of a block.

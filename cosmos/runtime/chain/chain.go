@@ -33,7 +33,6 @@ import (
 type WrappedBlockchain struct {
 	core.Blockchain     // chain is the core blockchain.
 	app             App // App is the application context.
-
 }
 
 // New creates a new instance of WrappedBlockchain with the provided core blockchain

@@ -3,12 +3,12 @@ module github.com/berachain/polaris/lib
 go 1.21
 
 require (
-	github.com/onsi/ginkgo/v2 v2.13.0
-	github.com/onsi/gomega v1.28.1
+	github.com/onsi/ginkgo/v2 v2.13.2
+	github.com/onsi/gomega v1.29.0
 )
 
 require (
-	github.com/go-logr/logr v1.2.4 // indirect
+	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/pprof v0.0.0-20230901174712-0191c66da455 // indirect
