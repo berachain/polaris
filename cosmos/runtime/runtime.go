@@ -145,6 +145,7 @@ func (p *Polaris) Build(
 	pr := polarabci.NewProposalProvider(
 		app.PreBlocker, app.BeginBlocker,
 		p.WrappedMiner, p.WrappedBlockchain,
+		p.logger.With("module", "polaris-proposal-provider"),
 	)
 	app.SetMempool(p.WrappedTxPool)
 	app.SetPrepareProposal(pr.PrepareProposal)

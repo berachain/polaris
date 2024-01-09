@@ -23,6 +23,8 @@ package abci
 import (
 	"time"
 
+	"cosmossdk.io/log"
+
 	"github.com/berachain/polaris/cosmos/runtime/chain"
 	"github.com/berachain/polaris/cosmos/runtime/miner"
 
@@ -35,6 +37,7 @@ import (
 // for validators to propose blocks and validators/full nodes to process
 // said proposals.
 type ProposalProvider struct {
+	logger            log.Logger
 	preBlocker        sdk.PreBlocker
 	beginBlocker      sdk.BeginBlocker
 	wrappedMiner      *miner.Miner
@@ -51,12 +54,14 @@ type ProposalProvider struct {
 func NewProposalProvider(
 	preBlocker sdk.PreBlocker, beginBlocker sdk.BeginBlocker,
 	wrappedMiner *miner.Miner, wrappedBlockchain *chain.WrappedBlockchain,
+	logger log.Logger,
 ) *ProposalProvider {
 	return &ProposalProvider{
 		preBlocker:        preBlocker,
 		beginBlocker:      beginBlocker,
 		wrappedMiner:      wrappedMiner,
 		wrappedBlockchain: wrappedBlockchain,
+		logger:            logger,
 	}
 }
 
@@ -72,11 +77,11 @@ func (pp *ProposalProvider) PrepareProposal(
 		height = ctx.BlockHeight()
 	)
 
-	ctx.Logger().Info(
+	pp.logger.Info(
 		"entering prepare proposal",
 		"timestamp", start, "height", height)
 	defer func() {
-		ctx.Logger().Info(
+		pp.logger.Info(
 			"exiting prepare proposal",
 			"timestamp", time.Now(),
 			"duration", time.Since(start),
@@ -102,11 +107,11 @@ func (pp *ProposalProvider) ProcessProposal(
 		height = ctx.BlockHeight()
 	)
 
-	ctx.Logger().Info(
+	pp.logger.Info(
 		"entering process proposal",
 		"timestamp", start, "height", height)
 	defer func() {
-		ctx.Logger().Info(
+		pp.logger.Info(
 			"exiting process proposal",
 			"timestamp", time.Now(),
 			"duration", time.Since(start),
