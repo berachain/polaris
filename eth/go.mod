@@ -9,7 +9,7 @@ replace (
 )
 
 require (
-	github.com/berachain/polaris/contracts v0.0.4-alpha.0.20240109234156-7b6ac78b70bd
+	github.com/berachain/polaris/contracts v0.1.0-alpha
 	github.com/berachain/polaris/lib v0.0.4-alpha.0.20240109234156-7b6ac78b70bd
 	github.com/ethereum/go-ethereum v1.13.7
 	github.com/holiman/uint256 v1.2.4
