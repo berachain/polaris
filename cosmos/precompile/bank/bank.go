@@ -29,12 +29,13 @@ import (
 	"github.com/berachain/polaris/contracts/bindings/cosmos/lib"
 	bankgenerated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/bank"
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
-	"github.com/berachain/polaris/eth/common"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/vm"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // Contract is the precompile contract for the bank module.
@@ -115,7 +116,7 @@ func (c *Contract) GetAllBalances(
 	return cosmlib.SdkCoinsToEvmCoins(res.Balances), nil
 }
 
-// GetSpendableBalanceByDenom implements `getSpendableBalanceByDenom(address,string)` method.
+// GetSpendableBalance implements `getSpendableBalanceByDenom(address,string)` method.
 func (c *Contract) GetSpendableBalance(
 	ctx context.Context,
 	accountAddress common.Address,
@@ -138,7 +139,7 @@ func (c *Contract) GetSpendableBalance(
 	return balance.BigInt(), nil
 }
 
-// GetSpendableBalances implements `getAllSpendableBalances(address)` method.
+// GetAllSpendableBalances implements `getAllSpendableBalances(address)` method.
 func (c *Contract) GetAllSpendableBalances(
 	ctx context.Context,
 	accountAddress common.Address,
@@ -158,7 +159,7 @@ func (c *Contract) GetAllSpendableBalances(
 	return cosmlib.SdkCoinsToEvmCoins(res.Balances), nil
 }
 
-// GetSupplyOf implements `getSupply(string)` method.
+// GetSupply implements `getSupply(string)` method.
 func (c *Contract) GetSupply(
 	ctx context.Context,
 	denom string,
@@ -174,7 +175,7 @@ func (c *Contract) GetSupply(
 	return supply.BigInt(), nil
 }
 
-// GetTotalSupply implements `getAllSupply()` method.
+// GetAllSupply implements `getAllSupply()` method.
 func (c *Contract) GetAllSupply(
 	ctx context.Context,
 ) ([]lib.CosmosCoin, error) {

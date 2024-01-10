@@ -23,19 +23,30 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-pragma solidity 0.8.23;
+pragma solidity ^0.8.17;
 
-contract ConsumeGas {
-    event GasConsumed(uint256 gasUsed);
+import "../Distribution.sol";
 
-    function consumeGas(uint256 targetGas) external {
-        uint256 initialGas = gasleft();
+contract DistributionQuerier {
+    IDistributionModule distributionModule = IDistributionModule(0x0000000000000000000000000000000000000069);
 
-        while (gasleft() > initialGas - targetGas) {
-            // Do nothing, just consume gas
-        }
+    function getTotalCall(address delegator) external view returns (Cosmos.Coin[] memory) {
+        return distributionModule.getTotalDelegatorReward(delegator);
+    }
 
-        uint256 gasUsed = initialGas - gasleft();
-        emit GasConsumed(gasUsed);
+    function getTotalStaticCall(address delegator) external view returns (Cosmos.Coin[] memory) {
+        (bool success, bytes memory data) = address(distributionModule).staticcall(
+            abi.encodeWithSelector(IDistributionModule.getTotalDelegatorReward.selector, delegator)
+        );
+        require(success, "call failed");
+        return abi.decode(data, (Cosmos.Coin[]));
+    }
+
+    function getTotalLowLevelCall(address delegator) external returns (Cosmos.Coin[] memory) {
+        (bool success, bytes memory data) = address(distributionModule).call(
+            abi.encodeWithSelector(IDistributionModule.getTotalDelegatorReward.selector, delegator)
+        );
+        require(success, "call failed");
+        return abi.decode(data, (Cosmos.Coin[]));
     }
 }

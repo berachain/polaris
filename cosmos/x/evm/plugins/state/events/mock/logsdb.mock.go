@@ -5,7 +5,7 @@ package mock
 
 import (
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
-	"github.com/ethereum/go-ethereum/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"sync"
 )
 
@@ -19,7 +19,7 @@ var _ events.LogsDB = &LogsDBMock{}
 //
 //		// make and configure a mocked events.LogsDB
 //		mockedLogsDB := &LogsDBMock{
-//			AddLogFunc: func(log *types.Log)  {
+//			AddLogFunc: func(log *ethtypes.Log)  {
 //				panic("mock out the AddLog method")
 //			},
 //		}
@@ -30,26 +30,26 @@ var _ events.LogsDB = &LogsDBMock{}
 //	}
 type LogsDBMock struct {
 	// AddLogFunc mocks the AddLog method.
-	AddLogFunc func(log *types.Log)
+	AddLogFunc func(log *ethtypes.Log)
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// AddLog holds details about calls to the AddLog method.
 		AddLog []struct {
 			// Log is the log argument value.
-			Log *types.Log
+			Log *ethtypes.Log
 		}
 	}
 	lockAddLog sync.RWMutex
 }
 
 // AddLog calls AddLogFunc.
-func (mock *LogsDBMock) AddLog(log *types.Log) {
+func (mock *LogsDBMock) AddLog(log *ethtypes.Log) {
 	if mock.AddLogFunc == nil {
 		panic("LogsDBMock.AddLogFunc: method is nil but LogsDB.AddLog was just called")
 	}
 	callInfo := struct {
-		Log *types.Log
+		Log *ethtypes.Log
 	}{
 		Log: log,
 	}
@@ -64,10 +64,10 @@ func (mock *LogsDBMock) AddLog(log *types.Log) {
 //
 //	len(mockedLogsDB.AddLogCalls())
 func (mock *LogsDBMock) AddLogCalls() []struct {
-	Log *types.Log
+	Log *ethtypes.Log
 } {
 	var calls []struct {
-		Log *types.Log
+		Log *ethtypes.Log
 	}
 	mock.lockAddLog.RLock()
 	calls = mock.calls.AddLog

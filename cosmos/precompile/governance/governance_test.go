@@ -34,7 +34,6 @@ import (
 	cbindings "github.com/berachain/polaris/contracts/bindings/cosmos/lib"
 	generated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/governance"
 	testutils "github.com/berachain/polaris/cosmos/testutil"
-	"github.com/berachain/polaris/eth/common"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/vm"
 	"github.com/berachain/polaris/lib/utils"
@@ -48,6 +47,8 @@ import (
 	governancekeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	governancetypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
+	"github.com/ethereum/go-ethereum/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -106,7 +107,7 @@ var _ = Describe("Governance Precompile", func() {
 	It("Should have precompile tests and custom value decoders", func() {
 		_, err := sf.Build(contract, nil)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(contract.CustomValueDecoders()).To(HaveLen(2))
+		Expect(contract.CustomValueDecoders()).To(HaveLen(3))
 	})
 
 	When("Unmarshal message and return any", func() {

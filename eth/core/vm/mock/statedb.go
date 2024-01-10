@@ -23,9 +23,8 @@ package mock
 import (
 	"math/big"
 
-	"github.com/berachain/polaris/eth/common"
-	"github.com/berachain/polaris/eth/core/types"
-
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 )
 
@@ -40,7 +39,7 @@ func NewEmptyStateDB() *PolarStateDBMock {
 		AddBalanceFunc: func(address common.Address, intMoqParam *big.Int) {
 
 		},
-		AddLogFunc: func(log *types.Log) {
+		AddLogFunc: func(log *ethtypes.Log) {
 
 		},
 		AddPreimageFunc: func(hash common.Hash, bytes []byte) {
@@ -90,7 +89,7 @@ func NewEmptyStateDB() *PolarStateDBMock {
 		},
 		PrepareFunc: func(rules params.Rules, sender common.Address,
 			coinbase common.Address, dest *common.Address,
-			precompiles []common.Address, txAccesses types.AccessList,
+			precompiles []common.Address, txAccesses ethtypes.AccessList,
 		) {
 			// no-op
 		},

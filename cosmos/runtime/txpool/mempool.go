@@ -23,19 +23,20 @@ package txpool
 import (
 	"context"
 	"errors"
+	"time"
 
 	"cosmossdk.io/log"
 
 	"github.com/berachain/polaris/cosmos/x/evm/types"
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/core"
-	coretypes "github.com/berachain/polaris/eth/core/types"
 	"github.com/berachain/polaris/lib/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
+	ethtxpool "github.com/ethereum/go-ethereum/core/txpool"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // Mempool implements the mempool.Mempool & Lifecycle interfaces.
@@ -60,16 +61,18 @@ type GethTxPool interface {
 // is to allow for transactions coming in from CometBFT's gossip to be added to the underlying
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
-	txpool  eth.TxPool
-	chain   core.ChainReader
-	handler Lifecycle
+	txpool   eth.TxPool
+	lifetime time.Duration
+	chain    core.ChainReader
+	handler  Lifecycle
 }
 
 // New creates a new Mempool.
-func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
+func New(chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration) *Mempool {
 	return &Mempool{
-		txpool: txpool,
-		chain:  chain,
+		txpool:   txpool,
+		chain:    chain,
+		lifetime: lifetime,
 	}
 }
 
@@ -105,10 +108,10 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		// We have to return nil for non-ethereum transactions as to not fail check-tx.
 		return nil
 	} else if errs := m.txpool.Add(
-		[]*coretypes.Transaction{wet.Unwrap()}, false, false,
+		[]*ethtypes.Transaction{wet.Unwrap()}, false, false,
 	); len(errs) != 0 {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
-		if errors.Is(errs[0], legacypool.ErrAlreadyKnown) && sCtx.ExecMode() == sdk.ExecModeCheck {
+		if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) && sCtx.ExecMode() == sdk.ExecModeCheck {
 			return nil
 		}
 		return errs[0]

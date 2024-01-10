@@ -31,7 +31,6 @@ import (
 	generated "github.com/berachain/polaris/contracts/bindings/cosmos/precompile/governance"
 	cosmlib "github.com/berachain/polaris/cosmos/lib"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/precompile/log"
-	"github.com/berachain/polaris/eth/common"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/vm"
 
@@ -40,6 +39,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 const (
@@ -81,6 +82,7 @@ func (c *Contract) CustomValueDecoders() ethprecompile.ValueDecoders {
 	return ethprecompile.ValueDecoders{
 		AttributeProposalSender: log.ConvertCommonHexAddress,
 		AttributeProposalVote:   ConvertStringToVote,
+		sdk.AttributeKeySender:  c.ConvertAccAddressFromString,
 	}
 }
 
@@ -562,4 +564,11 @@ func ConvertStringToVote(attributeValue string) (any, error) {
 		return nil, err
 	}
 	return vote, nil
+}
+
+// ConvertAccAddressFromString converts a Cosmos string representing a account address to a
+// common.Address.
+func (c *Contract) ConvertAccAddressFromString(attributeValue string) (any, error) {
+	// extract the sdk.AccAddress from string value as common.Address
+	return cosmlib.EthAddressFromString(c.addressCodec, attributeValue)
 }

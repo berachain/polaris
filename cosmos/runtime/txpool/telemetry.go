@@ -18,14 +18,9 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package journal
+package txpool
 
-import "github.com/ethereum/go-ethereum/core/state"
-
-type (
-	AccessList = state.AccessList
-)
-
-var (
-	NewAccessList = state.NewAccessList
+const (
+	MetricKeyMempoolFull      = "polaris_cometbft_mempool_full"
+	MetricKeyBroadcastFailure = "polaris_cometbft_broadcast_failure"
 )

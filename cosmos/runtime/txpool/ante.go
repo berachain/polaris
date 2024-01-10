@@ -22,15 +22,16 @@ package txpool
 
 import (
 	"errors"
+	"time"
 
 	"github.com/berachain/polaris/cosmos/x/evm/types"
-	"github.com/berachain/polaris/eth/common"
-	coretypes "github.com/berachain/polaris/eth/core/types"
 	"github.com/berachain/polaris/lib/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/txpool"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // AnteHandle implements sdk.AnteHandler.
@@ -44,7 +45,7 @@ func (m *Mempool) AnteHandle(
 	// We only want to eject transactions from comet on recheck.
 	if ctx.ExecMode() == sdk.ExecModeReCheck {
 		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
-			if m.shouldEject(wet.Unwrap()) {
+			if m.shouldEjectFromCometMempool(ctx.BlockTime(), wet.Unwrap()) {
 				return ctx, errors.New("eject from comet mempool")
 			}
 		}
@@ -53,7 +54,9 @@ func (m *Mempool) AnteHandle(
 }
 
 // shouldEject returns true if the transaction should be ejected from the CometBFT mempool.
-func (m *Mempool) shouldEject(tx *coretypes.Transaction) bool {
+func (m *Mempool) shouldEjectFromCometMempool(
+	currentTime time.Time, tx *ethtypes.Transaction,
+) bool {
 	if tx == nil {
 		return false
 	}
@@ -62,7 +65,9 @@ func (m *Mempool) shouldEject(tx *coretypes.Transaction) bool {
 	// Ejection conditions
 	// 1. If the transaction has been included in a block.
 	// 2. If the transaction is unknown to the node.
-	return txStatus == txpool.TxStatusIncluded || txStatus == txpool.TxStatusUnknown
+	// 3. If the transaction has been in the mempool for longer than the configured timeout.
+	return txStatus == txpool.TxStatusIncluded || txStatus == txpool.TxStatusUnknown ||
+		currentTime.Sub(tx.Time()) > m.lifetime
 }
 
 // txStatus returns the status of the transaction.

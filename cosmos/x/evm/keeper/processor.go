@@ -23,23 +23,27 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"time"
 
 	storetypes "cosmossdk.io/store/types"
 
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
-	"github.com/berachain/polaris/eth/core/types"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
+
+const ()
 
 func (k *Keeper) ProcessPayloadEnvelope(
 	ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope,
 ) (*evmtypes.WrappedPayloadEnvelopeResponse, error) {
 	var (
 		err      error
-		block    *types.Block
+		block    *ethtypes.Block
 		envelope engine.ExecutionPayloadEnvelope
 	)
 	// TODO: maybe we just consume the block gas limit and call it a day?
@@ -66,6 +70,9 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	ctx = sCtx.WithKVGasConfig(storetypes.GasConfig{}).
 		WithTransientKVGasConfig(storetypes.GasConfig{})
 
+	// Record how long it takes to insert the new block into the chain.
+	defer telemetry.ModuleMeasureSince(evmtypes.ModuleName,
+		time.Now(), evmtypes.MetricKeyInsertBlockAndSetHead)
 	if err = k.wrappedChain.InsertBlockAndSetHead(ctx, block); err != nil {
 		return nil, err
 	}

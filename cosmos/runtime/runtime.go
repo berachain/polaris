@@ -24,7 +24,7 @@ import (
 	"context"
 	"time"
 
-	"cosmossdk.io/log"
+	cosmoslog "cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
 	libtx "github.com/berachain/polaris/cosmos/lib/tx"
@@ -38,7 +38,6 @@ import (
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/consensus"
 	"github.com/berachain/polaris/eth/core"
-	coretypes "github.com/berachain/polaris/eth/core/types"
 	"github.com/berachain/polaris/eth/node"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -48,6 +47,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	ethlog "github.com/ethereum/go-ethereum/log"
 )
 
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
@@ -72,22 +73,20 @@ type CosmosApp interface {
 // It also includes wrapped versions of the Geth Miner and TxPool.
 type Polaris struct {
 	*eth.ExecutionLayer
-
 	// WrappedMiner is a wrapped version of the Miner component.
 	WrappedMiner *miner.Miner
 	// WrappedTxPool is a wrapped version of the Mempool component.
 	WrappedTxPool *txpool.Mempool
 	// WrappedBlockchain is a wrapped version of the Blockchain component.
 	WrappedBlockchain *chain.WrappedBlockchain
-
 	// logger is the underlying logger supplied by the sdk.
-	logger log.Logger
+	logger cosmoslog.Logger
 }
 
 // New creates a new Polaris runtime from the provided dependencies.
 func New(
 	cfg *eth.Config,
-	logger log.Logger,
+	logger cosmoslog.Logger,
 	host core.PolarisHostChain,
 	engine consensus.Engine,
 ) *Polaris {
@@ -97,11 +96,14 @@ func New(
 	}
 
 	p.ExecutionLayer, err = eth.New(
-		"geth", cfg, host, engine, LoggerFuncHandler(logger),
+		"geth", cfg, host, engine, cfg.Node.AllowUnprotectedTxs,
+		ethlog.NewLogger(newEthHandler(logger)),
 	)
 	if err != nil {
 		panic(err)
 	}
+
+	p.WrappedTxPool = txpool.New(p.Blockchain(), p.TxPool(), cfg.Polar.LegacyTxPool.Lifetime)
 
 	return p
 }
@@ -109,9 +111,10 @@ func New(
 // Build is a function that sets up the Polaris struct.
 // It takes a BaseApp and an EVMKeeper as arguments.
 // It returns an error if the setup fails.
-func (p *Polaris) Build(app CosmosApp, ek EVMKeeper, allowedValMsgs map[string]sdk.Msg) error {
+func (p *Polaris) Build(
+	app CosmosApp, cosmHandler sdk.AnteHandler, ek EVMKeeper, allowedValMsgs map[string]sdk.Msg,
+) error {
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
-	p.WrappedTxPool = txpool.New(p.Blockchain(), p.TxPool())
 	p.WrappedMiner = miner.New(p.Miner(), app, ek, allowedValMsgs)
 	p.WrappedBlockchain = chain.New(p.Blockchain(), app)
 
@@ -123,7 +126,9 @@ func (p *Polaris) Build(app CosmosApp, ek EVMKeeper, allowedValMsgs map[string]s
 		return err
 	}
 
-	app.SetAnteHandler(antelib.NewAnteHandler(p.WrappedTxPool))
+	app.SetAnteHandler(
+		antelib.NewAnteHandler(p.WrappedTxPool, cosmHandler).AnteHandler(),
+	)
 
 	return nil
 }
@@ -136,7 +141,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 		clientCtx.TxConfig, evmtypes.WrapPayload))
 
 	// Initialize the txpool with a new transaction serializer.
-	p.WrappedTxPool.Init(p.logger, clientCtx, libtx.NewSerializer[*coretypes.Transaction](
+	p.WrappedTxPool.Init(p.logger, clientCtx, libtx.NewSerializer[*ethtypes.Transaction](
 		clientCtx.TxConfig, evmtypes.WrapTx))
 
 	// Register services with Polaris.

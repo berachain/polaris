@@ -98,6 +98,8 @@ func initAppConfig() (string, interface{}) {
 		Polaris: *evmconfig.DefaultConfig(),
 	}
 
+	customAppConfig.Telemetry.Enabled = true
+
 	customAppTemplate := serverconfig.DefaultConfigTemplate + evmconfig.PolarisConfigTemplate
 
 	return customAppTemplate, customAppConfig

@@ -27,7 +27,8 @@ import (
 
 	"github.com/berachain/polaris/contracts/bindings/testing"
 	"github.com/berachain/polaris/eth/accounts/abi"
-	"github.com/berachain/polaris/eth/common"
+
+	"github.com/ethereum/go-ethereum/common"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -61,6 +62,15 @@ var _ = Describe("Method", func() {
 	})
 
 	Context("validateArg", func() {
+		It("should error when array and scalar mismatch", func() {
+			sliceA := []uint64{0}
+			sliceB := uint64(0)
+			Expect(validateArg(
+				reflect.ValueOf(sliceA),
+				reflect.ValueOf(sliceB)).Error()).To(Equal(
+				"type mismatch: []uint64 != uint64",
+			))
+		})
 		It("should error when struct fields aren't the same", func() {
 			sliceA := []mockStruct{}
 			sliceB := []mockStructBad{}

@@ -26,9 +26,9 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 
-	"github.com/berachain/polaris/eth/common"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type BankKeeper interface {

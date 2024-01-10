@@ -18,18 +18,9 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package hexutil
+package precompile
 
-import (
-	"github.com/ethereum/go-ethereum/common/hexutil"
-)
-
-type (
-	Bytes = hexutil.Bytes
-	Uint  = hexutil.Uint
-)
-
-var (
-	MustDecode = hexutil.MustDecode
-	Decode     = hexutil.Decode
+const (
+	MetricKeyBase = "polaris_precompile"
+	MetricKeyTime = "polaris_precompile_time"
 )

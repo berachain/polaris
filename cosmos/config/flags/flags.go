@@ -120,5 +120,4 @@ const (
 	VerkleTime                    = "polaris.polar.chain.verkle-time"
 	TerminalTotalDifficulty       = "polaris.polar.chain.terminal-total-difficulty"
 	TerminalTotalDifficultyPassed = "polaris.polar.chain.terminal-total-difficulty-passed"
-	IsDevMode                     = "polaris.polar.chain.is-dev-mode"
 )

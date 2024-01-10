@@ -31,7 +31,6 @@ import (
 	"github.com/berachain/polaris/contracts/bindings/cosmos/precompile/governance"
 	"github.com/berachain/polaris/contracts/bindings/cosmos/precompile/staking"
 	"github.com/berachain/polaris/cosmos/precompile"
-	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/lib/utils"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -39,6 +38,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 /**
@@ -54,7 +55,7 @@ func SdkCoinsToEvmCoins(sdkCoins sdk.Coins) []libgenerated.CosmosCoin {
 	return evmCoins
 }
 
-// SdkCoinsToEvmCoin converts sdk.Coin into libgenerated.CosmosCoin.
+// SdkCoinToEvmCoin converts sdk.Coin into libgenerated.CosmosCoin.
 func SdkCoinToEvmCoin(coin sdk.Coin) libgenerated.CosmosCoin {
 	evmCoin := libgenerated.CosmosCoin{
 		Amount: coin.Amount.BigInt(),

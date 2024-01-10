@@ -23,11 +23,12 @@ package mock
 import (
 	"math/big"
 
-	"github.com/berachain/polaris/eth/core/vm"
+	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 //go:generate moq -out ./evm.mock.go -skip-ensure -pkg mock ../ PrecompileEVM
 
+// NewEVM returns a new instance of the PrecompileEVM mock.
 func NewEVM() *PrecompileEVMMock {
 	mockSDB := NewEmptyStateDB()
 	return &PrecompileEVMMock{

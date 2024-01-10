@@ -18,24 +18,10 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package rpc
+package miner
 
-import (
-	"github.com/ethereum/go-ethereum/rpc"
-)
-
-type (
-	API               = rpc.API
-	BlockNumber       = rpc.BlockNumber
-	BlockNumberOrHash = rpc.BlockNumberOrHash
-	Server            = rpc.Server
-)
-
-var (
-	NewServer            = rpc.NewServer
-	SafeBlockNumber      = rpc.SafeBlockNumber
-	FinalizedBlockNumber = rpc.FinalizedBlockNumber
-	LatestBlockNumber    = rpc.LatestBlockNumber
-	PendingBlockNumber   = rpc.PendingBlockNumber
-	EarliestBlockNumber  = rpc.EarliestBlockNumber
+const (
+	MetricKeyBuildBlock   = "polaris_miner_build_block"
+	MetricKeyBlockGasUsed = "polaris_miner_block_gas_used"
+	MetricKeyTransactions = "polaris_miner_transactions"
 )

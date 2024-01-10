@@ -23,9 +23,10 @@ package precompile
 import (
 	"reflect"
 
-	"github.com/berachain/polaris/eth/core/vm"
 	errorslib "github.com/berachain/polaris/lib/errors"
 	"github.com/berachain/polaris/lib/utils"
+
+	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 const (
@@ -37,7 +38,7 @@ const (
 // AbstractFactory is an interface that all precompile container factories must adhere to.
 type AbstractFactory interface {
 	// Build builds and returns the precompile container for the type of container/factory.
-	Build(Registrable, Plugin) (vm.PrecompileContainer, error)
+	Build(Registrable, Plugin) (vm.PrecompiledContract, error)
 }
 
 // Compile-time assertions to ensure these container factories adhere to `AbstractFactory`.
@@ -58,13 +59,13 @@ func NewStatelessFactory() *StatelessFactory {
 	return &StatelessFactory{}
 }
 
-// Build returns a stateless precompile container for the given base contract implememntation.
+// Build returns a stateless precompile container for the given base contract implementation.
 // This function will return an error if the given contract is not a stateless implementation.
 //
 // Build implements `AbstractFactory`.
 func (sf *StatelessFactory) Build(
 	rp Registrable, _ Plugin,
-) (vm.PrecompileContainer, error) {
+) (vm.PrecompiledContract, error) {
 	pc, ok := utils.GetAs[StatelessImpl](rp)
 	if !ok {
 		return nil, errorslib.Wrap(ErrWrongContainerFactory, statelessContainerName)
@@ -90,7 +91,7 @@ func NewStatefulFactory() *StatefulFactory {
 // Build implements `AbstractFactory`.
 func (sf *StatefulFactory) Build(
 	rp Registrable, p Plugin,
-) (vm.PrecompileContainer, error) {
+) (vm.PrecompiledContract, error) {
 	si, ok := utils.GetAs[StatefulImpl](rp)
 	if !ok {
 		return nil, errorslib.Wrap(ErrWrongContainerFactory, statefulContainerName)

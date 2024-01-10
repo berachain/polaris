@@ -21,15 +21,17 @@
 package core
 
 import (
-	"github.com/berachain/polaris/eth/common"
 	"github.com/berachain/polaris/eth/core/types"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // deriveReceipts derives the receipts from the block.
 func (bc *blockchain) deriveReceipts(
-	receipts types.Receipts,
+	receipts ethtypes.Receipts,
 	blockHash common.Hash,
-) (types.Receipts, error) {
+) (ethtypes.Receipts, error) {
 	// get the block to derive the receipts
 	block := bc.GetBlockByHash(blockHash)
 	if block == nil {
