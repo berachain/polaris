@@ -43,7 +43,9 @@ type web3API struct {
 }
 
 // NewWeb3API creates a new web3 API instance.
-func NewWeb3API(b Web3Backend) Web3Backend {
+func NewWeb3API(
+	b Web3Backend,
+) Web3Backend {
 	return &web3API{b}
 }
 

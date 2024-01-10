@@ -113,7 +113,9 @@ func New(
 	}
 
 	// Build the backend api object.
-	pl.apiBackend = NewAPIBackend(pl, stack.ExtRPCEnabled(), allowUnprotectedTxs, pl.config)
+	pl.apiBackend = NewAPIBackend(
+		pl, stack.ExtRPCEnabled(), allowUnprotectedTxs, pl.config, host.Version(),
+	)
 
 	// Run safety message for feedback to the user if they are running
 	// with development configs.
@@ -175,7 +177,9 @@ func (pl *Polaris) APIs() []rpc.API {
 		},
 		{
 			Namespace: "web3",
-			Service:   polarapi.NewWeb3API(pl.apiBackend),
+			Service: polarapi.NewWeb3API(
+				pl.apiBackend,
+			),
 		},
 		{
 			// NOTE: endpoints that require tracing "bad blocks" are currently not supported

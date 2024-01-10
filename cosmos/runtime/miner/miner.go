@@ -129,6 +129,7 @@ func (m *Miner) resolveEnvelope() ([]byte, uint64) {
 	if err != nil {
 		panic(err)
 	}
+
 	return bz, payload.GasUsed
 }
 
