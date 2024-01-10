@@ -76,6 +76,9 @@ type CosmosApp interface {
 // It also includes wrapped versions of the Geth Miner and TxPool.
 type Polaris struct {
 	*eth.ExecutionLayer
+	// ProposalProvider is a wrapped version of the ProposalProvider component.
+	ProposalProvider *polarabci.ProposalProvider
+
 	// WrappedMiner is a wrapped version of the Miner component.
 	WrappedMiner *miner.Miner
 	// WrappedTxPool is a wrapped version of the Mempool component.
@@ -142,14 +145,14 @@ func (p *Polaris) Build(
 		p.ExecutionLayer.Backend().Blockchain(), app,
 	)
 
-	pr := polarabci.NewProposalProvider(
+	p.ProposalProvider = polarabci.NewProposalProvider(
 		app.PreBlocker, app.BeginBlocker,
 		p.WrappedMiner, p.WrappedBlockchain,
 		p.logger.With("module", "polaris-proposal-provider"),
 	)
 	app.SetMempool(p.WrappedTxPool)
-	app.SetPrepareProposal(pr.PrepareProposal)
-	app.SetProcessProposal(pr.ProcessProposal)
+	app.SetPrepareProposal(p.ProposalProvider.PrepareProposal)
+	app.SetProcessProposal(p.ProposalProvider.ProcessProposal)
 
 	if err := ek.Setup(p.WrappedBlockchain); err != nil {
 		return err
