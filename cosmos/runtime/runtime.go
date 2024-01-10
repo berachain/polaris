@@ -28,19 +28,19 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	libtx "github.com/berachain/polaris/cosmos/lib/tx"
+	polarabci "github.com/berachain/polaris/cosmos/runtime/abci"
 	antelib "github.com/berachain/polaris/cosmos/runtime/ante"
 	"github.com/berachain/polaris/cosmos/runtime/chain"
 	"github.com/berachain/polaris/cosmos/runtime/comet"
 	"github.com/berachain/polaris/cosmos/runtime/miner"
 	"github.com/berachain/polaris/cosmos/runtime/txpool"
-	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/consensus"
 	"github.com/berachain/polaris/eth/core"
 	"github.com/berachain/polaris/eth/node"
 
-	abci "github.com/cometbft/cometbft/abci/types"
+	cometabci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -54,8 +54,10 @@ import (
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
-	Setup(evmkeeper.WrappedBlockchain) error
+	Setup(core.Blockchain) error
+	GetStatePluginFactory() core.StatePluginFactory
 	SetLatestQueryContext(context.Context) error
+	GetHost() core.PolarisHostChain
 }
 
 // CosmosApp is an interface that defines the methods needed for the Cosmos setup.
@@ -65,14 +67,18 @@ type CosmosApp interface {
 	SetMempool(mempool.Mempool)
 	SetAnteHandler(sdk.AnteHandler)
 	TxDecode(txBz []byte) (sdk.Tx, error)
-	BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
-	PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
+	CommitMultiStore() storetypes.CommitMultiStore
+	PreBlocker(sdk.Context, *cometabci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
+	BeginBlocker(ctx sdk.Context) (sdk.BeginBlock, error)
 }
 
 // Polaris is a struct that wraps the Polaris struct from the polar package.
 // It also includes wrapped versions of the Geth Miner and TxPool.
 type Polaris struct {
 	*eth.ExecutionLayer
+	// ProposalProvider is a wrapped version of the ProposalProvider component.
+	ProposalProvider *polarabci.ProposalProvider
+
 	// WrappedMiner is a wrapped version of the Miner component.
 	WrappedMiner *miner.Miner
 	// WrappedTxPool is a wrapped version of the Mempool component.
@@ -85,6 +91,7 @@ type Polaris struct {
 
 // New creates a new Polaris runtime from the provided dependencies.
 func New(
+	app CosmosApp,
 	cfg *eth.Config,
 	logger cosmoslog.Logger,
 	host core.PolarisHostChain,
@@ -95,6 +102,16 @@ func New(
 		logger: logger,
 	}
 
+	ctx := sdk.Context{}.
+		WithMultiStore(app.CommitMultiStore()).
+		WithBlockHeight(0).
+		WithGasMeter(storetypes.NewInfiniteGasMeter()).
+		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).
+		WithEventManager(sdk.NewEventManager())
+	host.GetStatePluginFactory().SetLatestQueryContext(
+		ctx,
+	)
+
 	p.ExecutionLayer, err = eth.New(
 		"geth", cfg, host, engine, cfg.Node.AllowUnprotectedTxs,
 		ethlog.NewLogger(newEthHandler(logger)),
@@ -103,7 +120,11 @@ func New(
 		panic(err)
 	}
 
-	p.WrappedTxPool = txpool.New(p.Blockchain(), p.TxPool(), cfg.Polar.LegacyTxPool.Lifetime)
+	p.WrappedTxPool = txpool.New(
+		p.ExecutionLayer.Backend().Blockchain(),
+		p.ExecutionLayer.Backend().TxPool(),
+		cfg.Polar.LegacyTxPool.Lifetime,
+	)
 
 	return p
 }
@@ -115,12 +136,23 @@ func (p *Polaris) Build(
 	app CosmosApp, cosmHandler sdk.AnteHandler, ek EVMKeeper, allowedValMsgs map[string]sdk.Msg,
 ) error {
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
-	p.WrappedMiner = miner.New(p.Miner(), app, ek, allowedValMsgs)
-	p.WrappedBlockchain = chain.New(p.Blockchain(), app)
+	p.WrappedMiner = miner.New(
+		p.ExecutionLayer.Backend().Miner(), app,
+		ek.GetHost().GetStatePluginFactory(),
+		allowedValMsgs,
+	)
+	p.WrappedBlockchain = chain.New(
+		p.ExecutionLayer.Backend().Blockchain(), app,
+	)
 
+	p.ProposalProvider = polarabci.NewProposalProvider(
+		app.PreBlocker, app.BeginBlocker,
+		p.WrappedMiner, p.WrappedBlockchain,
+		p.logger.With("module", "polaris-proposal-provider"),
+	)
 	app.SetMempool(p.WrappedTxPool)
-	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
-	app.SetProcessProposal(p.WrappedBlockchain.ProcessProposal)
+	app.SetPrepareProposal(p.ProposalProvider.PrepareProposal)
+	app.SetProcessProposal(p.ProposalProvider.ProcessProposal)
 
 	if err := ek.Setup(p.WrappedBlockchain); err != nil {
 		return err
@@ -150,7 +182,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 	})
 
 	// Register the sync status provider with Polaris.
-	p.RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
+	p.ExecutionLayer.Backend().RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
 
 	// Start the services. TODO: move to place race condition is solved.
 	return p.StartServices()
@@ -162,7 +194,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 func (p *Polaris) RegisterLifecycles(lcs []node.Lifecycle) {
 	// Register the services with polaris.
 	for _, lc := range lcs {
-		p.ExecutionLayer.RegisterLifecycle(lc)
+		p.ExecutionLayer.Stack().RegisterLifecycle(lc)
 	}
 }
 
@@ -189,7 +221,8 @@ func (p *Polaris) StartServices() error {
 func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint64) error {
 	cmsCtx := sdk.Context{}.
 		WithMultiStore(cms).
+		WithBlockHeight(int64(appHeight)).
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
-	return p.Blockchain().LoadLastState(cmsCtx, appHeight)
+	return p.Backend().Blockchain().LoadLastState(cmsCtx, appHeight)
 }

@@ -5,16 +5,16 @@ go 1.21
 replace (
 	github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20230928194634-aa077af62593
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231219175213-697db469215b
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20240108202417-27ce389773c0
 )
 
 require (
-	github.com/berachain/polaris/contracts v0.0.4-alpha
-	github.com/berachain/polaris/lib v0.0.4-alpha
+	github.com/berachain/polaris/contracts v0.0.4-alpha.0.20240109234156-7b6ac78b70bd
+	github.com/berachain/polaris/lib v0.0.4-alpha.0.20240109234156-7b6ac78b70bd
 	github.com/ethereum/go-ethereum v1.13.7
 	github.com/holiman/uint256 v1.2.4
-	github.com/onsi/ginkgo/v2 v2.13.0
-	github.com/onsi/gomega v1.28.1
+	github.com/onsi/ginkgo/v2 v2.13.2
+	github.com/onsi/gomega v1.29.0
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/text v0.14.0
 )
@@ -58,7 +58,7 @@ require (
 	github.com/getsentry/sentry-go v0.25.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.9.1 // indirect
-	github.com/go-logr/logr v1.2.4 // indirect
+	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

@@ -18,25 +18,20 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package chain
+package abci
 
 import (
-	"github.com/berachain/polaris/eth/core"
+	"time"
+
+	cometabci "github.com/cometbft/cometbft/abci/types"
 )
 
-// WrappedBlockchain is a struct that wraps the core blockchain with additional
-// application context.
-type WrappedBlockchain struct {
-	core.Blockchain           // chain is the core blockchain.
-	app             txDecoder // App is the application context.
-}
-
-// New creates a new instance of WrappedBlockchain with the provided core blockchain
-// and application context.
-func New(chain core.Blockchain, app txDecoder) *WrappedBlockchain {
-	return &WrappedBlockchain{Blockchain: chain, app: app}
-}
-
-func (wbc *WrappedBlockchain) SetBlockchain(chain core.Blockchain) {
-	wbc.Blockchain = chain
+type abciRequest interface {
+	// add your methods here
+	GetTxs() [][]byte
+	GetTime() time.Time
+	GetMisbehavior() []cometabci.Misbehavior
+	GetHeight() int64
+	GetNextValidatorsHash() []byte
+	GetProposerAddress() []byte
 }

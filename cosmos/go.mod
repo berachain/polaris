@@ -7,7 +7,7 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20230928194634-aa077af62593
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20231219175213-697db469215b
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20240108202417-27ce389773c0
 	// Fix upstream GHSA-h395-qcrw-5vmq and GHSA-3vp4-m3rf-835h vulnerabilities.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
@@ -24,9 +24,9 @@ require (
 	cosmossdk.io/store v1.0.1
 	cosmossdk.io/x/evidence v0.0.0-20231103111158-e83a20081ced
 	cosmossdk.io/x/tx v0.12.0
-	github.com/berachain/polaris/contracts v0.0.4-alpha
-	github.com/berachain/polaris/eth v0.0.4-alpha
-	github.com/berachain/polaris/lib v0.0.4-alpha
+	github.com/berachain/polaris/contracts v0.0.4-alpha.0.20240109235613-943fac740e5e
+	github.com/berachain/polaris/eth v0.0.3-alpha.0.20240109235613-943fac740e5e
+	github.com/berachain/polaris/lib v0.0.4-alpha.0.20240109235613-943fac740e5e
 	github.com/btcsuite/btcd v0.23.2
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/cometbft/cometbft v0.38.2
@@ -38,8 +38,8 @@ require (
 	github.com/ethereum/go-ethereum v1.13.7
 	github.com/golang/mock v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/onsi/ginkgo/v2 v2.13.0
-	github.com/onsi/gomega v1.28.1
+	github.com/onsi/ginkgo/v2 v2.13.2
+	github.com/onsi/gomega v1.29.0
 	github.com/spf13/cast v1.5.1
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
@@ -115,7 +115,7 @@ require (
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
-	github.com/go-logr/logr v1.2.4 // indirect
+	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

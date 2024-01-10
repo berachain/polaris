@@ -27,7 +27,6 @@ import (
 	"sync/atomic"
 
 	"github.com/berachain/polaris/eth/consensus"
-	"github.com/berachain/polaris/eth/core/state"
 	"github.com/berachain/polaris/eth/core/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -49,28 +48,27 @@ var _ Blockchain = (*blockchain)(nil)
 
 // Blockchain interface defines the methods that a blockchain must have.
 type Blockchain interface {
-	PreparePlugins(ctx context.Context)
+	preparePlugins(ctx context.Context)
 	ChainReader
 	ChainWriter
 	ChainSubscriber
 	ChainResources
+	StatePluginFactory() StatePluginFactory
 	core.ChainContext
 }
 
 // blockchain is the canonical, persistent object that operates the Polaris EVM.
 type blockchain struct {
 	// the host chain plugins that the Polaris EVM is running on.
-	bp BlockPlugin
-	hp HistoricalPlugin
-	pp PrecompilePlugin
-	sp StatePlugin
+	bp  BlockPlugin
+	hp  HistoricalPlugin
+	pp  PrecompilePlugin
+	spf StatePluginFactory
 
 	engine    consensus.Engine
 	processor core.Processor
 	validator core.Validator
 
-	// statedb is the state database that is used to manage state during transactions.
-	statedb state.StateDB
 	// vmConfig is the configuration used to create the EVM.
 	vmConfig *vm.Config
 
@@ -117,7 +115,7 @@ func NewChain(
 		bp:             host.GetBlockPlugin(),
 		hp:             host.GetHistoricalPlugin(),
 		pp:             host.GetPrecompilePlugin(),
-		sp:             host.GetStatePlugin(),
+		spf:            host.GetStatePluginFactory(),
 		config:         config,
 		vmConfig:       &vm.Config{},
 		receiptsCache:  lru.NewCache[common.Hash, ethtypes.Receipts](defaultCacheSize),
@@ -129,7 +127,6 @@ func NewChain(
 		logger:         log.Root(),
 		engine:         engine,
 	}
-	bc.statedb = state.NewStateDB(bc.sp, bc.pp)
 	bc.processor = core.NewStateProcessor(bc.config, bc, bc.engine)
 	bc.validator = core.NewBlockValidator(bc.config, bc, bc.engine)
 	// TODO: hmm...
@@ -142,14 +139,11 @@ func NewChain(
 
 func (bc *blockchain) LoadLastState(ctx context.Context, number uint64) error {
 	// ctx here is the one created from app.CommitMultistore().
-	bc.PreparePlugins(ctx)
-	bc.sp.Prepare(ctx)
-
+	bc.preparePlugins(ctx)
 	return bc.loadLastState(number)
 }
 
-func (bc *blockchain) PreparePlugins(ctx context.Context) {
-	bc.sp.Reset(ctx)
+func (bc *blockchain) preparePlugins(ctx context.Context) {
 	bc.bp.Prepare(ctx)
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
@@ -169,4 +163,8 @@ func (bc *blockchain) loadLastState(number uint64) error {
 	}
 	bc.currentBlock.Store(b)
 	return nil
+}
+
+func (bc *blockchain) StatePluginFactory() StatePluginFactory {
+	return bc.spf
 }

@@ -41,6 +41,7 @@ type ChainResources interface {
 	// state snapshots
 	StateAtBlockNumber(uint64) (state.StateDB, error)
 	StateAt(root common.Hash) (state.StateDB, error)
+	GetOverridenState() (state.StateDB, error)
 
 	// state for tracing
 	StateAtBlock(
@@ -62,10 +63,15 @@ func (bc *blockchain) StateAt(common.Hash) (state.StateDB, error) {
 	return nil, errors.New("StateAt is not implemented in polaris due state root")
 }
 
+// Used by geth miner to build the block (can rename to GetMinerState).
+func (bc *blockchain) GetOverridenState() (state.StateDB, error) {
+	return state.NewStateDB(bc.spf.NewPluginWithMode(state.Miner), bc.pp), nil
+}
+
 // StateAtBlockNumber returns a statedb configured to read what the state of the blockchain is/was
 // at a given block number.
 func (bc *blockchain) StateAtBlockNumber(number uint64) (state.StateDB, error) {
-	sp, err := bc.sp.StateAtBlockNumber(number)
+	sp, err := bc.spf.NewPluginAtBlockNumber(number)
 	if err != nil {
 		return nil, err
 	}

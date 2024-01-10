@@ -21,6 +21,8 @@
 package core
 
 import (
+	"context"
+
 	"github.com/berachain/polaris/eth/core/precompile"
 	"github.com/berachain/polaris/eth/core/state"
 	"github.com/berachain/polaris/eth/core/types"
@@ -39,7 +41,7 @@ type PolarisHostChain interface {
 	// GetPrecompilePlugin returns the OPTIONAL `PrecompilePlugin` of the Polaris host chain.
 	GetPrecompilePlugin() PrecompilePlugin
 	// GetStatePlugin returns the `StatePlugin` of the Polaris host chain.
-	GetStatePlugin() StatePlugin
+	GetStatePluginFactory() StatePluginFactory
 }
 
 // =============================================================================
@@ -68,6 +70,17 @@ type (
 		state.Plugin
 		// StateAtBlockNumber returns the state at the given block height.
 		StateAtBlockNumber(uint64) (StatePlugin, error)
+		SetStateOverride(ctx context.Context)
+		GetOverridenState() StatePlugin
+	}
+
+	StatePluginFactory interface {
+		NewPluginAtBlockNumber(uint64) (StatePlugin, error)
+		NewPluginWithMode(state.Mode) StatePlugin
+		NewPluginFromContext(context.Context) StatePlugin
+		SetLatestQueryContext(ctx context.Context)
+		SetLatestMiningContext(ctx context.Context)
+		SetInsertChainContext(ctx context.Context)
 	}
 )
 
