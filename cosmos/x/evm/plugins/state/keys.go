@@ -67,7 +67,7 @@ func AddressFromSlotKey(key []byte) common.Address {
 	return common.BytesToAddress(key[1 : 1+common.AddressLength])
 }
 
-// CodeHashKeyFor defines the full key under which an addreses codehash is stored.
+// CodeHashKeyFor defines the full key under which an addresses codehash is stored.
 func CodeHashKeyFor(address common.Address) []byte {
 	bz := make([]byte, 1+common.AddressLength)
 	copy(bz, []byte{types.CodeHashKeyPrefix})
@@ -75,7 +75,7 @@ func CodeHashKeyFor(address common.Address) []byte {
 	return bz
 }
 
-// CodeKeyFor defines the full key under which an addreses code is stored.
+// CodeKeyFor defines the full key under which an addresses code is stored.
 func CodeKeyFor(codeHash common.Hash) []byte {
 	bz := make([]byte, 1+common.HashLength)
 	copy(bz, []byte{types.CodeKeyPrefix})
