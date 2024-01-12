@@ -34,7 +34,7 @@ import (
 // 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470.
 var emptyCodeHash = crypto.Keccak256Hash(nil)
 
-// `selfDestructStatePlugin` defines the required funtions from the StatePlugin
+// `selfDestructStatePlugin` defines the required functions from the StatePlugin
 // for the suicide journal.
 type selfDestructStatePlugin interface {
 	// GetCodeHash returns the code hash of the given account.

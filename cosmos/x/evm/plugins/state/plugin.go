@@ -114,7 +114,7 @@ type plugin struct {
 
 	stateCtx context.Context
 
-	// lqc is used for fullfilling
+	// lqc is used for fulfilling
 	lqc sdk.Context
 	qfn func() func(height int64, prove bool) (sdk.Context, error)
 }
