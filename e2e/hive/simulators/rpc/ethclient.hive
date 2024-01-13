@@ -11,8 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/tree/master/accounts/abi"
 	"github.com/ethereum/go-ethereum/tree/master/common"
 	"github.com/ethereum/go-ethereum/tree/master/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/tree/master/crypto"
+	"github.com/ethereum/go-ethereum/tree/master/params"
 )
 
 var (
