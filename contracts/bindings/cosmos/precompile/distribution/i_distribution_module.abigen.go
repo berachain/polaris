@@ -9,11 +9,11 @@ import (
 	"strings"
 
 	ethereum "github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/tree/master/accounts/abi"
+	"github.com/ethereum/go-ethereum/tree/master/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/tree/master/common"
+	"github.com/ethereum/go-ethereum/tree/master/core/types"
+	"github.com/ethereum/go-ethereum/tree/master/event"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
