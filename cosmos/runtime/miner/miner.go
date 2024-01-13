@@ -34,6 +34,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/berachain/polaris/cosmos/runtime/txpool"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/miner"
@@ -42,6 +43,7 @@ import (
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
 	miner          eth.Miner
+	txPool         *txpool.Mempool
 	app            TxDecoder
 	spf            core.StatePluginFactory
 	valTxSelector  baseapp.TxSelector
@@ -52,9 +54,11 @@ type Miner struct {
 
 // New produces a cosmos miner from a geth miner.
 func New(
-	miner eth.Miner, app TxDecoder, spf core.StatePluginFactory, allowedValMsgs map[string]sdk.Msg,
+	miner eth.Miner, txPool *txpool.Mempool,
+	app TxDecoder, spf core.StatePluginFactory, allowedValMsgs map[string]sdk.Msg,
 ) *Miner {
 	return &Miner{
+		txPool:         txPool,
 		miner:          miner,
 		app:            app,
 		spf:            spf,
@@ -75,6 +79,9 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 
 	// Record the time it takes to build a payload.
 	defer telemetry.MeasureSince(time.Now(), MetricKeyBuildBlock)
+
+	mu := m.txPool.AcquireLock()
+	defer mu.Unlock()
 
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
 		return nil, 0, err

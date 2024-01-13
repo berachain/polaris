@@ -23,6 +23,7 @@ package txpool
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	"cosmossdk.io/log"
@@ -65,6 +66,7 @@ type Mempool struct {
 	lifetime time.Duration
 	chain    core.ChainReader
 	handler  Lifecycle
+	insertMu *sync.Mutex
 }
 
 // New creates a new Mempool.
@@ -73,6 +75,7 @@ func New(chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration) *Mem
 		txpool:   txpool,
 		chain:    chain,
 		lifetime: lifetime,
+		insertMu: &sync.Mutex{},
 	}
 }
 
@@ -83,6 +86,12 @@ func (m *Mempool) Init(
 	txSerializer TxSerializer,
 ) {
 	m.handler = newHandler(txBroadcaster, m.txpool, txSerializer, logger)
+}
+
+// AcquireLock returns the insert lock.
+func (m *Mempool) AcquireLock() *sync.Mutex {
+	m.insertMu.Lock()
+	return m.insertMu
 }
 
 // Start starts the Mempool TxHandler.
