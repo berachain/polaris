@@ -23,6 +23,7 @@ package txpool
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"cosmossdk.io/log"
@@ -61,7 +62,7 @@ type GethTxPool interface {
 // is to allow for transactions coming in from CometBFT's gossip to be added to the underlying
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
-	txpool   eth.TxPool
+	eth.TxPool
 	lifetime time.Duration
 	chain    core.ChainReader
 	handler  Lifecycle
@@ -70,7 +71,7 @@ type Mempool struct {
 // New creates a new Mempool.
 func New(chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration) *Mempool {
 	return &Mempool{
-		txpool:   txpool,
+		TxPool:   txpool,
 		chain:    chain,
 		lifetime: lifetime,
 	}
@@ -82,7 +83,7 @@ func (m *Mempool) Init(
 	txBroadcaster TxBroadcaster,
 	txSerializer TxSerializer,
 ) {
-	m.handler = newHandler(txBroadcaster, m.txpool, txSerializer, logger)
+	m.handler = newHandler(txBroadcaster, m.TxPool, txSerializer, logger)
 }
 
 // Start starts the Mempool TxHandler.
@@ -107,7 +108,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); !ok {
 		// We have to return nil for non-ethereum transactions as to not fail check-tx.
 		return nil
-	} else if errs := m.txpool.Add(
+	} else if errs := m.TxPool.Add(
 		[]*ethtypes.Transaction{wet.Unwrap()}, false, false,
 	); len(errs) != 0 {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
@@ -122,7 +123,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 
 // CountTx returns the number of transactions currently in the mempool.
 func (m *Mempool) CountTx() int {
-	runnable, blocked := m.txpool.Stats()
+	runnable, blocked := m.TxPool.Stats()
 	return runnable + blocked
 }
 
@@ -132,6 +133,24 @@ func (m *Mempool) Select(context.Context, [][]byte) mempool.Iterator {
 }
 
 // Remove is an intentional no-op as the eth txpool handles removals.
-func (m *Mempool) Remove(sdk.Tx) error {
+func (m *Mempool) Remove(tx sdk.Tx) error {
+	msgs := tx.GetMsgs()
+	now := time.Now()
+	if len(msgs) == 1 {
+		env, ok := utils.GetAs[*types.WrappedPayloadEnvelope](msgs[0])
+		if !ok {
+			return nil
+		}
+
+		txBzs := env.UnwrapPayload().ExecutionPayload.Transactions
+
+		for _, txBz := range txBzs {
+			ethTx := new(ethtypes.Transaction)
+			_ = ethTx.UnmarshalBinary(txBz)
+			m.TxPool.Remove(ethTx.Hash())
+		}
+	}
+	fmt.Println("google")
+	fmt.Println(time.Since(now))
 	return nil
 }

@@ -50,7 +50,7 @@ var _ = Describe("", func() {
 	BeforeEach(func() {
 		txPool = mocks.NewGethTxPool(t)
 		sdkTx = mocks.NewSdkTx(t)
-		mempool = &Mempool{txpool: txPool}
+		mempool = &Mempool{TxPool: txPool}
 		wet, _ = evmtypes.WrapTx(ethtypes.NewTx(&ethtypes.LegacyTx{}))
 	})
 

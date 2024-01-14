@@ -54,6 +54,7 @@ type (
 		SubscribeTransactions(ch chan<- core.NewTxsEvent, reorgs bool) event.Subscription
 		Status(hash common.Hash) txpool.TxStatus
 		Has(hash common.Hash) bool
+		Remove(common.Hash)
 	}
 
 	// NetworkingStack is the entrypoint for the evm execution environment.

@@ -25,6 +25,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/berachain/polaris/cosmos/config"
+	"github.com/berachain/polaris/cosmos/runtime/txpool"
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state"
 	"github.com/berachain/polaris/cosmos/x/evm/types"
 	"github.com/berachain/polaris/eth/core"
@@ -38,7 +39,8 @@ type Keeper struct {
 	*Host
 
 	// provider is the struct that houses the Polaris EVM.
-	chain core.Blockchain
+	chain  core.Blockchain
+	txpool *txpool.Mempool
 }
 
 // NewKeeper creates new instances of the polaris Keeper.
@@ -61,8 +63,9 @@ func NewKeeper(
 	}
 }
 
-func (k *Keeper) Setup(chain core.Blockchain) error {
+func (k *Keeper) Setup(chain core.Blockchain, txPool *txpool.Mempool) error {
 	k.chain = chain
+	k.txpool = txPool
 	return k.SetupPrecompiles()
 }
 

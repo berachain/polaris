@@ -54,7 +54,7 @@ import (
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
-	Setup(core.Blockchain) error
+	Setup(core.Blockchain, *txpool.Mempool) error
 	GetStatePluginFactory() core.StatePluginFactory
 	SetLatestQueryContext(context.Context) error
 	GetHost() core.PolarisHostChain
@@ -154,7 +154,7 @@ func (p *Polaris) Build(
 	app.SetPrepareProposal(p.ProposalProvider.PrepareProposal)
 	app.SetProcessProposal(p.ProposalProvider.ProcessProposal)
 
-	if err := ek.Setup(p.WrappedBlockchain); err != nil {
+	if err := ek.Setup(p.WrappedBlockchain, p.WrappedTxPool); err != nil {
 		return err
 	}
 

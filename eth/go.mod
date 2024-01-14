@@ -5,7 +5,7 @@ go 1.21
 replace (
 	github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20230928194634-aa077af62593
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
-	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20240108202417-27ce389773c0
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v0.0.0-20240114134402-f43e40102ad1
 )
 
 require (

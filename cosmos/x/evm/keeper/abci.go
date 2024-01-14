@@ -32,14 +32,14 @@ func (k *Keeper) EndBlock(ctx context.Context) error {
 	// Verify that the EVM block was written.
 	// TODO: Set/GetHead to set and get the canonical head.
 	blockNum := uint64(sdk.UnwrapSDKContext(ctx).BlockHeight())
-	block := k.chain.GetBlockByNumber(blockNum)
-	if block == nil {
+	newHead := k.chain.GetBlockByNumber(blockNum)
+	if newHead == nil {
 		return fmt.Errorf(
 			"evm block %d failed to process", blockNum,
 		)
-	} else if block.NumberU64() != blockNum {
+	} else if newHead.NumberU64() != blockNum {
 		return fmt.Errorf(
-			"evm block [%d] does not match comet block [%d]", block.NumberU64(), blockNum,
+			"evm block [%d] does not match comet block [%d]", newHead.NumberU64(), blockNum,
 		)
 	}
 	return nil
