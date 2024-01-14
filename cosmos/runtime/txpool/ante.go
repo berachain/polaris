@@ -42,7 +42,7 @@ func (m *Mempool) AnteHandle(
 	msgs := tx.GetMsgs()
 
 	// We only want to eject transactions from comet on recheck.
-	if ctx.IsReCheckTx() || ctx.IsCheckTx() {
+	if ctx.ExecMode() == sdk.ExecModeCheck || ctx.ExecMode() == sdk.ExecModeReCheck {
 		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
 			if m.shouldEjectFromCometMempool(ctx.BlockTime(), wet.Unwrap()) {
 				m.receivedFromCometAtMu.Lock()
