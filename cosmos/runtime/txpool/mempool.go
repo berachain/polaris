@@ -23,7 +23,6 @@ package txpool
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"cosmossdk.io/log"
@@ -135,7 +134,6 @@ func (m *Mempool) Select(context.Context, [][]byte) mempool.Iterator {
 // Remove is an intentional no-op as the eth txpool handles removals.
 func (m *Mempool) Remove(tx sdk.Tx) error {
 	msgs := tx.GetMsgs()
-	now := time.Now()
 	if len(msgs) == 1 {
 		env, ok := utils.GetAs[*types.WrappedPayloadEnvelope](msgs[0])
 		if !ok {
@@ -150,7 +148,5 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			m.TxPool.Remove(ethTx.Hash())
 		}
 	}
-	fmt.Println("google")
-	fmt.Println(time.Since(now))
 	return nil
 }
