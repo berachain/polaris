@@ -30,6 +30,9 @@ import (
 	sdkflags "github.com/cosmos/cosmos-sdk/client/flags"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	version "github.com/cosmos/cosmos-sdk/version"
+
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 type Config = eth.Config
@@ -92,6 +95,17 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 		parser.GetHexutilBytes(flags.MinerExtraData); err != nil {
 		return nil, err
 	}
+
+	if len(conf.Polar.Miner.ExtraData) == 0 {
+		commit := version.NewInfo().GitCommit
+		if len(commit) != 40 { //nolint:gomnd // its okay.
+			return nil, err
+		}
+		conf.Polar.Miner.ExtraData = hexutil.Bytes(
+			commit[32:40],
+		)
+	}
+
 	if conf.Polar.Miner.GasFloor, err =
 		parser.GetUint64(flags.MinerGasFloor); err != nil {
 		return nil, err

@@ -150,7 +150,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		return nil
 	}
 
-	// Track time it entered from comet.=
+	// Track time it entered from comet.
 	m.receivedFromCometAtMu.Lock()
 	m.receivedFromCometAt[ethTxHash] = time.Now()
 	m.receivedFromCometAtMu.Unlock()
