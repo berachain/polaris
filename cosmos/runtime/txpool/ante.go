@@ -27,6 +27,7 @@ import (
 	"github.com/berachain/polaris/cosmos/x/evm/types"
 	"github.com/berachain/polaris/lib/utils"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -41,6 +42,8 @@ func (m *Mempool) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
 	msgs := tx.GetMsgs()
+
+	// Record the time it takes to build a payload.
 
 	// We only want to eject transactions from comet on recheck.
 	if ctx.ExecMode() == sdk.ExecModeCheck || ctx.ExecMode() == sdk.ExecModeReCheck {
@@ -57,6 +60,7 @@ func (m *Mempool) AnteHandle(
 func (m *Mempool) shouldEjectFromCometMempool(
 	currentTime time.Time, tx *ethtypes.Transaction,
 ) bool {
+	defer telemetry.MeasureSince(time.Now(), MetricKeyTimeShouldEject)
 	if tx == nil {
 		return false
 	}
@@ -66,21 +70,22 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	// 1. If the transaction has been included in a block.
 	// 2. If the transaction is unknown to the node.
 	// 3. If the transaction has been in the mempool for longer than the configured timeout.
-	return txStatus == txpool.TxStatusIncluded || txStatus == txpool.TxStatusUnknown ||
+	return txStatus == txpool.TxStatusIncluded ||
 		currentTime.Sub(tx.Time()) > m.lifetime
 }
 
 // txStatus returns the status of the transaction.
 func (m *Mempool) txStatus(hash common.Hash) txpool.TxStatus {
-	// Looking for the transaction in txpool first.
-	status := m.txpool.Status(hash)
+	// // Looking for the transaction in txpool first.
+	// status := m.txpool.Status(hash)
 
-	// If the transaction is unknown to the pool, try looking it up locally.
-	if status == txpool.TxStatusUnknown {
-		lookup := m.chain.GetTransactionLookup(hash)
-		if lookup != nil {
-			status = txpool.TxStatusIncluded
-		}
+	// // If the transaction is unknown to the pool, try looking it up locally.
+	// if status == txpool.TxStatusUnknown {
+	var status txpool.TxStatus
+	lookup := m.chain.GetTransactionLookup(hash)
+	if lookup != nil {
+		status = txpool.TxStatusIncluded
 	}
+	// }
 	return status
 }
