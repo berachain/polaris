@@ -60,9 +60,7 @@ func NewHost(
 ) *Host {
 	// We setup the host with some Cosmos standard sauce.
 	h := &Host{
-		bp: block.NewPlugin(
-			storeKey, qc,
-		),
+		bp:  block.NewPlugin(storeKey, qc),
 		pcs: precompiles,
 		pp:  precompile.NewPlugin(),
 		sp:  state.NewPlugin(ak, storeKey, qc, nil),
