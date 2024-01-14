@@ -124,6 +124,39 @@ func (_c *GethTxPool_Has_Call) RunAndReturn(run func(common.Hash) bool) *GethTxP
 	return _c
 }
 
+// Remove provides a mock function with given fields: _a0
+func (_m *GethTxPool) Remove(_a0 common.Hash) {
+	_m.Called(_a0)
+}
+
+// GethTxPool_Remove_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Remove'
+type GethTxPool_Remove_Call struct {
+	*mock.Call
+}
+
+// Remove is a helper method to define mock.On call
+//   - _a0 common.Hash
+func (_e *GethTxPool_Expecter) Remove(_a0 interface{}) *GethTxPool_Remove_Call {
+	return &GethTxPool_Remove_Call{Call: _e.mock.On("Remove", _a0)}
+}
+
+func (_c *GethTxPool_Remove_Call) Run(run func(_a0 common.Hash)) *GethTxPool_Remove_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(common.Hash))
+	})
+	return _c
+}
+
+func (_c *GethTxPool_Remove_Call) Return() *GethTxPool_Remove_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *GethTxPool_Remove_Call) RunAndReturn(run func(common.Hash)) *GethTxPool_Remove_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Stats provides a mock function with given fields:
 func (_m *GethTxPool) Stats() (int, int) {
 	ret := _m.Called()

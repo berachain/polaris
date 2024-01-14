@@ -27,7 +27,6 @@ import (
 
 	"github.com/berachain/polaris/cosmos/runtime/chain"
 	"github.com/berachain/polaris/cosmos/runtime/miner"
-	"github.com/berachain/polaris/cosmos/runtime/txpool"
 
 	cometabci "github.com/cometbft/cometbft/abci/types"
 
@@ -43,7 +42,6 @@ type ProposalProvider struct {
 	beginBlocker      sdk.BeginBlocker
 	wrappedMiner      *miner.Miner
 	wrappedBlockchain *chain.WrappedBlockchain
-	wrappedTxPool     *txpool.Mempool
 
 	// TODO: refactor validator commands out of the wbc and miner.
 	// valCmdProcessor   *ValidatorCommands
