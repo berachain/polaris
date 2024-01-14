@@ -52,6 +52,7 @@ func DefaultConfig() *Config {
 	gpoConfig.Default = big.NewInt(gpoDefault)
 	minerCfg := miner.DefaultConfig
 	minerCfg.Etherbase = common.HexToAddress(developmentCoinbase)
+	minerCfg.GasPrice = big.NewInt(1)
 	legacyPool := legacypool.DefaultConfig
 	legacyPool.Journal = ""
 
