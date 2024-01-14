@@ -22,6 +22,7 @@ package runtime
 
 import (
 	"context"
+	"sync/atomic"
 	"time"
 
 	cosmoslog "cosmossdk.io/log"
@@ -87,6 +88,9 @@ type Polaris struct {
 	WrappedBlockchain *chain.WrappedBlockchain
 	// logger is the underlying logger supplied by the sdk.
 	logger cosmoslog.Logger
+
+	// pauseInserts is an atomic flag that is set to true when inserts are paused.
+	pauseInserts *atomic.Bool
 }
 
 // New creates a new Polaris runtime from the provided dependencies.
@@ -99,7 +103,8 @@ func New(
 ) *Polaris {
 	var err error
 	p := &Polaris{
-		logger: logger,
+		logger:       logger,
+		pauseInserts: new(atomic.Bool),
 	}
 
 	ctx := sdk.Context{}.
@@ -125,6 +130,7 @@ func New(
 		p.ExecutionLayer.Backend().Blockchain(),
 		p.ExecutionLayer.Backend().TxPool(),
 		cfg.Polar.LegacyTxPool.Lifetime,
+		p.pauseInserts,
 	)
 
 	return p
@@ -143,6 +149,7 @@ func (p *Polaris) Build(
 		app,
 		ek.GetHost().GetStatePluginFactory(),
 		allowedValMsgs,
+		p.pauseInserts,
 	)
 	p.WrappedBlockchain = chain.New(
 		p.ExecutionLayer.Backend().Blockchain(), app,

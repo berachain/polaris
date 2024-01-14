@@ -74,7 +74,7 @@ type Mempool struct {
 
 	// when pause inserts is enabled, we use a channel to queue transactions
 	// to be inserted into the txpool after a block is committed.
-	pauseInserts          atomic.Bool
+	pauseInserts          *atomic.Bool
 	insertQueue           chan *ethtypes.Transaction
 	receivedFromCometAt   map[common.Hash]time.Time
 	stopInsertCh          chan struct{}
@@ -85,7 +85,8 @@ type Mempool struct {
 
 // New creates a new Mempool.
 func New(
-	logger log.Logger, chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration,
+	logger log.Logger, chain core.ChainReader, txpool eth.TxPool,
+	lifetime time.Duration, pauseInserts *atomic.Bool,
 ) *Mempool {
 	return &Mempool{
 		logger:   logger,
@@ -94,7 +95,7 @@ func New(
 		lifetime: lifetime,
 		// TODO: needs to be equal to comet mempoool size.
 		insertQueue:         make(chan *ethtypes.Transaction, queueSize),
-		pauseInserts:        atomic.Bool{},
+		pauseInserts:        pauseInserts,
 		stopInsertCh:        make(chan struct{}),
 		receivedFromCometAt: make(map[common.Hash]time.Time),
 	}
