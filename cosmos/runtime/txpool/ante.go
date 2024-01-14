@@ -45,6 +45,8 @@ func (m *Mempool) AnteHandle(
 	if ctx.ExecMode() == sdk.ExecModeReCheck {
 		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
 			if m.shouldEjectFromCometMempool(ctx.BlockTime(), wet.Unwrap()) {
+				m.receivedFromCometAtMu.Lock()
+				defer m.receivedFromCometAtMu.Unlock()
 				delete(m.receivedFromCometAt, wet.Unwrap().Hash())
 				return ctx, errors.New("eject from comet mempool")
 			}
@@ -70,7 +72,7 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	// than the configured timeout. (our view).
 	m.receivedFromCometAtMu.RLock()
 	cometTime := m.receivedFromCometAt[txHash]
-	m.receivedFromCometAtMu.RLock()
+	m.receivedFromCometAtMu.RUnlock()
 	return m.inCanonicalChain(txHash) ||
 		currentTime.Sub(tx.Time()) > m.lifetime ||
 		currentTime.Sub(cometTime) > m.lifetime
