@@ -68,8 +68,7 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	// 1. If the transaction has been included in a block.
 	// 2. If the transaction is unknown to the node.
 	// 3. If the transaction has been in the mempool for longer than the configured timeout.
-	return txStatus == txpool.TxStatusIncluded ||
-		currentTime.Sub(tx.Time()) > m.lifetime
+	return txStatus == txpool.TxStatusIncluded || currentTime.Sub(tx.Time()) > m.lifetime
 }
 
 // txStatus returns the status of the transaction.
