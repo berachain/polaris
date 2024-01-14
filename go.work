@@ -10,5 +10,3 @@ use (
 	./eth
 	./lib
 )
-
-replace github.com/ethereum/go-ethereum => ../polaris-geth
