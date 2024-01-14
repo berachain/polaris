@@ -54,7 +54,6 @@ func DefaultConfig() *Config {
 	minerCfg.Etherbase = common.HexToAddress(developmentCoinbase)
 	legacyPool := legacypool.DefaultConfig
 	legacyPool.Journal = ""
-	legacyPool.Rejournal = time.Hour * 72 //nolint:gomnd // default config.
 	legacyPool.PriceLimit = 3
 	legacyPool.Lifetime = time.Minute * 15 //nolint:gomnd // default config.
 

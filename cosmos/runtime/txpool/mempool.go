@@ -122,7 +122,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	// If we already have the transaction in the txpool, we can return early.
 	ethTx := wet.Unwrap()
 	if ethTx == nil {
-		return errors.New("wraped tx is nil")
+		return errors.New("wrapped tx is nil")
 	}
 
 	// If the tx is a local, or has been gossiped again for some reason. We ignore it.
