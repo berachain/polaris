@@ -77,9 +77,11 @@ type Mempool struct {
 // New creates a new Mempool.
 func New(chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration) *Mempool {
 	return &Mempool{
-		txpool:   txpool,
-		chain:    chain,
-		lifetime: lifetime,
+		txpool:                txpool,
+		chain:                 chain,
+		lifetime:              lifetime,
+		receivedFromCometAt:   make(map[common.Hash]time.Time),
+		receivedFromCometAtMu: sync.RWMutex{},
 	}
 }
 
@@ -129,7 +131,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		return nil
 	}
 
-	// Track time it entered from comet.=
+	// Track time it entered from comet.
 	m.receivedFromCometAtMu.Lock()
 	m.receivedFromCometAt[ethTxHash] = time.Now()
 	m.receivedFromCometAtMu.Unlock()
