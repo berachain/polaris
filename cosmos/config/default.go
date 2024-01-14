@@ -33,8 +33,8 @@ import (
 // for the application.
 func RecommendedCometBFTConfig() *cmtcfg.Config {
 	cfg := cmtcfg.DefaultConfig()
-	cfg.Mempool.Size = 50000
-	cfg.Mempool.CacheSize = 50000
+	cfg.Mempool.Size = 30000
+	cfg.Mempool.CacheSize = 30000
 	cfg.Mempool.Recheck = true
 	cfg.Mempool.Type = "flood"
 
