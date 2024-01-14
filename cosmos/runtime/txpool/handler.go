@@ -216,17 +216,18 @@ func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
 	// Send the transaction to the CometBFT mempool, which will gossip it to peers via
 	// CometBFT's p2p layer.
 	rsp, err := h.clientCtx.BroadcastTxSync(txBytes)
-
 	if err != nil {
 		h.logger.Error("error on transactions broadcast", "err", err)
 		h.failedTxs <- &failedTx{tx: tx, retries: retries}
 		return
-	}
-	if rsp == nil || rsp.Code == 0 {
+	} else if rsp == nil {
 		return
 	}
 
 	switch rsp.Code {
+	case 0:
+	case 1:
+		return
 	case sdkerrors.ErrMempoolIsFull.ABCICode():
 		h.logger.Error("failed to broadcast: comet-bft mempool is full", "tx_hash", tx.Hash())
 		telemetry.IncrCounter(float32(1), MetricKeyMempoolFull)
