@@ -48,12 +48,10 @@ var _ Blockchain = (*blockchain)(nil)
 
 // Blockchain interface defines the methods that a blockchain must have.
 type Blockchain interface {
-	preparePlugins(ctx context.Context)
 	ChainReader
 	ChainWriter
 	ChainSubscriber
 	ChainResources
-	StatePluginFactory() StatePluginFactory
 	core.ChainContext
 }
 
@@ -122,8 +120,6 @@ func NewChain(
 		blockNumCache:  lru.NewCache[uint64, *ethtypes.Block](defaultCacheSize),
 		blockHashCache: lru.NewCache[common.Hash, *ethtypes.Block](defaultCacheSize),
 		txLookupCache:  lru.NewCache[common.Hash, *types.TxLookupEntry](defaultCacheSize),
-		chainHeadFeed:  event.Feed{},
-		scope:          event.SubscriptionScope{},
 		logger:         log.Root(),
 		engine:         engine,
 	}
@@ -137,22 +133,20 @@ func NewChain(
 	return bc
 }
 
-func (bc *blockchain) LoadLastState(ctx context.Context, number uint64) error {
-	// ctx here is the one created from app.CommitMultistore().
-	bc.preparePlugins(ctx)
-	return bc.loadLastState(number)
-}
-
-func (bc *blockchain) preparePlugins(ctx context.Context) {
-	bc.bp.Prepare(ctx)
+// PrimePlugins primes the host chain's block and historical plugins for whichever part of the
+// block lifecycle we are entering.
+func (bc *blockchain) PrimePlugins(ctx context.Context) {
+	if bc.bp != nil {
+		bc.bp.Prepare(ctx)
+	}
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
 	}
 }
 
-// loadLastState loads the last known chain state from the database. This method
+// LoadLastState loads the last known chain state from the database. This method
 // assumes that the chain manager mutex is held.
-func (bc *blockchain) loadLastState(number uint64) error {
+func (bc *blockchain) LoadLastState(number uint64) error {
 	bc.logger.Info("loading last state")
 	b := bc.GetBlockByNumber(number)
 	if number == 0 {
@@ -163,8 +157,4 @@ func (bc *blockchain) loadLastState(number uint64) error {
 	}
 	bc.currentBlock.Store(b)
 	return nil
-}
-
-func (bc *blockchain) StatePluginFactory() StatePluginFactory {
-	return bc.spf
 }

@@ -27,14 +27,15 @@ import (
 // WrappedBlockchain is a struct that wraps the core blockchain with additional
 // application context.
 type WrappedBlockchain struct {
-	core.Blockchain           // chain is the core blockchain.
+	core.Blockchain // chain is the core blockchain.
+	spf             core.StatePluginFactory
 	app             txDecoder // App is the application context.
 }
 
 // New creates a new instance of WrappedBlockchain with the provided core blockchain
 // and application context.
-func New(chain core.Blockchain, app txDecoder) *WrappedBlockchain {
-	return &WrappedBlockchain{Blockchain: chain, app: app}
+func New(chain core.Blockchain, spf core.StatePluginFactory, app txDecoder) *WrappedBlockchain {
+	return &WrappedBlockchain{Blockchain: chain, spf: spf, app: app}
 }
 
 func (wbc *WrappedBlockchain) SetBlockchain(chain core.Blockchain) {

@@ -21,7 +21,6 @@
 package runtime
 
 import (
-	"context"
 	"time"
 
 	cosmoslog "cosmossdk.io/log"
@@ -56,7 +55,6 @@ type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
 	Setup(core.Blockchain, *txpool.Mempool) error
 	GetStatePluginFactory() core.StatePluginFactory
-	SetLatestQueryContext(context.Context) error
 	GetHost() core.PolarisHostChain
 }
 
@@ -142,7 +140,7 @@ func (p *Polaris) Build(
 		allowedValMsgs,
 	)
 	p.WrappedBlockchain = chain.New(
-		p.ExecutionLayer.Backend().Blockchain(), app,
+		p.ExecutionLayer.Backend().Blockchain(), ek.GetHost().GetStatePluginFactory(), app,
 	)
 
 	p.ProposalProvider = polarabci.NewProposalProvider(
@@ -224,5 +222,8 @@ func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint6
 		WithBlockHeight(int64(appHeight)).
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
-	return p.Backend().Blockchain().LoadLastState(cmsCtx, appHeight)
+
+	// Prime the plugins with the loaded last state and ride.
+	p.Backend().Blockchain().PrimePlugins(cmsCtx)
+	return p.Backend().Blockchain().LoadLastState(appHeight)
 }

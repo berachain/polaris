@@ -74,8 +74,10 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 		}, err
 	}
 
-	spf := wbc.StatePluginFactory()
-	spf.SetInsertChainContext(ctx)
+	// Set the context on which the block will be inserted, without setting head. Prime the plugins
+	// so that the StateProcessor can read the latest state correctly.
+	wbc.spf.SetInsertChainContext(ctx)
+	wbc.PrimePlugins(ctx)
 
 	// Insert the block into the chain.å
 	if err = wbc.InsertBlockWithoutSetHead(block); err != nil {

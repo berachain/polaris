@@ -34,25 +34,14 @@ import (
 
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
-	LoadLastState(context.Context, uint64) error
-	WriteGenesisBlockWithContext(ctx context.Context, block *ethtypes.Block) error
+	PrimePlugins(ctx context.Context)
+	LoadLastState(uint64) error
 	WriteGenesisBlock(block *ethtypes.Block) error
-	InsertBlockAndSetHeadWithContext(
-		ctx context.Context, block *ethtypes.Block,
-	) error
 	InsertBlockAndSetHead(block *ethtypes.Block) error
 	InsertBlockWithoutSetHead(block *ethtypes.Block) error
 	WriteBlockAndSetHead(block *ethtypes.Block, receipts []*ethtypes.Receipt, logs []*ethtypes.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
-}
-
-// WriteGenesisBlockWithContext inserts the genesis block
-// into the blockchain using the given context for receipts and logs.
-func (bc *blockchain) WriteGenesisBlockWithContext(
-	ctx context.Context, block *ethtypes.Block) error {
-	// Get the state with the latest finalize block context
-	bc.preparePlugins(ctx)
-	return bc.WriteGenesisBlock(block)
+	SetFinalizedBlock() error
 }
 
 // WriteGenesisBlock inserts the genesis block into the blockchain.
@@ -111,17 +100,6 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 	return receipts, logs, nil
 }
 
-// InsertBlockAndSetHeadWithContext inserts the genesis block
-// into the blockchain using the given context for receipts and logs.
-// It also sets the head of the blockchain to the given block.
-func (bc *blockchain) InsertBlockAndSetHeadWithContext(
-	ctx context.Context, block *ethtypes.Block,
-) error {
-	// Get the state with the latest finalize block context
-	bc.preparePlugins(ctx)
-	return bc.InsertBlockAndSetHead(block)
-}
-
 // InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
 func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
 	// Get the state with the latest finalize block context.
@@ -132,9 +110,9 @@ func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
 	if err != nil {
 		return err
 	}
+
 	// We can just immediately finalize the block. It's okay in this context.
-	if _, err = bc.WriteBlockAndSetHead(
-		block, receipts, logs, state, true); err != nil {
+	if _, err = bc.WriteBlockAndSetHead(block, receipts, logs, state, true); err != nil {
 		log.Error("failed to write block", "num", block.NumberU64(), "err", err)
 		return err
 	}
@@ -267,5 +245,14 @@ func (bc *blockchain) writeHistoricalData(
 		}
 	}
 
+	return nil
+}
+
+// For clarity reasons, the host chain makes a separate call to finalize the block. Only called
+// once it is known the current block is the finalized block.
+func (bc *blockchain) SetFinalizedBlock() error {
+	if currBlock := bc.currentBlock.Load(); currBlock != nil {
+		bc.finalizedBlock.Store(currBlock)
+	}
 	return nil
 }

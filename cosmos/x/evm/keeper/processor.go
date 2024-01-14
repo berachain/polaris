@@ -69,10 +69,14 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	defer telemetry.ModuleMeasureSince(evmtypes.ModuleName,
 		time.Now(), evmtypes.MetricKeyInsertBlockAndSetHead)
 
-	// Set the finalize block context on the state plugin factory.
+	// Set the finalize block context on the state plugin factory. Set the finalize block context,
+	// which will be written to by InsertBlockAndSetHead. This is a runMsgs cache context, which is
+	// only written once ProcessPayloadEnvelope executes without error.
 	k.spf.SetFinalizeBlockContext(ctx)
+	k.chain.PrimePlugins(ctx)
+
 	// Insert the finalized block and set the chain head.
-	if err = k.chain.InsertBlockAndSetHeadWithContext(ctx, block); err != nil {
+	if err = k.chain.InsertBlockAndSetHead(block); err != nil {
 		return nil, err
 	}
 
