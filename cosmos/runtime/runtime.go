@@ -21,7 +21,6 @@
 package runtime
 
 import (
-	"context"
 	"time"
 
 	cosmoslog "cosmossdk.io/log"
@@ -56,7 +55,6 @@ type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
 	Setup(core.Blockchain, *txpool.Mempool) error
 	GetStatePluginFactory() core.StatePluginFactory
-	SetLatestQueryContext(context.Context) error
 	GetHost() core.PolarisHostChain
 }
 

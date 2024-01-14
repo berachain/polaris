@@ -46,7 +46,11 @@ func (k *Keeper) EndBlock(ctx context.Context) error {
 }
 
 // SetLatestQueryContext runs on the Cosmos-SDK lifecycle PrepareCheckState() during ABCI Commit.
-func (k *Keeper) SetLatestQueryContext(ctx context.Context) error {
+func (k *Keeper) PrepareCheckState(ctx context.Context) error {
 	k.spf.SetLatestQueryContext(ctx)
+	k.bp.Prepare(ctx)
+	if k.hp != nil {
+		k.hp.Prepare(ctx)
+	}
 	return nil
 }

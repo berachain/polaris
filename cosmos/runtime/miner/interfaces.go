@@ -21,8 +21,6 @@
 package miner
 
 import (
-	"context"
-
 	"github.com/berachain/polaris/eth/core"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -45,7 +43,6 @@ type (
 	EVMKeeper interface {
 		// Setup initializes the EVM keeper.
 		Setup(core.Blockchain) error
-		SetLatestQueryContext(context.Context) error
 		GetHost() core.PolarisHostChain
 	}
 )
