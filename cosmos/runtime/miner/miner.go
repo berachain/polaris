@@ -27,6 +27,7 @@ import (
 
 	"github.com/cosmos/gogoproto/proto"
 
+	"github.com/berachain/polaris/cosmos/runtime/txpool"
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/core"
 
@@ -34,7 +35,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/berachain/polaris/cosmos/runtime/txpool"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/miner"

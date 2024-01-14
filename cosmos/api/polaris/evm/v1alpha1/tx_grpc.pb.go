@@ -31,6 +31,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -48,7 +49,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MsgServiceClient interface {
 	// EthTransaction defines a method submitting Ethereum transactions.
-	EthTransaction(ctx context.Context, in *WrappedEthereumTransaction, opts ...grpc.CallOption) (*WrappedEthereumTransactionResult, error)
+	EthTransaction(ctx context.Context, in *WrappedEthereumTransaction, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// ProcessPayloadEnvelope defines a method to process CL paylods.
 	ProcessPayloadEnvelope(ctx context.Context, in *WrappedPayloadEnvelope, opts ...grpc.CallOption) (*WrappedPayloadEnvelopeResponse, error)
 }
@@ -61,8 +62,8 @@ func NewMsgServiceClient(cc grpc.ClientConnInterface) MsgServiceClient {
 	return &msgServiceClient{cc}
 }
 
-func (c *msgServiceClient) EthTransaction(ctx context.Context, in *WrappedEthereumTransaction, opts ...grpc.CallOption) (*WrappedEthereumTransactionResult, error) {
-	out := new(WrappedEthereumTransactionResult)
+func (c *msgServiceClient) EthTransaction(ctx context.Context, in *WrappedEthereumTransaction, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, MsgService_EthTransaction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -84,7 +85,7 @@ func (c *msgServiceClient) ProcessPayloadEnvelope(ctx context.Context, in *Wrapp
 // for forward compatibility
 type MsgServiceServer interface {
 	// EthTransaction defines a method submitting Ethereum transactions.
-	EthTransaction(context.Context, *WrappedEthereumTransaction) (*WrappedEthereumTransactionResult, error)
+	EthTransaction(context.Context, *WrappedEthereumTransaction) (*emptypb.Empty, error)
 	// ProcessPayloadEnvelope defines a method to process CL paylods.
 	ProcessPayloadEnvelope(context.Context, *WrappedPayloadEnvelope) (*WrappedPayloadEnvelopeResponse, error)
 	mustEmbedUnimplementedMsgServiceServer()
@@ -94,7 +95,7 @@ type MsgServiceServer interface {
 type UnimplementedMsgServiceServer struct {
 }
 
-func (UnimplementedMsgServiceServer) EthTransaction(context.Context, *WrappedEthereumTransaction) (*WrappedEthereumTransactionResult, error) {
+func (UnimplementedMsgServiceServer) EthTransaction(context.Context, *WrappedEthereumTransaction) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EthTransaction not implemented")
 }
 func (UnimplementedMsgServiceServer) ProcessPayloadEnvelope(context.Context, *WrappedPayloadEnvelope) (*WrappedPayloadEnvelopeResponse, error) {

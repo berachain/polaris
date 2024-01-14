@@ -26,10 +26,16 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 )
 
-var zero = uint64(0)
+const (
+	artioChainID = 80005
+)
+
+var (
+	zero = uint64(0)
+)
 
 var DefaultChainConfig = &params.ChainConfig{
-	ChainID:                       big.NewInt(80085),
+	ChainID:                       big.NewInt(artioChainID),
 	HomesteadBlock:                big.NewInt(0),
 	DAOForkBlock:                  big.NewInt(0),
 	DAOForkSupport:                true,

@@ -67,7 +67,7 @@ var _ = Describe("Genesis", func() {
 	BeforeEach(func() {
 		ctx, ak, _, _ = testutil.SetupMinimalKeepers(log.NewTestLogger(GinkgoT()))
 		ctx = ctx.WithBlockHeight(0)
-		cfg := config.DefaultConfig()
+		cfg := config.DefaultPolarisConfig()
 		ethGen.Config = params.DefaultChainConfig
 		cfg.Node.DataDir = GinkgoT().TempDir()
 		cfg.Node.KeyStoreDir = GinkgoT().TempDir()

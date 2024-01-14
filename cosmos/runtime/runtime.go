@@ -137,7 +137,9 @@ func (p *Polaris) Build(
 ) error {
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
 	p.WrappedMiner = miner.New(
-		p.ExecutionLayer.Backend().Miner(), app,
+		p.ExecutionLayer.Backend().Miner(),
+		p.WrappedTxPool,
+		app,
 		ek.GetHost().GetStatePluginFactory(),
 		allowedValMsgs,
 	)
