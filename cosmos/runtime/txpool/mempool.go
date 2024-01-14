@@ -169,15 +169,18 @@ func (m *Mempool) processInserts() {
 		case <-m.stopInsertCh:
 			return
 		case <-ticker.C:
+			var errs []error
 			if !(m.pauseInserts.Load()) {
 				// Duplicates (i.e locals) will error and
 				// not be ignore.
+				errs = m.txpool.Add(txs, false, false)
 				m.receivedFromCometAtMu.Lock()
-				for _, tx := range txs {
-					m.receivedFromCometAt[tx.Hash()] = time.Now()
+				for i, tx := range txs {
+					if errs[i] == nil {
+						m.receivedFromCometAt[tx.Hash()] = time.Now()
+					}
 				}
 				m.receivedFromCometAtMu.Unlock()
-				_ = m.txpool.Add(txs, false, false)
 				txs = make([]*ethtypes.Transaction, 0)
 			}
 			continue
