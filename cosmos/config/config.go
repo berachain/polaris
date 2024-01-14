@@ -26,8 +26,6 @@ import (
 	"github.com/berachain/polaris/cosmos/config/flags"
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/accounts"
-	"github.com/berachain/polaris/eth/node"
-	"github.com/berachain/polaris/eth/polar"
 
 	sdkflags "github.com/cosmos/cosmos-sdk/client/flags"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -47,17 +45,6 @@ func SetupCosmosConfig() {
 	config.SetCoinType(accounts.Bip44CoinType)
 	config.SetPurpose(sdk.Purpose)
 	config.Seal()
-}
-
-// DefaultConfig returns the default configuration for a polaris chain.
-func DefaultConfig() *Config {
-	nodeCfg := node.DefaultConfig()
-	nodeCfg.DataDir = ""
-	nodeCfg.KeyStoreDir = ""
-	return &Config{
-		Polar: *polar.DefaultConfig(),
-		Node:  *nodeCfg,
-	}
 }
 
 // MustReadConfigFromAppOpts reads the configuration options from the given

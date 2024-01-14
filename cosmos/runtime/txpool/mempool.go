@@ -23,6 +23,7 @@ package txpool
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	"cosmossdk.io/log"
@@ -35,6 +36,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
+	"github.com/ethereum/go-ethereum/common"
 	ethtxpool "github.com/ethereum/go-ethereum/core/txpool"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
@@ -65,6 +67,11 @@ type Mempool struct {
 	lifetime time.Duration
 	chain    core.ChainReader
 	handler  Lifecycle
+
+	// when pause inserts is enabled, we use a channel to queue transactions
+	// to be inserted into the txpool after a block is committed.
+	receivedFromCometAt   map[common.Hash]time.Time
+	receivedFromCometAtMu sync.RWMutex
 }
 
 // New creates a new Mempool.
