@@ -23,7 +23,7 @@ package txpool
 import (
 	"context"
 	"errors"
-	"fmt"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -47,6 +47,9 @@ var (
 	_ Lifecycle       = (*Mempool)(nil)
 )
 
+const insertTicker = 1000 * time.Millisecond
+const queueSize = 30000
+
 // Lifecycle represents a lifecycle object.
 type Lifecycle interface {
 	Start() error
@@ -63,6 +66,7 @@ type GethTxPool interface {
 // is to allow for transactions coming in from CometBFT's gossip to be added to the underlying
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
+	logger   log.Logger
 	txpool   eth.TxPool
 	lifetime time.Duration
 	chain    core.ChainReader
@@ -70,19 +74,26 @@ type Mempool struct {
 
 	// when pause inserts is enabled, we use a channel to queue transactions
 	// to be inserted into the txpool after a block is committed.
-	pauseInserts        atomic.Bool
-	insertQueue         chan *ethtypes.Transaction
-	receivedFromCometAt map[common.Hash]time.Time
-	stopInsertCh        chan struct{}
+	pauseInserts          atomic.Bool
+	insertQueue           chan *ethtypes.Transaction
+	receivedFromCometAt   map[common.Hash]time.Time
+	stopInsertCh          chan struct{}
+	receivedFromCometAtMu sync.RWMutex // new mutex
+	// ...
+	wg sync.WaitGroup // new WaitGroup
 }
 
 // New creates a new Mempool.
-func New(chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration) *Mempool {
+func New(
+	logger log.Logger, chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration,
+) *Mempool {
 	return &Mempool{
-		txpool:              txpool,
-		chain:               chain,
-		lifetime:            lifetime,
-		insertQueue:         make(chan *ethtypes.Transaction, 30000), // TODO: needs to be equal to comet mempoool size.
+		logger:   logger,
+		txpool:   txpool,
+		chain:    chain,
+		lifetime: lifetime,
+		// TODO: needs to be equal to comet mempoool size.
+		insertQueue:         make(chan *ethtypes.Transaction, queueSize),
 		pauseInserts:        atomic.Bool{},
 		stopInsertCh:        make(chan struct{}),
 		receivedFromCometAt: make(map[common.Hash]time.Time),
@@ -107,6 +118,7 @@ func (m *Mempool) Start() error {
 // Stop stops the Mempool TxHandler.
 func (m *Mempool) Stop() error {
 	m.stopInsertCh <- struct{}{}
+	m.wg.Wait() // wait for processInserts to stop
 	return m.handler.Stop()
 }
 
@@ -126,8 +138,16 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	}
 
 	// If we already have the transaction in the txpool, we can return early.
-	ethTxHash := wet.Unwrap().Hash()
+	ethTx := wet.Unwrap()
+	if ethTx == nil {
+		return errors.New("wraped tx is nil")
+	}
+
+	// Track time it entered from comet.
+	ethTxHash := ethTx.Hash()
+	m.receivedFromCometAtMu.Lock()
 	m.receivedFromCometAt[ethTxHash] = time.Now()
+	m.receivedFromCometAtMu.Unlock()
 
 	// If the tx is a local, or has been gossiped again for some reason. We ignore it.
 	if m.txpool.Has(ethTxHash) {
@@ -140,7 +160,6 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	case <-sCtx.Done():
 		return sCtx.Err()
 	case m.insertQueue <- wet.Unwrap():
-		fmt.Println("INSERTING", wet.Unwrap().Hash().Hex())
 		return nil
 	}
 }
@@ -149,8 +168,12 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 // this is basically used to process remote transactions
 // incoming from comet.
 func (m *Mempool) processInserts() {
+	m.wg.Add(1)
+	defer m.wg.Done()
+
 	txs := make([]*ethtypes.Transaction, 0)
-	ticker := time.NewTicker(500 * time.Millisecond)
+	ticker := time.NewTicker(insertTicker)
+	defer ticker.Stop() // stop ticker
 	for {
 		select {
 		case <-m.stopInsertCh:

@@ -30,7 +30,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/txpool"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -62,28 +61,23 @@ func (m *Mempool) shouldEjectFromCometMempool(
 		return false
 	}
 	txHash := tx.Hash()
-	txStatus := m.txStatus(txHash)
 
 	// Ejection conditions
 	// 1. If the transaction has been included in a block.
-	// 2. If the transaction is unknown to the node.
-	// 3. If the transaction has been in the mempool for longer than the configured timeout. (txs view).
-	// 4, If the transaction has been in the mempool for longer than the configured timeout. (our view).
-	return txStatus == txpool.TxStatusIncluded || /*txStatus == txpool.TxStatusUnknown || */ //until fixed.
-		currentTime.Sub(tx.Time()) > m.lifetime || currentTime.Sub(m.receivedFromCometAt[txHash]) > m.lifetime
+	// 2. If the transaction has been in the mempool for longer
+	// than the configured timeout. (txs view).
+	// 3, If the transaction has been in the mempool for longer
+	// than the configured timeout. (our view).
+	m.receivedFromCometAtMu.RLock()
+	cometTime := m.receivedFromCometAt[txHash]
+	m.receivedFromCometAtMu.RLock()
+	return m.inCanonicalChain(txHash) ||
+		currentTime.Sub(tx.Time()) > m.lifetime ||
+		currentTime.Sub(cometTime) > m.lifetime
 }
 
 // txStatus returns the status of the transaction.
-func (m *Mempool) txStatus(hash common.Hash) txpool.TxStatus {
-	// Looking for the transaction in txpool first.
-	// status := m.txpool.Status(hash)
-	var status txpool.TxStatus
-	// If the transaction is unknown to the pool, try looking it up locally.
-	if status == txpool.TxStatusUnknown {
-		lookup := m.chain.GetTransactionLookup(hash)
-		if lookup != nil {
-			status = txpool.TxStatusIncluded
-		}
-	}
-	return status
+func (m *Mempool) inCanonicalChain(hash common.Hash) bool {
+	lookup := m.chain.GetTransactionLookup(hash)
+	return lookup != nil
 }

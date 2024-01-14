@@ -22,7 +22,6 @@ package txpool
 
 import (
 	"errors"
-	"fmt"
 	"sync/atomic"
 	"time"
 
@@ -223,8 +222,6 @@ func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
 		h.failedTxs <- &failedTx{tx: tx, retries: retries}
 		return
 	}
-
-	fmt.Println("BROADCASTING", tx.Hash().Hex(), "WITH CODE", rsp.Code)
 	if rsp == nil || rsp.Code == 0 {
 		return
 	}
