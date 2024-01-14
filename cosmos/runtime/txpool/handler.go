@@ -220,7 +220,7 @@ func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
 		h.logger.Error("error on transactions broadcast", "err", err)
 		h.failedTxs <- &failedTx{tx: tx, retries: retries}
 		return
-	} else if rsp == nil {
+	} if rsp == nil {
 		return
 	}
 
