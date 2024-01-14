@@ -143,16 +143,16 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		return errors.New("wraped tx is nil")
 	}
 
-	// Track time it entered from comet.
-	ethTxHash := ethTx.Hash()
-	m.receivedFromCometAtMu.Lock()
-	m.receivedFromCometAt[ethTxHash] = time.Now()
-	m.receivedFromCometAtMu.Unlock()
-
 	// If the tx is a local, or has been gossiped again for some reason. We ignore it.
+	ethTxHash := ethTx.Hash()
 	if m.txpool.Has(ethTxHash) {
 		return nil
 	}
+
+	// Track time it entered from comet.=
+	m.receivedFromCometAtMu.Lock()
+	m.receivedFromCometAt[ethTxHash] = time.Now()
+	m.receivedFromCometAtMu.Unlock()
 
 	// If we are currently protecting against block inserts, we queue the transaction
 	// to be inserted until after we are ready.
