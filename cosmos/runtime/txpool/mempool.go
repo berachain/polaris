@@ -111,10 +111,30 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		return errors.New("only one message is supported")
 	}
 
-	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); !ok {
+	wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0])
+	if !ok {
 		// We have to return nil for non-ethereum transactions as to not fail check-tx.
 		return nil
-	} else if errs := m.txpool.Add(
+	}
+
+	// If we already have the transaction in the txpool, we can return early.
+	ethTx := wet.Unwrap()
+	if ethTx == nil {
+		return errors.New("wraped tx is nil")
+	}
+
+	// Track time it entered from comet.
+	ethTxHash := ethTx.Hash()
+	m.receivedFromCometAtMu.Lock()
+	m.receivedFromCometAt[ethTxHash] = time.Now()
+	m.receivedFromCometAtMu.Unlock()
+
+	// If the tx is a local, or has been gossiped again for some reason. We ignore it.
+	if m.txpool.Has(ethTxHash) {
+		return nil
+	}
+
+	if errs := m.txpool.Add(
 		[]*ethtypes.Transaction{wet.Unwrap()}, false, false,
 	); len(errs) != 0 {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
