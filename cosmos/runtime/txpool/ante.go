@@ -42,7 +42,6 @@ func (m *Mempool) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
 	msgs := tx.GetMsgs()
-	// Record the time it takes to build a payload.
 
 	// We only want to eject transactions from comet on recheck.
 	if ctx.ExecMode() == sdk.ExecModeCheck || ctx.ExecMode() == sdk.ExecModeReCheck {

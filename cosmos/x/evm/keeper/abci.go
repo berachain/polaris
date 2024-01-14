@@ -45,7 +45,7 @@ func (k *Keeper) EndBlock(ctx context.Context) error {
 
 	// TODO: Verify all included transactions are now evicted from geth mempool?
 
-	return nil
+	return k.chain.SetFinalizedBlock()
 }
 
 // PrepareCheckState runs on the Cosmos-SDK lifecycle PrepareCheckState() during ABCI Commit.
