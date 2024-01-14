@@ -24,7 +24,6 @@ import (
 	"context"
 	"errors"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"cosmossdk.io/log"
@@ -74,19 +73,20 @@ type Mempool struct {
 
 	// when pause inserts is enabled, we use a channel to queue transactions
 	// to be inserted into the txpool after a block is committed.
-	pauseInserts          *atomic.Bool
 	insertQueue           chan *ethtypes.Transaction
 	receivedFromCometAt   map[common.Hash]time.Time
 	stopInsertCh          chan struct{}
 	receivedFromCometAtMu sync.RWMutex // new mutex
 	// ...
 	wg sync.WaitGroup // new WaitGroup
+
+	safetyLock *sync.RWMutex
 }
 
 // New creates a new Mempool.
 func New(
 	logger log.Logger, chain core.ChainReader, txpool eth.TxPool,
-	lifetime time.Duration, pauseInserts *atomic.Bool,
+	lifetime time.Duration, safetyLock *sync.RWMutex,
 ) *Mempool {
 	return &Mempool{
 		logger:   logger,
@@ -95,9 +95,9 @@ func New(
 		lifetime: lifetime,
 		// TODO: needs to be equal to comet mempoool size.
 		insertQueue:         make(chan *ethtypes.Transaction, queueSize),
-		pauseInserts:        pauseInserts,
 		stopInsertCh:        make(chan struct{}),
 		receivedFromCometAt: make(map[common.Hash]time.Time),
+		safetyLock:          safetyLock,
 	}
 }
 
@@ -169,20 +169,23 @@ func (m *Mempool) processInserts() {
 		case <-m.stopInsertCh:
 			return
 		case <-ticker.C:
-			var errs []error
-			if !(m.pauseInserts.Load()) {
-				// Duplicates (i.e locals) will error and
-				// not be ignore.
-				errs = m.txpool.Add(txs, false, false)
-				m.receivedFromCometAtMu.Lock()
-				for i, tx := range txs {
-					if errs[i] == nil {
-						m.receivedFromCometAt[tx.Hash()] = time.Now()
-					}
+			// We treat this as a "read", because we want
+			// prepare proposal to always win thie lock contention here.
+			m.safetyLock.RLock()
+			errs := m.txpool.Add(txs, false, false)
+			m.safetyLock.RUnlock()
+
+			// We then update the last received time for each transaction.
+			m.receivedFromCometAtMu.Lock()
+			for i, err := range errs {
+				// If we don't error on insert,
+				// we can record the time we received the transaction.
+				if err == nil {
+					m.receivedFromCometAt[txs[i].Hash()] = time.Now()
 				}
-				m.receivedFromCometAtMu.Unlock()
-				txs = make([]*ethtypes.Transaction, 0)
 			}
+			m.receivedFromCometAtMu.Unlock()
+			txs = make([]*ethtypes.Transaction, 0)
 			continue
 		case tx := <-m.insertQueue:
 			txs = append(txs, tx)

@@ -23,7 +23,7 @@ package miner
 
 import (
 	"context"
-	"sync/atomic"
+	"sync"
 	"time"
 
 	"github.com/cosmos/gogoproto/proto"
@@ -50,14 +50,14 @@ type Miner struct {
 	valTxSelector  baseapp.TxSelector
 	serializer     EnvelopeSerializer
 	allowedValMsgs map[string]sdk.Msg
-	pauseInserts   *atomic.Bool
 	currentPayload *miner.Payload
+	txPoolSafety   *sync.RWMutex
 }
 
 // New produces a cosmos miner from a geth miner.
 func New(
 	miner eth.Miner, txPool *txpool.Mempool, app TxDecoder, spf core.StatePluginFactory,
-	allowedValMsgs map[string]sdk.Msg, pauseInserts *atomic.Bool,
+	allowedValMsgs map[string]sdk.Msg, safetyLock *sync.RWMutex,
 ) *Miner {
 	return &Miner{
 		txPool:         txPool,
@@ -66,7 +66,7 @@ func New(
 		spf:            spf,
 		allowedValMsgs: allowedValMsgs,
 		valTxSelector:  baseapp.NewDefaultTxSelector(),
-		pauseInserts:   pauseInserts,
+		txPoolSafety:   safetyLock,
 	}
 }
 
@@ -80,9 +80,8 @@ func (m *Miner) Init(serializer EnvelopeSerializer) {
 func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 	defer m.clearPayload()
 
-	// Pause inserts into the txpool while the miner builds the block.
-	m.pauseInserts.Store(true)
-	defer m.pauseInserts.Store(false)
+	m.txPoolSafety.Lock()
+	defer m.txPoolSafety.Unlock()
 
 	// Record the time it takes to build a payload.
 	defer telemetry.MeasureSince(time.Now(), MetricKeyBuildBlock)
