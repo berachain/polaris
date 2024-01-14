@@ -25,6 +25,8 @@ import (
 	"fmt"
 	"time"
 
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -83,6 +85,6 @@ func (k *Keeper) ProcessPayloadEnvelope(
 // for the cosmos-sdk to not freak out.
 func (k *Keeper) EthTransaction(
 	context.Context, *evmtypes.WrappedEthereumTransaction,
-) (*evmtypes.WrappedEthereumTransactionResult, error) {
-	panic("intentionally not implemented")
+) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
 }
