@@ -144,23 +144,12 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		return errors.New("wraped tx is nil")
 	}
 
-	// If the tx is a local, or has been gossiped again for some reason. We ignore it.
-	ethTxHash := ethTx.Hash()
-	if m.txpool.Has(ethTxHash) {
-		return nil
-	}
-
-	// Track time it entered from comet.
-	m.receivedFromCometAtMu.Lock()
-	m.receivedFromCometAt[ethTxHash] = time.Now()
-	m.receivedFromCometAtMu.Unlock()
-
 	// If we are currently protecting against block inserts, we queue the transaction
 	// to be inserted until after we are ready.
 	select {
 	case <-sCtx.Done():
 		return sCtx.Err()
-	case m.insertQueue <- wet.Unwrap():
+	case m.insertQueue <- ethTx:
 		return nil
 	}
 }
@@ -183,6 +172,11 @@ func (m *Mempool) processInserts() {
 			if !(m.pauseInserts.Load()) {
 				// Duplicates (i.e locals) will error and
 				// not be ignore.
+				m.receivedFromCometAtMu.Lock()
+				for _, tx := range txs {
+					m.receivedFromCometAt[tx.Hash()] = time.Now()
+				}
+				m.receivedFromCometAtMu.Unlock()
 				_ = m.txpool.Add(txs, false, false)
 				txs = make([]*ethtypes.Transaction, 0)
 			}
