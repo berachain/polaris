@@ -46,6 +46,7 @@ func (m *Mempool) AnteHandle(
 	if ctx.ExecMode() == sdk.ExecModeReCheck {
 		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
 			if m.shouldEjectFromCometMempool(ctx.BlockTime(), wet.Unwrap()) {
+				delete(m.receivedFromCometAt, wet.Unwrap().Hash())
 				return ctx, errors.New("eject from comet mempool")
 			}
 		}
@@ -60,21 +61,23 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	if tx == nil {
 		return false
 	}
-	txStatus := m.txStatus(tx.Hash())
+	txHash := tx.Hash()
+	txStatus := m.txStatus(txHash)
 
 	// Ejection conditions
 	// 1. If the transaction has been included in a block.
 	// 2. If the transaction is unknown to the node.
-	// 3. If the transaction has been in the mempool for longer than the configured timeout.
+	// 3. If the transaction has been in the mempool for longer than the configured timeout. (txs view).
+	// 4, If the transaction has been in the mempool for longer than the configured timeout. (our view).
 	return txStatus == txpool.TxStatusIncluded || txStatus == txpool.TxStatusUnknown ||
-		currentTime.Sub(tx.Time()) > m.lifetime
+		currentTime.Sub(tx.Time()) > m.lifetime || currentTime.Sub(m.receivedFromCometAt[txHash]) > m.lifetime
 }
 
 // txStatus returns the status of the transaction.
 func (m *Mempool) txStatus(hash common.Hash) txpool.TxStatus {
 	// Looking for the transaction in txpool first.
-	status := m.txpool.Status(hash)
-
+	// status := m.txpool.Status(hash)
+	var status txpool.TxStatus
 	// If the transaction is unknown to the pool, try looking it up locally.
 	if status == txpool.TxStatusUnknown {
 		lookup := m.chain.GetTransactionLookup(hash)

@@ -38,7 +38,7 @@ contract DeployAndConsumeGas is Script {
     ConsumeGas drop = new ConsumeGas();
 
     for (uint256 i = 0; i < 1000; i++) {
-      drop.consumeGas(300000);
+      drop.consumeGas(67000);
     }
 
     vm.stopBroadcast();

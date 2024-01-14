@@ -42,7 +42,7 @@ var DefaultGenesis = &core.Genesis{
 	Timestamp: 0,
 	ExtraData: hexutil.MustDecode(
 		"0x11bbe8db4e347b4e8c937c1c8370e4b5ed33adb3db69cbdb7a38e1e50b1b82fa"),
-	GasLimit:   30_000_000, //nolint:gomnd // its okay.
+	GasLimit:   100_000_000, //nolint:gomnd // its okay.
 	Difficulty: big.NewInt(0),
 	Mixhash:    common.Hash{},
 	Coinbase:   common.Address{},

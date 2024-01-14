@@ -21,6 +21,8 @@
 package config
 
 import (
+	"time"
+
 	"github.com/berachain/polaris/eth/node"
 	"github.com/berachain/polaris/eth/polar"
 
@@ -33,11 +35,18 @@ import (
 // for the application.
 func RecommendedCometBFTConfig() *cmtcfg.Config {
 	cfg := cmtcfg.DefaultConfig()
-	cfg.Mempool.Size = 30000
-	cfg.Mempool.CacheSize = 30000
+	cfg.Mempool.Size = 50000
+	cfg.Mempool.CacheSize = 50000
 	cfg.Mempool.Recheck = true
 	cfg.Mempool.Type = "flood"
 
+	cfg.Consensus.TimeoutPropose = 4000 * time.Millisecond
+	cfg.Consensus.TimeoutProposeDelta = 100 * time.Millisecond
+	cfg.Consensus.TimeoutPrevote = 1000 * time.Millisecond
+	cfg.Consensus.TimeoutPrevoteDelta = 100 * time.Millisecond
+	cfg.Consensus.TimeoutPrecommit = 1000 * time.Millisecond
+	cfg.Consensus.TimeoutPrecommitDelta = 100 * time.Millisecond
+	cfg.Consensus.TimeoutCommit = 1000 * time.Millisecond
 	cfg.P2P.MaxNumInboundPeers = 10
 	cfg.P2P.MaxNumOutboundPeers = 15
 
