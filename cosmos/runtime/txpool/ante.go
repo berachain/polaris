@@ -69,7 +69,7 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	// 2. If the transaction is unknown to the node.
 	// 3. If the transaction has been in the mempool for longer than the configured timeout. (txs view).
 	// 4, If the transaction has been in the mempool for longer than the configured timeout. (our view).
-	return txStatus == txpool.TxStatusIncluded || txStatus == txpool.TxStatusUnknown ||
+	return txStatus == txpool.TxStatusIncluded || /*txStatus == txpool.TxStatusUnknown || */ //until fixed.
 		currentTime.Sub(tx.Time()) > m.lifetime || currentTime.Sub(m.receivedFromCometAt[txHash]) > m.lifetime
 }
 
