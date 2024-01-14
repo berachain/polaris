@@ -42,7 +42,7 @@ import (
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
-	evmmodulev1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/module/v1alpha1"
+	evmmodulev1alpha1 "github.com/berachain/polaris/cosmos/api/api/polaris/evm/module/v1alpha1"
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 
 	"github.com/cosmos/cosmos-sdk/runtime"

@@ -33,7 +33,7 @@ import (
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 
-	evmv1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/v1alpha1"
+	evmv1alpha1 "github.com/berachain/polaris/cosmos/api/api/polaris/evm/v1alpha1"
 	evmconfig "github.com/berachain/polaris/cosmos/config"
 	ethcryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
 	signinglib "github.com/berachain/polaris/cosmos/lib/signing"
@@ -130,7 +130,6 @@ func NewPolarisApp(
 		appConfig = depinject.Configs(
 			MakeAppConfig(bech32Prefix),
 			depinject.Provide(
-				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedEthereumTransaction],
 				signinglib.ProvideNoopGetSigners[*evmv1alpha1.WrappedPayloadEnvelope],
 			),
 			depinject.Supply(

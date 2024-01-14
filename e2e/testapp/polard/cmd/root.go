@@ -31,7 +31,7 @@ import (
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 
-	evmv1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/v1alpha1"
+	evmv1alpha1 "github.com/berachain/polaris/cosmos/api/api/polaris/evm/v1alpha1"
 	polarconfig "github.com/berachain/polaris/cosmos/config"
 	ethcryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
 	polarkeyring "github.com/berachain/polaris/cosmos/crypto/keyring"

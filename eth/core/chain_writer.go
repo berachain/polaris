@@ -140,12 +140,6 @@ func (bc *blockchain) WriteBlockAndSetHead(
 	// Set the current block.
 	bc.currentBlock.Store(block)
 
-	// TODO: this is fine to do here but not really semantically correct
-	// and is very confusing.
-	// For clarity reasons, we should make the cosmos chain make a separate call
-	// to finalize the block.
-	bc.finalizedBlock.Store(block)
-
 	// Store txLookup entries for all transactions in the block.
 	blockNum := block.NumberU64()
 	blockHash := block.Hash()

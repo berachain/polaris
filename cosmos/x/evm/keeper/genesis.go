@@ -34,7 +34,7 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 	genState.Config = k.chain.Config()
 
 	// Initialize all the plugins.
-	for _, plugin := range k.Host.GetAllPlugins() {
+	for _, plugin := range k.Host.getAllPlugins() {
 		// checks whether plugin implements methods of HasGenesis and executes them if it does
 		if plugin, ok := utils.GetAs[plugins.HasGenesis](plugin); ok {
 			if err := plugin.InitGenesis(ctx, genState); err != nil {
@@ -51,7 +51,7 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 // ExportGenesis returns the exported genesis state.
 func (k *Keeper) ExportGenesis(ctx sdk.Context) *core.Genesis {
 	genesisState := new(core.Genesis)
-	for _, plugin := range k.Host.GetAllPlugins() {
+	for _, plugin := range k.Host.getAllPlugins() {
 		if plugin, ok := utils.GetAs[plugins.HasGenesis](plugin); ok {
 			plugin.ExportGenesis(ctx, genesisState)
 		}

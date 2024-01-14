@@ -29,17 +29,8 @@ option go_package = "github.com/berachain/polaris/cosmos/x/evm/types";
 service MsgService {
   option (cosmos.msg.v1.service) = true;
 
-  // EthTransaction defines a method submitting Ethereum transactions.
-  rpc EthTransaction(WrappedEthereumTransaction) returns (WrappedEthereumTransactionResult);
-
   // ProcessPayloadEnvelope defines a method to process CL paylods.
   rpc ProcessPayloadEnvelope(WrappedPayloadEnvelope) returns (WrappedPayloadEnvelopeResponse);
-}
-
-// WrappedEthereumTransaction encapsulates an Ethereum transaction as an SDK message.
-message WrappedEthereumTransaction {
-  // data is inner transaction data of the Ethereum transaction.
-  bytes data = 1;
 }
 
 // WrappedPayloadEnvelope encapsulates an Ethereum transaction as an SDK message.
@@ -51,5 +42,8 @@ message WrappedPayloadEnvelope {
 // WrappedPayloadEnvelopeResponse defines the block response.
 message WrappedPayloadEnvelopeResponse {}
 
-// WrappedEthereumTransactionResult defines the Msg/EthereumTx response type.
-message WrappedEthereumTransactionResult {}
+// WrappedEthereumTransaction encapsulates an Ethereum transaction as an SDK message.
+message WrappedEthereumTransaction {
+  // data is inner transaction data of the Ethereum transaction.
+  bytes data = 1;
+}

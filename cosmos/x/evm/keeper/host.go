@@ -107,8 +107,8 @@ func (h *Host) GetStatePluginFactory() core.StatePluginFactory {
 	return h.spf
 }
 
-// GetAllPlugins returns all the plugins.
-func (h *Host) GetAllPlugins() []any {
+// getAllPlugins returns all the plugins.
+func (h *Host) getAllPlugins() []any {
 	return []any{h.bp, h.hp, h.pp, h.sp}
 }
 

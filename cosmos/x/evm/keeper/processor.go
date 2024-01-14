@@ -82,11 +82,3 @@ func (k *Keeper) ProcessPayloadEnvelope(
 
 	return &evmtypes.WrappedPayloadEnvelopeResponse{}, nil
 }
-
-// EthTransaction implements the MsgServer interface. It is intentionally a no-op, but is required
-// for the cosmos-sdk to not freak out.
-func (k *Keeper) EthTransaction(
-	context.Context, *evmtypes.WrappedEthereumTransaction,
-) (*evmtypes.WrappedEthereumTransactionResult, error) {
-	panic("intentionally not implemented")
-}

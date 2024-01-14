@@ -25,7 +25,7 @@ import (
 	"cosmossdk.io/depinject"
 	store "cosmossdk.io/store/types"
 
-	modulev1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/module/v1alpha1"
+	modulev1alpha1 "github.com/berachain/polaris/cosmos/api/api/polaris/evm/module/v1alpha1"
 	"github.com/berachain/polaris/cosmos/config"
 	"github.com/berachain/polaris/cosmos/x/evm/keeper"
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
