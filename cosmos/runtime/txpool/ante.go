@@ -73,8 +73,10 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	m.receivedFromCometAtMu.RLock()
 	cometTime := m.receivedFromCometAt[txHash]
 	m.receivedFromCometAtMu.RUnlock()
-	return m.inCanonicalChain(txHash) ||
+
+	shouldEject := m.inCanonicalChain(txHash) ||
 		currentTime.Sub(cometTime) > m.lifetime
+	return shouldEject
 }
 
 // txStatus returns the status of the transaction.

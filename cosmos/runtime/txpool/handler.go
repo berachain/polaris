@@ -222,10 +222,7 @@ func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
 		h.failedTxs <- &failedTx{tx: tx, retries: retries}
 		return
 	}
-
-	// If rsp == 1, likely the txn is already in a block, and thus the broadcast failing is actually
-	// the desired behaviour.
-	if rsp == nil || rsp.Code == 0 || rsp.Code == 1 {
+	if rsp == nil || rsp.Code == 0 {
 		return
 	}
 
