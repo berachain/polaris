@@ -223,7 +223,9 @@ func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
 		return
 	}
 
-	if rsp == nil || rsp.Code == 0 {
+	// If rsp == 1, likely the txn is already in a block, and thus the broadcast failing is actually
+	// the desired behaviour.
+	if rsp == nil || rsp.Code == 0 || rsp.Code == 1 {
 		return
 	}
 
