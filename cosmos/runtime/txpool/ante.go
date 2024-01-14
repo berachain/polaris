@@ -72,7 +72,7 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	// than the configured timeout. (our view).
 	m.receivedFromCometAtMu.RLock()
 	cometTime := m.receivedFromCometAt[txHash]
-	m.receivedFromCometAtMu.RLock()
+	m.receivedFromCometAtMu.RUnlock()
 	return m.inCanonicalChain(txHash) ||
 		currentTime.Sub(tx.Time()) > m.lifetime ||
 		currentTime.Sub(cometTime) > m.lifetime
