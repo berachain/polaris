@@ -80,9 +80,6 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 	// Record the time it takes to build a payload.
 	defer telemetry.MeasureSince(time.Now(), MetricKeyBuildBlock)
 
-	mu := m.txPool.AcquireLock()
-	defer mu.Unlock()
-
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
 		return nil, 0, err
 	}

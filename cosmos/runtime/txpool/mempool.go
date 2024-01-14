@@ -23,7 +23,7 @@ package txpool
 import (
 	"context"
 	"errors"
-	"sync"
+	"sync/atomic"
 	"time"
 
 	"cosmossdk.io/log"
@@ -36,7 +36,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
-	ethtxpool "github.com/ethereum/go-ethereum/core/txpool"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -66,16 +65,21 @@ type Mempool struct {
 	lifetime time.Duration
 	chain    core.ChainReader
 	handler  Lifecycle
-	insertMu *sync.Mutex
+
+	// when pause inserts is enabled, we use a channel to queue transactions
+	// to be inserted into the txpool after a block is committed.
+	pauseInserts atomic.Bool
+	insertQueue  chan *ethtypes.Transaction
 }
 
 // New creates a new Mempool.
 func New(chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration) *Mempool {
 	return &Mempool{
-		txpool:   txpool,
-		chain:    chain,
-		lifetime: lifetime,
-		insertMu: &sync.Mutex{},
+		txpool:       txpool,
+		chain:        chain,
+		lifetime:     lifetime,
+		insertQueue:  make(chan *ethtypes.Transaction, 30000), // TODO: needs to be equal to comet mempoool size.
+		pauseInserts: atomic.Bool{},
 	}
 }
 
@@ -88,14 +92,9 @@ func (m *Mempool) Init(
 	m.handler = newHandler(txBroadcaster, m.txpool, txSerializer, logger)
 }
 
-// AcquireLock returns the insert lock.
-func (m *Mempool) AcquireLock() *sync.Mutex {
-	m.insertMu.Lock()
-	return m.insertMu
-}
-
 // Start starts the Mempool TxHandler.
 func (m *Mempool) Start() error {
+	go m.processInserts(context.Background())
 	return m.handler.Start()
 }
 
@@ -113,20 +112,42 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		return errors.New("only one message is supported")
 	}
 
-	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); !ok {
+	wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0])
+	if !ok {
 		// We have to return nil for non-ethereum transactions as to not fail check-tx.
 		return nil
-	} else if errs := m.txpool.Add(
-		[]*ethtypes.Transaction{wet.Unwrap()}, false, false,
-	); len(errs) != 0 {
-		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
-		if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) && sCtx.ExecMode() == sdk.ExecModeCheck {
-			return nil
-		}
-		return errs[0]
 	}
 
-	return nil
+	// If we are currently protecting against block inserts, we queue the transaction
+	// to be inserted until after we are ready.
+	select {
+	case <-sCtx.Done():
+		return sCtx.Err()
+	case m.insertQueue <- wet.Unwrap():
+		return nil
+	}
+}
+
+// processInserts processes inserts into the txpool.
+func (m *Mempool) processInserts(ctx context.Context) error {
+	txs := make([]*ethtypes.Transaction, 0)
+	timer := time.NewTimer(500 * time.Millisecond)
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-timer.C:
+			if !(m.pauseInserts.Load()) {
+				_ = m.txpool.Add(txs, false, false)
+				txs = make([]*ethtypes.Transaction, 0)
+			}
+			continue
+		case tx := <-m.insertQueue:
+			txs = append(txs, tx)
+		default:
+			return nil
+		}
+	}
 }
 
 // CountTx returns the number of transactions currently in the mempool.
