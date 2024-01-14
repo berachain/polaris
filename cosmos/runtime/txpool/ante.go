@@ -45,6 +45,8 @@ func (m *Mempool) AnteHandle(
 	if ctx.ExecMode() == sdk.ExecModeReCheck {
 		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
 			if m.shouldEjectFromCometMempool(ctx.BlockTime(), wet.Unwrap()) {
+				m.receivedFromCometAtMu.Lock()
+				defer m.receivedFromCometAtMu.Unlock()
 				delete(m.receivedFromCometAt, wet.Unwrap().Hash())
 				return ctx, errors.New("eject from comet mempool")
 			}
