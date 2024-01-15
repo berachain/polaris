@@ -135,9 +135,7 @@ func (p *Polaris) Build(
 ) error {
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
 	p.WrappedMiner = miner.New(
-		p.ExecutionLayer.Backend().Miner(), app,
-		ek.GetHost().GetStatePluginFactory(),
-		allowedValMsgs,
+		p.ExecutionLayer.Backend().Miner(), app, allowedValMsgs, p.Backend().Blockchain(),
 	)
 	p.WrappedBlockchain = chain.New(
 		p.ExecutionLayer.Backend().Blockchain(), app,
@@ -222,5 +220,6 @@ func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint6
 		WithBlockHeight(int64(appHeight)).
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
-	return p.Backend().Blockchain().LoadLastState(cmsCtx, appHeight)
+	p.Backend().Blockchain().PreparePlugins(cmsCtx)
+	return p.Backend().Blockchain().LoadLastState(appHeight)
 }

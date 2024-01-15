@@ -34,25 +34,15 @@ import (
 
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
-	LoadLastState(context.Context, uint64) error
-	WriteGenesisBlockWithContext(ctx context.Context, block *ethtypes.Block) error
+	LoadLastState(uint64) error
 	WriteGenesisBlock(block *ethtypes.Block) error
-	InsertBlockAndSetHeadWithContext(
+	InsertBlockAndSetHeadWithContext( // TODO: Remove
 		ctx context.Context, block *ethtypes.Block,
 	) error
 	InsertBlockAndSetHead(block *ethtypes.Block) error
 	InsertBlockWithoutSetHead(block *ethtypes.Block) error
 	WriteBlockAndSetHead(block *ethtypes.Block, receipts []*ethtypes.Receipt, logs []*ethtypes.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
-}
-
-// WriteGenesisBlockWithContext inserts the genesis block
-// into the blockchain using the given context for receipts and logs.
-func (bc *blockchain) WriteGenesisBlockWithContext(
-	ctx context.Context, block *ethtypes.Block) error {
-	// Get the state with the latest finalize block context
-	bc.preparePlugins(ctx)
-	return bc.WriteGenesisBlock(block)
 }
 
 // WriteGenesisBlock inserts the genesis block into the blockchain.
@@ -88,7 +78,7 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 	// Validate that we are about to insert a valid block.
 	// If the block number is greater than 1,
 	// it means it's not the genesis block and needs to be validated. TODO kinda hood.
-	if block.NumberU64() > 1 { // TODO DIAGNOSE
+	if block.NumberU64() > 1 {
 		if err := bc.validator.ValidateBody(block); err != nil {
 			log.Error("invalid block body", "err", err)
 			return nil, nil, err
@@ -111,6 +101,7 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 	return receipts, logs, nil
 }
 
+// TODO: Remove this function.
 // InsertBlockAndSetHeadWithContext inserts the genesis block
 // into the blockchain using the given context for receipts and logs.
 // It also sets the head of the blockchain to the given block.
@@ -118,7 +109,7 @@ func (bc *blockchain) InsertBlockAndSetHeadWithContext(
 	ctx context.Context, block *ethtypes.Block,
 ) error {
 	// Get the state with the latest finalize block context
-	bc.preparePlugins(ctx)
+	bc.PreparePlugins(ctx)
 	return bc.InsertBlockAndSetHead(block)
 }
 

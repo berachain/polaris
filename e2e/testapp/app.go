@@ -237,7 +237,8 @@ func NewPolarisApp(
 		panic(err)
 	}
 
-	// Load the last state of the polaris evm.
+	// Load the last state of the Polaris EVM.
+	// TODO: verify that the version of app CMS is the same as app.LastBlockHeight.
 	if err = app.Polaris.LoadLastState(
 		app.CommitMultiStore(), uint64(app.LastBlockHeight()),
 	); err != nil {
