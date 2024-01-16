@@ -125,6 +125,9 @@ func (pp *ProposalProvider) ProcessProposal(
 	// We set this preblocked, beginblocked, and processed context to the state plugin factory for
 	// queries on the node.
 	spf := pp.wrappedBlockchain.StatePluginFactory()
+
+	// Technically a race condition here, between here and emitting the chain head
+	// event but it is so small and the network latency will most definitely overshadow.
 	defer spf.SetLatestQueryContext(ctx)
 
 	// Set the insert chain context for processing the block. NOTE: We insert to the chain but do
