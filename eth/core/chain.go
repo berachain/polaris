@@ -54,7 +54,7 @@ type Blockchain interface {
 	ChainResources
 	core.ChainContext
 
-	PreparePlugins(ctx context.Context)
+	PrimePlugins(ctx context.Context)
 	StatePluginFactory() StatePluginFactory
 }
 
@@ -138,7 +138,7 @@ func NewChain(
 	return bc
 }
 
-func (bc *blockchain) PreparePlugins(ctx context.Context) {
+func (bc *blockchain) PrimePlugins(ctx context.Context) {
 	if bc.bp != nil {
 		bc.bp.Prepare(ctx)
 	}

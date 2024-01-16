@@ -22,9 +22,10 @@ package flags
 
 const (
 	// Polar Root.
-	RPCEvmTimeout = "polaris.polar.rpc-evm-timeout"
-	RPCTxFeeCap   = "polaris.polar.rpc-tx-fee-cap"
-	RPCGasCap     = "polaris.polar.rpc-gas-cap"
+	RPCEvmTimeout  = "polaris.polar.rpc-evm-timeout"
+	RPCTxFeeCap    = "polaris.polar.rpc-tx-fee-cap"
+	RPCGasCap      = "polaris.polar.rpc-gas-cap"
+	ForceTxRemoval = "polaris.polar.force-tx-removal"
 
 	// Miner.
 	MinerEtherbase         = "polaris.polar.miner.etherbase"

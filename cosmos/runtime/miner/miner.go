@@ -98,7 +98,7 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 
 	// Set the mining context for geth to build the payload with.
 	m.bc.StatePluginFactory().SetLatestMiningContext(ctx)
-	m.bc.PreparePlugins(ctx)
+	m.bc.PrimePlugins(ctx)
 
 	// Build Payload.
 	if payload, err = m.miner.BuildPayload(payloadArgs); err != nil {

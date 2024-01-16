@@ -110,11 +110,10 @@ func New(
 		ctx,
 	)
 
-	p.ExecutionLayer, err = eth.New(
+	if p.ExecutionLayer, err = eth.New(
 		"geth", cfg, host, engine, cfg.Node.AllowUnprotectedTxs,
 		ethlog.NewLogger(newEthHandler(logger)),
-	)
-	if err != nil {
+	); err != nil {
 		panic(err)
 	}
 
@@ -122,6 +121,7 @@ func New(
 		p.ExecutionLayer.Backend().Blockchain(),
 		p.ExecutionLayer.Backend().TxPool(),
 		cfg.Polar.LegacyTxPool.Lifetime,
+		cfg.Polar.ForceTxRemoval,
 	)
 
 	return p
@@ -220,6 +220,9 @@ func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint6
 		WithBlockHeight(int64(appHeight)).
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
-	p.Backend().Blockchain().PreparePlugins(cmsCtx)
-	return p.Backend().Blockchain().LoadLastState(appHeight)
+
+	bc := p.Backend().Blockchain()
+	bc.StatePluginFactory().SetLatestQueryContext(cmsCtx)
+	bc.PrimePlugins(cmsCtx)
+	return bc.LoadLastState(appHeight)
 }

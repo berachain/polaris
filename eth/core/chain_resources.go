@@ -71,7 +71,7 @@ func (bc *blockchain) GetOverridenState() (state.StateDB, error) {
 // StateAtBlockNumber returns a statedb configured to read what the state of the blockchain is/was
 // at a given block number.
 func (bc *blockchain) StateAtBlockNumber(number uint64) (state.StateDB, error) {
-	sp, err := bc.spf.NewPluginAtBlockNumber(number)
+	sp, err := bc.spf.NewPluginAtBlockNumber(int64(number))
 	if err != nil {
 		return nil, err
 	}

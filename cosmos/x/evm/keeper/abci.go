@@ -42,13 +42,17 @@ func (k *Keeper) EndBlock(ctx context.Context) error {
 			"evm block [%d] does not match comet block [%d]", newHead.NumberU64(), blockNum,
 		)
 	}
-	return nil
+
+	// Set the finalized eth block once we know it has been finalized successfully by Cosmos.
+	return k.chain.SetFinalizedBlock()
 }
 
-// SetLatestQueryContext runs on the Cosmos-SDK lifecycle PrepareCheckState() during ABCI Commit.
+// PrepareCheckState runs on the Cosmos-SDK lifecycle PrepareCheckState() during ABCI Commit.
 func (k *Keeper) PrepareCheckState(ctx context.Context) error {
 	k.spf.SetLatestQueryContext(ctx)
-	k.bp.Prepare(ctx)
+	if k.bp != nil {
+		k.bp.Prepare(ctx)
+	}
 	if k.hp != nil {
 		k.hp.Prepare(ctx)
 	}

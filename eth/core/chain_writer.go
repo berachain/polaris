@@ -21,7 +21,6 @@
 package core
 
 import (
-	"context"
 	"errors"
 
 	"github.com/berachain/polaris/eth/core/state"
@@ -36,11 +35,10 @@ import (
 type ChainWriter interface {
 	LoadLastState(uint64) error
 	WriteGenesisBlock(block *ethtypes.Block) error
-	InsertBlockAndSetHeadWithContext( // TODO: Remove
-		ctx context.Context, block *ethtypes.Block,
-	) error
 	InsertBlockAndSetHead(block *ethtypes.Block) error
 	InsertBlockWithoutSetHead(block *ethtypes.Block) error
+	SetFinalizedBlock() error
+
 	WriteBlockAndSetHead(block *ethtypes.Block, receipts []*ethtypes.Receipt, logs []*ethtypes.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
@@ -101,18 +99,6 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 	return receipts, logs, nil
 }
 
-// TODO: Remove this function.
-// InsertBlockAndSetHeadWithContext inserts the genesis block
-// into the blockchain using the given context for receipts and logs.
-// It also sets the head of the blockchain to the given block.
-func (bc *blockchain) InsertBlockAndSetHeadWithContext(
-	ctx context.Context, block *ethtypes.Block,
-) error {
-	// Get the state with the latest finalize block context
-	bc.PreparePlugins(ctx)
-	return bc.InsertBlockAndSetHead(block)
-}
-
 // InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
 func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
 	// Get the state with the latest finalize block context.
@@ -152,12 +138,6 @@ func (bc *blockchain) WriteBlockAndSetHead(
 
 	// Set the current block.
 	bc.currentBlock.Store(block)
-
-	// TODO: this is fine to do here but not really semantically correct
-	// and is very confusing.
-	// For clarity reasons, we should make the cosmos chain make a separate call
-	// to finalize the block.
-	bc.finalizedBlock.Store(block)
 
 	// Store txLookup entries for all transactions in the block.
 	blockNum := block.NumberU64()
@@ -258,5 +238,14 @@ func (bc *blockchain) writeHistoricalData(
 		}
 	}
 
+	return nil
+}
+
+// For clarity reasons, the host chain makes a separate call to finalize the block. Only called
+// once it is known the current block is the finalized block.
+func (bc *blockchain) SetFinalizedBlock() error {
+	if currBlock := bc.currentBlock.Load(); currBlock != nil {
+		bc.finalizedBlock.Store(currBlock)
+	}
 	return nil
 }

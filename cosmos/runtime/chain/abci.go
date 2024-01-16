@@ -74,11 +74,6 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 		}, err
 	}
 
-	// Set the insert chain context for processing the block. NOTE: We insert to the chain but do
-	// NOT set the chain head using this context.
-	wbc.StatePluginFactory().SetInsertChainContext(ctx)
-	wbc.PreparePlugins(ctx)
-
 	// Insert the block into the chain.
 	if err = wbc.InsertBlockWithoutSetHead(block); err != nil {
 		ctx.Logger().Error("failed to insert block", "err", err)
