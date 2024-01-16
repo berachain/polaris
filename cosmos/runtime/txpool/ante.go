@@ -73,7 +73,8 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	// 1. If the transaction has been included in a block.
 	// 2. If the transaction has been in the mempool for longer than the configured timeout.
 	return m.includedCanonicalChain(txHash) ||
-		currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
+		currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime ||
+		tx.GasPrice().Uint64() <= 7 || tx.GasFeeCap().Uint64() <= 7 || tx.GasTipCap().Uint64() <= 7
 }
 
 // includedCanonicalChain returns whether the tx of the given hash is included in the canonical
