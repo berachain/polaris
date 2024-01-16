@@ -120,7 +120,7 @@ func New(
 	p.WrappedTxPool = txpool.New(
 		p.ExecutionLayer.Backend().Blockchain(),
 		p.ExecutionLayer.Backend().TxPool(),
-		cfg.Polar.LegacyTxPool.Lifetime,
+		int64(cfg.Polar.LegacyTxPool.Lifetime),
 		cfg.Polar.ForceTxRemoval,
 	)
 

@@ -122,8 +122,8 @@ func (pp *ProposalProvider) ProcessProposal(
 		return nil, err
 	}
 
-	// We set this preblocked and beginblocked context to the state plugin factory for queries on
-	// on the node.
+	// We set this preblocked, beginblocked, and processed context to the state plugin factory for
+	// queries on the node.
 	spf := pp.wrappedBlockchain.StatePluginFactory()
 	defer spf.SetLatestQueryContext(ctx)
 

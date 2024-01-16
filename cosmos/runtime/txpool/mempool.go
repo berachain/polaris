@@ -23,6 +23,7 @@ package txpool
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	"cosmossdk.io/log"
@@ -35,8 +36,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
+	"github.com/ethereum/go-ethereum/common"
 	ethtxpool "github.com/ethereum/go-ethereum/core/txpool"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+)
+
+const (
+	defaultTxPoolSize = 4096
 )
 
 // Mempool implements the mempool.Mempool & Lifecycle interfaces.
@@ -62,21 +68,25 @@ type GethTxPool interface {
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
 	eth.TxPool
-	lifetime       time.Duration
-	chain          core.ChainReader
-	handler        Lifecycle
+	lifetime int64
+	chain    core.ChainReader
+	handler  Lifecycle
+
 	forceTxRemoval bool
+	timeInserted   map[common.Hash]int64
+	timeInsertedMu sync.RWMutex
 }
 
 // New creates a new Mempool.
 func New(
-	chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration, forceTxRemoval bool,
+	chain core.ChainReader, txpool eth.TxPool, lifetime int64, forceTxRemoval bool,
 ) *Mempool {
 	return &Mempool{
 		TxPool:         txpool,
 		chain:          chain,
 		lifetime:       lifetime,
 		forceTxRemoval: forceTxRemoval,
+		timeInserted:   make(map[common.Hash]int64, defaultTxPoolSize),
 	}
 }
 
@@ -99,8 +109,7 @@ func (m *Mempool) Stop() error {
 	return m.handler.Stop()
 }
 
-// Insert attempts to insert a Tx into the app-side mempool returning
-// an error upon failure.
+// Insert attempts to insert a Tx into the app-side mempool returning an error upon failure.
 func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	msgs := sdkTx.GetMsgs()
@@ -108,18 +117,28 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		return errors.New("only one message is supported")
 	}
 
-	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); !ok {
+	wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0])
+	if !ok {
 		// We have to return nil for non-ethereum transactions as to not fail check-tx.
 		return nil
-	} else if errs := m.TxPool.Add(
-		[]*ethtypes.Transaction{wet.Unwrap()}, false, false,
-	); len(errs) != 0 {
+	}
+
+	// Add the eth tx to the Geth txpool.
+	ethTx := wet.Unwrap()
+	errs := m.TxPool.Add([]*ethtypes.Transaction{ethTx}, false, false)
+	if len(errs) > 0 {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
-		if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) && sCtx.ExecMode() == sdk.ExecModeCheck {
+		if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) &&
+			(sCtx.ExecMode() == sdk.ExecModeCheck || sCtx.ExecMode() == sdk.ExecModeReCheck) {
 			return nil
 		}
 		return errs[0]
 	}
+
+	// Record the time the tx was inserted from Comet successfully.
+	m.timeInsertedMu.Lock()
+	m.timeInserted[ethTx.Hash()] = time.Now().Unix()
+	m.timeInsertedMu.Unlock()
 
 	return nil
 }
