@@ -23,6 +23,7 @@ package txpool
 import (
 	"context"
 	"errors"
+	"math/big"
 	"sync"
 
 	"cosmossdk.io/log"
@@ -68,12 +69,13 @@ type Mempool struct {
 	crc            CometRemoteCache
 	forceTxRemoval bool
 	blockBuilderMu *sync.RWMutex
+	priceLimit     *big.Int
 }
 
 // New creates a new Mempool.
 func New(
 	chain core.ChainReader, txpool eth.TxPool, lifetime int64,
-	forceTxRemoval bool, blockBuilderMu *sync.RWMutex,
+	forceTxRemoval bool, blockBuilderMu *sync.RWMutex, priceLimit *big.Int,
 ) *Mempool {
 	return &Mempool{
 		TxPool:         txpool,
@@ -82,6 +84,7 @@ func New(
 		forceTxRemoval: forceTxRemoval,
 		crc:            newCometRemoteCache(),
 		blockBuilderMu: blockBuilderMu,
+		priceLimit:     priceLimit,
 	}
 }
 

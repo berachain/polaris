@@ -22,7 +22,6 @@ package txpool
 
 import (
 	"errors"
-	"math/big"
 	"time"
 
 	"github.com/berachain/polaris/cosmos/x/evm/types"
@@ -75,7 +74,7 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	// 2. If the transaction has been in the mempool for longer than the configured timeout.
 	return m.includedCanonicalChain(txHash) ||
 		currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime ||
-		tx.GasPrice().Cmp(big.NewInt(20)) <= 0 || tx.GasFeeCap().Cmp(big.NewInt(20)) <= 0 || tx.GasTipCap().Cmp(big.NewInt(20)) <= 0
+		tx.GasPrice().Cmp(m.priceLimit) <= 0 || tx.GasFeeCap().Cmp(m.priceLimit) <= 0 || tx.GasTipCap().Cmp(m.priceLimit) <= 0
 }
 
 // includedCanonicalChain returns whether the tx of the given hash is included in the canonical
