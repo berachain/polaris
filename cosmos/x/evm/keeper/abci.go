@@ -30,7 +30,6 @@ import (
 // EndBlock runs on the Cosmos-SDK lifecycle EndBlock() during ABCI Finalize.
 func (k *Keeper) EndBlock(ctx context.Context) error {
 	// Verify that the EVM block was written.
-	// TODO: Set/GetHead to set and get the canonical head.
 	blockNum := uint64(sdk.UnwrapSDKContext(ctx).BlockHeight())
 	newHead := k.chain.GetBlockByNumber(blockNum)
 	if newHead == nil {
@@ -50,11 +49,6 @@ func (k *Keeper) EndBlock(ctx context.Context) error {
 // PrepareCheckState runs on the Cosmos-SDK lifecycle PrepareCheckState() during ABCI Commit.
 func (k *Keeper) PrepareCheckState(ctx context.Context) error {
 	k.spf.SetLatestQueryContext(ctx)
-	if k.bp != nil {
-		k.bp.Prepare(ctx)
-	}
-	if k.hp != nil {
-		k.hp.Prepare(ctx)
-	}
+	k.chain.PrimePlugins(ctx)
 	return nil
 }

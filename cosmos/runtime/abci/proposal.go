@@ -124,9 +124,8 @@ func (pp *ProposalProvider) ProcessProposal(
 
 	// We set this preblocked and beginblocked context to the state plugin factory for queries on
 	// on the node.
-	queryCtx, _ := ctx.CacheContext()
 	spf := pp.wrappedBlockchain.StatePluginFactory()
-	spf.SetLatestQueryContext(queryCtx)
+	defer spf.SetLatestQueryContext(ctx)
 
 	// Set the insert chain context for processing the block. NOTE: We insert to the chain but do
 	// NOT set the chain head using this context.
