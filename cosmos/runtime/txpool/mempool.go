@@ -23,8 +23,6 @@ package txpool
 import (
 	"context"
 	"errors"
-	"sync"
-	"time"
 
 	"cosmossdk.io/log"
 
@@ -36,13 +34,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"github.com/ethereum/go-ethereum/common"
 	ethtxpool "github.com/ethereum/go-ethereum/core/txpool"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-)
-
-const (
-	defaultTxPoolSize = 4096
 )
 
 // Mempool implements the mempool.Mempool & Lifecycle interfaces.
@@ -68,13 +61,11 @@ type GethTxPool interface {
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
 	eth.TxPool
-	lifetime int64
-	chain    core.ChainReader
-	handler  Lifecycle
-
+	lifetime       int64
+	chain          core.ChainReader
+	handler        Lifecycle
+	crc            CometRemoteCache
 	forceTxRemoval bool
-	timeInserted   map[common.Hash]int64
-	timeInsertedMu sync.RWMutex
 }
 
 // New creates a new Mempool.
@@ -86,7 +77,7 @@ func New(
 		chain:          chain,
 		lifetime:       lifetime,
 		forceTxRemoval: forceTxRemoval,
-		timeInserted:   make(map[common.Hash]int64, defaultTxPoolSize),
+		crc:            newCometRemoteCache(),
 	}
 }
 
@@ -96,7 +87,7 @@ func (m *Mempool) Init(
 	txBroadcaster TxBroadcaster,
 	txSerializer TxSerializer,
 ) {
-	m.handler = newHandler(txBroadcaster, m.TxPool, txSerializer, logger)
+	m.handler = newHandler(txBroadcaster, m.TxPool, txSerializer, m.crc, logger)
 }
 
 // Start starts the Mempool TxHandler.
@@ -135,11 +126,6 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		return errs[0]
 	}
 
-	// Record the time the tx was inserted from Comet successfully.
-	m.timeInsertedMu.Lock()
-	m.timeInserted[ethTx.Hash()] = time.Now().Unix()
-	m.timeInsertedMu.Unlock()
-
 	return nil
 }
 
@@ -172,9 +158,7 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			}
 			txHash := ethTx.Hash()
 
-			m.timeInsertedMu.Lock()
-			delete(m.timeInserted, txHash)
-			m.timeInsertedMu.Unlock()
+			m.crc.DropRemoteTx(txHash)
 
 			// We only want to remove transactions from the mempool if we're forcing it.
 			if m.forceTxRemoval {

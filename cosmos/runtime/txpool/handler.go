@@ -83,6 +83,7 @@ type handler struct {
 	logger     log.Logger
 	clientCtx  TxBroadcaster
 	serializer TxSerializer
+	crc        CometRemoteCache
 
 	// Ethereum
 	txPool  TxSubProvider
@@ -97,12 +98,14 @@ type handler struct {
 
 // newHandler creates a new handler.
 func newHandler(
-	clientCtx TxBroadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
+	clientCtx TxBroadcaster, txPool TxSubProvider, serializer TxSerializer,
+	crc CometRemoteCache, logger log.Logger,
 ) *handler {
 	h := &handler{
 		logger:     logger,
 		clientCtx:  clientCtx,
 		serializer: serializer,
+		crc:        crc,
 		txPool:     txPool,
 		txsCh:      make(chan core.NewTxsEvent, txChanSize),
 		stopCh:     make(chan struct{}),
@@ -199,10 +202,16 @@ func (h *handler) stop(err error) {
 
 // broadcastTransactions will propagate a batch of transactions to the CometBFT mempool.
 func (h *handler) broadcastTransactions(txs ethtypes.Transactions) {
-	h.logger.Debug("broadcasting transactions", "num_txs", len(txs))
+	numBroadcasted := 0
 	for _, signedEthTx := range txs {
-		h.broadcastTransaction(signedEthTx, maxRetries)
+		if !h.crc.IsRemoteTx(signedEthTx.Hash()) {
+			h.broadcastTransaction(signedEthTx, maxRetries)
+			numBroadcasted++
+		}
 	}
+	h.logger.Debug(
+		"broadcasting transactions", "num_received", len(txs), "num_broadcasted", numBroadcasted,
+	)
 }
 
 // broadcastTransaction will propagate a transaction to the CometBFT mempool.
@@ -216,7 +225,6 @@ func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
 	// Send the transaction to the CometBFT mempool, which will gossip it to peers via
 	// CometBFT's p2p layer.
 	rsp, err := h.clientCtx.BroadcastTxSync(txBytes)
-
 	if err != nil {
 		h.logger.Error("error on transactions broadcast", "err", err)
 		h.failedTxs <- &failedTx{tx: tx, retries: retries}

@@ -51,9 +51,7 @@ func (m *Mempool) AnteHandle(
 			if shouldEject := m.shouldEjectFromCometMempool(
 				ctx.BlockTime().Unix(), ethTx,
 			); shouldEject {
-				m.timeInsertedMu.Lock()
-				delete(m.timeInserted, ethTx.Hash())
-				m.timeInsertedMu.Unlock()
+				m.crc.DropRemoteTx(ethTx.Hash())
 				return ctx, errors.New("eject from comet mempool")
 			}
 		}
@@ -69,12 +67,13 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	if tx == nil {
 		return false
 	}
+	txHash := tx.Hash()
 
 	// Ejection conditions
 	// 1. If the transaction has been included in a block.
 	// 2. If the transaction has been in the mempool for longer than the configured timeout.
-	return m.includedCanonicalChain(tx.Hash()) ||
-		currentTime-m.timeInserted[tx.Hash()] > m.lifetime
+	return m.includedCanonicalChain(txHash) ||
+		currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
 }
 
 // includedCanonicalChain returns whether the tx of the given hash is included in the canonical
