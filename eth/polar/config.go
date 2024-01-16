@@ -64,7 +64,7 @@ func DefaultConfig() *Config {
 		RPCGasCap:      ethconfig.Defaults.RPCGasCap,
 		RPCTxFeeCap:    ethconfig.Defaults.RPCTxFeeCap,
 		RPCEVMTimeout:  ethconfig.Defaults.RPCEVMTimeout,
-		ForceTxRemoval: true,
+		ForceTxRemoval: false,
 	}
 }
 

@@ -126,6 +126,9 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		return errs[0]
 	}
 
+	// Add the eth tx to the remote cache.
+	m.crc.MarkRemoteSeen(ethTx.Hash())
+
 	return nil
 }
 
@@ -158,6 +161,7 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			}
 			txHash := ethTx.Hash()
 
+			// Remove the eth tx from comet seen tx cache.
 			m.crc.DropRemoteTx(txHash)
 
 			// We only want to remove transactions from the mempool if we're forcing it.
