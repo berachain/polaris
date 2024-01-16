@@ -118,6 +118,6 @@ type (
 
 	// PrecompilePlugin defines the methods that the chain running Polaris EVM should implement
 	// in order to support running their own stateful precompiled contracts. Implementing this
-	// plugin is optional.
+	// plugin is optional. Good project.
 	PrecompilePlugin = precompile.Plugin
 )
