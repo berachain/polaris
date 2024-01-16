@@ -23,6 +23,7 @@ package txpool
 import (
 	"context"
 	"errors"
+	"sync"
 
 	"cosmossdk.io/log"
 
@@ -66,11 +67,13 @@ type Mempool struct {
 	handler        Lifecycle
 	crc            CometRemoteCache
 	forceTxRemoval bool
+	blockBuilderMu *sync.RWMutex
 }
 
 // New creates a new Mempool.
 func New(
-	chain core.ChainReader, txpool eth.TxPool, lifetime int64, forceTxRemoval bool,
+	chain core.ChainReader, txpool eth.TxPool, lifetime int64,
+	forceTxRemoval bool, blockBuilderMu *sync.RWMutex,
 ) *Mempool {
 	return &Mempool{
 		TxPool:         txpool,
@@ -78,6 +81,7 @@ func New(
 		lifetime:       lifetime,
 		forceTxRemoval: forceTxRemoval,
 		crc:            newCometRemoteCache(),
+		blockBuilderMu: blockBuilderMu,
 	}
 }
 
@@ -116,7 +120,11 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 
 	// Add the eth tx to the Geth txpool.
 	ethTx := wet.Unwrap()
+
+	// Insert the tx into the txpool as a remote.
+	m.blockBuilderMu.RLock()
 	errs := m.TxPool.Add([]*ethtypes.Transaction{ethTx}, false, false)
+	m.blockBuilderMu.RUnlock()
 	if len(errs) > 0 {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
 		if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) &&

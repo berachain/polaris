@@ -24,6 +24,7 @@ package miner
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/cosmos/gogoproto/proto"
@@ -50,11 +51,14 @@ type Miner struct {
 	serializer     EnvelopeSerializer
 	allowedValMsgs map[string]sdk.Msg
 	currentPayload *miner.Payload
+
+	blockBuilderMu *sync.RWMutex
 }
 
 // New produces a cosmos miner from a geth miner.
 func New(
-	miner eth.Miner, app TxDecoder, allowedValMsgs map[string]sdk.Msg, bc core.Blockchain,
+	miner eth.Miner, app TxDecoder, allowedValMsgs map[string]sdk.Msg,
+	bc core.Blockchain, blockBuilderMu *sync.RWMutex,
 ) *Miner {
 	return &Miner{
 		miner:          miner,
@@ -62,6 +66,7 @@ func New(
 		bc:             bc,
 		allowedValMsgs: allowedValMsgs,
 		valTxSelector:  baseapp.NewDefaultTxSelector(),
+		blockBuilderMu: blockBuilderMu,
 	}
 }
 
@@ -77,6 +82,10 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 
 	// Record the time it takes to build a payload.
 	defer telemetry.MeasureSince(time.Now(), MetricKeyBuildBlock)
+
+	// Miner locks for block building to occupy the txpool.
+	m.blockBuilderMu.Lock()
+	defer m.blockBuilderMu.Unlock()
 
 	// Submit payload for building with the given context.
 	if err := m.submitPayloadForBuilding(ctx); err != nil {

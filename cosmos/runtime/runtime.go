@@ -21,6 +21,7 @@
 package runtime
 
 import (
+	"sync"
 	"time"
 
 	cosmoslog "cosmossdk.io/log"
@@ -85,6 +86,11 @@ type Polaris struct {
 	WrappedBlockchain *chain.WrappedBlockchain
 	// logger is the underlying logger supplied by the sdk.
 	logger cosmoslog.Logger
+
+	// blockBuilderMu is write locked by the miner during block building to ensure no inserts
+	// into the txpool are happening during this process. The mempool object then read locks for
+	// adding transactions into the txpool.
+	blockBuilderMu sync.RWMutex
 }
 
 // New creates a new Polaris runtime from the provided dependencies.
@@ -106,9 +112,7 @@ func New(
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithEventManager(sdk.NewEventManager())
-	host.GetStatePluginFactory().SetLatestQueryContext(
-		ctx,
-	)
+	host.GetStatePluginFactory().SetLatestQueryContext(ctx)
 
 	if p.ExecutionLayer, err = eth.New(
 		"geth", cfg, host, engine, cfg.Node.AllowUnprotectedTxs,
@@ -122,6 +126,7 @@ func New(
 		p.ExecutionLayer.Backend().TxPool(),
 		int64(cfg.Polar.LegacyTxPool.Lifetime),
 		cfg.Polar.ForceTxRemoval,
+		&p.blockBuilderMu,
 	)
 
 	return p
@@ -135,7 +140,8 @@ func (p *Polaris) Build(
 ) error {
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
 	p.WrappedMiner = miner.New(
-		p.ExecutionLayer.Backend().Miner(), app, allowedValMsgs, p.Backend().Blockchain(),
+		p.ExecutionLayer.Backend().Miner(), app, allowedValMsgs,
+		p.Backend().Blockchain(), &p.blockBuilderMu,
 	)
 	p.WrappedBlockchain = chain.New(
 		p.ExecutionLayer.Backend().Blockchain(), app,
