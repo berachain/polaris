@@ -57,14 +57,14 @@ func (bc *blockchain) WriteGenesisBlock(block *ethtypes.Block) error {
 	return err
 }
 
-// InsertBlockAndSetHead inserts a block into the blockchain without setting it as the head.
-func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
+// InsertBlock inserts a block into the blockchain without setting it as the head.
+func (bc *blockchain) InsertBlock(block *ethtypes.Block) error {
 	// Get the state with the latest insert chain context.
 	sp := bc.spf.NewPluginWithMode(state.Insert)
 	state := state.NewStateDB(sp, bc.pp)
 
-	// Call the private method to insert the block without setting it as the head.
-	_, _, err := bc.insertBlockAndSetHead(block, state, true)
+	// Call the private method to insert the block and setting it as the head.
+	_, _, err := bc.insertBlockAndSetHead(block, state, false)
 	// Return any error that might have occurred.
 	return err
 }
@@ -113,13 +113,13 @@ func (bc *blockchain) insertBlockAndSetHead(
 	return receipts, logs, nil
 }
 
-// InsertBlock inserts a block into the blockchain and sets the head.
-func (bc *blockchain) InsertBlock(block *ethtypes.Block) error {
+// InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
+func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
 	// Get the state with the latest finalize block context.
 	sp := bc.spf.NewPluginWithMode(state.Finalize)
 	state := state.NewStateDB(sp, bc.pp)
 
-	receipts, logs, err := bc.insertBlockAndSetHead(block, state, false)
+	receipts, logs, err := bc.insertBlockAndSetHead(block, state, true)
 	if err != nil {
 		return err
 	}

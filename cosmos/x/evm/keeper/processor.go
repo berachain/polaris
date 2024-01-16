@@ -76,7 +76,7 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	k.chain.PrimePlugins(ctx)
 
 	// Insert the finalized block and set the chain head.
-	if err = k.chain.InsertBlock(block); err != nil {
+	if err = k.chain.InsertBlockAndSetHead(block); err != nil {
 		return nil, err
 	}
 
