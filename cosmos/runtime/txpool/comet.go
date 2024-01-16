@@ -40,7 +40,7 @@ type CometRemoteCache interface {
 	DropRemoteTx(txHash common.Hash)
 }
 
-// Thread-safe implementation of CometRemoteCache
+// Thread-safe implementation of CometRemoteCache.
 type cometRemoteCache struct {
 	timeInserted   map[common.Hash]int64
 	timeInsertedMu sync.RWMutex
@@ -59,8 +59,8 @@ func (crc *cometRemoteCache) IsRemoteTx(txHash common.Hash) bool {
 	return ok
 }
 
+// Record the time the tx was inserted from Comet successfully.
 func (crc *cometRemoteCache) MarkRemoteSeen(txHash common.Hash) {
-	// Record the time the tx was inserted from Comet successfully.
 	crc.timeInsertedMu.Lock()
 	crc.timeInserted[txHash] = time.Now().Unix()
 	crc.timeInsertedMu.Unlock()
