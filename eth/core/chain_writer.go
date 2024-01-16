@@ -64,14 +64,15 @@ func (bc *blockchain) InsertBlock(block *ethtypes.Block) error {
 	state := state.NewStateDB(sp, bc.pp)
 
 	// Call the private method to insert the block and setting it as the head.
-	_, _, err := bc.insertBlockAndSetHead(block, state, false)
+	_, _, err := bc.insertBlock(block, state)
 	// Return any error that might have occurred.
 	return err
 }
 
-// InsertBlockAndSetHead inserts a block into the blockchain without setting it as the head.
-func (bc *blockchain) insertBlockAndSetHead(
-	block *ethtypes.Block, state state.StateDB, emitChainHead bool,
+// insertBlock inserts a block into the blockchain by running the state processor and
+// validating whether its okay.
+func (bc *blockchain) insertBlock(
+	block *ethtypes.Block, state state.StateDB,
 ) ([]*ethtypes.Receipt, []*ethtypes.Log, error) {
 	// Validate that we are about to insert a valid block.
 	// If the block number is greater than 1,
@@ -96,20 +97,6 @@ func (bc *blockchain) insertBlockAndSetHead(
 		return nil, nil, err
 	}
 
-	// In theory, we should fire a ChainHeadEvent when we inject
-	// a canonical block, but sometimes we can insert a batch of
-	// canonical blocks. Avoid firing too many ChainHeadEvents,
-	// we will fire an accumulated ChainHeadEvent and disable fire
-	// event here.
-	if emitChainHead {
-		// Fire off the feeds.
-		bc.chainFeed.Send(core.ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
-		if len(logs) > 0 {
-			bc.logsFeed.Send(logs)
-		}
-		bc.chainHeadFeed.Send(core.ChainHeadEvent{Block: block})
-	}
-
 	return receipts, logs, nil
 }
 
@@ -119,7 +106,7 @@ func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
 	sp := bc.spf.NewPluginWithMode(state.Finalize)
 	state := state.NewStateDB(sp, bc.pp)
 
-	receipts, logs, err := bc.insertBlockAndSetHead(block, state, true)
+	receipts, logs, err := bc.insertBlock(block, state)
 	if err != nil {
 		return err
 	}
@@ -174,6 +161,20 @@ func (bc *blockchain) WriteBlockAndSetHead(
 	// TODO deprecate this cache?
 	if receipts != nil {
 		bc.receiptsCache.Add(block.Hash(), receipts)
+	}
+
+	// In theory, we should fire a ChainHeadEvent when we inject
+	// a canonical block, but sometimes we can insert a batch of
+	// canonical blocks. Avoid firing too many ChainHeadEvents,
+	// we will fire an accumulated ChainHeadEvent and disable fire
+	// event here.
+	if emitHeadEvent {
+		// Fire off the feeds.
+		bc.chainFeed.Send(core.ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
+		if len(logs) > 0 {
+			bc.logsFeed.Send(logs)
+		}
+		bc.chainHeadFeed.Send(core.ChainHeadEvent{Block: block})
 	}
 
 	return core.CanonStatTy, nil
