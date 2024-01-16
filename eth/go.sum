@@ -12,8 +12,8 @@ github.com/apapsch/go-jsonmerge/v2 v2.0.0 h1:axGnT1gRIfimI7gJifB699GoE/oq+F2MU7D
 github.com/apapsch/go-jsonmerge/v2 v2.0.0/go.mod h1:lvDnEdqiQrp0O42VQGgmlKpxL1AP2+08jFMw88y4klk=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/berachain/polaris-geth v0.0.0-20240114134402-f43e40102ad1 h1:Rh5+bQB/Z1fdQhVT7ltZQRAVNOn3KJe6zsA5gUXnPDc=
-github.com/berachain/polaris-geth v0.0.0-20240114134402-f43e40102ad1/go.mod h1:sc48XYQxCzH3fG9BcrXCOOgQk2JfZzNAmIKnceogzsA=
+github.com/berachain/polaris-geth v0.0.0-20240116060929-a11249be0469 h1:NhSHPKCIIQk94Y1uBI9GJN85+FRjXMIPtiaoD1fg7jo=
+github.com/berachain/polaris-geth v0.0.0-20240116060929-a11249be0469/go.mod h1:sc48XYQxCzH3fG9BcrXCOOgQk2JfZzNAmIKnceogzsA=
 github.com/berachain/polaris/contracts v0.1.0-alpha h1:ZRkh0JyMHp11Xe8z7gcJhfnn9X6vU6/3iSG3Bdi/kJQ=
 github.com/berachain/polaris/contracts v0.1.0-alpha/go.mod h1:Sm1T+tIQGuP0wEJnF/TlgZiJ+NPHgOZWO7vAz7FkwVs=
 github.com/berachain/polaris/lib v0.0.4-alpha h1:5ob1YtUD6qx35yfwcOKyOOuU6/OgtXMRk0eQrsjCSsw=
