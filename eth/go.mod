@@ -2,7 +2,7 @@ module github.com/berachain/polaris/eth
 
 go 1.21
 
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v1.13.10-polar
+replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v1.13.10-1-polar
 
 require (
 	github.com/berachain/polaris/contracts v0.1.0-alpha
