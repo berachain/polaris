@@ -47,9 +47,13 @@ func (m *Mempool) AnteHandle(
 	// We only want to eject transactions from comet on recheck.
 	if ctx.ExecMode() == sdk.ExecModeCheck || ctx.ExecMode() == sdk.ExecModeReCheck {
 		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
+			ethTx := wet.Unwrap()
 			if shouldEject := m.shouldEjectFromCometMempool(
-				ctx.BlockTime().Unix(), wet.Unwrap(),
+				ctx.BlockTime().Unix(), ethTx,
 			); shouldEject {
+				m.timeInsertedMu.Lock()
+				delete(m.timeInserted, ethTx.Hash())
+				m.timeInsertedMu.Unlock()
 				return ctx, errors.New("eject from comet mempool")
 			}
 		}
@@ -66,14 +70,11 @@ func (m *Mempool) shouldEjectFromCometMempool(
 		return false
 	}
 
-	m.timeInsertedMu.RLock()
-	timeTxInserted := m.timeInserted[tx.Hash()]
-	m.timeInsertedMu.RUnlock()
-
 	// Ejection conditions
 	// 1. If the transaction has been included in a block.
 	// 2. If the transaction has been in the mempool for longer than the configured timeout.
-	return m.includedCanonicalChain(tx.Hash()) || currentTime-timeTxInserted > m.lifetime
+	return m.includedCanonicalChain(tx.Hash()) ||
+		currentTime-m.timeInserted[tx.Hash()] > m.lifetime
 }
 
 // includedCanonicalChain returns whether the tx of the given hash is included in the canonical

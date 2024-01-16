@@ -156,11 +156,6 @@ func (m *Mempool) Select(context.Context, [][]byte) mempool.Iterator {
 
 // Remove is an intentional no-op as the eth txpool handles removals.
 func (m *Mempool) Remove(tx sdk.Tx) error {
-	// We don't want to remove transactions from the mempool if we're not forcing it.
-	if !m.forceTxRemoval {
-		return nil
-	}
-
 	// Get the Eth payload envelope from the Cosmos transaction.
 	msgs := tx.GetMsgs()
 	if len(msgs) == 1 {
@@ -170,15 +165,21 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 		}
 
 		// Unwrap the payload to unpack the individual eth transactions to remove from the txpool.
-		// TODO: Remove the manual removal process from geth txpool.
-		txBzs := env.UnwrapPayload().ExecutionPayload.Transactions
-
-		for _, txBz := range txBzs {
+		for _, txBz := range env.UnwrapPayload().ExecutionPayload.Transactions {
 			ethTx := new(ethtypes.Transaction)
 			if err := ethTx.UnmarshalBinary(txBz); err != nil {
 				continue
 			}
-			m.TxPool.Remove(ethTx.Hash())
+			txHash := ethTx.Hash()
+
+			m.timeInsertedMu.Lock()
+			delete(m.timeInserted, txHash)
+			m.timeInsertedMu.Unlock()
+
+			// We only want to remove transactions from the mempool if we're forcing it.
+			if m.forceTxRemoval {
+				m.TxPool.Remove(txHash)
+			}
 		}
 	}
 	return nil
