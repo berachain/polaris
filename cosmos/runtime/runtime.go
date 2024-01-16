@@ -21,6 +21,7 @@
 package runtime
 
 import (
+	"math/big"
 	"sync"
 	"time"
 
@@ -121,12 +122,14 @@ func New(
 		panic(err)
 	}
 
+	priceLimit := big.NewInt(0).SetUint64(cfg.Polar.LegacyTxPool.PriceLimit)
 	p.WrappedTxPool = txpool.New(
 		p.ExecutionLayer.Backend().Blockchain(),
 		p.ExecutionLayer.Backend().TxPool(),
 		int64(cfg.Polar.LegacyTxPool.Lifetime),
 		cfg.Polar.ForceTxRemoval,
 		&p.blockBuilderMu,
+		priceLimit,
 	)
 
 	return p

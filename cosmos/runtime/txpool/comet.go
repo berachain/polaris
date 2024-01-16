@@ -36,7 +36,7 @@ const (
 type CometRemoteCache interface {
 	IsRemoteTx(txHash common.Hash) bool
 	MarkRemoteSeen(txHash common.Hash)
-	TimeFirstSeen(txHash common.Hash) int64 // UNIX timestamp
+	TimeFirstSeen(txHash common.Hash) int64 // Unix timestamp
 	DropRemoteTx(txHash common.Hash)
 }
 
