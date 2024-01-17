@@ -170,7 +170,7 @@ func (c *Contract) WithdrawDelegatorReward(
 	return amount, nil
 }
 
-// GetDelegatorValidatorReward implements `getDelegatorValidatorReward(address,adresss)`.
+// GetDelegatorValidatorReward implements `getDelegatorValidatorReward(address,address)`.
 func (c *Contract) GetDelegatorValidatorReward(
 	ctx context.Context,
 	delegator common.Address,

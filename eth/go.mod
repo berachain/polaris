@@ -2,12 +2,16 @@ module github.com/berachain/polaris/eth
 
 go 1.21
 
-replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v1.13.10-1-polar
+replace (
+	github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20230928194634-aa077af62593
+	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
+	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v1.13.10-1-polar
+)
 
 require (
 	github.com/berachain/polaris/contracts v0.1.0-alpha
 	github.com/berachain/polaris/lib v0.0.4-alpha
-	github.com/ethereum/go-ethereum v1.13.7
+	github.com/ethereum/go-ethereum v1.13.10
 	github.com/holiman/uint256 v1.2.4
 	github.com/onsi/ginkgo/v2 v2.13.2
 	github.com/onsi/gomega v1.29.0
