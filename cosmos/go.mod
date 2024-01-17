@@ -34,8 +34,8 @@ require (
 	github.com/ethereum/go-ethereum v1.13.10
 	github.com/golang/mock v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/onsi/ginkgo/v2 v2.13.2
-	github.com/onsi/gomega v1.29.0
+	github.com/onsi/ginkgo/v2 v2.14.0
+	github.com/onsi/gomega v1.30.0
 	github.com/spf13/cast v1.5.1
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
@@ -244,7 +244,7 @@ require (
 	golang.org/x/term v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.15.0 // indirect
+	golang.org/x/tools v0.16.1 // indirect
 	google.golang.org/genproto v0.0.0-20231211222908-989df2bf70f3 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20231120223509-83a465c0220f // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231212172506-995d672761c0 // indirect

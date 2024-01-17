@@ -8,8 +8,8 @@ require (
 	github.com/cosmos/cosmos-sdk v0.50.3
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/ethereum/go-ethereum v1.13.10
-	github.com/onsi/ginkgo/v2 v2.13.2
-	github.com/onsi/gomega v1.29.0
+	github.com/onsi/ginkgo/v2 v2.14.0
+	github.com/onsi/gomega v1.30.0
 )
 
 require (
@@ -183,7 +183,7 @@ require (
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/term v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/tools v0.15.0 // indirect
+	golang.org/x/tools v0.16.1 // indirect
 	google.golang.org/genproto v0.0.0-20231211222908-989df2bf70f3 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20231120223509-83a465c0220f // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231212172506-995d672761c0 // indirect

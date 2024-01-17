@@ -9,7 +9,7 @@ require (
 	github.com/golangci/golangci-lint v1.55.2
 	github.com/google/addlicense v1.1.1
 	github.com/matryer/moq v0.3.2
-	github.com/onsi/ginkgo/v2 v2.13.2
+	github.com/onsi/ginkgo/v2 v2.14.0
 	github.com/securego/gosec/v2 v2.18.2
 	github.com/vektra/mockery/v2 v2.34.1
 )
@@ -314,7 +314,7 @@ require (
 	golang.org/x/term v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.15.0 // indirect
+	golang.org/x/tools v0.16.1 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect

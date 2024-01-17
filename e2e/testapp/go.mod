@@ -32,8 +32,8 @@ require (
 	github.com/cometbft/cometbft v0.38.2
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-sdk v0.50.3
-	github.com/onsi/ginkgo/v2 v2.13.2
-	github.com/onsi/gomega v1.29.0
+	github.com/onsi/ginkgo/v2 v2.14.0
+	github.com/onsi/gomega v1.30.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.16.0
 )
@@ -267,7 +267,7 @@ require (
 	golang.org/x/term v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.15.0 // indirect
+	golang.org/x/tools v0.16.1 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.149.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
