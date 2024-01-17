@@ -373,7 +373,12 @@ buf-install:
 	@if [ "$(shell uname)" = "Darwin" ]; then \
 		brew install bufbuild/buf/buf; \
 	else \
-		go install github.com/bufbuild/buf/cmd/buf; \
+		BIN="/usr/local/bin" && \
+		VERSION="1.28.1" && \
+		curl -sSL \
+		"https://github.com/bufbuild/buf/releases/download/v${VERSION}/buf-$(uname -s)-$(uname -m)" \
+		-o "${BIN}/buf" && \
+		chmod +x "${BIN}/buf"
 	fi
 
 buf-lint-fix:
