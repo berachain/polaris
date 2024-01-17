@@ -76,7 +76,7 @@ func (m *Miner) Init(serializer EnvelopeSerializer) {
 }
 
 // buildBlock builds and submits a payload, it also waits for the txs
-// to resolve from the underying worker.
+// to resolve from the underlying worker.
 func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 	defer m.clearPayload()
 

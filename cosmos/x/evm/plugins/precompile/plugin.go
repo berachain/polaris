@@ -146,7 +146,7 @@ func (p *plugin) Run(
 	}
 
 	// make sure the readOnly is only set if we aren't in readOnly yet, which also makes sure that
-	// the readOnly flag isn't removed for child calls (taken from geth core/vm/interepreter.go)
+	// the readOnly flag isn't removed for child calls (taken from geth core/vm/interpreter.go)
 	if readOnly && !ms.IsReadOnly() {
 		cem.SetReadOnly(true)
 		ms.SetReadOnly(true)
