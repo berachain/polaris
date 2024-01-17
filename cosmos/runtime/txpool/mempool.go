@@ -33,6 +33,7 @@ import (
 	"github.com/berachain/polaris/eth/core"
 	"github.com/berachain/polaris/lib/utils"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
@@ -135,8 +136,15 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		return errs[0]
 	}
 
-	// Add the eth tx to the remote cache.
-	m.crc.MarkRemoteSeen(ethTx.Hash())
+	h := ethTx.Hash()
+	if m.crc.IsRemoteTx(h) {
+		telemetry.IncrCounter(float32(1), MetricKeyMempoolSeenBeforeTxs)
+	} else {
+		// Add the eth tx to the remote cache for the first time.
+		m.crc.MarkRemoteSeen(h)
+	}
+	telemetry.IncrCounter(float32(1), MetricKeyMempoolRemoteTxs)
+	telemetry.IncrCounter(float32(1), MetricKeyMempoolSize)
 
 	return nil
 }

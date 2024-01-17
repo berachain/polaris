@@ -52,6 +52,7 @@ func (m *Mempool) AnteHandle(
 				ctx.BlockTime().Unix(), ethTx,
 			); shouldEject {
 				m.crc.DropRemoteTx(ethTx.Hash())
+				telemetry.IncrCounter(float32(1), MetricKeyMempoolAnteEvictedTxs)
 				return ctx, errors.New("eject from comet mempool")
 			}
 		}
@@ -72,10 +73,20 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	// Ejection conditions
 	// 1. If the transaction has been included in a block.
 	// 2. If the transaction has been in the mempool for longer than the configured timeout.
-	return m.includedCanonicalChain(txHash) ||
-		currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime ||
-		tx.GasPrice().Cmp(m.priceLimit) <= 0 ||
-		tx.GasFeeCap().Cmp(m.priceLimit) <= 0 || tx.GasTipCap().Cmp(m.priceLimit) <= 0
+	// 3. If the transaction's gas params are over the configured limit.
+	includedInBlock := m.includedCanonicalChain(txHash)
+	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
+	priceOverLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0 || tx.GasFeeCap().Cmp(m.priceLimit) <= 0 || tx.GasTipCap().Cmp(m.priceLimit) <= 0
+	if includedInBlock {
+		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectInclusion)
+	}
+	if expired {
+		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectExpiredTx)
+	}
+	if priceOverLimit {
+		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectPriceLimit)
+	}
+	return includedInBlock || expired || priceOverLimit
 }
 
 // includedCanonicalChain returns whether the tx of the given hash is included in the canonical
