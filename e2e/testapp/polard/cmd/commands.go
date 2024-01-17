@@ -106,6 +106,7 @@ func initRootCmd(
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
+	polarconfig.AddPolarisFlags(startCmd)
 }
 
 // genesisCommand builds genesis-related `polard genesis` command.

@@ -114,7 +114,7 @@ var _ = Describe("Staking", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
-		tf.WaitForBlock(1) //nolint:gomnd // Wait for a block to be mined.
+		Expect(tf.WaitForBlock(1)).To(Succeed())
 
 		ude, err := stakingPrecompile.GetUnbondingDelegation(
 			nil,
