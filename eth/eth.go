@@ -54,6 +54,7 @@ type (
 		SubscribeTransactions(ch chan<- core.NewTxsEvent, reorgs bool) event.Subscription
 		Status(hash common.Hash) txpool.TxStatus
 		Has(hash common.Hash) bool
+		Remove(common.Hash)
 	}
 
 	// NetworkingStack is the entrypoint for the evm execution environment.
@@ -87,8 +88,9 @@ type (
 
 	// Config struct holds the configuration for Polaris and Node.
 	Config struct {
-		Polar polar.Config
-		Node  node.Config
+		OptimisticExecution bool
+		Polar               polar.Config
+		Node                node.Config
 	}
 )
 

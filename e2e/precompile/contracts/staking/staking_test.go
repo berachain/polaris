@@ -114,6 +114,7 @@ var _ = Describe("Staking", func() {
 		)
 		Expect(err).ToNot(HaveOccurred())
 		ExpectSuccessReceipt(tf.EthClient(), tx)
+		Expect(tf.WaitForBlock(1)).To(Succeed())
 
 		ude, err := stakingPrecompile.GetUnbondingDelegation(
 			nil,

@@ -22,7 +22,6 @@ package state
 
 import (
 	"context"
-	"errors"
 
 	storetypes "cosmossdk.io/store/types"
 
@@ -98,51 +97,23 @@ func (spf *SPFactory) NewPluginFromContext(ctx context.Context) core.StatePlugin
 }
 
 // NewPluginAtBlockNumber creates a new StatePlugin instance using the provided block.
-func (spf *SPFactory) NewPluginAtBlockNumber(blockNumber uint64) (core.StatePlugin, error) {
-	var ctx sdk.Context
-	// Ensure the query context function is set.
-	if spf.qfn == nil {
-		return nil, errors.New("no query context function set in host chain")
-	}
+func (spf *SPFactory) NewPluginAtBlockNumber(blockNumber int64) (core.StatePlugin, error) {
+	var (
+		ctx sdk.Context
+		err error
+	)
 
-	// // NOTE: the PreBlock and BeginBlock state changes will not have been applied to the state
-	// // at this point.
-	// // This is kind of bad since queries from JSON-RPC (i.e eth_call estimateGas etc.)
-	// // won't be able to do this
-	// // ontop of a state that has these updates for the block.
-	// // TODO: Fix this.
-	int64Number := int64(blockNumber)
-	// TODO: the GTE may be hiding a larger issue with the timing of the NewHead channel stuff.
-	// Investigate and hopefully remove this GTE.
-	if int64Number >= spf.latestQueryContext.BlockHeight() {
-		// TODO: Manager properly
-		if spf.latestQueryContext.MultiStore() == nil {
-			ctx = spf.latestQueryContext.WithEventManager(sdk.NewEventManager())
-		} else {
-			ctx, _ = spf.latestQueryContext.CacheContext()
-		}
+	if blockNumber >= spf.latestQueryContext.BlockHeight() {
+		ctx, _ = spf.latestQueryContext.CacheContext()
 	} else {
 		// Get the query context at the given height.
-		var err error
-		ctx, err = spf.qfn()(int64Number, false)
+		ctx, err = spf.qfn()(blockNumber, false)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return spf.NewPluginFromContext(ctx), nil
-	// // Create a State Plugin with the requested chain height.
-	// sp := NewPlugin(p.ak, p.storeKey, p.qfn, p.plf)
-
-	// // TODO: Manager properly
-	// if p.latestQueryContext.MultiStore() != nil {
-	// 	sp.Reset(ctx)
-	// }
-	// // return sp, nil
-	// ctx, err := spf.qfn()(int64(blockNumber), false)
-	// if err != nil {
-	// 	return nil, err
-	// }
 }
 
 // SetGenesisContext updates the SPFactory's genesis context to the provided context.
@@ -167,6 +138,9 @@ func (spf *SPFactory) SetFinalizeBlockContext(ctx context.Context) {
 
 // SetLatestQueryContext updates the SPFactory's latestQueryContext to the provided context.
 // This context will be used for subsequent state queries.
+//
+// NOTE: From ABCI, this may be the UNSAFE PrepareCheckState context, which should NOT be written
+// to.
 func (spf *SPFactory) SetLatestQueryContext(ctx context.Context) {
 	spf.latestQueryContext = sdk.UnwrapSDKContext(ctx)
 }

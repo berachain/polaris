@@ -323,11 +323,12 @@ func (b *backend) StateAndHeaderByNumber(
 	// Pending state is only known by the miner
 	if number == rpc.PendingBlockNumber {
 		block, state := b.polar.miner.Pending()
-		if block == nil {
-			return nil, nil, nil
+		if block == nil || state == nil {
+			return nil, nil, errors.New("pending state is not available")
 		}
 		return state, block.Header(), nil
 	}
+
 	// Otherwise resolve the block number and return its state
 	header, err := b.HeaderByNumber(ctx, number)
 	if err != nil {
@@ -335,7 +336,7 @@ func (b *backend) StateAndHeaderByNumber(
 	}
 	if header == nil {
 		// to match Geth
-		return nil, nil, pcore.ErrBlockNotFound
+		return nil, nil, pcore.ErrHeaderNotFound
 	}
 	b.logger.Debug("called eth.rpc.backend.StateAndHeaderByNumber", "header", header)
 

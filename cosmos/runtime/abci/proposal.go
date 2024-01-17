@@ -122,6 +122,19 @@ func (pp *ProposalProvider) ProcessProposal(
 		return nil, err
 	}
 
+	// We set this preblocked, beginblocked, and processed context to the state plugin factory for
+	// queries on the node.
+	spf := pp.wrappedBlockchain.StatePluginFactory()
+
+	// Technically a race condition here, between here and emitting the chain head
+	// event but it is so small and the network latency will most definitely overshadow.
+	defer spf.SetLatestQueryContext(ctx)
+
+	// Set the insert chain context for processing the block. NOTE: We insert to the chain but do
+	// NOT set the chain head using this context.
+	spf.SetInsertChainContext(ctx)
+	pp.wrappedBlockchain.PrimePlugins(ctx)
+
 	return pp.wrappedBlockchain.ProcessProposal(ctx, req)
 }
 
@@ -142,6 +155,15 @@ func (pp *ProposalProvider) simulateFinalizeBlock(ctx sdk.Context, req abciReque
 
 	if _, err := pp.beginBlocker(ctx); err != nil {
 		return err
+	}
+
+	// First check for an abort signal after beginBlock, as it's the first place
+	// we spend any significant amount of time.
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		// continue
 	}
 
 	return nil

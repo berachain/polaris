@@ -23,7 +23,8 @@ package txpool
 import (
 	"context"
 	"errors"
-	"time"
+	"math/big"
+	"sync"
 
 	"cosmossdk.io/log"
 
@@ -61,18 +62,27 @@ type GethTxPool interface {
 // is to allow for transactions coming in from CometBFT's gossip to be added to the underlying
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
-	txpool   eth.TxPool
-	lifetime time.Duration
-	chain    core.ChainReader
-	handler  Lifecycle
+	eth.TxPool
+	lifetime       int64
+	chain          core.ChainReader
+	handler        Lifecycle
+	crc            CometRemoteCache
+	blockBuilderMu *sync.RWMutex
+	priceLimit     *big.Int
 }
 
 // New creates a new Mempool.
-func New(chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration) *Mempool {
+func New(
+	chain core.ChainReader, txpool eth.TxPool, lifetime int64,
+	blockBuilderMu *sync.RWMutex, priceLimit *big.Int,
+) *Mempool {
 	return &Mempool{
-		txpool:   txpool,
-		chain:    chain,
-		lifetime: lifetime,
+		TxPool:         txpool,
+		chain:          chain,
+		lifetime:       lifetime,
+		crc:            newCometRemoteCache(),
+		blockBuilderMu: blockBuilderMu,
+		priceLimit:     priceLimit,
 	}
 }
 
@@ -82,7 +92,7 @@ func (m *Mempool) Init(
 	txBroadcaster TxBroadcaster,
 	txSerializer TxSerializer,
 ) {
-	m.handler = newHandler(txBroadcaster, m.txpool, txSerializer, logger)
+	m.handler = newHandler(txBroadcaster, m.TxPool, txSerializer, m.crc, logger)
 }
 
 // Start starts the Mempool TxHandler.
@@ -95,8 +105,7 @@ func (m *Mempool) Stop() error {
 	return m.handler.Stop()
 }
 
-// Insert attempts to insert a Tx into the app-side mempool returning
-// an error upon failure.
+// Insert attempts to insert a Tx into the app-side mempool returning an error upon failure.
 func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	msgs := sdkTx.GetMsgs()
@@ -104,25 +113,37 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		return errors.New("only one message is supported")
 	}
 
-	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); !ok {
+	wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0])
+	if !ok {
 		// We have to return nil for non-ethereum transactions as to not fail check-tx.
 		return nil
-	} else if errs := m.txpool.Add(
-		[]*ethtypes.Transaction{wet.Unwrap()}, false, false,
-	); len(errs) != 0 {
+	}
+
+	// Add the eth tx to the Geth txpool.
+	ethTx := wet.Unwrap()
+
+	// Insert the tx into the txpool as a remote.
+	m.blockBuilderMu.RLock()
+	errs := m.TxPool.Add([]*ethtypes.Transaction{ethTx}, false, false)
+	m.blockBuilderMu.RUnlock()
+	if len(errs) > 0 {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
-		if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) && sCtx.ExecMode() == sdk.ExecModeCheck {
+		if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) &&
+			(sCtx.ExecMode() == sdk.ExecModeCheck || sCtx.ExecMode() == sdk.ExecModeReCheck) {
 			return nil
 		}
 		return errs[0]
 	}
+
+	// Add the eth tx to the remote cache.
+	m.crc.MarkRemoteSeen(ethTx.Hash())
 
 	return nil
 }
 
 // CountTx returns the number of transactions currently in the mempool.
 func (m *Mempool) CountTx() int {
-	runnable, blocked := m.txpool.Stats()
+	runnable, blocked := m.TxPool.Stats()
 	return runnable + blocked
 }
 
@@ -132,6 +153,26 @@ func (m *Mempool) Select(context.Context, [][]byte) mempool.Iterator {
 }
 
 // Remove is an intentional no-op as the eth txpool handles removals.
-func (m *Mempool) Remove(sdk.Tx) error {
+func (m *Mempool) Remove(tx sdk.Tx) error {
+	// Get the Eth payload envelope from the Cosmos transaction.
+	msgs := tx.GetMsgs()
+	if len(msgs) == 1 {
+		env, ok := utils.GetAs[*types.WrappedPayloadEnvelope](msgs[0])
+		if !ok {
+			return nil
+		}
+
+		// Unwrap the payload to unpack the individual eth transactions to remove from the txpool.
+		for _, txBz := range env.UnwrapPayload().ExecutionPayload.Transactions {
+			ethTx := new(ethtypes.Transaction)
+			if err := ethTx.UnmarshalBinary(txBz); err != nil {
+				continue
+			}
+			txHash := ethTx.Hash()
+
+			// Remove the eth tx from comet seen tx cache.
+			m.crc.DropRemoteTx(txHash)
+		}
+	}
 	return nil
 }

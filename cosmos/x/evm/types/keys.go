@@ -21,9 +21,9 @@
 package types
 
 const (
-	StoreKey                       = "evm"
-	ModuleName                     = "evm"
-	MetricKeyInsertBlockAndSetHead = "polaris_evm_insert_block_and_set_head"
+	StoreKey             = "evm"
+	ModuleName           = "evm"
+	MetricKeyInsertBlock = "polaris_evm_insert_block_and_set_head"
 )
 
 const (

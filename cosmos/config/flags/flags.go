@@ -21,6 +21,8 @@
 package flags
 
 const (
+	OptimisticExecution = "polaris.optimistic-execution"
+
 	// Polar Root.
 	RPCEvmTimeout = "polaris.polar.rpc-evm-timeout"
 	RPCTxFeeCap   = "polaris.polar.rpc-tx-fee-cap"

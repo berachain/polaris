@@ -142,6 +142,10 @@ func New(
 		func(header *ethtypes.Header) bool { return true },
 	)
 
+	if err = pl.miner.SetExtra(pl.config.Miner.ExtraData); err != nil {
+		panic(err)
+	}
+
 	// Register the backend on the node
 	stack.RegisterAPIs(pl.APIs())
 	stack.RegisterLifecycle(pl)

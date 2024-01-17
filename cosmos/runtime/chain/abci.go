@@ -74,11 +74,8 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 		}, err
 	}
 
-	spf := wbc.StatePluginFactory()
-	spf.SetInsertChainContext(ctx)
-
-	// Insert the block into the chain.å
-	if err = wbc.InsertBlockWithoutSetHead(block); err != nil {
+	// Insert the block into the chain.
+	if err = wbc.InsertBlockAndSetHead(block); err != nil {
 		ctx.Logger().Error("failed to insert block", "err", err)
 		return &abci.ResponseProcessProposal{
 			Status: abci.ResponseProcessProposal_REJECT,

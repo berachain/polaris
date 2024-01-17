@@ -48,13 +48,14 @@ var _ Blockchain = (*blockchain)(nil)
 
 // Blockchain interface defines the methods that a blockchain must have.
 type Blockchain interface {
-	preparePlugins(ctx context.Context)
 	ChainReader
 	ChainWriter
 	ChainSubscriber
 	ChainResources
-	StatePluginFactory() StatePluginFactory
 	core.ChainContext
+
+	PrimePlugins(ctx context.Context)
+	StatePluginFactory() StatePluginFactory
 }
 
 // blockchain is the canonical, persistent object that operates the Polaris EVM.
@@ -129,7 +130,7 @@ func NewChain(
 	}
 	bc.processor = core.NewStateProcessor(bc.config, bc, bc.engine)
 	bc.validator = core.NewBlockValidator(bc.config, bc, bc.engine)
-	// TODO: hmm...
+	// TODO: bug fix required.
 	bc.currentBlock.Store(
 		ethtypes.NewBlock(&ethtypes.Header{Time: 0, Number: big.NewInt(0),
 			BaseFee: big.NewInt(0)}, nil, nil, nil, trie.NewStackTrie(nil)))
@@ -137,22 +138,18 @@ func NewChain(
 	return bc
 }
 
-func (bc *blockchain) LoadLastState(ctx context.Context, number uint64) error {
-	// ctx here is the one created from app.CommitMultistore().
-	bc.preparePlugins(ctx)
-	return bc.loadLastState(number)
-}
-
-func (bc *blockchain) preparePlugins(ctx context.Context) {
-	bc.bp.Prepare(ctx)
+func (bc *blockchain) PrimePlugins(ctx context.Context) {
+	if bc.bp != nil {
+		bc.bp.Prepare(ctx)
+	}
 	if bc.hp != nil {
 		bc.hp.Prepare(ctx)
 	}
 }
 
-// loadLastState loads the last known chain state from the database. This method
+// LoadLastState loads the last known chain state from the database. This method
 // assumes that the chain manager mutex is held.
-func (bc *blockchain) loadLastState(number uint64) error {
+func (bc *blockchain) LoadLastState(number uint64) error {
 	bc.logger.Info("loading last state")
 	b := bc.GetBlockByNumber(number)
 	if number == 0 {
