@@ -289,7 +289,7 @@ format:
 	@$(MAKE) license-fix buf-lint-fix forge-lint-fix golangci-fix
 
 lint:
-	@$(MAKE) license buf-lint forge-lint golangci gosec
+	@$(MAKE) license forge-lint golangci gosec
 
 
 #################
@@ -372,14 +372,6 @@ buf-install:
 	@echo "--> Installing buf"
 	@if [ "$(shell uname)" = "Darwin" ]; then \
 		brew install bufbuild/buf/buf; \
-	else \
-		BIN="/usr/local/bin" && \
-		VERSION="1.28.1" && \
-		curl -sSL \
-		"https://github.com/bufbuild/buf/releases/download/v${VERSION}/buf-$(uname -s)-$(uname -m)" \
-		-o "/tmp/buf" && \
-		mv "/tmp/buf" "${BIN}/buf" && \
-		chmod +x "${BIN}/buf"; \
 	fi
 
 buf-lint-fix:
