@@ -70,13 +70,12 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	}
 	txHash := tx.Hash()
 
-	// Ejection conditions
 	// 1. If the transaction has been included in a block.
 	// 2. If the transaction has been in the mempool for longer than the configured timeout.
 	// 3. If the transaction's gas params are over the configured limit.
 	includedInBlock := m.includedCanonicalChain(txHash)
 	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
-	priceOverLimit := tx.Cost().Cmp(m.priceLimit) <= 0
+	priceOverLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
 
 	if includedInBlock {
 		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectInclusion)
