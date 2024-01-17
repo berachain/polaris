@@ -370,7 +370,11 @@ protoDir := "proto"
 
 buf-install:
 	@echo "--> Installing buf"
-	@go install github.com/bufbuild/buf/cmd/buf
+	@if [ "$(shell uname)" = "Darwin" ]; then \
+		brew install bufbuild/buf/buf; \
+	else \
+		go install github.com/bufbuild/buf/cmd/buf; \
+	fi
 
 buf-lint-fix:
 	@$(MAKE) buf-install 
