@@ -31,7 +31,7 @@ require (
 	github.com/berachain/polaris/cosmos v0.1.2-alpha
 	github.com/berachain/polaris/eth v0.1.2-alpha
 	github.com/cometbft/cometbft v0.38.2
-	github.com/cosmos/cosmos-db v1.0.1-0.20231026072645-8a5e4f599be7
+	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-sdk v0.50.3-0.20231218145840-3ea39a32bb46
 	github.com/onsi/ginkgo/v2 v2.13.2
 	github.com/onsi/gomega v1.29.0
