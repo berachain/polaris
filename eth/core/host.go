@@ -42,6 +42,8 @@ type PolarisHostChain interface {
 	GetPrecompilePlugin() PrecompilePlugin
 	// GetStatePlugin returns the `StatePlugin` of the Polaris host chain.
 	GetStatePluginFactory() StatePluginFactory
+	// Version()
+	Version() string
 }
 
 // =============================================================================

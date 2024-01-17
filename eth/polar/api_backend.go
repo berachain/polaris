@@ -23,7 +23,9 @@ package polar
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	pcore "github.com/berachain/polaris/eth/core"
@@ -78,6 +80,7 @@ type backend struct {
 	cfg                 *Config
 	extRPCEnabled       bool
 	allowUnprotectedTxs bool
+	hostChainVersion    string
 	gpo                 *gasprice.Oracle
 	logger              log.Logger
 }
@@ -92,12 +95,14 @@ func NewAPIBackend(
 	extRPCEnabled bool,
 	allowUnprotectedTxs bool,
 	cfg *Config,
+	hostChainVersion string,
 ) APIBackend {
 	b := &backend{
 
 		polar:               polar,
 		cfg:                 cfg,
 		extRPCEnabled:       extRPCEnabled,
+		hostChainVersion:    hostChainVersion,
 		allowUnprotectedTxs: allowUnprotectedTxs,
 		logger:              log.Root(),
 	}
@@ -641,5 +646,7 @@ func (b *backend) PeerCount() hexutil.Uint {
 
 // ClientVersion returns the current client version.
 func (b *backend) ClientVersion() string {
-	return version.ClientName("polaris-geth")
+	return fmt.Sprintf(
+		"%s:%s", b.hostChainVersion, strings.ToLower(version.ClientName("polaris-geth")),
+	)
 }

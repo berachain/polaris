@@ -76,7 +76,7 @@ var _ = Describe("Staking", func() {
 	})
 
 	AfterEach(func() {
-		// Dump logs and stop the containter here.
+		// Dump logs and stop the container here.
 		if !CurrentSpecReport().Failure.IsZero() {
 			logs, err := tf.DumpLogs()
 			Expect(err).ToNot(HaveOccurred())

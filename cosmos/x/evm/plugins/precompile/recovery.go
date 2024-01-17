@@ -34,7 +34,7 @@ import (
 
 // RecoveryHandler is used to recover from any WriteProtection and gas consumption panics that
 // occur during precompile execution; the handler modifies the given error to be returned to the
-// caller. Any other type of panic is propogated up to the caller via panic.
+// caller. Any other type of panic is propagated up to the caller via panic.
 func RecoveryHandler(ctx sdk.Context, vmErr *error) {
 	if panicked := recover(); panicked != nil {
 		// NOTE: this only propagates an error back to the EVM if the type of the given panic

@@ -33,6 +33,7 @@ import (
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/version"
 )
 
 // Compile-time interface assertion.
@@ -73,7 +74,7 @@ func NewHost(
 	return h
 }
 
-// SetupPrecompiles intializes the precompile contracts.
+// SetupPrecompiles initializes the precompile contracts.
 func (h *Host) SetupPrecompiles() error {
 	// Set the query context function for the block and state plugins
 	pcs := h.pcs().GetPrecompiles()
@@ -109,4 +110,11 @@ func (h *Host) GetStatePluginFactory() core.StatePluginFactory {
 // GetAllPlugins returns all the plugins.
 func (h *Host) GetAllPlugins() []any {
 	return []any{h.bp, h.hp, h.pp, h.sp}
+}
+
+// Version returns the version of the host chain.
+func (h *Host) Version() string {
+	versionInfo := version.NewInfo()
+	return versionInfo.AppName + "/" + version.Version + ":" + "cosmos/" +
+		versionInfo.CosmosSdkVersion
 }
