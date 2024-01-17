@@ -38,7 +38,6 @@ type ChainWriter interface {
 	InsertBlock(block *ethtypes.Block) error
 	InsertBlockAndSetHead(block *ethtypes.Block) error
 	SetFinalizedBlock() error
-	EmitHeadEvent() error
 	WriteBlockAndSetHead(block *ethtypes.Block, receipts []*ethtypes.Receipt, logs []*ethtypes.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
@@ -149,6 +148,20 @@ func (bc *blockchain) WriteBlockAndSetHead(
 		bc.receiptsCache.Add(block.Hash(), receipts)
 	}
 
+	// In theory, we should fire a ChainHeadEvent when we inject
+	// a canonical block, but sometimes we can insert a batch of
+	// canonical blocks. Avoid firing too many ChainHeadEvents,
+	// we will fire an accumulated ChainHeadEvent and disable fire
+	// event here.
+	if emitHeadEvent {
+		// Fire off the feeds.
+		bc.chainFeed.Send(core.ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
+		if len(logs) > 0 {
+			bc.logsFeed.Send(logs)
+		}
+		bc.chainHeadFeed.Send(core.ChainHeadEvent{Block: block})
+	}
+
 	return core.CanonStatTy, nil
 }
 
@@ -219,30 +232,5 @@ func (bc *blockchain) SetFinalizedBlock() error {
 	if currBlock := bc.currentBlock.Load(); currBlock != nil {
 		bc.finalizedBlock.Store(currBlock)
 	}
-	return nil
-}
-
-func (bc *blockchain) EmitHeadEvent() error {
-	block := bc.finalizedBlock.Load()
-	receipts, ok := bc.receiptsCache.Get(block.Hash())
-	if !ok {
-		return errors.New("receipts not found")
-	}
-
-	logs := make([]*ethtypes.Log, 0)
-	for _, receipt := range receipts {
-		logs = append(logs, receipt.Logs...)
-	}
-
-	// In theory, we should fire a ChainHeadEvent when we inject
-	// a canonical block, but sometimes we can insert a batch of
-	// canonical blocks. Avoid firing too many ChainHeadEvents,
-	// we will fire an accumulated ChainHeadEvent and disable fire
-	// event here.
-	bc.chainFeed.Send(core.ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
-	if len(logs) > 0 {
-		bc.logsFeed.Send(logs)
-	}
-	bc.chainHeadFeed.Send(core.ChainHeadEvent{Block: block})
 	return nil
 }
