@@ -57,6 +57,7 @@ func RecommendedServerConfig() *serverconfig.Config {
 	cfg.Telemetry.EnableHostnameLabel = true
 	cfg.Telemetry.GlobalLabels = [][]string{}
 	cfg.IAVLCacheSize = 20000
+	cfg.AppDBBackend = "pebbledb"
 	return cfg
 }
 
