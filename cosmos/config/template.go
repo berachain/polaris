@@ -28,6 +28,7 @@ const (
 ###############################################################################
 # General Polaris settings
 [polaris]
+optimistic-execution = {{ .Polaris.OptimisticExecution }}
 
 [polaris.polar]
 # Gas cap for RPC requests

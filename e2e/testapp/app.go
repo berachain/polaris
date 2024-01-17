@@ -188,6 +188,9 @@ func NewPolarisApp(
 		panic(err)
 	}
 
+	if true {
+		baseAppOptions = append(baseAppOptions, baseapp.SetOptimisticExecution())
+	}
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 	app.Polaris = polarruntime.New(app,

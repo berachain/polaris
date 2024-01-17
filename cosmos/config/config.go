@@ -68,11 +68,18 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 
 //nolint:funlen,gocognit,gocyclo,cyclop // TODO break up later.
 func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
-	var err error
-	var val int64
-	conf := &Config{}
+	var (
+		err  error
+		val  int64
+		conf = &Config{}
+	)
 
-	// Polar settings
+	// 🅱️onad mode.
+	if conf.OptimisticExecution, err = parser.GetBool(flags.OptimisticExecution); err != nil {
+		return nil, err
+	}
+
+	// Polaris Core settings
 	if conf.Polar.RPCGasCap, err =
 		parser.GetUint64(flags.RPCGasCap); err != nil {
 		return nil, err

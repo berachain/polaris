@@ -88,8 +88,9 @@ type (
 
 	// Config struct holds the configuration for Polaris and Node.
 	Config struct {
-		Polar polar.Config
-		Node  node.Config
+		OptimisticExecution bool
+		Polar               polar.Config
+		Node                node.Config
 	}
 )
 
