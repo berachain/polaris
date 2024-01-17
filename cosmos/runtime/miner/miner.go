@@ -158,7 +158,7 @@ func (m *Miner) clearPayload() {
 // processValidatorMsgs processes the validator messages.
 func (m *Miner) processValidatorMsgs(
 	ctx sdk.Context, maxTxBytes int64, ethGasUsed uint64, txs [][]byte,
-) ([][]byte, error) { //nolint:unparam // should be handled better.
+) ([][]byte, error) {
 	b := ctx.ConsensusParams().Block
 	if b == nil {
 		return nil, errors.New("consensus params block is nil")

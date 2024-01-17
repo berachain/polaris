@@ -188,13 +188,15 @@ func NewPolarisApp(
 		panic(err)
 	}
 
-	if true {
+	polarisConfig := evmconfig.MustReadConfigFromAppOpts(appOpts)
+	if polarisConfig.OptimisticExecution {
 		baseAppOptions = append(baseAppOptions, baseapp.SetOptimisticExecution())
 	}
+
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 	app.Polaris = polarruntime.New(app,
-		evmconfig.MustReadConfigFromAppOpts(appOpts), app.Logger(), app.EVMKeeper.Host, nil,
+		polarisConfig, app.Logger(), app.EVMKeeper.Host, nil,
 	)
 
 	// Build cosmos ante handler for non-evm transactions.

@@ -134,8 +134,8 @@ func (bc *blockchain) InsertBlock(block *ethtypes.Block) error {
 
 // WriteBlockAndSetHead sets the head of the blockchain to the given block and finalizes the block.
 func (bc *blockchain) WriteBlockAndSetHead(
-	block *ethtypes.Block, receipts []*ethtypes.Receipt, logs []*ethtypes.Log,
-	state state.StateDB, emitHeadEvent bool,
+	block *ethtypes.Block, receipts []*ethtypes.Receipt /*logs*/, _ []*ethtypes.Log,
+	state state.StateDB, _ /*emitHeadEvent*/ bool,
 ) (core.WriteStatus, error) {
 	// Write the block to the store.
 	if err := bc.writeBlockWithState(block, receipts, state); err != nil {
