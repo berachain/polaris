@@ -7,7 +7,7 @@ require (
 	github.com/berachain/polaris/e2e/localnet v0.0.0-20231218154435-a4bbdde34b8e
 	github.com/cosmos/cosmos-sdk v0.50.3-0.20231218145840-3ea39a32bb46
 	github.com/cosmos/gogoproto v1.4.11
-	github.com/ethereum/go-ethereum v1.13.7
+	github.com/ethereum/go-ethereum v1.13.10
 	github.com/onsi/ginkgo/v2 v2.13.2
 	github.com/onsi/gomega v1.29.0
 )

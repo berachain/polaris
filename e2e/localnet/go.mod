@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/berachain/polaris/contracts v0.0.4-alpha
 	github.com/docker/docker v24.0.7+incompatible
-	github.com/ethereum/go-ethereum v1.13.7
+	github.com/ethereum/go-ethereum v1.13.10
 	github.com/onsi/ginkgo/v2 v2.13.2
 	github.com/onsi/gomega v1.29.0
 	github.com/ory/dockertest v3.3.5+incompatible

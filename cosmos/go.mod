@@ -35,7 +35,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.50.3-0.20231218145840-3ea39a32bb46
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.11
-	github.com/ethereum/go-ethereum v1.13.7
+	github.com/ethereum/go-ethereum v1.13.10
 	github.com/golang/mock v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/onsi/ginkgo/v2 v2.13.2
