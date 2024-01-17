@@ -3,7 +3,7 @@ module github.com/berachain/polaris/build/tools
 go 1.21
 
 require (
-	github.com/bufbuild/buf v1.27.1
+	github.com/bufbuild/buf v1.28.1
 	github.com/cosmos/gosec/v2 v2.0.0-20230124142343-bf28a33fadf2
 	github.com/ethereum/go-ethereum v1.13.10
 	github.com/golangci/golangci-lint v1.55.2
@@ -17,7 +17,7 @@ require (
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect
 	4d63.com/gochecknoglobals v0.2.1 // indirect
-	connectrpc.com/connect v1.11.1 // indirect
+	connectrpc.com/connect v1.12.0 // indirect
 	connectrpc.com/otelconnect v0.6.0 // indirect
 	github.com/4meepo/tagalign v1.3.3 // indirect
 	github.com/Abirdcfly/dupword v0.0.13 // indirect
