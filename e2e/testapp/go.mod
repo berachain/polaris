@@ -30,7 +30,7 @@ require (
 	github.com/berachain/polaris/cosmos v0.1.2-alpha
 	github.com/berachain/polaris/eth v0.1.2-alpha
 	github.com/cometbft/cometbft v0.38.2
-	github.com/cosmos/cosmos-db v1.0.0
+	github.com/cosmos/cosmos-db v1.0.1-0.20231026072645-8a5e4f599be7
 	github.com/cosmos/cosmos-sdk v0.50.3
 	github.com/onsi/ginkgo/v2 v2.13.2
 	github.com/onsi/gomega v1.29.0
@@ -109,7 +109,7 @@ require (
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
 	github.com/emicklei/dot v1.6.0 // indirect
 	github.com/ethereum/c-kzg-4844 v0.4.0 // indirect
-	github.com/ethereum/go-ethereum v1.13.7 // indirect
+	github.com/ethereum/go-ethereum v1.13.10 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/fjl/memsize v0.0.1 // indirect
