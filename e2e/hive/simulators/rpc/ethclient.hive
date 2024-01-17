@@ -797,7 +797,7 @@ func logSubscriptionTest(t *TestEnv) {
 	validatePredeployContractLogs(t, tx, fetchedLogs, arg0, arg1)
 }
 
-// validatePredeployContractLogs tests wether the given logs are expected when
+// validatePredeployContractLogs tests whether the given logs are expected when
 // the event function was called on the predeployed test contract was called
 // with the given args. The event function raises the following events:
 // event E0();

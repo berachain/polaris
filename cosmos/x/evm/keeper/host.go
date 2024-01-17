@@ -74,7 +74,7 @@ func NewHost(
 	return h
 }
 
-// SetupPrecompiles intializes the precompile contracts.
+// SetupPrecompiles initializes the precompile contracts.
 func (h *Host) SetupPrecompiles() error {
 	// Set the query context function for the block and state plugins
 	pcs := h.pcs().GetPrecompiles()
