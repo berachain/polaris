@@ -38,40 +38,26 @@ type ChainWriter interface {
 	InsertBlock(block *ethtypes.Block) error
 	InsertBlockAndSetHead(block *ethtypes.Block) error
 	SetFinalizedBlock() error
-
 	WriteBlockAndSetHead(block *ethtypes.Block, receipts []*ethtypes.Receipt, logs []*ethtypes.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
 
-// WriteGenesisBlock inserts the genesis block into the blockchain.
-func (bc *blockchain) WriteGenesisBlock(block *ethtypes.Block) error {
-	// Get the state with the latest finalize block context.
-	sp := bc.spf.NewPluginWithMode(state.Genesis)
-	state := state.NewStateDB(sp, bc.pp)
-
-	// TODO: add more validation here.
-	if block.NumberU64() != 0 {
-		return errors.New("not the genesis block")
-	}
-	_, err := bc.WriteBlockAndSetHead(block, nil, nil, state, true)
-	return err
-}
-
-// InsertBlockAndSetHead inserts a block into the blockchain without setting it as the head.
-func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
+// InsertBlock inserts a block into the blockchain without setting it as the head.
+func (bc *blockchain) InsertBlock(block *ethtypes.Block) error {
 	// Get the state with the latest insert chain context.
 	sp := bc.spf.NewPluginWithMode(state.Insert)
 	state := state.NewStateDB(sp, bc.pp)
 
-	// Call the private method to insert the block without setting it as the head.
-	_, _, err := bc.insertBlockAndSetHead(block, state, true)
+	// Call the private method to insert the block and setting it as the head.
+	_, _, err := bc.insertBlock(block, state)
 	// Return any error that might have occurred.
 	return err
 }
 
-// InsertBlockAndSetHead inserts a block into the blockchain without setting it as the head.
-func (bc *blockchain) insertBlockAndSetHead(
-	block *ethtypes.Block, state state.StateDB, emitChainHead bool,
+// insertBlock inserts a block into the blockchain by running the state processor and
+// validating whether its okay.
+func (bc *blockchain) insertBlock(
+	block *ethtypes.Block, state state.StateDB,
 ) ([]*ethtypes.Receipt, []*ethtypes.Log, error) {
 	// Validate that we are about to insert a valid block.
 	// If the block number is greater than 1,
@@ -96,30 +82,16 @@ func (bc *blockchain) insertBlockAndSetHead(
 		return nil, nil, err
 	}
 
-	// In theory, we should fire a ChainHeadEvent when we inject
-	// a canonical block, but sometimes we can insert a batch of
-	// canonical blocks. Avoid firing too many ChainHeadEvents,
-	// we will fire an accumulated ChainHeadEvent and disable fire
-	// event here.
-	if emitChainHead {
-		// Fire off the feeds.
-		bc.chainFeed.Send(core.ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
-		if len(logs) > 0 {
-			bc.logsFeed.Send(logs)
-		}
-		bc.chainHeadFeed.Send(core.ChainHeadEvent{Block: block})
-	}
-
 	return receipts, logs, nil
 }
 
-// InsertBlock inserts a block into the blockchain and sets the head.
-func (bc *blockchain) InsertBlock(block *ethtypes.Block) error {
+// InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
+func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
 	// Get the state with the latest finalize block context.
 	sp := bc.spf.NewPluginWithMode(state.Finalize)
 	state := state.NewStateDB(sp, bc.pp)
 
-	receipts, logs, err := bc.insertBlockAndSetHead(block, state, false)
+	receipts, logs, err := bc.insertBlock(block, state)
 	if err != nil {
 		return err
 	}
@@ -134,8 +106,8 @@ func (bc *blockchain) InsertBlock(block *ethtypes.Block) error {
 
 // WriteBlockAndSetHead sets the head of the blockchain to the given block and finalizes the block.
 func (bc *blockchain) WriteBlockAndSetHead(
-	block *ethtypes.Block, receipts []*ethtypes.Receipt /*logs*/, _ []*ethtypes.Log,
-	state state.StateDB, _ /*emitHeadEvent*/ bool,
+	block *ethtypes.Block, receipts []*ethtypes.Receipt, logs []*ethtypes.Log,
+	state state.StateDB, emitHeadEvent bool,
 ) (core.WriteStatus, error) {
 	// Write the block to the store.
 	if err := bc.writeBlockWithState(block, receipts, state); err != nil {
@@ -174,6 +146,20 @@ func (bc *blockchain) WriteBlockAndSetHead(
 	// TODO deprecate this cache?
 	if receipts != nil {
 		bc.receiptsCache.Add(block.Hash(), receipts)
+	}
+
+	// In theory, we should fire a ChainHeadEvent when we inject
+	// a canonical block, but sometimes we can insert a batch of
+	// canonical blocks. Avoid firing too many ChainHeadEvents,
+	// we will fire an accumulated ChainHeadEvent and disable fire
+	// event here.
+	if emitHeadEvent {
+		// Fire off the feeds.
+		bc.chainFeed.Send(core.ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
+		if len(logs) > 0 {
+			bc.logsFeed.Send(logs)
+		}
+		bc.chainHeadFeed.Send(core.ChainHeadEvent{Block: block})
 	}
 
 	return core.CanonStatTy, nil
