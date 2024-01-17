@@ -63,8 +63,8 @@ func (bc *blockchain) CurrentHeader() *ethtypes.Header {
 	if block == nil || !ok {
 		return nil
 	}
-	// bc.blockNumCache.Add(block.Number().Uint64(), block)
-	// bc.blockHashCache.Add(block.Hash(), block)
+	bc.blockNumCache.Add(block.Number().Uint64(), block)
+	bc.blockHashCache.Add(block.Hash(), block)
 	return block.Header()
 }
 
@@ -74,8 +74,8 @@ func (bc *blockchain) CurrentBlock() *ethtypes.Header {
 	if block == nil || !ok {
 		return nil
 	}
-	// bc.blockNumCache.Add(block.Number().Uint64(), block)
-	// bc.blockHashCache.Add(block.Hash(), block)
+	bc.blockNumCache.Add(block.Number().Uint64(), block)
+	bc.blockHashCache.Add(block.Hash(), block)
 	return block.Header()
 }
 
@@ -91,8 +91,8 @@ func (bc *blockchain) CurrentFinalBlock() *ethtypes.Header {
 	if fb == nil || !ok {
 		return nil
 	}
-	// bc.blockNumCache.Add(fb.Number().Uint64(), fb)
-	// bc.blockHashCache.Add(fb.Hash(), fb)
+	bc.blockNumCache.Add(fb.Number().Uint64(), fb)
+	bc.blockHashCache.Add(fb.Hash(), fb)
 	return fb.Header()
 }
 
@@ -115,7 +115,7 @@ func (bc *blockchain) GetBlock(hash common.Hash, number uint64) *ethtypes.Block 
 func (bc *blockchain) GetBlockByHash(hash common.Hash) *ethtypes.Block {
 	// check the block hash cache
 	if block, ok := bc.blockHashCache.Get(hash); ok {
-		// bc.blockNumCache.Add(block.Number().Uint64(), block)
+		bc.blockNumCache.Add(block.Number().Uint64(), block)
 		return block
 	}
 
@@ -133,8 +133,8 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *ethtypes.Block {
 	}
 
 	// Cache the found block for next time and return
-	// bc.blockNumCache.Add(block.Number().Uint64(), block)
-	// bc.blockHashCache.Add(hash, block)
+	bc.blockNumCache.Add(block.Number().Uint64(), block)
+	bc.blockHashCache.Add(hash, block)
 	return block
 }
 
@@ -142,7 +142,7 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *ethtypes.Block {
 func (bc *blockchain) GetBlockByNumber(number uint64) *ethtypes.Block {
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
-		// bc.blockHashCache.Add(block.Hash(), block)
+		bc.blockHashCache.Add(block.Hash(), block)
 		return block
 	}
 
@@ -170,8 +170,8 @@ func (bc *blockchain) GetBlockByNumber(number uint64) *ethtypes.Block {
 	}
 
 	// Cache the found block for next time and return
-	// bc.blockNumCache.Add(number, block)
-	// bc.blockHashCache.Add(block.Hash(), block)
+	bc.blockNumCache.Add(number, block)
+	bc.blockHashCache.Add(block.Hash(), block)
 	return block
 }
 
@@ -203,7 +203,7 @@ func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) ethtypes.Receipts
 	}
 
 	// cache the found receipts for next time and return
-	// bc.receiptsCache.Add(blockHash, receipts)
+	bc.receiptsCache.Add(blockHash, receipts)
 	derived, err := bc.deriveReceipts(receipts, blockHash)
 	if err != nil {
 		bc.logger.Error("failed to derive receipts", "err", err)
@@ -239,7 +239,7 @@ func (bc *blockchain) GetTransactionLookup(
 	}
 
 	// cache the found transaction for next time and return
-	// bc.txLookupCache.Add(hash, txLookupEntry)
+	bc.txLookupCache.Add(hash, txLookupEntry)
 	return txLookupEntry
 }
 
