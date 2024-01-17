@@ -6,6 +6,8 @@ replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20220817183557-09c6e030a677
+	// Use branch with the mempool race condition fix.
+	github.com/comet/cometbft => github.com/cometbft/cometbft v0.38.3-0.20240117033245-e65a966827e0
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v1.13.10-2-polar
 	// replace broken goleveldb
