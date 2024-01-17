@@ -22,7 +22,6 @@ package txpool
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/berachain/polaris/cosmos/x/evm/types"
@@ -76,19 +75,15 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	// 3. If the transaction's gas params are over the configured limit.
 	includedInBlock := m.includedCanonicalChain(txHash)
 	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
-
 	priceOverLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
 
 	if includedInBlock {
-		fmt.Println("includedInBlock", txHash)
 		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectInclusion)
 	}
 	if expired {
-		fmt.Println("expired", currentTime-m.crc.TimeFirstSeen(txHash), "lifetime", m.lifetime)
 		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectExpiredTx)
 	}
 	if priceOverLimit {
-		fmt.Println("price OverLimit", tx.GasPrice(), "priceLimit", m.priceLimit)
 		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectPriceLimit)
 	}
 	return includedInBlock || expired || priceOverLimit
