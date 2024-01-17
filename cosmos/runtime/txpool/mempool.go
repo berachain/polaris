@@ -67,7 +67,6 @@ type Mempool struct {
 	chain          core.ChainReader
 	handler        Lifecycle
 	crc            CometRemoteCache
-	forceTxRemoval bool
 	blockBuilderMu *sync.RWMutex
 	priceLimit     *big.Int
 }
@@ -75,13 +74,12 @@ type Mempool struct {
 // New creates a new Mempool.
 func New(
 	chain core.ChainReader, txpool eth.TxPool, lifetime int64,
-	forceTxRemoval bool, blockBuilderMu *sync.RWMutex, priceLimit *big.Int,
+	blockBuilderMu *sync.RWMutex, priceLimit *big.Int,
 ) *Mempool {
 	return &Mempool{
 		TxPool:         txpool,
 		chain:          chain,
 		lifetime:       lifetime,
-		forceTxRemoval: forceTxRemoval,
 		crc:            newCometRemoteCache(),
 		blockBuilderMu: blockBuilderMu,
 		priceLimit:     priceLimit,
@@ -174,11 +172,6 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 
 			// Remove the eth tx from comet seen tx cache.
 			m.crc.DropRemoteTx(txHash)
-
-			// We only want to remove transactions from the mempool if we're forcing it.
-			if m.forceTxRemoval {
-				m.TxPool.Remove(txHash)
-			}
 		}
 	}
 	return nil

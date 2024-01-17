@@ -39,9 +39,6 @@ rpc-evm-timeout = "{{ .Polaris.Polar.RPCEVMTimeout }}"
 # Transaction fee cap for RPC requests
 rpc-tx-fee-cap = "{{ .Polaris.Polar.RPCTxFeeCap }}"
 
-# ForceTxRemoval indicates whether we use Cosmos to remove transactions from the Geth txpool.
-force-tx-removal = "{{.Polaris.Polar.ForceTxRemoval }}"
-
 # Chain config
 [polaris.polar.chain] 
 chain-id = "{{ .Polaris.Polar.Chain.ChainID }}"

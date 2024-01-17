@@ -127,7 +127,6 @@ func New(
 		p.ExecutionLayer.Backend().Blockchain(),
 		p.ExecutionLayer.Backend().TxPool(),
 		int64(cfg.Polar.LegacyTxPool.Lifetime),
-		cfg.Polar.ForceTxRemoval,
 		&p.blockBuilderMu,
 		priceLimit,
 	)
