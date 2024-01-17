@@ -51,10 +51,12 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 			continue
 		}
 
-		protoEnvelope := sdkTx.GetMsgs()[0]
-		if env, ok := protoEnvelope.(*evmtypes.WrappedPayloadEnvelope); ok {
-			envelope = env.UnwrapPayload()
-			break
+		if len(sdkTx.GetMsgs()) == 1 {
+			protoEnvelope := sdkTx.GetMsgs()[0]
+			if env, ok := protoEnvelope.(*evmtypes.WrappedPayloadEnvelope); ok {
+				envelope = env.UnwrapPayload()
+				break
+			}
 		}
 	}
 
