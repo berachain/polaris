@@ -73,6 +73,7 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	// which will be written to by InsertBlock. This is a runMsgs cache context, which is
 	// only written once ProcessPayloadEnvelope executes without error.
 	k.spf.SetFinalizeBlockContext(ctx)
+	defer k.spf.SetLatestQueryContext(ctx)
 	k.chain.PrimePlugins(ctx)
 
 	// Insert the finalized block and set the chain head.
