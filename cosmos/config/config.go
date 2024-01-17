@@ -85,10 +85,6 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 		parser.GetFloat64(flags.RPCTxFeeCap); err != nil {
 		return nil, err
 	}
-	if conf.Polar.ForceTxRemoval, err =
-		parser.GetBool(flags.ForceTxRemoval); err != nil {
-		return nil, err
-	}
 
 	// Polar Miner settings
 	if conf.Polar.Miner.Etherbase, err =

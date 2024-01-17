@@ -57,14 +57,13 @@ func DefaultConfig() *Config {
 	legacyPool.Journal = ""
 
 	return &Config{
-		Chain:          *params.DefaultChainConfig,
-		Miner:          minerCfg,
-		GPO:            gpoConfig,
-		LegacyTxPool:   legacyPool,
-		RPCGasCap:      ethconfig.Defaults.RPCGasCap,
-		RPCTxFeeCap:    ethconfig.Defaults.RPCTxFeeCap,
-		RPCEVMTimeout:  ethconfig.Defaults.RPCEVMTimeout,
-		ForceTxRemoval: false,
+		Chain:         *params.DefaultChainConfig,
+		Miner:         minerCfg,
+		GPO:           gpoConfig,
+		LegacyTxPool:  legacyPool,
+		RPCGasCap:     ethconfig.Defaults.RPCGasCap,
+		RPCTxFeeCap:   ethconfig.Defaults.RPCTxFeeCap,
+		RPCEVMTimeout: ethconfig.Defaults.RPCEVMTimeout,
 	}
 }
 
@@ -101,8 +100,4 @@ type Config struct {
 	// RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for
 	// send-transaction variants. The unit is ether.
 	RPCTxFeeCap float64
-
-	// ForceTxRemoval is a flag to force removal of transactions from the geth txpool when ABCI
-	// asks to do so.
-	ForceTxRemoval bool
 }
