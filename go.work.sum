@@ -331,8 +331,7 @@ github.com/btcsuite/goleveldb v1.0.0 h1:Tvd0BfvqX9o823q1j2UZ/epQo09eJh6dTcRp79il
 github.com/btcsuite/snappy-go v1.0.0 h1:ZxaA6lo2EpxGddsA8JwWOcxlzRybb444sgmeJQMJGQE=
 github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792 h1:R8vQdOQdZ9Y3SkEwmHoWBmX1DNXhXZqlTpq6s4tyJGc=
 github.com/btcsuite/winsvc v1.0.0 h1:J9B4L7e3oqhXOcm+2IuNApwzQec85lE+QaikUcCs+dk=
-github.com/bufbuild/buf v1.27.1 h1:r8nmR+QLdpzgMr/F6+ua0awewMKGVf3uHsW0/UoUeME=
-github.com/bufbuild/buf v1.27.1/go.mod h1:BTXcNcZU8rvEZv2MdmVGpEyNgrXQ2UYO9u8H8yLmOdM=
+github.com/bufbuild/buf v1.27.2/go.mod h1:7RImDhFDqhEsdK5wbuMhoVSlnrMggGGcd3s9WozvHtM=
 github.com/bufbuild/buf v1.28.0/go.mod h1:yx8lF18i4mYucKTOoRWynWmGCxHo4R2oXsF0tGbeK90=
 github.com/bufbuild/connect-go v1.5.2 h1:G4EZd5gF1U1ZhhbVJXplbuUnfKpBZ5j5izqIwu2g2W8=
 github.com/bufbuild/connect-go v1.5.2/go.mod h1:GmMJYR6orFqD0Y6ZgX8pwQ8j9baizDrIQMm1/a6LnHk=
