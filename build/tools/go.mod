@@ -3,7 +3,7 @@ module github.com/berachain/polaris/build/tools
 go 1.21
 
 require (
-	github.com/bufbuild/buf v1.28.1
+	github.com/bufbuild/buf v1.27.2
 	github.com/cosmos/gosec/v2 v2.0.0-20230124142343-bf28a33fadf2
 	github.com/ethereum/go-ethereum v1.13.10
 	github.com/golangci/golangci-lint v1.55.2
