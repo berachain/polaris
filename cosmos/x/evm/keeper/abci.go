@@ -50,5 +50,6 @@ func (k *Keeper) EndBlock(ctx context.Context) error {
 func (k *Keeper) PrepareCheckState(ctx context.Context) error {
 	k.spf.SetLatestQueryContext(ctx)
 	k.chain.PrimePlugins(ctx)
+	k.chain.EmitHeadEvent()
 	return nil
 }
