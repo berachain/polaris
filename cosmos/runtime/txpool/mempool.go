@@ -170,8 +170,9 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			return nil
 		}
 
+		txs := env.UnwrapPayload().ExecutionPayload.Transactions
 		// Unwrap the payload to unpack the individual eth transactions to remove from the txpool.
-		for _, txBz := range env.UnwrapPayload().ExecutionPayload.Transactions {
+		for _, txBz := range txs {
 			ethTx := new(ethtypes.Transaction)
 			if err := ethTx.UnmarshalBinary(txBz); err != nil {
 				continue
@@ -181,6 +182,7 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			// Remove the eth tx from comet seen tx cache.
 			m.crc.DropRemoteTx(txHash)
 		}
+		telemetry.IncrCounter(float32(-1*len(txs)), MetricKeyMempoolSize)
 	}
 	return nil
 }
