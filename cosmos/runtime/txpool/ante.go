@@ -76,7 +76,8 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	// 3. If the transaction's gas params are over the configured limit.
 	includedInBlock := m.includedCanonicalChain(txHash)
 	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
-	priceOverLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0 || tx.GasFeeCap().Cmp(m.priceLimit) <= 0 || tx.GasTipCap().Cmp(m.priceLimit) <= 0
+	priceOverLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0 ||
+		tx.GasFeeCap().Cmp(m.priceLimit) <= 0 || tx.GasTipCap().Cmp(m.priceLimit) <= 0
 	if includedInBlock {
 		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectInclusion)
 	}
