@@ -273,8 +273,8 @@ github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/berachain/polaris-geth v0.0.0-20240108202417-27ce389773c0 h1:jGah7o6k6xytfTFH7hIKmfJZOPnAhCb9bmCb+lRS4Bk=
-github.com/berachain/polaris-geth v0.0.0-20240108202417-27ce389773c0/go.mod h1:sc48XYQxCzH3fG9BcrXCOOgQk2JfZzNAmIKnceogzsA=
+github.com/berachain/polaris-geth v1.13.10-1-polar h1:F3LOXqHBe4b2yKvv7jFB2cuutTwMn2X89Ea2dHKKa7c=
+github.com/berachain/polaris-geth v1.13.10-1-polar/go.mod h1:sc48XYQxCzH3fG9BcrXCOOgQk2JfZzNAmIKnceogzsA=
 github.com/berachain/polaris/contracts v0.1.0-alpha h1:ZRkh0JyMHp11Xe8z7gcJhfnn9X6vU6/3iSG3Bdi/kJQ=
 github.com/berachain/polaris/contracts v0.1.0-alpha/go.mod h1:Sm1T+tIQGuP0wEJnF/TlgZiJ+NPHgOZWO7vAz7FkwVs=
 github.com/berachain/polaris/cosmos v0.1.2-alpha h1:GXe2i95eDZblXNzVkE5HmqrVKfpzxaytFVn0A9cmVx4=
