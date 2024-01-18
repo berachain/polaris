@@ -356,7 +356,7 @@ max-block-history = "1024"
 default = "1000000000"
 
 # Maximum gas price value
-max-price = "500000000000"
+max-price = "500000000000000"
 
 # Prices to ignore for gas price determination
 ignore-price = "2"

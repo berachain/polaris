@@ -36,7 +36,6 @@ import (
 )
 
 const (
-
 	// gpoDefault is the default gpo starting point.
 	gpoDefault = 1000000000
 
@@ -50,10 +49,13 @@ const (
 func DefaultConfig() *Config {
 	gpoConfig := ethconfig.FullNodeGPO
 	gpoConfig.Default = big.NewInt(gpoDefault)
+	gpoConfig.MaxPrice = big.NewInt(ethparams.GWei * 10000) //nolint:gomnd // default.
 	minerCfg := miner.DefaultConfig
 	minerCfg.Etherbase = common.HexToAddress(developmentCoinbase)
 	minerCfg.GasPrice = big.NewInt(1)
 	legacyPool := legacypool.DefaultConfig
+	legacyPool.NoLocals = true
+	legacyPool.PriceLimit = 8 // to handle the low base fee.
 	legacyPool.Journal = ""
 
 	return &Config{
