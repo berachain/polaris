@@ -611,7 +611,7 @@ var _ = Describe("Staking", func() {
 			It("all validator not active", func() {
 				vals, err := contract.GetBondedValidatorsByPower(ctx)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(vals).To(HaveLen(0))
+				Expect(vals).To(BeEmpty())
 			})
 			It("one validator active", func() {
 				// Set the validator to be bonded.
@@ -654,7 +654,7 @@ var _ = Describe("Staking", func() {
 				}
 				vals, _, err := contract.GetValidators(ctx, pagination)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(len(vals)).To(Equal(2))
+				Expect(vals).To(HaveLen(2))
 			})
 		})
 
@@ -674,12 +674,12 @@ var _ = Describe("Staking", func() {
 			It("should success", func() {
 				vals, _, err := contract.GetDelegatorValidators(ctx, caller, nil)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(len(vals)).To(Equal(1))
+				Expect(vals).To(HaveLen(1))
 			})
 			It("should error when invalid delegator", func() {
 				vals, _, err := contract.GetDelegatorValidators(ctx, common.Address{}, nil)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(len(vals)).To(Equal(0))
+				Expect(vals).To(BeEmpty())
 			})
 		})
 	})
