@@ -669,6 +669,19 @@ var _ = Describe("Staking", func() {
 				Expect(err).To(HaveOccurred())
 			})
 		})
+
+		When("GetDelegatorValidators", func() {
+			It("should success", func() {
+				vals, _, err := contract.GetDelegatorValidators(ctx, caller, nil)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(vals)).To(Equal(1))
+			})
+			It("should error when invalid delegator", func() {
+				vals, _, err := contract.GetDelegatorValidators(ctx, common.Address{}, nil)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(vals)).To(Equal(0))
+			})
+		})
 	})
 })
 
