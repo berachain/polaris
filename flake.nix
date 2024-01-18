@@ -19,6 +19,7 @@
                 devShell = with pkgs; mkShell {
                     name = "polaris-dev";
                     nativeBuildInputs = [
+		    	gnumake
                         go
                         jq
                         foundry-bin
