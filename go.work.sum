@@ -381,7 +381,7 @@ github.com/aymerick/raymond v2.0.3-0.20180322193309-b565731e1464+incompatible h1
 github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLju8=
 github.com/berachain/polaris-geth v1.13.10-1-polar h1:F3LOXqHBe4b2yKvv7jFB2cuutTwMn2X89Ea2dHKKa7c=
 github.com/berachain/polaris-geth v1.13.10-1-polar/go.mod h1:sc48XYQxCzH3fG9BcrXCOOgQk2JfZzNAmIKnceogzsA=
-github.com/berachain/polaris/eth v0.1.6-alpha/go.mod h1:RcszT9sT/5QvgSXFyeaIvhe6G+HfGRpnBN+EpQQAEXo=
+github.com/berachain/polaris/cosmos v0.1.6-alpha/go.mod h1:kuMjvPNgw+z6tEnrWUZbu23RE6NANPaPBW6OPtRuf2g=
 github.com/bits-and-blooms/bitset v1.8.0/go.mod h1:7hO7Gc7Pp1vODcmWvKMRA9BNmbv6a/7QIWpPxHddWR8=
 github.com/bkielbasa/cyclop v1.2.0/go.mod h1:qOI0yy6A7dYC4Zgsa72Ppm9kONl0RoIlPbzot9mhmeI=
 github.com/bmatcuk/doublestar v1.1.1 h1:YroD6BJCZBYx06yYFEWvUuKVWQn3vLLQAVmDmvTSaiQ=

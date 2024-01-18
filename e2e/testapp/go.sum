@@ -289,10 +289,10 @@ github.com/berachain/polaris-geth v1.13.10-2-polar h1:W1dahX0MvEzRv5kRww0FpN0j8M
 github.com/berachain/polaris-geth v1.13.10-2-polar/go.mod h1:sc48XYQxCzH3fG9BcrXCOOgQk2JfZzNAmIKnceogzsA=
 github.com/berachain/polaris/contracts v0.1.5-alpha h1:XA3yBKH4uwR3p6AuurmECGzfeLIWrCE+tqm3qUNZnVM=
 github.com/berachain/polaris/contracts v0.1.5-alpha/go.mod h1:+l1V+Qk075lUdYLUZU35s9NnmkTu0HaX6ylGLSTztn8=
-github.com/berachain/polaris/cosmos v0.1.5-alpha h1:2Ud51ZlDUmnXmSWylF6I1aWmSnHJZaOS+wlTnn6ajgo=
-github.com/berachain/polaris/cosmos v0.1.5-alpha/go.mod h1:PsYwjKdae/YCaeko+DWrfHGghwWbQc3V9JfdNvqJIK4=
-github.com/berachain/polaris/eth v0.1.5-alpha h1:adYjPxyKd8AeobiPcenFiZhjKOTfzyrhCN7P8PT5Ks0=
-github.com/berachain/polaris/eth v0.1.5-alpha/go.mod h1:GE4UFrDcB0ddeLdu0SD7QwER8TpN76AK4V/lQ4vEC0A=
+github.com/berachain/polaris/cosmos v0.1.6-alpha h1:jrGRXdxixgRXpKFRjNuC1n1B977B+f/9sRx/8hmwPYM=
+github.com/berachain/polaris/cosmos v0.1.6-alpha/go.mod h1:kuMjvPNgw+z6tEnrWUZbu23RE6NANPaPBW6OPtRuf2g=
+github.com/berachain/polaris/eth v0.1.6-alpha h1:7fcHooZyq27v9xm/okmL0oaNNUctspey4IlDe1irkOw=
+github.com/berachain/polaris/eth v0.1.6-alpha/go.mod h1:RcszT9sT/5QvgSXFyeaIvhe6G+HfGRpnBN+EpQQAEXo=
 github.com/berachain/polaris/lib v0.0.4-alpha h1:5ob1YtUD6qx35yfwcOKyOOuU6/OgtXMRk0eQrsjCSsw=
 github.com/berachain/polaris/lib v0.0.4-alpha/go.mod h1:08kBE9vqIO1PREtvM99uI2Sq/bjxjSQ5rYXM9k8wAYs=
 github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d h1:xDfNPAt8lFiC1UJrqV3uuy861HCTo708pDMbjHHdCas=
