@@ -40,6 +40,9 @@ import (
 func (m *Mempool) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
+	// The transaction puts into this function is a remote transaction,
+	// received by CheckTx.
+	telemetry.IncrCounter(float32(1), MetricKeyCometRemoteTxs)
 	msgs := tx.GetMsgs()
 
 	// TODO: Record the time it takes to build a payload.
@@ -52,7 +55,7 @@ func (m *Mempool) AnteHandle(
 				ctx.BlockTime().Unix(), ethTx,
 			); shouldEject {
 				m.crc.DropRemoteTx(ethTx.Hash())
-				telemetry.IncrCounter(float32(1), MetricKeyMempoolAnteEvictedTxs)
+				telemetry.IncrCounter(float32(1), MetricKeyAnteEjectedTxs)
 				return ctx, errors.New("eject from comet mempool")
 			}
 		}
@@ -75,18 +78,18 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	// 3. If the transaction's gas params are over the configured limit.
 	includedInBlock := m.includedCanonicalChain(txHash)
 	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
-	priceOverLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
+	priceLeLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
 
 	if includedInBlock {
-		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectInclusion)
+		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectInclusion)
 	}
 	if expired {
-		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectExpiredTx)
+		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectExpiredTx)
 	}
-	if priceOverLimit {
-		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectPriceLimit)
+	if priceLeLimit {
+		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectPriceLimit)
 	}
-	return includedInBlock || expired || priceOverLimit
+	return includedInBlock || expired || priceLeLimit
 }
 
 // includedCanonicalChain returns whether the tx of the given hash is included in the canonical

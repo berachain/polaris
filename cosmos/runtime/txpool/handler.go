@@ -152,7 +152,7 @@ func (h *handler) mainLoop() {
 		case err = <-h.txsSub.Err():
 			h.stopCh <- struct{}{}
 		case event := <-h.txsCh:
-			telemetry.IncrCounter(float32(len(event.Txs)), MetricKeyBroadcastLocalTxs)
+			telemetry.IncrCounter(float32(len(event.Txs)), MetricKeyCometLocalTxs)
 			h.broadcastTransactions(event.Txs)
 		}
 	}
@@ -169,7 +169,7 @@ func (h *handler) failedLoop() {
 				h.logger.Error("failed to broadcast transaction after max retries", "tx", maxRetries)
 				continue
 			}
-			telemetry.IncrCounter(float32(1), MetricKeyBroadcastFailedTxs)
+			telemetry.IncrCounter(float32(1), MetricKeyBroadcastRetry)
 			h.broadcastTransaction(failed.tx, failed.retries-1)
 		}
 

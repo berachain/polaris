@@ -23,8 +23,10 @@ package txpool
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"sync"
+	"time"
 
 	"cosmossdk.io/log"
 
@@ -70,6 +72,7 @@ type Mempool struct {
 	crc            CometRemoteCache
 	blockBuilderMu *sync.RWMutex
 	priceLimit     *big.Int
+	txPoolMetrics  *eth.Metrics
 }
 
 // New creates a new Mempool.
@@ -84,6 +87,7 @@ func New(
 		crc:            newCometRemoteCache(),
 		blockBuilderMu: blockBuilderMu,
 		priceLimit:     priceLimit,
+		txPoolMetrics:  eth.NewMetrics(),
 	}
 }
 
@@ -94,10 +98,14 @@ func (m *Mempool) Init(
 	txSerializer TxSerializer,
 ) {
 	m.handler = newHandler(txBroadcaster, m.TxPool, txSerializer, m.crc, logger)
+	for _, metric := range eth.TxPoolMetrics {
+		m.txPoolMetrics.Register(metric)
+	}
 }
 
 // Start starts the Mempool TxHandler.
 func (m *Mempool) Start() error {
+	go m.loop()
 	return m.handler.Start()
 }
 
@@ -106,8 +114,27 @@ func (m *Mempool) Stop() error {
 	return m.handler.Stop()
 }
 
+func (m *Mempool) loop() {
+	report := time.NewTicker(1 * time.Second)
+	defer report.Stop()
+	for {
+		select {
+		case <-report.C:
+			m.txPoolMetrics.Report()
+		}
+	}
+}
+
+func (m *Mempool) EthMetrics() *eth.Metrics {
+	return m.txPoolMetrics
+}
+
 // Insert attempts to insert a Tx into the app-side mempool returning an error upon failure.
 func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
+	txPoolPending, txPoolQueued := m.TxPool.Stats()
+	telemetry.SetGauge(float32(txPoolPending), MetricKeyTxPoolPending)
+	telemetry.SetGauge(float32(txPoolQueued), MetricKeyTxPoolQueued)
+
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	msgs := sdkTx.GetMsgs()
 	if len(msgs) != 1 {
@@ -126,25 +153,23 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	// Insert the tx into the txpool as a remote.
 	m.blockBuilderMu.RLock()
 	errs := m.TxPool.Add([]*ethtypes.Transaction{ethTx}, false, false)
+	telemetry.SetGauge(float32(m.CountTx()), MetricKeyMempoolSize)
 	m.blockBuilderMu.RUnlock()
 	if len(errs) > 0 {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
 		if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) &&
 			(sCtx.ExecMode() == sdk.ExecModeCheck || sCtx.ExecMode() == sdk.ExecModeReCheck) {
+			telemetry.IncrCounter(float32(1), MetricKeyMempoolKnownTxs)
 			return nil
 		}
 		return errs[0]
 	}
 
 	h := ethTx.Hash()
-	if m.crc.IsRemoteTx(h) {
-		telemetry.IncrCounter(float32(1), MetricKeyMempoolSeenBeforeTxs)
-	} else {
+	if !m.crc.IsRemoteTx(h) {
 		// Add the eth tx to the remote cache for the first time.
 		m.crc.MarkRemoteSeen(h)
 	}
-	telemetry.IncrCounter(float32(1), MetricKeyMempoolRemoteTxs)
-	telemetry.IncrCounter(float32(1), MetricKeyMempoolSize)
 
 	return nil
 }
@@ -162,6 +187,7 @@ func (m *Mempool) Select(context.Context, [][]byte) mempool.Iterator {
 
 // Remove is an intentional no-op as the eth txpool handles removals.
 func (m *Mempool) Remove(tx sdk.Tx) error {
+	fmt.Println("REMOVE")
 	// Get the Eth payload envelope from the Cosmos transaction.
 	msgs := tx.GetMsgs()
 	if len(msgs) == 1 {
@@ -182,7 +208,6 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			// Remove the eth tx from comet seen tx cache.
 			m.crc.DropRemoteTx(txHash)
 		}
-		telemetry.IncrCounter(float32(-1*len(txs)), MetricKeyMempoolSize)
 	}
 	return nil
 }
