@@ -606,6 +606,36 @@ var _ = Describe("Staking", func() {
 				Expect(res[0].OperatorAddr).To(Equal(valAddr))
 			})
 		})
+
+		When("GetBondedValidatorsByPower", func() {
+			It("all validator not active", func() {
+				vals, err := contract.GetBondedValidatorsByPower(ctx)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vals).To(HaveLen(0))
+			})
+			It("one validator active", func() {
+				// Set the validator to be bonded.
+				validator.Status = stakingtypes.Bonded
+				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
+
+				vals, err := contract.GetBondedValidatorsByPower(ctx)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vals).To(HaveLen(1))
+			})
+
+			It("all validator active", func() {
+				// Set the validator to be bonded.
+				validator.Status = stakingtypes.Bonded
+				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
+
+				otherValidator.Status = stakingtypes.Bonded
+				Expect(sk.SetValidator(ctx, otherValidator)).To(Succeed())
+
+				vals, err := contract.GetBondedValidatorsByPower(ctx)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vals).To(HaveLen(2))
+			})
+		})
 	})
 })
 
