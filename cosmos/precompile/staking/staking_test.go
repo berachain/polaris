@@ -657,6 +657,18 @@ var _ = Describe("Staking", func() {
 				Expect(len(vals)).To(Equal(2))
 			})
 		})
+
+		When("GetValidator", func() {
+			It("should success when valid validator", func() {
+				val, err := contract.GetValidator(ctx, valAddr)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(val.OperatorAddr).To(Equal(valAddr))
+			})
+			It("should error when invalid validator", func() {
+				_, err := contract.GetValidator(ctx, common.Address{})
+				Expect(err).To(HaveOccurred())
+			})
+		})
 	})
 })
 
