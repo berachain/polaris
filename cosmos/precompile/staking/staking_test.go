@@ -636,6 +636,27 @@ var _ = Describe("Staking", func() {
 				Expect(vals).To(HaveLen(2))
 			})
 		})
+
+		When("GetValidators", func() {
+			It("get all validator without pagination", func() {
+				vals, _, err := contract.GetValidators(ctx, nil)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(vals)).To(Equal(2))
+			})
+			It("get all validator with pagination", func() {
+				// Create a pagination request
+				pagination := cbindings.CosmosPageRequest{
+					Key:        "test",
+					Offset:     0,
+					Limit:      10,
+					CountTotal: true,
+					Reverse:    false,
+				}
+				vals, _, err := contract.GetValidators(ctx, pagination)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(vals)).To(Equal(2))
+			})
+		})
 	})
 })
 
