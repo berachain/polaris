@@ -52,7 +52,6 @@ func (m *Mempool) AnteHandle(
 				ctx.BlockTime().Unix(), ethTx,
 			); shouldEject {
 				m.crc.DropRemoteTx(ethTx.Hash())
-				telemetry.IncrCounter(float32(1), MetricKeyMempoolAnteEvictedTxs)
 				return ctx, errors.New("eject from comet mempool")
 			}
 		}
@@ -77,15 +76,6 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
 	priceOverLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
 
-	if includedInBlock {
-		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectInclusion)
-	}
-	if expired {
-		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectExpiredTx)
-	}
-	if priceOverLimit {
-		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectPriceLimit)
-	}
 	return includedInBlock || expired || priceOverLimit
 }
 

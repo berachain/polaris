@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	defaultCacheSize = txChanSize
+	defaultCacheSize = 4096
 )
 
 // CometRemoteCache is used to mark which txs are added to our Polaris node remotely from

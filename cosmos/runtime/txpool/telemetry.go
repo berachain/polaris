@@ -21,18 +21,7 @@
 package txpool
 
 const (
-	MetricKeyMempoolFull               = "polaris_cometbft_mempool_full"
-	MetricKeyMempoolSize               = "polaris_cometbft_mempool_size"
-	MetricKeyMempoolRemoteTxs          = "polaris_cometbft_mempool_remote_txs"
-	MetricKeyMempoolForcelyRemovedTxs  = "polaris_cometbft_mempool_forcely_removed_txs"
-	MetricKeyMempoolAnteEvictedTxs     = "polaris_cometbft_mempool_ante_evicted_txs"
-	MetricKeyBroadcastTxs              = "polaris_cometbft_broadcast_txs"
-	MetricKeyBroadcastLocalTxs         = "polaris_cometbft_broadcast_local_txs"
-	MetricKeyBroadcastFailedTxs        = "polaris_cometbft_broadcast_failed_txs"
-	MetricKeyBroadcastFailure          = "polaris_cometbft_broadcast_failure"
-	MetricKeyMempoolSeenBeforeTxs      = "polaris_cometbft_broadcast_seen_before_txs"
-	MetricKeyTimeShouldEject           = "polaris_cometbft_time_should_eject"
-	MetricKeyTimeShouldEjectInclusion  = "polaris_cometbft_should_eject_due_to_included_in_block"
-	MetricKeyTimeShouldEjectExpiredTx  = "polaris_cometbft_should_eject_due_to_expired_tx"
-	MetricKeyTimeShouldEjectPriceLimit = "polaris_cometbft_should_eject_due_to_price_limit"
+	MetricKeyMempoolFull      = "polaris_cometbft_mempool_full"
+	MetricKeyBroadcastFailure = "polaris_cometbft_broadcast_failure"
+	MetricKeyTimeShouldEject  = "polaris_cometbft_time_should_eject"
 )
