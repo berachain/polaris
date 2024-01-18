@@ -641,7 +641,7 @@ var _ = Describe("Staking", func() {
 			It("get all validator without pagination", func() {
 				vals, _, err := contract.GetValidators(ctx, nil)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(len(vals)).To(Equal(2))
+				Expect(vals).To(HaveLen(2))
 			})
 			It("get all validator with pagination", func() {
 				// Create a pagination request
