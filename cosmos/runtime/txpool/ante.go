@@ -108,5 +108,7 @@ func (m *Mempool) validateStateful(tx *ethtypes.Transaction) bool {
 	// }
 
 	// tx.Nonce() <
-	return m.chain.GetTransactionLookup(tx.Hash()) != nil
+	included := m.chain.GetTransactionLookup(tx.Hash()) != nil
+	telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectInclusion)
+	return included
 }
