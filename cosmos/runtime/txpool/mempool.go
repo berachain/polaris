@@ -108,10 +108,6 @@ func (m *Mempool) Stop() error {
 
 // Insert attempts to insert a Tx into the app-side mempool returning an error upon failure.
 func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
-	txPoolPending, txPoolQueue := m.TxPool.Stats()
-	telemetry.SetGauge(float32(txPoolPending), MetricKeyTxPoolPending)
-	telemetry.SetGauge(float32(txPoolQueue), MetricKeyTxPoolQueue)
-
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	msgs := sdkTx.GetMsgs()
 	if len(msgs) != 1 {
@@ -130,7 +126,6 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	// Insert the tx into the txpool as a remote.
 	m.blockBuilderMu.RLock()
 	errs := m.TxPool.Add([]*ethtypes.Transaction{ethTx}, false, false)
-	telemetry.SetGauge(float32(m.CountTx()), MetricKeyMempoolSize)
 	m.blockBuilderMu.RUnlock()
 	if len(errs) > 0 {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
