@@ -1,6 +1,7 @@
 go 1.21
 
 use (
+	./build/tools
 	./contracts
 	./cosmos
 	./e2e/localnet
