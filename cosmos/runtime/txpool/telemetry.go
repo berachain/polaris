@@ -29,6 +29,7 @@ const (
 
 	MetricKeyTimeShouldEject           = "polaris_cometbft_time_should_eject"
 	MetricKeyAnteEjectedTxs            = "polaris_cometbft_ante_ejected_txs"
+	MetricKeyAnteShouldEjectInclusion  = "polaris_cometbft_ante_should_eject_included"
 	MetricKeyAnteShouldEjectExpiredTx  = "polaris_cometbft_ante_should_eject_expired"
 	MetricKeyAnteShouldEjectPriceLimit = "polaris_cometbft_ante_should_eject_price_limit"
 
