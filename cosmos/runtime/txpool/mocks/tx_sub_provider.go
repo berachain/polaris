@@ -42,6 +42,10 @@ func (_m *TxSubProvider) SubscribeTransactions(ch chan<- core.NewTxsEvent, reorg
 	return r0
 }
 
+func (_m *TxSubProvider) Stats() (int, int) {
+	return 0, 0
+}
+
 // TxSubProvider_SubscribeTransactions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SubscribeTransactions'
 type TxSubProvider_SubscribeTransactions_Call struct {
 	*mock.Call

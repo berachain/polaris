@@ -39,6 +39,9 @@ import (
 func (m *Mempool) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
+	// The transaction put into this function by CheckTx
+	// is a transaction from CometBFT mempool.
+	telemetry.IncrCounter(float32(1), MetricKeyCometPoolTxs)
 	msgs := tx.GetMsgs()
 
 	// TODO: Record the time it takes to build a payload.
@@ -51,6 +54,7 @@ func (m *Mempool) AnteHandle(
 				ctx.BlockTime().Unix(), ethTx,
 			); shouldEject {
 				m.crc.DropRemoteTx(ethTx.Hash())
+				telemetry.IncrCounter(float32(1), MetricKeyAnteEjectedTxs)
 				return ctx, errors.New("eject from comet mempool")
 			}
 		}
@@ -80,10 +84,18 @@ func (m *Mempool) shouldEjectFromCometMempool(
 func (m *Mempool) validateStateless(tx *ethtypes.Transaction, currentTime int64) bool {
 	txHash := tx.Hash()
 	// 1. If the transaction has been in the mempool for longer than the configured timeout.
-	// 2. If the transaction's gas params are over the configured limit.
+	// 2. If the transaction's gas params are less than or equal to the configured limit.
 	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
-	priceOverLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
-	return expired || priceOverLimit
+	priceLeLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
+
+	if expired {
+		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectExpiredTx)
+	}
+	if priceLeLimit {
+		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectPriceLimit)
+	}
+
+	return expired || priceLeLimit
 }
 
 // includedCanonicalChain returns whether the tx of the given hash is included in the canonical
