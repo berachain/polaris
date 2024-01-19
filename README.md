@@ -104,6 +104,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 Polaris also supports reproducible development environments using [Nix](https://nixos.org/) with [Flakes](https://nixos.wiki/wiki/Flakes).
 
 1. Install [Nix](https://github.com/DeterminateSystems/nix-installer). We recommend the Determinate Systems installer to automatically configure your system with Flakes turned on.
+
 2. Clone, Setup and Test:
 
    ```sh
@@ -114,11 +115,17 @@ Polaris also supports reproducible development environments using [Nix](https://
    nix develop
    make test-unit
    ```
+
 3. Start a local development network:
 
    ```sh
    make start
    ```
+
+Note: If you would prefer to automatically load this environment everytime you enter the Polaris directory, you can use `direnv`:
+
+- Create a `.envrc` file with the line `use flake`
+- Run `direnv allow`
 
 ## 🚧 WARNING: UNDER CONSTRUCTION 🚧
 
