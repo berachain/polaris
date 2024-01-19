@@ -52,6 +52,7 @@ type SdkTx interface {
 // TxSubProvider.
 type TxSubProvider interface {
 	SubscribeTransactions(ch chan<- core.NewTxsEvent, reorgs bool) event.Subscription
+	Stats() (int, int)
 }
 
 // TxSerializer provides an interface to Serialize Geth Transactions to Bytes (via sdk.Tx).
@@ -121,6 +122,7 @@ func (h *handler) Start() error {
 	}
 	go h.mainLoop()
 	go h.failedLoop() // Start the retry policy
+	go h.statLoop()
 	return nil
 }
 
@@ -175,6 +177,21 @@ func (h *handler) failedLoop() {
 
 		// We slightly space out the retries in order to prioritize new transactions.
 		time.Sleep(retryDelay)
+	}
+}
+
+func (h *handler) statLoop() {
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-h.stopCh:
+			return
+		case <-ticker.C:
+			pending, queue := h.txPool.Stats()
+			telemetry.SetGauge(float32(pending), MetricKeyTxPoolPending)
+			telemetry.SetGauge(float32(queue), MetricKeyTxPoolQueue)
+		}
 	}
 }
 
