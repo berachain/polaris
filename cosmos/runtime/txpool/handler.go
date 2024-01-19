@@ -52,6 +52,7 @@ type SdkTx interface {
 // TxSubProvider.
 type TxSubProvider interface {
 	SubscribeTransactions(ch chan<- core.NewTxsEvent, reorgs bool) event.Subscription
+	Stats() (int, int)
 }
 
 // TxSerializer provides an interface to Serialize Geth Transactions to Bytes (via sdk.Tx).
@@ -152,6 +153,9 @@ func (h *handler) mainLoop() {
 		case err = <-h.txsSub.Err():
 			h.stopCh <- struct{}{}
 		case event := <-h.txsCh:
+			pending, queue := h.txPool.Stats()
+			telemetry.SetGauge(float32(pending), MetricKeyTxPoolPending)
+			telemetry.SetGauge(float32(queue), MetricKeyTxPoolQueue)
 			telemetry.IncrCounter(float32(len(event.Txs)), MetricKeyCometLocalTxs)
 			h.broadcastTransactions(event.Txs)
 		}

@@ -8,7 +8,6 @@ replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v1.
 require (
 	github.com/berachain/polaris/contracts v0.1.5-alpha
 	github.com/berachain/polaris/lib v0.0.4-alpha
-	github.com/cosmos/cosmos-sdk v0.50.3
 	github.com/ethereum/go-ethereum v1.13.10
 	github.com/holiman/uint256 v1.2.4
 	github.com/onsi/ginkgo/v2 v2.14.0
@@ -18,12 +17,10 @@ require (
 )
 
 require (
-	github.com/DataDog/datadog-go v3.2.0+incompatible // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/VictoriaMetrics/fastcache v1.12.1 // indirect
 	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
-	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.11.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/bytedance/sonic v1.10.0 // indirect
@@ -66,10 +63,6 @@ require (
 	github.com/gorilla/websocket v1.5.1 // indirect
 	github.com/graph-gophers/graphql-go v1.5.0 // indirect
 	github.com/hashicorp/go-bexpr v0.1.12 // indirect
-	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
-	github.com/hashicorp/go-metrics v0.5.1 // indirect
-	github.com/hashicorp/go-uuid v1.0.2 // indirect
-	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/holiman/billy v0.0.0-20230718173358-1c7e68d277a7 // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
 	github.com/huin/goupnp v1.3.0 // indirect
@@ -85,7 +78,6 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
-	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/pointerstructure v1.2.1 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
@@ -96,10 +88,6 @@ require (
 	github.com/peterh/liner v1.2.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.17.0 // indirect
-	github.com/prometheus/client_model v0.5.0 // indirect
-	github.com/prometheus/common v0.45.0 // indirect
-	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/rs/cors v1.10.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect

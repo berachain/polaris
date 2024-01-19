@@ -40,9 +40,9 @@ import (
 func (m *Mempool) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
-	// The transaction puts into this function is a remote transaction,
-	// received by CheckTx.
-	telemetry.IncrCounter(float32(1), MetricKeyCometRemoteTxs)
+	// The transaction put into this function by CheckTx
+	// is a transaction from CometBFT mempool.
+	telemetry.IncrCounter(float32(1), MetricKeyCometPoolTxs)
 	msgs := tx.GetMsgs()
 
 	// TODO: Record the time it takes to build a payload.
