@@ -42,6 +42,7 @@ const (
 	txChanSize = 4096
 	maxRetries = 5
 	retryDelay = 50 * time.Millisecond
+	statPeriod = 60 * time.Second
 )
 
 // SdkTx is used to generate mocks.
@@ -181,7 +182,7 @@ func (h *handler) failedLoop() {
 }
 
 func (h *handler) statLoop() {
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(statPeriod)
 	defer ticker.Stop()
 	for {
 		select {
