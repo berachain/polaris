@@ -23,6 +23,8 @@ package miner
 
 import (
 	"context"
+	"errors"
+	"sync"
 	"time"
 
 	"github.com/cosmos/gogoproto/proto"
@@ -41,25 +43,30 @@ import (
 
 // Miner implements the baseapp.TxSelector interface.
 type Miner struct {
-	miner          eth.Miner
-	app            TxDecoder
-	spf            core.StatePluginFactory
+	miner eth.Miner
+	app   TxDecoder
+	bc    core.Blockchain
+
 	valTxSelector  baseapp.TxSelector
 	serializer     EnvelopeSerializer
 	allowedValMsgs map[string]sdk.Msg
 	currentPayload *miner.Payload
+
+	blockBuilderMu *sync.RWMutex
 }
 
 // New produces a cosmos miner from a geth miner.
 func New(
-	miner eth.Miner, app TxDecoder, spf core.StatePluginFactory, allowedValMsgs map[string]sdk.Msg,
+	miner eth.Miner, app TxDecoder, allowedValMsgs map[string]sdk.Msg,
+	bc core.Blockchain, blockBuilderMu *sync.RWMutex,
 ) *Miner {
 	return &Miner{
 		miner:          miner,
 		app:            app,
-		spf:            spf,
+		bc:             bc,
 		allowedValMsgs: allowedValMsgs,
 		valTxSelector:  baseapp.NewDefaultTxSelector(),
+		blockBuilderMu: blockBuilderMu,
 	}
 }
 
@@ -76,6 +83,11 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 	// Record the time it takes to build a payload.
 	defer telemetry.MeasureSince(time.Now(), MetricKeyBuildBlock)
 
+	// Miner locks for block building to occupy the txpool.
+	m.blockBuilderMu.Lock()
+	defer m.blockBuilderMu.Unlock()
+
+	// Submit payload for building with the given context.
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
 		return nil, 0, err
 	}
@@ -87,13 +99,18 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 // submitPayloadForBuilding submits a payload for building.
 func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 	var (
-		err     error
-		payload *miner.Payload
-		sCtx    = sdk.UnwrapSDKContext(ctx)
+		err         error
+		payload     *miner.Payload
+		sCtx        = sdk.UnwrapSDKContext(ctx)
+		payloadArgs = m.constructPayloadArgs(uint64(sCtx.BlockTime().Unix()))
 	)
 
-	// Build Payload
-	if payload, err = m.miner.BuildPayload(m.constructPayloadArgs(sCtx)); err != nil {
+	// Set the mining context for geth to build the payload with.
+	m.bc.StatePluginFactory().SetLatestMiningContext(ctx)
+	m.bc.PrimePlugins(ctx)
+
+	// Build Payload.
+	if payload, err = m.miner.BuildPayload(payloadArgs); err != nil {
 		sCtx.Logger().Error("failed to build payload", "err", err)
 		return err
 	}
@@ -103,13 +120,13 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 }
 
 // constructPayloadArgs builds a payload to submit to the miner.
-func (m *Miner) constructPayloadArgs(ctx sdk.Context) *miner.BuildPayloadArgs {
+func (m *Miner) constructPayloadArgs(blockTime uint64) *miner.BuildPayloadArgs {
 	return &miner.BuildPayloadArgs{
-		Timestamp:    uint64(ctx.BlockTime().Unix()),
+		Timestamp:    blockTime,
 		FeeRecipient: m.miner.Etherbase(),
 		Random:       common.Hash{}, /* todo: generated random */
 		Withdrawals:  make(ethtypes.Withdrawals, 0),
-		BeaconRoot:   &emptyHash,
+		BeaconRoot:   nil, // Add this when implementing Cancun.
 	}
 }
 
@@ -141,13 +158,15 @@ func (m *Miner) clearPayload() {
 // processValidatorMsgs processes the validator messages.
 func (m *Miner) processValidatorMsgs(
 	ctx sdk.Context, maxTxBytes int64, ethGasUsed uint64, txs [][]byte,
-) ([][]byte, error) { //nolint:unparam // should be handled better.
-	var maxBlockGas uint64
-	if b := ctx.ConsensusParams().Block; b != nil {
-		maxBlockGas = uint64(b.MaxGas)
+) ([][]byte, error) {
+	b := ctx.ConsensusParams().Block
+	if b == nil {
+		return nil, errors.New("consensus params block is nil")
 	}
-
-	blockGasRemaining := maxBlockGas - ethGasUsed
+	if uint64(b.MaxGas) < ethGasUsed {
+		return nil, errors.New("eth gas used exceeds comet block max gas")
+	}
+	blockGasRemaining := uint64(b.MaxGas) - ethGasUsed
 
 	for _, txBz := range txs {
 		tx, err := m.app.TxDecode(txBz)

@@ -18,37 +18,26 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
 
-package keeper
+package core
 
 import (
-	"context"
-	"fmt"
+	"errors"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/berachain/polaris/eth/core/state"
+
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
-// EndBlock runs on the Cosmos-SDK lifecycle EndBlock() during ABCI Finalize.
-func (k *Keeper) EndBlock(ctx context.Context) error {
-	// Verify that the EVM block was written.
-	blockNum := uint64(sdk.UnwrapSDKContext(ctx).BlockHeight())
-	newHead := k.chain.GetBlockByNumber(blockNum)
-	if newHead == nil {
-		return fmt.Errorf(
-			"evm block %d failed to process", blockNum,
-		)
-	} else if newHead.NumberU64() != blockNum {
-		return fmt.Errorf(
-			"evm block [%d] does not match comet block [%d]", newHead.NumberU64(), blockNum,
-		)
+// WriteGenesisBlock inserts the genesis block into the blockchain.
+func (bc *blockchain) WriteGenesisBlock(block *ethtypes.Block) error {
+	// Get the state with the latest finalize block context.
+	sp := bc.spf.NewPluginWithMode(state.Genesis)
+	state := state.NewStateDB(sp, bc.pp)
+
+	// TODO: add more validation here.
+	if block.NumberU64() != 0 {
+		return errors.New("not the genesis block")
 	}
-
-	// Set the finalized eth block once we know it has been finalized successfully by Cosmos.
-	return k.chain.SetFinalizedBlock()
-}
-
-// PrepareCheckState runs on the Cosmos-SDK lifecycle PrepareCheckState() during ABCI Commit.
-func (k *Keeper) PrepareCheckState(ctx context.Context) error {
-	k.spf.SetLatestQueryContext(ctx)
-	k.chain.PrimePlugins(ctx)
-	return nil
+	_, err := bc.WriteBlockAndSetHead(block, nil, nil, state, true)
+	return err
 }

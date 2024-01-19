@@ -57,7 +57,7 @@ type (
 	// support getting and setting block headers.
 	BlockPlugin interface {
 		// BlockPlugin implements `libtypes.Preparable`. Calling `Prepare` should reset the
-		// BlockPlugin to a default state.
+		// BlockPlugin to a default.
 		libtypes.Preparable
 		// GetHeaderByNumber returns the block header at the given block number.
 		GetHeaderByNumber(uint64) (*ethtypes.Header, error)
@@ -77,7 +77,7 @@ type (
 	}
 
 	StatePluginFactory interface {
-		NewPluginAtBlockNumber(uint64) (StatePlugin, error)
+		NewPluginAtBlockNumber(int64) (StatePlugin, error)
 		NewPluginWithMode(state.Mode) StatePlugin
 		NewPluginFromContext(context.Context) StatePlugin
 		SetLatestQueryContext(ctx context.Context)

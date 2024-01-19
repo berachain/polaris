@@ -188,10 +188,15 @@ func NewPolarisApp(
 		panic(err)
 	}
 
+	polarisConfig := evmconfig.MustReadConfigFromAppOpts(appOpts)
+	if polarisConfig.OptimisticExecution {
+		baseAppOptions = append(baseAppOptions, baseapp.SetOptimisticExecution())
+	}
+
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 	app.Polaris = polarruntime.New(app,
-		evmconfig.MustReadConfigFromAppOpts(appOpts), app.Logger(), app.EVMKeeper.Host, nil,
+		polarisConfig, app.Logger(), app.EVMKeeper.Host, nil,
 	)
 
 	// Build cosmos ante handler for non-evm transactions.
@@ -237,7 +242,8 @@ func NewPolarisApp(
 		panic(err)
 	}
 
-	// Load the last state of the polaris evm.
+	// Load the last state of the Polaris EVM.
+	// TODO: verify that the version of app CMS is the same as app.LastBlockHeight.
 	if err = app.Polaris.LoadLastState(
 		app.CommitMultiStore(), uint64(app.LastBlockHeight()),
 	); err != nil {

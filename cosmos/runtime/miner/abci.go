@@ -25,12 +25,7 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/ethereum/go-ethereum/common"
 )
-
-// emptyHash is a common.Hash initialized to all zeros.
-var emptyHash = common.Hash{}
 
 // PrepareProposal implements baseapp.PrepareProposal.
 func (m *Miner) PrepareProposal(
@@ -42,9 +37,6 @@ func (m *Miner) PrepareProposal(
 		valTxs            [][]byte
 		ethGasUsed        uint64
 	)
-
-	// Set the mining context for the state plugin factory.
-	m.spf.SetLatestMiningContext(ctx)
 
 	// Trigger the geth miner to build a block.
 	if payloadEnvelopeBz, ethGasUsed, err = m.buildBlock(ctx); err != nil {

@@ -51,19 +51,5 @@ message WrappedPayloadEnvelope {
 // WrappedPayloadEnvelopeResponse defines the block response.
 message WrappedPayloadEnvelopeResponse {}
 
-// Status represents the status of a transaction.
-enum Status {
-  // STATUS_REVERT_UNSPECIFIED indicates that the transaction reverted.
-  STATUS_REVERT_UNSPECIFIED = 0;
-  // STATUS_SUCCESS indicates that the transaction completed successfully.
-  STATUS_SUCCESS = 1;
-  // STATUS_NOT_INCLUDED indicates that the transaction was not included in the
-  // `evm` block, due to an critical error.
-  STATUS_NOT_INCLUDED = 2;
-}
-
 // WrappedEthereumTransactionResult defines the Msg/EthereumTx response type.
-message WrappedEthereumTransactionResult {
-  // `status` represents a transaction's status
-  Status status = 1;
-}
+message WrappedEthereumTransactionResult {}

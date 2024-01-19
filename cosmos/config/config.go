@@ -26,12 +26,13 @@ import (
 	"github.com/berachain/polaris/cosmos/config/flags"
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/accounts"
-	"github.com/berachain/polaris/eth/node"
-	"github.com/berachain/polaris/eth/polar"
 
 	sdkflags "github.com/cosmos/cosmos-sdk/client/flags"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	version "github.com/cosmos/cosmos-sdk/version"
+
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 type Config = eth.Config
@@ -47,17 +48,6 @@ func SetupCosmosConfig() {
 	config.SetCoinType(accounts.Bip44CoinType)
 	config.SetPurpose(sdk.Purpose)
 	config.Seal()
-}
-
-// DefaultConfig returns the default configuration for a polaris chain.
-func DefaultConfig() *Config {
-	nodeCfg := node.DefaultConfig()
-	nodeCfg.DataDir = ""
-	nodeCfg.KeyStoreDir = ""
-	return &Config{
-		Polar: *polar.DefaultConfig(),
-		Node:  *nodeCfg,
-	}
 }
 
 // MustReadConfigFromAppOpts reads the configuration options from the given
@@ -78,11 +68,18 @@ func ReadConfigFromAppOpts(opts servertypes.AppOptions) (*Config, error) {
 
 //nolint:funlen,gocognit,gocyclo,cyclop // TODO break up later.
 func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
-	var err error
-	var val int64
-	conf := &Config{}
+	var (
+		err  error
+		val  int64
+		conf = &Config{}
+	)
 
-	// Polar settings
+	// 🅱️onad mode.
+	if conf.OptimisticExecution, err = parser.GetBool(flags.OptimisticExecution); err != nil {
+		return nil, err
+	}
+
+	// Polaris Core settings
 	if conf.Polar.RPCGasCap, err =
 		parser.GetUint64(flags.RPCGasCap); err != nil {
 		return nil, err
@@ -105,6 +102,17 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 		parser.GetHexutilBytes(flags.MinerExtraData); err != nil {
 		return nil, err
 	}
+
+	if len(conf.Polar.Miner.ExtraData) == 0 {
+		commit := version.NewInfo().GitCommit
+		if len(commit) != 40 { //nolint:gomnd // its okay.
+			return nil, err
+		}
+		conf.Polar.Miner.ExtraData = hexutil.Bytes(
+			commit[32:40],
+		)
+	}
+
 	if conf.Polar.Miner.GasFloor, err =
 		parser.GetUint64(flags.MinerGasFloor); err != nil {
 		return nil, err

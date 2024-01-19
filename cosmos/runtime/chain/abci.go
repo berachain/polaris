@@ -51,10 +51,12 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 			continue
 		}
 
-		protoEnvelope := sdkTx.GetMsgs()[0]
-		if env, ok := protoEnvelope.(*evmtypes.WrappedPayloadEnvelope); ok {
-			envelope = env.UnwrapPayload()
-			break
+		if len(sdkTx.GetMsgs()) == 1 {
+			protoEnvelope := sdkTx.GetMsgs()[0]
+			if env, ok := protoEnvelope.(*evmtypes.WrappedPayloadEnvelope); ok {
+				envelope = env.UnwrapPayload()
+				break
+			}
 		}
 	}
 
@@ -74,11 +76,8 @@ func (wbc *WrappedBlockchain) ProcessProposal(
 		}, err
 	}
 
-	spf := wbc.StatePluginFactory()
-	spf.SetInsertChainContext(ctx)
-
-	// Insert the block into the chain.å
-	if err = wbc.InsertBlockWithoutSetHead(block); err != nil {
+	// Insert the block into the chain.
+	if err = wbc.InsertBlock(block); err != nil {
 		ctx.Logger().Error("failed to insert block", "err", err)
 		return &abci.ResponseProcessProposal{
 			Status: abci.ResponseProcessProposal_REJECT,

@@ -43,9 +43,10 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState *core.Genesis) error {
 		}
 	}
 
-	// Insert to chain.
+	// Insert to chain with the genesis context. The plugins are already prepared with their
+	// InitGenesis.
 	k.spf.SetGenesisContext(ctx)
-	return k.chain.WriteGenesisBlockWithContext(ctx, genState.ToBlock())
+	return k.chain.WriteGenesisBlock(genState.ToBlock())
 }
 
 // ExportGenesis returns the exported genesis state.

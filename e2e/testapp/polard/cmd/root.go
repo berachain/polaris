@@ -32,7 +32,7 @@ import (
 	"cosmossdk.io/log"
 
 	evmv1alpha1 "github.com/berachain/polaris/cosmos/api/polaris/evm/v1alpha1"
-	evmconfig "github.com/berachain/polaris/cosmos/config"
+	polarconfig "github.com/berachain/polaris/cosmos/config"
 	ethcryptocodec "github.com/berachain/polaris/cosmos/crypto/codec"
 	polarkeyring "github.com/berachain/polaris/cosmos/crypto/keyring"
 	signinglib "github.com/berachain/polaris/cosmos/lib/signing"
@@ -65,7 +65,7 @@ func NewRootCmd() *cobra.Command {
 		depinject.Configs(
 			testapp.MakeAppConfig(""),
 			depinject.Supply(
-				testapp.PolarisConfigFn(evmconfig.DefaultConfig()),
+				testapp.PolarisConfigFn(polarconfig.DefaultPolarisConfig()),
 				testapp.QueryContextFn((&testapp.SimApp{})),
 				log.NewNopLogger(),
 				simtestutil.NewAppOptionsWithFlagHome(tempDir()),
@@ -113,10 +113,9 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			customAppTemplate, customAppConfig := initAppConfig()
-			customCMTConfig := initCometBFTConfig()
 
 			return server.InterceptConfigsPreRunHandler(
-				cmd, customAppTemplate, customAppConfig, customCMTConfig,
+				cmd, customAppTemplate, customAppConfig, polarconfig.RecommendedCometBFTConfig(),
 			)
 		},
 	}

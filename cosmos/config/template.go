@@ -28,6 +28,7 @@ const (
 ###############################################################################
 # General Polaris settings
 [polaris]
+optimistic-execution = {{ .Polaris.OptimisticExecution }}
 
 [polaris.polar]
 # Gas cap for RPC requests
@@ -38,7 +39,6 @@ rpc-evm-timeout = "{{ .Polaris.Polar.RPCEVMTimeout }}"
 
 # Transaction fee cap for RPC requests
 rpc-tx-fee-cap = "{{ .Polaris.Polar.RPCTxFeeCap }}"
-
 
 # Chain config
 [polaris.polar.chain] 

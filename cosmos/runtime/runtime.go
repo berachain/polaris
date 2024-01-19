@@ -21,7 +21,8 @@
 package runtime
 
 import (
-	"context"
+	"math/big"
+	"sync"
 	"time"
 
 	cosmoslog "cosmossdk.io/log"
@@ -54,9 +55,8 @@ import (
 // EVMKeeper is an interface that defines the methods needed for the EVM setup.
 type EVMKeeper interface {
 	// Setup initializes the EVM keeper.
-	Setup(core.Blockchain) error
+	Setup(core.Blockchain, *txpool.Mempool) error
 	GetStatePluginFactory() core.StatePluginFactory
-	SetLatestQueryContext(context.Context) error
 	GetHost() core.PolarisHostChain
 }
 
@@ -87,6 +87,11 @@ type Polaris struct {
 	WrappedBlockchain *chain.WrappedBlockchain
 	// logger is the underlying logger supplied by the sdk.
 	logger cosmoslog.Logger
+
+	// blockBuilderMu is write locked by the miner during block building to ensure no inserts
+	// into the txpool are happening during this process. The mempool object then read locks for
+	// adding transactions into the txpool.
+	blockBuilderMu sync.RWMutex
 }
 
 // New creates a new Polaris runtime from the provided dependencies.
@@ -108,22 +113,22 @@ func New(
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithEventManager(sdk.NewEventManager())
-	host.GetStatePluginFactory().SetLatestQueryContext(
-		ctx,
-	)
+	host.GetStatePluginFactory().SetLatestQueryContext(ctx)
 
-	p.ExecutionLayer, err = eth.New(
+	if p.ExecutionLayer, err = eth.New(
 		"geth", cfg, host, engine, cfg.Node.AllowUnprotectedTxs,
 		ethlog.NewLogger(newEthHandler(logger)),
-	)
-	if err != nil {
+	); err != nil {
 		panic(err)
 	}
 
+	priceLimit := big.NewInt(0).SetUint64(cfg.Polar.LegacyTxPool.PriceLimit)
 	p.WrappedTxPool = txpool.New(
 		p.ExecutionLayer.Backend().Blockchain(),
 		p.ExecutionLayer.Backend().TxPool(),
-		cfg.Polar.LegacyTxPool.Lifetime,
+		int64(cfg.Polar.LegacyTxPool.Lifetime),
+		&p.blockBuilderMu,
+		priceLimit,
 	)
 
 	return p
@@ -137,9 +142,8 @@ func (p *Polaris) Build(
 ) error {
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
 	p.WrappedMiner = miner.New(
-		p.ExecutionLayer.Backend().Miner(), app,
-		ek.GetHost().GetStatePluginFactory(),
-		allowedValMsgs,
+		p.ExecutionLayer.Backend().Miner(), app, allowedValMsgs,
+		p.Backend().Blockchain(), &p.blockBuilderMu,
 	)
 	p.WrappedBlockchain = chain.New(
 		p.ExecutionLayer.Backend().Blockchain(), app,
@@ -154,7 +158,7 @@ func (p *Polaris) Build(
 	app.SetPrepareProposal(p.ProposalProvider.PrepareProposal)
 	app.SetProcessProposal(p.ProposalProvider.ProcessProposal)
 
-	if err := ek.Setup(p.WrappedBlockchain); err != nil {
+	if err := ek.Setup(p.WrappedBlockchain, p.WrappedTxPool); err != nil {
 		return err
 	}
 
@@ -224,5 +228,9 @@ func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint6
 		WithBlockHeight(int64(appHeight)).
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
-	return p.Backend().Blockchain().LoadLastState(cmsCtx, appHeight)
+
+	bc := p.Backend().Blockchain()
+	bc.StatePluginFactory().SetLatestQueryContext(cmsCtx)
+	bc.PrimePlugins(cmsCtx)
+	return bc.LoadLastState(appHeight)
 }
