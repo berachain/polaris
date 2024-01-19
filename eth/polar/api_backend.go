@@ -330,17 +330,6 @@ func (b *backend) StateAndHeaderByNumber(
 	ctx context.Context,
 	number rpc.BlockNumber,
 ) (state.StateDB, *ethtypes.Header, error) {
-	// Pending state is only known by the miner
-	if number == rpc.PendingBlockNumber {
-		block, state := b.polar.miner.Pending()
-		if block == nil || state == nil {
-			// To improve client compatibility we return the latest state if
-			// pending is not available.
-			return b.StateAndHeaderByNumber(ctx, rpc.LatestBlockNumber)
-		}
-		return state, block.Header(), nil
-	}
-
 	// Otherwise resolve the block number and return its state
 	header, err := b.HeaderByNumber(ctx, number)
 	if err != nil {
