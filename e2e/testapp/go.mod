@@ -6,8 +6,7 @@ replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/cockroachdb/pebble => github.com/cockroachdb/pebble v0.0.0-20220817183557-09c6e030a677
-	// Use branch with the mempool race condition fix.
-	github.com/comet/cometbft => github.com/cometbft/cometbft v0.38.3-0.20240117033245-e65a966827e0
+
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v1.13.10-2-polar
 	// replace broken goleveldb
@@ -29,7 +28,7 @@ require (
 	cosmossdk.io/x/upgrade v0.0.0-20231103111158-e83a20081ced
 	github.com/berachain/polaris/cosmos v0.1.6-alpha
 	github.com/berachain/polaris/eth v0.1.6-alpha
-	github.com/cometbft/cometbft v0.38.3-0.20240112162522-07581a6c38fb
+	github.com/cometbft/cometbft v0.38.3
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-sdk v0.50.4-0.20240119174318-d0c414eb6212
 	github.com/onsi/ginkgo/v2 v2.14.0
@@ -259,14 +258,14 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.4.0 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
+	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/oauth2 v0.15.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
-	golang.org/x/term v0.15.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/term v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.16.1 // indirect
