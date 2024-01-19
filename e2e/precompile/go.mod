@@ -8,7 +8,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.50.4-0.20240119174318-d0c414eb6212
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/ethereum/go-ethereum v1.13.10
-	github.com/onsi/ginkgo/v2 v2.14.0
+	github.com/onsi/ginkgo/v2 v2.15.0
 	github.com/onsi/gomega v1.30.0
 )
 

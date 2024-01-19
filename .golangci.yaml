@@ -32,7 +32,6 @@ run:
   # Default: 1m
   timeout: 10m
   tests: true
-  skip-dirs: .
 
   
 # Output
