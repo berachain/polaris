@@ -308,7 +308,7 @@ forge-lint:
 # golangci-lint #
 #################
 
-golangci_version=v1.54.2
+golangci_version=v1.55.2
 
 golangci-install:
 	@echo "--> Installing golangci-lint $(golangci_version)"
@@ -322,7 +322,7 @@ golangci:
 golangci-fix:
 	@$(MAKE) golangci-install
 	@echo "--> Running linter"
-	@go list -f '{{.Dir}}/...' -m | xargs golangci-lint run  --timeout=10m --fix --concurrency 8 -v 
+	@go list -f '{{.Dir}}/...' -m | xargs golangci-lint run  --timeout=10m --fix --concurrency 64
 
 
 #################

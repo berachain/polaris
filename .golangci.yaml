@@ -30,7 +30,15 @@
 run:
   # Timeout for analysis, e.g. 30s, 5m.
   # Default: 1m
-  timeout: 3m
+  timeout: 10m
+  tests: true
+
+  
+# Output
+output:
+  format: colored-line-number
+  print-issued-lines: true
+
 
 
 # This file contains only configs which differ from defaults.
@@ -175,6 +183,56 @@ linters-settings:
     # Make an issue if func has more lines of code than this setting, and it has naked returns.
     # Default: 30
     max-func-lines: 0
+    
+  revive:
+    ignore-generated: true
+    enable-all-rules: true
+    rules:
+      - name: dot-imports
+        disabled: true
+      - name: unused-parameter        # Disabled in favour of unparam.
+        disabled: true
+      - name: if-return
+        disabled: true
+      - name: max-public-structs
+        disabled: true
+      - name: cognitive-complexity
+        disabled: true
+      - name: argument-limit
+        disabled: true
+      - name: cyclomatic
+        disabled: true
+      - name: file-header
+        disabled: true
+      - name: function-length
+        disabled: true
+      - name: function-result-limit
+        disabled: true
+      - name: line-length-limit
+        disabled: true
+      - name: flag-parameter
+        disabled: true
+      - name: add-constant
+        disabled: true
+      - name: empty-lines
+        disabled: true
+      - name: banned-characters
+        disabled: true
+      - name: deep-exit
+        disabled: true
+      - name: confusing-results
+        disabled: true
+      - name: unused-parameter
+        disabled: true
+      - name: import-shadowing
+        disabled: true
+      - name: modifies-value-receiver
+        disabled: true
+      - name: early-return
+        disabled: true
+      - name: import-alias-naming
+        disabled: true
+
 
   nolintlint:
     # Exclude following linters from requiring an explanation.
@@ -320,7 +378,8 @@ issues:
   # Maximum count of issues with the same text.
   # Set to 0 to disable.
   # Default: 3
-  max-same-issues: 50
+  max-same-issues: 100
+  max-issues-per-linter: 100
 
   exclude-rules:
     - path: "tools/.*\\.go"

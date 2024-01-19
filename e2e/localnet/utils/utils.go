@@ -32,7 +32,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	//lint:ignore ST1001 Gomega makes sense in tests
+	// lint:ignore ST1001 Gomega makes sense in tests
 	. "github.com/onsi/gomega" //nolint:stylecheck,revive,gostaticcheck // Gomega makes sense in tests
 )
 

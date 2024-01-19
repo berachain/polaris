@@ -25,7 +25,7 @@
 
 package utils
 
-import network "github.com/berachain/polaris/e2e/localnet/network"
+import network "github.com/berachain/polaris/e2e/localnet/network" //nolint:revive // import doesn't work right if we do not add this.
 
 const (
 	polardConfigPath    = "polard/config/"

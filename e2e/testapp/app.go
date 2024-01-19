@@ -228,7 +228,7 @@ func NewPolarisApp(
 		panic(err)
 	}
 
-	/****  Module Options ****/
+	// ****  Module Options ****/
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
@@ -276,7 +276,7 @@ func (app *SimApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 }
 
 // SimulationManager implements the SimulationApp interface.
-func (app *SimApp) SimulationManager() *module.SimulationManager {
+func (*SimApp) SimulationManager() *module.SimulationManager {
 	return nil
 }
 
