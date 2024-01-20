@@ -54,6 +54,10 @@ func (_e *TxSubProvider_Expecter) SubscribeTransactions(ch interface{}, reorgs i
 	return &TxSubProvider_SubscribeTransactions_Call{Call: _e.mock.On("SubscribeTransactions", ch, reorgs)}
 }
 
+func (_m *TxSubProvider) Stats() (int, int) {
+	return 0, 0
+}
+
 func (_c *TxSubProvider_SubscribeTransactions_Call) Run(run func(ch chan<- core.NewTxsEvent, reorgs bool)) *TxSubProvider_SubscribeTransactions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(chan<- core.NewTxsEvent), args[1].(bool))

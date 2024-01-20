@@ -33,6 +33,7 @@ import (
 	"github.com/berachain/polaris/eth/core"
 	"github.com/berachain/polaris/lib/utils"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
@@ -130,6 +131,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
 		if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) &&
 			(sCtx.ExecMode() == sdk.ExecModeCheck || sCtx.ExecMode() == sdk.ExecModeReCheck) {
+			telemetry.IncrCounter(float32(1), MetricKeyMempoolKnownTxs)
 			return nil
 		}
 		return errs[0]
