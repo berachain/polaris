@@ -20,8 +20,27 @@
 
 package txpool
 
+// Mempool metrics.
 const (
-	MetricKeyMempoolFull      = "polaris_cometbft_mempool_full"
+	MetricKeyCometPrefix = "polaris_cometbft_"
+
+	MetricKeyCometPoolTxs  = "polaris_cometbft_comet_pool_txs"
+	MetricKeyCometLocalTxs = "polaris_cometbft_local_txs"
+
+	MetricKeyTimeShouldEject           = "polaris_cometbft_time_should_eject"
+	MetricKeyAnteEjectedTxs            = "polaris_cometbft_ante_ejected_txs"
+	MetricKeyAnteShouldEjectInclusion  = "polaris_cometbft_ante_should_eject_included"
+	MetricKeyAnteShouldEjectExpiredTx  = "polaris_cometbft_ante_should_eject_expired"
+	MetricKeyAnteShouldEjectPriceLimit = "polaris_cometbft_ante_should_eject_price_limit"
+
+	MetricKeyTxPoolPending = "polaris_cometbft_txpool_pending"
+	MetricKeyTxPoolQueue   = "polaris_cometbft_txpool_queue"
+
+	MetricKeyMempoolFull     = "polaris_cometbft_mempool_full"
+	MetricKeyMempoolSize     = "polaris_cometbft_mempool_size"
+	MetricKeyMempoolKnownTxs = "polaris_cometbft_mempool_known_txs"
+
+	MetricKeyBroadcastTxs     = "polaris_cometbft_broadcast_txs"
 	MetricKeyBroadcastFailure = "polaris_cometbft_broadcast_failure"
-	MetricKeyTimeShouldEject  = "polaris_cometbft_time_should_eject"
+	MetricKeyBroadcastRetry   = "polaris_cometbft_broadcast_retry"
 )

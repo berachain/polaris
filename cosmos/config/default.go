@@ -40,12 +40,12 @@ func RecommendedCometBFTConfig() *cmtcfg.Config {
 	cfg.Mempool.Recheck = true
 	cfg.Mempool.Type = "flood"
 
-	cfg.P2P.MaxNumInboundPeers = 10
-	cfg.P2P.MaxNumOutboundPeers = 15
+	cfg.P2P.MaxNumInboundPeers = 40
+	cfg.P2P.MaxNumOutboundPeers = 20
 
 	cfg.TxIndex.Indexer = "null"
 
-	cfg.Consensus.TimeoutPropose = 3 * time.Second
+	cfg.Consensus.TimeoutPropose = 3 * time.Second //nolint:gomnd // default.
 	cfg.Consensus.TimeoutPrevote = 1 * time.Second
 	cfg.Consensus.TimeoutPrecommit = 1 * time.Second
 

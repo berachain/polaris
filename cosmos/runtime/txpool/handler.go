@@ -42,6 +42,7 @@ const (
 	txChanSize = 4096
 	maxRetries = 5
 	retryDelay = 50 * time.Millisecond
+	statPeriod = 60 * time.Second
 )
 
 // SdkTx is used to generate mocks.
@@ -52,6 +53,7 @@ type SdkTx interface {
 // TxSubProvider.
 type TxSubProvider interface {
 	SubscribeTransactions(ch chan<- core.NewTxsEvent, reorgs bool) event.Subscription
+	Stats() (int, int)
 }
 
 // TxSerializer provides an interface to Serialize Geth Transactions to Bytes (via sdk.Tx).
@@ -121,6 +123,7 @@ func (h *handler) Start() error {
 	}
 	go h.mainLoop()
 	go h.failedLoop() // Start the retry policy
+	go h.statLoop()
 	return nil
 }
 
@@ -152,6 +155,7 @@ func (h *handler) mainLoop() {
 		case err = <-h.txsSub.Err():
 			h.stopCh <- struct{}{}
 		case event := <-h.txsCh:
+			telemetry.IncrCounter(float32(len(event.Txs)), MetricKeyCometLocalTxs)
 			h.broadcastTransactions(event.Txs)
 		}
 	}
@@ -168,11 +172,27 @@ func (h *handler) failedLoop() {
 				h.logger.Error("failed to broadcast transaction after max retries", "tx", maxRetries)
 				continue
 			}
+			telemetry.IncrCounter(float32(1), MetricKeyBroadcastRetry)
 			h.broadcastTransaction(failed.tx, failed.retries-1)
 		}
 
 		// We slightly space out the retries in order to prioritize new transactions.
 		time.Sleep(retryDelay)
+	}
+}
+
+func (h *handler) statLoop() {
+	ticker := time.NewTicker(statPeriod)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-h.stopCh:
+			return
+		case <-ticker.C:
+			pending, queue := h.txPool.Stats()
+			telemetry.SetGauge(float32(pending), MetricKeyTxPoolPending)
+			telemetry.SetGauge(float32(queue), MetricKeyTxPoolQueue)
+		}
 	}
 }
 

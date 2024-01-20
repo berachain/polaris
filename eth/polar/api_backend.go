@@ -205,10 +205,12 @@ func (b *backend) HeaderByNumber(
 	case rpc.PendingBlockNumber:
 		// TODO: handle "miner" stuff, Pending block is only known by the miner
 		block := b.polar.miner.PendingBlock()
-		if block == nil {
-			return nil, nil //nolint:nilnil // it's ok.
+		if block != nil {
+			return block.Header(), nil
 		}
-		return block.Header(), nil
+		// To improve client compatibility we return the latest state if
+		// pending is not available.
+		return b.polar.blockchain.CurrentHeader(), nil
 	case rpc.LatestBlockNumber:
 		return b.polar.blockchain.CurrentHeader(), nil
 	case rpc.FinalizedBlockNumber:
@@ -257,6 +259,14 @@ func (b *backend) BlockByNumber(
 	switch number {
 	case rpc.PendingBlockNumber:
 		block := b.polar.miner.PendingBlock()
+		if block == nil {
+			// To improve client compatibility we return the latest state if
+			// pending is not available.
+			header := b.polar.blockchain.CurrentBlock()
+			return b.polar.blockchain.GetBlock(
+				header.Hash(), header.Number.Uint64(),
+			), nil
+		}
 		return block, nil
 	// Otherwise resolve and return the block
 	case rpc.LatestBlockNumber:
@@ -320,15 +330,6 @@ func (b *backend) StateAndHeaderByNumber(
 	ctx context.Context,
 	number rpc.BlockNumber,
 ) (state.StateDB, *ethtypes.Header, error) {
-	// Pending state is only known by the miner
-	if number == rpc.PendingBlockNumber {
-		block, state := b.polar.miner.Pending()
-		if block == nil || state == nil {
-			return nil, nil, errors.New("pending state is not available")
-		}
-		return state, block.Header(), nil
-	}
-
 	// Otherwise resolve the block number and return its state
 	header, err := b.HeaderByNumber(ctx, number)
 	if err != nil {
