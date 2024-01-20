@@ -1,6 +1,6 @@
 module github.com/berachain/polaris/eth
 
-go 1.21
+go 1.21.6
 
 // We replace `go-ethereum` with `polaris-geth` in order include our required changes.
 replace github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v1.13.10-2-polar

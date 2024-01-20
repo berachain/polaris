@@ -1,6 +1,6 @@
 module github.com/berachain/polaris/contracts
 
-go 1.21
+go 1.21.6
 
 require github.com/ethereum/go-ethereum v1.13.10
 

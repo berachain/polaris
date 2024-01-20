@@ -1,6 +1,6 @@
 module github.com/berachain/polaris/e2e/localnet
 
-go 1.21
+go 1.21.6
 
 require (
 	github.com/berachain/polaris/contracts v0.0.4-alpha

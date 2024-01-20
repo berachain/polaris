@@ -1,6 +1,6 @@
 module github.com/berachain/polaris/e2e/testapp
 
-go 1.21
+go 1.21.6
 
 replace (
 	// use cosmos fork of keyring
@@ -31,7 +31,7 @@ require (
 	github.com/berachain/polaris/eth v0.1.6-alpha
 	github.com/cometbft/cometbft v0.38.3
 	github.com/cosmos/cosmos-db v1.0.0
-	github.com/cosmos/cosmos-sdk v0.50.3
+	github.com/cosmos/cosmos-sdk v0.50.4-0.20240119174318-d0c414eb6212
 	github.com/onsi/ginkgo/v2 v2.14.0
 	github.com/onsi/gomega v1.30.0
 	github.com/spf13/cobra v1.8.0

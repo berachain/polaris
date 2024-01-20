@@ -1,6 +1,6 @@
 module github.com/berachain/polaris/build/tools
 
-go 1.21
+go 1.21.6
 
 require (
 	github.com/bufbuild/buf v1.27.2
