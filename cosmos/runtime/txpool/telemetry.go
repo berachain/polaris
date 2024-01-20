@@ -20,7 +20,7 @@
 
 package txpool
 
-// Mempool metrics
+// Mempool metrics.
 const (
 	MetricKeyCometPrefix = "polaris_cometbft_"
 

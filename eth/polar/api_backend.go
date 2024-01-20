@@ -252,7 +252,7 @@ func (b *backend) HeaderByHash(_ context.Context, hash common.Hash) (*ethtypes.H
 
 // BlockByNumber returns the block with the given `number`.
 func (b *backend) BlockByNumber(
-	ctx context.Context,
+	_ context.Context,
 	number rpc.BlockNumber,
 ) (*ethtypes.Block, error) {
 	// Pending block is only known by the miner
