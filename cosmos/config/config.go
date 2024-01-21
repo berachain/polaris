@@ -21,6 +21,7 @@
 package config
 
 import (
+	"fmt"
 	"math/big"
 
 	"github.com/berachain/polaris/cosmos/config/flags"
@@ -106,7 +107,7 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 	if len(conf.Polar.Miner.ExtraData) == 0 {
 		commit := version.NewInfo().GitCommit
 		if len(commit) != 40 { //nolint:gomnd // its okay.
-			return nil, err
+			return nil, fmt.Errorf("invalid git commit length: %d", len(commit))
 		}
 		conf.Polar.Miner.ExtraData = hexutil.Bytes(
 			commit[32:40],
