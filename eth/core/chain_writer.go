@@ -198,7 +198,7 @@ func (bc *blockchain) writeBlockWithState(
 	return nil
 }
 
-// InsertBlock inserts a block into the canonical chain and updates the state of the blockchain.
+// writeHistoricalData inserts a block into the canonical chain and updates the state of the blockchain.
 // TODO: WRITE TO EXTERNAL STORE
 func (bc *blockchain) writeHistoricalData(
 	block *ethtypes.Block,
