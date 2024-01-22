@@ -33,7 +33,7 @@ require (
 	github.com/ethereum/go-ethereum v1.13.10
 	github.com/golang/mock v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/onsi/ginkgo/v2 v2.14.0
+	github.com/onsi/ginkgo/v2 v2.15.0
 	github.com/onsi/gomega v1.30.0
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/cobra v1.8.0
