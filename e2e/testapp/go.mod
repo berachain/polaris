@@ -29,7 +29,7 @@ require (
 	cosmossdk.io/x/upgrade v0.0.0-20231103111158-e83a20081ced
 	github.com/berachain/polaris/cosmos v0.1.6-alpha
 	github.com/berachain/polaris/eth v0.1.6-alpha
-	github.com/cometbft/cometbft v0.38.2
+	github.com/cometbft/cometbft v0.38.4
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-sdk v0.50.4-0.20240119174318-d0c414eb6212
 	github.com/onsi/ginkgo/v2 v2.14.0

@@ -3,6 +3,7 @@ module github.com/berachain/polaris/cosmos
 go 1.21.6
 
 replace (
+	github.com/cometbft/cometbft => github.com/cometbft/cometbft v0.38.4
 	// We replace `go-ethereum` with `polaris-geth` in order include our required changes.
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v1.13.10-2-polar
 	// replace broken goleveldb
@@ -23,7 +24,7 @@ require (
 	github.com/berachain/polaris/lib v0.0.4-alpha
 	github.com/btcsuite/btcd v0.23.2
 	github.com/btcsuite/btcd/btcutil v1.1.3
-	github.com/cometbft/cometbft v0.38.2
+	github.com/cometbft/cometbft v0.38.4
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
 	github.com/cosmos/cosmos-sdk v0.50.4-0.20240119174318-d0c414eb6212
