@@ -81,16 +81,7 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 	}
 
 	// Polaris Core settings
-	if conf.Polar.RPCGasCap, err =
-		parser.GetUint64(flags.RPCGasCap); err != nil {
-		return nil, err
-	}
-	if conf.Polar.RPCEVMTimeout, err =
-		parser.GetTimeDuration(flags.RPCEvmTimeout); err != nil {
-		return nil, err
-	}
-	if conf.Polar.RPCTxFeeCap, err =
-		parser.GetFloat64(flags.RPCTxFeeCap); err != nil {
+	if err = readPolarisCoreSettings(parser, conf); err != nil {
 		return nil, err
 	}
 
@@ -494,4 +485,23 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 	}
 
 	return conf, nil
+}
+
+func readPolarisCoreSettings(parser AppOptionsParser, conf *Config) error {
+	var err error
+
+	if conf.Polar.RPCGasCap, err =
+		parser.GetUint64(flags.RPCGasCap); err != nil {
+		return err
+	}
+	if conf.Polar.RPCEVMTimeout, err =
+		parser.GetTimeDuration(flags.RPCEvmTimeout); err != nil {
+		return err
+	}
+	if conf.Polar.RPCTxFeeCap, err =
+		parser.GetFloat64(flags.RPCTxFeeCap); err != nil {
+		return err
+	}
+
+	return nil
 }
