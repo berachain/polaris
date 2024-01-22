@@ -86,142 +86,12 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 	}
 
 	// Polar Miner settings
-	if conf.Polar.Miner.Etherbase, err =
-		parser.GetCommonAddress(flags.MinerEtherbase); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Miner.ExtraData, err =
-		parser.GetHexutilBytes(flags.MinerExtraData); err != nil {
-		return nil, err
-	}
-
-	if len(conf.Polar.Miner.ExtraData) == 0 {
-		commit := version.NewInfo().GitCommit
-		if len(commit) != 40 { //nolint:gomnd // its okay.
-			return nil, fmt.Errorf("invalid git commit length: %d", len(commit))
-		}
-		conf.Polar.Miner.ExtraData = hexutil.Bytes(
-			commit[32:40],
-		)
-	}
-
-	if conf.Polar.Miner.GasFloor, err =
-		parser.GetUint64(flags.MinerGasFloor); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Miner.GasCeil, err =
-		parser.GetUint64(flags.MinerGasCeil); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Miner.GasPrice, err =
-		parser.GetBigInt(flags.MinerGasPrice); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Miner.Recommit, err =
-		parser.GetTimeDuration(flags.MinerRecommit); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.Miner.NewPayloadTimeout, err =
-		parser.GetTimeDuration(flags.MinerNewPayloadTimeout); err != nil {
+	if err = readPolarisMinterSettings(parser, conf); err != nil {
 		return nil, err
 	}
 
 	// Polar Chain settings
-	if conf.Polar.Chain.ChainID, err =
-		parser.GetBigInt(flags.ChainID); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.HomesteadBlock, err =
-		parser.GetBigInt(flags.HomesteadBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.DAOForkBlock, err =
-		parser.GetBigInt(flags.DAOForkBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.DAOForkSupport, err =
-		parser.GetBool(flags.DAOForkSupport); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.EIP150Block, err =
-		parser.GetBigInt(flags.EIP150Block); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.EIP155Block, err =
-		parser.GetBigInt(flags.EIP155Block); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.EIP158Block, err =
-		parser.GetBigInt(flags.EIP158Block); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.ByzantiumBlock, err =
-		parser.GetBigInt(flags.ByzantiumBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.ConstantinopleBlock, err =
-		parser.GetBigInt(flags.ConstantinopleBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.PetersburgBlock, err =
-		parser.GetBigInt(flags.PetersburgBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.IstanbulBlock, err =
-		parser.GetBigInt(flags.IstanbulBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.MuirGlacierBlock, err =
-		parser.GetBigInt(flags.MuirGlacierBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.BerlinBlock, err =
-		parser.GetBigInt(flags.BerlinBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.LondonBlock, err =
-		parser.GetBigInt(flags.LondonBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.ArrowGlacierBlock, err =
-		parser.GetBigInt(flags.ArrowGlacierBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.GrayGlacierBlock, err =
-		parser.GetBigInt(flags.GrayGlacierBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.MergeNetsplitBlock, err =
-		parser.GetBigInt(flags.MergeNetsplitBlock); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.ShanghaiTime, err =
-		parser.GetUint64Ptr(flags.ShanghaiTime); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.Chain.CancunTime, err =
-		parser.GetUint64Ptr(flags.CancunTime); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.PragueTime, err =
-		parser.GetUint64Ptr(flags.PragueTime); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.VerkleTime, err =
-		parser.GetUint64Ptr(flags.VerkleTime); err != nil {
-		return nil, err
-	}
-
-	if conf.Polar.Chain.TerminalTotalDifficulty, err =
-		parser.GetBigInt(
-			flags.TerminalTotalDifficulty); err != nil {
-		return nil, err
-	}
-	if conf.Polar.Chain.TerminalTotalDifficultyPassed, err =
-		parser.GetBool(
-			flags.TerminalTotalDifficultyPassed); err != nil {
+	if err = readPolarisChainSettings(parser, conf); err != nil {
 		return nil, err
 	}
 
@@ -500,6 +370,154 @@ func readPolarisCoreSettings(parser AppOptionsParser, conf *Config) error {
 	}
 	if conf.Polar.RPCTxFeeCap, err =
 		parser.GetFloat64(flags.RPCTxFeeCap); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func readPolarisMinterSettings(parser AppOptionsParser, conf *Config) error {
+	var err error
+	if conf.Polar.Miner.Etherbase, err =
+		parser.GetCommonAddress(flags.MinerEtherbase); err != nil {
+		return err
+	}
+	if conf.Polar.Miner.ExtraData, err =
+		parser.GetHexutilBytes(flags.MinerExtraData); err != nil {
+		return err
+	}
+
+	if len(conf.Polar.Miner.ExtraData) == 0 {
+		commit := version.NewInfo().GitCommit
+		if len(commit) != 40 { //nolint:gomnd // its okay.
+			return fmt.Errorf("invalid git commit length: %d", len(commit))
+		}
+		conf.Polar.Miner.ExtraData = hexutil.Bytes(
+			commit[32:40],
+		)
+	}
+
+	if conf.Polar.Miner.GasFloor, err =
+		parser.GetUint64(flags.MinerGasFloor); err != nil {
+		return err
+	}
+	if conf.Polar.Miner.GasCeil, err =
+		parser.GetUint64(flags.MinerGasCeil); err != nil {
+		return err
+	}
+	if conf.Polar.Miner.GasPrice, err =
+		parser.GetBigInt(flags.MinerGasPrice); err != nil {
+		return err
+	}
+	if conf.Polar.Miner.Recommit, err =
+		parser.GetTimeDuration(flags.MinerRecommit); err != nil {
+		return err
+	}
+
+	if conf.Polar.Miner.NewPayloadTimeout, err =
+		parser.GetTimeDuration(flags.MinerNewPayloadTimeout); err != nil {
+		return err
+	}
+	return nil
+}
+
+func readPolarisChainSettings(parser AppOptionsParser, conf *Config) error {
+	var err error
+	if conf.Polar.Chain.ChainID, err =
+		parser.GetBigInt(flags.ChainID); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.HomesteadBlock, err =
+		parser.GetBigInt(flags.HomesteadBlock); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.DAOForkBlock, err =
+		parser.GetBigInt(flags.DAOForkBlock); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.DAOForkSupport, err =
+		parser.GetBool(flags.DAOForkSupport); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.EIP150Block, err =
+		parser.GetBigInt(flags.EIP150Block); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.EIP155Block, err =
+		parser.GetBigInt(flags.EIP155Block); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.EIP158Block, err =
+		parser.GetBigInt(flags.EIP158Block); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.ByzantiumBlock, err =
+		parser.GetBigInt(flags.ByzantiumBlock); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.ConstantinopleBlock, err =
+		parser.GetBigInt(flags.ConstantinopleBlock); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.PetersburgBlock, err =
+		parser.GetBigInt(flags.PetersburgBlock); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.IstanbulBlock, err =
+		parser.GetBigInt(flags.IstanbulBlock); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.MuirGlacierBlock, err =
+		parser.GetBigInt(flags.MuirGlacierBlock); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.BerlinBlock, err =
+		parser.GetBigInt(flags.BerlinBlock); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.LondonBlock, err =
+		parser.GetBigInt(flags.LondonBlock); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.ArrowGlacierBlock, err =
+		parser.GetBigInt(flags.ArrowGlacierBlock); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.GrayGlacierBlock, err =
+		parser.GetBigInt(flags.GrayGlacierBlock); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.MergeNetsplitBlock, err =
+		parser.GetBigInt(flags.MergeNetsplitBlock); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.ShanghaiTime, err =
+		parser.GetUint64Ptr(flags.ShanghaiTime); err != nil {
+		return err
+	}
+
+	if conf.Polar.Chain.CancunTime, err =
+		parser.GetUint64Ptr(flags.CancunTime); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.PragueTime, err =
+		parser.GetUint64Ptr(flags.PragueTime); err != nil {
+		return err
+	}
+	if conf.Polar.Chain.VerkleTime, err =
+		parser.GetUint64Ptr(flags.VerkleTime); err != nil {
+		return err
+	}
+
+	if conf.Polar.Chain.TerminalTotalDifficulty, err =
+		parser.GetBigInt(
+			flags.TerminalTotalDifficulty); err != nil {
+		return err
+	}
+
+	if conf.Polar.Chain.TerminalTotalDifficultyPassed, err =
+		parser.GetBool(
+			flags.TerminalTotalDifficultyPassed); err != nil {
 		return err
 	}
 
