@@ -30,7 +30,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -40,6 +39,9 @@ import (
 func (m *Mempool) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
+	// The transaction put into this function by CheckTx
+	// is a transaction from CometBFT mempool.
+	telemetry.IncrCounter(float32(1), MetricKeyCometPoolTxs)
 	msgs := tx.GetMsgs()
 
 	// TODO: Record the time it takes to build a payload.
@@ -52,7 +54,7 @@ func (m *Mempool) AnteHandle(
 				ctx.BlockTime().Unix(), ethTx,
 			); shouldEject {
 				m.crc.DropRemoteTx(ethTx.Hash())
-				telemetry.IncrCounter(float32(1), MetricKeyMempoolAnteEvictedTxs)
+				telemetry.IncrCounter(float32(1), MetricKeyAnteEjectedTxs)
 				return ctx, errors.New("eject from comet mempool")
 			}
 		}
@@ -68,29 +70,45 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	if tx == nil {
 		return false
 	}
+
+	// First check things that are stateless.
+	if m.validateStateless(tx, currentTime) {
+		return true
+	}
+
+	// Then check for things that are stateful.
+	return m.validateStateful(tx)
+}
+
+// validateStateless returns whether the tx of the given hash is stateless.
+func (m *Mempool) validateStateless(tx *ethtypes.Transaction, currentTime int64) bool {
 	txHash := tx.Hash()
-
-	// 1. If the transaction has been included in a block.
-	// 2. If the transaction has been in the mempool for longer than the configured timeout.
-	// 3. If the transaction's gas params are over the configured limit.
-	includedInBlock := m.includedCanonicalChain(txHash)
+	// 1. If the transaction has been in the mempool for longer than the configured timeout.
+	// 2. If the transaction's gas params are less than or equal to the configured limit.
 	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
-	priceOverLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
+	priceLeLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
 
-	if includedInBlock {
-		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectInclusion)
-	}
 	if expired {
-		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectExpiredTx)
+		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectExpiredTx)
 	}
-	if priceOverLimit {
-		telemetry.IncrCounter(float32(1), MetricKeyTimeShouldEjectPriceLimit)
+	if priceLeLimit {
+		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectPriceLimit)
 	}
-	return includedInBlock || expired || priceOverLimit
+
+	return expired || priceLeLimit
 }
 
 // includedCanonicalChain returns whether the tx of the given hash is included in the canonical
 // Eth chain.
-func (m *Mempool) includedCanonicalChain(hash common.Hash) bool {
-	return m.chain.GetTransactionLookup(hash) != nil
+func (m *Mempool) validateStateful(tx *ethtypes.Transaction) bool {
+	// // 1. If the transaction has been included in a block.
+	// signer := ethtypes.LatestSignerForChainID(m.chainConfig.ChainID)
+	// if _, err := ethtypes.Sender(signer, tx); err != nil {
+	// 	return true
+	// }
+
+	// tx.Nonce() <
+	included := m.chain.GetTransactionLookup(tx.Hash()) != nil
+	telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectInclusion)
+	return included
 }

@@ -131,20 +131,14 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
 		if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) &&
 			(sCtx.ExecMode() == sdk.ExecModeCheck || sCtx.ExecMode() == sdk.ExecModeReCheck) {
+			telemetry.IncrCounter(float32(1), MetricKeyMempoolKnownTxs)
 			return nil
 		}
 		return errs[0]
 	}
 
-	h := ethTx.Hash()
-	if m.crc.IsRemoteTx(h) {
-		telemetry.IncrCounter(float32(1), MetricKeyMempoolSeenBeforeTxs)
-	} else {
-		// Add the eth tx to the remote cache for the first time.
-		m.crc.MarkRemoteSeen(h)
-	}
-	telemetry.IncrCounter(float32(1), MetricKeyMempoolRemoteTxs)
-	telemetry.IncrCounter(float32(1), MetricKeyMempoolSize)
+	// Add the eth tx to the remote cache.
+	m.crc.MarkRemoteSeen(ethTx.Hash())
 
 	return nil
 }
@@ -170,9 +164,8 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			return nil
 		}
 
-		txs := env.UnwrapPayload().ExecutionPayload.Transactions
 		// Unwrap the payload to unpack the individual eth transactions to remove from the txpool.
-		for _, txBz := range txs {
+		for _, txBz := range env.UnwrapPayload().ExecutionPayload.Transactions {
 			ethTx := new(ethtypes.Transaction)
 			if err := ethTx.UnmarshalBinary(txBz); err != nil {
 				continue
@@ -182,7 +175,6 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			// Remove the eth tx from comet seen tx cache.
 			m.crc.DropRemoteTx(txHash)
 		}
-		telemetry.IncrCounter(float32(-1*len(txs)), MetricKeyMempoolSize)
 	}
 	return nil
 }
