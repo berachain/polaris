@@ -386,7 +386,7 @@ func readPolarisLegacyPool(parser AppOptionsParser, conf *Config) error {
 		return err
 	}
 
-	return err
+	return nil
 }
 
 //nolint:gocognit,funlen,cyclop,gocyclo // its okay.
