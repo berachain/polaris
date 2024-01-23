@@ -60,7 +60,7 @@ func WrapPayload(envelope *engine.ExecutionPayloadEnvelope) (*WrappedPayloadEnve
 	}, nil
 }
 
-// AsPayload extracts the payload as an `engine.ExecutionPayloadEnvelope`.
+// UnwrapPayload extracts the payload as an `engine.ExecutionPayloadEnvelope`.
 func (wpe *WrappedPayloadEnvelope) UnwrapPayload() *engine.ExecutionPayloadEnvelope {
 	payload := new(engine.ExecutionPayloadEnvelope)
 	if err := payload.UnmarshalJSON(wpe.Data); err != nil {
