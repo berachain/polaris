@@ -49,7 +49,7 @@ const (
 type MsgServiceClient interface {
 	// EthTransaction defines a method submitting Ethereum transactions.
 	EthTransaction(ctx context.Context, in *WrappedEthereumTransaction, opts ...grpc.CallOption) (*WrappedEthereumTransactionResult, error)
-	// ProcessPayloadEnvelope defines a method to process CL paylods.
+	// ProcessPayloadEnvelope defines a method to process CL payloads.
 	ProcessPayloadEnvelope(ctx context.Context, in *WrappedPayloadEnvelope, opts ...grpc.CallOption) (*WrappedPayloadEnvelopeResponse, error)
 }
 
@@ -85,7 +85,7 @@ func (c *msgServiceClient) ProcessPayloadEnvelope(ctx context.Context, in *Wrapp
 type MsgServiceServer interface {
 	// EthTransaction defines a method submitting Ethereum transactions.
 	EthTransaction(context.Context, *WrappedEthereumTransaction) (*WrappedEthereumTransactionResult, error)
-	// ProcessPayloadEnvelope defines a method to process CL paylods.
+	// ProcessPayloadEnvelope defines a method to process CL payloads.
 	ProcessPayloadEnvelope(context.Context, *WrappedPayloadEnvelope) (*WrappedPayloadEnvelopeResponse, error)
 	mustEmbedUnimplementedMsgServiceServer()
 }

@@ -32,7 +32,7 @@ service MsgService {
   // EthTransaction defines a method submitting Ethereum transactions.
   rpc EthTransaction(WrappedEthereumTransaction) returns (WrappedEthereumTransactionResult);
 
-  // ProcessPayloadEnvelope defines a method to process CL paylods.
+  // ProcessPayloadEnvelope defines a method to process CL payloads.
   rpc ProcessPayloadEnvelope(WrappedPayloadEnvelope) returns (WrappedPayloadEnvelopeResponse);
 }
 
