@@ -445,7 +445,7 @@ func (c *Contract) GetProposalVotesByVoter(
 	}, nil
 }
 
-// getParams is the method for the `getParams`
+// GetParams is the method for the `getParams`
 // method of the governance precompile contract.
 func (c *Contract) GetParams(
 	ctx context.Context,
