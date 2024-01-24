@@ -121,7 +121,7 @@ func (c *Contract) GetBondedValidators(
 	return vals, pageResponse, nil
 }
 
-// GetBondedValidatorsByPoweer implements the `getBondedValidatorsByPower()` method.
+// GetBondedValidatorsByPower implements the `getBondedValidatorsByPower()` method.
 func (c *Contract) GetBondedValidatorsByPower(
 	ctx context.Context,
 ) ([]common.Address, error) {
@@ -173,7 +173,7 @@ func (c *Contract) GetValidators(
 	return vals, pageResponse, nil
 }
 
-// GetValidators implements the `getValidator(address)` method.
+// GetValidator implements the `getValidator(address)` method.
 func (c *Contract) GetValidator(
 	ctx context.Context,
 	validatorAddress common.Address,
@@ -534,7 +534,7 @@ func (c *Contract) BeginRedelegate(
 	return err == nil, err
 }
 
-// CancelRedelegate implements the `cancelRedelegate(address,address,uint256,int64)` method.
+// CancelUnbondingDelegation implements the `cancelUnbondingDelegation(address,uint256,int64)` method.
 func (c *Contract) CancelUnbondingDelegation(
 	ctx context.Context,
 	validatorAddress common.Address,
