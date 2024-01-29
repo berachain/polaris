@@ -27,7 +27,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cosmos/gogoproto/proto"
+	mempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/core"
@@ -48,8 +48,10 @@ type Miner struct {
 	bc    core.Blockchain
 
 	valTxSelector  baseapp.TxSelector
+	txVerifier     baseapp.ProposalTxVerifier
 	serializer     EnvelopeSerializer
 	allowedValMsgs map[string]sdk.Msg
+	cmdsMempool    mempool.Mempool
 	currentPayload *miner.Payload
 
 	blockBuilderMu *sync.RWMutex
@@ -58,7 +60,8 @@ type Miner struct {
 // New produces a cosmos miner from a geth miner.
 func New(
 	miner eth.Miner, app TxDecoder, allowedValMsgs map[string]sdk.Msg,
-	bc core.Blockchain, blockBuilderMu *sync.RWMutex,
+	bc core.Blockchain, blockBuilderMu *sync.RWMutex, cmdsMempool mempool.Mempool,
+	txVerifier baseapp.ProposalTxVerifier,
 ) *Miner {
 	return &Miner{
 		miner:          miner,
@@ -66,7 +69,9 @@ func New(
 		bc:             bc,
 		allowedValMsgs: allowedValMsgs,
 		valTxSelector:  baseapp.NewDefaultTxSelector(),
+		txVerifier:     txVerifier,
 		blockBuilderMu: blockBuilderMu,
+		cmdsMempool:    cmdsMempool,
 	}
 }
 
@@ -168,28 +173,30 @@ func (m *Miner) processValidatorMsgs(
 	}
 	blockGasRemaining := uint64(b.MaxGas) - ethGasUsed
 
-	for _, txBz := range txs {
-		tx, err := m.app.TxDecode(txBz)
+	iterator := m.cmdsMempool.Select(ctx, txs)
+	for iterator != nil {
+		memTx := iterator.Tx()
+
+		// NOTE: Since transaction verification was already executed in CheckTx,
+		// which calls mempool.Insert, in theory everything in the pool should be
+		// valid. But some mempool implementations may insert invalid txs, so we
+		// check again.
+		txBz, err := m.txVerifier.PrepareProposalVerifyTx(memTx)
 		if err != nil {
-			continue
-		}
-
-		includeTx := true
-		for _, msg := range tx.GetMsgs() {
-			if _, ok := m.allowedValMsgs[proto.MessageName(msg)]; !ok {
-				includeTx = false
-				break
+			err := m.cmdsMempool.Remove(memTx)
+			if err != nil && !errors.Is(err, mempool.ErrTxNotFound) {
+				return nil, err
 			}
-		}
-
-		if includeTx {
+		} else {
 			stop := m.valTxSelector.SelectTxForProposal(
-				ctx, uint64(maxTxBytes), blockGasRemaining, tx, txBz,
+				ctx, uint64(maxTxBytes), blockGasRemaining, memTx, txBz,
 			)
 			if stop {
 				break
 			}
 		}
+
+		iterator = iterator.Next()
 	}
 	return m.valTxSelector.SelectedTxs(ctx), nil
 }

@@ -65,6 +65,7 @@ type GethTxPool interface {
 type Mempool struct {
 	eth.TxPool
 	lifetime       int64
+	cmdsPool       mempool.Mempool
 	chain          core.ChainReader
 	handler        Lifecycle
 	crc            CometRemoteCache
@@ -84,6 +85,7 @@ func New(
 		crc:            newCometRemoteCache(),
 		blockBuilderMu: blockBuilderMu,
 		priceLimit:     priceLimit,
+		cmdsPool:       mempool.DefaultPriorityMempool(),
 	}
 }
 
@@ -117,7 +119,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0])
 	if !ok {
 		// We have to return nil for non-ethereum transactions as to not fail check-tx.
-		return nil
+		return m.cmdsPool.Insert(ctx, sdkTx)
 	}
 
 	// Add the eth tx to the Geth txpool.
@@ -161,7 +163,7 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 	if len(msgs) == 1 {
 		env, ok := utils.GetAs[*types.WrappedPayloadEnvelope](msgs[0])
 		if !ok {
-			return nil
+			goto remove
 		}
 
 		// Unwrap the payload to unpack the individual eth transactions to remove from the txpool.
@@ -175,6 +177,8 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			// Remove the eth tx from comet seen tx cache.
 			m.crc.DropRemoteTx(txHash)
 		}
+		return nil
 	}
-	return nil
+remove:
+	return m.Remove(tx)
 }
