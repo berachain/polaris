@@ -180,5 +180,5 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 		return nil
 	}
 remove:
-	return m.Remove(tx)
+	return m.cmdsPool.Remove(tx)
 }
