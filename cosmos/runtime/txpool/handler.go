@@ -244,6 +244,8 @@ func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
 		return
 	}
 
+	h.logger.Info("broadcasting to comet", "ethTx", tx.Hash(), "sdkTx", txBytes)
+
 	// Send the transaction to the CometBFT mempool, which will gossip it to peers via
 	// CometBFT's p2p layer.
 	rsp, err := h.clientCtx.BroadcastTxSync(txBytes)
