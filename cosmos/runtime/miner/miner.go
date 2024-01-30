@@ -140,7 +140,7 @@ func (m *Miner) resolveEnvelope() ([]byte, uint64) {
 	if m.currentPayload == nil {
 		return nil, 0
 	}
-	envelope := m.currentPayload.ResolveFull()
+	envelope := m.currentPayload.ResolveEmpty()
 	payload := envelope.ExecutionPayload
 
 	// Record metadata about the payload

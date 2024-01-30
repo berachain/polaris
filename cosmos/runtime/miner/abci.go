@@ -32,16 +32,16 @@ func (m *Miner) PrepareProposal(
 	ctx sdk.Context, req *abci.RequestPrepareProposal,
 ) (*abci.ResponsePrepareProposal, error) {
 	var (
-		// payloadEnvelopeBz []byte
-		err        error
-		valTxs     [][]byte
-		ethGasUsed uint64
+		payloadEnvelopeBz []byte
+		err               error
+		valTxs            [][]byte
+		ethGasUsed        uint64
 	)
 
-	// // Trigger the geth miner to build a block.
-	// if payloadEnvelopeBz, ethGasUsed, err = m.buildBlock(ctx); err != nil {
-	// 	return nil, err
-	// }
+	// Trigger the geth miner to build a block.
+	if payloadEnvelopeBz, ethGasUsed, err = m.buildBlock(ctx); err != nil {
+		return nil, err
+	}
 
 	// Process the validator messages.
 	if valTxs, err = m.processValidatorMsgs(ctx, req.MaxTxBytes, ethGasUsed, req.Txs); err != nil {
@@ -49,10 +49,9 @@ func (m *Miner) PrepareProposal(
 	}
 
 	// Combine the payload envelope with the validator transactions.
-	// allTxs := [][]byte{payloadEnvelopeBz}
+	allTxs := [][]byte{payloadEnvelopeBz}
 
 	// If there are validator transactions, append them to the allTxs slice.
-	allTxs := [][]byte{}
 	if len(valTxs) > 0 {
 		allTxs = append(allTxs, valTxs...)
 	}
