@@ -23,6 +23,7 @@ package txpool
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"sync"
 
@@ -88,7 +89,9 @@ func New(
 		err error
 	)
 
-	if !isValidator && validatorJsonRPC != "" {
+	if validatorJsonRPC != "" {
+		fmt.Println("ATTEMPING TO CONNECTO TO VALIDATOR JSON RPC")
+		fmt.Println(validatorJsonRPC)
 		ec, err = ethclient.Dial(validatorJsonRPC)
 		if err != nil {
 			panic(err)
@@ -154,7 +157,10 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		// Broadcast the transaction to the validator.
 		// Note: we don't care about the response here.
 		go func() {
-			_ = m.ethclient.SendTransaction(context.Background(), ethTx)
+			sCtx.Logger().Info("broadcasting transaction to validator", "hash", ethTx.Hash().Hex())
+			if err := m.ethclient.SendTransaction(context.Background(), ethTx); err != nil {
+				sCtx.Logger().Error("failed to broadcast transaction to validator", "error", err)
+			}
 
 		}()
 	}

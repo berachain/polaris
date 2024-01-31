@@ -21,6 +21,7 @@
 package testapp
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -192,6 +193,9 @@ func NewPolarisApp(
 	if polarisConfig.OptimisticExecution {
 		baseAppOptions = append(baseAppOptions, baseapp.SetOptimisticExecution())
 	}
+
+	fmt.Println(polarisConfig.Polar.IsValidator, "ISVALIDATOR")
+	fmt.Println(polarisConfig.Polar.ValidatorJSONRPCEndpoint, "VALIDATORJSONRPCEndpoint")
 
 	// Build the app using the app builder.
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
