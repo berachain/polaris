@@ -43,6 +43,7 @@ import (
 
 	cometabci "github.com/cometbft/cometbft/abci/types"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
@@ -70,6 +71,7 @@ type CosmosApp interface {
 	CommitMultiStore() storetypes.CommitMultiStore
 	PreBlocker(sdk.Context, *cometabci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
 	BeginBlocker(ctx sdk.Context) (sdk.BeginBlock, error)
+	baseapp.ProposalTxVerifier
 }
 
 // Polaris is a struct that wraps the Polaris struct from the polar package.
@@ -143,7 +145,8 @@ func (p *Polaris) Build(
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
 	p.WrappedMiner = miner.New(
 		p.ExecutionLayer.Backend().Miner(), app, allowedValMsgs,
-		p.Backend().Blockchain(), &p.blockBuilderMu,
+		p.Backend().Blockchain(), &p.blockBuilderMu, p.WrappedTxPool,
+		app,
 	)
 	p.WrappedBlockchain = chain.New(
 		p.ExecutionLayer.Backend().Blockchain(), app,
