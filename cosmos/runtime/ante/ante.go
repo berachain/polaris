@@ -67,7 +67,7 @@ func (ah *Provider) AnteHandler() func(
 ) (sdk.Context, error) {
 	return func(ctx sdk.Context, tx sdk.Tx, simulate bool) (sdk.Context, error) {
 		// If the transaction contains a single EVM transaction, use the EVM ante handler
-		if len(tx.GetMsgs()) == 1 {
+		if len(tx.GetMsgs()) == 1 { //nolint:nestif // todo:fix.
 			if _, ok := tx.GetMsgs()[0].(*evmtypes.WrappedEthereumTransaction); ok {
 				if ah.isValidator {
 					return ctx, errors.New("validator cannot accept EVM from comet")

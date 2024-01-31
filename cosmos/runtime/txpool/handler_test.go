@@ -60,7 +60,9 @@ var _ = Describe("", func() {
 		subprovider = mocks.NewTxSubProvider(t)
 		subprovider.On("SubscribeTransactions", mock.Anything, mock.Anything).Return(subscription)
 		serializer = mocks.NewTxSerializer(t)
-		h = newHandler(broadcaster, subprovider, serializer, newCometRemoteCache(), log.NewTestLogger(t), false)
+		h = newHandler(
+			broadcaster, subprovider, serializer,
+			newCometRemoteCache(), log.NewTestLogger(t), false)
 		err := h.Start()
 		Expect(err).NotTo(HaveOccurred())
 		for !h.Running() {

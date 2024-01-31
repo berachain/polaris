@@ -127,6 +127,7 @@ func New(
 
 	priceLimit := big.NewInt(0).SetUint64(cfg.Polar.LegacyTxPool.PriceLimit)
 	p.WrappedTxPool = txpool.New(
+		p.logger,
 		p.ExecutionLayer.Backend().Blockchain(),
 		p.ExecutionLayer.Backend().TxPool(),
 		int64(cfg.Polar.LegacyTxPool.Lifetime),
@@ -182,8 +183,8 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 		clientCtx.TxConfig, evmtypes.WrapPayload))
 
 	// Initialize the txpool with a new transaction serializer.
-	p.WrappedTxPool.Init(p.logger, clientCtx, libtx.NewSerializer[*ethtypes.Transaction](
-		clientCtx.TxConfig, evmtypes.WrapTx), p.cfg.Polar.IsValidator)
+	p.WrappedTxPool.Init(clientCtx, libtx.NewSerializer[*ethtypes.Transaction](
+		clientCtx.TxConfig, evmtypes.WrapTx))
 
 	// Register services with Polaris.
 	p.RegisterLifecycles([]node.Lifecycle{

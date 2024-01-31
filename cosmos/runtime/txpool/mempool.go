@@ -23,9 +23,9 @@ package txpool
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 	"sync"
+	"time"
 
 	"cosmossdk.io/log"
 
@@ -41,6 +41,11 @@ import (
 	ethtxpool "github.com/ethereum/go-ethereum/core/txpool"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+)
+
+const (
+	attempts      = 5
+	retryInterval = 5 * time.Second
 )
 
 // Mempool implements the mempool.Mempool & Lifecycle interfaces.
@@ -66,6 +71,7 @@ type GethTxPool interface {
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
 	eth.TxPool
+	logger         log.Logger
 	lifetime       int64
 	chain          core.ChainReader
 	handler        Lifecycle
@@ -74,31 +80,45 @@ type Mempool struct {
 	priceLimit     *big.Int
 
 	isValidator      bool
-	validatorJsonRPC string
+	validatorJSONRPC string
 	ethclient        *ethclient.Client
 }
 
 // New creates a new Mempool.
 func New(
+	logger log.Logger,
 	chain core.ChainReader, txpool eth.TxPool, lifetime int64,
 	blockBuilderMu *sync.RWMutex, priceLimit *big.Int, isValidator bool,
-	validatorJsonRPC string,
+	validatorJSONRPC string,
 ) *Mempool {
 	var (
 		ec  *ethclient.Client
 		err error
 	)
 
-	if validatorJsonRPC != "" {
-		fmt.Println("ATTEMPING TO CONNECTO TO VALIDATOR JSON RPC")
-		fmt.Println(validatorJsonRPC)
-		ec, err = ethclient.Dial(validatorJsonRPC)
-		if err != nil {
-			panic(err)
+	if validatorJSONRPC != "" {
+		for attempt := 0; attempt < attempts; attempt++ {
+			logger.Info("Attempting to dial validator JSON RPC",
+				"url", validatorJSONRPC, "attempt", attempt+1)
+			ec, err = ethclient.Dial(validatorJSONRPC)
+			if err == nil {
+				logger.Info(
+					"Successfully connected to validator JSON RPC", "url", validatorJSONRPC)
+				break
+			}
+			if attempt < attempts-1 {
+				logger.Error("Failed to dial validator JSON RPC, retrying...", "error", err)
+				time.Sleep(retryInterval)
+			} else {
+				logger.Error(
+					"Failed to dial validator JSON RPC, no more retries left", "error", err)
+				panic(err)
+			}
 		}
 	}
 
 	return &Mempool{
+		logger:           logger,
 		TxPool:           txpool,
 		chain:            chain,
 		lifetime:         lifetime,
@@ -106,19 +126,17 @@ func New(
 		blockBuilderMu:   blockBuilderMu,
 		priceLimit:       priceLimit,
 		isValidator:      isValidator,
-		validatorJsonRPC: validatorJsonRPC,
+		validatorJSONRPC: validatorJSONRPC,
 		ethclient:        ec,
 	}
 }
 
 // Init initializes the Mempool (notably the TxHandler).
 func (m *Mempool) Init(
-	logger log.Logger,
 	txBroadcaster TxBroadcaster,
 	txSerializer TxSerializer,
-	isValidator bool,
 ) {
-	m.handler = newHandler(txBroadcaster, m.TxPool, txSerializer, m.crc, logger, isValidator)
+	m.handler = newHandler(txBroadcaster, m.TxPool, txSerializer, m.crc, m.logger, m.isValidator)
 }
 
 // Start starts the Mempool TxHandler.
@@ -161,7 +179,6 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 			if err := m.ethclient.SendTransaction(context.Background(), ethTx); err != nil {
 				sCtx.Logger().Error("failed to broadcast transaction to validator", "error", err)
 			}
-
 		}()
 	}
 
