@@ -53,7 +53,6 @@ func (m *Mempool) AnteHandle(
 			if shouldEject := m.shouldEjectFromCometMempool(
 				ctx.BlockTime().Unix(), ethTx,
 			); shouldEject {
-				m.crc.DropRemoteTx(ethTx.Hash())
 				telemetry.IncrCounter(float32(1), MetricKeyAnteEjectedTxs)
 				return ctx, errors.New("eject from comet mempool")
 			}

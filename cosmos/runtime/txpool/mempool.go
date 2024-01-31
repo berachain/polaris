@@ -140,7 +140,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	}
 
 	// Add the eth tx to the remote cache.
-	m.crc.MarkRemoteSeen(ethTx.Hash())
+	_ = m.crc.MarkRemoteSeen(ethTx.Hash())
 
 	return nil
 }
@@ -157,26 +157,6 @@ func (m *Mempool) Select(context.Context, [][]byte) mempool.Iterator {
 }
 
 // Remove is an intentional no-op as the eth txpool handles removals.
-func (m *Mempool) Remove(tx sdk.Tx) error {
-	// Get the Eth payload envelope from the Cosmos transaction.
-	msgs := tx.GetMsgs()
-	if len(msgs) == 1 {
-		env, ok := utils.GetAs[*types.WrappedPayloadEnvelope](msgs[0])
-		if !ok {
-			return nil
-		}
-
-		// Unwrap the payload to unpack the individual eth transactions to remove from the txpool.
-		for _, txBz := range env.UnwrapPayload().ExecutionPayload.Transactions {
-			ethTx := new(ethtypes.Transaction)
-			if err := ethTx.UnmarshalBinary(txBz); err != nil {
-				continue
-			}
-			txHash := ethTx.Hash()
-
-			// Remove the eth tx from comet seen tx cache.
-			m.crc.DropRemoteTx(txHash)
-		}
-	}
+func (m *Mempool) Remove(_ sdk.Tx) error {
 	return nil
 }
