@@ -88,7 +88,7 @@ func New(
 		err error
 	)
 
-	if !isValidator && validatorJsonRPC == "" {
+	if !isValidator && validatorJsonRPC != "" {
 		ec, err = ethclient.Dial(validatorJsonRPC)
 		if err != nil {
 			panic(err)
