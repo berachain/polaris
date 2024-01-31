@@ -177,8 +177,11 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 		clientCtx.TxConfig, evmtypes.WrapPayload))
 
 	// Initialize the txpool with a new transaction serializer.
-	p.WrappedTxPool.Init(p.logger, clientCtx, libtx.NewSerializer[*ethtypes.Transaction](
-		clientCtx.TxConfig, evmtypes.WrapTx))
+	p.WrappedTxPool.Init(
+		p.logger, clientCtx,
+		libtx.NewSerializer[*ethtypes.Transaction](clientCtx.TxConfig, evmtypes.WrapTx),
+		clientCtx.Client,
+	)
 
 	// Register services with Polaris.
 	p.RegisterLifecycles([]node.Lifecycle{

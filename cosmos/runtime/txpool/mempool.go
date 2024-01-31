@@ -25,6 +25,7 @@ import (
 	"errors"
 	"math/big"
 	"sync"
+	"time"
 
 	"cosmossdk.io/log"
 
@@ -92,8 +93,9 @@ func (m *Mempool) Init(
 	logger log.Logger,
 	txBroadcaster TxBroadcaster,
 	txSerializer TxSerializer,
+	txSearcher TxSearcher,
 ) {
-	m.handler = newHandler(txBroadcaster, m.TxPool, txSerializer, m.crc, logger)
+	m.handler = newHandler(txBroadcaster, txSearcher, m.TxPool, txSerializer, m.crc, logger)
 }
 
 // Start starts the Mempool TxHandler.
@@ -111,12 +113,14 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	msgs := sdkTx.GetMsgs()
 	if len(msgs) != 1 {
+		sCtx.Logger().Error("mempool insert: only one message is supported")
 		return errors.New("only one message is supported")
 	}
 
 	wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0])
 	if !ok {
 		// We have to return nil for non-ethereum transactions as to not fail check-tx.
+		sCtx.Logger().Info("mempool insert: not an ethereum transaction")
 		return nil
 	}
 
@@ -127,17 +131,24 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	m.blockBuilderMu.RLock()
 	errs := m.TxPool.Add([]*ethtypes.Transaction{ethTx}, false, false)
 	m.blockBuilderMu.RUnlock()
-	if len(errs) > 0 {
-		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
-		if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) &&
-			(sCtx.ExecMode() == sdk.ExecModeCheck || sCtx.ExecMode() == sdk.ExecModeReCheck) {
-			telemetry.IncrCounter(float32(1), MetricKeyMempoolKnownTxs)
-			return nil
-		}
+
+	// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
+	// Note: it's safe to check errs[0] because geth returns `errs` of length 1.
+	if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) &&
+		(sCtx.ExecMode() == sdk.ExecModeCheck || sCtx.ExecMode() == sdk.ExecModeReCheck) {
+		telemetry.IncrCounter(float32(1), MetricKeyMempoolKnownTxs)
+		sCtx.Logger().Info("mempool insert: tx already in mempool", "mode", sCtx.ExecMode())
+		return nil
+	}
+	if errs[0] != nil {
 		return errs[0]
 	}
 
 	// Add the eth tx to the remote cache.
+	sCtx.Logger().Info(
+		"mempool insert: marking remote seen", "tx", ethTx.Hash(), "time", time.Now().Unix(),
+		"is(already)RemoteTx", m.crc.IsRemoteTx(ethTx.Hash()),
+	)
 	m.crc.MarkRemoteSeen(ethTx.Hash())
 
 	return nil
