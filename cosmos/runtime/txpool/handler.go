@@ -21,9 +21,12 @@
 package txpool
 
 import (
+	"context"
 	"errors"
 	"sync/atomic"
 	"time"
+
+	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 
 	"cosmossdk.io/log"
 
@@ -40,7 +43,7 @@ import (
 // size of tx pool.
 const (
 	txChanSize = 4096
-	maxRetries = 5
+	maxRetries = 0
 	retryDelay = 50 * time.Millisecond
 	statPeriod = 60 * time.Second
 )
@@ -67,6 +70,16 @@ type TxBroadcaster interface {
 	BroadcastTxSync(txBytes []byte) (res *sdk.TxResponse, err error)
 }
 
+type TxSearcher interface {
+	TxSearch(
+		ctx context.Context,
+		query string,
+		prove bool,
+		page, perPage *int,
+		orderBy string,
+	) (*coretypes.ResultTxSearch, error)
+}
+
 // Subscription represents a subscription to the txpool.
 type Subscription interface {
 	event.Subscription
@@ -85,6 +98,7 @@ type handler struct {
 	logger     log.Logger
 	clientCtx  TxBroadcaster
 	serializer TxSerializer
+	searcher   TxSearcher
 	crc        CometRemoteCache
 
 	// Ethereum
@@ -100,13 +114,14 @@ type handler struct {
 
 // newHandler creates a new handler.
 func newHandler(
-	clientCtx TxBroadcaster, txPool TxSubProvider, serializer TxSerializer,
+	clientCtx TxBroadcaster, txSearcher TxSearcher, txPool TxSubProvider, serializer TxSerializer,
 	crc CometRemoteCache, logger log.Logger,
 ) *handler {
 	h := &handler{
 		logger:     logger,
 		clientCtx:  clientCtx,
 		serializer: serializer,
+		searcher:   txSearcher,
 		crc:        crc,
 		txPool:     txPool,
 		txsCh:      make(chan core.NewTxsEvent, txChanSize),
@@ -122,7 +137,7 @@ func (h *handler) Start() error {
 		return errors.New("handler already started")
 	}
 	go h.mainLoop()
-	go h.failedLoop() // Start the retry policy
+	// go h.failedLoop() // Start the retry policy
 	go h.statLoop()
 	return nil
 }

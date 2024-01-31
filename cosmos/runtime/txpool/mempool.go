@@ -93,8 +93,9 @@ func (m *Mempool) Init(
 	logger log.Logger,
 	txBroadcaster TxBroadcaster,
 	txSerializer TxSerializer,
+	txSearcher TxSearcher,
 ) {
-	m.handler = newHandler(txBroadcaster, m.TxPool, txSerializer, m.crc, logger)
+	m.handler = newHandler(txBroadcaster, txSearcher, m.TxPool, txSerializer, m.crc, logger)
 }
 
 // Start starts the Mempool TxHandler.
