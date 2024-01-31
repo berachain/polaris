@@ -150,10 +150,13 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	ethTx := wet.Unwrap()
 
 	// Optmistically send to the validator.
-	if !m.isValidator && m.ethclient != nil {
+	if m.ethclient != nil {
 		// Broadcast the transaction to the validator.
 		// Note: we don't care about the response here.
-		_ = m.ethclient.SendTransaction(context.Background(), ethTx)
+		go func() {
+			_ = m.ethclient.SendTransaction(context.Background(), ethTx)
+
+		}()
 	}
 
 	// Insert the tx into the txpool as a remote.
