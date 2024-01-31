@@ -102,4 +102,7 @@ type Config struct {
 	// RPCTxFeeCap is the global transaction fee(price * gaslimit) cap for
 	// send-transaction variants. The unit is ether.
 	RPCTxFeeCap float64
+
+	ValidatorJSONRPCEndpoint string
+	IsValidator              bool
 }

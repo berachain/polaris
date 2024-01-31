@@ -92,6 +92,8 @@ type Polaris struct {
 	// into the txpool are happening during this process. The mempool object then read locks for
 	// adding transactions into the txpool.
 	blockBuilderMu sync.RWMutex
+
+	cfg *eth.Config
 }
 
 // New creates a new Polaris runtime from the provided dependencies.
@@ -105,6 +107,7 @@ func New(
 	var err error
 	p := &Polaris{
 		logger: logger,
+		cfg:    cfg,
 	}
 
 	ctx := sdk.Context{}.
@@ -129,6 +132,8 @@ func New(
 		int64(cfg.Polar.LegacyTxPool.Lifetime),
 		&p.blockBuilderMu,
 		priceLimit,
+		p.cfg.Polar.IsValidator,
+		p.cfg.Polar.ValidatorJSONRPCEndpoint,
 	)
 
 	return p
@@ -163,7 +168,7 @@ func (p *Polaris) Build(
 	}
 
 	app.SetAnteHandler(
-		antelib.NewAnteHandler(p.WrappedTxPool, cosmHandler).AnteHandler(),
+		antelib.NewAnteHandler(p.WrappedTxPool, cosmHandler, p.cfg.Polar.IsValidator).AnteHandler(),
 	)
 
 	return nil
@@ -178,7 +183,7 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 
 	// Initialize the txpool with a new transaction serializer.
 	p.WrappedTxPool.Init(p.logger, clientCtx, libtx.NewSerializer[*ethtypes.Transaction](
-		clientCtx.TxConfig, evmtypes.WrapTx))
+		clientCtx.TxConfig, evmtypes.WrapTx), p.cfg.Polar.IsValidator)
 
 	// Register services with Polaris.
 	p.RegisterLifecycles([]node.Lifecycle{

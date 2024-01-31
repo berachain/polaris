@@ -96,28 +96,35 @@ type handler struct {
 
 	// Queue for failed transactions
 	failedTxs chan *failedTx
+
+	isValidator bool
 }
 
 // newHandler creates a new handler.
 func newHandler(
 	clientCtx TxBroadcaster, txPool TxSubProvider, serializer TxSerializer,
-	crc CometRemoteCache, logger log.Logger,
+	crc CometRemoteCache, logger log.Logger, isValidator bool,
 ) *handler {
 	h := &handler{
-		logger:     logger,
-		clientCtx:  clientCtx,
-		serializer: serializer,
-		crc:        crc,
-		txPool:     txPool,
-		txsCh:      make(chan core.NewTxsEvent, txChanSize),
-		stopCh:     make(chan struct{}),
-		failedTxs:  make(chan *failedTx, txChanSize),
+		logger:      logger,
+		clientCtx:   clientCtx,
+		serializer:  serializer,
+		crc:         crc,
+		txPool:      txPool,
+		txsCh:       make(chan core.NewTxsEvent, txChanSize),
+		stopCh:      make(chan struct{}),
+		failedTxs:   make(chan *failedTx, txChanSize),
+		isValidator: isValidator,
 	}
 	return h
 }
 
 // Start starts the handler.
 func (h *handler) Start() error {
+	if h.isValidator {
+		return nil
+	}
+
 	if h.running.Load() {
 		return errors.New("handler already started")
 	}
@@ -129,6 +136,9 @@ func (h *handler) Start() error {
 
 // Stop stops the handler.
 func (h *handler) Stop() error {
+	if h.isValidator {
+		return nil
+	}
 	if !h.Running() {
 		return errors.New("handler already stopped")
 	}

@@ -24,9 +24,11 @@ const (
 	OptimisticExecution = "polaris.optimistic-execution"
 
 	// Polar Root.
-	RPCEvmTimeout = "polaris.polar.rpc-evm-timeout"
-	RPCTxFeeCap   = "polaris.polar.rpc-tx-fee-cap"
-	RPCGasCap     = "polaris.polar.rpc-gas-cap"
+	RPCEvmTimeout            = "polaris.polar.rpc-evm-timeout"
+	RPCTxFeeCap              = "polaris.polar.rpc-tx-fee-cap"
+	RPCGasCap                = "polaris.polar.rpc-gas-cap"
+	IsValidator              = "polaris.polar.is-validator"
+	ValidatorJSONRPCEndpoint = "polaris.polar.validator-jsonrpc-endpoint"
 
 	// Miner.
 	MinerEtherbase         = "polaris.polar.miner.etherbase"

@@ -94,6 +94,15 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 		return nil, err
 	}
 
+	if conf.Polar.IsValidator, err = parser.GetBool(flags.IsValidator); err != nil {
+		return nil, err
+	}
+
+	if conf.Polar.ValidatorJSONRPCEndpoint, err =
+		parser.GetString(flags.ValidatorJSONRPCEndpoint); err != nil {
+		return nil, err
+	}
+
 	// Polar Miner settings
 	if conf.Polar.Miner.Etherbase, err =
 		parser.GetCommonAddress(flags.MinerEtherbase); err != nil {

@@ -39,12 +39,13 @@ import (
 type Provider struct {
 	evmAnteHandler    sdk.AnteHandler // Ante handler for EVM transactions
 	cosmosAnteHandler sdk.AnteHandler // Ante handler for Cosmos transactions
+	isValidator       bool
 }
 
 // NewAnteHandler creates a new Provider with a mempool and Cosmos ante handler.
 // It sets up the EVM ante handler with the necessary decorators.
 func NewAnteHandler(
-	mempool *txpool.Mempool, cosmosAnteHandler sdk.AnteHandler,
+	mempool *txpool.Mempool, cosmosAnteHandler sdk.AnteHandler, isValidator bool,
 ) *Provider {
 	evmAnteDecorators := []sdk.AnteDecorator{
 		ante.NewSetUpContextDecorator(), // Set up the context decorator for the EVM ante handler
@@ -55,6 +56,7 @@ func NewAnteHandler(
 	return &Provider{
 		evmAnteHandler:    sdk.ChainAnteDecorators(evmAnteDecorators...),
 		cosmosAnteHandler: cosmosAnteHandler,
+		isValidator:       isValidator,
 	}
 }
 
@@ -67,6 +69,9 @@ func (ah *Provider) AnteHandler() func(
 		// If the transaction contains a single EVM transaction, use the EVM ante handler
 		if len(tx.GetMsgs()) == 1 {
 			if _, ok := tx.GetMsgs()[0].(*evmtypes.WrappedEthereumTransaction); ok {
+				if ah.isValidator {
+					return ctx, errors.New("validator cannot accept EVM from comet")
+				}
 				return ah.evmAnteHandler(ctx, tx, simulate)
 			} else if _, ok = tx.GetMsgs()[0].(*evmtypes.WrappedPayloadEnvelope); ok {
 				if ctx.ExecMode() != sdk.ExecModeCheck {

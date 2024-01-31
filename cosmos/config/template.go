@@ -40,6 +40,9 @@ rpc-evm-timeout = "{{ .Polaris.Polar.RPCEVMTimeout }}"
 # Transaction fee cap for RPC requests
 rpc-tx-fee-cap = "{{ .Polaris.Polar.RPCTxFeeCap }}"
 
+validator-json-rpc-endpoint = "{{ .Polaris.Polar.ValidatorJSONRPCEndpoint }}"
+is-validator = {{ .Polaris.Polar.IsValidator }}
+
 # Chain config
 [polaris.polar.chain] 
 chain-id = "{{ .Polaris.Polar.Chain.ChainID }}"

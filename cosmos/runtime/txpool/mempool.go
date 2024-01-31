@@ -39,6 +39,7 @@ import (
 
 	ethtxpool "github.com/ethereum/go-ethereum/core/txpool"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 // Mempool implements the mempool.Mempool & Lifecycle interfaces.
@@ -70,20 +71,40 @@ type Mempool struct {
 	crc            CometRemoteCache
 	blockBuilderMu *sync.RWMutex
 	priceLimit     *big.Int
+
+	isValidator      bool
+	validatorJsonRPC string
+	ethclient        *ethclient.Client
 }
 
 // New creates a new Mempool.
 func New(
 	chain core.ChainReader, txpool eth.TxPool, lifetime int64,
-	blockBuilderMu *sync.RWMutex, priceLimit *big.Int,
+	blockBuilderMu *sync.RWMutex, priceLimit *big.Int, isValidator bool,
+	validatorJsonRPC string,
 ) *Mempool {
+	var (
+		ec  *ethclient.Client
+		err error
+	)
+
+	if !isValidator && validatorJsonRPC == "" {
+		ec, err = ethclient.Dial(validatorJsonRPC)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	return &Mempool{
-		TxPool:         txpool,
-		chain:          chain,
-		lifetime:       lifetime,
-		crc:            newCometRemoteCache(),
-		blockBuilderMu: blockBuilderMu,
-		priceLimit:     priceLimit,
+		TxPool:           txpool,
+		chain:            chain,
+		lifetime:         lifetime,
+		crc:              newCometRemoteCache(),
+		blockBuilderMu:   blockBuilderMu,
+		priceLimit:       priceLimit,
+		isValidator:      isValidator,
+		validatorJsonRPC: validatorJsonRPC,
+		ethclient:        ec,
 	}
 }
 
@@ -92,8 +113,9 @@ func (m *Mempool) Init(
 	logger log.Logger,
 	txBroadcaster TxBroadcaster,
 	txSerializer TxSerializer,
+	isValidator bool,
 ) {
-	m.handler = newHandler(txBroadcaster, m.TxPool, txSerializer, m.crc, logger)
+	m.handler = newHandler(txBroadcaster, m.TxPool, txSerializer, m.crc, logger, isValidator)
 }
 
 // Start starts the Mempool TxHandler.
@@ -108,6 +130,10 @@ func (m *Mempool) Stop() error {
 
 // Insert attempts to insert a Tx into the app-side mempool returning an error upon failure.
 func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
+	if m.isValidator {
+		return errors.New("validator cannot insert transactions into the mempool from comet")
+	}
+
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	msgs := sdkTx.GetMsgs()
 	if len(msgs) != 1 {
@@ -122,6 +148,13 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 
 	// Add the eth tx to the Geth txpool.
 	ethTx := wet.Unwrap()
+
+	// Optmistically send to the validator.
+	if !m.isValidator && m.ethclient != nil {
+		// Broadcast the transaction to the validator.
+		// Note: we don't care about the response here.
+		_ = m.ethclient.SendTransaction(context.Background(), ethTx)
+	}
 
 	// Insert the tx into the txpool as a remote.
 	m.blockBuilderMu.RLock()
