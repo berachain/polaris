@@ -53,7 +53,7 @@ func (m *Mempool) AnteHandle(
 		ctx.Logger().Info("AnteHandle in Check/Recheck tx")
 		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
 			ethTx := wet.Unwrap()
-			ctx.Logger().Info("AnteHandle for eth tx", "tx", ethTx.Hash())
+			ctx.Logger().Info("AnteHandle for eth tx", "tx", ethTx.Hash(), "mode", ctx.ExecMode())
 			if shouldEject := m.shouldEjectFromCometMempool(
 				ctx, ethTx,
 			); shouldEject {
