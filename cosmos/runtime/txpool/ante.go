@@ -44,19 +44,25 @@ func (m *Mempool) AnteHandle(
 	telemetry.IncrCounter(float32(1), MetricKeyCometPoolTxs)
 	msgs := tx.GetMsgs()
 
+	ctx.Logger().Info("AnteHandle Polaris Mempool", "msgs", len(msgs), "simulate", simulate)
+
 	// TODO: Record the time it takes to build a payload.
 
 	// We only want to eject transactions from comet on recheck.
 	if ctx.ExecMode() == sdk.ExecModeCheck || ctx.ExecMode() == sdk.ExecModeReCheck {
+		ctx.Logger().Info("AnteHandle in Check/Recheck tx")
 		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
 			ethTx := wet.Unwrap()
+			ctx.Logger().Info("AnteHandle for eth tx", "tx", ethTx.Hash(), "mode", ctx.ExecMode())
 			if shouldEject := m.shouldEjectFromCometMempool(
-				ctx.BlockTime().Unix(), ethTx,
+				ctx, ethTx,
 			); shouldEject {
+				ctx.Logger().Info("AnteHandle dropping tx from comet mempool", "tx", ethTx.Hash())
 				m.crc.DropRemoteTx(ethTx.Hash())
 				telemetry.IncrCounter(float32(1), MetricKeyAnteEjectedTxs)
 				return ctx, errors.New("eject from comet mempool")
 			}
+			ctx.Logger().Info("AnteHandle NOT dropping comet mempool", "tx", ethTx.Hash())
 		}
 	}
 	return next(ctx, tx, simulate)
@@ -64,28 +70,34 @@ func (m *Mempool) AnteHandle(
 
 // shouldEject returns true if the transaction should be ejected from the CometBFT mempool.
 func (m *Mempool) shouldEjectFromCometMempool(
-	currentTime int64, tx *ethtypes.Transaction,
+	ctx sdk.Context, tx *ethtypes.Transaction,
 ) bool {
 	defer telemetry.MeasureSince(time.Now(), MetricKeyTimeShouldEject)
 	if tx == nil {
+		ctx.Logger().Info("shouldEjectFromCometMempool: tx is nil")
 		return false
 	}
 
 	// First check things that are stateless.
-	if m.validateStateless(tx, currentTime) {
+	if m.validateStateless(ctx, tx) {
+		ctx.Logger().Info("shouldEjectFromCometMempool: stateless failed", "tx", tx.Hash())
 		return true
 	}
 
 	// Then check for things that are stateful.
-	return m.validateStateful(tx)
+	return m.validateStateful(ctx, tx)
 }
 
 // validateStateless returns whether the tx of the given hash is stateless.
-func (m *Mempool) validateStateless(tx *ethtypes.Transaction, currentTime int64) bool {
+func (m *Mempool) validateStateless(ctx sdk.Context, tx *ethtypes.Transaction) bool {
 	txHash := tx.Hash()
+	currentTime := ctx.BlockTime().Unix()
+	ctx.Logger().Info("validateStateless", "txHash", txHash, "currentTime", currentTime)
+
 	// 1. If the transaction has been in the mempool for longer than the configured timeout.
 	// 2. If the transaction's gas params are less than or equal to the configured limit.
 	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
+	ctx.Logger().Info("validateStateless", "currentTime", currentTime, "timeFirstSeen", m.crc.TimeFirstSeen(txHash), "expired", expired)
 	priceLeLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
 
 	if expired {
@@ -95,20 +107,22 @@ func (m *Mempool) validateStateless(tx *ethtypes.Transaction, currentTime int64)
 		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectPriceLimit)
 	}
 
+	ctx.Logger().Info("validateStateless", "expired", expired, "priceLeLimit", priceLeLimit)
+
 	return expired || priceLeLimit
 }
 
 // includedCanonicalChain returns whether the tx of the given hash is included in the canonical
 // Eth chain.
-func (m *Mempool) validateStateful(tx *ethtypes.Transaction) bool {
+func (m *Mempool) validateStateful(ctx sdk.Context, tx *ethtypes.Transaction) bool {
 	// // 1. If the transaction has been included in a block.
 	// signer := ethtypes.LatestSignerForChainID(m.chainConfig.ChainID)
 	// if _, err := ethtypes.Sender(signer, tx); err != nil {
 	// 	return true
 	// }
 
-	// tx.Nonce() <
 	included := m.chain.GetTransactionLookup(tx.Hash()) != nil
 	telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectInclusion)
+	ctx.Logger().Info("validateStateful", "included", included)
 	return included
 }

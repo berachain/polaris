@@ -59,9 +59,10 @@ func (crc *cometRemoteCache) IsRemoteTx(txHash common.Hash) bool {
 	return ok
 }
 
-// Record the time the tx was inserted from Comet successfully.
+// Record the first time the tx was inserted from Comet successfully.
 func (crc *cometRemoteCache) MarkRemoteSeen(txHash common.Hash) {
 	crc.timeInsertedMu.Lock()
+	// TODO: only insert a new timestamp if not already seen.
 	crc.timeInserted[txHash] = time.Now().Unix()
 	crc.timeInsertedMu.Unlock()
 }
