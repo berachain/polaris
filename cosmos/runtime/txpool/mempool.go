@@ -126,12 +126,14 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	m.blockBuilderMu.RLock()
 	errs := m.TxPool.Add([]*ethtypes.Transaction{ethTx}, false, false)
 	m.blockBuilderMu.RUnlock()
-	if len(errs) > 0 {
-		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
-		if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) &&
-			(sCtx.ExecMode() == sdk.ExecModeCheck || sCtx.ExecMode() == sdk.ExecModeReCheck) {
-			return nil
-		}
+
+	// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
+	// Note: it's safe to check errs[0] because geth returns `errs` of length 1.
+	if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) &&
+		(sCtx.ExecMode() == sdk.ExecModeCheck || sCtx.ExecMode() == sdk.ExecModeReCheck) {
+		return nil
+	}
+	if errs[0] != nil {
 		return errs[0]
 	}
 
