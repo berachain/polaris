@@ -48,7 +48,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	//nolint:stylecheck,revive // Ginkgo is the testing framework.
 	. "github.com/onsi/ginkgo/v2"
 )
 

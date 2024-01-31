@@ -322,7 +322,7 @@ golangci:
 golangci-fix:
 	@$(MAKE) golangci-install
 	@echo "--> Running linter"
-	@go list -f '{{.Dir}}/...' -m | xargs golangci-lint run  --timeout=10m --fix --concurrency 64
+	@go list -f '{{.Dir}}/...' -m | xargs golangci-lint run  --timeout=10m --fix 
 
 
 #################

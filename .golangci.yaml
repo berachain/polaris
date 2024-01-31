@@ -31,7 +31,7 @@ run:
   # Timeout for analysis, e.g. 30s, 5m.
   # Default: 1m
   timeout: 10m
-  tests: true
+  tests: false
 
   
 # Output
