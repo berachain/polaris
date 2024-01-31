@@ -140,7 +140,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	}
 
 	// Add the eth tx to the remote cache.
-	m.crc.MarkRemoteSeen(ethTx.Hash())
+	_ = m.crc.MarkRemoteSeen(ethTx.Hash())
 
 	return nil
 }
@@ -157,6 +157,6 @@ func (m *Mempool) Select(context.Context, [][]byte) mempool.Iterator {
 }
 
 // Remove is an intentional no-op as the eth txpool handles removals.
-func (m *Mempool) Remove(tx sdk.Tx) error {
+func (m *Mempool) Remove(_ sdk.Tx) error {
 	return nil
 }

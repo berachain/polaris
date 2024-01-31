@@ -35,7 +35,7 @@ const (
 // Comet CheckTX and when.
 type CometRemoteCache interface {
 	IsRemoteTx(txHash common.Hash) bool
-	MarkRemoteSeen(txHash common.Hash)
+	MarkRemoteSeen(txHash common.Hash) bool
 	TimeFirstSeen(txHash common.Hash) int64 // Unix timestamp
 }
 
@@ -56,8 +56,12 @@ func (crc *cometRemoteCache) IsRemoteTx(txHash common.Hash) bool {
 }
 
 // Record the time the tx was inserted from Comet successfully.
-func (crc *cometRemoteCache) MarkRemoteSeen(txHash common.Hash) {
-	crc.timeInserted.Add(txHash, time.Now().Unix())
+func (crc *cometRemoteCache) MarkRemoteSeen(txHash common.Hash) bool {
+	if !crc.timeInserted.Contains(txHash) {
+		crc.timeInserted.Add(txHash, time.Now().Unix())
+		return true
+	}
+	return false
 }
 
 func (crc *cometRemoteCache) TimeFirstSeen(txHash common.Hash) int64 {
