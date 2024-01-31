@@ -23,7 +23,6 @@ package txpool
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math/big"
 	"sync"
 
@@ -128,7 +127,6 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	m.blockBuilderMu.RLock()
 	errs := m.TxPool.Add([]*ethtypes.Transaction{ethTx}, false, false)
 	m.blockBuilderMu.RUnlock()
-	fmt.Println("Inserting tx into mempool", len(errs))
 
 	// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
 	// Note: it's safe to check errs[0] because geth returns `errs` of length 1.
