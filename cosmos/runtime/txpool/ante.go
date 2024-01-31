@@ -97,6 +97,7 @@ func (m *Mempool) validateStateless(ctx sdk.Context, tx *ethtypes.Transaction) b
 	// 1. If the transaction has been in the mempool for longer than the configured timeout.
 	// 2. If the transaction's gas params are less than or equal to the configured limit.
 	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
+	ctx.Logger().Info("validateStateless", "currentTime", currentTime, "timeFirstSeen", m.crc.TimeFirstSeen(txHash), "expired", expired)
 	priceLeLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
 
 	if expired {
