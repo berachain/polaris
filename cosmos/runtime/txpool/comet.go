@@ -21,14 +21,14 @@
 package txpool
 
 import (
-	"sync"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/lru"
 )
 
 const (
-	defaultCacheSize = 4096
+	defaultCacheSize = 100000
 )
 
 // CometRemoteCache is used to mark which txs are added to our Polaris node remotely from
@@ -37,43 +37,30 @@ type CometRemoteCache interface {
 	IsRemoteTx(txHash common.Hash) bool
 	MarkRemoteSeen(txHash common.Hash)
 	TimeFirstSeen(txHash common.Hash) int64 // Unix timestamp
-	DropRemoteTx(txHash common.Hash)
 }
 
 // Thread-safe implementation of CometRemoteCache.
 type cometRemoteCache struct {
-	timeInserted   map[common.Hash]int64
-	timeInsertedMu sync.RWMutex
+	timeInserted *lru.Cache[common.Hash, int64]
 }
 
 func newCometRemoteCache() *cometRemoteCache {
 	return &cometRemoteCache{
-		timeInserted: make(map[common.Hash]int64, defaultCacheSize),
+
+		timeInserted: lru.NewCache[common.Hash, int64](defaultCacheSize),
 	}
 }
 
 func (crc *cometRemoteCache) IsRemoteTx(txHash common.Hash) bool {
-	crc.timeInsertedMu.RLock()
-	defer crc.timeInsertedMu.RUnlock()
-	_, ok := crc.timeInserted[txHash]
-	return ok
+	return crc.timeInserted.Contains(txHash)
 }
 
 // Record the time the tx was inserted from Comet successfully.
 func (crc *cometRemoteCache) MarkRemoteSeen(txHash common.Hash) {
-	crc.timeInsertedMu.Lock()
-	crc.timeInserted[txHash] = time.Now().Unix()
-	crc.timeInsertedMu.Unlock()
+	crc.timeInserted.Add(txHash, time.Now().Unix())
 }
 
 func (crc *cometRemoteCache) TimeFirstSeen(txHash common.Hash) int64 {
-	crc.timeInsertedMu.RLock()
-	defer crc.timeInsertedMu.RUnlock()
-	return crc.timeInserted[txHash]
-}
-
-func (crc *cometRemoteCache) DropRemoteTx(txHash common.Hash) {
-	crc.timeInsertedMu.Lock()
-	delete(crc.timeInserted, txHash)
-	crc.timeInsertedMu.Unlock()
+	i, _ := crc.timeInserted.Get(txHash)
+	return i
 }

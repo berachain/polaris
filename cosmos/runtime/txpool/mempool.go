@@ -172,10 +172,6 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			if err := ethTx.UnmarshalBinary(txBz); err != nil {
 				continue
 			}
-			txHash := ethTx.Hash()
-
-			// Remove the eth tx from comet seen tx cache.
-			m.crc.DropRemoteTx(txHash)
 		}
 	}
 	return nil
