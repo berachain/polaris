@@ -36,18 +36,17 @@ const (
 type CometRemoteCache interface {
 	IsRemoteTx(txHash common.Hash) bool
 	MarkRemoteSeen(txHash common.Hash) bool
-	TimeFirstSeen(txHash common.Hash) int64 // Unix timestamp
+	TimeFirstSeen(txHash common.Hash) time.Time
 }
 
 // Thread-safe implementation of CometRemoteCache.
 type cometRemoteCache struct {
-	timeInserted *lru.Cache[common.Hash, int64]
+	timeInserted *lru.Cache[common.Hash, time.Time]
 }
 
 func newCometRemoteCache() *cometRemoteCache {
 	return &cometRemoteCache{
-
-		timeInserted: lru.NewCache[common.Hash, int64](defaultCacheSize),
+		timeInserted: lru.NewCache[common.Hash, time.Time](defaultCacheSize),
 	}
 }
 
@@ -58,13 +57,13 @@ func (crc *cometRemoteCache) IsRemoteTx(txHash common.Hash) bool {
 // Record the time the tx was inserted from Comet successfully.
 func (crc *cometRemoteCache) MarkRemoteSeen(txHash common.Hash) bool {
 	if !crc.timeInserted.Contains(txHash) {
-		crc.timeInserted.Add(txHash, time.Now().Unix())
+		crc.timeInserted.Add(txHash, time.Now())
 		return true
 	}
 	return false
 }
 
-func (crc *cometRemoteCache) TimeFirstSeen(txHash common.Hash) int64 {
+func (crc *cometRemoteCache) TimeFirstSeen(txHash common.Hash) time.Time {
 	i, _ := crc.timeInserted.Get(txHash)
 	return i
 }

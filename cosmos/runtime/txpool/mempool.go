@@ -72,7 +72,7 @@ type GethTxPool interface {
 type Mempool struct {
 	eth.TxPool
 	logger         log.Logger
-	lifetime       int64 // mempool uses seconds as a unit for lifetime
+	lifetime       time.Duration
 	chain          core.ChainReader
 	handler        Lifecycle
 	crc            CometRemoteCache
@@ -123,7 +123,7 @@ func New(
 		logger:                  logger,
 		TxPool:                  txpool,
 		chain:                   chain,
-		lifetime:                int64(lifetime.Seconds()),
+		lifetime:                lifetime,
 		crc:                     newCometRemoteCache(),
 		blockBuilderMu:          blockBuilderMu,
 		priceLimit:              priceLimit,
