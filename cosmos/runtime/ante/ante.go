@@ -68,15 +68,18 @@ func (ah *Provider) AnteHandler() func(
 	return func(ctx sdk.Context, tx sdk.Tx, simulate bool) (sdk.Context, error) {
 		// If the transaction contains a single EVM transaction, use the EVM ante handler
 		if len(tx.GetMsgs()) == 1 { //nolint:nestif // todo:fix.
-			if _, ok := tx.GetMsgs()[0].(*evmtypes.WrappedEthereumTransaction); ok {
+			if ethTx, ok := tx.GetMsgs()[0].(*evmtypes.WrappedEthereumTransaction); ok {
 				if ah.isValidator {
 					return ctx, errors.New("validator cannot accept EVM from comet")
 				}
+				ctx.Logger().Info("running evm ante handler for eth tx", "hash", ethTx.Unwrap().Hash())
 				return ah.evmAnteHandler(ctx, tx, simulate)
 			} else if _, ok = tx.GetMsgs()[0].(*evmtypes.WrappedPayloadEnvelope); ok {
 				if ctx.ExecMode() != sdk.ExecModeCheck {
+					ctx.Logger().Info("running evm ante handler for payload tx")
 					return ctx, nil
 				}
+				ctx.Logger().Error("running evm ante handler for payload tx in check tx")
 				return ctx, errors.New("payload envelope is not supported in CheckTx")
 			}
 		}

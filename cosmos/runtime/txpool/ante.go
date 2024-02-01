@@ -42,17 +42,30 @@ func (m *Mempool) AnteHandle(
 	telemetry.IncrCounter(float32(1), MetricKeyCometPoolTxs)
 	msgs := tx.GetMsgs()
 
+	ctx.Logger().Info("AnteHandle Polaris Mempool", "msgs", len(msgs), "simulate", simulate)
+
+	// TODO: Record the time it takes to build a payload.
+
 	// We only want to eject transactions from comet on recheck.
 	if ctx.ExecMode() == sdk.ExecModeCheck || ctx.ExecMode() == sdk.ExecModeReCheck {
 		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
 			ethTx := wet.Unwrap()
-			if shouldEject := m.shouldEjectFromCometMempool(ethTx); shouldEject {
+			ctx.Logger().Info(
+				"AnteHandle for eth tx", "tx", ethTx.Hash(), "mode", ctx.ExecMode(),
+				"isRemote", m.crc.IsRemoteTx(ethTx.Hash()),
+			)
+			if shouldEject := m.shouldEjectFromCometMempool(
+				ctx, ethTx,
+			); shouldEject {
+				ctx.Logger().Info("AnteHandle dropping tx from comet mempool", "tx", ethTx.Hash())
 				telemetry.IncrCounter(float32(1), MetricKeyAnteEjectedTxs)
 				return ctx, errors.New("eject from comet mempool")
 			} else if ctx.ExecMode() == sdk.ExecModeReCheck && m.forceBroadcastOnRecheck {
+				ctx.Logger().Info("AnteHandle forwarding to validator", "tx", ethTx.Hash())
 				// We optionally force a re-broadcast.
 				m.ForwardToValidator(ethTx)
 			}
+			ctx.Logger().Info("AnteHandle NOT dropping comet mempool", "tx", ethTx.Hash())
 		}
 	}
 	return next(ctx, tx, simulate)
@@ -60,18 +73,19 @@ func (m *Mempool) AnteHandle(
 
 // shouldEject returns true if the transaction should be ejected from the CometBFT mempool.
 func (m *Mempool) shouldEjectFromCometMempool(
-	tx *ethtypes.Transaction,
+	ctx sdk.Context, tx *ethtypes.Transaction,
 ) bool {
 	defer telemetry.MeasureSince(time.Now(), MetricKeyTimeShouldEject)
 	if tx == nil {
+		ctx.Logger().Info("shouldEjectFromCometMempool: tx is nil")
 		return false
 	}
 
-	return m.isInvalidLocal(tx) || m.includedCanonicalChain(tx)
+	return m.isInvalidLocal(ctx, tx) || m.includedCanonicalChain(ctx, tx)
 }
 
 // isInvalidLocal returns whether the tx is invalid for the local node's mempool settings.
-func (m *Mempool) isInvalidLocal(tx *ethtypes.Transaction) bool {
+func (m *Mempool) isInvalidLocal(ctx sdk.Context, tx *ethtypes.Transaction) bool {
 	// 1. If the transaction's gas params are less than or equal to the configured limit.
 	priceLeLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
 	if priceLeLimit {
@@ -81,6 +95,7 @@ func (m *Mempool) isInvalidLocal(tx *ethtypes.Transaction) bool {
 	// If the transaction was not seen before, it is valid for now.
 	timeFirstSeen, notSeen := m.crc.TimeFirstSeen(tx.Hash())
 	if !notSeen {
+		ctx.Logger().Info("validateStateless notSeenBefore", "txHash", tx.Hash())
 		return false
 	}
 
@@ -90,15 +105,21 @@ func (m *Mempool) isInvalidLocal(tx *ethtypes.Transaction) bool {
 		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectExpiredTx)
 	}
 
-	return priceLeLimit || expired
+	ctx.Logger().Info(
+		"validateStateless", "timeFirstSeen", timeFirstSeen, "currentTime", time.Now(),
+		"timeInMempool", time.Since(timeFirstSeen), "txHash", tx.Hash(),
+		"expired", expired, "priceLeLimit", priceLeLimit,
+	)
+	return expired || priceLeLimit
 }
 
 // includedCanonicalChain returns whether the tx of the given hash is included in the canonical
 // Eth chain.
-func (m *Mempool) includedCanonicalChain(tx *ethtypes.Transaction) bool {
+func (m *Mempool) includedCanonicalChain(ctx sdk.Context, tx *ethtypes.Transaction) bool {
 	included := m.chain.GetTransactionLookup(tx.Hash()) != nil
 	if included {
 		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectInclusion)
 	}
+	ctx.Logger().Info("validateStateful", "included", included, "txHash", tx.Hash())
 	return included
 }
