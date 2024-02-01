@@ -72,7 +72,7 @@ type GethTxPool interface {
 type Mempool struct {
 	eth.TxPool
 	logger         log.Logger
-	lifetime       int64
+	lifetime       int64 // mempool uses seconds as a unit for lifetime
 	chain          core.ChainReader
 	handler        Lifecycle
 	crc            CometRemoteCache
@@ -88,7 +88,7 @@ type Mempool struct {
 // New creates a new Mempool.
 func New(
 	logger log.Logger,
-	chain core.ChainReader, txpool eth.TxPool, lifetime int64,
+	chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration,
 	blockBuilderMu *sync.RWMutex, priceLimit *big.Int, isValidator,
 	forceBroadcastOnRecheck bool,
 	validatorJSONRPC string,
@@ -123,7 +123,7 @@ func New(
 		logger:                  logger,
 		TxPool:                  txpool,
 		chain:                   chain,
-		lifetime:                lifetime,
+		lifetime:                int64(lifetime.Seconds()),
 		crc:                     newCometRemoteCache(),
 		blockBuilderMu:          blockBuilderMu,
 		priceLimit:              priceLimit,
