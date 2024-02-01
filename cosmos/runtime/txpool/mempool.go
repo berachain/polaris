@@ -161,12 +161,14 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	msgs := sdkTx.GetMsgs()
 	if len(msgs) != 1 {
+		sCtx.Logger().Error("mempool insert: only one message is supported")
 		return errors.New("only one message is supported")
 	}
 
 	wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0])
 	if !ok {
 		// We have to return nil for non-ethereum transactions as to not fail check-tx.
+		sCtx.Logger().Info("mempool insert: not an ethereum transaction")
 		return nil
 	}
 
@@ -193,7 +195,11 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	}
 
 	// Add the eth tx to the remote cache.
-	_ = m.crc.MarkRemoteSeen(ethTx.Hash())
+	sCtx.Logger().Info(
+		"mempool insert: marking remote seen", "tx", ethTx.Hash(), "time", time.Now().Unix(),
+		"is(already)RemoteTx", m.crc.IsRemoteTx(ethTx.Hash()),
+	)
+	m.crc.MarkRemoteSeen(ethTx.Hash())
 
 	return nil
 }
