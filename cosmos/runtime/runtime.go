@@ -130,7 +130,7 @@ func New(
 		p.logger,
 		p.ExecutionLayer.Backend().Blockchain(),
 		p.ExecutionLayer.Backend().TxPool(),
-		int64(cfg.Polar.LegacyTxPool.Lifetime),
+		cfg.Polar.LegacyTxPool.Lifetime,
 		&p.blockBuilderMu,
 		priceLimit,
 		p.cfg.Polar.IsValidator,
