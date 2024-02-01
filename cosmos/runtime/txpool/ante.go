@@ -97,26 +97,26 @@ func (m *Mempool) shouldEjectFromCometMempool(
 func (m *Mempool) validateStateless(ctx sdk.Context, tx *ethtypes.Transaction) bool {
 	txHash := tx.Hash()
 	currentTime := ctx.BlockTime().Unix()
-	ctx.Logger().Info("validateStateless", "txHash", txHash, "currentTime", currentTime)
 
 	// 1. If the transaction has been in the mempool for longer than the configured timeout.
-	// 2. If the transaction's gas params are less than or equal to the configured limit.
 	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
-	ctx.Logger().Info(
-		"validateStateless times seen",
-		"timeFirstSeen", m.crc.TimeFirstSeen(txHash),
-		"timeInMempool", currentTime-m.crc.TimeFirstSeen(txHash),
-	)
-	priceLeLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
-
 	if expired {
 		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectExpiredTx)
 	}
+
+	// 2. If the transaction's gas params are less than or equal to the configured limit.
+	priceLeLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
 	if priceLeLimit {
 		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectPriceLimit)
 	}
 
-	ctx.Logger().Info("validateStateless results", "expired", expired, "priceLeLimit", priceLeLimit)
+	ctx.Logger().Info(
+		"validateStateless",
+		"timeFirstSeen", m.crc.TimeFirstSeen(txHash),
+		"timeInMempool", currentTime-m.crc.TimeFirstSeen(txHash),
+		"txHash", txHash, "currentTime", currentTime,
+		"expired", expired, "priceLeLimit", priceLeLimit,
+	)
 
 	return expired || priceLeLimit
 }
@@ -132,6 +132,6 @@ func (m *Mempool) validateStateful(ctx sdk.Context, tx *ethtypes.Transaction) bo
 
 	included := m.chain.GetTransactionLookup(tx.Hash()) != nil
 	telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectInclusion)
-	ctx.Logger().Info("validateStateful", "included", included)
+	ctx.Logger().Info("validateStateful", "included", included, "txHash", tx.Hash())
 	return included
 }
