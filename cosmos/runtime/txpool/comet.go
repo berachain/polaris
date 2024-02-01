@@ -36,7 +36,7 @@ const (
 type CometRemoteCache interface {
 	IsRemoteTx(txHash common.Hash) bool
 	MarkRemoteSeen(txHash common.Hash) bool
-	TimeFirstSeen(txHash common.Hash) time.Time
+	TimeFirstSeen(txHash common.Hash) (time.Time, bool)
 }
 
 // Thread-safe implementation of CometRemoteCache.
@@ -63,7 +63,6 @@ func (crc *cometRemoteCache) MarkRemoteSeen(txHash common.Hash) bool {
 	return false
 }
 
-func (crc *cometRemoteCache) TimeFirstSeen(txHash common.Hash) time.Time {
-	i, _ := crc.timeInserted.Get(txHash)
-	return i
+func (crc *cometRemoteCache) TimeFirstSeen(txHash common.Hash) (time.Time, bool) {
+	return crc.timeInserted.Get(txHash)
 }

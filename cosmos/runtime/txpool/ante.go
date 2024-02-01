@@ -49,7 +49,7 @@ func (m *Mempool) AnteHandle(
 		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
 			ethTx := wet.Unwrap()
 			if shouldEject := m.shouldEjectFromCometMempool(
-				ctx.BlockTime(), ethTx,
+				ethTx,
 			); shouldEject {
 				telemetry.IncrCounter(float32(1), MetricKeyAnteEjectedTxs)
 				return ctx, errors.New("eject from comet mempool")
@@ -64,7 +64,7 @@ func (m *Mempool) AnteHandle(
 
 // shouldEject returns true if the transaction should be ejected from the CometBFT mempool.
 func (m *Mempool) shouldEjectFromCometMempool(
-	currentTime time.Time, tx *ethtypes.Transaction,
+	tx *ethtypes.Transaction,
 ) bool {
 	defer telemetry.MeasureSince(time.Now(), MetricKeyTimeShouldEject)
 	if tx == nil {
@@ -72,7 +72,7 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	}
 
 	// First check things that are stateless.
-	if m.validateStateless(tx, currentTime) {
+	if m.validateStateless(tx) {
 		return true
 	}
 
@@ -81,20 +81,24 @@ func (m *Mempool) shouldEjectFromCometMempool(
 }
 
 // validateStateless returns whether the tx of the given hash is stateless.
-func (m *Mempool) validateStateless(tx *ethtypes.Transaction, currentTime time.Time) bool {
-	// 1. If the transaction has been in the mempool for longer than the configured timeout.
-	expired := currentTime.Sub(m.crc.TimeFirstSeen(tx.Hash())) > m.lifetime
-	if expired {
-		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectExpiredTx)
-	}
-
-	// 2. If the transaction's gas params are less than or equal to the configured limit.
+func (m *Mempool) validateStateless(tx *ethtypes.Transaction) bool {
+	// 1. If the transaction's gas params are less than or equal to the configured limit.
 	priceLeLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
 	if priceLeLimit {
 		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectPriceLimit)
 	}
 
-	return expired || priceLeLimit
+	// 2. If the transaction has been in the mempool for longer than the configured timeout.
+	tfs, found := m.crc.TimeFirstSeen(tx.Hash())
+	if !found {
+		return false
+	}
+
+	expired := time.Since(tfs) > m.lifetime
+	if expired {
+		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectExpiredTx)
+	}
+	return priceLeLimit || expired
 }
 
 // includedCanonicalChain returns whether the tx of the given hash is included in the canonical
