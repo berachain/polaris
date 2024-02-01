@@ -50,18 +50,20 @@ func (m *Mempool) AnteHandle(
 
 	// We only want to eject transactions from comet on recheck.
 	if ctx.ExecMode() == sdk.ExecModeCheck || ctx.ExecMode() == sdk.ExecModeReCheck {
-		ctx.Logger().Info("AnteHandle in Check/Recheck tx")
 		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
 			ethTx := wet.Unwrap()
-			ctx.Logger().Info("AnteHandle for eth tx", "tx", ethTx.Hash(), "mode", ctx.ExecMode())
+			ctx.Logger().Info(
+				"AnteHandle for eth tx", "tx", ethTx.Hash(), "mode", ctx.ExecMode(),
+				"isRemote", m.crc.IsRemoteTx(ethTx.Hash()),
+			)
 			if shouldEject := m.shouldEjectFromCometMempool(
 				ctx, ethTx,
 			); shouldEject {
 				ctx.Logger().Info("AnteHandle dropping tx from comet mempool", "tx", ethTx.Hash())
-				// m.crc.DropRemoteTx(ethTx.Hash())
 				telemetry.IncrCounter(float32(1), MetricKeyAnteEjectedTxs)
 				return ctx, errors.New("eject from comet mempool")
 			} else if ctx.ExecMode() == sdk.ExecModeReCheck && m.forceBroadcastOnRecheck {
+				ctx.Logger().Info("AnteHandle forwarding to validator", "tx", ethTx.Hash())
 				// We optionally force a re-broadcast.
 				m.ForwardToValidator(ethTx)
 			}
@@ -100,7 +102,11 @@ func (m *Mempool) validateStateless(ctx sdk.Context, tx *ethtypes.Transaction) b
 	// 1. If the transaction has been in the mempool for longer than the configured timeout.
 	// 2. If the transaction's gas params are less than or equal to the configured limit.
 	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
-	ctx.Logger().Info("validateStateless", "currentTime", currentTime, "timeFirstSeen", m.crc.TimeFirstSeen(txHash), "expired", expired)
+	ctx.Logger().Info(
+		"validateStateless times seen",
+		"timeFirstSeen", m.crc.TimeFirstSeen(txHash),
+		"timeInMempool", currentTime-m.crc.TimeFirstSeen(txHash),
+	)
 	priceLeLimit := tx.GasPrice().Cmp(m.priceLimit) <= 0
 
 	if expired {
@@ -110,7 +116,7 @@ func (m *Mempool) validateStateless(ctx sdk.Context, tx *ethtypes.Transaction) b
 		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectPriceLimit)
 	}
 
-	ctx.Logger().Info("validateStateless", "expired", expired, "priceLeLimit", priceLeLimit)
+	ctx.Logger().Info("validateStateless results", "expired", expired, "priceLeLimit", priceLeLimit)
 
 	return expired || priceLeLimit
 }
