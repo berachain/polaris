@@ -96,10 +96,10 @@ func (m *Mempool) shouldEjectFromCometMempool(
 // validateStateless returns whether the tx of the given hash is stateless.
 func (m *Mempool) validateStateless(ctx sdk.Context, tx *ethtypes.Transaction) bool {
 	txHash := tx.Hash()
-	currentTime := ctx.BlockTime().Unix()
+	currentTime := ctx.BlockTime()
 
 	// 1. If the transaction has been in the mempool for longer than the configured timeout.
-	expired := currentTime-m.crc.TimeFirstSeen(txHash) > m.lifetime
+	expired := currentTime.Sub(m.crc.TimeFirstSeen(txHash)) > m.lifetime
 	if expired {
 		telemetry.IncrCounter(float32(1), MetricKeyAnteShouldEjectExpiredTx)
 	}
@@ -113,7 +113,7 @@ func (m *Mempool) validateStateless(ctx sdk.Context, tx *ethtypes.Transaction) b
 	ctx.Logger().Info(
 		"validateStateless",
 		"timeFirstSeen", m.crc.TimeFirstSeen(txHash),
-		"timeInMempool", currentTime-m.crc.TimeFirstSeen(txHash),
+		"timeInMempool", currentTime.Sub(m.crc.TimeFirstSeen(txHash)).Seconds(),
 		"txHash", txHash, "currentTime", currentTime,
 		"expired", expired, "priceLeLimit", priceLeLimit,
 	)
