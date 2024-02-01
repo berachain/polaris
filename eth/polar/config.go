@@ -103,6 +103,14 @@ type Config struct {
 	// send-transaction variants. The unit is ether.
 	RPCTxFeeCap float64
 
+	// ValidatorJSONRPCEndpoint is the JSON-RPC endpoint of a validator, you
+	// want to forward transactions to.
 	ValidatorJSONRPCEndpoint string
-	IsValidator              bool
+
+	// IsValidator is a flag to indicate if the node is a validator.
+	IsValidator bool
+
+	// ForceForwardReCheckTxs is a flag to indicate if the node should forward
+	// transactions on recheck.
+	ForceForwardReCheckTxs bool
 }

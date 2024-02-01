@@ -29,6 +29,7 @@ const (
 	RPCGasCap                = "polaris.polar.rpc-gas-cap"
 	IsValidator              = "polaris.polar.is-validator"
 	ValidatorJSONRPCEndpoint = "polaris.polar.validator-jsonrpc-endpoint"
+	ForceForwardReCheckTxs   = "polaris.polar.force-forward-recheck-txs"
 
 	// Miner.
 	MinerEtherbase         = "polaris.polar.miner.etherbase"

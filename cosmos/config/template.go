@@ -40,8 +40,14 @@ rpc-evm-timeout = "{{ .Polaris.Polar.RPCEVMTimeout }}"
 # Transaction fee cap for RPC requests
 rpc-tx-fee-cap = "{{ .Polaris.Polar.RPCTxFeeCap }}"
 
+# JSON-RPC endpoint for forwarding ethereum transactions directly to validators.
 validator-jsonrpc-endpoint = "{{ .Polaris.Polar.ValidatorJSONRPCEndpoint }}"
+
+# Whether the node is a validator
 is-validator = {{ .Polaris.Polar.IsValidator }}
+
+# If we want to force forwarding on ReCheckTxs
+force-forward-recheck-txs = {{ .Polaris.Polar.ForceForwardReCheckTxs }}
 
 # Chain config
 [polaris.polar.chain] 

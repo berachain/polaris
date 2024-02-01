@@ -103,6 +103,11 @@ func readConfigFromAppOptsParser(parser AppOptionsParser) (*Config, error) {
 		return nil, err
 	}
 
+	if conf.Polar.ForceForwardReCheckTxs, err = parser.GetBool(
+		flags.ForceForwardReCheckTxs); err != nil {
+		return nil, err
+	}
+
 	// Polar Miner settings
 	if conf.Polar.Miner.Etherbase, err =
 		parser.GetCommonAddress(flags.MinerEtherbase); err != nil {

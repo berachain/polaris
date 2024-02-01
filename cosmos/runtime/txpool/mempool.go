@@ -79,16 +79,18 @@ type Mempool struct {
 	blockBuilderMu *sync.RWMutex
 	priceLimit     *big.Int
 
-	isValidator      bool
-	validatorJSONRPC string
-	ethclient        *ethclient.Client
+	isValidator             bool
+	validatorJSONRPC        string
+	forceBroadcastOnRecheck bool
+	ethclient               *ethclient.Client
 }
 
 // New creates a new Mempool.
 func New(
 	logger log.Logger,
 	chain core.ChainReader, txpool eth.TxPool, lifetime int64,
-	blockBuilderMu *sync.RWMutex, priceLimit *big.Int, isValidator bool,
+	blockBuilderMu *sync.RWMutex, priceLimit *big.Int, isValidator,
+	forceBroadcastOnRecheck bool,
 	validatorJSONRPC string,
 ) *Mempool {
 	var (
@@ -118,16 +120,17 @@ func New(
 	}
 
 	return &Mempool{
-		logger:           logger,
-		TxPool:           txpool,
-		chain:            chain,
-		lifetime:         lifetime,
-		crc:              newCometRemoteCache(),
-		blockBuilderMu:   blockBuilderMu,
-		priceLimit:       priceLimit,
-		isValidator:      isValidator,
-		validatorJSONRPC: validatorJSONRPC,
-		ethclient:        ec,
+		logger:                  logger,
+		TxPool:                  txpool,
+		chain:                   chain,
+		lifetime:                lifetime,
+		crc:                     newCometRemoteCache(),
+		blockBuilderMu:          blockBuilderMu,
+		priceLimit:              priceLimit,
+		isValidator:             isValidator,
+		forceBroadcastOnRecheck: forceBroadcastOnRecheck,
+		validatorJSONRPC:        validatorJSONRPC,
+		ethclient:               ec,
 	}
 }
 
@@ -170,17 +173,8 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	// Add the eth tx to the Geth txpool.
 	ethTx := wet.Unwrap()
 
-	// Optmistically send to the validator.
-	if m.ethclient != nil {
-		// Broadcast the transaction to the validator.
-		// Note: we don't care about the response here.
-		go func() {
-			sCtx.Logger().Info("broadcasting transaction to validator", "hash", ethTx.Hash().Hex())
-			if err := m.ethclient.SendTransaction(context.Background(), ethTx); err != nil {
-				sCtx.Logger().Error("failed to broadcast transaction to validator", "error", err)
-			}
-		}()
-	}
+	// Fowrad to a validator if we have one.
+	m.ForwardToValidator(ethTx)
 
 	// Insert the tx into the txpool as a remote.
 	m.blockBuilderMu.RLock()
@@ -202,6 +196,18 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	_ = m.crc.MarkRemoteSeen(ethTx.Hash())
 
 	return nil
+}
+
+func (m *Mempool) ForwardToValidator(ethTx *ethtypes.Transaction) {
+	if m.ethclient != nil {
+		// Broadcast the transaction to the validator.
+		// Note: we don't care about the response here.
+		go func() {
+			if err := m.ethclient.SendTransaction(context.Background(), ethTx); err != nil {
+				m.logger.Error("failed to broadcast transaction to validator", "error", err)
+			}
+		}()
+	}
 }
 
 // CountTx returns the number of transactions currently in the mempool.

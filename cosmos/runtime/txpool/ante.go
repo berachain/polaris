@@ -44,8 +44,6 @@ func (m *Mempool) AnteHandle(
 	telemetry.IncrCounter(float32(1), MetricKeyCometPoolTxs)
 	msgs := tx.GetMsgs()
 
-	// TODO: Record the time it takes to build a payload.
-
 	// We only want to eject transactions from comet on recheck.
 	if ctx.ExecMode() == sdk.ExecModeCheck || ctx.ExecMode() == sdk.ExecModeReCheck {
 		if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); ok {
@@ -55,6 +53,9 @@ func (m *Mempool) AnteHandle(
 			); shouldEject {
 				telemetry.IncrCounter(float32(1), MetricKeyAnteEjectedTxs)
 				return ctx, errors.New("eject from comet mempool")
+			} else if ctx.ExecMode() == sdk.ExecModeReCheck && m.forceBroadcastOnRecheck {
+				// We optionally force a re-broadcast.
+				m.ForwardToValidator(ethTx)
 			}
 		}
 	}

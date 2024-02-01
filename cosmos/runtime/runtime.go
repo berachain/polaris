@@ -134,6 +134,7 @@ func New(
 		&p.blockBuilderMu,
 		priceLimit,
 		p.cfg.Polar.IsValidator,
+		p.cfg.Polar.ForceForwardReCheckTxs,
 		p.cfg.Polar.ValidatorJSONRPCEndpoint,
 	)
 
