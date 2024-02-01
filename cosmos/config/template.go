@@ -50,7 +50,7 @@ is-validator = {{ .Polaris.Polar.IsValidator }}
 force-forward-recheck-txs = {{ .Polaris.Polar.ForceForwardReCheckTxs }}
 
 # Chain config
-[polaris.polar.chain] cccccbgkuclekfkddebkvictfhu
+[polaris.polar.chain] 
 chain-id = "{{ .Polaris.Polar.Chain.ChainID }}"
 
 # Homestead switch block
