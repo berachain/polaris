@@ -21,11 +21,7 @@
 package miner
 
 import (
-	"context"
-
-	evmkeeper "github.com/berachain/polaris/cosmos/x/evm/keeper"
-
-	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/berachain/polaris/eth/core"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -39,16 +35,14 @@ type (
 		ToSdkTxBytes(*engine.ExecutionPayloadEnvelope, uint64) ([]byte, error)
 	}
 
-	App interface {
-		BeginBlocker(sdk.Context) (sdk.BeginBlock, error)
-		PreBlocker(sdk.Context, *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error)
+	TxDecoder interface {
 		TxDecode(txBytes []byte) (sdk.Tx, error)
 	}
 
 	// EVMKeeper is an interface that defines the methods needed for the EVM setup.
 	EVMKeeper interface {
 		// Setup initializes the EVM keeper.
-		Setup(evmkeeper.WrappedBlockchain) error
-		SetLatestQueryContext(context.Context) error
+		Setup(core.Blockchain) error
+		GetHost() core.PolarisHostChain
 	}
 )

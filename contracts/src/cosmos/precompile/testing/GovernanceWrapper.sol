@@ -93,7 +93,7 @@ contract GovernanceWrapper {
     }
 
     /**
-     * @dev Cancel a proposal. Returns the cancled time and height.
+     * @dev Cancel a proposal. Returns the canceled time and height.
      *   burned.
      * @param proposalId The id of the proposal to cancel.
      */

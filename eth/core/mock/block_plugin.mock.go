@@ -7,7 +7,7 @@ import (
 	"context"
 	"github.com/berachain/polaris/eth/core"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"sync"
 )
 
@@ -21,16 +21,16 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //
 //		// make and configure a mocked core.BlockPlugin
 //		mockedBlockPlugin := &BlockPluginMock{
-//			GetHeaderByHashFunc: func(hash common.Hash) (*types.Header, error) {
+//			GetHeaderByHashFunc: func(hash common.Hash) (*ethtypes.Header, error) {
 //				panic("mock out the GetHeaderByHash method")
 //			},
-//			GetHeaderByNumberFunc: func(v uint64) (*types.Header, error) {
+//			GetHeaderByNumberFunc: func(v uint64) (*ethtypes.Header, error) {
 //				panic("mock out the GetHeaderByNumber method")
 //			},
 //			PrepareFunc: func(contextMoqParam context.Context)  {
 //				panic("mock out the Prepare method")
 //			},
-//			StoreHeaderFunc: func(header *types.Header) error {
+//			StoreHeaderFunc: func(header *ethtypes.Header) error {
 //				panic("mock out the StoreHeader method")
 //			},
 //		}
@@ -41,16 +41,16 @@ var _ core.BlockPlugin = &BlockPluginMock{}
 //	}
 type BlockPluginMock struct {
 	// GetHeaderByHashFunc mocks the GetHeaderByHash method.
-	GetHeaderByHashFunc func(hash common.Hash) (*types.Header, error)
+	GetHeaderByHashFunc func(hash common.Hash) (*ethtypes.Header, error)
 
 	// GetHeaderByNumberFunc mocks the GetHeaderByNumber method.
-	GetHeaderByNumberFunc func(v uint64) (*types.Header, error)
+	GetHeaderByNumberFunc func(v uint64) (*ethtypes.Header, error)
 
 	// PrepareFunc mocks the Prepare method.
 	PrepareFunc func(contextMoqParam context.Context)
 
 	// StoreHeaderFunc mocks the StoreHeader method.
-	StoreHeaderFunc func(header *types.Header) error
+	StoreHeaderFunc func(header *ethtypes.Header) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -72,7 +72,7 @@ type BlockPluginMock struct {
 		// StoreHeader holds details about calls to the StoreHeader method.
 		StoreHeader []struct {
 			// Header is the header argument value.
-			Header *types.Header
+			Header *ethtypes.Header
 		}
 	}
 	lockGetHeaderByHash   sync.RWMutex
@@ -82,7 +82,7 @@ type BlockPluginMock struct {
 }
 
 // GetHeaderByHash calls GetHeaderByHashFunc.
-func (mock *BlockPluginMock) GetHeaderByHash(hash common.Hash) (*types.Header, error) {
+func (mock *BlockPluginMock) GetHeaderByHash(hash common.Hash) (*ethtypes.Header, error) {
 	if mock.GetHeaderByHashFunc == nil {
 		panic("BlockPluginMock.GetHeaderByHashFunc: method is nil but BlockPlugin.GetHeaderByHash was just called")
 	}
@@ -114,7 +114,7 @@ func (mock *BlockPluginMock) GetHeaderByHashCalls() []struct {
 }
 
 // GetHeaderByNumber calls GetHeaderByNumberFunc.
-func (mock *BlockPluginMock) GetHeaderByNumber(v uint64) (*types.Header, error) {
+func (mock *BlockPluginMock) GetHeaderByNumber(v uint64) (*ethtypes.Header, error) {
 	if mock.GetHeaderByNumberFunc == nil {
 		panic("BlockPluginMock.GetHeaderByNumberFunc: method is nil but BlockPlugin.GetHeaderByNumber was just called")
 	}
@@ -178,12 +178,12 @@ func (mock *BlockPluginMock) PrepareCalls() []struct {
 }
 
 // StoreHeader calls StoreHeaderFunc.
-func (mock *BlockPluginMock) StoreHeader(header *types.Header) error {
+func (mock *BlockPluginMock) StoreHeader(header *ethtypes.Header) error {
 	if mock.StoreHeaderFunc == nil {
 		panic("BlockPluginMock.StoreHeaderFunc: method is nil but BlockPlugin.StoreHeader was just called")
 	}
 	callInfo := struct {
-		Header *types.Header
+		Header *ethtypes.Header
 	}{
 		Header: header,
 	}
@@ -198,10 +198,10 @@ func (mock *BlockPluginMock) StoreHeader(header *types.Header) error {
 //
 //	len(mockedBlockPlugin.StoreHeaderCalls())
 func (mock *BlockPluginMock) StoreHeaderCalls() []struct {
-	Header *types.Header
+	Header *ethtypes.Header
 } {
 	var calls []struct {
-		Header *types.Header
+		Header *ethtypes.Header
 	}
 	mock.lockStoreHeader.RLock()
 	calls = mock.calls.StoreHeader

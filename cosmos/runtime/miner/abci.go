@@ -22,17 +22,10 @@
 package miner
 
 import (
-	storetypes "cosmossdk.io/store/types"
-
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/ethereum/go-ethereum/common"
 )
-
-// emptyHash is a common.Hash initialized to all zeros.
-var emptyHash = common.Hash{}
 
 // PrepareProposal implements baseapp.PrepareProposal.
 func (m *Miner) PrepareProposal(
@@ -44,32 +37,6 @@ func (m *Miner) PrepareProposal(
 		valTxs            [][]byte
 		ethGasUsed        uint64
 	)
-
-	// We have to run the PreBlocker && BeginBlocker to get the chain into the state
-	// it'll be in when the EVM transaction actually runs.
-	if _, err = m.app.PreBlocker(ctx, &abci.RequestFinalizeBlock{
-		Txs:                req.Txs,
-		Time:               req.Time,
-		Misbehavior:        req.Misbehavior,
-		Height:             req.Height,
-		NextValidatorsHash: req.NextValidatorsHash,
-		ProposerAddress:    req.ProposerAddress,
-	}); err != nil {
-		return nil, err
-	} else if _, err = m.app.BeginBlocker(ctx); err != nil {
-		return nil, err
-	}
-
-	ctx.GasMeter().RefundGas(ctx.GasMeter().GasConsumed(), "prepare proposal")
-	ctx.BlockGasMeter().RefundGas(ctx.BlockGasMeter().GasConsumed(), "prepare proposal")
-	ctx = ctx.WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{}).
-		WithGasMeter(storetypes.NewInfiniteGasMeter())
-
-	// We have to prime the state plugin.
-	if err = m.keeper.SetLatestQueryContext(ctx); err != nil {
-		return nil, err
-	}
 
 	// Trigger the geth miner to build a block.
 	if payloadEnvelopeBz, ethGasUsed, err = m.buildBlock(ctx); err != nil {

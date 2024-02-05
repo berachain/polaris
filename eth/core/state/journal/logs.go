@@ -39,7 +39,7 @@ type Log interface {
 	TxIndex() int
 	// AddLog adds a log to the logs journal.
 	AddLog(*ethtypes.Log)
-	// Logs returns the logs of the tx with the exisiting metadata.
+	// Logs returns the logs of the tx with the existing metadata.
 	Logs() []*ethtypes.Log
 	// GetLogs returns the logs of the tx with the given metadata.
 	GetLogs(hash common.Hash, blockNumber uint64, blockHash common.Hash) []*ethtypes.Log

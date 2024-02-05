@@ -23,17 +23,20 @@ package keeper
 import (
 	"context"
 	"fmt"
-
-	storetypes "cosmossdk.io/store/types"
+	"time"
 
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
+// ProcessPayloadEnvelope uses Geth's beacon engine API to build a block from a execution payload
+// request. It is called by Cosmos-SDK during ABCI DeliverTx phase (1 cosmos tx to build the entire
+// eth block).
 func (k *Keeper) ProcessPayloadEnvelope(
 	ctx context.Context, msg *evmtypes.WrappedPayloadEnvelope,
 ) (*evmtypes.WrappedPayloadEnvelopeResponse, error) {
@@ -48,8 +51,8 @@ func (k *Keeper) ProcessPayloadEnvelope(
 	blockGasMeter := sCtx.BlockGasMeter()
 
 	// Reset GasMeter to 0.
-	gasMeter.RefundGas(gasMeter.GasConsumed(), "reset before evm block")
-	blockGasMeter.RefundGas(blockGasMeter.GasConsumed(), "reset before evm block")
+	//
+	// TODO: we need to remove this next re-genesis.
 	defer gasMeter.RefundGas(gasMeter.GasConsumed(), "reset after evm")
 	defer blockGasMeter.RefundGas(blockGasMeter.GasConsumed(), "reset after evm")
 
@@ -62,11 +65,19 @@ func (k *Keeper) ProcessPayloadEnvelope(
 		return nil, err
 	}
 
-	// Prepare should be moved to the blockchain? THIS IS VERY HOOD YES NEEDS TO BE MOVED.
-	ctx = sCtx.WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{})
+	// Record how long it takes to insert the new block into the chain.
+	defer telemetry.ModuleMeasureSince(evmtypes.ModuleName,
+		time.Now(), evmtypes.MetricKeyInsertBlock)
 
-	if err = k.wrappedChain.InsertBlockAndSetHead(ctx, block); err != nil {
+	// Set the finalize block context on the state plugin factory. Set the finalize block context,
+	// which will be written to by InsertBlock. This is a runMsgs cache context, which is
+	// only written once ProcessPayloadEnvelope executes without error.
+	k.spf.SetFinalizeBlockContext(ctx)
+	defer k.spf.SetLatestQueryContext(ctx)
+	k.chain.PrimePlugins(ctx)
+
+	// Insert the finalized block and set the chain head.
+	if err = k.chain.InsertBlockAndSetHead(block); err != nil {
 		return nil, err
 	}
 

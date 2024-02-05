@@ -23,6 +23,8 @@ package txpool
 import (
 	"context"
 	"errors"
+	"math/big"
+	"sync"
 
 	"cosmossdk.io/log"
 
@@ -31,10 +33,11 @@ import (
 	"github.com/berachain/polaris/eth/core"
 	"github.com/berachain/polaris/lib/utils"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
-	"github.com/ethereum/go-ethereum/core/txpool/legacypool"
+	ethtxpool "github.com/ethereum/go-ethereum/core/txpool"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -60,16 +63,27 @@ type GethTxPool interface {
 // is to allow for transactions coming in from CometBFT's gossip to be added to the underlying
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
-	txpool  eth.TxPool
-	chain   core.ChainReader
-	handler Lifecycle
+	eth.TxPool
+	lifetime       int64
+	chain          core.ChainReader
+	handler        Lifecycle
+	crc            CometRemoteCache
+	blockBuilderMu *sync.RWMutex
+	priceLimit     *big.Int
 }
 
 // New creates a new Mempool.
-func New(chain core.ChainReader, txpool eth.TxPool) *Mempool {
+func New(
+	chain core.ChainReader, txpool eth.TxPool, lifetime int64,
+	blockBuilderMu *sync.RWMutex, priceLimit *big.Int,
+) *Mempool {
 	return &Mempool{
-		txpool: txpool,
-		chain:  chain,
+		TxPool:         txpool,
+		chain:          chain,
+		lifetime:       lifetime,
+		crc:            newCometRemoteCache(),
+		blockBuilderMu: blockBuilderMu,
+		priceLimit:     priceLimit,
 	}
 }
 
@@ -79,7 +93,7 @@ func (m *Mempool) Init(
 	txBroadcaster TxBroadcaster,
 	txSerializer TxSerializer,
 ) {
-	m.handler = newHandler(txBroadcaster, m.txpool, txSerializer, logger)
+	m.handler = newHandler(txBroadcaster, m.TxPool, txSerializer, m.crc, logger)
 }
 
 // Start starts the Mempool TxHandler.
@@ -92,8 +106,7 @@ func (m *Mempool) Stop() error {
 	return m.handler.Stop()
 }
 
-// Insert attempts to insert a Tx into the app-side mempool returning
-// an error upon failure.
+// Insert attempts to insert a Tx into the app-side mempool returning an error upon failure.
 func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 	sCtx := sdk.UnwrapSDKContext(ctx)
 	msgs := sdkTx.GetMsgs()
@@ -101,25 +114,40 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 		return errors.New("only one message is supported")
 	}
 
-	if wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0]); !ok {
+	wet, ok := utils.GetAs[*types.WrappedEthereumTransaction](msgs[0])
+	if !ok {
 		// We have to return nil for non-ethereum transactions as to not fail check-tx.
 		return nil
-	} else if errs := m.txpool.Add(
-		[]*ethtypes.Transaction{wet.Unwrap()}, false, false,
-	); len(errs) != 0 {
-		// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
-		if errors.Is(errs[0], legacypool.ErrAlreadyKnown) && sCtx.ExecMode() == sdk.ExecModeCheck {
-			return nil
-		}
+	}
+
+	// Add the eth tx to the Geth txpool.
+	ethTx := wet.Unwrap()
+
+	// Insert the tx into the txpool as a remote.
+	m.blockBuilderMu.RLock()
+	errs := m.TxPool.Add([]*ethtypes.Transaction{ethTx}, false, false)
+	m.blockBuilderMu.RUnlock()
+
+	// Handle case where a node broadcasts to itself, we don't want it to fail CheckTx.
+	// Note: it's safe to check errs[0] because geth returns `errs` of length 1.
+	if errors.Is(errs[0], ethtxpool.ErrAlreadyKnown) &&
+		(sCtx.ExecMode() == sdk.ExecModeCheck || sCtx.ExecMode() == sdk.ExecModeReCheck) {
+		telemetry.IncrCounter(float32(1), MetricKeyMempoolKnownTxs)
+		sCtx.Logger().Info("mempool insert: tx already in mempool", "mode", sCtx.ExecMode())
+		return nil
+	} else if errs[0] != nil {
 		return errs[0]
 	}
+
+	// Add the eth tx to the remote cache.
+	_ = m.crc.MarkRemoteSeen(ethTx.Hash())
 
 	return nil
 }
 
 // CountTx returns the number of transactions currently in the mempool.
 func (m *Mempool) CountTx() int {
-	runnable, blocked := m.txpool.Stats()
+	runnable, blocked := m.TxPool.Stats()
 	return runnable + blocked
 }
 
@@ -129,6 +157,6 @@ func (m *Mempool) Select(context.Context, [][]byte) mempool.Iterator {
 }
 
 // Remove is an intentional no-op as the eth txpool handles removals.
-func (m *Mempool) Remove(sdk.Tx) error {
+func (m *Mempool) Remove(_ sdk.Tx) error {
 	return nil
 }

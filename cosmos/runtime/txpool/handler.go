@@ -27,6 +27,7 @@ import (
 
 	"cosmossdk.io/log"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -41,6 +42,7 @@ const (
 	txChanSize = 4096
 	maxRetries = 5
 	retryDelay = 50 * time.Millisecond
+	statPeriod = 60 * time.Second
 )
 
 // SdkTx is used to generate mocks.
@@ -51,6 +53,7 @@ type SdkTx interface {
 // TxSubProvider.
 type TxSubProvider interface {
 	SubscribeTransactions(ch chan<- core.NewTxsEvent, reorgs bool) event.Subscription
+	Stats() (int, int)
 }
 
 // TxSerializer provides an interface to Serialize Geth Transactions to Bytes (via sdk.Tx).
@@ -82,6 +85,7 @@ type handler struct {
 	logger     log.Logger
 	clientCtx  TxBroadcaster
 	serializer TxSerializer
+	crc        CometRemoteCache
 
 	// Ethereum
 	txPool  TxSubProvider
@@ -96,12 +100,14 @@ type handler struct {
 
 // newHandler creates a new handler.
 func newHandler(
-	clientCtx TxBroadcaster, txPool TxSubProvider, serializer TxSerializer, logger log.Logger,
+	clientCtx TxBroadcaster, txPool TxSubProvider, serializer TxSerializer,
+	crc CometRemoteCache, logger log.Logger,
 ) *handler {
 	h := &handler{
 		logger:     logger,
 		clientCtx:  clientCtx,
 		serializer: serializer,
+		crc:        crc,
 		txPool:     txPool,
 		txsCh:      make(chan core.NewTxsEvent, txChanSize),
 		stopCh:     make(chan struct{}),
@@ -117,6 +123,7 @@ func (h *handler) Start() error {
 	}
 	go h.mainLoop()
 	go h.failedLoop() // Start the retry policy
+	go h.statLoop()
 	return nil
 }
 
@@ -148,6 +155,7 @@ func (h *handler) mainLoop() {
 		case err = <-h.txsSub.Err():
 			h.stopCh <- struct{}{}
 		case event := <-h.txsCh:
+			telemetry.IncrCounter(float32(len(event.Txs)), MetricKeyCometLocalTxs)
 			h.broadcastTransactions(event.Txs)
 		}
 	}
@@ -164,11 +172,27 @@ func (h *handler) failedLoop() {
 				h.logger.Error("failed to broadcast transaction after max retries", "tx", maxRetries)
 				continue
 			}
+			telemetry.IncrCounter(float32(1), MetricKeyBroadcastRetry)
 			h.broadcastTransaction(failed.tx, failed.retries-1)
 		}
 
 		// We slightly space out the retries in order to prioritize new transactions.
 		time.Sleep(retryDelay)
+	}
+}
+
+func (h *handler) statLoop() {
+	ticker := time.NewTicker(statPeriod)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-h.stopCh:
+			return
+		case <-ticker.C:
+			pending, queue := h.txPool.Stats()
+			telemetry.SetGauge(float32(pending), MetricKeyTxPoolPending)
+			telemetry.SetGauge(float32(queue), MetricKeyTxPoolQueue)
+		}
 	}
 }
 
@@ -198,10 +222,16 @@ func (h *handler) stop(err error) {
 
 // broadcastTransactions will propagate a batch of transactions to the CometBFT mempool.
 func (h *handler) broadcastTransactions(txs ethtypes.Transactions) {
-	h.logger.Debug("broadcasting transactions", "num_txs", len(txs))
+	numBroadcasted := 0
 	for _, signedEthTx := range txs {
-		h.broadcastTransaction(signedEthTx, maxRetries)
+		if !h.crc.IsRemoteTx(signedEthTx.Hash()) {
+			h.broadcastTransaction(signedEthTx, maxRetries)
+			numBroadcasted++
+		}
 	}
+	h.logger.Debug(
+		"broadcasting transactions", "num_received", len(txs), "num_broadcasted", numBroadcasted,
+	)
 }
 
 // broadcastTransaction will propagate a transaction to the CometBFT mempool.
@@ -215,26 +245,29 @@ func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
 	// Send the transaction to the CometBFT mempool, which will gossip it to peers via
 	// CometBFT's p2p layer.
 	rsp, err := h.clientCtx.BroadcastTxSync(txBytes)
-
 	if err != nil {
 		h.logger.Error("error on transactions broadcast", "err", err)
 		h.failedTxs <- &failedTx{tx: tx, retries: retries}
 		return
 	}
 
-	if rsp == nil || rsp.Code == 0 {
+	// If rsp == 1, likely the txn is already in a block, and thus the broadcast failing is actually
+	// the desired behaviour.
+	if rsp == nil || rsp.Code == 0 || rsp.Code == 1 {
 		return
 	}
 
 	switch rsp.Code {
 	case sdkerrors.ErrMempoolIsFull.ABCICode():
 		h.logger.Error("failed to broadcast: comet-bft mempool is full", "tx_hash", tx.Hash())
+		telemetry.IncrCounter(float32(1), MetricKeyMempoolFull)
 	case
 		sdkerrors.ErrTxInMempoolCache.ABCICode():
 		return
 	default:
 		h.logger.Error("failed to broadcast transaction",
 			"codespace", rsp.Codespace, "code", rsp.Code, "info", rsp.Info, "tx_hash", tx.Hash())
+		telemetry.IncrCounter(float32(1), MetricKeyBroadcastFailure)
 	}
 
 	h.failedTxs <- &failedTx{tx: tx, retries: retries}

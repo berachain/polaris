@@ -21,7 +21,6 @@
 package core
 
 import (
-	"context"
 	"errors"
 
 	"github.com/berachain/polaris/eth/core/state"
@@ -34,40 +33,36 @@ import (
 
 // ChainWriter defines methods that are used to perform state and block transitions.
 type ChainWriter interface {
-	LoadLastState(context.Context, uint64) error
+	LoadLastState(uint64) error
 	WriteGenesisBlock(block *ethtypes.Block) error
+	InsertBlock(block *ethtypes.Block) error
 	InsertBlockAndSetHead(block *ethtypes.Block) error
-	InsertBlockWithoutSetHead(block *ethtypes.Block) error
+	SetFinalizedBlock() error
 	WriteBlockAndSetHead(block *ethtypes.Block, receipts []*ethtypes.Receipt, logs []*ethtypes.Log,
 		state state.StateDB, emitHeadEvent bool) (status core.WriteStatus, err error)
 }
 
-// WriteGenesisBlock inserts the genesis block into the blockchain.
-func (bc *blockchain) WriteGenesisBlock(block *ethtypes.Block) error {
-	// TODO: add more validation here.
-	if block.NumberU64() != 0 {
-		return errors.New("not the genesis block")
-	}
-	_, err := bc.WriteBlockAndSetHead(block, nil, nil, nil, true)
-	return err
-}
+// InsertBlock inserts a block into the blockchain without setting it as the head.
+func (bc *blockchain) InsertBlock(block *ethtypes.Block) error {
+	// Get the state with the latest insert chain context.
+	sp := bc.spf.NewPluginWithMode(state.Insert)
+	state := state.NewStateDB(sp, bc.pp)
 
-// InsertBlockWithoutSetHead inserts a block into the blockchain without setting it as the head.
-func (bc *blockchain) InsertBlockWithoutSetHead(block *ethtypes.Block) error {
-	// Call the private method to insert the block without setting it as the head.
-	_, _, err := bc.insertBlockWithoutSetHead(block)
+	// Call the private method to insert the block and setting it as the head.
+	_, _, err := bc.insertBlock(block, state)
 	// Return any error that might have occurred.
 	return err
 }
 
-// insertBlockWithoutSetHead inserts a block into the blockchain without setting it as the head.
-func (bc *blockchain) insertBlockWithoutSetHead(
-	block *ethtypes.Block,
+// insertBlock inserts a block into the blockchain by running the state processor and
+// validating whether its okay.
+func (bc *blockchain) insertBlock(
+	block *ethtypes.Block, state state.StateDB,
 ) ([]*ethtypes.Receipt, []*ethtypes.Log, error) {
 	// Validate that we are about to insert a valid block.
 	// If the block number is greater than 1,
 	// it means it's not the genesis block and needs to be validated. TODO kinda hood.
-	if block.NumberU64() > 1 { // TODO DIAGNOSE
+	if block.NumberU64() > 1 {
 		if err := bc.validator.ValidateBody(block); err != nil {
 			log.Error("invalid block body", "err", err)
 			return nil, nil, err
@@ -75,14 +70,14 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 	}
 
 	// Process the incoming EVM block.
-	receipts, logs, usedGas, err := bc.processor.Process(block, bc.statedb, *bc.vmConfig)
+	receipts, logs, usedGas, err := bc.processor.Process(block, state, *bc.vmConfig)
 	if err != nil {
 		log.Error("failed to process block", "num", block.NumberU64(), "err", err)
 		return nil, nil, err
 	}
 
 	// ValidateState validates the statedb post block processing.
-	if err = bc.validator.ValidateState(block, bc.statedb, receipts, usedGas); err != nil {
+	if err = bc.validator.ValidateState(block, state, receipts, usedGas); err != nil {
 		log.Error("invalid state after processing block", "num", block.NumberU64(), "err", err)
 		return nil, nil, err
 	}
@@ -92,13 +87,17 @@ func (bc *blockchain) insertBlockWithoutSetHead(
 
 // InsertBlockAndSetHead inserts a block into the blockchain and sets the head.
 func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
-	receipts, logs, err := bc.insertBlockWithoutSetHead(block)
+	// Get the state with the latest finalize block context.
+	sp := bc.spf.NewPluginWithMode(state.Finalize)
+	state := state.NewStateDB(sp, bc.pp)
+
+	receipts, logs, err := bc.insertBlock(block, state)
 	if err != nil {
 		return err
 	}
 	// We can just immediately finalize the block. It's okay in this context.
 	if _, err = bc.WriteBlockAndSetHead(
-		block, receipts, logs, nil, true); err != nil {
+		block, receipts, logs, state, true); err != nil {
 		log.Error("failed to write block", "num", block.NumberU64(), "err", err)
 		return err
 	}
@@ -108,10 +107,10 @@ func (bc *blockchain) InsertBlockAndSetHead(block *ethtypes.Block) error {
 // WriteBlockAndSetHead sets the head of the blockchain to the given block and finalizes the block.
 func (bc *blockchain) WriteBlockAndSetHead(
 	block *ethtypes.Block, receipts []*ethtypes.Receipt, logs []*ethtypes.Log,
-	_ state.StateDB, emitHeadEvent bool,
+	state state.StateDB, emitHeadEvent bool,
 ) (core.WriteStatus, error) {
 	// Write the block to the store.
-	if err := bc.writeBlockWithState(block, receipts); err != nil {
+	if err := bc.writeBlockWithState(block, receipts, state); err != nil {
 		return core.NonStatTy, err
 	}
 	currentBlock := bc.currentBlock.Load()
@@ -125,12 +124,6 @@ func (bc *blockchain) WriteBlockAndSetHead(
 
 	// Set the current block.
 	bc.currentBlock.Store(block)
-
-	// TODO: this is fine to do here but not really semantically correct
-	// and is very confusing.
-	// For clarity reasons, we should make the cosmos chain make a separate call
-	// to finalize the block.
-	bc.finalizedBlock.Store(block)
 
 	// Store txLookup entries for all transactions in the block.
 	blockNum := block.NumberU64()
@@ -155,18 +148,17 @@ func (bc *blockchain) WriteBlockAndSetHead(
 		bc.receiptsCache.Add(block.Hash(), receipts)
 	}
 
-	// Fire off the feeds.
-	bc.chainFeed.Send(core.ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
-	if len(logs) > 0 {
-		bc.logsFeed.Send(logs)
-	}
-
 	// In theory, we should fire a ChainHeadEvent when we inject
 	// a canonical block, but sometimes we can insert a batch of
 	// canonical blocks. Avoid firing too many ChainHeadEvents,
 	// we will fire an accumulated ChainHeadEvent and disable fire
 	// event here.
 	if emitHeadEvent {
+		// Fire off the feeds.
+		bc.chainFeed.Send(core.ChainEvent{Block: block, Hash: block.Hash(), Logs: logs})
+		if len(logs) > 0 {
+			bc.logsFeed.Send(logs)
+		}
 		bc.chainHeadFeed.Send(core.ChainHeadEvent{Block: block})
 	}
 
@@ -176,7 +168,7 @@ func (bc *blockchain) WriteBlockAndSetHead(
 // writeBlockWithState writes the block along with its state (receipts and logs)
 // into the blockchain.
 func (bc *blockchain) writeBlockWithState(
-	block *ethtypes.Block, receipts []*ethtypes.Receipt,
+	block *ethtypes.Block, receipts []*ethtypes.Receipt, state state.StateDB,
 ) error {
 	// In Polaris since we are using single block finality.
 	// Finalized == Current == Safe. All are the same.
@@ -195,7 +187,7 @@ func (bc *blockchain) writeBlockWithState(
 
 	// Commit all cached state changes into underlying memory database.
 	// In Polaris this is a no-op.
-	_, err = bc.statedb.Commit(block.NumberU64(), bc.config.IsEIP158(block.Number()))
+	_, err = state.Commit(block.NumberU64(), bc.config.IsEIP158(block.Number()))
 	if err != nil {
 		return err
 	}
@@ -231,5 +223,14 @@ func (bc *blockchain) writeHistoricalData(
 		}
 	}
 
+	return nil
+}
+
+// For clarity reasons, the host chain makes a separate call to finalize the block. Only called
+// once it is known the current block is the finalized block.
+func (bc *blockchain) SetFinalizedBlock() error {
+	if currBlock := bc.currentBlock.Load(); currBlock != nil {
+		bc.finalizedBlock.Store(currBlock)
+	}
 	return nil
 }

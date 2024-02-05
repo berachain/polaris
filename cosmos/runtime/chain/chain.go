@@ -21,50 +21,22 @@
 package chain
 
 import (
-	"context"
-
 	"github.com/berachain/polaris/eth/core"
-
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // WrappedBlockchain is a struct that wraps the core blockchain with additional
 // application context.
 type WrappedBlockchain struct {
-	core.Blockchain     // chain is the core blockchain.
-	app             App // App is the application context.
-
+	core.Blockchain           // chain is the core blockchain.
+	app             txDecoder // App is the application context.
 }
 
 // New creates a new instance of WrappedBlockchain with the provided core blockchain
 // and application context.
-func New(chain core.Blockchain, app App) *WrappedBlockchain {
+func New(chain core.Blockchain, app txDecoder) *WrappedBlockchain {
 	return &WrappedBlockchain{Blockchain: chain, app: app}
 }
 
-// WriteGenesisState writes the genesis state to the blockchain.
-// It uses the provided context as the application context.
-func (wbc *WrappedBlockchain) WriteGenesisState(
-	ctx context.Context, genState *core.Genesis,
-) error {
-	wbc.PreparePlugins(ctx)
-	return wbc.WriteGenesisBlock(genState.ToBlock())
-}
-
-// InsertBlockAndSetHead inserts a block into the blockchain and sets
-// it as the head. It uses the provided context as the application context.
-func (wbc *WrappedBlockchain) InsertBlockAndSetHead(
-	ctx context.Context, block *ethtypes.Block,
-) error {
-	wbc.PreparePlugins(ctx)
-	return wbc.Blockchain.InsertBlockAndSetHead(block)
-}
-
-// InsertBlockWithoutSetHead inserts a block into the blockchain without setting it
-// as the head. It uses the provided context as the application context.
-func (wbc *WrappedBlockchain) InsertBlockWithoutSetHead(
-	ctx context.Context, block *ethtypes.Block,
-) error {
-	wbc.PreparePlugins(ctx)
-	return wbc.Blockchain.InsertBlockWithoutSetHead(block)
+func (wbc *WrappedBlockchain) SetBlockchain(chain core.Blockchain) {
+	wbc.Blockchain = chain
 }

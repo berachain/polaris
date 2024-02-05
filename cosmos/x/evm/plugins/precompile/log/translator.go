@@ -43,7 +43,7 @@ func (f *Factory) makeTopics(pl *precompileLog, event *sdk.Event) ([]common.Hash
 
 	// for each Ethereum indexed argument, get the corresponding Cosmos event attribute and
 	// convert to a geth compatible type. NOTE: this iteration has total complexity O(M), where
-	// M = average length of atrribute key strings, as length of `indexedInputs` <= 3.
+	// M = average length of attribute key strings, as length of `indexedInputs` <= 3.
 	for i, arg := range pl.indexedInputs {
 		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
 		if attrIdx == notFound {
@@ -80,7 +80,7 @@ func (f *Factory) makeData(pl *precompileLog, event *sdk.Event) ([]byte, error) 
 
 	// for each Ethereum non-indexed argument, get the corresponding Cosmos event attribute and
 	// convert to a geth compatible type. NOTE: the total complexity of this iteration: O(M*N^2),
-	// where N is the # of non-indexed args, M = average length of atrribute key strings.
+	// where N is the # of non-indexed args, M = average length of attribute key strings.
 	for i, arg := range pl.nonIndexedInputs {
 		attrIdx := searchAttributesForArg(&event.Attributes, arg.Name)
 		if attrIdx == notFound {
