@@ -25,8 +25,6 @@ import (
 
 	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
 
-	evmtypes "github.com/berachain/polaris/cosmos/x/evm/types"
-
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
