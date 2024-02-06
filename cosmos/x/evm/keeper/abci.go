@@ -27,26 +27,28 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Precommit runs on the Cosmo-SDK lifecycle Precommit().
+// EndBlock runs on the Cosmos-SDK lifecycle EndBlock() during ABCI Finalize.
 func (k *Keeper) EndBlock(ctx context.Context) error {
 	// Verify that the EVM block was written.
-	// TODO: Set/GetHead to set and get the canonical head.
 	blockNum := uint64(sdk.UnwrapSDKContext(ctx).BlockHeight())
-	block := k.wrappedChain.GetBlockByNumber(blockNum)
-	if block == nil {
+	newHead := k.chain.GetBlockByNumber(blockNum)
+	if newHead == nil {
 		return fmt.Errorf(
 			"evm block %d failed to process", blockNum,
 		)
-	} else if block.NumberU64() != blockNum {
+	} else if newHead.NumberU64() != blockNum {
 		return fmt.Errorf(
-			"evm block [%d] does not match comet block [%d]", block.NumberU64(), blockNum,
+			"evm block [%d] does not match comet block [%d]", newHead.NumberU64(), blockNum,
 		)
 	}
-	return nil
+
+	// Set the finalized eth block once we know it has been finalized successfully by Cosmos.
+	return k.chain.SetFinalizedBlock()
 }
 
-// SetLatestQueryContext runs on the Cosmos-SDK lifecycle SetLatestQueryContext().
-func (k *Keeper) SetLatestQueryContext(ctx context.Context) error {
-	k.sp.Prepare(ctx)
+// PrepareCheckState runs on the Cosmos-SDK lifecycle PrepareCheckState() during ABCI Commit.
+func (k *Keeper) PrepareCheckState(ctx context.Context) error {
+	k.spf.SetLatestQueryContext(ctx)
+	k.chain.PrimePlugins(ctx)
 	return nil
 }

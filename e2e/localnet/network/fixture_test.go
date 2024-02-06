@@ -58,14 +58,14 @@ var _ = Describe("JSON RPC tests", func() {
 			"goodcontainer",
 			"8545/tcp",
 			"8546/tcp",
-			"1.21.3",
+			"1.21.6",
 		))
 		Expect(tf).ToNot(BeNil())
 		client = tf.EthClient()
 	})
 
 	AfterEach(func() {
-		// Dump logs and stop the containter here.
+		// Dump logs and stop the container here.
 		if !CurrentSpecReport().Failure.IsZero() {
 			logs, err := tf.DumpLogs()
 			Expect(err).ToNot(HaveOccurred())

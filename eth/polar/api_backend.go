@@ -23,7 +23,9 @@ package polar
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	pcore "github.com/berachain/polaris/eth/core"
@@ -41,6 +43,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
+	"github.com/ethereum/go-ethereum/eth/tracers"
 	"github.com/ethereum/go-ethereum/ethapi"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
@@ -56,6 +59,7 @@ type (
 		ethapi.Backend
 		polarapi.NetBackend
 		polarapi.Web3Backend
+		tracers.Backend
 	}
 
 	// SyncStatusProvider defines methods that allow the chain to have insight into the underlying
@@ -72,11 +76,13 @@ type (
 
 // backend represents the backend for the JSON-RPC service.
 type backend struct {
-	polar         *Polaris
-	cfg           *Config
-	extRPCEnabled bool
-	gpo           *gasprice.Oracle
-	logger        log.Logger
+	polar               *Polaris
+	cfg                 *Config
+	extRPCEnabled       bool
+	allowUnprotectedTxs bool
+	hostChainVersion    string
+	gpo                 *gasprice.Oracle
+	logger              log.Logger
 }
 
 // ==============================================================================
@@ -87,14 +93,18 @@ type backend struct {
 func NewAPIBackend(
 	polar *Polaris,
 	extRPCEnabled bool,
+	allowUnprotectedTxs bool,
 	cfg *Config,
+	hostChainVersion string,
 ) APIBackend {
 	b := &backend{
 
-		polar:         polar,
-		cfg:           cfg,
-		extRPCEnabled: extRPCEnabled,
-		logger:        log.Root(),
+		polar:               polar,
+		cfg:                 cfg,
+		extRPCEnabled:       extRPCEnabled,
+		hostChainVersion:    hostChainVersion,
+		allowUnprotectedTxs: allowUnprotectedTxs,
+		logger:              log.Root(),
 	}
 
 	if cfg.GPO.Default == nil {
@@ -173,10 +183,8 @@ func (b *backend) RPCTxFeeCap() float64 {
 }
 
 // UnprotectedAllowed returns whether unprotected transactions are alloweds.
-// We will consider implementing these later, But our opinion is that
-// there is no reason in 2023 not to use these.
 func (b *backend) UnprotectedAllowed() bool {
-	return false
+	return b.allowUnprotectedTxs
 }
 
 // ==============================================================================
@@ -197,10 +205,12 @@ func (b *backend) HeaderByNumber(
 	case rpc.PendingBlockNumber:
 		// TODO: handle "miner" stuff, Pending block is only known by the miner
 		block := b.polar.miner.PendingBlock()
-		if block == nil {
-			return nil, nil //nolint:nilnil // it's ok.
+		if block != nil {
+			return block.Header(), nil
 		}
-		return block.Header(), nil
+		// To improve client compatibility we return the latest state if
+		// pending is not available.
+		return b.polar.blockchain.CurrentHeader(), nil
 	case rpc.LatestBlockNumber:
 		return b.polar.blockchain.CurrentHeader(), nil
 	case rpc.FinalizedBlockNumber:
@@ -249,6 +259,14 @@ func (b *backend) BlockByNumber(
 	switch number {
 	case rpc.PendingBlockNumber:
 		block := b.polar.miner.PendingBlock()
+		if block == nil {
+			// To improve client compatibility we return the latest state if
+			// pending is not available.
+			header := b.polar.blockchain.CurrentBlock()
+			return b.polar.blockchain.GetBlock(
+				header.Hash(), header.Number.Uint64(),
+			), nil
+		}
 		return block, nil
 	// Otherwise resolve and return the block
 	case rpc.LatestBlockNumber:
@@ -312,14 +330,6 @@ func (b *backend) StateAndHeaderByNumber(
 	ctx context.Context,
 	number rpc.BlockNumber,
 ) (state.StateDB, *ethtypes.Header, error) {
-	// Pending state is only known by the miner
-	if number == rpc.PendingBlockNumber {
-		block, state := b.polar.miner.Pending()
-		if block == nil {
-			return nil, nil, nil
-		}
-		return state, block.Header(), nil
-	}
 	// Otherwise resolve the block number and return its state
 	header, err := b.HeaderByNumber(ctx, number)
 	if err != nil {
@@ -327,7 +337,7 @@ func (b *backend) StateAndHeaderByNumber(
 	}
 	if header == nil {
 		// to match Geth
-		return nil, nil, pcore.ErrBlockNotFound
+		return nil, nil, pcore.ErrHeaderNotFound
 	}
 	b.logger.Debug("called eth.rpc.backend.StateAndHeaderByNumber", "header", header)
 
@@ -365,6 +375,22 @@ func (b *backend) StateAndHeaderByNumberOrHash(
 		return b.StateAndHeaderByNumber(ctx, rpc.BlockNumber(header.Number.Int64()))
 	}
 	return nil, nil, errors.New("invalid arguments; neither block nor hash specified")
+}
+
+// StateAtBlock returns the state at a specific block.
+func (b *backend) StateAtBlock(ctx context.Context, block *ethtypes.Block, reexec uint64,
+	base state.StateDB, readOnly bool, preferDisk bool,
+) (state.StateDB, tracers.StateReleaseFunc, error) {
+	return b.polar.blockchain.StateAtBlock(ctx, block, reexec, base, readOnly, preferDisk)
+}
+
+// StateAtTransaction returns the state at a specific transaction.
+func (b *backend) StateAtTransaction(
+	ctx context.Context, block *ethtypes.Block,
+	txIndex int, reexec uint64,
+) (*core.Message, vm.BlockContext, state.StateDB, tracers.StateReleaseFunc, error,
+) {
+	return b.polar.blockchain.StateAtTransaction(ctx, block, txIndex, reexec)
 }
 
 // GetTransaction returns the transaction identified by `txHash`, along with
@@ -424,9 +450,10 @@ func (b *backend) GetTd(_ context.Context, hash common.Hash) *big.Int {
 }
 
 // GetEVM returns a new EVM to be used for simulating a transaction, estimating gas etc.
-func (b *backend) GetEVM(_ context.Context, msg *core.Message, state state.StateDB,
-	header *ethtypes.Header, vmConfig *vm.Config, blockCtx *vm.BlockContext,
-) (*vm.EVM, func() error) {
+func (b *backend) GetEVM(_ context.Context, msg *core.Message,
+	state state.StateDB, header *ethtypes.Header, vmConfig *vm.Config,
+	blockCtx *vm.BlockContext,
+) *vm.EVM {
 	if vmConfig == nil {
 		vmConfig = b.polar.blockchain.GetVMConfig()
 	}
@@ -440,7 +467,7 @@ func (b *backend) GetEVM(_ context.Context, msg *core.Message, state state.State
 		context = core.NewEVMBlockContext(header, b.polar.Blockchain(), &header.Coinbase)
 	}
 	return vm.NewEVM(context, txContext, state, b.polar.blockchain.Config(),
-		*vmConfig), state.Error
+		*vmConfig)
 }
 
 // GetBlockContext returns a new block context to be used by a EVM.
@@ -621,5 +648,7 @@ func (b *backend) PeerCount() hexutil.Uint {
 
 // ClientVersion returns the current client version.
 func (b *backend) ClientVersion() string {
-	return version.ClientName("polaris-geth")
+	return fmt.Sprintf(
+		"%s:%s", b.hostChainVersion, strings.ToLower(version.ClientName("polaris-geth")),
+	)
 }

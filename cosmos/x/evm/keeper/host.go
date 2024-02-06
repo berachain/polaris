@@ -33,6 +33,7 @@ import (
 	ethprecompile "github.com/berachain/polaris/eth/core/precompile"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/version"
 )
 
 // Compile-time interface assertion.
@@ -40,10 +41,11 @@ var _ core.PolarisHostChain = (*Host)(nil)
 
 type Host struct {
 	// The various plugins that are are used to implement core.PolarisHostChain.
-	bp block.Plugin
-	hp historical.Plugin
-	pp precompile.Plugin
-	sp state.Plugin
+	bp  block.Plugin
+	hp  historical.Plugin
+	pp  precompile.Plugin
+	sp  state.Plugin
+	spf *state.SPFactory
 
 	pcs func() *ethprecompile.Injector
 }
@@ -68,10 +70,11 @@ func NewHost(
 
 	// historical plugin requires block plugin.
 	h.hp = historical.NewPlugin(&cfg.Polar.Chain, h.bp, nil, storeKey)
+	h.spf = state.NewSPFactory(ak, storeKey, qc)
 	return h
 }
 
-// SetupPrecompiles intializes the precompile contracts.
+// SetupPrecompiles initializes the precompile contracts.
 func (h *Host) SetupPrecompiles() error {
 	// Set the query context function for the block and state plugins
 	pcs := h.pcs().GetPrecompiles()
@@ -81,6 +84,7 @@ func (h *Host) SetupPrecompiles() error {
 	}
 
 	h.sp.SetPrecompileLogFactory(pclog.NewFactory(pcs))
+	h.spf.SetPrecompileLogFactory(pclog.NewFactory(pcs))
 	return nil
 }
 
@@ -99,12 +103,18 @@ func (h *Host) GetPrecompilePlugin() core.PrecompilePlugin {
 	return h.pp
 }
 
-// GetStatePlugin returns the state plugin.
-func (h *Host) GetStatePlugin() core.StatePlugin {
-	return h.sp
+func (h *Host) GetStatePluginFactory() core.StatePluginFactory {
+	return h.spf
 }
 
 // GetAllPlugins returns all the plugins.
 func (h *Host) GetAllPlugins() []any {
 	return []any{h.bp, h.hp, h.pp, h.sp}
+}
+
+// Version returns the version of the host chain.
+func (h *Host) Version() string {
+	versionInfo := version.NewInfo()
+	return versionInfo.AppName + "/" + version.Version + ":" + "cosmos/" +
+		versionInfo.CosmosSdkVersion
 }

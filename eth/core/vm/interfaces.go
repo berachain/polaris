@@ -35,4 +35,8 @@ type (
 		// GetContext returns the current context of the state plugin.
 		GetContext() context.Context
 	}
+
+	PrecompileEVM interface {
+		vm.PrecompileEVM
+	}
 )

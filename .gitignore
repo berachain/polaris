@@ -216,6 +216,7 @@ node_modules
 .next
 next-env.d.ts
 .env
+.envrc
 out
 
 # docker test
@@ -237,3 +238,5 @@ artifacts
 
 # integration testing coverage
 coverage-test-unit-cover.txt
+
+.direnv/

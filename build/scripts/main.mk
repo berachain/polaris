@@ -65,7 +65,7 @@ proto-build:
 # Variables
 DOCKER_TYPE ?= base
 ARCH ?= arm64
-GO_VERSION ?= 1.21.3
+GO_VERSION ?= 1.21.6
 IMAGE_NAME ?= polard
 IMAGE_VERSION ?= v0.0.0
 BASE_IMAGE ?= polard/base:$(IMAGE_VERSION)
@@ -289,7 +289,7 @@ format:
 	@$(MAKE) license-fix buf-lint-fix forge-lint-fix golangci-fix
 
 lint:
-	@$(MAKE) license buf-lint forge-lint golangci gosec
+	@$(MAKE) license forge-lint golangci gosec
 
 
 #################
@@ -370,7 +370,9 @@ protoDir := "proto"
 
 buf-install:
 	@echo "--> Installing buf"
-	@go install github.com/bufbuild/buf/cmd/buf
+	@if [ "$(shell uname)" = "Darwin" ]; then \
+		brew install bufbuild/buf/buf; \
+	fi
 
 buf-lint-fix:
 	@$(MAKE) buf-install 

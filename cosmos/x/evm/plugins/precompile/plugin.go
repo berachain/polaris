@@ -23,6 +23,7 @@ package precompile
 import (
 	"fmt"
 	"math/big"
+	"time"
 
 	storetypes "cosmossdk.io/store/types"
 
@@ -35,6 +36,7 @@ import (
 	libtypes "github.com/berachain/polaris/lib/types"
 	"github.com/berachain/polaris/lib/utils"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -144,7 +146,7 @@ func (p *plugin) Run(
 	}
 
 	// make sure the readOnly is only set if we aren't in readOnly yet, which also makes sure that
-	// the readOnly flag isn't removed for child calls (taken from geth core/vm/interepreter.go)
+	// the readOnly flag isn't removed for child calls (taken from geth core/vm/interpreter.go)
 	if readOnly && !ms.IsReadOnly() {
 		cem.SetReadOnly(true)
 		ms.SetReadOnly(true)
@@ -166,16 +168,19 @@ func (p *plugin) Run(
 	gm.ConsumeGas(requiredGas, "precompile required gas")
 
 	// run the precompile container
-	ret, err = pc.Run(
-		ctx.WithGasMeter(gm).
-			WithKVGasConfig(p.kvGasConfig).
-			WithTransientKVGasConfig(p.transientKVGasConfig),
-		evm,
-		input,
-		caller,
-		value,
-	)
-	gasRemaining = gm.GasRemaining()
+	{
+		defer telemetry.MeasureSince(time.Now(), MetricKeyTime)
+		ret, err = pc.Run(
+			ctx.WithGasMeter(gm).
+				WithKVGasConfig(p.kvGasConfig).
+				WithTransientKVGasConfig(p.transientKVGasConfig),
+			evm,
+			input,
+			caller,
+			value,
+		)
+		gasRemaining = gm.GasRemaining()
+	}
 
 	return //nolint:nakedret // named returns.
 }

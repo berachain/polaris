@@ -35,12 +35,17 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/eth/filters"
+	"github.com/ethereum/go-ethereum/eth/tracers"
 	"github.com/ethereum/go-ethereum/ethapi"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/rpc"
+
+	// To ensure that tracer engines get loaded in.
+	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
+	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
 )
 
 // TODO: break out the node into a separate package and then fully use the
@@ -88,16 +93,8 @@ func New(
 	host core.PolarisHostChain,
 	engine consensus.Engine,
 	stack executionLayerNode,
-	logHandler log.Handler,
+	allowUnprotectedTxs bool,
 ) *Polaris {
-	// When creating a Polaris EVM, we allow the implementing chain
-	// to specify their own log handler. If logHandler is nil then we
-	// we use the default geth log handler.
-	if logHandler != nil {
-		// Root is a global in geth that is used by the evm to emit logs.
-		log.Root().SetHandler(logHandler)
-	}
-
 	if config.Miner.GasPrice == nil || config.Miner.GasPrice.Cmp(common.Big0) <= 0 {
 		log.Warn("Sanitizing invalid miner gas price",
 			"provided", config.Miner.GasPrice, "updated", ethconfig.Defaults.Miner.GasPrice)
@@ -116,7 +113,9 @@ func New(
 	}
 
 	// Build the backend api object.
-	pl.apiBackend = NewAPIBackend(pl, stack.ExtRPCEnabled(), pl.config)
+	pl.apiBackend = NewAPIBackend(
+		pl, stack.ExtRPCEnabled(), allowUnprotectedTxs, pl.config, host.Version(),
+	)
 
 	// Run safety message for feedback to the user if they are running
 	// with development configs.
@@ -142,6 +141,10 @@ func New(
 		&pl.config.Chain, stack.EventMux(), pl.engine,
 		func(header *ethtypes.Header) bool { return true },
 	)
+
+	if err = pl.miner.SetExtra(pl.config.Miner.ExtraData); err != nil {
+		panic(err)
+	}
 
 	// Register the backend on the node
 	stack.RegisterAPIs(pl.APIs())
@@ -178,7 +181,15 @@ func (pl *Polaris) APIs() []rpc.API {
 		},
 		{
 			Namespace: "web3",
-			Service:   polarapi.NewWeb3API(pl.apiBackend),
+			Service: polarapi.NewWeb3API(
+				pl.apiBackend,
+			),
+		},
+		{
+			// NOTE: endpoints that require tracing "bad blocks" are currently not supported
+			// (debug_traceBadBlock, debug_intermediateRoots, debug_standardTraceBadBlockToFile)
+			Namespace: "debug",
+			Service:   tracers.NewAPI(pl.apiBackend),
 		},
 	}...)
 }
@@ -216,4 +227,8 @@ func (pl *Polaris) MinerChain() miner.BlockChain {
 // Blockchain returns the blockchain.
 func (pl *Polaris) Blockchain() core.Blockchain {
 	return pl.blockchain
+}
+
+func (pl *Polaris) APIBackend() APIBackend {
+	return pl.apiBackend
 }

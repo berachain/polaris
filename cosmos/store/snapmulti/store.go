@@ -21,6 +21,8 @@
 package snapmulti
 
 import (
+	"time"
+
 	"cosmossdk.io/store/cachekv"
 	storetypes "cosmossdk.io/store/types"
 
@@ -28,6 +30,8 @@ import (
 	"github.com/berachain/polaris/lib/ds"
 	"github.com/berachain/polaris/lib/ds/stack"
 	"github.com/berachain/polaris/lib/utils"
+
+	"github.com/cosmos/cosmos-sdk/telemetry"
 )
 
 const (
@@ -109,6 +113,9 @@ func (s *store) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
 
 // Snapshot implements `libtypes.Snapshottable`.
 func (s *store) Snapshot() int {
+	defer telemetry.MeasureSince(time.Now(), MetricKeySnapshot)
+	defer telemetry.SetGauge(float32(s.journal.Size()), MetricKeySnapshotSize)
+
 	var cms mapMultiStore
 	if cms = s.journal.Peek(); cms == nil {
 		// use root if the journal is empty
@@ -128,6 +135,8 @@ func (s *store) Snapshot() int {
 // Revert implements `libtypes.Snapshottable`.
 func (s *store) RevertToSnapshot(id int) {
 	// id is the new size of the journal we want to maintain.
+	defer telemetry.MeasureSince(time.Now(), MetricKeyRevertToSnapshot)
+	defer telemetry.SetGauge(float32(s.journal.Size()-id), MetricKeyRevertToSnapshotSize)
 	s.journal.PopToSize(id)
 }
 
@@ -137,6 +146,9 @@ func (s *store) RevertToSnapshot(id int) {
 //
 // Finalize implements `libtypes.Controllable`.
 func (s *store) Finalize() {
+	defer telemetry.MeasureSince(time.Now(), MetricKeyFinalize)
+	defer telemetry.SetGauge(float32(s.journal.Size()), MetricKeyFinalizeSize)
+
 	// Recursively pop the journal and write each cachekv store to its parent cachekv store.
 	for revision := s.journal.Pop(); revision != nil; revision = s.journal.Pop() {
 		for key, cacheKVStore := range revision {

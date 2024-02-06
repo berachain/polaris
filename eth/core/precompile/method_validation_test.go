@@ -62,6 +62,15 @@ var _ = Describe("Method", func() {
 	})
 
 	Context("validateArg", func() {
+		It("should error when array and scalar mismatch", func() {
+			sliceA := []uint64{0}
+			sliceB := uint64(0)
+			Expect(validateArg(
+				reflect.ValueOf(sliceA),
+				reflect.ValueOf(sliceB)).Error()).To(Equal(
+				"type mismatch: []uint64 != uint64",
+			))
+		})
 		It("should error when struct fields aren't the same", func() {
 			sliceA := []mockStruct{}
 			sliceB := []mockStructBad{}

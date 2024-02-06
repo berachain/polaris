@@ -116,7 +116,7 @@ func (c *Contract) GetAllBalances(
 	return cosmlib.SdkCoinsToEvmCoins(res.Balances), nil
 }
 
-// GetSpendableBalanceByDenom implements `getSpendableBalanceByDenom(address,string)` method.
+// GetSpendableBalance implements `getSpendableBalanceByDenom(address,string)` method.
 func (c *Contract) GetSpendableBalance(
 	ctx context.Context,
 	accountAddress common.Address,
@@ -139,7 +139,7 @@ func (c *Contract) GetSpendableBalance(
 	return balance.BigInt(), nil
 }
 
-// GetSpendableBalances implements `getAllSpendableBalances(address)` method.
+// GetAllSpendableBalances implements `getAllSpendableBalances(address)` method.
 func (c *Contract) GetAllSpendableBalances(
 	ctx context.Context,
 	accountAddress common.Address,
@@ -159,7 +159,7 @@ func (c *Contract) GetAllSpendableBalances(
 	return cosmlib.SdkCoinsToEvmCoins(res.Balances), nil
 }
 
-// GetSupplyOf implements `getSupply(string)` method.
+// GetSupply implements `getSupply(string)` method.
 func (c *Contract) GetSupply(
 	ctx context.Context,
 	denom string,
@@ -175,7 +175,7 @@ func (c *Contract) GetSupply(
 	return supply.BigInt(), nil
 }
 
-// GetTotalSupply implements `getAllSupply()` method.
+// GetAllSupply implements `getAllSupply()` method.
 func (c *Contract) GetAllSupply(
 	ctx context.Context,
 ) ([]lib.CosmosCoin, error) {

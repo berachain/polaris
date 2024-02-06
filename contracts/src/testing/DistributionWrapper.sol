@@ -32,7 +32,6 @@ import {ERC20} from "../../lib/ERC20.sol";
 /**
  * @dev This contract is an example helper for calling the distribution precompile from another contract.
  */
-
 contract DistributionWrapper {
     // State
     IDistributionModule public distribution;
@@ -60,8 +59,8 @@ contract DistributionWrapper {
     }
 
     /**
-     * @dev Withdraw the rewrads accumulated by the caller(msg.sender).
-     * @param _withdrawAddress The address of the delegator.
+     * @dev The caller (msg.sender) can set the address that will receive the delegation rewards.
+     * @param _withdrawAddress The address to set as the withdraw address.
      */
     function setWithdrawAddress(address _withdrawAddress) external returns (bool) {
         return distribution.setWithdrawAddress(_withdrawAddress);
@@ -77,7 +76,7 @@ contract DistributionWrapper {
     }
 
     /**
-     * @dev Withdraw the rewrads accumulated by the caller(msg.sender).
+     * @dev msg.sender delegates the `msg.value` of tokens to `_validator`
      * @param _validator The address of the validator.
      */
     function delegate(address _validator) external payable {

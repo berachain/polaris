@@ -67,11 +67,11 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			GetNonceFunc: func(address common.Address) uint64 {
 //				panic("mock out the GetNonce method")
 //			},
+//			GetOverridenStateFunc: func() core.StatePlugin {
+//				panic("mock out the GetOverridenState method")
+//			},
 //			GetStateFunc: func(address common.Address, hash common.Hash) common.Hash {
 //				panic("mock out the GetState method")
-//			},
-//			PrepareFunc: func(contextMoqParam context.Context)  {
-//				panic("mock out the Prepare method")
 //			},
 //			RegistryKeyFunc: func() string {
 //				panic("mock out the RegistryKey method")
@@ -93,6 +93,9 @@ var _ core.StatePlugin = &StatePluginMock{}
 //			},
 //			SetStateFunc: func(address common.Address, hash1 common.Hash, hash2 common.Hash)  {
 //				panic("mock out the SetState method")
+//			},
+//			SetStateOverrideFunc: func(ctx context.Context)  {
+//				panic("mock out the SetStateOverride method")
 //			},
 //			SetStorageFunc: func(addr common.Address, storage map[common.Hash]common.Hash)  {
 //				panic("mock out the SetStorage method")
@@ -158,11 +161,11 @@ type StatePluginMock struct {
 	// GetNonceFunc mocks the GetNonce method.
 	GetNonceFunc func(address common.Address) uint64
 
+	// GetOverridenStateFunc mocks the GetOverridenState method.
+	GetOverridenStateFunc func() core.StatePlugin
+
 	// GetStateFunc mocks the GetState method.
 	GetStateFunc func(address common.Address, hash common.Hash) common.Hash
-
-	// PrepareFunc mocks the Prepare method.
-	PrepareFunc func(contextMoqParam context.Context)
 
 	// RegistryKeyFunc mocks the RegistryKey method.
 	RegistryKeyFunc func() string
@@ -184,6 +187,9 @@ type StatePluginMock struct {
 
 	// SetStateFunc mocks the SetState method.
 	SetStateFunc func(address common.Address, hash1 common.Hash, hash2 common.Hash)
+
+	// SetStateOverrideFunc mocks the SetStateOverride method.
+	SetStateOverrideFunc func(ctx context.Context)
 
 	// SetStorageFunc mocks the SetStorage method.
 	SetStorageFunc func(addr common.Address, storage map[common.Hash]common.Hash)
@@ -272,17 +278,15 @@ type StatePluginMock struct {
 			// Address is the address argument value.
 			Address common.Address
 		}
+		// GetOverridenState holds details about calls to the GetOverridenState method.
+		GetOverridenState []struct {
+		}
 		// GetState holds details about calls to the GetState method.
 		GetState []struct {
 			// Address is the address argument value.
 			Address common.Address
 			// Hash is the hash argument value.
 			Hash common.Hash
-		}
-		// Prepare holds details about calls to the Prepare method.
-		Prepare []struct {
-			// ContextMoqParam is the contextMoqParam argument value.
-			ContextMoqParam context.Context
 		}
 		// RegistryKey holds details about calls to the RegistryKey method.
 		RegistryKey []struct {
@@ -327,6 +331,11 @@ type StatePluginMock struct {
 			// Hash2 is the hash2 argument value.
 			Hash2 common.Hash
 		}
+		// SetStateOverride holds details about calls to the SetStateOverride method.
+		SetStateOverride []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+		}
 		// SetStorage holds details about calls to the SetStorage method.
 		SetStorage []struct {
 			// Addr is the addr argument value.
@@ -365,8 +374,8 @@ type StatePluginMock struct {
 	lockGetCommittedState  sync.RWMutex
 	lockGetContext         sync.RWMutex
 	lockGetNonce           sync.RWMutex
+	lockGetOverridenState  sync.RWMutex
 	lockGetState           sync.RWMutex
-	lockPrepare            sync.RWMutex
 	lockRegistryKey        sync.RWMutex
 	lockReset              sync.RWMutex
 	lockRevertToSnapshot   sync.RWMutex
@@ -374,6 +383,7 @@ type StatePluginMock struct {
 	lockSetCode            sync.RWMutex
 	lockSetNonce           sync.RWMutex
 	lockSetState           sync.RWMutex
+	lockSetStateOverride   sync.RWMutex
 	lockSetStorage         sync.RWMutex
 	lockSnapshot           sync.RWMutex
 	lockStateAtBlockNumber sync.RWMutex
@@ -852,6 +862,33 @@ func (mock *StatePluginMock) GetNonceCalls() []struct {
 	return calls
 }
 
+// GetOverridenState calls GetOverridenStateFunc.
+func (mock *StatePluginMock) GetOverridenState() core.StatePlugin {
+	if mock.GetOverridenStateFunc == nil {
+		panic("StatePluginMock.GetOverridenStateFunc: method is nil but StatePlugin.GetOverridenState was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockGetOverridenState.Lock()
+	mock.calls.GetOverridenState = append(mock.calls.GetOverridenState, callInfo)
+	mock.lockGetOverridenState.Unlock()
+	return mock.GetOverridenStateFunc()
+}
+
+// GetOverridenStateCalls gets all the calls that were made to GetOverridenState.
+// Check the length with:
+//
+//	len(mockedStatePlugin.GetOverridenStateCalls())
+func (mock *StatePluginMock) GetOverridenStateCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockGetOverridenState.RLock()
+	calls = mock.calls.GetOverridenState
+	mock.lockGetOverridenState.RUnlock()
+	return calls
+}
+
 // GetState calls GetStateFunc.
 func (mock *StatePluginMock) GetState(address common.Address, hash common.Hash) common.Hash {
 	if mock.GetStateFunc == nil {
@@ -885,38 +922,6 @@ func (mock *StatePluginMock) GetStateCalls() []struct {
 	mock.lockGetState.RLock()
 	calls = mock.calls.GetState
 	mock.lockGetState.RUnlock()
-	return calls
-}
-
-// Prepare calls PrepareFunc.
-func (mock *StatePluginMock) Prepare(contextMoqParam context.Context) {
-	if mock.PrepareFunc == nil {
-		panic("StatePluginMock.PrepareFunc: method is nil but StatePlugin.Prepare was just called")
-	}
-	callInfo := struct {
-		ContextMoqParam context.Context
-	}{
-		ContextMoqParam: contextMoqParam,
-	}
-	mock.lockPrepare.Lock()
-	mock.calls.Prepare = append(mock.calls.Prepare, callInfo)
-	mock.lockPrepare.Unlock()
-	mock.PrepareFunc(contextMoqParam)
-}
-
-// PrepareCalls gets all the calls that were made to Prepare.
-// Check the length with:
-//
-//	len(mockedStatePlugin.PrepareCalls())
-func (mock *StatePluginMock) PrepareCalls() []struct {
-	ContextMoqParam context.Context
-} {
-	var calls []struct {
-		ContextMoqParam context.Context
-	}
-	mock.lockPrepare.RLock()
-	calls = mock.calls.Prepare
-	mock.lockPrepare.RUnlock()
 	return calls
 }
 
@@ -1156,6 +1161,38 @@ func (mock *StatePluginMock) SetStateCalls() []struct {
 	mock.lockSetState.RLock()
 	calls = mock.calls.SetState
 	mock.lockSetState.RUnlock()
+	return calls
+}
+
+// SetStateOverride calls SetStateOverrideFunc.
+func (mock *StatePluginMock) SetStateOverride(ctx context.Context) {
+	if mock.SetStateOverrideFunc == nil {
+		panic("StatePluginMock.SetStateOverrideFunc: method is nil but StatePlugin.SetStateOverride was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
+	mock.lockSetStateOverride.Lock()
+	mock.calls.SetStateOverride = append(mock.calls.SetStateOverride, callInfo)
+	mock.lockSetStateOverride.Unlock()
+	mock.SetStateOverrideFunc(ctx)
+}
+
+// SetStateOverrideCalls gets all the calls that were made to SetStateOverride.
+// Check the length with:
+//
+//	len(mockedStatePlugin.SetStateOverrideCalls())
+func (mock *StatePluginMock) SetStateOverrideCalls() []struct {
+	Ctx context.Context
+} {
+	var calls []struct {
+		Ctx context.Context
+	}
+	mock.lockSetStateOverride.RLock()
+	calls = mock.calls.SetStateOverride
+	mock.lockSetStateOverride.RUnlock()
 	return calls
 }
 

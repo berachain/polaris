@@ -6,7 +6,7 @@ package mock
 import (
 	"github.com/berachain/polaris/cosmos/x/evm/plugins/state/events"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"sync"
 )
 
@@ -20,7 +20,7 @@ var _ events.PrecompileLogFactory = &PrecompileLogFactoryMock{}
 //
 //		// make and configure a mocked events.PrecompileLogFactory
 //		mockedPrecompileLogFactory := &PrecompileLogFactoryMock{
-//			BuildFunc: func(event *sdk.Event) (*types.Log, error) {
+//			BuildFunc: func(event *sdk.Event) (*ethtypes.Log, error) {
 //				panic("mock out the Build method")
 //			},
 //		}
@@ -31,7 +31,7 @@ var _ events.PrecompileLogFactory = &PrecompileLogFactoryMock{}
 //	}
 type PrecompileLogFactoryMock struct {
 	// BuildFunc mocks the Build method.
-	BuildFunc func(event *sdk.Event) (*types.Log, error)
+	BuildFunc func(event *sdk.Event) (*ethtypes.Log, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -45,7 +45,7 @@ type PrecompileLogFactoryMock struct {
 }
 
 // Build calls BuildFunc.
-func (mock *PrecompileLogFactoryMock) Build(event *sdk.Event) (*types.Log, error) {
+func (mock *PrecompileLogFactoryMock) Build(event *sdk.Event) (*ethtypes.Log, error) {
 	if mock.BuildFunc == nil {
 		panic("PrecompileLogFactoryMock.BuildFunc: method is nil but PrecompileLogFactory.Build was just called")
 	}

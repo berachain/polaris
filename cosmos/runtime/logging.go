@@ -21,26 +21,76 @@
 package runtime
 
 import (
-	"cosmossdk.io/log"
+	"context"
 
-	ethlog "github.com/ethereum/go-ethereum/log"
+	"golang.org/x/exp/slog"
+
+	"cosmossdk.io/log"
 )
 
-// LoggerFuncHandler injects the cosmos-sdk logger into geth.
-func LoggerFuncHandler(logger log.Logger) ethlog.Handler {
-	return ethlog.FuncHandler(func(r *ethlog.Record) error {
-		polarisGethLogger := logger.With("module", "polaris-geth")
-		switch r.Lvl { //nolint:nolintlint,exhaustive // linter is bugged.
-		case ethlog.LvlTrace:
-		case ethlog.LvlDebug:
-			polarisGethLogger.Debug(r.Msg, r.Ctx...)
-		case ethlog.LvlInfo:
-			polarisGethLogger.Info(r.Msg, r.Ctx...)
-		case ethlog.LvlWarn:
-		case ethlog.LvlCrit:
-		case ethlog.LvlError:
-			polarisGethLogger.Error(r.Msg, r.Ctx...)
-		}
-		return nil
+// ethHandler implements the slog.Handler interface.
+// It is used to handle logging for the Ethereum module.
+var _ slog.Handler = (*ethHandler)(nil)
+
+// ethHandler is a struct that contains a logger.
+type ethHandler struct {
+	logger log.Logger
+}
+
+// newEthHandler is a constructor function for ethHandler.
+// It takes a logger as an argument and returns a slog.Handler.
+func newEthHandler(_logger log.Logger) slog.Handler {
+	return &ethHandler{logger: _logger}
+}
+
+// With is a method on ethHandler that returns a new ethHandler with
+// additional context.
+func (h *ethHandler) With(ctx ...interface{}) slog.Handler {
+	return &ethHandler{logger: h.logger.With(ctx...)}
+}
+
+// Handle is a method on ethHandler that logs a message at the
+// appropriate level with context key/value pairs.
+func (h *ethHandler) Handle(_ context.Context, r slog.Record) error {
+	polarisGethHandler := h.logger.With("module", "polaris-geth")
+	x := r.NumAttrs()
+	attrs := make([]interface{}, 0, x*2) //nolint:gomnd // 2 times.
+	r.Attrs(func(a slog.Attr) bool {
+		attrs = append(attrs, a.Key)
+		attrs = append(attrs, a.Value)
+		x--
+		return x != -1
 	})
+	switch r.Level { //nolint:nolintlint,exhaustive // linter is bugged.
+	case slog.LevelDebug:
+		polarisGethHandler.Debug(r.Message, attrs...)
+	case slog.LevelInfo:
+		polarisGethHandler.Info(r.Message, attrs...)
+	case slog.LevelWarn:
+		polarisGethHandler.Error(r.Message, attrs...)
+	case slog.LevelError:
+		polarisGethHandler.Error(r.Message, attrs...)
+	}
+	return nil
+}
+
+// WithAttrs is a method on ethHandler that returns a new ethHandler with
+// additional context provided by a set of slog.Attr.
+func (h *ethHandler) WithAttrs(as []slog.Attr) slog.Handler {
+	newLogger := h.logger
+	for _, a := range as {
+		newLogger = newLogger.With(a.Key, a.Value)
+	}
+	return &ethHandler{logger: newLogger}
+}
+
+// WithGroup is a method on ethHandler that returns a new ethHandler with
+// additional context provided by a group name.
+func (h *ethHandler) WithGroup(name string) slog.Handler {
+	return h.WithAttrs([]slog.Attr{{Key: "group", Value: slog.StringValue(name)}})
+}
+
+// Enabled reports whether l emits log records at the given context and level.
+func (*ethHandler) Enabled(_ context.Context, _ slog.Level) bool {
+	return true
 }

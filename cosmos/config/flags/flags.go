@@ -21,6 +21,8 @@
 package flags
 
 const (
+	OptimisticExecution = "polaris.optimistic-execution"
+
 	// Polar Root.
 	RPCEvmTimeout = "polaris.polar.rpc-evm-timeout"
 	RPCTxFeeCap   = "polaris.polar.rpc-tx-fee-cap"
@@ -120,5 +122,4 @@ const (
 	VerkleTime                    = "polaris.polar.chain.verkle-time"
 	TerminalTotalDifficulty       = "polaris.polar.chain.terminal-total-difficulty"
 	TerminalTotalDifficultyPassed = "polaris.polar.chain.terminal-total-difficulty-passed"
-	IsDevMode                     = "polaris.polar.chain.is-dev-mode"
 )

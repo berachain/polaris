@@ -28,6 +28,7 @@ const (
 ###############################################################################
 # General Polaris settings
 [polaris]
+optimistic-execution = {{ .Polaris.OptimisticExecution }}
 
 [polaris.polar]
 # Gas cap for RPC requests
@@ -38,7 +39,6 @@ rpc-evm-timeout = "{{ .Polaris.Polar.RPCEVMTimeout }}"
 
 # Transaction fee cap for RPC requests
 rpc-tx-fee-cap = "{{ .Polaris.Polar.RPCTxFeeCap }}"
-
 
 # Chain config
 [polaris.polar.chain] 
@@ -109,9 +109,6 @@ terminal-total-difficulty = "{{ .Polaris.Polar.Chain.TerminalTotalDifficulty }}"
 
 # Whether terminal total difficulty has passed
 terminal-total-difficulty-passed = "{{ .Polaris.Polar.Chain.TerminalTotalDifficultyPassed }}"
-
-# DevMode enabled
-is-dev-mode = {{ .Polaris.Polar.Chain.IsDevMode }}
 
 
 # Miner config
