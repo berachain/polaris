@@ -120,4 +120,4 @@ DA_BLOCK_HEIGHT=$(curl http://0.0.0.0:26657/block | jq -r '.result.block.header.
 echo $DA_BLOCK_HEIGHT
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-./build/bin/polard start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --api.swagger --minimum-gas-prices=0.0001abera --home "$HOMEDIR" --rollkit.aggregator true --rollkit.da_start_height $DA_BLOCK_HEIGHT
+./build/bin/polard start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --api.swagger --minimum-gas-prices=0.0001abera --home "$HOMEDIR" --rollkit.aggregator true --rollkit.da_start_height $DA_BLOCK_HEIGHT --rollkit.da_block_time 2s
