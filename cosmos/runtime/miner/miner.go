@@ -102,7 +102,7 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 		err         error
 		payload     *miner.Payload
 		sCtx        = sdk.UnwrapSDKContext(ctx)
-		payloadArgs = m.constructPayloadArgs(uint64(sCtx.BlockTime().Unix()))
+		payloadArgs = m.constructPayloadArgs(uint64(sCtx.BlockTime().UnixNano()))
 	)
 
 	// Set the mining context for geth to build the payload with.
