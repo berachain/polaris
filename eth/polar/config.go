@@ -41,15 +41,15 @@ const (
 
 	// developmentCoinbase is the address used for development.
 	// DO NOT USE IN PRODUCTION.
-	// 0xf8637fa70e8e329ecb8463b788d96914f8cfe191d15ae36f161227629e3f5693.
-	developmentCoinbase = "0xAf15f95bed0D3913a29092Fd7837451Ce4de64D3"
+	// 0000000000000000000000000000000000000000000000000000000000000001.
+	developmentCoinbase = "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
 )
 
 // DefaultConfig returns the default JSON-RPC config.
 func DefaultConfig() *Config {
 	gpoConfig := ethconfig.FullNodeGPO
 	gpoConfig.Default = big.NewInt(gpoDefault)
-	gpoConfig.MaxPrice = big.NewInt(ethparams.GWei * 10000) //nolint:gomnd // default.
+	gpoConfig.MaxPrice = big.NewInt(ethparams.GWei * 21000) //nolint:gomnd // default.
 	minerCfg := miner.DefaultConfig
 	minerCfg.Etherbase = common.HexToAddress(developmentCoinbase)
 	minerCfg.GasPrice = big.NewInt(1)
