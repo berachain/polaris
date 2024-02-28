@@ -41,8 +41,8 @@ const (
 
 	// developmentCoinbase is the address used for development.
 	// DO NOT USE IN PRODUCTION.
-	// 0000000000000000000000000000000000000000000000000000000000000001.
-	developmentCoinbase = "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+	// "0xaaaabbbbccccddddeeeeffff111122223333444455556666777788889999abcd".
+	// developmentCoinbase = "0x897b0bC95eF3Dea47763f62455Db24985b9d6A35"
 )
 
 // DefaultConfig returns the default JSON-RPC config.
