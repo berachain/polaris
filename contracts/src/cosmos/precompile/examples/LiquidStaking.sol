@@ -34,7 +34,7 @@ import {Cosmos} from "../../CosmosTypes.sol";
  * and receive a liquid staking token in return. The liquid staking token can be redeemed for Base
  * Denom at any time.
  * Note: This is an example of how to delegate Base Denom to a validator.
- * Doing it this way is unsafe since the user can delegate more straight through precomile.
+ * Doing it this way is unsafe since the user can delegate more straight through precompile.
  * And withdraw via the precompile.
  */
 contract LiquidStaking is ERC20 {
