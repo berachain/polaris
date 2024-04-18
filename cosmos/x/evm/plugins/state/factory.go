@@ -65,8 +65,10 @@ func NewSPFactory(
 	}
 }
 
-// NewPluginFromContext creates a new Plugin instance using the current SPFactory's
-// configuration and the provided context.
+// NewPluginWithMode creates a new StatePlugin instance using the provided context.
+// It initializes the plugin with the current SPFactory's account keeper, store key,
+// query function, and precompile log factory, then resets the plugin's context to the
+// one provided.
 func (spf *SPFactory) NewPluginWithMode(mode state.Mode) core.StatePlugin {
 	p := NewPlugin(spf.ak, spf.storeKey, spf.qfn, spf.plf)
 	switch mode {
@@ -86,10 +88,8 @@ func (spf *SPFactory) NewPluginWithMode(mode state.Mode) core.StatePlugin {
 	return p
 }
 
-// NewPluginWithContext creates a new StatePlugin instance using the provided context.
-// It initializes the plugin with the current SPFactory's account keeper, store key,
-// query function, and precompile log factory, then resets the plugin's context to the
-// one provided.
+// NewPluginFromContext creates a new Plugin instance using the current SPFactory's
+// configuration and the provided context.
 func (spf *SPFactory) NewPluginFromContext(ctx context.Context) core.StatePlugin {
 	p := NewPlugin(spf.ak, spf.storeKey, spf.qfn, spf.plf)
 	p.Reset(ctx)
@@ -121,7 +121,7 @@ func (spf *SPFactory) SetGenesisContext(ctx context.Context) {
 	spf.genesisContext = sdk.UnwrapSDKContext(ctx)
 }
 
-// SetMiningContext updates the SPFactory's minerBuildContext to the provided context.
+// SetLatestMiningContext updates the SPFactory's minerBuildContext to the provided context.
 func (spf *SPFactory) SetLatestMiningContext(ctx context.Context) {
 	spf.minerBuildContext = sdk.UnwrapSDKContext(ctx)
 }
