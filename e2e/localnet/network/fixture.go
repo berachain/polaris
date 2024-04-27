@@ -50,7 +50,7 @@ type FixtureConfig struct {
 
 	containerName string
 	httpAddress   string
-	wsAdddress    string
+	wsAddress    string
 	goVersion     string
 }
 
@@ -63,7 +63,7 @@ func NewFixtureConfig(
 	localnetImage,
 	containerName,
 	httpAddress,
-	wsAdddress,
+	wsAddress,
 	goVersion string,
 ) *FixtureConfig {
 	// Get file path of the caller of NewFixtureConfig.
@@ -81,7 +81,7 @@ func NewFixtureConfig(
 		localnetImage: localnetImage,
 		containerName: containerName,
 		httpAddress:   httpAddress,
-		wsAdddress:    wsAdddress,
+		wsAddress:    wsAddress,
 		goVersion:     goVersion,
 	}
 }
@@ -113,7 +113,7 @@ func NewTestFixture(t ginkgo.FullGinkgoTInterface, config *FixtureConfig) *TestF
 		localnetImage[1],
 		config.containerName,
 		config.httpAddress,
-		config.wsAdddress,
+		config.wsAddress,
 		[]string{
 			"GO_VERSION=" + config.goVersion,
 			"BASE_IMAGE=" + config.baseImage,
