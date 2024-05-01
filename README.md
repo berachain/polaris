@@ -78,7 +78,7 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 2. Install Foundry:
 
    ```sh
-   curl -L https://foundry.paradigm.xyz | bash
+   curl -L https://foundry.paradigm.xyz | bash && foundryup
    ```
 
 3. Clone, Setup and Test:
