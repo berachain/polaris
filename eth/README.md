@@ -7,7 +7,6 @@ shows how Polaris Ethereum integrates into the application level of a host chain
 
 ![polaris_architecture.png](https://polaris.berachain.dev/_next/static/media/polaris_architecture.18a04418.png)
 
-
 ## api
 
 `api` includes the public Chain API that Polaris Ethereum exports.
