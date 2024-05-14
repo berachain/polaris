@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout polaris
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: polaris
       - name: Install Foundry
@@ -23,7 +23,7 @@ jobs:
           cd polaris
           forge doc
       - name: Checkout docs-monorepo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: berachain/docs-monorepo
           token: ${{ secrets.DOCS_TOKEN }}
