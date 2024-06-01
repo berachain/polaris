@@ -132,8 +132,13 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 
 	// Build Payload.
 	if payload, err = m.miner.BuildPayload(m.constructPayloadArgs(ts)); err != nil {
-		sCtx.Logger().Error("failed to build payload", "err", err)
-		return err
+		sCtx.Logger().Error("failed to build payload retrying...", "err", err)
+		if payload, err = m.miner.BuildPayload(m.constructPayloadArgs(
+			uint64(time.Now().Unix()))); err != nil {
+			sCtx.Logger().Error("failed to build payload", "err", err)
+			return err
+		}
+
 	}
 	m.currentPayload = payload
 	sCtx.Logger().Info("submitted payload for building")
