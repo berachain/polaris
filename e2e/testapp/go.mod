@@ -26,7 +26,7 @@ require (
 	cosmossdk.io/x/upgrade v0.0.0-20231103111158-e83a20081ced
 	github.com/berachain/polaris/cosmos v0.1.6-alpha
 	github.com/berachain/polaris/eth v0.1.6-alpha
-	github.com/cometbft/cometbft v0.38.7
+	github.com/cometbft/cometbft v0.38.8-0.20240527104925-a38dbb2eef72
 	github.com/cosmos/cosmos-db v1.0.2
 	github.com/cosmos/cosmos-sdk v0.50.6
 	github.com/onsi/ginkgo/v2 v2.14.0
@@ -165,6 +165,7 @@ require (
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
