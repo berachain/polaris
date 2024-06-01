@@ -39,7 +39,9 @@ func (m *Miner) PrepareProposal(
 	)
 
 	// Trigger the geth miner to build a block.
-	if payloadEnvelopeBz, ethGasUsed, err = m.buildBlock(ctx); err != nil {
+	if payloadEnvelopeBz, ethGasUsed, err = m.buildBlock(
+		ctx, uint64(req.GetTime().Unix()),
+	); err != nil {
 		return nil, err
 	}
 

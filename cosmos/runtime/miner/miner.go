@@ -77,7 +77,7 @@ func (m *Miner) Init(serializer EnvelopeSerializer) {
 
 // buildBlock builds and submits a payload, it also waits for the txs
 // to resolve from the underlying worker.
-func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
+func (m *Miner) buildBlock(ctx sdk.Context, payloadTimestamp uint64) ([]byte, uint64, error) {
 	defer m.clearPayload()
 
 	// Record the time it takes to build a payload.
@@ -88,7 +88,7 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 	defer m.blockBuilderMu.Unlock()
 
 	// Submit payload for building with the given context.
-	if err := m.submitPayloadForBuilding(ctx); err != nil {
+	if err := m.submitPayloadForBuilding(ctx, payloadTimestamp); err != nil {
 		return nil, 0, err
 	}
 	env, gasUsed := m.resolveEnvelope()
@@ -97,12 +97,12 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 }
 
 // submitPayloadForBuilding submits a payload for building.
-func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
+func (m *Miner) submitPayloadForBuilding(ctx context.Context, payloadTimestamp uint64) error {
 	var (
 		err         error
 		payload     *miner.Payload
 		sCtx        = sdk.UnwrapSDKContext(ctx)
-		payloadArgs = m.constructPayloadArgs(uint64(sCtx.BlockTime().Unix()))
+		payloadArgs = m.constructPayloadArgs(payloadTimestamp)
 	)
 
 	// Set the mining context for geth to build the payload with.
