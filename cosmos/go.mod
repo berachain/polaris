@@ -10,14 +10,14 @@ replace (
 )
 
 require (
-	cosmossdk.io/api v0.7.4
+	cosmossdk.io/api v0.7.5
 	cosmossdk.io/core v0.11.0
 	cosmossdk.io/depinject v1.0.0-alpha.4
 	cosmossdk.io/log v1.3.1
 	cosmossdk.io/math v1.3.0
 	cosmossdk.io/store v1.1.0
 	cosmossdk.io/x/evidence v0.0.0-20231103111158-e83a20081ced
-	cosmossdk.io/x/tx v0.13.2
+	cosmossdk.io/x/tx v0.13.3
 	github.com/berachain/polaris/contracts v0.1.5-alpha
 	github.com/berachain/polaris/eth v0.1.6-alpha
 	github.com/berachain/polaris/lib v0.0.4-alpha
@@ -26,7 +26,7 @@ require (
 	github.com/cometbft/cometbft v0.38.8-0.20240527104925-a38dbb2eef72
 	github.com/cosmos/cosmos-db v1.0.2
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
-	github.com/cosmos/cosmos-sdk v0.50.6
+	github.com/cosmos/cosmos-sdk v0.50.7-0.20240528102556-d180df817efc
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.12
 	github.com/ethereum/go-ethereum v1.13.10
