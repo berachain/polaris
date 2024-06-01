@@ -99,18 +99,28 @@ func (m *Miner) buildBlock(ctx sdk.Context, payloadTimestamp uint64) ([]byte, ui
 // submitPayloadForBuilding submits a payload for building.
 func (m *Miner) submitPayloadForBuilding(ctx context.Context, payloadTimestamp uint64) error {
 	var (
-		err         error
-		payload     *miner.Payload
-		sCtx        = sdk.UnwrapSDKContext(ctx)
-		payloadArgs = m.constructPayloadArgs(payloadTimestamp)
+		err     error
+		payload *miner.Payload
+		sCtx    = sdk.UnwrapSDKContext(ctx)
 	)
 
 	// Set the mining context for geth to build the payload with.
 	m.bc.StatePluginFactory().SetLatestMiningContext(ctx)
 	m.bc.PrimePlugins(ctx)
 
+	// Ensure that we make progress sine the last block. This is necessary
+	// since CometBFT timestamps are based on the median of all timestamps
+	// included in the last commit, and thus it is theoretically possible due
+	// to clock skew / rounding to commit two blocks in succession with the same
+	// unix time. This will prevent the block from being built.
+	prevBlockTs := uint64(0)
+	if finalBlock := m.bc.CurrentFinalBlock(); finalBlock != nil {
+		prevBlockTs = finalBlock.Time
+	}
+	ts := max(uint64(sCtx.BlockTime().Unix()), prevBlockTs+1)
+
 	// Build Payload.
-	if payload, err = m.miner.BuildPayload(payloadArgs); err != nil {
+	if payload, err = m.miner.BuildPayload(m.constructPayloadArgs(ts)); err != nil {
 		sCtx.Logger().Error("failed to build payload", "err", err)
 		return err
 	}
