@@ -343,7 +343,7 @@ func (c *Contract) GetProposalDepositsByDepositor(
 	return deposits, nil
 }
 
-// GetProposalVotes is the method for the `getProposalVotes` method of the
+// GetProposalTallyResult is the method for the `getProposalVotes` method of the
 // governance precompile contract.
 func (c *Contract) GetProposalTallyResult(
 	ctx context.Context,
