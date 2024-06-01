@@ -120,7 +120,7 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 		// If we fail to find the previous block, we minimum of the current time
 		// and the next block time, time.Now() is always increasing, so eventually
 		// time.Now() > sCtx.BlockTime() + 1.
-		prevBlockTs = min(uint64(time.Now().Unix()))
+		prevBlockTs = min(uint64(time.Now().Unix()), uint64(sCtx.BlockTime().Unix())+1)
 	}
 
 	// Ensure that the block time is always increasing.
