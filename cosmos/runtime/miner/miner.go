@@ -114,9 +114,15 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 	// to clock skew / rounding to commit two blocks in succession with the same
 	// unix time. This will prevent the block from being built.
 	prevBlockTs := uint64(0)
-	if finalBlock := m.bc.CurrentFinalBlock(); finalBlock != nil {
-		prevBlockTs = finalBlock.Time
+	if finalBlock := m.bc.GetBlockByNumber(uint64(sCtx.BlockHeight()) - 1); finalBlock != nil {
+		prevBlockTs = finalBlock.Time()
+	} else {
+		// If we fail to find the previous block, we minimum of the current time
+		// and the next block time, time.Now() is always increasing, so eventually
+		// time.Now() > sCtx.BlockTime() + 1.
+		prevBlockTs = min(uint64(time.Now().Unix()))
 	}
+
 	ts := max(uint64(sCtx.BlockTime().Unix()), prevBlockTs+1)
 
 	// Build Payload.
