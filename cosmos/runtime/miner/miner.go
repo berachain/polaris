@@ -123,6 +123,11 @@ func (m *Miner) submitPayloadForBuilding(ctx context.Context) error {
 		prevBlockTs = min(uint64(time.Now().Unix()))
 	}
 
+	// Ensure that the block time is always increasing.
+	if prevBlockTs <= uint64(sCtx.BlockTime().Unix()) {
+		prevBlockTs = uint64(sCtx.BlockTime().Unix())
+	}
+
 	ts := max(uint64(sCtx.BlockTime().Unix()), prevBlockTs+1)
 
 	// Build Payload.
