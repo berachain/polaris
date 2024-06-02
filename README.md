@@ -53,6 +53,8 @@ If you want to help contribute to the framework, check out the [Framework Specs]
 
 ## Build & Test
 
+### Standard Development Environment
+
 [Golang 1.20+](https://go.dev/doc/install) and [Foundry](https://book.getfoundry.sh/getting-started/installation) are required for Polaris.
 
 1. Install [go 1.21+ from the official site](https://go.dev/dl/) or the method of your choice. Ensure that your `GOPATH` and `GOBIN` environment variables are properly set up by using the following commands:
@@ -96,6 +98,34 @@ If you want to help contribute to the framework, check out the [Framework Specs]
    ```sh
    make start
    ```
+
+### Nix Flakes Development Environment
+
+Polaris also supports reproducible development environments using [Nix](https://nixos.org/) with [Flakes](https://nixos.wiki/wiki/Flakes).
+
+1. Install [Nix](https://github.com/DeterminateSystems/nix-installer). We recommend the Determinate Systems installer to automatically configure your system with Flakes turned on.
+
+2. Clone, Setup and Test:
+
+   ```sh
+   cd $HOME
+   git clone https://github.com/berachain/polaris
+   cd polaris
+   git checkout main
+   nix develop
+   make test-unit
+   ```
+
+3. Start a local development network:
+
+   ```sh
+   make start
+   ```
+
+Note: If you would prefer to automatically load this environment everytime you enter the Polaris directory, you can use `direnv`:
+
+- Create a `.envrc` file with the line `use flake`
+- Run `direnv allow`
 
 ## 🚧 WARNING: UNDER CONSTRUCTION 🚧
 
