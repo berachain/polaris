@@ -124,7 +124,7 @@ func NewEmptyStatePlugin() *PluginMock {
 		},
 		SetCodeFunc: func(address common.Address, bytes []byte) {
 			if _, ok := Accounts[address]; !ok {
-				panic("acct doesnt exist")
+				panic("acct doesn't exist")
 			}
 			Accounts[address] = &Account{
 				Balance:  Accounts[address].Balance,
@@ -143,7 +143,7 @@ func NewEmptyStatePlugin() *PluginMock {
 		},
 		SubBalanceFunc: func(address common.Address, intMoqParam *big.Int) {
 			if _, ok := Accounts[address]; !ok {
-				panic("acct doesnt exist")
+				panic("acct doesn't exist")
 			}
 			Accounts[address] = &Account{
 				Balance:  Accounts[address].Balance.Sub(Accounts[address].Balance, intMoqParam),
