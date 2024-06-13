@@ -161,7 +161,7 @@ var _ = Describe("Staking", func() {
 			Expect(ok).To(BeTrue())
 
 			mockEVM = mock.NewEVM()
-			ctx = vm.NewPolarContext(sdkCtx, mockEVM, caller, big.NewInt(0))
+			ctx = vm.NewPolarContext(sdkCtx, mockEVM, common.Address{}, caller, big.NewInt(0))
 
 			validator, err = NewValidator(val, PKs[0])
 			Expect(err).ToNot(HaveOccurred())

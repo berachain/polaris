@@ -47,6 +47,7 @@ var _ context.Context = (*PolarContext)(nil)
 type PolarContext struct {
 	baseCtx   context.Context
 	evm       vm.PrecompileEVM
+	address   common.Address
 	msgSender common.Address
 	msgValue  *big.Int
 }
@@ -55,12 +56,14 @@ type PolarContext struct {
 func NewPolarContext(
 	baseCtx context.Context,
 	evm vm.PrecompileEVM,
+	address common.Address,
 	msgSender common.Address,
 	msgValue *big.Int,
 ) *PolarContext {
 	return &PolarContext{
 		baseCtx:   baseCtx,
 		evm:       evm,
+		address:   address,
 		msgSender: msgSender,
 		msgValue:  msgValue,
 	}
@@ -78,6 +81,10 @@ func (c *PolarContext) Evm() vm.PrecompileEVM {
 	return c.evm
 }
 
+func (c *PolarContext) Address() common.Address {
+	return c.address
+}
+
 func (c *PolarContext) MsgSender() common.Address {
 	return c.msgSender
 }
@@ -88,6 +95,22 @@ func (c *PolarContext) MsgValue() *big.Int {
 
 func (c *PolarContext) Block() *vm.BlockContext {
 	return c.evm.GetContext()
+}
+
+func (c *PolarContext) AddBalance(addr common.Address, amount *big.Int) {
+	c.evm.GetStateDB().AddBalance(addr, amount)
+}
+
+func (c *PolarContext) SubBalance(addr common.Address, amount *big.Int) {
+	c.evm.GetStateDB().SubBalance(addr, amount)
+}
+
+func (c *PolarContext) GetState(slot common.Hash) common.Hash {
+	return c.evm.GetStateDB().GetState(c.address, slot)
+}
+
+func (c *PolarContext) SetState(slot, value common.Hash) {
+	c.evm.GetStateDB().SetState(c.address, slot, value)
 }
 
 // =============================================================================

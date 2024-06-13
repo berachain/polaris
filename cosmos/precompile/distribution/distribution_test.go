@@ -167,6 +167,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 			pCtx := vm.NewPolarContext(
 				ctx,
 				nil,
+				common.Address{},
 				testutil.Alice,
 				big.NewInt(0),
 			)
@@ -243,6 +244,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 				pCtx := vm.NewPolarContext(
 					ctx,
 					nil,
+					common.Address{},
 					testutil.Alice,
 					big.NewInt(0),
 				)
@@ -280,6 +282,7 @@ var _ = Describe("Distribution Precompile Test", func() {
 				pCtx := vm.NewPolarContext(
 					ctx,
 					nil,
+					common.Address{},
 					testutil.Alice,
 					big.NewInt(0),
 				)

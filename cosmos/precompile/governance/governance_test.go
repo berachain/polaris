@@ -93,6 +93,7 @@ var _ = Describe("Governance Precompile", func() {
 		ctx = vm.NewPolarContext(
 			sdkCtx,
 			nil,
+			common.Address{},
 			common.BytesToAddress(caller),
 			big.NewInt(0),
 		)
@@ -140,7 +141,7 @@ var _ = Describe("Governance Precompile", func() {
 	When("submitting proposal handler", func() {
 		It("should fail if the proposal is empty", func() {
 			_, err := contract.SubmitProposal(
-				vm.NewPolarContext(sdk.Context{}, nil, common.Address{}, nil),
+				vm.NewPolarContext(sdk.Context{}, nil, common.Address{}, common.Address{}, nil),
 				generated.IGovernanceModuleMsgSubmitProposal{},
 			)
 			Expect(err).To(HaveOccurred())
