@@ -609,6 +609,82 @@ var _ = Describe("Staking", func() {
 				Expect(res[0].OperatorAddr).To(Equal(valAddr))
 			})
 		})
+
+		When("GetBondedValidatorsByPower", func() {
+			It("all validator not active", func() {
+				vals, err := contract.GetBondedValidatorsByPower(ctx)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vals).To(BeEmpty())
+			})
+			It("one validator active", func() {
+				// Set the validator to be bonded.
+				validator.Status = stakingtypes.Bonded
+				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
+
+				vals, err := contract.GetBondedValidatorsByPower(ctx)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vals).To(HaveLen(1))
+			})
+
+			It("all validator active", func() {
+				// Set the validator to be bonded.
+				validator.Status = stakingtypes.Bonded
+				Expect(sk.SetValidator(ctx, validator)).To(Succeed())
+
+				otherValidator.Status = stakingtypes.Bonded
+				Expect(sk.SetValidator(ctx, otherValidator)).To(Succeed())
+
+				vals, err := contract.GetBondedValidatorsByPower(ctx)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vals).To(HaveLen(2))
+			})
+		})
+
+		When("GetValidators", func() {
+			It("get all validator without pagination", func() {
+				vals, _, err := contract.GetValidators(ctx, nil)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vals).To(HaveLen(2))
+			})
+			It("get all validator with pagination", func() {
+				// Create a pagination request
+				pagination := cbindings.CosmosPageRequest{
+					Key:        "test",
+					Offset:     0,
+					Limit:      10,
+					CountTotal: true,
+					Reverse:    false,
+				}
+				vals, _, err := contract.GetValidators(ctx, pagination)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vals).To(HaveLen(2))
+			})
+		})
+
+		When("GetValidator", func() {
+			It("should success when valid validator", func() {
+				val, err := contract.GetValidator(ctx, valAddr)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(val.OperatorAddr).To(Equal(valAddr))
+			})
+			It("should error when invalid validator", func() {
+				_, err := contract.GetValidator(ctx, common.Address{})
+				Expect(err).To(HaveOccurred())
+			})
+		})
+
+		When("GetDelegatorValidators", func() {
+			It("should success", func() {
+				vals, _, err := contract.GetDelegatorValidators(ctx, caller, nil)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vals).To(HaveLen(1))
+			})
+			It("should error when invalid delegator", func() {
+				vals, _, err := contract.GetDelegatorValidators(ctx, common.Address{}, nil)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(vals).To(BeEmpty())
+			})
+		})
 	})
 })
 
