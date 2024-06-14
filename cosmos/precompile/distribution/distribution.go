@@ -298,7 +298,7 @@ func (c *Contract) GetTotalDelegatorReward(
 	return amount, nil
 }
 
-// ConvertValAddressFromBech32 converts a Cosmos string representing a validator address to a
+// ConvertValAddressFromString converts a Cosmos string representing a validator address to a
 // common.Address.
 func (c *Contract) ConvertValAddressFromString(attributeValue string) (any, error) {
 	// extract the sdk.ValAddress from string value as common.Address
