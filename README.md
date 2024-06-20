@@ -39,8 +39,7 @@ Polaris is built with several core principles in mind:
 ## Documentation
 
 If you want to build on top of Polaris, take a look at our [documentation](http://polaris.berachain.dev/).
-If you want to help contribute to the framework, check out the [Framework Specs](./specs/).
-
+If you want to help contribute, check out the [Contributing](https://polaris.berachain.dev/docs/contributing).
 ## Directory Structure
 
 > Polaris utilizes [go workspaces](https://go.dev/doc/tutorial/workspaces) to break up the repository into logical sections, helping to reduce cognitive overhead.
