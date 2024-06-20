@@ -175,3 +175,55 @@ jobs:
         run: make test-${{ matrix.namespace }}
         env:
           GOPATH: /home/runner/go
+
+  fuzz:
+    strategy:
+      matrix:
+        os: [polaris-linux-latest]
+        go-version: [1.21.3]
+        base-image: [localnet]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: ./polaris
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Setup Golang
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Checkout tx-fuzz
+        uses: actions/checkout@v3
+        with:
+          repository: corduroybera/tx-fuzz
+          path: ./txfuzz
+          token: ${{ secrets.CORDUROY_PAT }}
+          ref: master
+      - name: Start Node
+        shell: bash {0}
+        continue-on-error: true
+        run: |
+          cd polaris
+          forge install
+          nohup make start < /dev/null &
+
+          sleep 121
+          
+          cd ../txfuzz/cmd/livefuzzer
+          go build
+          timeout 180s ./livefuzzer spam --sk=${{secrets.SECRET_KEY}} --txtimeout=6 --blocktime=1
+
+          if [ $? -eq 124 ]; then
+            echo "Fuzz successful."
+            echo "FUZZ_SUCCESS=true" >> $GITHUB_ENV
+          else
+            echo "Error occurred while fuzzing."
+            echo "FUZZ_SUCCESS=false" >> $GITHUB_ENV
+          fi
+      - name: Check success
+        run: |
+          if [ "$FUZZ_SUCCESS" == "false" ]; then
+            exit 1
+          fi
