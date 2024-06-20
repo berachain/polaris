@@ -87,8 +87,8 @@ func (bc *blockchain) CurrentSnapBlock() *ethtypes.Header {
 	return nil
 }
 
-// GetHeadersFrom returns a contiguous segment of headers, in rlp-form, going
-// backwards from the given number.
+// CurrentFinalBlock retrieves the current finalized block of the canonical
+// chain. The block is retrieved from the blockchain's internal cache.
 func (bc *blockchain) CurrentFinalBlock() *ethtypes.Header {
 	fb, ok := utils.GetAs[*ethtypes.Block](bc.finalizedBlock.Load())
 	if fb == nil || !ok {
@@ -141,7 +141,7 @@ func (bc *blockchain) GetBlockByHash(hash common.Hash) *ethtypes.Block {
 	return block
 }
 
-// GetBlock retrieves a block from the database by hash and number, caching it if found.
+// GetBlockByNumber retrieves a block from the database by number, caching it if found.
 func (bc *blockchain) GetBlockByNumber(number uint64) *ethtypes.Block {
 	// check the block number cache
 	if block, ok := bc.blockNumCache.Get(number); ok {
@@ -178,7 +178,7 @@ func (bc *blockchain) GetBlockByNumber(number uint64) *ethtypes.Block {
 	return block
 }
 
-// GetReceipts gathers the receipts that were created in the block defined by
+// GetReceiptsByHash gathers the receipts that were created in the block defined by
 // the given hash.
 func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) ethtypes.Receipts {
 	// check the cache
@@ -216,7 +216,7 @@ func (bc *blockchain) GetReceiptsByHash(blockHash common.Hash) ethtypes.Receipts
 	return derived
 }
 
-// GetTransaction gets a transaction by hash. It also returns the block hash of the
+// GetTransactionLookup gets a transaction by hash. It also returns the block hash of the
 // block that the transaction was included in, the block number, and the index of the
 // transaction in the block. It only retrieves transactions that are included in the chain
 // and does not acquire transactions that are in the mempool.
