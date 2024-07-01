@@ -4,7 +4,7 @@ go 1.21.6
 
 require (
 	github.com/berachain/polaris/contracts v0.0.4-alpha
-	github.com/docker/docker v24.0.7+incompatible
+	github.com/docker/docker v24.0.9+incompatible
 	github.com/ethereum/go-ethereum v1.13.10
 	github.com/onsi/ginkgo/v2 v2.14.0
 	github.com/onsi/gomega v1.30.0
