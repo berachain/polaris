@@ -83,7 +83,7 @@ interface IBankModule {
      * @dev Returns the `amount` of account balance by address for a given coin denomination
      * @notice If the denomination is not found, returns 0
      */
-    function getBalance(address accountAddress, string calldata denom) external view returns (uint256);
+    function getBalance(address accountAddress, uint256 calldata denom) external view returns (uint256);
 
     /**
      * @dev Returns account balance by address for all denominations
@@ -95,7 +95,7 @@ interface IBankModule {
      * @dev Returns the `amount` of account balance by address for a given coin denomination
      * @notice If the denomination is not found, returns 0
      */
-    function getSpendableBalance(address accountAddress, string calldata denom) external view returns (uint256);
+    function getSpendableBalance(address accountAddress, uint256 calldata denom) external view returns (uint256);
 
     /**
      * @dev Returns account balance by address for all coin denominations
@@ -106,7 +106,7 @@ interface IBankModule {
     /**
      * @dev Returns the total supply of a single coin
      */
-    function getSupply(string calldata denom) external view returns (uint256);
+    function getSupply(uint256 calldata denom) external view returns (uint256);
 
     /**
      * @dev Returns the total supply of a all coins
@@ -130,8 +130,8 @@ interface IBankModule {
      * @notice this struct is generated in generated/i_bank_module.abigen.go
      */
     struct DenomUnit {
-        string denom;
-        string[] aliases;
+        uint256 denom;
+        uint256[] aliases;
         uint32 exponent;
     }
 
@@ -140,11 +140,11 @@ interface IBankModule {
      * @notice this struct is generated in generated/i_bank_module.abigen.go
      */
     struct DenomMetadata {
-        string description;
+        uint256 description;
         DenomUnit[] denomUnits;
-        string base;
-        string display;
-        string name;
-        string symbol;
+        uint256 base;
+        uint256 display;
+        uint256 name;
+        uint256 symbol;
     }
 }
